@@ -8,7 +8,7 @@ Works with android sdk 14+
 
 Add Jitpack repository to your build file:
 
-```
+```gradle
 allprojects {
     repositories {
         ...
@@ -18,7 +18,7 @@ allprojects {
 ```
 
 add this dependency to your build.gradle
-```
+```gradle
 dependencies {
     compile 'com.github.processout:android-sdk:1.0'
 }
