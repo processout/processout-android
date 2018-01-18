@@ -16,6 +16,8 @@ import com.processout.processout_sdk.POErrors;
 import com.processout.processout_sdk.ProcessOut;
 import com.processout.processout_sdk.TokenCallback;
 
+import org.json.JSONObject;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -36,22 +38,28 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        final ProcessOut p = new ProcessOut(this, "your_project_id");
+        final ProcessOut p = new ProcessOut(this, "proj_dHvuowrjviYWm7ZX0hXlb7X2yaxdgo06");
         Card c = new Card("Jeremy lejoux","4242424242424242", 11, 19, "123");
-        p.tokenize(c, new TokenCallback() {
-            @Override
-            public void onError(POErrors error) {
-                Log.e("PO", String.valueOf(error));
-            }
+        try {
+            JSONObject metadata = new JSONObject("{\"test\": \"ok\"}");
+            p.tokenize(c, metadata, new TokenCallback() {
+                @Override
+                public void onError(POErrors error) {
+                    Log.e("PO", String.valueOf(error));
+                }
 
-            @Override
-            public void onSuccess(String token)
-            {
-                // send the card token to your backend for charging
-            }
-        });
+                @Override
+                public void onSuccess(String token)
+                {
+                    Log.d("PO", token);
+                    // send the card token to your backend for charging
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        // Update a cvc when needed
+        /*// Update a cvc when needed
         p.updateCvc(new Card("card_token", "124"), new CvcUpdateCallback() {
             @Override
             public void onSuccess() {
@@ -62,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
             public void onError(POErrors error) {
                 // error
             }
-        });
+        });*/
     }
 
     @Override

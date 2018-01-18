@@ -23,10 +23,21 @@ public class ProcessOut {
     }
 
     public void tokenize(Card card, final TokenCallback callback) {
+        tokenizeBase(card, null, callback);
+    }
+
+    public void tokenize(Card card, JSONObject metadata, final TokenCallback callback) {
+        tokenizeBase(card, metadata, callback);
+    }
+
+
+    private void tokenizeBase(Card card, JSONObject metadata, final TokenCallback callback) {
         Gson gson = new Gson();
         JSONObject body = null;
         try {
             body = new JSONObject(gson.toJson(card));
+            if (metadata != null)
+                body.put("metadata", metadata);
             Network.getInstance(this.context, this.projectId).CallProcessOut("/cards", Request.Method.POST, body, new Network.NetworkResult() {
                 @Override
                 public void onError(POErrors error) {
