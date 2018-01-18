@@ -20,7 +20,7 @@ allprojects {
 add this dependency to your build.gradle
 ```
 dependencies {
-    compile 'com.github.processout:android-sdk:v1.0'
+    compile 'com.github.processout:android-sdk:1.0'
 }
 ```
 
@@ -69,6 +69,6 @@ NetworkError,
 InternalError,
 BadRequest,
 AuthorizationError,
-parseError,
+ParseError,
 ```
 
