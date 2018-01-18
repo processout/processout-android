@@ -8,7 +8,7 @@ Works with android sdk 14+
 
 Add Jitpack repository to your build file:
 
-```
+```gradle
 allprojects {
     repositories {
         ...
@@ -18,7 +18,7 @@ allprojects {
 ```
 
 add this dependency to your build.gradle
-```
+```gradle
 dependencies {
     compile 'com.github.processout:android-sdk:1.0'
 }
@@ -31,7 +31,7 @@ to charge customers.
 
 Here is how it works:
 
-```
+``` java
 final ProcessOut p = new ProcessOut(this, "your_project_id");
 Card c = new Card("Jeremy lejoux","4242424242424242", 11, 19, "123");
 p.tokenize(c, new TokenCallback() {
