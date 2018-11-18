@@ -71,7 +71,7 @@ class Network {
                                     .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                                     .create();
                             ErrorReponse resp = g.fromJson(data, ErrorReponse.class);
-                            callback.onError(new ProcessOutCardException(resp.getErrorMessage(), resp.getErrorCode()));
+                            callback.onError(new ProcessOutCardException(resp.getErrorMessage(), resp.getErrorType()));
                         } catch (UnsupportedEncodingException e) {
                             callback.onError(e);
                         }
@@ -110,26 +110,26 @@ class Network {
 }
 
 class ErrorReponse {
-    private String errorMessage;
-    private String errorCode;
+    private String message;
+    private String errorType;
 
     public ErrorReponse(String errorMessage, String errorCode) {
-        this.errorMessage = errorMessage;this.errorCode = errorCode;
+        this.message = message;this.errorType = errorType;
     }
 
     public String getErrorMessage() {
-        return errorMessage;
+        return message;
     }
 
-    public String getErrorCode() {
-        return errorCode;
+    public String getErrorType() {
+        return errorType;
     }
 
     @Override
     public String toString() {
         return "ErrorReponse{" +
-                "errorMessage='" + errorMessage + '\'' +
-                ", errorCode='" + errorCode + '\'' +
+                "message='" + message + '\'' +
+                ", errorType='" + errorType + '\'' +
                 '}';
     }
 }
