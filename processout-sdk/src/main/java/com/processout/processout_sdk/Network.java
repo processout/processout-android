@@ -16,9 +16,18 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.processout.processout_sdk.ProcessOutExceptions.ProcessOutAuthException;
+import com.processout.processout_sdk.ProcessOutExceptions.ProcessOutCardException;
+import com.processout.processout_sdk.ProcessOutExceptions.ProcessOutException;
+import com.processout.processout_sdk.ProcessOutExceptions.ProcessOutNetworkException;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,7 +46,7 @@ class Network {
     private Network() {}
 
     public interface NetworkResult {
-        void onError(POErrors error);
+        void onError(Exception error);
         void onSuccess(JSONObject json);
     }
 
@@ -51,18 +60,26 @@ class Network {
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (error instanceof TimeoutError || error instanceof NoConnectionError) {
-                    callback.onError(POErrors.NetworkError);
+                    callback.onError(new ProcessOutNetworkException("Could not connect to server"));
                 } else if (error instanceof AuthFailureError) {
-                    callback.onError(POErrors.AuthorizationError);
+                    callback.onError(new ProcessOutAuthException("Request not authorized"));
                 } else if (error instanceof ServerError) {
-                    if (error.networkResponse.statusCode < 500)
-                        callback.onError(POErrors.BadRequest);
-                    else
-                        callback.onError(POErrors.InternalError);
+                    if(error.networkResponse.data!=null) {
+                        try {
+                            String data = new String(error.networkResponse.data,"UTF-8");
+                            Gson g = new GsonBuilder()
+                                    .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                                    .create();
+                            ErrorReponse resp = g.fromJson(data, ErrorReponse.class);
+                            callback.onError(new ProcessOutCardException(resp.getErrorMessage(), resp.getErrorMessage()));
+                        } catch (UnsupportedEncodingException e) {
+                            callback.onError(e);
+                        }
+                    }
                 } else if (error instanceof NetworkError) {
-                    callback.onError(POErrors.NetworkError);
+                    callback.onError(new ProcessOutNetworkException("Could not connect to server"));
                 } else if (error instanceof ParseError) {
-                    callback.onError(POErrors.ParseError);
+                    callback.onError(new ProcessOutException("Error while parsing server response"));
                 }
             }
         }){
@@ -89,5 +106,24 @@ class Network {
         }
 
         return instance;
+    }
+}
+
+class ErrorReponse {
+    private String errorMessage;
+
+    public ErrorReponse(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    @Override
+    public String toString() {
+        return "ErrorReponse{" +
+                "errorMessage='" + errorMessage + '\'' +
+                '}';
     }
 }

@@ -12,7 +12,6 @@ import android.view.MenuItem;
 
 import com.processout.processout_sdk.Card;
 import com.processout.processout_sdk.CvcUpdateCallback;
-import com.processout.processout_sdk.POErrors;
 import com.processout.processout_sdk.ProcessOut;
 import com.processout.processout_sdk.TokenCallback;
 
@@ -39,13 +38,13 @@ public class MainActivity extends AppCompatActivity {
 
 
         final ProcessOut p = new ProcessOut(this, "proj_dHvuowrjviYWm7ZX0hXlb7X2yaxdgo06");
-        Card c = new Card("Jeremy lejoux","4242424242424242", 11, 19, "123");
+        Card c = new Card("Jeremy lejoux","4242424242424241", 11, 19, "123");
         try {
             JSONObject metadata = new JSONObject("{\"test\": \"ok\"}");
-            p.tokenize(c, metadata, new TokenCallback() {
+            p.tokenize(c, new TokenCallback() {
                 @Override
-                public void onError(POErrors error) {
-                    Log.e("PO", String.valueOf(error));
+                public void onError(Exception error) {
+                    Log.e("PO", error.toString());
                 }
 
                 @Override
@@ -59,18 +58,20 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        /*// Update a cvc when needed
-        p.updateCvc(new Card("card_token", "124"), new CvcUpdateCallback() {
-            @Override
-            public void onSuccess() {
-                // CVC updated
-            }
-
-            @Override
-            public void onError(POErrors error) {
-                // error
-            }
-        });*/
+//        // Update a cvc when needed
+//        p.updateCvc(new Card("card_5xjdXhVOfPRdwdLWDmeO3IiuWjYTl6lg", "124"), new CvcUpdateCallback() {
+//            @Override
+//            public void onSuccess() {
+//                // CVC updated
+//                Log.d("PO", "successfuly updated CVC");
+//            }
+//
+//            @Override
+//            public void onError(POErrors error) {
+//                Log.d("PO", String.valueOf(error));
+//                // error
+//            }
+//        });
     }
 
     @Override
