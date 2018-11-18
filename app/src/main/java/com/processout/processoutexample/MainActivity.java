@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         final ProcessOut p = new ProcessOut(this, "proj_dHvuowrjviYWm7ZX0hXlb7X2yaxdgo06");
-        Card c = new Card("Jeremy lejoux","4242424242424241", 11, 19, "123");
+        Card c = new Card("Jeremy lejoux","4242424242424242", 11, 19, "123");
         try {
             JSONObject metadata = new JSONObject("{\"test\": \"ok\"}");
             p.tokenize(c, new TokenCallback() {
@@ -58,20 +58,20 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-//        // Update a cvc when needed
-//        p.updateCvc(new Card("card_5xjdXhVOfPRdwdLWDmeO3IiuWjYTl6lg", "124"), new CvcUpdateCallback() {
-//            @Override
-//            public void onSuccess() {
-//                // CVC updated
-//                Log.d("PO", "successfuly updated CVC");
-//            }
-//
-//            @Override
-//            public void onError(POErrors error) {
-//                Log.d("PO", String.valueOf(error));
-//                // error
-//            }
-//        });
+        // Update a cvc when needed
+        p.updateCvc(new Card("card_8FnqE2v1bJW7iBjsqpYev6UmOxKsvRs7", "124"), new CvcUpdateCallback() {
+            @Override
+            public void onSuccess() {
+                // CVC updated
+                Log.d("PO", "successfuly updated CVC");
+            }
+
+            @Override
+            public void onError(Exception error) {
+                Log.d("PO", error.toString());
+                // error
+            }
+        });
     }
 
     @Override
