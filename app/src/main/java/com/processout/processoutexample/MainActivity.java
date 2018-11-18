@@ -12,7 +12,6 @@ import android.view.MenuItem;
 
 import com.processout.processout_sdk.Card;
 import com.processout.processout_sdk.CvcUpdateCallback;
-import com.processout.processout_sdk.POErrors;
 import com.processout.processout_sdk.ProcessOut;
 import com.processout.processout_sdk.TokenCallback;
 
@@ -42,10 +41,10 @@ public class MainActivity extends AppCompatActivity {
         Card c = new Card("Jeremy lejoux","4242424242424242", 11, 19, "123");
         try {
             JSONObject metadata = new JSONObject("{\"test\": \"ok\"}");
-            p.tokenize(c, metadata, new TokenCallback() {
+            p.tokenize(c, new TokenCallback() {
                 @Override
-                public void onError(POErrors error) {
-                    Log.e("PO", String.valueOf(error));
+                public void onError(Exception error) {
+                    Log.e("PO", error.toString());
                 }
 
                 @Override
@@ -59,18 +58,20 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        /*// Update a cvc when needed
-        p.updateCvc(new Card("card_token", "124"), new CvcUpdateCallback() {
+        // Update a cvc when needed
+        p.updateCvc(new Card("card_8FnqE2v1bJW7iBjsqpYev6UmOxKsvRs7", "124"), new CvcUpdateCallback() {
             @Override
             public void onSuccess() {
                 // CVC updated
+                Log.d("ProcessOut", "successfuly updated CVC");
             }
 
             @Override
-            public void onError(POErrors error) {
+            public void onError(Exception error) {
+                Log.d("ProcessOut", error.toString());
                 // error
             }
-        });*/
+        });
     }
 
     @Override

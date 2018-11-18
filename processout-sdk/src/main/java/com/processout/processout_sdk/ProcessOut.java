@@ -5,6 +5,8 @@ import android.util.Log;
 
 import com.android.volley.Request;
 import com.google.gson.Gson;
+import com.processout.processout_sdk.ProcessOutExceptions.ProcessOutException;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -40,7 +42,7 @@ public class ProcessOut {
                 body.put("metadata", metadata);
             Network.getInstance(this.context, this.projectId).CallProcessOut("/cards", Request.Method.POST, body, new Network.NetworkResult() {
                 @Override
-                public void onError(POErrors error) {
+                public void onError(Exception error) {
                     callback.onError(error);
                 }
 
@@ -50,12 +52,12 @@ public class ProcessOut {
                         JSONObject card = (JSONObject) json.get("card");
                         callback.onSuccess(card.get("id").toString());
                     } catch (JSONException e) {
-                        callback.onError(POErrors.ParseError);
+                        callback.onError(e);
                     }
                 }
             });
         } catch (JSONException e) {
-            callback.onError(POErrors.ParseError);
+            callback.onError(e);
         }
     }
 
@@ -63,16 +65,11 @@ public class ProcessOut {
         Gson gson = new Gson();
         JSONObject body = null;
 
-        if (card.getId() == null) {
-            callback.onError(POErrors.ParseError);
-            return;
-        }
-
         try {
             body = new JSONObject(gson.toJson(card));
             Network.getInstance(this.context, this.projectId).CallProcessOut("/cards/" + card.getId(), Request.Method.PUT, body, new Network.NetworkResult() {
                 @Override
-                public void onError(POErrors error) {
+                public void onError(Exception error) {
                     callback.onError(error);
                 }
 
@@ -82,7 +79,7 @@ public class ProcessOut {
                 }
             });
         } catch (JSONException e) {
-            callback.onError(POErrors.ParseError);
+            callback.onError(e);
         }
     }
 

@@ -5,7 +5,7 @@ package com.processout.processout_sdk;
  */
 
 public interface TokenCallback {
-    void onError(POErrors error);
+    void onError(Exception error);
 
     void onSuccess(String token);
 }
