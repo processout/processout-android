@@ -63,12 +63,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSuccess() {
                 // CVC updated
-                Log.d("PO", "successfuly updated CVC");
+                Log.d("ProcessOut", "successfuly updated CVC");
             }
 
             @Override
             public void onError(Exception error) {
-                Log.d("PO", error.toString());
+                Log.d("ProcessOut", error.toString());
                 // error
             }
         });
