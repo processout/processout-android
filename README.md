@@ -20,7 +20,7 @@ allprojects {
 add this dependency to your build.gradle
 ```gradle
 dependencies {
-    compile 'com.github.processout:android-sdk:1.0'
+    compile 'com.github.processout:android-sdk:2.2'
 }
 ```
 
