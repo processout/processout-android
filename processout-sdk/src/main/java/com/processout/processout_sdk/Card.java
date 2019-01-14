@@ -20,6 +20,8 @@ public class Card {
     private int expYear;
     @SerializedName("cvc")
     private String cvc;
+    @SerializedName("contact")
+    private Contact contact;
 
     public Card(String id, String cvc) {
         this.id = id;
@@ -39,6 +41,25 @@ public class Card {
         this.expMonth = expMonth;
         this.expYear = expYear;
         this.cvc = cvc;
+    }
+
+    public Card(String cardHolderName, String cardNumbers, int expMonth, int expYear, String cvc, Contact contact) {
+        this.id = id;
+        this.cardHolderName = cardHolderName;
+        this.cardNumbers = cardNumbers;
+        this.expMonth = expMonth;
+        this.expYear = expYear;
+        this.cvc = cvc;
+        this.contact = contact;
+    }
+
+    public Card(String cardHolderName, String cardNumbers, int expMonth, int expYear, Contact contact) {
+        this.id = id;
+        this.cardHolderName = cardHolderName;
+        this.cardNumbers = cardNumbers;
+        this.expMonth = expMonth;
+        this.expYear = expYear;
+        this.contact = contact;
     }
 
     public String getId() {
@@ -87,5 +108,13 @@ public class Card {
 
     public void setCardHolderName(String cardHolderName) {
         this.cardHolderName = cardHolderName;
+    }
+
+    public Contact getContact() {
+        return contact;
+    }
+
+    public void setContact(Contact contact) {
+        this.contact = contact;
     }
 }
