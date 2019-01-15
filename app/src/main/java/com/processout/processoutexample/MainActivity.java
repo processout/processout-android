@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.processout.processout_sdk.Card;
+import com.processout.processout_sdk.Contact;
 import com.processout.processout_sdk.CvcUpdateCallback;
 import com.processout.processout_sdk.ProcessOut;
 import com.processout.processout_sdk.TokenCallback;
@@ -37,10 +38,10 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        final ProcessOut p = new ProcessOut(this, "proj_dHvuowrjviYWm7ZX0hXlb7X2yaxdgo06");
-        Card c = new Card("Jeremy lejoux","4242424242424242", 11, 19, "123");
+        final ProcessOut p = new ProcessOut(this, "proj_kVWqvz7UoS3oux2UZg5tgLjXxvPTnh0k");
+        Contact contact = new Contact("11 street name", "", "City", "State", "US", "10000");
+        Card c = new Card("Jeremy lejoux","4242424242424242", 11, 19, "123", contact);
         try {
-            JSONObject metadata = new JSONObject("{\"test\": \"ok\"}");
             p.tokenize(c, new TokenCallback() {
                 @Override
                 public void onError(Exception error) {
