@@ -86,7 +86,6 @@ class Network {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
-                headers.put("Content-Type", "application/json");
                 headers.put("Authorization", "Basic " + Base64.encodeToString((projectId + ":").getBytes(), Base64.NO_WRAP));
                 return headers;
             }
