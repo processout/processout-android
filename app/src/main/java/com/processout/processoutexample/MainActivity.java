@@ -30,8 +30,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void initiatePayment() {
-        final ProcessOut p = new ProcessOut(this, "test-proj_dHvuowrjviYWm7ZX0hXlb7X2yaxdgo06");
-        p.listAlternativeMethods("iv_qQ2IpoUGzr3X5wKS3ZcEu6JVObcRGY6s", new ListAlternativeMethodsCallback() {
+        final ProcessOut p = new ProcessOut(this, "test-proj_id");
+        p.listAlternativeMethods("invoice-id", new ListAlternativeMethodsCallback() {
             @Override
             public void onSuccess(ArrayList<AlternativeGateway> gateways) {
                 for (AlternativeGateway g :
