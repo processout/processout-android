@@ -132,6 +132,7 @@ public class ProcessOut {
                     callback.onSuccess(gways);
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    callback.onError(e);
                 }
             }
         });
