@@ -22,18 +22,8 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="your_app"
+                <data android:scheme="yourapp"
                     android:host="processout.return" />
-            </intent-filter>
-            <intent-filter android:label="@string/processout_return">
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <!-- Accepts URIs that begin with "http://www.example.com/gizmos” -->
-                <data android:scheme="https"
-                    android:host="www.processout.com"
-                    android:pathPrefix="/mobile_return" />
-                <!-- note that the leading "/" is required for pathPrefix-->
             </intent-filter>
         </activity>
     </application>

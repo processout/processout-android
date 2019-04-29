@@ -31,7 +31,7 @@ public class AlternativeGateway {
         WebView theWebPage = new WebView(this.context);
         theWebPage.getSettings().setJavaScriptEnabled(true);
         theWebPage.getSettings().setPluginState(WebSettings.PluginState.ON);
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://checkout.processout.ninja/" + this.projectId + "/" + this.invoiceId + "/redirect/" + this.id));
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Network.CHECKOUT_URL + this.projectId + "/" + this.invoiceId + "/redirect/" + this.id));
         this.context.startActivity(browserIntent);
     }
 
