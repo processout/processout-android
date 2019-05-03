@@ -109,7 +109,7 @@ public class ProcessOut {
         final String projectId = this.projectId;
 
 
-        Network.getInstance(this.context, this.projectId).CallProcessOut("/gateway-configurations?filter=alternative-payment-methods", Request.Method.GET, null, new Network.NetworkResult() {
+        Network.getInstance(this.context, this.projectId).CallProcessOut("/gateway-configurations?filter=alternative-payment-methods&expand_merchant_accounts=true", Request.Method.GET, null, new Network.NetworkResult() {
             @Override
             public void onError(Exception error) {
                 callback.onError(error);
