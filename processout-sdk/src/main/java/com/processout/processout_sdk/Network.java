@@ -41,7 +41,8 @@ class Network {
     private static RequestQueue queue;
     private static String projectId;
 
-    private static final String API_URL = "https://api.processout.com";
+    protected static final String API_URL = "https://api.processout.com";
+    protected static final String CHECKOUT_URL = "https://checkout.processout.com";
 
     private Network() {}
 
