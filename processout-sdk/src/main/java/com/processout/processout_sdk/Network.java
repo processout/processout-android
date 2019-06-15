@@ -127,7 +127,7 @@ class ErrorReponse {
 
     @Override
     public String toString() {
-        return "ErrorReponse{" +
+        return "ErrorResponse{" +
                 "message='" + message + '\'' +
                 ", errorType='" + errorType + '\'' +
                 '}';
