@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onSuccess(String token) {
-                p.makeCardPayment("iv_KFKYdcHAWMI4q5lKV5Gae7AgSaUVSWIP", token, ProcessOut.createDefaultTestHandler(MainActivity.this));
+                p.makeCardPayment("invoice-id", token, ProcessOut.createDefaultTestHandler(MainActivity.this));
             }
         });
     }
