@@ -8,7 +8,7 @@ public interface ThreeDSHandler {
         void continueCallback(ThreeDSFingerprintResponse request);
     }
 
-    void doFingerprint(Map<String, String> directoryServerData, DoFingerprintCallback callback);
+    void doFingerprint(DirectoryServerData directoryServerData, DoFingerprintCallback callback);
 
     interface DoChallengeCallback {
         void success();

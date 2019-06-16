@@ -213,7 +213,7 @@ public class ProcessOut {
         }.getType();
         switch (cA.getType()) {
             case FINGERPRINT_MOBILE:
-                Map<String, String> directoryServerData = new Gson().fromJson(new String(Base64.decode(cA.getValue().getBytes(), Base64.NO_WRAP)), mapType);
+                DirectoryServerData directoryServerData = new Gson().fromJson(new String(Base64.decode(cA.getValue().getBytes(), Base64.NO_WRAP)), DirectoryServerData.class);
                 handler.doFingerprint(directoryServerData, new ThreeDSHandler.DoFingerprintCallback() {
                     @Override
                     public void continueCallback(ThreeDSFingerprintResponse request) {
@@ -259,7 +259,7 @@ public class ProcessOut {
     public static ThreeDSHandler createDefaultTestHandler(final Context context, final ThreeDSHandlerTestCallback callback) {
         return new ThreeDSHandler() {
             @Override
-            public void doFingerprint(Map<String, String> directoryServerData, DoFingerprintCallback callback) {
+            public void doFingerprint(DirectoryServerData directoryServerData, DoFingerprintCallback callback) {
                 callback.continueCallback(
                         new ThreeDSFingerprintResponse(
                                 "", "", new SDKEPhemPubKey("", "", "", ""),

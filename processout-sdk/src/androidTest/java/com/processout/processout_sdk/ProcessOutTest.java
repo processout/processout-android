@@ -52,7 +52,7 @@ public class ProcessOutTest {
                                 Invoice invoiceResult = new Gson().fromJson(json.getJSONObject("invoice").toString(), Invoice.class);
                                 p.makeCardPayment(invoiceResult.getId(), token, new ThreeDSHandler() {
                                     @Override
-                                    public void doFingerprint(Map<String, String> directoryServerData, DoFingerprintCallback callback) {
+                                    public void doFingerprint(DirectoryServerData directoryServerData, DoFingerprintCallback callback) {
                                         callback.continueCallback(
                                                 new ThreeDSFingerprintResponse(
                                                         "", "", new SDKEPhemPubKey("", "", "", ""),
@@ -125,7 +125,7 @@ public class ProcessOutTest {
                                 Invoice invoiceResult = new Gson().fromJson(json.getJSONObject("invoice").toString(), Invoice.class);
                                 p.makeCardPayment(invoiceResult.getId(), token, new ThreeDSHandler() {
                                     @Override
-                                    public void doFingerprint(Map<String, String> directoryServerData, DoFingerprintCallback callback) {
+                                    public void doFingerprint(DirectoryServerData directoryServerData, DoFingerprintCallback callback) {
                                         callback.continueCallback(
                                                 new ThreeDSFingerprintResponse(
                                                         "", "", new SDKEPhemPubKey("", "", "", ""),
