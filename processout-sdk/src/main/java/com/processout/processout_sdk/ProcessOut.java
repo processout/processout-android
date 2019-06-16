@@ -27,6 +27,8 @@ public class ProcessOut {
 
     private String projectId;
     private Context context;
+    private String ThreeDS2ChallengeSuccess = "gway_req_eyJib2R5Ijoie1widHJhbnNTdGF0dXNcIjpcIllcIn0ifQ==";
+    private String ThreeDS2ChallengeError = "gway_req_eyJib2R5Ijoie1widHJhbnNTdGF0dXNcIjpcIk5cIn0ifQ==";
 
     public ProcessOut(Context context, String projectId) {
         this.projectId = projectId;
@@ -63,23 +65,22 @@ public class ProcessOut {
             body = new JSONObject(gson.toJson(card));
             if (metadata != null)
                 body.put("metadata", metadata);
-            Network.getInstance(this.context, this.projectId).CallProcessOut(
-                    "/cards", Request.Method.POST, body, new Network.NetworkResult() {
-                        @Override
-                        public void onError(Exception error) {
-                            callback.onError(error);
-                        }
+            Network.getInstance(this.context, this.projectId).CallProcessOut("/cards", Request.Method.POST, body, new Network.NetworkResult() {
+                @Override
+                public void onError(Exception error) {
+                    callback.onError(error);
+                }
 
-                        @Override
-                        public void onSuccess(JSONObject json) {
-                            try {
-                                JSONObject card = (JSONObject) json.get("card");
-                                callback.onSuccess(card.get("id").toString());
-                            } catch (JSONException e) {
-                                callback.onError(e);
-                            }
-                        }
-                    });
+                @Override
+                public void onSuccess(JSONObject json) {
+                    try {
+                        JSONObject card = (JSONObject) json.get("card");
+                        callback.onSuccess(card.get("id").toString());
+                    } catch (JSONException e) {
+                        callback.onError(e);
+                    }
+                }
+            });
         } catch (JSONException e) {
             callback.onError(e);
         }
@@ -173,8 +174,8 @@ public class ProcessOut {
     public void makeCardPayment(final String invoiceId, final String source, final ThreeDSHandler handler) {
         try {
             // Generate the authorization body and forces 3DS2
-            final JSONObject body = new JSONObject(
-                    "{\"source\":\"" + source + "\", \"enable_three_d_s_2\": true}");
+            AuthorizationRequest authRequest = new AuthorizationRequest(source);
+            final JSONObject body = new JSONObject(new Gson().toJson(authRequest));
 
             Network.getInstance(this.context, this.projectId).CallProcessOut(
                     "/invoices/" + invoiceId + "/authorize", Request.Method.POST,
@@ -208,7 +209,6 @@ public class ProcessOut {
         }
 
         // Customer action required
-
         Type mapType = new TypeToken<Map<String, String>>() {
         }.getType();
         switch (cA.getType()) {
@@ -229,12 +229,12 @@ public class ProcessOut {
                 handler.doChallenge(authentificationData, new ThreeDSHandler.DoChallengeCallback() {
                     @Override
                     public void success() {
-                        makeCardPayment(invoiceId, "gway_req_eyJib2R5Ijoie1widHJhbnNTdGF0dXNcIjpcIllcIn0ifQ==", handler);
+                        makeCardPayment(invoiceId, ThreeDS2ChallengeSuccess, handler);
                     }
 
                     @Override
                     public void error() {
-                        makeCardPayment(invoiceId, "gway_req_eyJib2R5Ijoie1widHJhbnNTdGF0dXNcIjpcIk5cIn0ifQ==", handler);
+                        makeCardPayment(invoiceId, ThreeDS2ChallengeError, handler);
                     }
                 });
                 break;
@@ -284,7 +284,7 @@ public class ProcessOut {
 
             @Override
             public void onSuccess(String invoiceId) {
-                Log.d("PROCESSOUT", invoiceId);
+                Log.d("PROCESSOUT", "Success:" + invoiceId);
             }
 
             @Override
