@@ -245,13 +245,18 @@ public class ProcessOut {
         }
     }
 
+
+    public interface ThreeDSHandlerTestCallback {
+        void onSuccess(String invoiceId);
+        void onError(Exception error);
+    }
     /**
      * Generate a test ThreeDSHandler for 3DS2 challenges
      *
      * @param context Application context
      * @return
      */
-    public static ThreeDSHandler createDefaultTestHandler(final Context context) {
+    public static ThreeDSHandler createDefaultTestHandler(final Context context, final ThreeDSHandlerTestCallback callback) {
         return new ThreeDSHandler() {
             @Override
             public void doFingerprint(Map<String, String> directoryServerData, DoFingerprintCallback callback) {
@@ -284,12 +289,12 @@ public class ProcessOut {
 
             @Override
             public void onSuccess(String invoiceId) {
-                Log.d("PROCESSOUT", "Success:" + invoiceId);
+                callback.onSuccess(invoiceId);
             }
 
             @Override
             public void onError(Exception error) {
-                Log.e("PROCESSOUT", error.toString());
+                callback.onError(error);
             }
         };
     }
