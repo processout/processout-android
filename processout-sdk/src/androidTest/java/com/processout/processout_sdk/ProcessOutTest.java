@@ -18,12 +18,13 @@ public class ProcessOutTest {
 
     private String projectId = "test-proj_gAO1Uu0ysZJvDuUpOGPkUBeE3pGalk3x";
     private String privateKey = "key_sandbox_mah31RDFqcDxmaS7MvhDbJfDJvjtsFTB";
+    final private ProcessOut p = new ProcessOut(InstrumentationRegistry.getContext(), projectId);
 
     @Test
     public void threeDS2Fingerprint() {
         final CountDownLatch signal = new CountDownLatch(1);
 
-        final ProcessOut p = new ProcessOut(InstrumentationRegistry.getContext(), projectId);
+
         Card c = new Card("4000000000003063", 10, 20, "737");
         p.tokenize(c,null,  new TokenCallback() {
             @Override
@@ -96,7 +97,6 @@ public class ProcessOutTest {
     public void threeDS2Challenge() {
         final CountDownLatch signal = new CountDownLatch(1);
 
-        final ProcessOut p = new ProcessOut(InstrumentationRegistry.getContext(), projectId);
         Card c = new Card("4000000000000101", 10, 20, "737");
         p.tokenize(c,null,  new TokenCallback() {
             @Override
@@ -161,6 +161,63 @@ public class ProcessOutTest {
             signal.await();// wait for callback
         } catch (InterruptedException e) {
             e.printStackTrace();
+            fail("Could not run test");
+        }
+    }
+
+    @Test
+    public void tokenize() {
+        final CountDownLatch signal = new CountDownLatch(1);
+
+        Card c = new Card("424242424242", 11, 21, "123");
+        p.tokenize(c, null, new TokenCallback() {
+            @Override
+            public void onError(Exception error) {
+                fail("Could not tokenize");
+            }
+
+            @Override
+            public void onSuccess(String token) {
+                // SUCCESS
+                signal.countDown();
+            }
+        });
+
+        try {
+            signal.await();// wait for callback
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            fail("Could not run test");
+        }
+    }
+
+    @Test
+    public void listAlternativePaymentGateways() {
+        final CountDownLatch signal = new CountDownLatch(1);
+
+        Invoice invoice = new Invoice("test", "123.0", "EUR", new Device("android"));
+        try {
+            JSONObject body = new JSONObject(new Gson().toJson(invoice));
+            Network.getTestInstance(InstrumentationRegistry.getContext(), projectId, privateKey).CallProcessOut("/invoices", Request.Method.POST, body, new Network.NetworkResult() {
+                @Override
+                public void onError(Exception error) {
+                    fail(error.toString());
+                }
+
+                @Override
+                public void onSuccess(JSONObject json) {
+                    signal.countDown();
+                }
+            });
+        } catch (JSONException e) {
+            e.printStackTrace();
+            fail(e.toString());
+        }
+
+        try {
+            signal.await();
+        } catch (Exception error) {
+            error.printStackTrace();
             fail("Could not run test");
         }
     }
