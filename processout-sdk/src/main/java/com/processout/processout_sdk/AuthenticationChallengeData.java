@@ -2,7 +2,7 @@ package com.processout.processout_sdk;
 
 import com.google.gson.annotations.SerializedName;
 
-public class ThreeDSGatewayRequest {
+public class AuthenticationChallengeData {
     @SerializedName("acsTransID")
     private String acsTransID;
     @SerializedName("acsReferenceNumber")
@@ -13,7 +13,7 @@ public class ThreeDSGatewayRequest {
     private String threeDSServerTransID;
 
 
-    public ThreeDSGatewayRequest(String acsTransID, String acsReferenceNumber, String acsSignedContent, String threeDSServerTransID) {
+    public AuthenticationChallengeData(String acsTransID, String acsReferenceNumber, String acsSignedContent, String threeDSServerTransID) {
         this.acsTransID = acsTransID;
         this.acsReferenceNumber = acsReferenceNumber;
         this.acsSignedContent = acsSignedContent;

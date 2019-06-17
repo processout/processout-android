@@ -1,7 +1,5 @@
 package com.processout.processout_sdk;
 
-import java.util.Map;
-
 public interface ThreeDSHandler {
 
     interface DoFingerprintCallback {
@@ -15,7 +13,7 @@ public interface ThreeDSHandler {
         void error();
     }
 
-    void doChallenge(ThreeDSGatewayRequest authentificationData, DoChallengeCallback callback);
+    void doChallenge(AuthenticationChallengeData authentificationData, DoChallengeCallback callback);
 
     void onSuccess(String invoiceId);
 

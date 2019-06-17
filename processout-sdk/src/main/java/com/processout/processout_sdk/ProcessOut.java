@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.util.Base64;
-import android.util.Log;
 
 import com.android.volley.Request;
 import com.google.gson.Gson;
@@ -225,7 +224,7 @@ public class ProcessOut {
                 });
                 break;
             case CHALLENGE_MOBILE:
-                ThreeDSGatewayRequest authentificationData = new Gson().fromJson(new String(Base64.decode(cA.getValue().getBytes(), Base64.NO_WRAP)), ThreeDSGatewayRequest.class);
+                AuthenticationChallengeData authentificationData = new Gson().fromJson(new String(Base64.decode(cA.getValue().getBytes(), Base64.NO_WRAP)), AuthenticationChallengeData.class);
                 handler.doChallenge(authentificationData, new ThreeDSHandler.DoChallengeCallback() {
                     @Override
                     public void success() {
@@ -267,7 +266,7 @@ public class ProcessOut {
             }
 
             @Override
-            public void doChallenge(ThreeDSGatewayRequest authData, final DoChallengeCallback callback) {
+            public void doChallenge(AuthenticationChallengeData authData, final DoChallengeCallback callback) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 builder.setTitle(R.string.app_name);
                 builder.setMessage("Validate mobile 3DS2 challenge?");

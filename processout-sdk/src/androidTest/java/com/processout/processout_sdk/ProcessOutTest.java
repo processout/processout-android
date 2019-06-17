@@ -1,7 +1,5 @@
 package com.processout.processout_sdk;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.support.test.InstrumentationRegistry;
 import android.util.Log;
 
@@ -12,7 +10,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
 
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.*;
@@ -20,7 +17,7 @@ import static org.junit.Assert.*;
 public class ProcessOutTest {
 
     private String projectId = "test-proj_gAO1Uu0ysZJvDuUpOGPkUBeE3pGalk3x";
-    private String privateKey = "key_sandbox_5v1aedGG4spxuTH6zeR64uKAlX5LimAu";
+    private String privateKey = "key_sandbox_mah31RDFqcDxmaS7MvhDbJfDJvjtsFTB";
 
     @Test
     public void threeDS2Fingerprint() {
@@ -60,7 +57,7 @@ public class ProcessOutTest {
                                     }
 
                                     @Override
-                                    public void doChallenge(ThreeDSGatewayRequest authData, final DoChallengeCallback callback) {
+                                    public void doChallenge(AuthenticationChallengeData authData, final DoChallengeCallback callback) {
                                         callback.success();
                                     }
 
@@ -133,7 +130,7 @@ public class ProcessOutTest {
                                     }
 
                                     @Override
-                                    public void doChallenge(ThreeDSGatewayRequest authData, final DoChallengeCallback callback) {
+                                    public void doChallenge(AuthenticationChallengeData authData, final DoChallengeCallback callback) {
                                         callback.success();
                                     }
 
