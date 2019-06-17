@@ -28,6 +28,7 @@ public class ProcessOut {
     private Context context;
     private String ThreeDS2ChallengeSuccess = "gway_req_eyJib2R5Ijoie1widHJhbnNTdGF0dXNcIjpcIllcIn0ifQ==";
     private String ThreeDS2ChallengeError = "gway_req_eyJib2R5Ijoie1widHJhbnNTdGF0dXNcIjpcIk5cIn0ifQ==";
+    private Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 
     public ProcessOut(Context context, String projectId) {
         this.projectId = projectId;
@@ -58,7 +59,6 @@ public class ProcessOut {
 
 
     private void tokenizeBase(Card card, JSONObject metadata, final TokenCallback callback) {
-        Gson gson = new Gson();
         JSONObject body = null;
         try {
             body = new JSONObject(gson.toJson(card));
@@ -92,7 +92,6 @@ public class ProcessOut {
      * @param callback Update callback
      */
     public void updateCvc(Card card, final CvcUpdateCallback callback) {
-        Gson gson = new Gson();
         JSONObject body = null;
 
         try {
@@ -126,7 +125,6 @@ public class ProcessOut {
      * @param callback  Callback for listing alternative payment methods
      */
     public void listAlternativeMethods(final String invoiceId, final ListAlternativeMethodsCallback callback) {
-        final Gson gson = new Gson();
         final Context context = this.context;
         final String projectId = this.projectId;
 
@@ -174,7 +172,7 @@ public class ProcessOut {
         try {
             // Generate the authorization body and forces 3DS2
             AuthorizationRequest authRequest = new AuthorizationRequest(source);
-            final JSONObject body = new JSONObject(new Gson().toJson(authRequest));
+            final JSONObject body = new JSONObject(gson.toJson(authRequest));
 
             Network.getInstance(this.context, this.projectId).CallProcessOut(
                     "/invoices/" + invoiceId + "/authorize", Request.Method.POST,
@@ -186,7 +184,6 @@ public class ProcessOut {
 
                         @Override
                         public void onSuccess(JSONObject json) {
-                            Gson gson = new Gson();
                             // Handle the authorization result
                             AuthorizationResult result = gson.fromJson(
                                     json.toString(), AuthorizationResult.class);
@@ -211,11 +208,10 @@ public class ProcessOut {
         Type mapType = new TypeToken<Map<String, String>>() {}.getType();
         switch (cA.getType()) {
             case FINGERPRINT_MOBILE:
-                DirectoryServerData directoryServerData = new Gson().fromJson(new String(Base64.decode(cA.getValue().getBytes(), Base64.NO_WRAP)), DirectoryServerData.class);
+                DirectoryServerData directoryServerData = gson.fromJson(new String(Base64.decode(cA.getValue().getBytes(), Base64.NO_WRAP)), DirectoryServerData.class);
                 handler.doFingerprint(directoryServerData, new ThreeDSHandler.DoFingerprintCallback() {
                     @Override
                     public void continueCallback(ThreeDSFingerprintResponse request) {
-                        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
                         MiscGatewayRequest gwayRequest = new MiscGatewayRequest(gson.toJson(request, ThreeDSFingerprintResponse.class));
                         String jsonRequest = Base64.encodeToString(gson.toJson(gwayRequest, MiscGatewayRequest.class).getBytes(), Base64.NO_WRAP);
                         makeCardPayment(invoiceId, "gway_req_" + jsonRequest, handler);
@@ -223,7 +219,7 @@ public class ProcessOut {
                 });
                 break;
             case CHALLENGE_MOBILE:
-                AuthenticationChallengeData authentificationData = new Gson().fromJson(new String(Base64.decode(cA.getValue().getBytes(), Base64.NO_WRAP)), AuthenticationChallengeData.class);
+                AuthenticationChallengeData authentificationData = gson.fromJson(new String(Base64.decode(cA.getValue().getBytes(), Base64.NO_WRAP)), AuthenticationChallengeData.class);
                 handler.doChallenge(authentificationData, new ThreeDSHandler.DoChallengeCallback() {
                     @Override
                     public void success() {

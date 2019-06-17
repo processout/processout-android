@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.android.volley.Request;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,6 +20,7 @@ public class ProcessOutTest {
     private String projectId = "test-proj_gAO1Uu0ysZJvDuUpOGPkUBeE3pGalk3x";
     private String privateKey = "key_sandbox_mah31RDFqcDxmaS7MvhDbJfDJvjtsFTB";
     final private ProcessOut p = new ProcessOut(InstrumentationRegistry.getContext(), projectId);
+    private Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 
     @Test
     public void threeDS2Fingerprint() {
@@ -36,7 +38,7 @@ public class ProcessOutTest {
             public void onSuccess(final String token) {
                 Invoice invoice = new Invoice("test", "121.01", "EUR", new Device("android"));
                 try {
-                    JSONObject body = new JSONObject(new Gson().toJson(invoice));
+                    JSONObject body = new JSONObject(gson.toJson(invoice));
                     Network.getTestInstance(InstrumentationRegistry.getContext(), projectId, privateKey).CallProcessOut("/invoices", Request.Method.POST, body, new Network.NetworkResult() {
                         @Override
                         public void onError(Exception error) {
@@ -47,7 +49,7 @@ public class ProcessOutTest {
                         @Override
                         public void onSuccess(JSONObject json) {
                             try {
-                                Invoice invoiceResult = new Gson().fromJson(json.getJSONObject("invoice").toString(), Invoice.class);
+                                Invoice invoiceResult = gson.fromJson(json.getJSONObject("invoice").toString(), Invoice.class);
                                 p.makeCardPayment(invoiceResult.getId(), token, new ThreeDSHandler() {
                                     @Override
                                     public void doFingerprint(DirectoryServerData directoryServerData, DoFingerprintCallback callback) {
@@ -109,7 +111,7 @@ public class ProcessOutTest {
                 // Creation of the invoice
                 Invoice invoice = new Invoice("test", "121.01", "EUR", new Device("android"));
                 try {
-                    JSONObject body = new JSONObject(new Gson().toJson(invoice));
+                    JSONObject body = new JSONObject(gson.toJson(invoice));
                     Network.getTestInstance(InstrumentationRegistry.getContext(), projectId, privateKey).CallProcessOut("/invoices", Request.Method.POST, body, new Network.NetworkResult() {
                         @Override
                         public void onError(Exception error) {
@@ -119,7 +121,7 @@ public class ProcessOutTest {
                         @Override
                         public void onSuccess(JSONObject json) {
                             try {
-                                Invoice invoiceResult = new Gson().fromJson(json.getJSONObject("invoice").toString(), Invoice.class);
+                                Invoice invoiceResult = gson.fromJson(json.getJSONObject("invoice").toString(), Invoice.class);
                                 p.makeCardPayment(invoiceResult.getId(), token, new ThreeDSHandler() {
                                     @Override
                                     public void doFingerprint(DirectoryServerData directoryServerData, DoFingerprintCallback callback) {
@@ -197,7 +199,7 @@ public class ProcessOutTest {
 
         Invoice invoice = new Invoice("test", "123.0", "EUR", new Device("android"));
         try {
-            JSONObject body = new JSONObject(new Gson().toJson(invoice));
+            JSONObject body = new JSONObject(gson.toJson(invoice));
             Network.getTestInstance(InstrumentationRegistry.getContext(), projectId, privateKey).CallProcessOut("/invoices", Request.Method.POST, body, new Network.NetworkResult() {
                 @Override
                 public void onError(Exception error) {
