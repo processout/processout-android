@@ -208,8 +208,7 @@ public class ProcessOut {
         }
 
         // Customer action required
-        Type mapType = new TypeToken<Map<String, String>>() {
-        }.getType();
+        Type mapType = new TypeToken<Map<String, String>>() {}.getType();
         switch (cA.getType()) {
             case FINGERPRINT_MOBILE:
                 DirectoryServerData directoryServerData = new Gson().fromJson(new String(Base64.decode(cA.getValue().getBytes(), Base64.NO_WRAP)), DirectoryServerData.class);
