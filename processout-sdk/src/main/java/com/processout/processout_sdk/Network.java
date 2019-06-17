@@ -40,6 +40,7 @@ class Network {
     private static Network instance = new Network();
     private static RequestQueue queue;
     private static String projectId;
+    private static String privateKey = "";
 
     protected static final String API_URL = "https://api.processout.com";
     protected static final String CHECKOUT_URL = "https://checkout.processout.com";
@@ -87,7 +88,7 @@ class Network {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
-                headers.put("Authorization", "Basic " + Base64.encodeToString((projectId + ":").getBytes(), Base64.NO_WRAP));
+                headers.put("Authorization", "Basic " + Base64.encodeToString((projectId + ":" + privateKey).getBytes(), Base64.NO_WRAP));
                 return headers;
             }
         };
@@ -95,6 +96,21 @@ class Network {
         queue.add(request);
     }
 
+
+    static Network getTestInstance(Context context, String projectId, String privateKey) {
+        if (Network.queue == null) {
+            queue = Volley.newRequestQueue(context);
+        }
+
+        if (Network.projectId == null) {
+            Network.projectId = projectId;
+        }
+
+        if (Network.privateKey.equals(""))
+            Network.privateKey = privateKey;
+
+        return instance;
+    }
 
     static Network getInstance(Context context, String projectId) {
         if (Network.queue == null) {
@@ -127,7 +143,7 @@ class ErrorReponse {
 
     @Override
     public String toString() {
-        return "ErrorReponse{" +
+        return "ErrorResponse{" +
                 "message='" + message + '\'' +
                 ", errorType='" + errorType + '\'' +
                 '}';
