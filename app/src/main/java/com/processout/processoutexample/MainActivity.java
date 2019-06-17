@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(Exception error) {
-                        Log.e("PROCESSOUt", error.toString());
+                        Log.e("PROCESSOUT", error.toString());
                     }
                 }));
             }
