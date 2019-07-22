@@ -2,14 +2,11 @@ package com.processout.processout_sdk;
 
 import android.content.Context;
 import android.util.Base64;
-import android.util.Log;
 
 import com.android.volley.AuthFailureError;
-import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkError;
 import com.android.volley.NoConnectionError;
 import com.android.volley.ParseError;
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.ServerError;
@@ -25,7 +22,6 @@ import com.processout.processout_sdk.ProcessOutExceptions.ProcessOutCardExceptio
 import com.processout.processout_sdk.ProcessOutExceptions.ProcessOutException;
 import com.processout.processout_sdk.ProcessOutExceptions.ProcessOutNetworkException;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;

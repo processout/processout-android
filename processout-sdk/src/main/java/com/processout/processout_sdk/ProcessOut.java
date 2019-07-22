@@ -6,23 +6,19 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Base64;
-import android.util.Log;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import com.android.volley.Request;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import com.processout.processout_sdk.ProcessOutExceptions.ProcessOutAuthException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * Created by jeremylejoux on 17/01/2018.
