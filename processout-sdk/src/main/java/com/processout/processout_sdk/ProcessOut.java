@@ -3,12 +3,18 @@ package com.processout.processout_sdk;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.util.Base64;
+import android.util.Log;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 
 import com.android.volley.Request;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.processout.processout_sdk.ProcessOutExceptions.ProcessOutAuthException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -205,7 +211,6 @@ public class ProcessOut {
         }
 
         // Customer action required
-        Type mapType = new TypeToken<Map<String, String>>() {}.getType();
         switch (cA.getType()) {
             case FINGERPRINT_MOBILE:
                 DirectoryServerData directoryServerData = gson.fromJson(new String(Base64.decode(cA.getValue().getBytes(), Base64.NO_WRAP)), DirectoryServerData.class);
@@ -232,18 +237,53 @@ public class ProcessOut {
                     }
                 });
                 break;
+            case URL:
+                WebView theWebPage = new WebView(this.context);
+                theWebPage.getSettings().setJavaScriptEnabled(true);
+                theWebPage.getSettings().setPluginState(WebSettings.PluginState.ON);
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(cA.getValue()));
+                this.context.startActivity(browserIntent);
+                break;
             default:
-                //TODO: handle FINGERPRINT, URL and REDIRECT for mobiles that don't support 3ds2 challenges
-                handler.onError(null);
+                handler.onError(new ProcessOutAuthException("Unhandled three D S action:" + cA.getType().name()));
                 break;
         }
     }
 
 
+    /**
+     * Checks if the opening URL is from ProcessOut and returns the corresponding value if so. Returns null otherwise
+     *
+     * @param intentData intentData from the Activity
+     * @return A WebViewReturnAction containing the return type, value and success or null if not from ProcessOut
+     */
+    public static WebViewReturnAction handleProcessOutReturn(Uri intentData) {
+        if (!intentData.getHost().contains("processout"))
+            return null;
+
+        String token = intentData.getQueryParameter("token");
+        if (token != null)
+            return new WebViewReturnAction(true, WebViewReturnAction.WebViewReturnType.APMAuthorization, token);
+
+        String threeDSStatus = intentData.getQueryParameter("three_d_s_status");
+        if (threeDSStatus != null) {
+            switch (threeDSStatus) {
+                case "success":
+                    return new WebViewReturnAction(true, WebViewReturnAction.WebViewReturnType.ThreeDSVerification, intentData.getQueryParameter("invoice_id"));
+                default:
+                    return new WebViewReturnAction(false, WebViewReturnAction.WebViewReturnType.ThreeDSVerification, null);
+            }
+        }
+
+        return null;
+    }
+
     public interface ThreeDSHandlerTestCallback {
         void onSuccess(String invoiceId);
+
         void onError(Exception error);
     }
+
     /**
      * Generate a test ThreeDSHandler for 3DS2 challenges
      *

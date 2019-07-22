@@ -5,6 +5,7 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkError;
 import com.android.volley.NoConnectionError;
 import com.android.volley.ParseError;
@@ -77,6 +78,8 @@ class Network {
                         } catch (UnsupportedEncodingException e) {
                             callback.onError(e);
                         }
+                    } else {
+                        callback.onError(new ProcessOutNetworkException("Could not receive server data."));
                     }
                 } else if (error instanceof NetworkError) {
                     callback.onError(new ProcessOutNetworkException("Could not connect to server"));
