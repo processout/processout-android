@@ -34,11 +34,13 @@ public class MainActivity extends AppCompatActivity {
                 switch (returnAction.getType()) {
                     case APMAuthorization:
                         // Value contains the APM token
-                        Log.d("PROCESSOUT", returnAction.getValue());
+                        if (returnAction.isSuccess())
+                            Log.d("PROCESSOUT", returnAction.getValue());
                         break;
                     case ThreeDSVerification:
                         // Value contains the invoice_id
-                        Log.d("PROCESSOUT", returnAction.getValue());
+                        if (returnAction.isSuccess())
+                            Log.d("PROCESSOUT", returnAction.getValue());
                         break;
                 }
             }
