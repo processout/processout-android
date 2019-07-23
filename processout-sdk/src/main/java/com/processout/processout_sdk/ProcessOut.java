@@ -254,7 +254,7 @@ public class ProcessOut {
      * @return A WebViewReturnAction containing the return type, value and success or null if not from ProcessOut
      */
     public static WebViewReturnAction handleProcessOutReturn(Uri intentData) {
-        if (!intentData.getHost().contains("processout"))
+        if (intentData.getHost().compareToIgnoreCase("processout.return") != 0)
             return null;
 
         String token = intentData.getQueryParameter("token");
