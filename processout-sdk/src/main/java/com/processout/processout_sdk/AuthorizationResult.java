@@ -1,7 +1,6 @@
 package com.processout.processout_sdk;
 
 import com.google.gson.annotations.SerializedName;
-import com.processout.processout_sdk.CustomerAction;
 
 class AuthorizationResult {
     @SerializedName("customer_action")
