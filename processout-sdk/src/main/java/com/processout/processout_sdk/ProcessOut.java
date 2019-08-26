@@ -277,9 +277,9 @@ public class ProcessOut {
                         handler.onError(new ProcessOutNetworkException("Fingerprint fallback timed out."));
                     }
                 };
+
                 // Catch webview URL redirects
                 fingerPrintWebView.setWebViewClient(new WebViewClient() {
-
                     @Override
                     public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                         // Check if the current Android version is supported
@@ -287,11 +287,13 @@ public class ProcessOut {
                             String token = request.getUrl().getQueryParameter("token");
                             if (token != null) {
                                 // The webview successfully received the gateway token
+                                // We cancel the timeout handler
                                 timeOutHandler.removeCallbacks(timeoutClearer);
                                 makeCardPayment(invoiceId, request.getUrl().getQueryParameter("token"), handler);
                             }
                         } else {
                             // Android version not supported for fingerprinting
+                            // We cancel the timeout handler
                             timeOutHandler.removeCallbacks(timeoutClearer);
                             handler.onError(new ProcessOutException("Unsupported Android version"));
                         }
