@@ -259,12 +259,11 @@ public class ProcessOut {
                 fingerPrintWebView.setVisibility(View.INVISIBLE); // Hide the Webview
 
                 // Defining fallback request in case the fingerprint times out or is unavailable
-                MiscGatewayRequest fallbackGwayRequest = new MiscGatewayRequest("{\"threeDS2FingerprintTimeout\":true}");
+                final MiscGatewayRequest fallbackGwayRequest = new MiscGatewayRequest("{\"threeDS2FingerprintTimeout\":true}");
                 fallbackGwayRequest.setURL(cA.getValue());
                 HashMap<String,String> fallbackHeaders = new HashMap<String, String>();
                 fallbackHeaders.put("Content-Type", "application/json");
                 fallbackGwayRequest.setHeaders(fallbackHeaders);
-                final String fallbackJsonRequest = Base64.encodeToString(gson.toJson(fallbackGwayRequest, MiscGatewayRequest.class).getBytes(), Base64.NO_WRAP);
 
                 // Setup the timeout handler
                 final Handler timeOutHandler = new android.os.Handler();
@@ -280,7 +279,7 @@ public class ProcessOut {
                         ((ViewGroup) fingerPrintWebView.getParent()).removeView(fingerPrintWebView);
                         fingerPrintWebView.destroy();
 
-                        makeCardPayment(invoiceId, "gway_req_" + fallbackJsonRequest, handler);
+                        makeCardPayment(invoiceId, "gway_req_" + fallbackGwayRequest.generateToken(), handler);
                     }
                 };
 
@@ -301,7 +300,7 @@ public class ProcessOut {
                             // Android version not supported for fingerprinting
                             // We cancel the timeout handler
                             timeOutHandler.removeCallbacks(timeoutClearer);
-                            makeCardPayment(invoiceId, "gway_req_" + fallbackJsonRequest, handler);
+                            makeCardPayment(invoiceId, "gway_req_" + fallbackGwayRequest.generateToken(), handler);
                         }
                         return super.shouldOverrideUrlLoading(view, request);
                     }

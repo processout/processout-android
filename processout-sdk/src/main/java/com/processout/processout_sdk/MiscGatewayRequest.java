@@ -1,5 +1,8 @@
 package com.processout.processout_sdk;
 
+import android.util.Base64;
+
+import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Map;
@@ -21,7 +24,9 @@ public class MiscGatewayRequest {
         this.body = body;
     }
 
-
+    public String generateToken() {
+        return Base64.encodeToString(new Gson().toJson(this, MiscGatewayRequest.class).getBytes(), Base64.NO_WRAP);
+    }
 
     public String getURL() {
         return URL;
