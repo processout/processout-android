@@ -308,7 +308,7 @@ public class ProcessOut {
                 });
 
                 // Start the timeout
-                timeOutHandler.postDelayed(timeoutClearer, 10000g);
+                timeOutHandler.postDelayed(timeoutClearer, 10000);
 
                 // Load the fingerprint URL
                 fingerPrintWebView.loadUrl(cA.getValue());
