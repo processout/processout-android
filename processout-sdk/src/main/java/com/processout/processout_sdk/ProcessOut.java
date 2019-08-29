@@ -257,6 +257,10 @@ public class ProcessOut {
                 fingerPrintWebView.getSettings().setJavaScriptEnabled(true); // enable javascript
                 fingerPrintWebView.setVisibility(View.INVISIBLE); // Hide the Webview
 
+                // Defining fallback request in case the fingerprint times out or is unavailable
+                MiscGatewayRequest fallbackGwayRequest = new MiscGatewayRequest("{\"threeDS2FingerprintTimeout\":true}");
+                final String fallbackJsonRequest = Base64.encodeToString(gson.toJson(fallbackGwayRequest, MiscGatewayRequest.class).getBytes(), Base64.NO_WRAP);
+
                 // Setup the timeout handler
                 final Handler timeOutHandler = new android.os.Handler();
                 final Runnable timeoutClearer = new Runnable() {
@@ -270,7 +274,9 @@ public class ProcessOut {
                         // Removing the webview and returning the error
                         ((ViewGroup) fingerPrintWebView.getParent()).removeView(fingerPrintWebView);
                         fingerPrintWebView.destroy();
-                        handler.onError(new ProcessOutNetworkException("Fingerprint fallback timed out."));
+
+
+                        makeCardPayment(invoiceId, "gway_req_" + fallbackJsonRequest, handler);
                     }
                 };
 
@@ -291,7 +297,7 @@ public class ProcessOut {
                             // Android version not supported for fingerprinting
                             // We cancel the timeout handler
                             timeOutHandler.removeCallbacks(timeoutClearer);
-                            handler.onError(new ProcessOutException("Unsupported Android version"));
+                            makeCardPayment(invoiceId, "gway_req_" + fallbackJsonRequest, handler);
                         }
                         return super.shouldOverrideUrlLoading(view, request);
                     }
@@ -309,7 +315,7 @@ public class ProcessOut {
                 rootLayout.addView(fingerPrintWebView);
                 break;
             default:
-                handler.onError(new ProcessOutException("Unhandled three D S action:" + cA.getType().name()));
+                handler.onError(new ProcessOutException("Unhandled threeDS action:" + cA.getType().name()));
                 break;
         }
     }
