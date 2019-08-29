@@ -287,21 +287,20 @@ public class ProcessOut {
                 fingerPrintWebView.setWebViewClient(new WebViewClient() {
                     @Override
                     public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                        // Check if the current Android version is supported
+                        // Check if the current Android version is supporte
+                        String token = null;
+
+                        // We cancel the timeout handler
+                        timeOutHandler.removeCallbacks(timeoutClearer);
+
                         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                            String token = request.getUrl().getQueryParameter("token");
-                            if (token != null) {
-                                // The webview successfully received the gateway token
-                                // We cancel the timeout handler
-                                timeOutHandler.removeCallbacks(timeoutClearer);
-                                makeCardPayment(invoiceId, request.getUrl().getQueryParameter("token"), handler);
-                            }
-                        } else {
-                            // Android version not supported for fingerprinting
-                            // We cancel the timeout handler
-                            timeOutHandler.removeCallbacks(timeoutClearer);
-                            makeCardPayment(invoiceId, fallbackGwayRequest.generateToken(), handler);
+                            token = request.getUrl().getQueryParameter("token");
                         }
+                        if (token == null) {
+                            // Android version not supported for fingerprinting
+                            token = fallbackGwayRequest.generateToken();
+                        }
+                        makeCardPayment(invoiceId, token, handler);
                         return super.shouldOverrideUrlLoading(view, request);
                     }
                 });
