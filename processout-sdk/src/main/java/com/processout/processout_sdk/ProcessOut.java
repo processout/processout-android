@@ -279,7 +279,7 @@ public class ProcessOut {
                         ((ViewGroup) fingerPrintWebView.getParent()).removeView(fingerPrintWebView);
                         fingerPrintWebView.destroy();
 
-                        makeCardPayment(invoiceId, "gway_req_" + fallbackGwayRequest.generateToken(), handler);
+                        makeCardPayment(invoiceId, fallbackGwayRequest.generateToken(), handler);
                     }
                 };
 
@@ -300,7 +300,7 @@ public class ProcessOut {
                             // Android version not supported for fingerprinting
                             // We cancel the timeout handler
                             timeOutHandler.removeCallbacks(timeoutClearer);
-                            makeCardPayment(invoiceId, "gway_req_" + fallbackGwayRequest.generateToken(), handler);
+                            makeCardPayment(invoiceId, fallbackGwayRequest.generateToken(), handler);
                         }
                         return super.shouldOverrideUrlLoading(view, request);
                     }

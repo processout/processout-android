@@ -25,7 +25,7 @@ public class MiscGatewayRequest {
     }
 
     public String generateToken() {
-        return Base64.encodeToString(new Gson().toJson(this, MiscGatewayRequest.class).getBytes(), Base64.NO_WRAP);
+        return "gway_req_" + Base64.encodeToString(new Gson().toJson(this, MiscGatewayRequest.class).getBytes(), Base64.NO_WRAP);
     }
 
     public String getURL() {
