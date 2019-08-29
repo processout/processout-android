@@ -21,8 +21,14 @@ public class MiscGatewayRequest {
         this.body = body;
     }
 
+
+
     public String getURL() {
         return URL;
+    }
+
+    public void setURL(String URL) {
+        this.URL = URL;
     }
 
     public String getMethod() {
@@ -31,6 +37,10 @@ public class MiscGatewayRequest {
 
     public Map<String, String> getHeaders() {
         return headers;
+    }
+
+    public void setHeaders(Map<String, String> headers) {
+        this.headers = headers;
     }
 
     public String getBody() {

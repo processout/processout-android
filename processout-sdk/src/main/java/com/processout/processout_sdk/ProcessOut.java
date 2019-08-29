@@ -27,6 +27,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by jeremylejoux on 17/01/2018.
@@ -259,6 +260,10 @@ public class ProcessOut {
 
                 // Defining fallback request in case the fingerprint times out or is unavailable
                 MiscGatewayRequest fallbackGwayRequest = new MiscGatewayRequest("{\"threeDS2FingerprintTimeout\":true}");
+                fallbackGwayRequest.setURL(cA.getValue());
+                HashMap<String,String> fallbackHeaders = new HashMap<String, String>();
+                fallbackHeaders.put("Content-Type", "application/json");
+                fallbackGwayRequest.setHeaders(fallbackHeaders);
                 final String fallbackJsonRequest = Base64.encodeToString(gson.toJson(fallbackGwayRequest, MiscGatewayRequest.class).getBytes(), Base64.NO_WRAP);
 
                 // Setup the timeout handler
@@ -303,7 +308,7 @@ public class ProcessOut {
                 });
 
                 // Start the timeout
-                timeOutHandler.postDelayed(timeoutClearer, 10000);
+                timeOutHandler.postDelayed(timeoutClearer, 50);
 
                 // Load the fingerprint URL
                 fingerPrintWebView.loadUrl(cA.getValue());
