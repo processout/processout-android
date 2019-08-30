@@ -10,6 +10,7 @@ import android.view.MenuItem;
 
 import com.processout.processout_sdk.Card;
 import com.processout.processout_sdk.ProcessOut;
+import com.processout.processout_sdk.ThreeDSVerificationCallback;
 import com.processout.processout_sdk.TokenCallback;
 import com.processout.processout_sdk.WebViewReturnAction;
 
@@ -42,14 +43,27 @@ public class MainActivity extends AppCompatActivity {
                         if (returnAction.isSuccess())
                             Log.d("PROCESSOUT", returnAction.getValue());
                         break;
+                    case ThreeDSFallbackVerification:
+                        new ProcessOut(this, "test-proj_gAO1Uu0ysZJvDuUpOGPkUBeE3pGalk3x").continueThreeDSVerification(returnAction.getInvoiceId(), returnAction.getValue(), new ThreeDSVerificationCallback() {
+                            @Override
+                            public void onSuccess(String invoiceId) {
+                                Log.d("PROCESSOUT", invoiceId);
+                            }
+
+                            @Override
+                            public void onError(Exception error) {
+                                Log.d("PROCESSOUT",  error.toString());
+                            }
+                        });
+                        break;
                 }
             }
         }
     }
 
     public void initiatePayment() {
-        final ProcessOut p = new ProcessOut(this, "test-proj_WijDbvE1oEkS67ikx2cfu25Nr5Qx4emX");
-        Card c = new Card("4000000000003246", 10, 20, "737");
+        final ProcessOut p = new ProcessOut(this, "test-proj_gAO1Uu0ysZJvDuUpOGPkUBeE3pGalk3x");
+        Card c = new Card("4000000000000259", 10, 20, "737");
         p.tokenize(c, null, new TokenCallback() {
             @Override
             public void onError(Exception error) {
@@ -58,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onSuccess(String token) {
-                p.makeCardPayment("invoice-id", token, ProcessOut.createDefaultTestHandler(MainActivity.this, new ProcessOut.ThreeDSHandlerTestCallback() {
+                p.makeCardPayment("invoiceId", token, ProcessOut.createDefaultTestHandler(MainActivity.this, new ProcessOut.ThreeDSHandlerTestCallback() {
                     @Override
                     public void onSuccess(String invoiceId) {
                         Log.d("PROCESSOUT", "invoice: " + invoiceId);

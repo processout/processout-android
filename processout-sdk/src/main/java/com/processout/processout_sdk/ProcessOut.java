@@ -1,24 +1,33 @@
 package com.processout.processout_sdk;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Handler;
 import android.util.Base64;
+import android.view.View;
+import android.view.ViewGroup;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
 
 import com.android.volley.Request;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.processout.processout_sdk.ProcessOutExceptions.ProcessOutAuthException;
+import com.processout.processout_sdk.ProcessOutExceptions.ProcessOutException;
+import com.processout.processout_sdk.ProcessOutExceptions.ProcessOutNetworkException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by jeremylejoux on 17/01/2018.
@@ -186,6 +195,7 @@ public class ProcessOut {
 
                         @Override
                         public void onSuccess(JSONObject json) {
+
                             // Handle the authorization result
                             AuthorizationResult result = gson.fromJson(
                                     json.toString(), AuthorizationResult.class);
@@ -233,19 +243,109 @@ public class ProcessOut {
                     }
                 });
                 break;
+            case REDIRECT:
             case URL:
+                // Create external webview
                 WebView theWebPage = new WebView(this.context);
                 theWebPage.getSettings().setJavaScriptEnabled(true);
                 theWebPage.getSettings().setPluginState(WebSettings.PluginState.ON);
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(cA.getValue()));
                 this.context.startActivity(browserIntent);
                 break;
+            case FINGERPRINT:
+                // Build the fingerprint hidden webview
+                final WebView fingerPrintWebView = new WebView(this.context);
+                fingerPrintWebView.getSettings().setJavaScriptEnabled(true); // enable javascript
+                fingerPrintWebView.setVisibility(View.INVISIBLE); // Hide the Webview
+
+                // Defining fallback request in case the fingerprint times out or is unavailable
+                final MiscGatewayRequest fallbackGwayRequest = new MiscGatewayRequest("{\"threeDS2FingerprintTimeout\":true}");
+                fallbackGwayRequest.setURL(cA.getValue());
+                HashMap<String,String> fallbackHeaders = new HashMap<String, String>();
+                fallbackHeaders.put("Content-Type", "application/json");
+                fallbackGwayRequest.setHeaders(fallbackHeaders);
+
+                // Setup the timeout handler
+                final Handler timeOutHandler = new android.os.Handler();
+                final Runnable timeoutClearer = new Runnable() {
+                    @Override
+                    public void run() {
+                        // Preparing the webview removal
+                        fingerPrintWebView.removeAllViews();
+                        fingerPrintWebView.clearHistory();
+                        fingerPrintWebView.clearCache(true);
+                        fingerPrintWebView.onPause();
+                        // Removing the webview and returning the error
+                        ((ViewGroup) fingerPrintWebView.getParent()).removeView(fingerPrintWebView);
+                        fingerPrintWebView.destroy();
+
+                        makeCardPayment(invoiceId, fallbackGwayRequest.generateToken(), handler);
+                    }
+                };
+
+                // Catch webview URL redirects
+                fingerPrintWebView.setWebViewClient(new WebViewClient() {
+                    @Override
+                    public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                        // Check if the current Android version is supporte
+                        String token = null;
+
+                        // We cancel the timeout handler
+                        timeOutHandler.removeCallbacks(timeoutClearer);
+
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                            token = request.getUrl().getQueryParameter("token");
+                        }
+                        if (token == null) {
+                            // Android version not supported for fingerprinting
+                            token = fallbackGwayRequest.generateToken();
+                        }
+                        makeCardPayment(invoiceId, token, handler);
+                        return super.shouldOverrideUrlLoading(view, request);
+                    }
+                });
+
+                // Start the timeout
+                timeOutHandler.postDelayed(timeoutClearer, 10000);
+
+                // Load the fingerprint URL
+                fingerPrintWebView.loadUrl(cA.getValue());
+
+                // Add the webview to content
+                Activity a = (Activity) this.context;
+                FrameLayout rootLayout = a.findViewById(android.R.id.content);
+                rootLayout.addView(fingerPrintWebView);
+                break;
             default:
-                handler.onError(new ProcessOutAuthException("Unhandled three D S action:" + cA.getType().name()));
+                handler.onError(new ProcessOutException("Unhandled threeDS action:" + cA.getType().name()));
                 break;
         }
     }
 
+
+    public void continueThreeDSVerification(final String invoiceId, String token, final ThreeDSVerificationCallback callback) {
+        // Generate the final authorization request
+        AuthorizationRequest authRequest = new AuthorizationRequest(token);
+        final JSONObject body;
+        try {
+            body = new JSONObject(gson.toJson(authRequest));
+            Network.getInstance(this.context, this.projectId).CallProcessOut(
+                    "/invoices/" + invoiceId + "/authorize", Request.Method.POST,
+                    body, new Network.NetworkResult() {
+                        @Override
+                        public void onError(Exception error) {
+                            callback.onError(error);
+                        }
+
+                        @Override
+                        public void onSuccess(JSONObject json) {
+                            callback.onSuccess(invoiceId);
+                        }
+                    });
+        } catch (JSONException e) {
+            callback.onError(e);
+        }
+    }
 
     /**
      * Checks if the opening URL is from ProcessOut and returns the corresponding value if so. Returns null otherwise
@@ -258,10 +358,12 @@ public class ProcessOut {
             return null;
 
         String token = intentData.getQueryParameter("token");
-        if (token != null)
-            return new WebViewReturnAction(true, WebViewReturnAction.WebViewReturnType.APMAuthorization, token);
-
         String threeDSStatus = intentData.getQueryParameter("three_d_s_status");
+        if (token != null && threeDSStatus == null)
+            return new WebViewReturnAction(true, WebViewReturnAction.WebViewReturnType.APMAuthorization, token);
+        else if (token != null) {
+            return new WebViewReturnAction(true, WebViewReturnAction.WebViewReturnType.ThreeDSFallbackVerification, token, intentData.getQueryParameter("invoice_id"));
+        }
         if (threeDSStatus != null) {
             switch (threeDSStatus) {
                 case "success":
