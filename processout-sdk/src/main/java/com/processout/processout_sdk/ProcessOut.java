@@ -11,7 +11,6 @@ import android.util.Base64;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebResourceRequest;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
@@ -20,7 +19,6 @@ import com.android.volley.Request;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.processout.processout_sdk.ProcessOutExceptions.ProcessOutException;
-import com.processout.processout_sdk.ProcessOutExceptions.ProcessOutNetworkException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -179,13 +177,13 @@ public class ProcessOut {
      * @param source    source to use for the charge (card token, etc.)
      * @param handler   (Custom 3DS2 handler)
      */
-    public void makeCardPayment(final String invoiceId, final String source, final ThreeDSHandler handler) {
+    public void makeCardPayment(final String invoiceId, final String source, final ThreeDSHandler handler, final Context with) {
         try {
             // Generate the authorization body and forces 3DS2
             AuthorizationRequest authRequest = new AuthorizationRequest(source);
             final JSONObject body = new JSONObject(gson.toJson(authRequest));
 
-            Network.getInstance(this.context, this.projectId).CallProcessOut(
+            Network.getInstance(this.context /* Using the same context as other network calls */, this.projectId).CallProcessOut(
                     "/invoices/" + invoiceId + "/authorize", Request.Method.POST,
                     body, new Network.NetworkResult() {
                         @Override
@@ -199,7 +197,7 @@ public class ProcessOut {
                             // Handle the authorization result
                             AuthorizationResult result = gson.fromJson(
                                     json.toString(), AuthorizationResult.class);
-                            handleAuthorizationResult(invoiceId, source, handler, result);
+                            handleAuthorizationResult(invoiceId, source, handler, result, with);
                         }
                     });
         } catch (JSONException e) {
@@ -208,7 +206,7 @@ public class ProcessOut {
     }
 
     private void handleAuthorizationResult(
-            final String invoiceId, final String source, final ThreeDSHandler handler, AuthorizationResult result) {
+            final String invoiceId, final String source, final ThreeDSHandler handler, AuthorizationResult result, final Context with) {
         CustomerAction cA = result.getCustomerAction();
         if (cA == null) {
             // No customer action in the authorization result, we return the invoice id
@@ -225,7 +223,7 @@ public class ProcessOut {
                     public void continueCallback(ThreeDSFingerprintResponse request) {
                         MiscGatewayRequest gwayRequest = new MiscGatewayRequest(gson.toJson(request, ThreeDSFingerprintResponse.class));
                         String jsonRequest = Base64.encodeToString(gson.toJson(gwayRequest, MiscGatewayRequest.class).getBytes(), Base64.NO_WRAP);
-                        makeCardPayment(invoiceId, "gway_req_" + jsonRequest, handler);
+                        makeCardPayment(invoiceId, "gway_req_" + jsonRequest, handler, with);
                     }
                 });
                 break;
@@ -234,23 +232,20 @@ public class ProcessOut {
                 handler.doChallenge(authentificationData, new ThreeDSHandler.DoChallengeCallback() {
                     @Override
                     public void success() {
-                        makeCardPayment(invoiceId, ThreeDS2ChallengeSuccess, handler);
+                        makeCardPayment(invoiceId, ThreeDS2ChallengeSuccess, handler, with);
                     }
 
                     @Override
                     public void error() {
-                        makeCardPayment(invoiceId, ThreeDS2ChallengeError, handler);
+                        makeCardPayment(invoiceId, ThreeDS2ChallengeError, handler, with);
                     }
                 });
                 break;
             case REDIRECT:
             case URL:
                 // Create external webview
-                WebView theWebPage = new WebView(this.context);
-                theWebPage.getSettings().setJavaScriptEnabled(true);
-                theWebPage.getSettings().setPluginState(WebSettings.PluginState.ON);
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(cA.getValue()));
-                this.context.startActivity(browserIntent);
+                with.startActivity(browserIntent);
                 break;
             case FINGERPRINT:
                 // Build the fingerprint hidden webview
@@ -279,7 +274,7 @@ public class ProcessOut {
                         ((ViewGroup) fingerPrintWebView.getParent()).removeView(fingerPrintWebView);
                         fingerPrintWebView.destroy();
 
-                        makeCardPayment(invoiceId, fallbackGwayRequest.generateToken(), handler);
+                        makeCardPayment(invoiceId, fallbackGwayRequest.generateToken(), handler, with);
                     }
                 };
 
@@ -300,7 +295,7 @@ public class ProcessOut {
                             // Android version not supported for fingerprinting
                             token = fallbackGwayRequest.generateToken();
                         }
-                        makeCardPayment(invoiceId, token, handler);
+                        makeCardPayment(invoiceId, token, handler, with);
                         return super.shouldOverrideUrlLoading(view, request);
                     }
                 });
@@ -312,9 +307,15 @@ public class ProcessOut {
                 fingerPrintWebView.loadUrl(cA.getValue());
 
                 // Add the webview to content
-                Activity a = (Activity) this.context;
-                FrameLayout rootLayout = a.findViewById(android.R.id.content);
-                rootLayout.addView(fingerPrintWebView);
+                if (with instanceof Activity) {
+                    // We perform the fingerprint by displaying the hidden webview
+                    FrameLayout rootLayout = ((Activity)(with)).findViewById(android.R.id.content);
+                    rootLayout.addView(fingerPrintWebView);
+                } else {
+                    // We can't instantiate the webview so fallback to default fingerprinting value
+                    timeOutHandler.removeCallbacks(timeoutClearer);
+                    makeCardPayment(invoiceId, fallbackGwayRequest.generateToken(), handler, with);
+                }
                 break;
             default:
                 handler.onError(new ProcessOutException("Unhandled threeDS action:" + cA.getType().name()));

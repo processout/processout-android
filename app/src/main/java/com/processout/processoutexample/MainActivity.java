@@ -1,5 +1,6 @@
 package com.processout.processoutexample;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -64,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
     public void initiatePayment() {
         final ProcessOut p = new ProcessOut(this, "test-proj_gAO1Uu0ysZJvDuUpOGPkUBeE3pGalk3x");
         Card c = new Card("4000000000000259", 10, 20, "737");
+        final Activity with = this;
         p.tokenize(c, null, new TokenCallback() {
             @Override
             public void onError(Exception error) {
@@ -82,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onError(Exception error) {
                         Log.e("PROCESSOUT", error.toString());
                     }
-                }));
+                }), with);
             }
         });
     }

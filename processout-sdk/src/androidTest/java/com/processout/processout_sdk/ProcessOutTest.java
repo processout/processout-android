@@ -1,5 +1,7 @@
 package com.processout.processout_sdk;
 
+import android.app.Activity;
+import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.util.Log;
 
@@ -21,6 +23,7 @@ public class ProcessOutTest {
     private String privateKey = "key_sandbox_mah31RDFqcDxmaS7MvhDbJfDJvjtsFTB";
     final private ProcessOut p = new ProcessOut(InstrumentationRegistry.getContext(), projectId);
     private Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+    final Context withActivity = InstrumentationRegistry.getContext();
 
     @Test
     public void threeDS2Fingerprint() {
@@ -73,7 +76,7 @@ public class ProcessOutTest {
                                     public void onError(Exception error) {
                                         fail("ThreeDS2 failed");
                                     }
-                                });
+                                }, withActivity);
                             } catch (JSONException e) {
                                 fail("Unhandled exception");
                                 e.printStackTrace();
@@ -145,7 +148,7 @@ public class ProcessOutTest {
                                     public void onError(Exception error) {
                                         fail("ThreeDS2 failed" + error.toString());
                                     }
-                                });
+                                }, withActivity);
                             } catch (JSONException e) {
                                 fail("Unhandled exception");
                                 e.printStackTrace();
