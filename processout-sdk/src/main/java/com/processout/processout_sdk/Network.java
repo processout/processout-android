@@ -4,11 +4,13 @@ import android.content.Context;
 import android.util.Base64;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkError;
 import com.android.volley.NoConnectionError;
 import com.android.volley.ParseError;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
 import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
@@ -27,6 +29,8 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by jeremylejoux on 17/01/2018.
@@ -39,13 +43,18 @@ class Network {
     private static String projectId;
     private static String privateKey = "";
 
+    private static final int REQUEST_DEFAULT_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(15);
+    private static final int REQUEST_MAXIMUM_RETRIES = 2;
+
     protected static final String API_URL = "https://api.processout.com";
     protected static final String CHECKOUT_URL = "https://checkout.processout.com";
 
-    private Network() {}
+    private Network() {
+    }
 
     public interface NetworkResult {
         void onError(Exception error);
+
         void onSuccess(JSONObject json);
     }
 
@@ -63,9 +72,9 @@ class Network {
                 } else if (error instanceof AuthFailureError) {
                     callback.onError(new ProcessOutAuthException("Request not authorized"));
                 } else if (error instanceof ServerError) {
-                    if(error.networkResponse.data!=null) {
+                    if (error.networkResponse.data != null) {
                         try {
-                            String data = new String(error.networkResponse.data,"UTF-8");
+                            String data = new String(error.networkResponse.data, "UTF-8");
                             Gson g = new GsonBuilder()
                                     .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                                     .create();
@@ -83,15 +92,18 @@ class Network {
                     callback.onError(new ProcessOutException("Error while parsing server response"));
                 }
             }
-        }){
+        }) {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("Authorization", "Basic " + Base64.encodeToString((projectId + ":" + privateKey).getBytes(), Base64.NO_WRAP));
+                headers.put("Idempotency-Key", UUID.randomUUID().toString());
                 return headers;
             }
         };
 
+        RetryPolicy retryPolicy = new DefaultRetryPolicy(REQUEST_DEFAULT_TIMEOUT, REQUEST_MAXIMUM_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        request.setRetryPolicy(retryPolicy);
         queue.add(request);
     }
 
@@ -129,7 +141,8 @@ class ErrorReponse {
     private String errorType;
 
     public ErrorReponse(String errorMessage, String errorCode) {
-        this.message = message;this.errorType = errorType;
+        this.message = message;
+        this.errorType = errorType;
     }
 
     public String getErrorMessage() {
