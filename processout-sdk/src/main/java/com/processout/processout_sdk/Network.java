@@ -4,11 +4,13 @@ import android.content.Context;
 import android.util.Base64;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkError;
 import com.android.volley.NoConnectionError;
 import com.android.volley.ParseError;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
 import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
@@ -27,6 +29,8 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by jeremylejoux on 17/01/2018.
@@ -46,6 +50,7 @@ class Network {
 
     public interface NetworkResult {
         void onError(Exception error);
+
         void onSuccess(JSONObject json);
     }
 
@@ -63,7 +68,7 @@ class Network {
                 } else if (error instanceof AuthFailureError) {
                     callback.onError(new ProcessOutAuthException("Request not authorized"));
                 } else if (error instanceof ServerError) {
-                    if(error.networkResponse.data!=null) {
+                    if (error.networkResponse.data!=null) {
                         try {
                             String data = new String(error.networkResponse.data,"UTF-8");
                             Gson g = new GsonBuilder()
@@ -88,10 +93,13 @@ class Network {
             public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("Authorization", "Basic " + Base64.encodeToString((projectId + ":" + privateKey).getBytes(), Base64.NO_WRAP));
+                headers.put("Idempotency-Key", UUID.randomUUID().toString());
                 return headers;
             }
         };
 
+        RetryPolicy retryPolicy = new DefaultRetryPolicy((int) TimeUnit.SECONDS.toMillis(15), 2, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        request.setRetryPolicy(retryPolicy);
         queue.add(request);
     }
 
