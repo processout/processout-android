@@ -42,8 +42,9 @@ class Network {
     private static RequestQueue queue;
     private static String projectId;
     private static String privateKey = "";
-    private static int REQUEST_DEFAULT_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(15);
-    private static int REQUEST_MAXIMUM_RETRIES = 2;
+
+    private static final int REQUEST_DEFAULT_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(15);
+    private static final int REQUEST_MAXIMUM_RETRIES = 2;
 
     protected static final String API_URL = "https://api.processout.com";
     protected static final String CHECKOUT_URL = "https://checkout.processout.com";
