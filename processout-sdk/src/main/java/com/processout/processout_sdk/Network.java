@@ -46,7 +46,8 @@ class Network {
     protected static final String API_URL = "https://api.processout.com";
     protected static final String CHECKOUT_URL = "https://checkout.processout.com";
 
-    private Network() {}
+    private Network() {
+    }
 
     public interface NetworkResult {
         void onError(Exception error);
@@ -68,9 +69,9 @@ class Network {
                 } else if (error instanceof AuthFailureError) {
                     callback.onError(new ProcessOutAuthException("Request not authorized"));
                 } else if (error instanceof ServerError) {
-                    if (error.networkResponse.data!=null) {
+                    if (error.networkResponse.data != null) {
                         try {
-                            String data = new String(error.networkResponse.data,"UTF-8");
+                            String data = new String(error.networkResponse.data, "UTF-8");
                             Gson g = new GsonBuilder()
                                     .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                                     .create();
@@ -88,7 +89,7 @@ class Network {
                     callback.onError(new ProcessOutException("Error while parsing server response"));
                 }
             }
-        }){
+        }) {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
@@ -137,7 +138,8 @@ class ErrorReponse {
     private String errorType;
 
     public ErrorReponse(String errorMessage, String errorCode) {
-        this.message = message;this.errorType = errorType;
+        this.message = message;
+        this.errorType = errorType;
     }
 
     public String getErrorMessage() {
