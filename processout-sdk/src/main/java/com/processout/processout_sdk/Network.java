@@ -42,6 +42,8 @@ class Network {
     private static RequestQueue queue;
     private static String projectId;
     private static String privateKey = "";
+    private static int REQUEST_DEFAULT_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(15);
+    private static int REQUEST_MAXIMUM_RETRIES = 2;
 
     protected static final String API_URL = "https://api.processout.com";
     protected static final String CHECKOUT_URL = "https://checkout.processout.com";
@@ -99,7 +101,7 @@ class Network {
             }
         };
 
-        RetryPolicy retryPolicy = new DefaultRetryPolicy((int) TimeUnit.SECONDS.toMillis(15), 2, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        RetryPolicy retryPolicy = new DefaultRetryPolicy(REQUEST_DEFAULT_TIMEOUT, REQUEST_MAXIMUM_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
         request.setRetryPolicy(retryPolicy);
         queue.add(request);
     }
