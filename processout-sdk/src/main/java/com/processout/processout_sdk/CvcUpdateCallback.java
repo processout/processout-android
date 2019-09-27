@@ -6,5 +6,6 @@ package com.processout.processout_sdk;
 
 public interface CvcUpdateCallback {
     public void onSuccess();
+
     public void onError(Exception error);
 }

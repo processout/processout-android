@@ -1,5 +1,7 @@
 package com.processout.processout_sdk;
 
+import com.processout.processout_sdk.POWebViews.ProcessOutWebView;
+
 public interface ThreeDSHandler {
 
     interface DoFingerprintCallback {
@@ -10,12 +12,15 @@ public interface ThreeDSHandler {
 
     interface DoChallengeCallback {
         void success();
+
         void error();
     }
 
     void doChallenge(AuthenticationChallengeData authentificationData, DoChallengeCallback callback);
 
-    void onSuccess(String invoiceId);
+    void doPresentWebView(ProcessOutWebView webView);
+
+    void onSuccess(String id);
 
     void onError(Exception error);
 }
