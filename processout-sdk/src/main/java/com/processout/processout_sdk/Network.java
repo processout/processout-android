@@ -40,7 +40,7 @@ class Network {
     private static String privateKey = "";
 
     private static final String API_URL = "https://api.processout.com";
-    private static final String CHECKOUT_URL = "https://checkout.processout.com";
+    protected static final String CHECKOUT_URL = "https://checkout.processout.com";
 
     private Network() {
     }

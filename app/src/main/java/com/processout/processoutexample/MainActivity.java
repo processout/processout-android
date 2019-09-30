@@ -9,11 +9,15 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.processout.processout_sdk.AlternativeGateway;
 import com.processout.processout_sdk.Card;
+import com.processout.processout_sdk.ListAlternativeMethodsCallback;
 import com.processout.processout_sdk.ProcessOut;
 import com.processout.processout_sdk.ThreeDSVerificationCallback;
 import com.processout.processout_sdk.TokenCallback;
 import com.processout.processout_sdk.WebViewReturnAction;
+
+import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -29,42 +33,15 @@ public class MainActivity extends AppCompatActivity {
             this.initiatePayment();
         else {
             // Check if the activity has been opened from ProcessOut
-            WebViewReturnAction returnAction = ProcessOut.handleProcessOutReturn(data);
-            if (returnAction == null) {
-                // Opening URI is not from ProcessOut
-            } else {
-                switch (returnAction.getType()) {
-                    case APMAuthorization:
-                        // Value contains the APM token
-                        if (returnAction.isSuccess())
-                            Log.d("PROCESSOUT", returnAction.getValue());
-                        break;
-                    case ThreeDSVerification:
-                        // Value contains the invoice_id
-                        if (returnAction.isSuccess())
-                            Log.d("PROCESSOUT", returnAction.getValue());
-                        break;
-                    case ThreeDSFallbackVerification:
-                        new ProcessOut(this, "test-proj_gAO1Uu0ysZJvDuUpOGPkUBeE3pGalk3x").continueThreeDSVerification(returnAction.getInvoiceId(), returnAction.getValue(), new ThreeDSVerificationCallback() {
-                            @Override
-                            public void onSuccess(String invoiceId) {
-                                Log.d("PROCESSOUT", invoiceId);
-                            }
-
-                            @Override
-                            public void onError(Exception error) {
-                                Log.d("PROCESSOUT",  error.toString());
-                            }
-                        });
-                        break;
-                }
-            }
+            String gatewayToken = ProcessOut.handleURLCallback(data);
+            if (gatewayToken != null)
+                Log.d("PROCESSOUT", gatewayToken); // Send the token to backend
         }
     }
 
     public void initiatePayment() {
         final ProcessOut p = new ProcessOut(this, "test-proj_gAO1Uu0ysZJvDuUpOGPkUBeE3pGalk3x");
-        Card c = new Card("4000000000000259", 10, 20, "737");
+        Card c = new Card("4000000000003253", 10, 20, "737");
         final Activity with = this;
         p.tokenize(c, null, new TokenCallback() {
             @Override
@@ -74,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onSuccess(String token) {
-                p.makeCardPayment("invoiceId", token, ProcessOut.createDefaultTestHandler(MainActivity.this, new ProcessOut.ThreeDSHandlerTestCallback() {
+                p.makeCardPayment("iv_OSC3heaP1zR7ywLc4GrebqxqHRTuXqG8", token, ProcessOut.createDefaultTestHandler(MainActivity.this, new ProcessOut.ThreeDSHandlerTestCallback() {
                     @Override
                     public void onSuccess(String invoiceId) {
                         Log.d("PROCESSOUT", "invoice: " + invoiceId);
