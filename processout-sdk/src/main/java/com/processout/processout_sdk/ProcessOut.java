@@ -29,7 +29,7 @@ import java.util.ArrayList;
 
 public class ProcessOut {
 
-    public static final String SDK_VERSION = "v2.9.2";
+    public static final String SDK_VERSION = "v2.10.0";
 
     private String projectId;
     private Context context;
