@@ -16,10 +16,7 @@ class CustomerAction {
         @SerializedName("fingerprint")
         FINGERPRINT
     }
-
-    ;
-
-
+    
     @SerializedName("type")
     private CustomerActionType type;
     @SerializedName("value")
