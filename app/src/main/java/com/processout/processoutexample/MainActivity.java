@@ -29,14 +29,15 @@ public class MainActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         Uri data = intent.getData();
-        if (data == null)
+        if (data == null) {
             this.initiatePayment();
-        else {
-            // Check if the activity has been opened from ProcessOut
-            String gatewayToken = ProcessOut.handleURLCallback(data);
-            if (gatewayToken != null)
-                Log.d("PROCESSOUT", gatewayToken); // Send the token to backend
+            return;
         }
+
+        // Check if the activity has been opened from ProcessOut
+        String gatewayToken = ProcessOut.handleURLCallback(data);
+        if (gatewayToken != null)
+            Log.d("PROCESSOUT", gatewayToken); // Send the token to backend
     }
 
     public void initiatePayment() {
