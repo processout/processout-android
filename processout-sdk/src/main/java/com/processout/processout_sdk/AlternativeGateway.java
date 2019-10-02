@@ -3,8 +3,7 @@ package com.processout.processout_sdk;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
+import android.support.annotation.NonNull;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -24,14 +23,8 @@ public class AlternativeGateway {
     private String projectId;
     private Context context;
 
-    /**
-     *
-     */
     public void redirect() {
-        WebView theWebPage = new WebView(this.context);
-        theWebPage.getSettings().setJavaScriptEnabled(true);
-        theWebPage.getSettings().setPluginState(WebSettings.PluginState.ON);
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Network.CHECKOUT_URL + this.projectId + "/" + this.invoiceId + "/redirect/" + this.id));
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Network.CHECKOUT_URL + "/" + this.projectId + "/" + this.invoiceId + "/redirect/" + this.id));
         this.context.startActivity(browserIntent);
     }
 
