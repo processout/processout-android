@@ -97,6 +97,7 @@ class Network {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("Authorization", "Basic " + Base64.encodeToString((projectId + ":" + privateKey).getBytes(), Base64.NO_WRAP));
                 headers.put("Idempotency-Key", UUID.randomUUID().toString());
+                headers.put("User-Agent", System.getProperty("http.agent") + " ProcessOut Android-Bindings/" + ProcessOut.SDK_VERSION);
                 return headers;
             }
         };
