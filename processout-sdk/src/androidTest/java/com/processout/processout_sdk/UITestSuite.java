@@ -114,7 +114,7 @@ public class UITestSuite {
                                         webView.loadUrl("javascript:document.getElementsByTagName('a')[0].click()");
                                     }
                                 };
-                                handler.postDelayed(r, 4000);
+                                handler.postDelayed(r, 10000);
                             }
 
                             @Override
@@ -124,8 +124,7 @@ public class UITestSuite {
 
                             @Override
                             public void onError(Exception error) {
-                                signal.countDown();
-//                                fail("ThreeDS2 failed");
+                                fail("ThreeDS2 failed");
                             }
                         }, withActivity);
                     }
@@ -379,7 +378,7 @@ public class UITestSuite {
 
                             @Override
                             public void onSuccess(String invoiceId) {
-                                fail("ThreeDS2 succeeded but should have failed.");
+                                fail("ThreeDS2 should have failed.");
                             }
 
                             @Override
@@ -471,8 +470,7 @@ public class UITestSuite {
 
                             @Override
                             public void onError(Exception error) {
-                                signal.countDown();
-//                                fail("ThreeDS2 failed");
+                                fail("ThreeDS2 failed");
                             }
                         }, withActivity);
                     }
