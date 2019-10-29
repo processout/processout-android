@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -16,6 +17,7 @@ import com.google.gson.GsonBuilder;
 import com.processout.processout_sdk.POWebViews.CardTokenWebView;
 import com.processout.processout_sdk.POWebViews.PaymentWebView;
 import com.processout.processout_sdk.POWebViews.ProcessOutWebView;
+import com.processout.processout_sdk.ProcessOutExceptions.ProcessOutException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -167,6 +169,17 @@ public class ProcessOut {
     }
 
     /**
+     * @param apm
+     * @param customerId
+     * @param tokenId
+     */
+    public void makeAPMToken(@NonNull AlternativeGateway apm, @NonNull String customerId, @NonNull String tokenId) {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW,
+                Uri.parse(Network.CHECKOUT_URL + "/" + this.projectId + "/" + customerId + "/" + tokenId + "/redirect/" + apm.getId()));
+        this.context.startActivity(browserIntent);
+    }
+
+    /**
      * Allow card payments authorization (with 3DS2 support)
      *
      * @param invoiceId previously generated invoice
@@ -267,12 +280,44 @@ public class ProcessOut {
      *
      * @param uri Uri from a deep-link app opening
      * @return The gateway token if available, null otherwise
+     * @deprecated Use handleAPMURLCallback instead
      */
     public static String handleURLCallback(@NonNull Uri uri) {
         if (uri.getHost().matches("processout.return"))
             return uri.getQueryParameter("token");
 
         return null;
+    }
+
+    /**
+     * Parses an intent uri. Either for an APM payment return or after an makeAPMToken call
+     *
+     * @param uri Uri from a deep-link app opening
+     * @return Null if the URL is not a correct processout url.
+     * An APMTokenReturn object containing the customerId, tokenId and new token source
+     * to update the customer token from your backend otherwise
+     */
+    public static APMTokenReturn handleAMPURLCallback(@NonNull Uri uri) {
+        if (!uri.getHost().matches("processout.return")) {
+            return null;
+        }
+
+        String token = uri.getQueryParameter("token");
+        String customerId = uri.getQueryParameter("customer_id");
+        String tokenId = uri.getQueryParameter("token_id");
+
+        // Check if we have a customer id and token id
+        if (customerId == null || tokenId == null || customerId.isEmpty() || tokenId.isEmpty()) {
+            // if not check if we have a token
+            if (token == null || token.isEmpty())
+                // No parameter token is available
+                return new APMTokenReturn(new ProcessOutException("Missing APM token in return paramaters"));
+            // Case of simple APM authorization
+            return new APMTokenReturn(token);
+        }
+
+        // Case of token creation
+        return new APMTokenReturn(token, customerId, tokenId);
     }
 
     public interface ThreeDSHandlerTestCallback {
