@@ -307,9 +307,10 @@ public class ProcessOut {
         String tokenId = uri.getQueryParameter("token_id");
 
         // if not check if we have a token
-        if (token == null || token.isEmpty())
+        if (token == null || token.isEmpty()) {
             // No parameter token is available
             return new APMTokenReturn(new ProcessOutException("Missing APM token in return paramaters"));
+        }
 
         // Check if we have a customer id and token id
         if (customerId != null && tokenId != null && !customerId.isEmpty() && !tokenId.isEmpty()) {
