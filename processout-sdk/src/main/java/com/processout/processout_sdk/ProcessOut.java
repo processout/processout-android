@@ -307,17 +307,17 @@ public class ProcessOut {
         String tokenId = uri.getQueryParameter("token_id");
 
         // Check if we have a customer id and token id
-        if (customerId == null || tokenId == null || customerId.isEmpty() || tokenId.isEmpty()) {
-            // if not check if we have a token
-            if (token == null || token.isEmpty())
-                // No parameter token is available
-                return new APMTokenReturn(new ProcessOutException("Missing APM token in return paramaters"));
-            // Case of simple APM authorization
-            return new APMTokenReturn(token);
+        if (customerId != null && tokenId != null && !customerId.isEmpty() && !tokenId.isEmpty()) {
+            // Case of token creation
+            return new APMTokenReturn(token, customerId, tokenId);
         }
 
-        // Case of token creation
-        return new APMTokenReturn(token, customerId, tokenId);
+        // if not check if we have a token
+        if (token == null || token.isEmpty())
+            // No parameter token is available
+            return new APMTokenReturn(new ProcessOutException("Missing APM token in return paramaters"));
+        // Case of simple APM authorization
+        return new APMTokenReturn(token);
     }
 
     public interface ThreeDSHandlerTestCallback {
