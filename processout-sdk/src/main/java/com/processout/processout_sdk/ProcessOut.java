@@ -130,12 +130,13 @@ public class ProcessOut {
     }
 
     /**
-     * Retrieves the list of active alternative payment methods
+     * Retrieves the list of gateway configurations
      *
      * @param invoiceId Invoice ID that should be used for charging (this needs to be generated on your backend).
      *                  Keep in mind that you should set the return_url to "your_app://processout.return".
      *                  Check https://www.docs.processsout.com for more details
-     * @param callback  Callback for listing alternative payment methods
+     * @param filter    Filter for gateway configurations
+     * @param callback  Callback for listing gateway configurations
      */
     public void fetchGatewayConfigurations(@NonNull final String invoiceId, @NonNull GatewaysListingFilter filter, @NonNull final FetchGatewaysConfigurationsCallback callback) {
         final Context context = this.context;
