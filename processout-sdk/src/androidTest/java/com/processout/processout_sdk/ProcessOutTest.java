@@ -10,6 +10,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
 import androidx.test.core.app.ApplicationProvider;
@@ -54,7 +55,7 @@ public class ProcessOutTest {
     }
 
     @Test
-    public void listAlternativePaymentGateways() {
+    public void listPaymentGateways() {
         final CountDownLatch signal = new CountDownLatch(1);
 
         Invoice invoice = new Invoice("test", "123.0", "EUR", new Device("android"));
@@ -68,7 +69,25 @@ public class ProcessOutTest {
 
                 @Override
                 public void onSuccess(JSONObject json) {
-                    signal.countDown();
+                    Invoice invoiceResult = null;
+                    try {
+                        invoiceResult = gson.fromJson(json.getJSONObject("invoice").toString(), Invoice.class);
+                    } catch (JSONException e) {
+                        fail("Unhandled exception");
+                        e.printStackTrace();
+                        return;
+                    }
+                    p.fetchGatewayConfigurations(invoiceResult.getId(), ProcessOut.GatewaysListingFilter.AlternativePaymentMethodWithTokenization, new FetchGatewaysConfigurationsCallback() {
+                        @Override
+                        public void onSuccess(ArrayList<GatewayConfiguration> gateways) {
+                            signal.countDown();
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            fail("Error while fetching gateways");
+                        }
+                    });
                 }
             });
         } catch (JSONException e) {
