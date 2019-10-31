@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
@@ -123,6 +122,13 @@ public class ProcessOut {
         }
     }
 
+
+    public enum GatewaysListingFilter {
+        All,
+        AlternativePaymentMethods,
+        AlternativePaymentMethodWithTokenization
+    }
+
     /**
      * Retrieves the list of active alternative payment methods
      *
@@ -131,13 +137,25 @@ public class ProcessOut {
      *                  Check https://www.docs.processsout.com for more details
      * @param callback  Callback for listing alternative payment methods
      */
-    public void listAlternativeMethods(@NonNull final String invoiceId, @NonNull final ListAlternativeMethodsCallback callback) {
+    public void fetchGatewayConfigurations(@NonNull final String invoiceId, @NonNull GatewaysListingFilter filter, @NonNull final FetchGatewaysConfigurationsCallback callback) {
         final Context context = this.context;
         final String projectId = this.projectId;
 
 
+        String filterValue;
+        switch (filter) {
+            case AlternativePaymentMethods:
+                filterValue = "alternative-payment-methods";
+                break;
+            case AlternativePaymentMethodWithTokenization:
+                filterValue = "alternative-payment-methods-with-tokenization";
+                break;
+            default:
+                filterValue = "";
+        }
+
         Network.getInstance(this.context, this.projectId).CallProcessOut(
-                "/gateway-configurations?filter=alternative-payment-methods&expand_merchant_accounts=true",
+                "/gateway-configurations?filter=" + filterValue + "&expand_merchant_accounts=true",
                 Request.Method.GET, null, new Network.NetworkResult() {
                     @Override
                     public void onError(Exception error) {
@@ -149,10 +167,10 @@ public class ProcessOut {
                         try {
                             JSONArray configs = json.getJSONArray("gateway_configurations");
 
-                            ArrayList<AlternativeGateway> gways = new ArrayList<>();
+                            ArrayList<GatewayConfiguration> gways = new ArrayList<>();
                             for (int i = 0; i < configs.length(); i++) {
-                                AlternativeGateway g = gson.fromJson(
-                                        configs.getJSONObject(i).toString(), AlternativeGateway.class);
+                                GatewayConfiguration g = gson.fromJson(
+                                        configs.getJSONObject(i).toString(), GatewayConfiguration.class);
                                 g.setContext(context);
                                 g.setProjectId(projectId);
                                 g.setInvoiceId(invoiceId);
@@ -173,7 +191,7 @@ public class ProcessOut {
      * @param customerId
      * @param tokenId
      */
-    public void makeAPMToken(@NonNull AlternativeGateway apm, @NonNull String customerId, @NonNull String tokenId) {
+    public void makeAPMToken(@NonNull GatewayConfiguration apm, @NonNull String customerId, @NonNull String tokenId) {
         Intent browserIntent = new Intent(Intent.ACTION_VIEW,
                 Uri.parse(Network.CHECKOUT_URL + "/" + this.projectId + "/" + customerId + "/" + tokenId + "/redirect/" + apm.getId()));
         this.context.startActivity(browserIntent);

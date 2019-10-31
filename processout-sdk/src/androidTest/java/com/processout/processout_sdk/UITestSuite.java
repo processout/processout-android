@@ -16,6 +16,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
 import androidx.test.filters.LargeTest;
@@ -67,7 +68,6 @@ public class UITestSuite {
                     fail("Could not encode body");
                     return;
                 }
-
                 Network.getTestInstance(withActivity, projectId, privateKey).CallProcessOut("/invoices", Request.Method.POST, body, new Network.NetworkResult() {
                     @Override
                     public void onError(Exception error) {
@@ -652,6 +652,31 @@ public class UITestSuite {
                         }, withActivity);
                     }
                 });
+            }
+        });
+
+        try {
+            signal.await();// wait for callback
+        } catch (InterruptedException e) {
+            fail("Could not run test");
+        }
+    }
+
+    @Test
+    public void testAPMTokenization() {
+        final CountDownLatch signal = new CountDownLatch(1);
+
+        final Activity withActivity = activityRule.getActivity();
+        final ProcessOut p = new ProcessOut(withActivity, "test-proj_gAO1Uu0ysZJvDuUpOGPkUBeE3pGalk3x");
+        p.listAlternativeMethods("iv_SuD6GUamoeLgYmRnDlEzM0wqamxW4WeY", new FetchGatewaysConfigurationsCallback() {
+            @Override
+            public void onSuccess(ArrayList<GatewayConfiguration> gateways) {
+                p.makeAPMToken(gateways.get(0), "cust_EiSdjbzbOPDMdFe0SFpe127T7eRcmLqK", "tok_ugUzL4AMG4ThOYOf2r12LKHFvlRyiEmV");
+            }
+
+            @Override
+            public void onError(Exception e) {
+                fail("Failed listing APM methods.");
             }
         });
 

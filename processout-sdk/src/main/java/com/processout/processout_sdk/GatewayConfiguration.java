@@ -7,7 +7,7 @@ import android.support.annotation.NonNull;
 
 import com.google.gson.annotations.SerializedName;
 
-public class AlternativeGateway {
+public class GatewayConfiguration {
     @SerializedName("id")
     private String id;
     @SerializedName("name")
