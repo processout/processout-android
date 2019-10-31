@@ -77,7 +77,7 @@ public class ProcessOutTest {
                         e.printStackTrace();
                         return;
                     }
-                    p.fetchGatewayConfigurations(invoiceResult.getId(), ProcessOut.GatewaysListingFilter.AlternativePaymentMethodWithTokenization, new FetchGatewaysConfigurationsCallback() {
+                    p.fetchGatewayConfigurations(ProcessOut.GatewaysListingFilter.AlternativePaymentMethodWithTokenization, new FetchGatewaysConfigurationsCallback() {
                         @Override
                         public void onSuccess(ArrayList<GatewayConfiguration> gateways) {
                             signal.countDown();

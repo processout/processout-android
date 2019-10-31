@@ -132,16 +132,10 @@ public class ProcessOut {
     /**
      * Retrieves the list of gateway configurations
      *
-     * @param invoiceId Invoice ID that should be used for charging (this needs to be generated on your backend).
-     *                  Keep in mind that you should set the return_url to "your_app://processout.return".
-     *                  Check https://www.docs.processsout.com for more details
-     * @param filter    Filter for gateway configurations
-     * @param callback  Callback for listing gateway configurations
+     * @param filter   Filter for gateway configurations
+     * @param callback Callback for listing gateway configurations
      */
-    public void fetchGatewayConfigurations(@NonNull final String invoiceId, @NonNull GatewaysListingFilter filter, @NonNull final FetchGatewaysConfigurationsCallback callback) {
-        final Context context = this.context;
-        final String projectId = this.projectId;
-
+    public void fetchGatewayConfigurations(@NonNull GatewaysListingFilter filter, @NonNull final FetchGatewaysConfigurationsCallback callback) {
 
         String filterValue;
         switch (filter) {
@@ -172,9 +166,6 @@ public class ProcessOut {
                             for (int i = 0; i < configs.length(); i++) {
                                 GatewayConfiguration g = gson.fromJson(
                                         configs.getJSONObject(i).toString(), GatewayConfiguration.class);
-                                g.setContext(context);
-                                g.setProjectId(projectId);
-                                g.setInvoiceId(invoiceId);
                                 gways.add(g);
                             }
 
@@ -188,13 +179,26 @@ public class ProcessOut {
     }
 
     /**
-     * @param apm
-     * @param customerId
-     * @param tokenId
+     * Redirects the user to an alternative payment method payment page to authorize a token
+     *
+     * @param apm        Gateway previously retrieved
+     * @param customerId Customer ID created on your backend
+     * @param tokenId    Customer token ID created on your backend with empty source
      */
     public void makeAPMToken(@NonNull GatewayConfiguration apm, @NonNull String customerId, @NonNull String tokenId) {
         Intent browserIntent = new Intent(Intent.ACTION_VIEW,
                 Uri.parse(Network.CHECKOUT_URL + "/" + this.projectId + "/" + customerId + "/" + tokenId + "/redirect/" + apm.getId()));
+        this.context.startActivity(browserIntent);
+    }
+
+    /**
+     * Redirects the user to an alternative payment method payment page to complete a payment
+     *
+     * @param apm       Gateway previously retrieved
+     * @param invoiceId Invoice created on your backend
+     */
+    public void makeAPMPayment(@NonNull GatewayConfiguration apm, @NonNull String invoiceId) {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Network.CHECKOUT_URL + "/" + this.projectId + "/" + invoiceId + "/redirect/" + apm.getId()));
         this.context.startActivity(browserIntent);
     }
 
