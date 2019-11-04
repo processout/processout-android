@@ -419,21 +419,30 @@ public class ProcessOut {
      * @return a query parameter String containing the additionalData for an APM
      */
     private String generateAdditionalDataString(@NonNull Map<String, String> additionalData) {
+        // String builder
         StringBuilder builder = new StringBuilder("");
+
+        // Loop over every key value
         for (String key : additionalData.keySet()) {
+            // If the builder is not empty we concat with a &
             if (builder.length() > 0) {
                 builder.append("&");
             }
+
+            // Try to encode the value
             String encodedValue;
             try {
                 encodedValue = URLEncoder.encode(additionalData.get(key), "UTF-8");
             } catch (UnsupportedEncodingException e) {
+                // We default to an empty value in case the encoding fails
                 encodedValue = "";
             }
 
+            // append the key value generated
             builder.append("additional_data[" + key + "]=" + encodedValue);
         }
 
+        // Return the builder completion
         return builder.toString();
     }
 
