@@ -22,7 +22,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by jeremylejoux on 17/01/2018.
@@ -181,13 +185,62 @@ public class ProcessOut {
     /**
      * Redirects the user to an alternative payment method payment page to authorize a token
      *
+     * @param apm            Gateway previously retrieved
+     * @param customerId     Customer ID created on your backend
+     * @param tokenId        Customer token ID created on your backend with empty source
+     * @param additionalData AdditionalData to send to the APM
+     */
+    public void makeAPMToken(@NonNull GatewayConfiguration apm, @NonNull String customerId, @NonNull String tokenId, @NonNull Map<String, String> additionalData) {
+        // Build the URL
+        String baseUrl = Network.CHECKOUT_URL + "/" + this.projectId;
+        String checkout = "/" + customerId + "/" + tokenId + "/redirect/" + apm.getId();
+        String globalUrl = baseUrl + checkout;
+
+        // Buld the additionalData string
+        String additionalDataString = generateAdditionalDataString(additionalData);
+        if (!additionalData.isEmpty()) {
+            // Add it if it's not empty
+            globalUrl += "?" + additionalDataString;
+        }
+
+        // Start the redirection
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(globalUrl));
+        this.context.startActivity(browserIntent);
+    }
+
+    /**
+     * Redirects the user to an alternative payment method payment page to authorize a token
+     *
      * @param apm        Gateway previously retrieved
      * @param customerId Customer ID created on your backend
      * @param tokenId    Customer token ID created on your backend with empty source
      */
     public void makeAPMToken(@NonNull GatewayConfiguration apm, @NonNull String customerId, @NonNull String tokenId) {
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW,
-                Uri.parse(Network.CHECKOUT_URL + "/" + this.projectId + "/" + customerId + "/" + tokenId + "/redirect/" + apm.getId()));
+        // Calling makeAPMToken with an empty additionalData parameter
+        makeAPMToken(apm, customerId, tokenId, new HashMap<String, String>());
+    }
+
+    /**
+     * Redirects the user to an alternative payment method payment page to complete a payment
+     *
+     * @param apm            Gateway previously retrieved
+     * @param invoiceId      Invoice created on your backend
+     * @param additionalData AdditionalData to send to the APM
+     */
+    public void makeAPMPayment(@NonNull GatewayConfiguration apm, @NonNull String invoiceId, @NonNull Map<String, String> additionalData) {
+        // Build the URL
+        String baseUrl = Network.CHECKOUT_URL + "/" + this.projectId;
+        String checkout = "/" + invoiceId + "/redirect/" + apm.getId();
+        String globalUrl = baseUrl + checkout;
+
+        // Buld the additionalData string
+        String additionalDataString = generateAdditionalDataString(additionalData);
+        if (!additionalData.isEmpty()) {
+            // Add it if it's not empty
+            globalUrl += "?" + additionalDataString;
+        }
+
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(globalUrl));
         this.context.startActivity(browserIntent);
     }
 
@@ -198,8 +251,8 @@ public class ProcessOut {
      * @param invoiceId Invoice created on your backend
      */
     public void makeAPMPayment(@NonNull GatewayConfiguration apm, @NonNull String invoiceId) {
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Network.CHECKOUT_URL + "/" + this.projectId + "/" + invoiceId + "/redirect/" + apm.getId()));
-        this.context.startActivity(browserIntent);
+        // Call makeAPMPayment with empty additionalData parameter
+        makeAPMPayment(apm, invoiceId, new HashMap<String, String>());
     }
 
     /**
@@ -359,6 +412,38 @@ public class ProcessOut {
         webView.onPause();
         webView.destroy();
 
+    }
+
+    /**
+     * @param additionalData additionalData to be sent to an APM
+     * @return a query parameter String containing the additionalData for an APM
+     */
+    private String generateAdditionalDataString(@NonNull Map<String, String> additionalData) {
+        // String builder
+        StringBuilder builder = new StringBuilder("");
+
+        // Loop over every key value
+        for (String key : additionalData.keySet()) {
+            // If the builder is not empty we concat with a &
+            if (builder.length() > 0) {
+                builder.append("&");
+            }
+
+            // Try to encode the value
+            String encodedValue;
+            try {
+                encodedValue = URLEncoder.encode(additionalData.get(key), "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                // We default to an empty value in case the encoding fails
+                encodedValue = "";
+            }
+
+            // append the key value generated
+            builder.append("additional_data[" + key + "]=" + encodedValue);
+        }
+
+        // Return the builder completion
+        return builder.toString();
     }
 
     /**
