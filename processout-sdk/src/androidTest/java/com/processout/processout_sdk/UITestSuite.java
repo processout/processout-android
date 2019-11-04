@@ -16,6 +16,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
 import androidx.test.filters.LargeTest;
@@ -67,7 +68,6 @@ public class UITestSuite {
                     fail("Could not encode body");
                     return;
                 }
-
                 Network.getTestInstance(withActivity, projectId, privateKey).CallProcessOut("/invoices", Request.Method.POST, body, new Network.NetworkResult() {
                     @Override
                     public void onError(Exception error) {

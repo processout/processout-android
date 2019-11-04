@@ -4,9 +4,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
@@ -16,6 +16,7 @@ import com.google.gson.GsonBuilder;
 import com.processout.processout_sdk.POWebViews.CardTokenWebView;
 import com.processout.processout_sdk.POWebViews.PaymentWebView;
 import com.processout.processout_sdk.POWebViews.ProcessOutWebView;
+import com.processout.processout_sdk.ProcessOutExceptions.ProcessOutException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,7 +30,7 @@ import java.util.ArrayList;
 
 public class ProcessOut {
 
-    public static final String SDK_VERSION = "v2.10.0";
+    public static final String SDK_VERSION = "v2.11.0";
 
     private String projectId;
     private Context context;
@@ -121,21 +122,35 @@ public class ProcessOut {
         }
     }
 
-    /**
-     * Retrieves the list of active alternative payment methods
-     *
-     * @param invoiceId Invoice ID that should be used for charging (this needs to be generated on your backend).
-     *                  Keep in mind that you should set the return_url to "your_app://processout.return".
-     *                  Check https://www.docs.processsout.com for more details
-     * @param callback  Callback for listing alternative payment methods
-     */
-    public void listAlternativeMethods(@NonNull final String invoiceId, @NonNull final ListAlternativeMethodsCallback callback) {
-        final Context context = this.context;
-        final String projectId = this.projectId;
 
+    public enum GatewaysListingFilter {
+        All,
+        AlternativePaymentMethods,
+        AlternativePaymentMethodWithTokenization
+    }
+
+    /**
+     * Retrieves the list of gateway configurations
+     *
+     * @param filter   Filter for gateway configurations
+     * @param callback Callback for listing gateway configurations
+     */
+    public void fetchGatewayConfigurations(@NonNull GatewaysListingFilter filter, @NonNull final FetchGatewaysConfigurationsCallback callback) {
+
+        String filterValue;
+        switch (filter) {
+            case AlternativePaymentMethods:
+                filterValue = "alternative-payment-methods";
+                break;
+            case AlternativePaymentMethodWithTokenization:
+                filterValue = "alternative-payment-methods-with-tokenization";
+                break;
+            default:
+                filterValue = "";
+        }
 
         Network.getInstance(this.context, this.projectId).CallProcessOut(
-                "/gateway-configurations?filter=alternative-payment-methods&expand_merchant_accounts=true",
+                "/gateway-configurations?filter=" + filterValue + "&expand_merchant_accounts=true",
                 Request.Method.GET, null, new Network.NetworkResult() {
                     @Override
                     public void onError(Exception error) {
@@ -147,13 +162,10 @@ public class ProcessOut {
                         try {
                             JSONArray configs = json.getJSONArray("gateway_configurations");
 
-                            ArrayList<AlternativeGateway> gways = new ArrayList<>();
+                            ArrayList<GatewayConfiguration> gways = new ArrayList<>();
                             for (int i = 0; i < configs.length(); i++) {
-                                AlternativeGateway g = gson.fromJson(
-                                        configs.getJSONObject(i).toString(), AlternativeGateway.class);
-                                g.setContext(context);
-                                g.setProjectId(projectId);
-                                g.setInvoiceId(invoiceId);
+                                GatewayConfiguration g = gson.fromJson(
+                                        configs.getJSONObject(i).toString(), GatewayConfiguration.class);
                                 gways.add(g);
                             }
 
@@ -164,6 +176,30 @@ public class ProcessOut {
                         }
                     }
                 });
+    }
+
+    /**
+     * Redirects the user to an alternative payment method payment page to authorize a token
+     *
+     * @param apm        Gateway previously retrieved
+     * @param customerId Customer ID created on your backend
+     * @param tokenId    Customer token ID created on your backend with empty source
+     */
+    public void makeAPMToken(@NonNull GatewayConfiguration apm, @NonNull String customerId, @NonNull String tokenId) {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW,
+                Uri.parse(Network.CHECKOUT_URL + "/" + this.projectId + "/" + customerId + "/" + tokenId + "/redirect/" + apm.getId()));
+        this.context.startActivity(browserIntent);
+    }
+
+    /**
+     * Redirects the user to an alternative payment method payment page to complete a payment
+     *
+     * @param apm       Gateway previously retrieved
+     * @param invoiceId Invoice created on your backend
+     */
+    public void makeAPMPayment(@NonNull GatewayConfiguration apm, @NonNull String invoiceId) {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Network.CHECKOUT_URL + "/" + this.projectId + "/" + invoiceId + "/redirect/" + apm.getId()));
+        this.context.startActivity(browserIntent);
     }
 
     /**
@@ -267,12 +303,46 @@ public class ProcessOut {
      *
      * @param uri Uri from a deep-link app opening
      * @return The gateway token if available, null otherwise
+     * @deprecated Use handleAPMURLCallback instead
      */
     public static String handleURLCallback(@NonNull Uri uri) {
         if (uri.getHost().matches("processout.return"))
             return uri.getQueryParameter("token");
 
         return null;
+    }
+
+    /**
+     * Parses an intent uri. Either for an APM payment return or after an makeAPMToken call
+     *
+     * @param uri Uri from a deep-link app opening
+     * @return Null if the URL is not a correct processout url.
+     * An APMTokenReturn object containing the customerId, tokenId and new token source
+     * to update the customer token from your backend otherwise
+     */
+    public static APMTokenReturn handleAMPURLCallback(@NonNull Uri uri) {
+        if (!uri.getHost().matches("processout.return")) {
+            return null;
+        }
+
+        String token = uri.getQueryParameter("token");
+        String customerId = uri.getQueryParameter("customer_id");
+        String tokenId = uri.getQueryParameter("token_id");
+
+        // if not check if we have a token
+        if (token == null || token.isEmpty()) {
+            // No parameter token is available
+            return new APMTokenReturn(new ProcessOutException("Missing APM token in return paramaters"));
+        }
+
+        // Check if we have a customer id and token id
+        if (customerId != null && tokenId != null && !customerId.isEmpty() && !tokenId.isEmpty()) {
+            // Case of token creation
+            return new APMTokenReturn(token, customerId, tokenId);
+        }
+
+        // Case of simple APM authorization
+        return new APMTokenReturn(token);
     }
 
     public interface ThreeDSHandlerTestCallback {

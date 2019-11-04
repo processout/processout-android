@@ -7,7 +7,7 @@ import android.support.annotation.NonNull;
 
 import com.google.gson.annotations.SerializedName;
 
-public class AlternativeGateway {
+public class GatewayConfiguration {
     @SerializedName("id")
     private String id;
     @SerializedName("name")
@@ -18,15 +18,6 @@ public class AlternativeGateway {
     private String defaultCurrency;
     @SerializedName("gateway")
     private Gateway gateway;
-
-    private String invoiceId;
-    private String projectId;
-    private Context context;
-
-    public void redirect() {
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Network.CHECKOUT_URL + "/" + this.projectId + "/" + this.invoiceId + "/redirect/" + this.id));
-        this.context.startActivity(browserIntent);
-    }
 
     public String getId() {
         return id;
@@ -46,17 +37,5 @@ public class AlternativeGateway {
 
     public Gateway getGateway() {
         return gateway;
-    }
-
-    public void setInvoiceId(String invoiceId) {
-        this.invoiceId = invoiceId;
-    }
-
-    public void setProjectId(String projectId) {
-        this.projectId = projectId;
-    }
-
-    public void setContext(Context context) {
-        this.context = context;
     }
 }
