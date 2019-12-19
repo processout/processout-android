@@ -106,7 +106,7 @@ public class ProcessOutTest {
     @Test
     public void testReturnAPMTokenHandling() {
         Uri testUri = Uri.parse("https://processout.return?token=test-token&customer_id=test-customer-id&token_id=test-token-id");
-        APMTokenReturn apmReturn = p.handleAMPURLCallback(testUri);
+        APMTokenReturn apmReturn = p.handleAPMURLCallback(testUri);
         assertNotNull(apmReturn);
         assertEquals(apmReturn.getType(), APMTokenReturn.APMReturnType.TokenCreation);
         assertEquals(apmReturn.getCustomerId(), "test-customer-id");
@@ -118,7 +118,7 @@ public class ProcessOutTest {
     @Test
     public void testReturnAPMPaymentHandling() {
         Uri testUri = Uri.parse("https://processout.return?token=test-token");
-        APMTokenReturn apmReturn = p.handleAMPURLCallback(testUri);
+        APMTokenReturn apmReturn = p.handleAPMURLCallback(testUri);
         assertNotNull(apmReturn);
         assertEquals(apmReturn.getType(), APMTokenReturn.APMReturnType.Authorization);
         assertEquals(apmReturn.getToken(), "test-token");
@@ -127,7 +127,7 @@ public class ProcessOutTest {
     @Test
     public void testReturnAPMWrongURI() {
         Uri testUri = Uri.parse("https://processout.wrong?token=test-token&customer_id=test-customer-id&token_id=test-token-id");
-        APMTokenReturn apmReturn = p.handleAMPURLCallback(testUri);
+        APMTokenReturn apmReturn = p.handleAPMURLCallback(testUri);
         assertNull(apmReturn);
     }
 }
