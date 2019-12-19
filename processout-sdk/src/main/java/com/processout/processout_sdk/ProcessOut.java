@@ -373,7 +373,7 @@ public class ProcessOut {
      * An APMTokenReturn object containing the customerId, tokenId and new token source
      * to update the customer token from your backend otherwise
      */
-    public static APMTokenReturn handleAMPURLCallback(@NonNull Uri uri) {
+    public static APMTokenReturn handleAPMURLCallback(@NonNull Uri uri) {
         if (!uri.getHost().matches("processout.return")) {
             return null;
         }
