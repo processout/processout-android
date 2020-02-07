@@ -34,7 +34,7 @@ import java.util.Map;
 
 public class ProcessOut {
 
-    public static final String SDK_VERSION = "v2.11.2";
+    public static final String SDK_VERSION = "v2.12.0";
 
     private String projectId;
     private Context context;
@@ -190,7 +190,7 @@ public class ProcessOut {
      * @param tokenId        Customer token ID created on your backend with empty source
      * @param additionalData AdditionalData to send to the APM
      */
-    public void makeAPMToken(@NonNull GatewayConfiguration apm, @NonNull String customerId, @NonNull String tokenId, @NonNull Map<String, String> additionalData) {
+    public void makeAPMToken(@NonNull GatewayConfiguration apm, @NonNull String customerId, @NonNull String tokenId, @NonNull Map<String, String> additionalData, @NonNull Context with) {
         // Build the URL
         String baseUrl = Network.CHECKOUT_URL + "/" + this.projectId;
         String checkout = "/" + customerId + "/" + tokenId + "/redirect/" + apm.getId();
@@ -205,7 +205,7 @@ public class ProcessOut {
 
         // Start the redirection
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(globalUrl));
-        this.context.startActivity(browserIntent);
+        with.startActivity(browserIntent);
     }
 
     /**
@@ -215,9 +215,9 @@ public class ProcessOut {
      * @param customerId Customer ID created on your backend
      * @param tokenId    Customer token ID created on your backend with empty source
      */
-    public void makeAPMToken(@NonNull GatewayConfiguration apm, @NonNull String customerId, @NonNull String tokenId) {
+    public void makeAPMToken(@NonNull GatewayConfiguration apm, @NonNull String customerId, @NonNull String tokenId, @NonNull Context with) {
         // Calling makeAPMToken with an empty additionalData parameter
-        makeAPMToken(apm, customerId, tokenId, new HashMap<String, String>());
+        makeAPMToken(apm, customerId, tokenId, new HashMap<String, String>(), with);
     }
 
     /**
@@ -227,7 +227,7 @@ public class ProcessOut {
      * @param invoiceId      Invoice created on your backend
      * @param additionalData AdditionalData to send to the APM
      */
-    public void makeAPMPayment(@NonNull GatewayConfiguration apm, @NonNull String invoiceId, @NonNull Map<String, String> additionalData) {
+    public void makeAPMPayment(@NonNull GatewayConfiguration apm, @NonNull String invoiceId, @NonNull Map<String, String> additionalData, @NonNull Context with) {
         // Build the URL
         String baseUrl = Network.CHECKOUT_URL + "/" + this.projectId;
         String checkout = "/" + invoiceId + "/redirect/" + apm.getId();
@@ -241,7 +241,7 @@ public class ProcessOut {
         }
 
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(globalUrl));
-        this.context.startActivity(browserIntent);
+        with.startActivity(browserIntent);
     }
 
     /**
@@ -250,9 +250,9 @@ public class ProcessOut {
      * @param apm       Gateway previously retrieved
      * @param invoiceId Invoice created on your backend
      */
-    public void makeAPMPayment(@NonNull GatewayConfiguration apm, @NonNull String invoiceId) {
+    public void makeAPMPayment(@NonNull GatewayConfiguration apm, @NonNull String invoiceId, @NonNull Context with) {
         // Call makeAPMPayment with empty additionalData parameter
-        makeAPMPayment(apm, invoiceId, new HashMap<String, String>());
+        makeAPMPayment(apm, invoiceId, new HashMap<String, String>(), with);
     }
 
     /**
