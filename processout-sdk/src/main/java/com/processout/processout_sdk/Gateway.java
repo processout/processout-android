@@ -14,6 +14,13 @@ public class Gateway {
     @SerializedName("tags")
     private ArrayList<String> tags;
 
+    public Gateway(String name, String displayName, String logoUrl, ArrayList<String> tags) {
+        this.name = name;
+        this.displayName = displayName;
+        this.logoUrl = logoUrl;
+        this.tags = tags;
+    }
+
     public String getName() {
         return name;
     }

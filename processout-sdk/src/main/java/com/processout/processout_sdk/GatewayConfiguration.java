@@ -19,6 +19,14 @@ public class GatewayConfiguration {
     @SerializedName("gateway")
     private Gateway gateway;
 
+    public GatewayConfiguration(String id, String name, boolean enabled, String defaultCurrency, Gateway gateway) {
+        this.id = id;
+        this.name = name;
+        this.enabled = enabled;
+        this.defaultCurrency = defaultCurrency;
+        this.gateway = gateway;
+    }
+
     public String getId() {
         return id;
     }
