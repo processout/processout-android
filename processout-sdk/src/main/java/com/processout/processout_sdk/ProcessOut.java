@@ -183,7 +183,7 @@ public class ProcessOut {
     }
 
     /**
-     * Return the URL to redirect the user to an alternative payment method payment page to authorize a token
+     * Returns the URL to redirect the user to an alternative payment method payment page to authorize a token
      *
      * @param apm            Gateway previously retrieved
      * @param customerId     Customer ID created on your backend
