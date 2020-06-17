@@ -183,14 +183,14 @@ public class ProcessOut {
     }
 
     /**
-     * Redirects the user to an alternative payment method payment page to authorize a token
+     * Return the URL to redirect the user to an alternative payment method payment page to authorize a token
      *
      * @param apm            Gateway previously retrieved
      * @param customerId     Customer ID created on your backend
      * @param tokenId        Customer token ID created on your backend with empty source
      * @param additionalData AdditionalData to send to the APM
      */
-    public void makeAPMToken(@NonNull GatewayConfiguration apm, @NonNull String customerId, @NonNull String tokenId, @NonNull Map<String, String> additionalData, @NonNull Context with) {
+    public Uri makeAPMToken(@NonNull GatewayConfiguration apm, @NonNull String customerId, @NonNull String tokenId, @NonNull Map<String, String> additionalData, @NonNull Context with) {
         // Build the URL
         String baseUrl = Network.CHECKOUT_URL + "/" + this.projectId;
         String checkout = "/" + customerId + "/" + tokenId + "/redirect/" + apm.getId();
@@ -203,56 +203,54 @@ public class ProcessOut {
             globalUrl += "?" + additionalDataString;
         }
 
-        // Start the redirection
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(globalUrl));
-        with.startActivity(browserIntent);
+        return Uri.parse(globalUrl);
     }
 
     /**
-     * Redirects the user to an alternative payment method payment page to authorize a token
+     * Return the URL to redirect the user to an alternative payment method payment page to authorize a token
      *
      * @param apm        Gateway previously retrieved
      * @param customerId Customer ID created on your backend
      * @param tokenId    Customer token ID created on your backend with empty source
      */
-    public void makeAPMToken(@NonNull GatewayConfiguration apm, @NonNull String customerId, @NonNull String tokenId, @NonNull Context with) {
+    public Uri makeAPMToken(@NonNull GatewayConfiguration apm, @NonNull String customerId, @NonNull String tokenId, @NonNull Context with) {
         // Calling makeAPMToken with an empty additionalData parameter
-        makeAPMToken(apm, customerId, tokenId, new HashMap<String, String>(), with);
+        return makeAPMToken(apm, customerId, tokenId, new HashMap<String, String>(), with);
     }
 
     /**
-     * Redirects the user to an alternative payment method payment page to complete a payment
+     * Return the URL to redirect the user to an alternative payment method payment page to complete a payment
      *
      * @param apm            Gateway previously retrieved
      * @param invoiceId      Invoice created on your backend
      * @param additionalData AdditionalData to send to the APM
      */
-    public void makeAPMPayment(@NonNull GatewayConfiguration apm, @NonNull String invoiceId, @NonNull Map<String, String> additionalData, @NonNull Context with) {
+
+    public Uri makeAPMPayment(@NonNull GatewayConfiguration apm, @NonNull String invoiceId, @NonNull Map<String, String> additionalData, @NonNull Context with) {
         // Build the URL
         String baseUrl = Network.CHECKOUT_URL + "/" + this.projectId;
         String checkout = "/" + invoiceId + "/redirect/" + apm.getId();
         String globalUrl = baseUrl + checkout;
 
-        // Buld the additionalData string
+        // Build the additionalData string
         String additionalDataString = generateAdditionalDataString(additionalData);
         if (!additionalData.isEmpty()) {
             // Add it if it's not empty
             globalUrl += "?" + additionalDataString;
         }
 
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(globalUrl));
-        with.startActivity(browserIntent);
+        return Uri.parse((globalUrl));
     }
 
     /**
-     * Redirects the user to an alternative payment method payment page to complete a payment
+     * Return the URL to redirect the user to an alternative payment method payment page to complete a payment
      *
      * @param apm       Gateway previously retrieved
      * @param invoiceId Invoice created on your backend
      */
-    public void makeAPMPayment(@NonNull GatewayConfiguration apm, @NonNull String invoiceId, @NonNull Context with) {
+    public Uri makeAPMPayment(@NonNull GatewayConfiguration apm, @NonNull String invoiceId, @NonNull Context with) {
         // Call makeAPMPayment with empty additionalData parameter
-        makeAPMPayment(apm, invoiceId, new HashMap<String, String>(), with);
+        return makeAPMPayment(apm, invoiceId, new HashMap<String, String>(), with);
     }
 
     /**
