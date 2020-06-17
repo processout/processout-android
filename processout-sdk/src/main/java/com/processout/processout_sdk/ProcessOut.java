@@ -243,7 +243,7 @@ public class ProcessOut {
     }
 
     /**
-     * Return the URL to redirect the user to an alternative payment method payment page to complete a payment
+     * Returns the URL to redirect the user to an alternative payment method payment page to complete a payment
      *
      * @param apm       Gateway previously retrieved
      * @param invoiceId Invoice created on your backend
