@@ -9,15 +9,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.processout.processout_sdk.AlternativeGateway;
 import com.processout.processout_sdk.Card;
-import com.processout.processout_sdk.ListAlternativeMethodsCallback;
 import com.processout.processout_sdk.ProcessOut;
-import com.processout.processout_sdk.ThreeDSVerificationCallback;
 import com.processout.processout_sdk.TokenCallback;
-import com.processout.processout_sdk.WebViewReturnAction;
-
-import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity {
