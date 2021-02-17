@@ -5,11 +5,10 @@ import android.content.Context;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import androidx.test.InstrumentationRegistry;
-import androidx.test.core.app.ApplicationProvider;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.runner.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -21,8 +20,7 @@ public class ExampleInstrumentedTest {
     @Test
     public void useAppContext() throws Exception {
         // Context of the app under test.
-        Context appContext = ApplicationProvider.getApplicationContext();
-
+        Context appContext = appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         assertEquals("com.processout.processoutexample", appContext.getPackageName());
     }
 }
