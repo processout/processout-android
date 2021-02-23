@@ -16,7 +16,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.concurrent.CountDownLatch;
 
 import androidx.test.filters.LargeTest;
@@ -34,9 +34,19 @@ import static org.junit.Assert.fail;
 @LargeTest
 public class UITestSuite {
 
-    private String projectId = "test-proj_gAO1Uu0ysZJvDuUpOGPkUBeE3pGalk3x";
-    private String privateKey = "key_sandbox_mah31RDFqcDxmaS7MvhDbJfDJvjtsFTB";
+    private static final String projectId = "test-proj_gAO1Uu0ysZJvDuUpOGPkUBeE3pGalk3x";
+    private static final String privateKey = "key_sandbox_mah31RDFqcDxmaS7MvhDbJfDJvjtsFTB";
     private Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+
+    private static final int cardExpirationYear;
+    private static final int cardExpirationMonth;
+
+    static {
+        // card is set to expire in one year from now
+        Calendar calendar = Calendar.getInstance();
+        cardExpirationYear = calendar.get(Calendar.YEAR) % 100 + 1;
+        cardExpirationMonth = calendar.get(Calendar.MONTH);
+    }
 
     @Rule
     public ActivityTestRule<TestActivity> activityRule = new ActivityTestRule<>(TestActivity.class, false, true);
@@ -51,8 +61,8 @@ public class UITestSuite {
 
         final Activity withActivity = activityRule.getActivity();
         final ProcessOut p = new ProcessOut(withActivity, projectId);
-        Card c = new Card("4000000000003246", 10, 20, "737");
-        p.tokenize(c, null, new TokenCallback() {
+        Card paymentCard = new Card("4000000000003246", cardExpirationMonth, cardExpirationYear, "737");
+        p.tokenize(paymentCard, null, new TokenCallback() {
             @Override
             public void onError(Exception error) {
                 fail("Could not tokenize the card");
@@ -145,8 +155,8 @@ public class UITestSuite {
 
         final Activity withActivity = activityRule.getActivity();
         final ProcessOut p = new ProcessOut(withActivity, projectId);
-        Card c = new Card("4000000000003253", 10, 20, "737");
-        p.tokenize(c, null, new TokenCallback() {
+        Card paymentCard = new Card("4000000000003253", cardExpirationMonth, cardExpirationYear, "737");
+        p.tokenize(paymentCard, null, new TokenCallback() {
             @Override
             public void onError(Exception error) {
                 fail("Could not tokenize the card");
@@ -227,8 +237,8 @@ public class UITestSuite {
 
         final Activity withActivity = activityRule.getActivity();
         final ProcessOut p = new ProcessOut(withActivity, projectId);
-        Card c = new Card("4000000000003246", 10, 20, "737");
-        p.tokenize(c, null, new TokenCallback() {
+        Card paymentCard = new Card("4000000000003246", cardExpirationMonth, cardExpirationYear, "737");
+        p.tokenize(paymentCard, null, new TokenCallback() {
             @Override
             public void onError(Exception error) {
                 fail("Could not tokenize the card");
@@ -322,8 +332,8 @@ public class UITestSuite {
 
         final Activity withActivity = activityRule.getActivity();
         final ProcessOut p = new ProcessOut(withActivity, projectId);
-        Card c = new Card("4000000000003253", 10, 20, "737");
-        p.tokenize(c, null, new TokenCallback() {
+        Card paymentCard = new Card("4000000000003253", cardExpirationMonth, cardExpirationYear, "737");
+        p.tokenize(paymentCard, null, new TokenCallback() {
             @Override
             public void onError(Exception error) {
                 fail("Could not tokenize the card");
@@ -409,8 +419,8 @@ public class UITestSuite {
 
         final Activity withActivity = activityRule.getActivity();
         final ProcessOut p = new ProcessOut(withActivity, projectId);
-        Card c = new Card("4000000000003253", 10, 20, "737");
-        p.tokenize(c, null, new TokenCallback() {
+        Card paymentCard = new Card("4000000000003253", cardExpirationMonth, cardExpirationYear, "737");
+        p.tokenize(paymentCard, null, new TokenCallback() {
             @Override
             public void onError(Exception error) {
                 fail("Could not tokenize the card");
@@ -491,8 +501,8 @@ public class UITestSuite {
 
         final Activity withActivity = activityRule.getActivity();
         final ProcessOut p = new ProcessOut(withActivity, projectId);
-        Card c = new Card("4000000000003246", 10, 20, "737");
-        p.tokenize(c, null, new TokenCallback() {
+        Card paymentCard = new Card("4000000000003246", cardExpirationMonth, cardExpirationYear, "737");
+        p.tokenize(paymentCard, null, new TokenCallback() {
             @Override
             public void onError(Exception error) {
                 fail("Could not tokenize the card");
@@ -586,8 +596,8 @@ public class UITestSuite {
 
         final Activity withActivity = activityRule.getActivity();
         final ProcessOut p = new ProcessOut(withActivity, projectId);
-        Card c = new Card("4000000000003253", 10, 20, "737");
-        p.tokenize(c, null, new TokenCallback() {
+        Card paymentCard = new Card("4000000000003253", cardExpirationMonth, cardExpirationYear, "737");
+        p.tokenize(paymentCard, null, new TokenCallback() {
             @Override
             public void onError(Exception error) {
                 fail("Could not tokenize the card");
