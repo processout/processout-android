@@ -1,6 +1,6 @@
 package com.processout.processout_sdk;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.processout.processout_sdk.ProcessOutExceptions.ProcessOutException;
 
