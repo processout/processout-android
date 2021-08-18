@@ -673,6 +673,90 @@ public class UITestSuite {
     }
 
     @Test
+    public void testAuthorization() {
+        final CountDownLatch signal = new CountDownLatch(1);
+
+        final Activity withActivity = activityRule.getActivity();
+        final ProcessOut p = new ProcessOut(withActivity, projectId);
+        Card paymentCard = new Card("4000000000003253", cardExpirationMonth, cardExpirationYear, "737");
+        p.tokenize(paymentCard, null, new TokenCallback() {
+            @Override
+            public void onError(Exception error) {
+                fail("Could not tokenize the card");
+            }
+
+            @Override
+            public void onSuccess(final String token) {
+                Invoice invoice = new Invoice("test", "121.01", "EUR", new Device("android"));
+                JSONObject body = null;
+                try {
+                    body = new JSONObject(gson.toJson(invoice));
+                } catch (Exception e) {
+                    fail("Could not encode body");
+                    return;
+                }
+
+                Network.getTestInstance(withActivity, projectId, privateKey).CallProcessOut("/invoices", Request.Method.POST, body, new Network.NetworkResult() {
+                    @Override
+                    public void onError(Exception error) {
+                        fail("Invoice creation failed");
+                    }
+
+                    @Override
+                    public void onSuccess(JSONObject json) {
+                        Invoice invoiceResult = null;
+                        try {
+                            invoiceResult = gson.fromJson(json.getJSONObject("invoice").toString(), Invoice.class);
+                        } catch (JSONException e) {
+                            fail("Unhandled exception");
+                            e.printStackTrace();
+                            return;
+                        }
+
+                        final Invoice finalInvoiceResult = invoiceResult;
+
+                        p.makeCardPayment(finalInvoiceResult.getId(), token, new ThreeDSHandler() {
+                            @Override
+                            public void doFingerprint(DirectoryServerData directoryServerData, DoFingerprintCallback callback) {
+                                callback.continueCallback(
+                                        new ThreeDSFingerprintResponse(
+                                                "", "", new SDKEPhemPubKey("", "", "", ""),
+                                                "", ""));
+                            }
+
+                            @Override
+                            public void doChallenge(AuthenticationChallengeData authData, final DoChallengeCallback callback) {
+                                callback.success();
+                            }
+
+                            @Override
+                            public void doPresentWebView(final ProcessOutWebView webView) {
+                                fail("Webview should not be required");
+                            }
+
+                            @Override
+                            public void onSuccess(String invoiceId) {
+                                signal.countDown();
+                            }
+
+                            @Override
+                            public void onError(Exception error) {
+                                fail("Authorization failed");
+                            }
+                        }, withActivity);
+                    }
+                });
+            }
+        });
+
+        try {
+            signal.await();// wait for callback
+        } catch (InterruptedException e) {
+            fail("Could not run test");
+        }
+    }
+
+    @Test
     public void testIncrementalAuthorization() {
         final CountDownLatch signal = new CountDownLatch(1);
 
