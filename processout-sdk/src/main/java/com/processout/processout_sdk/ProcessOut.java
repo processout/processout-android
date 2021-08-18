@@ -255,14 +255,15 @@ public class ProcessOut {
     /**
      * Allow card payments authorization (with 3DS2 support)
      *
-     * @param invoiceId previously generated invoice
-     * @param source    source to use for the charge (card token, etc.)
-     * @param handler   (Custom 3DS2 handler)
+     * @param invoiceId   previously generated invoice
+     * @param source      source to use for the charge (card token, etc.)
+     * @param incremental whether the invoice should be marked as incremental
+     * @param handler     (Custom 3DS2 handler)
      */
-    public void makeCardPayment(@NonNull final String invoiceId, @NonNull final String source, @NonNull final ThreeDSHandler handler, @NonNull final Context with) {
+    public void makeCardPayment(@NonNull final String invoiceId, @NonNull final String source, @NonNull final boolean incremental, @NonNull final ThreeDSHandler handler, @NonNull final Context with) {
         try {
             // Generate the authorization body and forces 3DS2
-            AuthorizationRequest authRequest = new AuthorizationRequest(source);
+            AuthorizationRequest authRequest = new AuthorizationRequest(source, incremental);
             final JSONObject body = new JSONObject(gson.toJson(authRequest));
 
             Network.getInstance(this.context /* Using the same context as other network calls */, this.projectId).CallProcessOut(
@@ -290,12 +291,43 @@ public class ProcessOut {
                             CustomerActionHandler customerActionHandler = new CustomerActionHandler(handler, new PaymentWebView(with), with, new CustomerActionHandler.CustomerActionCallback() {
                                 @Override
                                 public void shouldContinue(String source) {
-                                    makeCardPayment(invoiceId, source, handler, with);
+                                    makeCardPayment(invoiceId, source, incremental, handler, with);
                                 }
                             });
                             customerActionHandler.handleCustomerAction(cA);
                         }
                     });
+        } catch (JSONException e) {
+            handler.onError(e);
+        }
+    }
+
+    /**
+     * Increments the authorization of an applicable invoice by a given amount
+     *
+     * @param invoiceId previously generated invoice
+     * @param amount    amount by which the authorization should be incremented
+     * @param handler   (Custom 3DS2 handler)
+     */
+    public void incrementAuthorizationAmount(@NonNull final String invoiceId, @NonNull final int amount, @NonNull final ThreeDSHandler handler) {
+        try {
+            IncrementAuthorizationRequest request = new IncrementAuthorizationRequest(amount);
+            final JSONObject body = new JSONObject(gson.toJson(request));
+
+            Network.getInstance(this.context, this.projectId).CallProcessOut(
+                    "/invoices/" + invoiceId + "/increment_authorization", Request.Method.POST,
+                    body, new Network.NetworkResult() {
+                        @Override
+                        public void onError(Exception error) {
+                            handler.onError(error);
+                        }
+
+                        @Override
+                        public void onSuccess(JSONObject json) {
+                            handler.onSuccess(invoiceId);
+                        }
+                    }
+            );
         } catch (JSONException e) {
             handler.onError(e);
         }

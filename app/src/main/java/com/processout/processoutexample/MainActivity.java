@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onSuccess(String token) {
-                p.makeCardPayment("invoiceId", token, ProcessOut.createDefaultTestHandler(MainActivity.this, new ProcessOut.ThreeDSHandlerTestCallback() {
+                p.makeCardPayment("invoiceId", token, false, ProcessOut.createDefaultTestHandler(MainActivity.this, new ProcessOut.ThreeDSHandlerTestCallback() {
                     @Override
                     public void onSuccess(String invoiceId) {
                         Log.d("PROCESSOUT", "invoice: " + invoiceId);
