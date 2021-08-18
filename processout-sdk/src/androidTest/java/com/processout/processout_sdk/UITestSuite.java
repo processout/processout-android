@@ -40,6 +40,7 @@ public class UITestSuite {
 
     private static final int cardExpirationYear;
     private static final int cardExpirationMonth;
+    private static final int INVOICE_ID_LENGTH = 35;
 
     static {
         // card is set to expire in one year from now
@@ -736,7 +737,11 @@ public class UITestSuite {
 
                             @Override
                             public void onSuccess(String invoiceId) {
-                                signal.countDown();
+                                if(invoiceId.length() != INVOICE_ID_LENGTH) {
+                                    fail("Authorization did not return a valid invoice id");
+                                } else {
+                                    signal.countDown();
+                                }
                             }
 
                             @Override
@@ -820,35 +825,39 @@ public class UITestSuite {
 
                             @Override
                             public void onSuccess(String invoiceId) {
-                                p.incrementAuthorizationAmount(finalInvoiceResult.getId(), 1, new ThreeDSHandler() {
-                                    @Override
-                                    public void doFingerprint(DirectoryServerData directoryServerData, DoFingerprintCallback callback) {
-                                        callback.continueCallback(
-                                                new ThreeDSFingerprintResponse(
-                                                        "", "", new SDKEPhemPubKey("", "", "", ""),
-                                                        "", ""));
-                                    }
+                                if(invoiceId.length() != INVOICE_ID_LENGTH) {
+                                    fail("Authorization did not return a valid invoice id");
+                                } else {
+                                    p.incrementAuthorizationAmount(finalInvoiceResult.getId(), 1, new ThreeDSHandler() {
+                                        @Override
+                                        public void doFingerprint(DirectoryServerData directoryServerData, DoFingerprintCallback callback) {
+                                            callback.continueCallback(
+                                                    new ThreeDSFingerprintResponse(
+                                                            "", "", new SDKEPhemPubKey("", "", "", ""),
+                                                            "", ""));
+                                        }
 
-                                    @Override
-                                    public void doChallenge(AuthenticationChallengeData authData, final DoChallengeCallback callback) {
-                                        callback.success();
-                                    }
+                                        @Override
+                                        public void doChallenge(AuthenticationChallengeData authData, final DoChallengeCallback callback) {
+                                            callback.success();
+                                        }
 
-                                    @Override
-                                    public void doPresentWebView(final ProcessOutWebView webView) {
-                                        fail("Webview should not be required");
-                                    }
+                                        @Override
+                                        public void doPresentWebView(final ProcessOutWebView webView) {
+                                            fail("Webview should not be required");
+                                        }
 
-                                    @Override
-                                    public void onSuccess(String id) {
-                                        signal.countDown();
-                                    }
+                                        @Override
+                                        public void onSuccess(String id) {
+                                            signal.countDown();
+                                        }
 
-                                    @Override
-                                    public void onError(Exception error) {
-                                        fail("Invoice incrementation failed");
-                                    }
-                                });
+                                        @Override
+                                        public void onError(Exception error) {
+                                            fail("Invoice incrementation failed");
+                                        }
+                                    });
+                                }
                             }
 
                             @Override
