@@ -95,7 +95,7 @@ public class UITestSuite {
                             return;
                         }
 
-                        p.makeCardPayment(invoiceResult.getId(), token, false, new ThreeDSHandler() {
+                        p.makeCardPayment(invoiceResult.getId(), token, new ThreeDSHandler() {
                             @Override
                             public void doFingerprint(DirectoryServerData directoryServerData, DoFingerprintCallback callback) {
                                 callback.continueCallback(
@@ -190,7 +190,7 @@ public class UITestSuite {
                             return;
                         }
 
-                        p.makeCardPayment(invoiceResult.getId(), token, false, new ThreeDSHandler() {
+                        p.makeCardPayment(invoiceResult.getId(), token, new ThreeDSHandler() {
                             @Override
                             public void doFingerprint(DirectoryServerData directoryServerData, DoFingerprintCallback callback) {
                                 callback.continueCallback(
@@ -272,7 +272,7 @@ public class UITestSuite {
                             return;
                         }
 
-                        p.makeCardPayment(invoiceResult.getId(), token, false, new ThreeDSHandler() {
+                        p.makeCardPayment(invoiceResult.getId(), token, new ThreeDSHandler() {
                             @Override
                             public void doFingerprint(DirectoryServerData directoryServerData, DoFingerprintCallback callback) {
                                 callback.continueCallback(
@@ -367,7 +367,7 @@ public class UITestSuite {
                             return;
                         }
 
-                        p.makeCardPayment(invoiceResult.getId(), token, false, new ThreeDSHandler() {
+                        p.makeCardPayment(invoiceResult.getId(), token, new ThreeDSHandler() {
                             @Override
                             public void doFingerprint(DirectoryServerData directoryServerData, DoFingerprintCallback callback) {
                                 callback.continueCallback(
@@ -454,7 +454,7 @@ public class UITestSuite {
                             return;
                         }
 
-                        p.makeCardPayment(invoiceResult.getId(), token, false, new ThreeDSHandler() {
+                        p.makeCardPayment(invoiceResult.getId(), token, new ThreeDSHandler() {
                             @Override
                             public void doFingerprint(DirectoryServerData directoryServerData, DoFingerprintCallback callback) {
                                 callback.continueCallback(
@@ -536,7 +536,7 @@ public class UITestSuite {
                             return;
                         }
 
-                        p.makeCardPayment(invoiceResult.getId(), token, false, new ThreeDSHandler() {
+                        p.makeCardPayment(invoiceResult.getId(), token, new ThreeDSHandler() {
                             @Override
                             public void doFingerprint(DirectoryServerData directoryServerData, DoFingerprintCallback callback) {
                                 callback.continueCallback(
@@ -631,7 +631,7 @@ public class UITestSuite {
                             return;
                         }
 
-                        p.makeCardPayment(invoiceResult.getId(), token, false, new ThreeDSHandler() {
+                        p.makeCardPayment(invoiceResult.getId(), token, new ThreeDSHandler() {
                             @Override
                             public void doFingerprint(DirectoryServerData directoryServerData, DoFingerprintCallback callback) {
                                 callback.continueCallback(
@@ -715,7 +715,7 @@ public class UITestSuite {
 
                         final Invoice finalInvoiceResult = invoiceResult;
 
-                        p.makeCardPayment(finalInvoiceResult.getId(), token, true, new ThreeDSHandler() {
+                        p.makeIncrementalAuthorizationPayment(finalInvoiceResult.getId(), token, new ThreeDSHandler() {
                             @Override
                             public void doFingerprint(DirectoryServerData directoryServerData, DoFingerprintCallback callback) {
                                 callback.continueCallback(

@@ -15,6 +15,11 @@ public class AuthorizationRequest {
         this.incremental = incremental;
     }
 
+    public AuthorizationRequest(String source) {
+        this.source = source;
+        this.incremental = false;
+    }
+
     public String getSource() {
         return source;
     }
