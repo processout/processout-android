@@ -22,10 +22,23 @@ public class Card {
     private String cvc;
     @SerializedName("contact")
     private Contact contact;
+    @SerializedName("token_type")
+    private TokenType tokenType;
+    @SerializedName("payment_token")
+    private String paymentToken;
+
+    public enum TokenType {
+        googlepay
+    }
 
     public Card(String id, String cvc) {
         this.id = id;
         this.cvc = cvc;
+    }
+
+    public Card(TokenType tokenType, String paymentToken) {
+        this.tokenType = tokenType;
+        this.paymentToken = paymentToken;
     }
 
     public Card(String cardNumbers, int expMonth, int expYear, String cvc) {
@@ -116,5 +129,21 @@ public class Card {
 
     public void setContact(Contact contact) {
         this.contact = contact;
+    }
+
+    public String getPaymentToken() {
+        return paymentToken;
+    }
+
+    public void setPaymentToken(String paymentToken) {
+        this.paymentToken = paymentToken;
+    }
+
+    public TokenType getTokenType() {
+        return tokenType;
+    }
+
+    public void setTokenType(TokenType tokenType) {
+        this.tokenType = tokenType;
     }
 }
