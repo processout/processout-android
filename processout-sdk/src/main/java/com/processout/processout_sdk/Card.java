@@ -36,9 +36,11 @@ public class Card {
         this.cvc = cvc;
     }
 
-    public Card(TokenType tokenType, String paymentToken) {
+    public Card(TokenType tokenType, String paymentToken, String cardHolderName, Contact contact) {
         this.tokenType = tokenType;
         this.paymentToken = paymentToken;
+        this.cardHolderName = cardHolderName;
+        this.contact = contact;
     }
 
     public Card(String cardNumbers, int expMonth, int expYear, String cvc) {
