@@ -257,13 +257,13 @@ public class ProcessOut {
      *
      * @param invoiceId previously generated invoice
      * @param source    source to use for the charge (card token, etc.)
-     * @param sdkVersion version of the 3rd party SDK being used for the calls.
+     * @param thirdPartySDKVersion version of the 3rd party SDK being used for the calls.
      * @param handler   (Custom 3DS2 handler)
      */
-    public void makeCardPayment(@NonNull final String invoiceId, @NonNull final String source, final String sdkVersion, @NonNull final ThreeDSHandler handler, @NonNull final Context with) {
+    public void makeCardPayment(@NonNull final String invoiceId, @NonNull final String source, final String thirdPartySDKVersion, @NonNull final ThreeDSHandler handler, @NonNull final Context with) {
         try {
             // Generate the authorization body and forces 3DS2
-            AuthorizationRequest authRequest = new AuthorizationRequest(source, sdkVersion);
+            AuthorizationRequest authRequest = new AuthorizationRequest(source, thirdPartySDKVersion);
             final JSONObject body = new JSONObject(gson.toJson(authRequest));
 
             requestAuthorization(invoiceId, body, new RequestAuthorizationCallback() {
@@ -288,7 +288,7 @@ public class ProcessOut {
                     CustomerActionHandler customerActionHandler = new CustomerActionHandler(handler, new PaymentWebView(with), with, new CustomerActionHandler.CustomerActionCallback() {
                         @Override
                         public void shouldContinue(String source) {
-                            makeCardPayment(invoiceId, source, sdkVersion, handler, with);
+                            makeCardPayment(invoiceId, source, thirdPartySDKVersion, handler, with);
                         }
                     });
                     customerActionHandler.handleCustomerAction(cA);

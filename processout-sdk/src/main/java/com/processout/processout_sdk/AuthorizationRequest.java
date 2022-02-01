@@ -9,8 +9,8 @@ public class AuthorizationRequest {
     private boolean incremental;
     @SerializedName("enable_three_d_s_2")
     private boolean enableThreeDS2 = true;
-    @SerializedName("sdk_version")
-    private String sdkVersion;
+    @SerializedName("third_party_sdk_version")
+    private String thirdPartySDKVersion;
 
     public AuthorizationRequest(String source, boolean incremental) {
         this.source = source;
@@ -22,10 +22,10 @@ public class AuthorizationRequest {
         this.incremental = false;
     }
 
-    public AuthorizationRequest(String source, String sdkVersion) {
+    public AuthorizationRequest(String source, String thirdPartySDKVersion) {
         this.source = source;
         this.incremental = false;
-        this.sdkVersion = sdkVersion;
+        this.thirdPartySDKVersion = thirdPartySDKVersion;
     }
 
     public String getSource() {
@@ -36,7 +36,7 @@ public class AuthorizationRequest {
         return enableThreeDS2;
     }
 
-    public String getSdkVersion() {
-        return sdkVersion;
+    public String getThirdPartySDKVersion() {
+        return thirdPartySDKVersion;
     }
 }
