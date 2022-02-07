@@ -12,10 +12,15 @@ public class DirectoryServerData {
     @SerializedName("threeDSServerTransID")
     private String threeDSServerTransactionID;
 
-    public DirectoryServerData(String directoryServerID, String directoryServerPublicKey, String threeDSServerTransactionID) {
+    @SerializedName("messageVersion")
+    private String messageVersion;
+
+    public DirectoryServerData(String directoryServerID, String directoryServerPublicKey,
+                               String threeDSServerTransactionID, String messageVersion ) {
         this.directoryServerID = directoryServerID;
         this.directoryServerPublicKey = directoryServerPublicKey;
         this.threeDSServerTransactionID = threeDSServerTransactionID;
+        this.messageVersion = messageVersion;
     }
 
     public String getDirectoryServerID() {
@@ -28,5 +33,9 @@ public class DirectoryServerData {
 
     public String getThreeDSServerTransactionID() {
         return threeDSServerTransactionID;
+    }
+
+    public String getMessageVersion() {
+        return messageVersion;
     }
 }
