@@ -5,9 +5,11 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
-import androidx.annotation.NonNull;
+import android.util.DisplayMetrics;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+
+import androidx.annotation.NonNull;
 
 import com.android.volley.Request;
 import com.google.gson.Gson;
@@ -24,6 +26,7 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -69,10 +72,14 @@ public class ProcessOut {
 
     private void tokenizeBase(@NonNull Card card, JSONObject metadata, @NonNull final TokenCallback callback) {
         JSONObject body = null;
+
         try {
             body = new JSONObject(gson.toJson(card));
             if (metadata != null)
                 body.put("metadata", metadata);
+
+            body.put("device", new JSONObject(getDeviceInfo()));
+
             Network.getInstance(this.context, this.projectId).CallProcessOut("/cards", Request.Method.POST, body, new Network.NetworkResult() {
                 @Override
                 public void onError(Exception error) {
@@ -92,6 +99,22 @@ public class ProcessOut {
         } catch (JSONException e) {
             callback.onError(e);
         }
+    }
+
+    private Map<String, Object> getDeviceInfo() {
+        Map<String, Object> deviceInfo = new HashMap<>();
+
+        Calendar calendar = Calendar.getInstance();
+        int tzOffsetMin = -(calendar.get(Calendar.ZONE_OFFSET) + calendar.get(Calendar.DST_OFFSET))/(1000*60);
+
+        DisplayMetrics metrics = this.context.getResources().getDisplayMetrics();
+
+        deviceInfo.put("app_language", this.context.getResources().getConfiguration().locale.getLanguage());
+        deviceInfo.put("app_screen_width", metrics.widthPixels);
+        deviceInfo.put("app_screen_height", metrics.heightPixels);
+        deviceInfo.put("time_zone_offset", tzOffsetMin);
+
+        return deviceInfo;
     }
 
     /**
