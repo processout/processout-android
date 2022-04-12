@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
+import android.os.Build;
 import android.util.DisplayMetrics;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -28,6 +29,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -109,7 +111,15 @@ public class ProcessOut {
 
         DisplayMetrics metrics = this.context.getResources().getDisplayMetrics();
 
-        deviceInfo.put("app_language", this.context.getResources().getConfiguration().locale.getLanguage());
+        Locale locale = this.context.getResources().getConfiguration().locale;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            deviceInfo.put("app_language", locale.toLanguageTag());
+        } else {
+            deviceInfo.put("app_language", locale.getLanguage());
+        }
+
+        deviceInfo.put("app_language", locale.getLanguage());
         deviceInfo.put("app_screen_width", metrics.widthPixels);
         deviceInfo.put("app_screen_height", metrics.heightPixels);
         deviceInfo.put("time_zone_offset", tzOffsetMin);
