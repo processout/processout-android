@@ -138,6 +138,9 @@ public class ProcessOut {
 
         try {
             body = new JSONObject(gson.toJson(card));
+
+            body.put("device", new JSONObject(getDeviceInfo()));
+
             Network.getInstance(
                     this.context, this.projectId).CallProcessOut(
                     "/cards/" + card.getId(),
@@ -468,6 +471,7 @@ public class ProcessOut {
         try {
             TokenRequest request = new TokenRequest(source);
             final JSONObject body = new JSONObject(gson.toJson(request));
+            body.put("device", new JSONObject(getDeviceInfo()));
 
             Network.getInstance(this.context, this.projectId).CallProcessOut("/customers/" + customerId + "/tokens/" + tokenId, Request.Method.PUT, body, new Network.NetworkResult() {
                 @Override
@@ -604,7 +608,8 @@ public class ProcessOut {
      * @param body      the request body
      * @param callback  callback for handling customer action
      */
-    private void requestAuthorization(@NonNull final String invoiceId, @NonNull final JSONObject body, @NonNull final RequestAuthorizationCallback callback) {
+    private void requestAuthorization(@NonNull final String invoiceId, @NonNull final JSONObject body, @NonNull final RequestAuthorizationCallback callback) throws JSONException {
+        body.put("device", new JSONObject(getDeviceInfo()));
         Network.getInstance(this.context /* Using the same context as other network calls */, this.projectId).CallProcessOut(
                 "/invoices/" + invoiceId + "/authorize", Request.Method.POST,
                 body, new Network.NetworkResult() {
