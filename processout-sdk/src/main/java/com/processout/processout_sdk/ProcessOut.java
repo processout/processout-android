@@ -122,7 +122,7 @@ public class ProcessOut {
         deviceInfo.put("app_language", locale.getLanguage());
         deviceInfo.put("app_screen_width", metrics.widthPixels);
         deviceInfo.put("app_screen_height", metrics.heightPixels);
-        deviceInfo.put("time_zone_offset", tzOffsetMin);
+        deviceInfo.put("app_timezone_offset", tzOffsetMin);
 
         return deviceInfo;
     }
