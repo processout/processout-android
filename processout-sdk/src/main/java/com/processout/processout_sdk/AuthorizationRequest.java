@@ -17,6 +17,12 @@ public class AuthorizationRequest {
         this.incremental = incremental;
     }
 
+    public AuthorizationRequest(String source, boolean incremental, String thirdPartySDKVersion) {
+        this.source = source;
+        this.incremental = incremental;
+        this.thirdPartySDKVersion = thirdPartySDKVersion;
+    }
+
     public AuthorizationRequest(String source) {
         this.source = source;
         this.incremental = false;
