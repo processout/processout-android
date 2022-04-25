@@ -5,9 +5,12 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
-import androidx.annotation.NonNull;
+import android.os.Build;
+import android.util.DisplayMetrics;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+
+import androidx.annotation.NonNull;
 
 import com.android.volley.Request;
 import com.google.gson.Gson;
@@ -24,7 +27,9 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -33,7 +38,7 @@ import java.util.Map;
 
 public class ProcessOut {
 
-    public static final String SDK_VERSION = "v2.16.0";
+    public static final String SDK_VERSION = "v2.17.0";
 
     private String projectId;
     private Context context;
@@ -69,10 +74,14 @@ public class ProcessOut {
 
     private void tokenizeBase(@NonNull Card card, JSONObject metadata, @NonNull final TokenCallback callback) {
         JSONObject body = null;
+
         try {
             body = new JSONObject(gson.toJson(card));
             if (metadata != null)
                 body.put("metadata", metadata);
+
+            body.put("device", new JSONObject(getDeviceInfo()));
+
             Network.getInstance(this.context, this.projectId).CallProcessOut("/cards", Request.Method.POST, body, new Network.NetworkResult() {
                 @Override
                 public void onError(Exception error) {
@@ -94,6 +103,30 @@ public class ProcessOut {
         }
     }
 
+    private Map<String, Object> getDeviceInfo() {
+        Map<String, Object> deviceInfo = new HashMap<>();
+
+        Calendar calendar = Calendar.getInstance();
+        int tzOffsetMin = -(calendar.get(Calendar.ZONE_OFFSET) + calendar.get(Calendar.DST_OFFSET))/(1000*60);
+
+        DisplayMetrics metrics = this.context.getResources().getDisplayMetrics();
+
+        Locale locale = this.context.getResources().getConfiguration().locale;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            deviceInfo.put("app_language", locale.toLanguageTag());
+        } else {
+            deviceInfo.put("app_language", locale.getLanguage());
+        }
+
+        deviceInfo.put("app_language", locale.getLanguage());
+        deviceInfo.put("app_screen_width", metrics.widthPixels);
+        deviceInfo.put("app_screen_height", metrics.heightPixels);
+        deviceInfo.put("app_timezone_offset", tzOffsetMin);
+
+        return deviceInfo;
+    }
+
     /**
      * Updates the CVC of a  previously stored card
      *
@@ -105,6 +138,9 @@ public class ProcessOut {
 
         try {
             body = new JSONObject(gson.toJson(card));
+
+            body.put("device", new JSONObject(getDeviceInfo()));
+
             Network.getInstance(
                     this.context, this.projectId).CallProcessOut(
                     "/cards/" + card.getId(),
@@ -482,6 +518,7 @@ public class ProcessOut {
         try {
             TokenRequest request = new TokenRequest(source);
             final JSONObject body = new JSONObject(gson.toJson(request));
+            body.put("device", new JSONObject(getDeviceInfo()));
 
             Network.getInstance(this.context, this.projectId).CallProcessOut("/customers/" + customerId + "/tokens/" + tokenId, Request.Method.PUT, body, new Network.NetworkResult() {
                 @Override
@@ -666,7 +703,8 @@ public class ProcessOut {
      * @param body      the request body
      * @param callback  callback for handling customer action
      */
-    private void requestAuthorization(@NonNull final String invoiceId, @NonNull final JSONObject body, @NonNull final RequestAuthorizationCallback callback) {
+    private void requestAuthorization(@NonNull final String invoiceId, @NonNull final JSONObject body, @NonNull final RequestAuthorizationCallback callback) throws JSONException {
+        body.put("device", new JSONObject(getDeviceInfo()));
         Network.getInstance(this.context /* Using the same context as other network calls */, this.projectId).CallProcessOut(
                 "/invoices/" + invoiceId + "/authorize", Request.Method.POST,
                 body, new Network.NetworkResult() {
