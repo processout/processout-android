@@ -38,7 +38,7 @@ import java.util.Map;
 
 public class ProcessOut {
 
-    public static final String SDK_VERSION = "v2.17.0";
+    public static final String SDK_VERSION = "v2.18.0";
 
     private String projectId;
     private Context context;
@@ -371,6 +371,54 @@ public class ProcessOut {
                         @Override
                         public void shouldContinue(String source) {
                             makeCardPayment(invoiceId, source, handler, with);
+                        }
+                    });
+                    customerActionHandler.handleCustomerAction(cA);
+                }
+            });
+        } catch (JSONException e) {
+            handler.onError(e);
+        }
+    }
+
+    /**
+     * Allow card payments authorization (with 3DS2 support)
+     *
+     * @param invoiceId previously generated invoice
+     * @param source    source to use for the charge (card token, etc.)
+     * @param thirdPartySDKVersion version of the 3rd party SDK being used for the calls.
+     * @param preferredScheme carte bancaire, or visa or mastercard
+     * @param handler   (Custom 3DS2 handler)
+     */
+    public void makeCardPayment(@NonNull final String invoiceId, @NonNull final String source, final String thirdPartySDKVersion, final String preferredScheme, @NonNull final ThreeDSHandler handler, @NonNull final Context with) {
+        try {
+            // Generate the authorization body and forces 3DS2
+            AuthorizationRequest authRequest = new AuthorizationRequest(source, false, thirdPartySDKVersion, preferredScheme);
+            final JSONObject body = new JSONObject(gson.toJson(authRequest));
+
+            requestAuthorization(invoiceId, body, new RequestAuthorizationCallback() {
+                @Override
+                public void onError(Exception error) {
+                    handler.onError(error);
+                }
+
+                @Override
+                public void onSuccess(JSONObject json) {
+                    // Handle the authorization result
+                    AuthorizationResult result = gson.fromJson(
+                            json.toString(), AuthorizationResult.class);
+
+                    CustomerAction cA = result.getCustomerAction();
+                    if (cA == null) {
+                        // No customer action in the authorization result, we return the invoice id
+                        handler.onSuccess(invoiceId);
+                        return;
+                    }
+
+                    CustomerActionHandler customerActionHandler = new CustomerActionHandler(handler, new PaymentWebView(with), with, new CustomerActionHandler.CustomerActionCallback() {
+                        @Override
+                        public void shouldContinue(String source) {
+                            makeCardPayment(invoiceId, source, thirdPartySDKVersion, handler, with);
                         }
                     });
                     customerActionHandler.handleCustomerAction(cA);
