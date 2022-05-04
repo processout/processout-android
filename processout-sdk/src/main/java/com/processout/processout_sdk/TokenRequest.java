@@ -11,6 +11,8 @@ class TokenRequest {
     private boolean enableThreeDS2 = true;
     @SerializedName("third_party_sdk_version")
     private String thirdPartySDKVersion;
+    @SerializedName("preferred_scheme")
+    private String preferredScheme;
 
     TokenRequest(String source) {
         this.source = source;
@@ -19,5 +21,11 @@ class TokenRequest {
      TokenRequest(String source, String thirdPartySDKVersion) {
         this.source = source;
         this.thirdPartySDKVersion = thirdPartySDKVersion;
+    }
+
+    TokenRequest(String source, String thirdPartySDKVersion, String preferredScheme) {
+        this.source = source;
+        this.thirdPartySDKVersion = thirdPartySDKVersion;
+        this.preferredScheme = preferredScheme;
     }
 }

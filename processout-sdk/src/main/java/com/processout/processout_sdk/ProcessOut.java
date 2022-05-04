@@ -24,6 +24,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -435,8 +436,10 @@ public class ProcessOut {
      * @param invoiceId previously generated invoice
      * @param source    source to use for the charge (card token, etc.)
      * @param handler   (Custom 3DS2 handler)
+     * @param thirdPartySDKVersion version of the 3rd party SDK being used for the calls.
+     * @param preferredScheme carte bancaire, or visa or mastercard
      */
-    public void makeIncrementalAuthorizationPayment(@NonNull final String invoiceId, @NonNull final String source, @NonNull final ThreeDSHandler handler, @NonNull final Context with) {
+    public void makeIncrementalAuthorizationPayment(@NonNull final String invoiceId, @NonNull final String source, final String thirdPartySDKVersion, final String preferredScheme, @NonNull final ThreeDSHandler handler, @NonNull final Context with) {
         try {
             // Generate the authorization body and forces 3DS2
             AuthorizationRequest authRequest = new AuthorizationRequest(source, true);
@@ -464,7 +467,7 @@ public class ProcessOut {
                     CustomerActionHandler customerActionHandler = new CustomerActionHandler(handler, new PaymentWebView(with), with, new CustomerActionHandler.CustomerActionCallback() {
                         @Override
                         public void shouldContinue(String source) {
-                            makeIncrementalAuthorizationPayment(invoiceId, source, handler, with);
+                            makeIncrementalAuthorizationPayment(invoiceId, source, thirdPartySDKVersion, handler, with);
                         }
                     });
                     customerActionHandler.handleCustomerAction(cA);
@@ -511,7 +514,7 @@ public class ProcessOut {
                     CustomerActionHandler customerActionHandler = new CustomerActionHandler(handler, new PaymentWebView(with), with, new CustomerActionHandler.CustomerActionCallback() {
                         @Override
                         public void shouldContinue(String source) {
-                            makeIncrementalAuthorizationPayment(invoiceId, source, handler, with);
+                            makeIncrementalAuthorizationPayment(invoiceId, source, thirdPartySDKVersion, handler, with);
                         }
                     });
                     customerActionHandler.handleCustomerAction(cA);
@@ -609,11 +612,12 @@ public class ProcessOut {
      * @param tokenId    Token ID created in backend
      * @param thirdPartySDKVersion version of the 3rd party SDK being used for the calls.
      * @param handler    3DS2 handler
+     * @param preferredScheme carte bancaire, or visa or mastercard
      * @param with       Activity to display webviews and perform fingerprinting
      */
-    public void makeCardToken(@NonNull final String source, @NonNull final String customerId, @NonNull final String tokenId, final String thirdPartySDKVersion, @NonNull final ThreeDSHandler handler, @NonNull final Context with) {
+    public void makeCardToken(@NonNull final String source, @NonNull final String customerId, @NonNull final String tokenId, final String thirdPartySDKVersion,final String preferredScheme, @NonNull final ThreeDSHandler handler, @NonNull final Context with) {
         try {
-            TokenRequest request = new TokenRequest(source, thirdPartySDKVersion);
+            TokenRequest request = new TokenRequest(source, thirdPartySDKVersion, preferredScheme);
             final JSONObject body = new JSONObject(gson.toJson(request));
 
             Network.getInstance(this.context, this.projectId).CallProcessOut("/customers/" + customerId + "/tokens/" + tokenId, Request.Method.PUT, body, new Network.NetworkResult() {
