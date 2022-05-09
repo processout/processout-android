@@ -419,7 +419,7 @@ public class ProcessOut {
                     CustomerActionHandler customerActionHandler = new CustomerActionHandler(handler, new PaymentWebView(with), with, new CustomerActionHandler.CustomerActionCallback() {
                         @Override
                         public void shouldContinue(String source) {
-                            makeCardPayment(invoiceId, source, thirdPartySDKVersion, handler, with);
+                            makeCardPayment(invoiceId, source, thirdPartySDKVersion, preferredScheme, handler, with);
                         }
                     });
                     customerActionHandler.handleCustomerAction(cA);
