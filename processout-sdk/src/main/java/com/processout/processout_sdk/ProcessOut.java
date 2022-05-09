@@ -436,10 +436,8 @@ public class ProcessOut {
      * @param invoiceId previously generated invoice
      * @param source    source to use for the charge (card token, etc.)
      * @param handler   (Custom 3DS2 handler)
-     * @param thirdPartySDKVersion version of the 3rd party SDK being used for the calls.
-     * @param preferredScheme carte bancaire, or visa or mastercard
      */
-    public void makeIncrementalAuthorizationPayment(@NonNull final String invoiceId, @NonNull final String source, final String thirdPartySDKVersion, final String preferredScheme, @NonNull final ThreeDSHandler handler, @NonNull final Context with) {
+    public void makeIncrementalAuthorizationPayment(@NonNull final String invoiceId, @NonNull final String source, @NonNull final ThreeDSHandler handler, @NonNull final Context with) {
         try {
             // Generate the authorization body and forces 3DS2
             AuthorizationRequest authRequest = new AuthorizationRequest(source, true);
@@ -467,7 +465,7 @@ public class ProcessOut {
                     CustomerActionHandler customerActionHandler = new CustomerActionHandler(handler, new PaymentWebView(with), with, new CustomerActionHandler.CustomerActionCallback() {
                         @Override
                         public void shouldContinue(String source) {
-                            makeIncrementalAuthorizationPayment(invoiceId, source, thirdPartySDKVersion, handler, with);
+                            makeIncrementalAuthorizationPayment(invoiceId, source, handler, with);
                         }
                     });
                     customerActionHandler.handleCustomerAction(cA);
@@ -485,8 +483,9 @@ public class ProcessOut {
      * @param source    source to use for the charge (card token, etc.)
      * @param thirdPartySDKVersion version of the 3rd party SDK being used for the calls.
      * @param handler   (Custom 3DS2 handler)
+     * @param preferredScheme carte bancaire, or visa or mastercard
      */
-    public void makeIncrementalAuthorizationPayment(@NonNull final String invoiceId, @NonNull final String source, final String thirdPartySDKVersion, @NonNull final ThreeDSHandler handler, @NonNull final Context with) {
+    public void makeIncrementalAuthorizationPayment(@NonNull final String invoiceId, @NonNull final String source, final String thirdPartySDKVersion, @NonNull final ThreeDSHandler handler, @NonNull final Context with, final String preferredScheme) {
         try {
             // Generate the authorization body and forces 3DS2
             AuthorizationRequest authRequest = new AuthorizationRequest(source, true, thirdPartySDKVersion);
@@ -514,7 +513,7 @@ public class ProcessOut {
                     CustomerActionHandler customerActionHandler = new CustomerActionHandler(handler, new PaymentWebView(with), with, new CustomerActionHandler.CustomerActionCallback() {
                         @Override
                         public void shouldContinue(String source) {
-                            makeIncrementalAuthorizationPayment(invoiceId, source, thirdPartySDKVersion, handler, with);
+                            makeIncrementalAuthorizationPayment(invoiceId, source, thirdPartySDKVersion, handler, with, preferredScheme);
                         }
                     });
                     customerActionHandler.handleCustomerAction(cA);
