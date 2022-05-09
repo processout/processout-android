@@ -614,7 +614,7 @@ public class ProcessOut {
      * @param preferredScheme carte bancaire, or visa or mastercard
      * @param with       Activity to display webviews and perform fingerprinting
      */
-    public void makeCardToken(@NonNull final String source, @NonNull final String customerId, @NonNull final String tokenId, final String thirdPartySDKVersion,final String preferredScheme, @NonNull final ThreeDSHandler handler, @NonNull final Context with) {
+    public void makeCardToken(@NonNull final String source, @NonNull final String customerId, @NonNull final String tokenId, final String thirdPartySDKVersion, @NonNull final ThreeDSHandler handler, @NonNull final Context with, final String preferredScheme) {
         try {
             TokenRequest request = new TokenRequest(source, thirdPartySDKVersion, preferredScheme);
             final JSONObject body = new JSONObject(gson.toJson(request));
@@ -641,7 +641,7 @@ public class ProcessOut {
                     CustomerActionHandler customerActionHandler = new CustomerActionHandler(handler, new CardTokenWebView(with), with, new CustomerActionHandler.CustomerActionCallback() {
                         @Override
                         public void shouldContinue(String source) {
-                            makeCardToken(source, customerId, tokenId, handler, with);
+                            makeCardToken(source, customerId, tokenId, thirdPartySDKVersion, handler, with, preferredScheme);
                         }
                     });
                     customerActionHandler.handleCustomerAction(cA);
