@@ -3,7 +3,7 @@ package com.processout.processout_sdk;
 import com.google.gson.annotations.SerializedName;
 
 public class TokenRequest {
-    @SerializedName("customer_uid")
+    @SerializedName("customer_id")
     private String customerID;
     @SerializedName("token_id")
     private String tokenID;
