@@ -3,12 +3,14 @@ package com.processout.processout_sdk;
 import com.google.gson.annotations.SerializedName;
 
 public class AuthorizationRequest {
+    @SerializedName("invoice_id")
+    private String invoiceID;
     @SerializedName("source")
     private String source;
     @SerializedName("incremental")
     private boolean incremental;
     @SerializedName("enable_three_d_s_2")
-    private boolean enableThreeDS2 = true;
+    private final boolean enableThreeDS2 = true;
     @SerializedName("third_party_sdk_version")
     private String thirdPartySDKVersion;
     @SerializedName("preferred_scheme")
@@ -36,9 +38,10 @@ public class AuthorizationRequest {
         this.thirdPartySDKVersion = thirdPartySDKVersion;
     }
 
-    public AuthorizationRequest(String source, boolean incremental, String thirdPartySDKVersion, String preferredScheme) {
+    public AuthorizationRequest(String invoiceID, String source, String thirdPartySDKVersion, String preferredScheme) {
         this.source = source;
-        this.incremental = incremental;
+        this.invoiceID = invoiceID;
+        this.incremental = false;
         this.thirdPartySDKVersion = thirdPartySDKVersion;
         this.preferredScheme = preferredScheme;
     }
@@ -53,5 +56,16 @@ public class AuthorizationRequest {
 
     public String getThirdPartySDKVersion() {
         return thirdPartySDKVersion;
+    }
+    public String getInvoiceID() {
+        return invoiceID;
+    }
+
+    public String getPreferredScheme() {
+        return preferredScheme;
+    }
+
+    public void setIncremental(boolean isIncremental) {
+        this.incremental = isIncremental;
     }
 }

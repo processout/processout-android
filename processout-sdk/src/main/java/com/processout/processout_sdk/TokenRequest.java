@@ -2,13 +2,17 @@ package com.processout.processout_sdk;
 
 import com.google.gson.annotations.SerializedName;
 
-class TokenRequest {
+public class TokenRequest {
+    @SerializedName("customer_uid")
+    private String customerID;
+    @SerializedName("token_id")
+    private String tokenID;
     @SerializedName("source")
     private String source;
     @SerializedName("verify")
-    private boolean verify = true;
+    private final boolean verify = true;
     @SerializedName("enable_three_d_s_2")
-    private boolean enableThreeDS2 = true;
+    private final boolean enableThreeDS2 = true;
     @SerializedName("third_party_sdk_version")
     private String thirdPartySDKVersion;
     @SerializedName("preferred_scheme")
@@ -23,9 +27,21 @@ class TokenRequest {
         this.thirdPartySDKVersion = thirdPartySDKVersion;
     }
 
-    TokenRequest(String source, String thirdPartySDKVersion, String preferredScheme) {
+    TokenRequest(String tokenID, String customerID, String source, String thirdPartySDKVersion, String preferredScheme) {
+        this.tokenID = tokenID;
+        this.customerID = customerID;
         this.source = source;
         this.thirdPartySDKVersion = thirdPartySDKVersion;
         this.preferredScheme = preferredScheme;
+    }
+
+    public String getCustomerID() {
+        return customerID;
+    }
+    public String getTokenID() {
+        return tokenID;
+    }
+    public String getSource() {
+        return source;
     }
 }
