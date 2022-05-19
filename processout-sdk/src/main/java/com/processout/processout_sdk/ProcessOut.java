@@ -300,7 +300,8 @@ public class ProcessOut {
     public void makeCardPayment(@NonNull final String invoiceId, @NonNull final String source, final String thirdPartySDKVersion, @NonNull final ThreeDSHandler handler, @NonNull final Context with) {
         try {
             // Generate the authorization body and forces 3DS2
-            AuthorizationRequest authRequest = new AuthorizationRequest(source, thirdPartySDKVersion);
+            AuthorizationRequest authRequest = new AuthorizationRequest(source, invoiceId);
+            authRequest.setThirdPartySDKVersion(thirdPartySDKVersion);
             final JSONObject body = new JSONObject(gson.toJson(authRequest));
 
             requestAuthorization(invoiceId, body, new RequestAuthorizationCallback() {
@@ -488,7 +489,8 @@ public class ProcessOut {
     public void makeIncrementalAuthorizationPayment(@NonNull final String invoiceId, @NonNull final String source, final String thirdPartySDKVersion, @NonNull final ThreeDSHandler handler, @NonNull final Context with) {
         try {
             // Generate the authorization body and forces 3DS2
-            AuthorizationRequest authRequest = new AuthorizationRequest(source, true, thirdPartySDKVersion);
+            AuthorizationRequest authRequest = new AuthorizationRequest(source, true);
+            authRequest.setThirdPartySDKVersion(thirdPartySDKVersion);
             final JSONObject body = new JSONObject(gson.toJson(authRequest));
 
             requestAuthorization(invoiceId, body, new RequestAuthorizationCallback() {

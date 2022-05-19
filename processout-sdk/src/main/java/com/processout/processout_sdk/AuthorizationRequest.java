@@ -35,10 +35,10 @@ public class AuthorizationRequest {
         this.incremental = false;
     }
 
-    public AuthorizationRequest(String source, String thirdPartySDKVersion) {
+    public AuthorizationRequest(String source, String invoiceID) {
         this.source = source;
         this.incremental = false;
-        this.thirdPartySDKVersion = thirdPartySDKVersion;
+        this.invoiceID = invoiceID;
     }
 
 
