@@ -15,6 +15,7 @@ public class TokenRequest {
     private final boolean enableThreeDS2 = true;
     @SerializedName("third_party_sdk_version")
     private String thirdPartySDKVersion;
+
     @SerializedName("preferred_scheme")
     private String preferredScheme;
 
@@ -27,12 +28,10 @@ public class TokenRequest {
         this.thirdPartySDKVersion = thirdPartySDKVersion;
     }
 
-    TokenRequest(String tokenID, String customerID, String source, String thirdPartySDKVersion, String preferredScheme) {
+    TokenRequest(String tokenID, String customerID, String source) {
         this.tokenID = tokenID;
         this.customerID = customerID;
         this.source = source;
-        this.thirdPartySDKVersion = thirdPartySDKVersion;
-        this.preferredScheme = preferredScheme;
     }
 
     public String getCustomerID() {
@@ -43,5 +42,33 @@ public class TokenRequest {
     }
     public String getSource() {
         return source;
+    }
+
+    public void setCustomerID(String customerID) {
+        this.customerID = customerID;
+    }
+
+    public void setTokenID(String tokenID) {
+        this.tokenID = tokenID;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public String getThirdPartySDKVersion() {
+        return thirdPartySDKVersion;
+    }
+
+    public void setThirdPartySDKVersion(String thirdPartySDKVersion) {
+        this.thirdPartySDKVersion = thirdPartySDKVersion;
+    }
+
+    public String getPreferredScheme() {
+        return preferredScheme;
+    }
+
+    public void setPreferredScheme(String preferredScheme) {
+        this.preferredScheme = preferredScheme;
     }
 }

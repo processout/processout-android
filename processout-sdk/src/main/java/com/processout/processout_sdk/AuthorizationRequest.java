@@ -13,6 +13,9 @@ public class AuthorizationRequest {
     private final boolean enableThreeDS2 = true;
     @SerializedName("third_party_sdk_version")
     private String thirdPartySDKVersion;
+
+
+
     @SerializedName("preferred_scheme")
     private String preferredScheme;
 
@@ -38,34 +41,45 @@ public class AuthorizationRequest {
         this.thirdPartySDKVersion = thirdPartySDKVersion;
     }
 
-    public AuthorizationRequest(String invoiceID, String source, String thirdPartySDKVersion, String preferredScheme) {
-        this.source = source;
+
+    public String getInvoiceID() {
+        return invoiceID;
+    }
+
+    public void setInvoiceID(String invoiceID) {
         this.invoiceID = invoiceID;
-        this.incremental = false;
-        this.thirdPartySDKVersion = thirdPartySDKVersion;
-        this.preferredScheme = preferredScheme;
     }
 
     public String getSource() {
         return source;
     }
 
-    public boolean isEnableThreeDS2() {
-        return enableThreeDS2;
+    public void setSource(String source) {
+        this.source = source;
     }
+
+    public boolean isIncremental() {
+        return incremental;
+    }
+    public void setIncremental(boolean isIncremental) {
+        this.incremental = isIncremental;
+    }
+
 
     public String getThirdPartySDKVersion() {
         return thirdPartySDKVersion;
     }
-    public String getInvoiceID() {
-        return invoiceID;
+
+    public void setThirdPartySDKVersion(String thirdPartySDKVersion) {
+        this.thirdPartySDKVersion = thirdPartySDKVersion;
     }
 
     public String getPreferredScheme() {
         return preferredScheme;
     }
 
-    public void setIncremental(boolean isIncremental) {
-        this.incremental = isIncremental;
+    public void setPreferredScheme(String preferredScheme) {
+        this.preferredScheme = preferredScheme;
     }
+
 }
