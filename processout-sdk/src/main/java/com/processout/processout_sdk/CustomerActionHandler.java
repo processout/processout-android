@@ -86,8 +86,6 @@ class CustomerActionHandler {
                 processOutWebView.loadUrl(customerAction.getValue());
                 break;
             case FINGERPRINT:
-                FrameLayout rootLayout = ((Activity) (with)).findViewById(android.R.id.content);
-
                 // Building the possibly needed webView
                 final WebView FingerprintWebView = new WebView(this.with);
                 FingerprintWebView.getSettings().setUserAgentString("ProcessOut Android-Webview/" + ProcessOut.SDK_VERSION);
@@ -143,6 +141,7 @@ class CustomerActionHandler {
                 // Add the webview to content
                 if (with instanceof Activity) {
                     // We perform the fingerprint by displaying the hidden webview
+                    FrameLayout rootLayout = ((Activity) (with)).findViewById(android.R.id.content);
                     rootLayout.addView(FingerprintWebView);
                 } else {
                     // We can't instantiate the webview so fallback to default fingerprinting value
