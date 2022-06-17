@@ -77,8 +77,13 @@ class Network {
                             Gson g = new GsonBuilder()
                                     .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                                     .create();
-                            ErrorReponse resp = g.fromJson(data, ErrorReponse.class);
-                            callback.onError(new ProcessOutCardException(resp.getErrorMessage(), resp.getErrorType()));
+                            try
+                            {
+                               ErrorReponse resp = g.fromJson(data, ErrorReponse.class);
+                               callback.onError(new ProcessOutCardException(resp.getErrorMessage(), resp.getErrorType()));
+                            } catch (Exception e){
+                                callback.onError(new ProcessOutNetworkException("Received an unexpected response"));
+                            }
                         } catch (UnsupportedEncodingException e) {
                             callback.onError(e);
                         }
