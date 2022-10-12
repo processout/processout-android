@@ -1,0 +1,20 @@
+name: Run Tests
+on:
+  pull_request:
+    types: [ opened, synchronize ]
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Run Tests
+        run: ./gradlew :sdk:test
