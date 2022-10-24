@@ -1,9 +1,13 @@
 package com.processout.sdk.di
 
+import com.processout.sdk.BuildConfig
 import com.processout.sdk.api.network.GatewayConfigurationsApi
 import com.processout.sdk.api.network.NetworkConfiguration
+import com.processout.sdk.api.network.interceptor.BasicAuthInterceptor
+import com.processout.sdk.api.network.interceptor.UserAgentInterceptor
 import com.squareup.moshi.Moshi
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.concurrent.TimeUnit
@@ -17,7 +21,15 @@ internal class NetworkGraphImpl(config: NetworkConfiguration) : NetworkGraph {
     private val okHttpClient: OkHttpClient =
         OkHttpClient.Builder()
             .callTimeout(30, TimeUnit.SECONDS)
-            .build()
+            .addInterceptor(BasicAuthInterceptor(config.projectId, String()))
+            .addInterceptor(UserAgentInterceptor(config.sdkVersion))
+            .apply {
+                if (BuildConfig.DEBUG) {
+                    addInterceptor(HttpLoggingInterceptor().apply {
+                        level = HttpLoggingInterceptor.Level.BODY
+                    })
+                }
+            }.build()
 
     private val moshi = Moshi.Builder().build()
 

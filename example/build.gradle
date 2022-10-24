@@ -55,6 +55,7 @@ dependencies {
     implementation "androidx.core:core-ktx:$androidxCoreVersion"
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
     implementation "androidx.constraintlayout:constraintlayout:$androidxConstraintLayoutVersion"
+    implementation "androidx.activity:activity-ktx:$androidxActivityKtxVersion"
 
     implementation "com.google.android.material:material:$materialVersion"
 
