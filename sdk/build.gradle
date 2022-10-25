@@ -66,6 +66,7 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
     implementation "com.squareup.okhttp3:logging-interceptor:$okhttpVersion"
     implementation "com.squareup.okio:okio:$okioVersion"
+    implementation "com.squareup.moshi:moshi-adapters:$moshiVersion"
 
     ksp "com.squareup.moshi:moshi-kotlin-codegen:$moshiVersion"
 

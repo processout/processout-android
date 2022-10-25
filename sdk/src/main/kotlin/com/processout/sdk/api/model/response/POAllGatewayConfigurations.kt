@@ -2,6 +2,7 @@ package com.processout.sdk.api.model.response
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import java.util.*
 
 @JsonClass(generateAdapter = true)
 data class POAllGatewayConfigurations(
@@ -34,9 +35,9 @@ data class POGatewayConfiguration(
     val merchantAccountCountryCode: String?,
     val enabled: Boolean,
     @Json(name = "created_at")
-    val createdAt: String, //TODO: date adapter
+    val createdAt: Date,
     @Json(name = "enabled_at")
-    val enabledAt: String? //TODO: date adapter
+    val enabledAt: Date?
 )
 
 @JsonClass(generateAdapter = true)
