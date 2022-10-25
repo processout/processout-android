@@ -3,7 +3,6 @@ package com.processout.example
 import com.processout.sdk.api.ProcessOutApi
 import com.processout.sdk.api.model.request.POCardTokenizationRequest
 import com.processout.sdk.api.model.request.POCardUpdateCVCRequest
-import com.processout.sdk.api.model.response.POCardResponse
 import com.processout.sdk.api.repository.CardsRepository
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.handleSuccess
