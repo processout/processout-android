@@ -3,14 +3,13 @@ package com.processout.example
 import com.processout.sdk.api.ProcessOutApi
 import com.processout.sdk.api.model.request.POCardTokenizationRequest
 import com.processout.sdk.api.model.request.POCardUpdateCVCRequest
-import com.processout.sdk.api.repository.CardsRepository
-import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.handleSuccess
 import kotlinx.coroutines.runBlocking
 import org.junit.BeforeClass
 import org.junit.Test
 
-class CardRepositoryRunner {
+class CardsRepositoryRunner {
+
     companion object {
         @JvmStatic
         @BeforeClass
@@ -19,7 +18,7 @@ class CardRepositoryRunner {
         }
     }
 
-    private val cardRepository: CardsRepository = ProcessOutApi.instance.cardsRepository
+    private val cards = ProcessOutApi.instance.cards
 
     @Test
     fun tokenize() = runBlocking {
@@ -30,11 +29,7 @@ class CardRepositoryRunner {
             expYear = 2030,
             cvc = "123"
         )
-
-        cardRepository.tokenize(request).let { result ->
-            println(result)
-            if (result is ProcessOutResult.Failure) throw AssertionError()
-        }
+        cards.tokenize(request).assertFailure()
     }
 
     @Test
@@ -47,16 +42,11 @@ class CardRepositoryRunner {
             cvc = "123"
         )
 
-        cardRepository.tokenize(request).let { result ->
-            println(result)
-            if (result is ProcessOutResult.Failure) throw AssertionError()
-
-            val cvcUpdateRequest = POCardUpdateCVCRequest(cvc = "321")
-            result.handleSuccess { resp ->
-                cardRepository.updateCVC(resp.id, cvcUpdateRequest).let { updateResult ->
-                    println(updateResult)
-                    if (updateResult is ProcessOutResult.Failure) throw AssertionError()
-                }
+        cards.tokenize(request).let { result ->
+            result.assertFailure()
+            result.handleSuccess { card ->
+                val cvcUpdateRequest = POCardUpdateCVCRequest(cvc = "321")
+                cards.updateCVC(card.id, cvcUpdateRequest).assertFailure()
             }
         }
     }

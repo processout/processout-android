@@ -1,6 +1,7 @@
 package com.processout.sdk.api.repository
 
 import com.processout.sdk.api.model.request.POAllGatewayConfigurationsRequest
+import com.processout.sdk.api.model.request.POGatewayConfigurationRequest
 import com.processout.sdk.api.model.response.POAllGatewayConfigurations
 import com.processout.sdk.api.model.response.POGatewayConfiguration
 import com.processout.sdk.api.model.response.POGatewayConfigurationResponse
@@ -20,10 +21,17 @@ internal class GatewayConfigurationsRepositoryImpl(
         callback: ProcessOutCallback<POAllGatewayConfigurations>
     ) = apiCallScoped(callback) { api.fetch(request.toQuery()) }
 
-    override suspend fun find(id: String) = apiCall { api.find(id) }.map { it.toModel() }
+    override suspend fun find(request: POGatewayConfigurationRequest) =
+        apiCall {
+            api.find(request.gatewayConfigurationId, request.toQuery())
+        }.map { it.toModel() }
 
-    override fun find(id: String, callback: ProcessOutCallback<POGatewayConfiguration>) =
-        apiCallScoped(callback, POGatewayConfigurationResponse::toModel) { api.find(id) }
+    override fun find(
+        request: POGatewayConfigurationRequest,
+        callback: ProcessOutCallback<POGatewayConfiguration>
+    ) = apiCallScoped(callback, POGatewayConfigurationResponse::toModel) {
+        api.find(request.gatewayConfigurationId, request.toQuery())
+    }
 }
 
 private fun POAllGatewayConfigurationsRequest.toQuery(): Map<String, String> {
@@ -31,6 +39,14 @@ private fun POAllGatewayConfigurationsRequest.toQuery(): Map<String, String> {
     filter?.let { query["filter"] = it.queryValue }
     query["with_disabled"] = withDisabled.toString()
     query["expand_merchant_accounts"] = true.toString()
+    return query
+}
+
+private fun POGatewayConfigurationRequest.toQuery(): Map<String, String> {
+    val query = mutableMapOf<String, String>()
+    if (withGateway) {
+        query["expand[]"] = "gateway"
+    }
     return query
 }
 

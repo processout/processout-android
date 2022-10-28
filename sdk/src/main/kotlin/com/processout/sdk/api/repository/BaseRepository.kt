@@ -18,14 +18,10 @@ internal abstract class BaseRepository(
     ): ProcessOutResult<T> = withContext(workDispatcher) {
         try {
             val response = apiMethod()
-            if (response.isSuccessful) {
-                response.body()?.let { ProcessOutResult.Success(it) }
+            when (response.isSuccessful) {
+                true -> response.body()?.let { ProcessOutResult.Success(it) }
                     ?: ProcessOutResult.Failure("Response body is empty.")
-            } else {
-                ProcessOutResult.Failure(
-                    response.errorBody()?.string() ?: "Response code: ${response.code()}",
-                    ProcessOutException("NetworkException") //TODO: exceptions converter
-                )
+                false -> apiFailure(response)
             }
         } catch (e: IOException) {
             ProcessOutResult.Failure(e.message ?: String(), e)

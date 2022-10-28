@@ -13,5 +13,8 @@ internal interface GatewayConfigurationsApi {
     suspend fun fetch(@QueryMap options: Map<String, String>): Response<POAllGatewayConfigurations>
 
     @GET("/gateway-configurations/{id}")
-    suspend fun find(@Path("id") id: String): Response<POGatewayConfigurationResponse>
+    suspend fun find(
+        @Path("id") gatewayConfigurationId: String,
+        @QueryMap options: Map<String, String>
+    ): Response<POGatewayConfigurationResponse>
 }

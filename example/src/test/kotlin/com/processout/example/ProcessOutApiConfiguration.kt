@@ -10,7 +10,8 @@ class ProcessOutApiConfiguration {
             try {
                 ProcessOutApi.configure(
                     ProcessOutApi.Configuration(
-                        "test-proj"
+                        "test-proj",
+                        "key_test"
                     )
                 )
             } catch (_: ProcessOutException) {

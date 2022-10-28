@@ -61,11 +61,3 @@ data class POGateway(
 data class PONativeAlternativePaymentMethodConfig(
     val parameters: List<PONativeAlternativePaymentMethodParameter>?
 )
-
-@JsonClass(generateAdapter = true)
-data class PONativeAlternativePaymentMethodParameter(
-    val key: String,
-    val length: Int?,
-    val required: Boolean,
-    val type: String //TODO: enum adapter [numeric, text, email, phone]
-)

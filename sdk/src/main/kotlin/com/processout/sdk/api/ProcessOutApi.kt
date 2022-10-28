@@ -5,15 +5,16 @@ import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.api.network.NetworkConfiguration
 import com.processout.sdk.api.repository.CardsRepository
 import com.processout.sdk.api.repository.GatewayConfigurationsRepository
+import com.processout.sdk.api.repository.InvoicesRepository
 import com.processout.sdk.core.exception.ProcessOutException
 import com.processout.sdk.di.ApiGraph
 import com.processout.sdk.di.NetworkGraphImpl
 import com.processout.sdk.di.RepositoryGraphImpl
 
 class ProcessOutApi private constructor(
-    val gatewayConfigurationsRepository: GatewayConfigurationsRepository,
-    val cardsRepository: CardsRepository
-
+    val gatewayConfigurations: GatewayConfigurationsRepository,
+    val invoices: InvoicesRepository,
+    val cards: CardsRepository
 ) {
 
     companion object {
@@ -30,9 +31,10 @@ class ProcessOutApi private constructor(
                 repositoryGraph = RepositoryGraphImpl(
                     networkGraph = NetworkGraphImpl(
                         NetworkConfiguration(
-                            ApiConstants.BASE_URL,
-                            configuration.projectId,
-                            VERSION
+                            sdkVersion = VERSION,
+                            baseUrl = ApiConstants.BASE_URL,
+                            projectId = configuration.projectId,
+                            privateKey = configuration.privateKey
                         )
                     )
                 )
@@ -42,6 +44,7 @@ class ProcessOutApi private constructor(
                 instance = lazy {
                     ProcessOutApi(
                         it.gatewayConfigurationsRepository,
+                        it.invoicesRepository,
                         it.cardsRepository
                     )
                 }.value
@@ -49,5 +52,13 @@ class ProcessOutApi private constructor(
         }
     }
 
-    data class Configuration(val projectId: String)
+    data class Configuration(
+        val projectId: String,
+        /**
+         * __Warning: only for testing purposes.__
+         *
+         * Storing private key inside application is extremely dangerous and highly discouraged.
+         */
+        internal val privateKey: String = String()
+    )
 }

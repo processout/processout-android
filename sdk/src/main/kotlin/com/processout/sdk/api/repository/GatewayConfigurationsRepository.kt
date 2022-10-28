@@ -1,6 +1,7 @@
 package com.processout.sdk.api.repository
 
 import com.processout.sdk.api.model.request.POAllGatewayConfigurationsRequest
+import com.processout.sdk.api.model.request.POGatewayConfigurationRequest
 import com.processout.sdk.api.model.response.POAllGatewayConfigurations
 import com.processout.sdk.api.model.response.POGatewayConfiguration
 import com.processout.sdk.core.ProcessOutCallback
@@ -14,6 +15,9 @@ interface GatewayConfigurationsRepository {
         callback: ProcessOutCallback<POAllGatewayConfigurations>
     )
 
-    suspend fun find(id: String): ProcessOutResult<POGatewayConfiguration>
-    fun find(id: String, callback: ProcessOutCallback<POGatewayConfiguration>)
+    suspend fun find(request: POGatewayConfigurationRequest): ProcessOutResult<POGatewayConfiguration>
+    fun find(
+        request: POGatewayConfigurationRequest,
+        callback: ProcessOutCallback<POGatewayConfiguration>
+    )
 }

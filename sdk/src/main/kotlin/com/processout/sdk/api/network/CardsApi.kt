@@ -10,13 +10,13 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 
 internal interface CardsApi {
+
     @POST("/cards")
-    suspend fun tokenize(@Body POCardTokenizationRequest: POCardTokenizationRequest):
-            Response<POCardResponse>
+    suspend fun tokenize(@Body request: POCardTokenizationRequest): Response<POCardResponse>
 
     @PUT("/cards/{id}")
     suspend fun updateCVC(
         @Path("id") cardId: String,
-        @Body POCardUpdateCVCRequest: POCardUpdateCVCRequest
+        @Body request: POCardUpdateCVCRequest
     ): Response<POCardResponse>
 }

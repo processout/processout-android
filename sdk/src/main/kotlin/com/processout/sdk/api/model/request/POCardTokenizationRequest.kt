@@ -4,7 +4,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class Contact (
+data class POContact(
     val address1: String? = "",
     val address2: String? = "",
     val city: String? = "",
@@ -15,7 +15,7 @@ data class Contact (
 )
 
 @JsonClass(generateAdapter = true)
-data class POCardTokenizationRequest (
+data class POCardTokenizationRequest(
     // Metadata related to the card
     val metadata: Map<String, String>? = emptyMap(),
 
@@ -27,18 +27,15 @@ data class POCardTokenizationRequest (
     val expYear: Int? = 0,
     val cvc: String? = "",
     val name: String = "",
-    val contact: Contact? = Contact(),
+    val contact: POContact? = POContact(),
 
     // Network Token specific fields
     @Json(name = "token_type")
-    val tokenType:String? = "",
+    val tokenType: String? = "",
     @Json(name = "payment_token")
-    val paymentToken:String? = "",
-
+    val paymentToken: String? = "",
 ) {
     enum class TokenType(val tokenType: String) {
         GOOGLE_PAY("googlepay"),
     }
 }
-
-
