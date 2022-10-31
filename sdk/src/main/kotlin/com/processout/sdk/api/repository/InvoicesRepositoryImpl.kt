@@ -9,9 +9,11 @@ import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodRes
 import com.processout.sdk.api.network.InvoicesApi
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.map
+import com.processout.sdk.di.ContextGraph
 
 internal class InvoicesRepositoryImpl(
-    private val api: InvoicesApi
+    private val api: InvoicesApi,
+    private val contextGraph: ContextGraph
 ) : BaseRepository(), InvoicesRepository {
 
     override suspend fun initiatePayment(request: PONativeAlternativePaymentMethodRequest) =

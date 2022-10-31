@@ -9,7 +9,8 @@ class ProcessOutExampleApplication : Application() {
         super.onCreate()
         ProcessOutApi.configure(
             ProcessOutApi.Configuration(
-                "test-proj",
+                this,
+                "proj_",
                 "key_test"
             )
         )

@@ -8,13 +8,17 @@ internal interface RepositoryGraph {
     val cardsRepository: CardsRepository
 }
 
-internal class RepositoryGraphImpl(networkGraph: NetworkGraph) : RepositoryGraph {
+internal class RepositoryGraphImpl(
+    networkGraph: NetworkGraph,
+    contextGraph: ContextGraph
+) : RepositoryGraph {
 
     override val gatewayConfigurationsRepository: GatewayConfigurationsRepository =
         GatewayConfigurationsRepositoryImpl(networkGraph.gatewayConfigurationsApi)
 
     override val invoicesRepository: InvoicesRepository =
-        InvoicesRepositoryImpl(networkGraph.invoicesApi)
+        InvoicesRepositoryImpl(networkGraph.invoicesApi, contextGraph)
 
-    override val cardsRepository: CardsRepository = CardsRepositoryImpl(networkGraph.cardsApi)
+    override val cardsRepository: CardsRepository =
+        CardsRepositoryImpl(networkGraph.cardsApi, contextGraph)
 }

@@ -1,15 +1,16 @@
-package com.processout.example
+package com.processout.example.config
 
 import com.processout.sdk.api.ProcessOutApi
 import com.processout.sdk.core.exception.ProcessOutException
 
-class ProcessOutApiConfiguration {
+class TestConfiguration {
 
     companion object {
-        fun configure() {
+        fun configure(application: TestApplication) {
             try {
                 ProcessOutApi.configure(
                     ProcessOutApi.Configuration(
+                        application,
                         "test-proj",
                         "key_test"
                     )

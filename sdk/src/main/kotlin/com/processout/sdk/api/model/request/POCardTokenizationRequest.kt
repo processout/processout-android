@@ -14,28 +14,42 @@ data class POContact(
     val countryCode: String? = ""
 )
 
-@JsonClass(generateAdapter = true)
-data class POCardTokenizationRequest(
+open class POCardTokenizationRequest(
     // Metadata related to the card
-    val metadata: Map<String, String>? = emptyMap(),
+    open val metadata: Map<String, String>? = emptyMap(),
 
     // Information about the card
-    val number: String? = "", // we can either have a card or a googlepay token
-    @Json(name = "exp_month")
-    val expMonth: Int? = 0,
-    @Json(name = "exp_year")
-    val expYear: Int? = 0,
-    val cvc: String? = "",
-    val name: String = "",
-    val contact: POContact? = POContact(),
+    open val number: String? = "", // we can either have a card or a googlepay token
+    open val expMonth: Int? = 0,
+    open val expYear: Int? = 0,
+    open val cvc: String? = "",
+    open val name: String = "",
+    open val contact: POContact? = POContact(),
 
     // Network Token specific fields
-    @Json(name = "token_type")
-    val tokenType: String? = "",
-    @Json(name = "payment_token")
-    val paymentToken: String? = "",
+    open val tokenType: String? = "",
+    open val paymentToken: String? = "",
 ) {
     enum class TokenType(val tokenType: String) {
         GOOGLE_PAY("googlepay"),
     }
 }
+
+@JsonClass(generateAdapter = true)
+internal data class POCardTokenizationRequestWithDeviceData(
+    override val metadata: Map<String, String>? = emptyMap(),
+    override val number: String?,
+    @Json(name = "exp_month")
+    override val expMonth: Int?,
+    @Json(name = "exp_year")
+    override val expYear: Int?,
+    override val cvc: String?,
+    override val name: String,
+    override val contact: POContact?,
+    @Json(name = "token_type")
+    override val tokenType: String?,
+    @Json(name = "payment_token")
+    override val paymentToken: String?,
+    @Json(name = "device")
+    val deviceData: PODeviceData? = null
+) : POCardTokenizationRequest()

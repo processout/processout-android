@@ -1,23 +1,34 @@
 package com.processout.example
 
+import com.processout.example.config.SetupRule
+import com.processout.example.config.TestApplication
+import com.processout.example.config.assertFailure
 import com.processout.sdk.api.ProcessOutApi
 import com.processout.sdk.api.model.request.POAllGatewayConfigurationsRequest
 import com.processout.sdk.api.model.request.POGatewayConfigurationRequest
+import com.processout.sdk.api.repository.GatewayConfigurationsRepository
 import kotlinx.coroutines.runBlocking
-import org.junit.BeforeClass
+import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(application = TestApplication::class)
 class GatewayConfigurationsRepositoryRunner {
 
-    companion object {
-        @JvmStatic
-        @BeforeClass
-        fun configure() {
-            ProcessOutApiConfiguration.configure()
-        }
-    }
+    @Rule
+    @JvmField
+    val setupRule = SetupRule()
 
-    private val gatewayConfigurations = ProcessOutApi.instance.gatewayConfigurations
+    private lateinit var gatewayConfigurations: GatewayConfigurationsRepository
+
+    @Before
+    fun setUp() {
+        gatewayConfigurations = ProcessOutApi.instance.gatewayConfigurations
+    }
 
     @Test
     fun fetch() = runBlocking {

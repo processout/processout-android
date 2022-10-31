@@ -1,4 +1,4 @@
-package com.processout.example
+package com.processout.example.config
 
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.handleFailure

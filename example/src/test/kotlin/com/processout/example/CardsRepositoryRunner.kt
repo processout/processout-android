@@ -1,24 +1,35 @@
 package com.processout.example
 
+import com.processout.example.config.SetupRule
+import com.processout.example.config.TestApplication
+import com.processout.example.config.assertFailure
 import com.processout.sdk.api.ProcessOutApi
 import com.processout.sdk.api.model.request.POCardTokenizationRequest
 import com.processout.sdk.api.model.request.POCardUpdateCVCRequest
+import com.processout.sdk.api.repository.CardsRepository
 import com.processout.sdk.core.handleSuccess
 import kotlinx.coroutines.runBlocking
-import org.junit.BeforeClass
+import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(application = TestApplication::class)
 class CardsRepositoryRunner {
 
-    companion object {
-        @JvmStatic
-        @BeforeClass
-        fun configure() {
-            ProcessOutApiConfiguration.configure()
-        }
-    }
+    @Rule
+    @JvmField
+    val setupRule = SetupRule()
 
-    private val cards = ProcessOutApi.instance.cards
+    private lateinit var cards: CardsRepository
+
+    @Before
+    fun setUp() {
+        cards = ProcessOutApi.instance.cards
+    }
 
     @Test
     fun tokenize() = runBlocking {
