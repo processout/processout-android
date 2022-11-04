@@ -1,6 +1,6 @@
 package com.processout.sdk.api.network
 
-import com.processout.sdk.api.model.request.POCreateInvoiceRequest
+import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.request.PONativeAPMRequestBody
 import com.processout.sdk.api.model.response.POInvoiceResponse
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodResponse
@@ -10,6 +10,12 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 internal interface InvoicesApi {
+
+    @POST("/invoices/{id}/authorize")
+    suspend fun authorize(
+        @Path("id") invoiceId: String,
+        @Body request: POInvoiceAuthorizationRequestWithDeviceData
+    ): Response<POAuthorizationResponse>
 
     @POST("/invoices/{id}/native-payment")
     suspend fun initiatePayment(

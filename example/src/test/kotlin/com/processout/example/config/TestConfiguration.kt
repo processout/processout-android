@@ -9,8 +9,8 @@ class TestConfiguration {
             ProcessOutApi.configure(
                 ProcessOutApi.Configuration(
                     application,
-                    "test-proj",
-                    "key_test"
+                    "test-proj_2hO7lwt5vf3FjBFB37glPzMG3Y8Lq8O8",
+                    "key_test_R56fdFWMpcAzt5Cenn3oK4emCowFe4l4"
                 )
             )
         }

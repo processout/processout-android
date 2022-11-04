@@ -1,12 +1,12 @@
-package com.processout.example
+package com.processout.sdk
 
-import com.processout.example.config.SetupRule
-import com.processout.example.config.TestApplication
-import com.processout.example.config.assertFailure
 import com.processout.sdk.api.ProcessOutApi
 import com.processout.sdk.api.model.request.POAllGatewayConfigurationsRequest
 import com.processout.sdk.api.model.request.POGatewayConfigurationRequest
 import com.processout.sdk.api.repository.GatewayConfigurationsRepository
+import com.processout.sdk.config.SetupRule
+import com.processout.sdk.config.TestApplication
+import com.processout.sdk.config.assertFailure
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
@@ -17,7 +17,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestApplication::class)
-class GatewayConfigurationsRepositoryRunner {
+class GatewayConfigurationsRepositoryUnitTests {
 
     @Rule
     @JvmField
@@ -41,7 +41,7 @@ class GatewayConfigurationsRepositoryRunner {
     @Test
     fun find() = runBlocking {
         val request = POGatewayConfigurationRequest(
-            "gway_conf_vojw6s38v89xu2aweh9z9quc7yaim5g7.adyenblik",
+            "gway_conf_ux3ye8vh2c78c89s8ozp1f1ujixkl11k.adyenblik",
             withGateway = true
         )
         gatewayConfigurations.find(request).assertFailure()

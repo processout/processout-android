@@ -17,6 +17,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 internal interface NetworkGraph {
+    val moshi: Moshi
     val gatewayConfigurationsApi: GatewayConfigurationsApi
     val invoicesApi: InvoicesApi
     val cardsApi: CardsApi
@@ -37,7 +38,7 @@ internal class NetworkGraphImpl(config: NetworkConfiguration) : NetworkGraph {
                 }
             }.build()
 
-    private val moshi = Moshi.Builder()
+    override val moshi: Moshi = Moshi.Builder()
         .add(Date::class.java, Rfc3339DateJsonAdapter())
         .build()
     private val moshiConverterFactory = MoshiConverterFactory.create(moshi)

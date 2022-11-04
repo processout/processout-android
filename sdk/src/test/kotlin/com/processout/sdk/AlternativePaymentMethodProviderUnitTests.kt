@@ -9,7 +9,6 @@ import com.processout.sdk.config.SetupRule
 import com.processout.sdk.config.TestApplication
 import com.processout.sdk.config.assertFailure
 import com.processout.sdk.core.handleSuccess
-import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -33,14 +32,14 @@ class AlternativePaymentMethodProviderUnitTests {
     }
 
     @Test
-    fun alternativePaymentMethodURL() = runBlocking {
+    fun alternativePaymentMethodURL() {
         val request = POAlternativePaymentMethodRequest(
             invoiceId = "iv_test",
             gatewayConfigurationId = "gway_conf_test",
             additionalData = mapOf("field1" to "test", "field2" to "test2")
         )
 
-        val expectedUrl = "https://checkout.processout.ninja/test-proj/" +
+        val expectedUrl = "https://checkout.processout.ninja/test-proj_2hO7lwt5vf3FjBFB37glPzMG3Y8Lq8O8/" +
                 "iv_test/redirect/gway_conf_test?additional_data%5Bfield1%5D=test&additional_data%5Bfield2%5D=test2"
         apmProvider.alternativePaymentMethodURL(request).let { result ->
             result.assertFailure()
@@ -51,7 +50,7 @@ class AlternativePaymentMethodProviderUnitTests {
     }
 
     @Test
-    fun alternativePaymentMethodURLWithCustomerToken() = runBlocking {
+    fun alternativePaymentMethodURLWithCustomerToken() {
         val request = POAlternativePaymentMethodRequest(
             invoiceId = "iv_test",
             gatewayConfigurationId = "gway_conf_test",
@@ -59,7 +58,7 @@ class AlternativePaymentMethodProviderUnitTests {
             tokenId = "tok_test"
         )
 
-        val expectedUrl = "https://checkout.processout.ninja/test-proj/cust_test/tok_test/redirect/gway_conf_test"
+        val expectedUrl = "https://checkout.processout.ninja/test-proj_2hO7lwt5vf3FjBFB37glPzMG3Y8Lq8O8/cust_test/tok_test/redirect/gway_conf_test"
         apmProvider.alternativePaymentMethodURL(request).let { result ->
             result.assertFailure()
             result.handleSuccess { response ->
@@ -69,7 +68,7 @@ class AlternativePaymentMethodProviderUnitTests {
     }
 
     @Test
-    fun alternativePaymentMethodResponse() = runBlocking {
+    fun alternativePaymentMethodResponse() {
         val returnUrl = "https://processout.return?token=gway_req_test"
 
         apmProvider.alternativePaymentMethodResponse(Uri.parse(returnUrl)).let { result ->
@@ -82,7 +81,7 @@ class AlternativePaymentMethodProviderUnitTests {
     }
 
     @Test
-    fun alternativePaymentMethodResponseWithCustomerToken() = runBlocking {
+    fun alternativePaymentMethodResponseWithCustomerToken() {
         val returnUrl = "https://processout.return?token=gway_req_test" +
                 "&token_id=tok_test&customer_id=cust_test"
 
@@ -97,4 +96,3 @@ class AlternativePaymentMethodProviderUnitTests {
         }
     }
 }
-

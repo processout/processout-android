@@ -17,7 +17,7 @@ internal class RepositoryGraphImpl(
         GatewayConfigurationsRepositoryImpl(networkGraph.gatewayConfigurationsApi)
 
     override val invoicesRepository: InvoicesRepository =
-        InvoicesRepositoryImpl(networkGraph.invoicesApi, contextGraph)
+        InvoicesRepositoryImpl(networkGraph.invoicesApi, contextGraph, networkGraph.moshi)
 
     override val cardsRepository: CardsRepository =
         CardsRepositoryImpl(networkGraph.cardsApi, contextGraph)
