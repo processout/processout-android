@@ -21,6 +21,8 @@ data class POInvoiceAuthorizationRequest(
     val overrideMacBlocking: Boolean? = null,
     // Allows to specify which scheme ID to use for subsequent CIT/MITs if applicable.
     val initialSchemeTransactionId: String? = null,
+    // Additional matadata.
+    val metadata: Map<String, String>? = null,
 )
 
 
@@ -40,6 +42,7 @@ internal data class POInvoiceAuthorizationRequestWithDeviceData(
     val overrideMacBlocking: Boolean? = null,
     @Json(name = "initial_scheme_transaction_id")
     val initialSchemeTransactionId: String? = null,
+    val metadata: Map<String, String>? = null,
     @Json(name = "device")
     val deviceData: PODeviceData? = null
 )

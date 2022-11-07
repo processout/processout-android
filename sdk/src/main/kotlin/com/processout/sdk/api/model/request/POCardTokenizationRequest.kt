@@ -5,7 +5,7 @@ import com.squareup.moshi.JsonClass
 
 data class POCardTokenizationRequest(
     // Metadata related to the card
-    val metadata: Map<String, String>? = emptyMap(),
+    val metadata: Map<String, String>? = null,
 
     // Information about the card
     val number: String? = "", // we can either have a card or a googlepay token

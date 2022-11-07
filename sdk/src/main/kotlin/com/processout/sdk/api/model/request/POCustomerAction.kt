@@ -1,6 +1,7 @@
 package com.processout.sdk.api.model.request;
 
 import android.net.Uri
+import com.processout.sdk.api.model.response.POToken
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass;
 

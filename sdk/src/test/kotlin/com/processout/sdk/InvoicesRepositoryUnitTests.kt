@@ -67,17 +67,12 @@ class InvoicesRepositoryUnitTests {
             result.handleSuccess { invoice ->
                 cards.tokenize(request).let {
                     it.handleSuccess { card ->
-                        val cvcUpdateRequest = POCardUpdateCVCRequest(cvc = "123")
-                        cards.updateCVC(card.id, cvcUpdateRequest).let {
+                        invoices.authorize(invoice.id, POInvoiceAuthorizationRequest(
+                            card.id
+                        )).let {
+                            it.assertFailure()
                             it.handleSuccess {
-                                invoices.authorize(invoice.id, POInvoiceAuthorizationRequest(
-                                    card.id
-                                )).let {
-                                    it.assertFailure()
-                                    it.handleSuccess {
-                                        assert(it.customerAction == null)
-                                    }
-                                }
+                                assert(it.customerAction == null)
                             }
                         }
                     }
@@ -103,15 +98,58 @@ class InvoicesRepositoryUnitTests {
             result.handleSuccess { invoice ->
                 cards.tokenize(request).let {
                     it.handleSuccess { card ->
-                        val cvcUpdateRequest = POCardUpdateCVCRequest(cvc = "123")
-                        cards.updateCVC(card.id, cvcUpdateRequest).let {
+                        invoices.authorize(invoice.id, POInvoiceAuthorizationRequest(
+                            card.id
+                        )).let {
+                            it.assertFailure()
                             it.handleSuccess {
-                                invoices.authorize(invoice.id, POInvoiceAuthorizationRequest(
-                                    card.id
-                                )).let {
-                                    it.assertFailure()
-                                    it.handleSuccess {
-                                        assert(it.customerAction is POCustomerActionResponse.UriData)
+                                assert(it.customerAction is POCustomerActionResponse.UriData)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun assignCustomerToken() = runBlocking {
+        val request = POCardTokenizationRequest(
+            name = "John Doe",
+            number = "4242424242424242",
+            expMonth = 10,
+            expYear = 2030,
+            cvc = "123"
+        )
+        invoices.createCustomer(POCreateCustomerRequest(
+            "John",
+             "Doe",
+        )).let { createCustomerResult ->
+            createCustomerResult.assertFailure()
+            createCustomerResult.handleSuccess { customer ->
+                invoices.createInvoice(
+                    POCreateInvoiceRequest("sandbox", "1", "USD")
+                ).let { result ->
+                    result.assertFailure()
+                    result.handleSuccess { invoice ->
+                        cards.tokenize(request).let { cardRes ->
+                            cardRes.assertFailure()
+                            cardRes.handleSuccess { card ->
+                                invoices.createCustomerToken(customer.id).let { createTokenResult ->
+                                    createTokenResult.assertFailure()
+                                    createTokenResult.handleSuccess { createTokenResp ->
+                                        createTokenResp.customerToken?.id?.let {
+                                            invoices.assignCustomerToken(customer.id, it, POCustomerTokenRequest(
+                                                source = card.id, verify = true,
+                                            )).let { assingTokenRes ->
+                                                assingTokenRes.assertFailure()
+                                                assingTokenRes.handleSuccess { tokenResp ->
+                                                    tokenResp.customerToken?.let { token ->
+                                                        assert(token.id != "")
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }

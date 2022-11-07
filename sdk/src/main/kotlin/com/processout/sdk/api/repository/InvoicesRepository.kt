@@ -1,12 +1,8 @@
 package com.processout.sdk.api.repository
 
 import androidx.annotation.RestrictTo
-import com.processout.sdk.api.model.request.POCreateInvoiceRequest
-import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
-import com.processout.sdk.api.model.request.POInvoiceAuthorizeSuccess
-import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
-import com.processout.sdk.api.model.response.POInvoice
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethod
+import com.processout.sdk.api.model.request.*
+import com.processout.sdk.api.model.response.*
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.ProcessOutResult
 
@@ -23,6 +19,19 @@ interface InvoicesRepository {
         callback: ProcessOutCallback<POInvoiceAuthorizeSuccess>
     )
 
+    suspend fun assignCustomerToken(
+        customerId: String,
+        tokenId: String,
+        request: POCustomerTokenRequest
+    ): ProcessOutResult<POCustomerTokenSuccess>
+
+    fun assignCustomerToken(
+        customerId: String,
+        tokenId: String,
+        request: POCustomerTokenRequest,
+        callback: ProcessOutCallback<POCustomerTokenSuccess>
+    )
+
     suspend fun initiatePayment(
         request: PONativeAlternativePaymentMethodRequest
     ): ProcessOutResult<PONativeAlternativePaymentMethod>
@@ -34,4 +43,18 @@ interface InvoicesRepository {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     suspend fun createInvoice(request: POCreateInvoiceRequest): ProcessOutResult<POInvoice>
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    suspend fun createCustomer(request: POCreateCustomerRequest): ProcessOutResult<POCustomer>
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    suspend fun createCustomerToken(
+        customerId: String,
+    ): ProcessOutResult<POCustomerTokenSuccess>
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun createCustomerToken(
+        customerId: String,
+        callback: ProcessOutCallback<POCustomerTokenSuccess>
+    )
 }
