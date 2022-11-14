@@ -3,4 +3,11 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <application>
+        <activity
+            android:name=".ui.nativeapm.NativeAlternativePaymentMethodActivity"
+            android:exported="true"
+            android:theme="@style/Theme.ProcessOut.Default.Transparent" />
+    </application>
+
 </manifest>

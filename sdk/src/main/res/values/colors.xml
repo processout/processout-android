@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="po_color_control_normal">#9b9b9b</color>
+    <color name="po_color_control_activated">#469d83</color>
+</resources>

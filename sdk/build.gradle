@@ -40,6 +40,10 @@ android {
         }
     }
 
+    buildFeatures {
+        viewBinding true
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -70,6 +74,8 @@ dependencies {
     implementation "androidx.core:core-ktx:$androidxCoreVersion"
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
     implementation "androidx.constraintlayout:constraintlayout:$androidxConstraintLayoutVersion"
+    implementation "androidx.activity:activity-ktx:$androidxActivityKtxVersion"
+    implementation "androidx.fragment:fragment-ktx:$androidxFragmentKtxVersion"
 
     implementation "com.google.android.material:material:$materialVersion"
 
@@ -80,6 +86,7 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
     implementation "com.squareup.okhttp3:logging-interceptor:$okhttpVersion"
     implementation "com.squareup.okio:okio:$okioVersion"
+    implementation "io.coil-kt:coil:$coilVersion"
 
     ksp "com.squareup.moshi:moshi-kotlin-codegen:$moshiVersion"
 

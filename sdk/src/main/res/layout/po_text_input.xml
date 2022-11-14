@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="4dp"
+    android:layout_marginBottom="4dp"
+    android:theme="@style/Theme.ProcessOut.TextInputLayout"
+    app:boxBackgroundColor="@android:color/white"
+    app:boxStrokeColor="@color/po_color_control_activated"
+    app:errorEnabled="false"
+    app:hintEnabled="false"
+    tools:viewBindingIgnore="true">
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="6dp"
+        android:paddingTop="6dp"
+        android:paddingEnd="6dp"
+        android:paddingBottom="6dp"
+        android:textColor="@android:color/black"
+        android:textColorHint="@color/po_color_control_normal"
+        android:textSize="18sp" />
+
+</com.google.android.material.textfield.TextInputLayout>
