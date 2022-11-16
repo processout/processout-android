@@ -4,6 +4,7 @@ import com.processout.sdk.BuildConfig
 import com.processout.sdk.api.network.CardsApi
 import com.processout.sdk.api.network.GatewayConfigurationsApi
 import com.processout.sdk.api.network.InvoicesApi
+import com.processout.sdk.api.network.CustomerTokensApi
 import com.processout.sdk.api.network.NetworkConfiguration
 import com.processout.sdk.api.network.interceptor.BasicAuthInterceptor
 import com.processout.sdk.api.network.interceptor.UserAgentInterceptor
@@ -21,6 +22,7 @@ internal interface NetworkGraph {
     val gatewayConfigurationsApi: GatewayConfigurationsApi
     val invoicesApi: InvoicesApi
     val cardsApi: CardsApi
+    val customerTokensApi: CustomerTokensApi
 }
 
 internal class NetworkGraphImpl(config: NetworkConfiguration) : NetworkGraph {
@@ -56,4 +58,6 @@ internal class NetworkGraphImpl(config: NetworkConfiguration) : NetworkGraph {
     override val invoicesApi: InvoicesApi = retrofit.create(InvoicesApi::class.java)
 
     override val cardsApi: CardsApi = retrofit.create(CardsApi::class.java)
+
+    override val customerTokensApi: CustomerTokensApi = retrofit.create(CustomerTokensApi::class.java)
 }

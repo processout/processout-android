@@ -7,6 +7,7 @@ import com.processout.sdk.api.network.NetworkConfiguration
 import com.processout.sdk.api.provider.AlternativePaymentMethodProvider
 import com.processout.sdk.api.provider.AlternativePaymentMethodProviderConfiguration
 import com.processout.sdk.api.repository.CardsRepository
+import com.processout.sdk.api.repository.CustomerTokensRepository
 import com.processout.sdk.api.repository.GatewayConfigurationsRepository
 import com.processout.sdk.api.repository.InvoicesRepository
 import com.processout.sdk.core.exception.ProcessOutException
@@ -19,7 +20,8 @@ class ProcessOutApi private constructor(
     val gatewayConfigurations: GatewayConfigurationsRepository,
     val invoices: InvoicesRepository,
     val cards: CardsRepository,
-    val alternativePaymentMethods: AlternativePaymentMethodProvider
+    val alternativePaymentMethods: AlternativePaymentMethodProvider,
+    val customerTokens: CustomerTokensRepository
 ) {
 
     companion object {
@@ -60,7 +62,8 @@ class ProcessOutApi private constructor(
                         it.repositoryGraph.gatewayConfigurationsRepository,
                         it.repositoryGraph.invoicesRepository,
                         it.repositoryGraph.cardsRepository,
-                        it.providerGraph.alternativePaymentMethodProvider
+                        it.providerGraph.alternativePaymentMethodProvider,
+                        it.repositoryGraph.customerTokensRepository
                     )
                 }.value
             }

@@ -19,19 +19,6 @@ interface InvoicesRepository {
         callback: ProcessOutCallback<POInvoiceAuthorizeSuccess>
     )
 
-    suspend fun assignCustomerToken(
-        customerId: String,
-        tokenId: String,
-        request: POCustomerTokenRequest
-    ): ProcessOutResult<POCustomerTokenSuccess>
-
-    fun assignCustomerToken(
-        customerId: String,
-        tokenId: String,
-        request: POCustomerTokenRequest,
-        callback: ProcessOutCallback<POCustomerTokenSuccess>
-    )
-
     suspend fun initiatePayment(
         request: PONativeAlternativePaymentMethodRequest
     ): ProcessOutResult<PONativeAlternativePaymentMethod>
@@ -43,18 +30,4 @@ interface InvoicesRepository {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     suspend fun createInvoice(request: POCreateInvoiceRequest): ProcessOutResult<POInvoice>
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    suspend fun createCustomer(request: POCreateCustomerRequest): ProcessOutResult<POCustomer>
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    suspend fun createCustomerToken(
-        customerId: String,
-    ): ProcessOutResult<POCustomerTokenSuccess>
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun createCustomerToken(
-        customerId: String,
-        callback: ProcessOutCallback<POCustomerTokenSuccess>
-    )
 }
