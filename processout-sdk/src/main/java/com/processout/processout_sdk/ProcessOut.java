@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.media.session.MediaSession;
 import android.net.Uri;
 import android.os.Build;
 import android.util.DisplayMetrics;
@@ -39,7 +38,7 @@ import java.util.Map;
 
 public class ProcessOut {
 
-    public static final String SDK_VERSION = "v2.18.2";
+    public static final String SDK_VERSION = "v2.18.3";
 
     private String projectId;
     private Context context;
@@ -386,19 +385,19 @@ public class ProcessOut {
     /**
      * Allow card payments authorization (with 3DS2 support)
      *
-     * @param AuthorizationRequest contains all the necessary fields to initiate an authorisation request.
+     * @param request contains all the necessary fields to initiate an authorisation request.
      * @param handler   (Custom 3DS2 handler)
      */
-    public void makeCardPayment(@NonNull final AuthorizationRequest AuthorizationRequest, @NonNull final ThreeDSHandler handler, @NonNull final Context with) {
+    public void makeCardPayment(@NonNull final AuthorizationRequest request, @NonNull final ThreeDSHandler handler, @NonNull final Context with) {
         try {
             // Handle empty source
-            if (AuthorizationRequest.getSource().isEmpty()) {
-                handler.onError(new ProcessOutException("Validation error, you must supply the source in the AuthorizationRequest!"));
+            if (request.getSource().isEmpty()) {
+                handler.onError(new ProcessOutException("Validation error, you must supply the source in the request!"));
             }
 
-            final JSONObject body = new JSONObject(gson.toJson(AuthorizationRequest));
+            final JSONObject body = new JSONObject(gson.toJson(request));
 
-            requestAuthorization(AuthorizationRequest.getInvoiceID(), body, new RequestAuthorizationCallback() {
+            requestAuthorization(request.getInvoiceID(), body, new RequestAuthorizationCallback() {
                 @Override
                 public void onError(Exception error) {
                     handler.onError(error);
@@ -413,14 +412,21 @@ public class ProcessOut {
                     CustomerAction cA = result.getCustomerAction();
                     if (cA == null) {
                         // No customer action in the authorization result, we return the invoice id
-                        handler.onSuccess(AuthorizationRequest.getInvoiceID());
+                        handler.onSuccess(request.getInvoiceID());
                         return;
                     }
 
                     CustomerActionHandler customerActionHandler = new CustomerActionHandler(handler, new PaymentWebView(with), with, new CustomerActionHandler.CustomerActionCallback() {
                         @Override
                         public void shouldContinue(String source) {
-                            makeCardPayment(AuthorizationRequest, handler, with);
+                            AuthorizationRequest updatedRequest = new AuthorizationRequest(
+                                    source,
+                                    request.isIncremental(),
+                                    request.getThirdPartySDKVersion()
+                            );
+                            updatedRequest.setInvoiceID(request.getInvoiceID());
+                            updatedRequest.setPreferredScheme(request.getPreferredScheme());
+                            makeCardPayment(updatedRequest, handler, with);
                         }
                     });
                     customerActionHandler.handleCustomerAction(cA);
@@ -529,20 +535,20 @@ public class ProcessOut {
     /**
      * Allow card payments authorization and marks the authorization as incremental (with 3DS2 support)
      *
-     * @param AuthorizationRequest contains all the necessary fields to initiate an authorisation request.
+     * @param request contains all the necessary fields to initiate an authorisation request.
      * @param handler   (Custom 3DS2 handler)
      */
-    public void makeIncrementalAuthorizationPayment(@NonNull final AuthorizationRequest AuthorizationRequest, @NonNull final ThreeDSHandler handler, @NonNull final Context with) {
+    public void makeIncrementalAuthorizationPayment(@NonNull final AuthorizationRequest request, @NonNull final ThreeDSHandler handler, @NonNull final Context with) {
         try {
             // Handle empty source
-            if (AuthorizationRequest.getSource().isEmpty()) {
-                handler.onError(new ProcessOutException("Validation error, you must supply the source in the AuthorizationRequest!"));
+            if (request.getSource().isEmpty()) {
+                handler.onError(new ProcessOutException("Validation error, you must supply the source in the request!"));
             }
 
-            final JSONObject body = new JSONObject(gson.toJson(AuthorizationRequest));
-            AuthorizationRequest.setIncremental(true);
+            final JSONObject body = new JSONObject(gson.toJson(request));
+            request.setIncremental(true);
 
-            requestAuthorization(AuthorizationRequest.getInvoiceID(), body, new RequestAuthorizationCallback() {
+            requestAuthorization(request.getInvoiceID(), body, new RequestAuthorizationCallback() {
                 @Override
                 public void onError(Exception error) {
                     handler.onError(error);
@@ -557,14 +563,21 @@ public class ProcessOut {
                     CustomerAction cA = result.getCustomerAction();
                     if (cA == null) {
                         // No customer action in the authorization result, we return the invoice id
-                        handler.onSuccess(AuthorizationRequest.getInvoiceID());
+                        handler.onSuccess(request.getInvoiceID());
                         return;
                     }
 
                     CustomerActionHandler customerActionHandler = new CustomerActionHandler(handler, new PaymentWebView(with), with, new CustomerActionHandler.CustomerActionCallback() {
                         @Override
                         public void shouldContinue(String source) {
-                            makeIncrementalAuthorizationPayment(AuthorizationRequest, handler, with);
+                            AuthorizationRequest updatedRequest = new AuthorizationRequest(
+                                    source,
+                                    request.isIncremental(),
+                                    request.getThirdPartySDKVersion()
+                            );
+                            updatedRequest.setInvoiceID(request.getInvoiceID());
+                            updatedRequest.setPreferredScheme(request.getPreferredScheme());
+                            makeIncrementalAuthorizationPayment(updatedRequest, handler, with);
                         }
                     });
                     customerActionHandler.handleCustomerAction(cA);
@@ -705,22 +718,22 @@ public class ProcessOut {
     /**
      * Create a customer token from a card ID
      *
-     * @param TokenRequest contains all the fields necessary for the token request.
+     * @param request contains all the fields necessary for the token request.
      * @param handler    3DS2 handler
      * @param with       Activity to display webviews and perform fingerprinting
      */
-    public void makeCardToken(@NonNull final TokenRequest TokenRequest, @NonNull final ThreeDSHandler handler, @NonNull final Context with) {
+    public void makeCardToken(@NonNull final TokenRequest request, @NonNull final ThreeDSHandler handler, @NonNull final Context with) {
         try {
 
             // Handle empty fields
-            if (TokenRequest.getTokenID().isEmpty() || TokenRequest.getCustomerID().isEmpty() || TokenRequest.getSource().isEmpty()) {
-                handler.onError(new ProcessOutException("Validation error, you must supply the source, tokenID and customerID in the TokenRequest!"));
+            if (request.getTokenID().isEmpty() || request.getCustomerID().isEmpty() || request.getSource().isEmpty()) {
+                handler.onError(new ProcessOutException("Validation error, you must supply the source, tokenID and customerID in the request!"));
             }
 
-            final JSONObject body = new JSONObject(gson.toJson(TokenRequest));
+            final JSONObject body = new JSONObject(gson.toJson(request));
 
-            Network.getInstance(this.context, this.projectId).CallProcessOut("/customers/" + TokenRequest.getCustomerID() +
-                    "/tokens/" + TokenRequest.getTokenID(), Request.Method.PUT, body, new Network.NetworkResult() {
+            Network.getInstance(this.context, this.projectId).CallProcessOut("/customers/" + request.getCustomerID() +
+                    "/tokens/" + request.getTokenID(), Request.Method.PUT, body, new Network.NetworkResult() {
                 @Override
                 public void onError(Exception error) {
                     handler.onError(error);
@@ -735,14 +748,21 @@ public class ProcessOut {
                     CustomerAction cA = result.getCustomerAction();
                     if (cA == null) {
                         // No customer action in the authorization result, we return the invoice id
-                        handler.onSuccess(TokenRequest.getTokenID());
+                        handler.onSuccess(request.getTokenID());
                         return;
                     }
 
                     CustomerActionHandler customerActionHandler = new CustomerActionHandler(handler, new CardTokenWebView(with), with, new CustomerActionHandler.CustomerActionCallback() {
                         @Override
                         public void shouldContinue(String source) {
-                            makeCardToken(TokenRequest, handler, with);
+                            TokenRequest updatedRequest = new TokenRequest(
+                                    source,
+                                    request.getThirdPartySDKVersion()
+                            );
+                            updatedRequest.setCustomerID(request.getCustomerID());
+                            updatedRequest.setTokenID(request.getTokenID());
+                            updatedRequest.setPreferredScheme(request.getPreferredScheme());
+                            makeCardToken(updatedRequest, handler, with);
                         }
                     });
                     customerActionHandler.handleCustomerAction(cA);
