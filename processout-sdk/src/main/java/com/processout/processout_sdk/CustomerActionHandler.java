@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.util.Base64;
 import android.view.ViewGroup;
+import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -106,7 +107,6 @@ class CustomerActionHandler {
                     public void run() {
                         // Destroying the webview
                         destroyWebView(FingerprintWebView);
-                        callback.shouldContinue(fallbackGwayRequest.generateToken());
                     }
                 };
 
@@ -117,9 +117,6 @@ class CustomerActionHandler {
                         // Check if the current Android version is supporte
                         String token = null;
 
-                        // We cancel the timeout handler
-                        timeOutHandler.removeCallbacks(fingerprintTimeoutClearer);
-
                         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
                             token = request.getUrl().getQueryParameter("token");
                         }
@@ -129,6 +126,12 @@ class CustomerActionHandler {
                         }
                         callback.shouldContinue(token);
                         return super.shouldOverrideUrlLoading(view, request);
+                    }
+
+                    @Override
+                    public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+                        super.onReceivedError(view, request, error);
+                        callback.shouldContinue(fallbackGwayRequest.generateToken());
                     }
                 });
 
