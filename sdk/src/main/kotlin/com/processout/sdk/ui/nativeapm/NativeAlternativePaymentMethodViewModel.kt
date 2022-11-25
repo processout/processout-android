@@ -101,7 +101,7 @@ internal class NativeAlternativePaymentMethodViewModel(
             PONativeAlternativePaymentMethodParameter.ParameterType.email ->
                 Patterns.EMAIL_ADDRESS.matcher(input.value).matches()
             PONativeAlternativePaymentMethodParameter.ParameterType.phone ->
-                Patterns.PHONE.matcher(input.value).matches()
+                isLengthValid && Patterns.PHONE.matcher(input.value).matches()
         }
     }
 

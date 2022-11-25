@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_graph"
+    app:startDestination="@id/featuresFragment">
+
+    <fragment
+        android:id="@+id/featuresFragment"
+        android:name="com.processout.example.ui.screen.features.FeaturesFragment"
+        android:label="FeaturesFragment"
+        tools:layout="@layout/fragment_features">
+        <action
+            android:id="@+id/action_featuresFragment_to_alternativePaymentMethodsFragment"
+            app:destination="@id/alternativePaymentMethodsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/alternativePaymentMethodsFragment"
+        android:name="com.processout.example.ui.screen.apm.AlternativePaymentMethodsFragment"
+        android:label="AlternativePaymentMethodsFragment"
+        tools:layout="@layout/fragment_alternative_payment_methods">
+        <action
+            android:id="@+id/action_alternativePaymentMethodsFragment_to_paymentFragment"
+            app:destination="@id/paymentFragment" />
+        <argument
+            android:name="title"
+            app:argType="string" />
+        <argument
+            android:name="filter"
+            app:argType="com.processout.sdk.api.model.request.POAllGatewayConfigurationsRequest$Filter" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/paymentFragment"
+        android:name="com.processout.example.ui.screen.payment.PaymentFragment"
+        android:label="PaymentFragment"
+        tools:layout="@layout/fragment_payment">
+        <argument
+            android:name="title"
+            app:argType="string" />
+        <argument
+            android:name="gatewayConfigurationId"
+            app:argType="string" />
+    </fragment>
+
+</navigation>

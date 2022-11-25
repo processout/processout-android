@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">ProcessOut SDK Example</string>
+    <string name="native_apm">Native Alternative Payment</string>
+    <string name="create_invoice">Create Invoice</string>
+    <string name="amount">Amount</string>
+    <string name="currency">Currency</string>
 </resources>

@@ -5,6 +5,10 @@ buildscript {
         androidGradlePluginVersion = '7.3.0'
         kotlinVersion = '1.7.10'
         kspVersion = '1.7.10-1.0.6'
+        androidxNavigationVersion = '2.5.3'
+    }
+    dependencies {
+        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$androidxNavigationVersion"
     }
 }
 
@@ -28,6 +32,7 @@ ext {
     androidxActivityKtxVersion = '1.6.1'
     androidxFragmentKtxVersion = '1.5.4'
     androidxLifecycleVersion = '2.5.1'
+    androidxRecyclerViewVersion = '1.2.1'
 
     materialVersion = '1.7.0'
 
