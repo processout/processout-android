@@ -1,6 +1,6 @@
 package com.processout.example.ui.screen.apm
 
-data class APMUiModel(
+data class AlternativePaymentMethodsUiModel(
     val gatewayConfigurations: List<GatewayConfiguration>
 )
 

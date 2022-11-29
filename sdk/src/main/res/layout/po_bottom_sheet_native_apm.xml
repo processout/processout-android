@@ -7,7 +7,7 @@
     android:background="@drawable/po_bottom_sheet_background"
     android:focusableInTouchMode="true"
     android:visibility="invisible"
-    tools:context=".ui.nativeapm.NativeAlternativePaymentMethodActivity"
+    tools:context=".ui.nativeapm.PONativeAlternativePaymentMethodActivity"
     tools:visibility="visible">
 
     <ImageView

@@ -1,6 +1,8 @@
 package com.processout.sdk.ui.nativeapm
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,19 +20,25 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.textfield.TextInputLayout
 import com.processout.sdk.R
+import com.processout.sdk.core.exception.ProcessOutException
 import com.processout.sdk.databinding.PoBottomSheetNativeApmBinding
+import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityContract.Companion.EXTRA_CONFIGURATION
+import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityContract.Companion.EXTRA_RESULT
 import kotlinx.coroutines.launch
 
-internal class NativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment() {
+class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment() {
 
     companion object {
-        const val TAG = "NativeAlternativePaymentMethodBottomSheet"
+        const val TAG = "PONativeAlternativePaymentMethodBottomSheet"
     }
 
-    private val viewModel: NativeAlternativePaymentMethodViewModel by viewModels {
-        NativeAlternativePaymentMethodViewModel.Factory(
-            arguments?.getString(NativeAPMBundleKey.GATEWAY_CONFIGURATION_ID)!!,
-            arguments?.getString(NativeAPMBundleKey.INVOICE_ID)!!
+    private var configuration: PONativeAlternativePaymentMethodConfiguration? = null
+
+    @Suppress("DEPRECATION")
+    private val viewModel: PONativeAlternativePaymentMethodViewModel by viewModels {
+        PONativeAlternativePaymentMethodViewModel.Factory(
+            configuration?.gatewayConfigurationId ?: String(),
+            configuration?.invoiceId ?: String()
         )
     }
 
@@ -42,6 +50,18 @@ internal class NativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFrag
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activityCallback = requireActivity() as BottomSheetCallback
+        @Suppress("DEPRECATION")
+        configuration = arguments?.getParcelable(EXTRA_CONFIGURATION)
+        configuration?.run {
+            if (gatewayConfigurationId.isBlank() || invoiceId.isBlank()) {
+                finishWithActivityResult(
+                    Activity.RESULT_CANCELED,
+                    PONativeAlternativePaymentMethodResult.Failure(
+                        ProcessOutException("Invalid configuration.")
+                    )
+                )
+            }
+        }
     }
 
     override fun onCreateView(
@@ -66,23 +86,27 @@ internal class NativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFrag
         }
     }
 
-    private fun handleUiState(uiState: NativeAPMUiState) {
+    private fun handleUiState(uiState: PONativeAlternativePaymentMethodUiState) {
         when (uiState) {
-            NativeAPMUiState.Initial -> binding.root.visibility = View.INVISIBLE
-            NativeAPMUiState.Loading -> binding.root.visibility = View.INVISIBLE
-            is NativeAPMUiState.UserInput -> bindUiModel(uiState.uiModel)
-            NativeAPMUiState.Success -> {
-                // TODO: callback Success to client app
-                finish()
-            }
-            NativeAPMUiState.Failure -> {
-                // TODO: callback Failure to client app
-                finish()
-            }
+            PONativeAlternativePaymentMethodUiState.Initial -> binding.root.visibility = View.INVISIBLE
+            PONativeAlternativePaymentMethodUiState.Loading -> binding.root.visibility = View.INVISIBLE
+            is PONativeAlternativePaymentMethodUiState.UserInput -> bindUiModel(uiState.uiModel)
+            PONativeAlternativePaymentMethodUiState.Success ->
+                finishWithActivityResult(
+                    Activity.RESULT_OK,
+                    PONativeAlternativePaymentMethodResult.Success
+                )
+            PONativeAlternativePaymentMethodUiState.Failure ->
+                finishWithActivityResult(
+                    Activity.RESULT_CANCELED,
+                    PONativeAlternativePaymentMethodResult.Failure(
+                        ProcessOutException("Payment failed.")
+                    )
+                )
         }
     }
 
-    private fun bindUiModel(uiModel: NativeAPMUiModel) {
+    private fun bindUiModel(uiModel: PONativeAlternativePaymentMethodUiModel) {
         binding.root.visibility = View.VISIBLE
         binding.poLogo.load(uiModel.logoUrl)
         binding.poSubmitButton.isEnabled = uiModel.isSubmitAllowed
@@ -140,8 +164,25 @@ internal class NativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFrag
 
     private fun dispatchBackPressed() {
         (requireDialog() as BottomSheetDialog).onBackPressedDispatcher.addCallback(this) {
-            finish()
+            finishWithActivityResult(
+                Activity.RESULT_CANCELED,
+                PONativeAlternativePaymentMethodResult.Canceled
+            )
         }
+    }
+
+    private fun finishWithActivityResult(
+        resultCode: Int,
+        result: PONativeAlternativePaymentMethodResult
+    ) {
+        requireActivity().setResult(
+            resultCode,
+            Intent().putExtra(
+                EXTRA_RESULT,
+                result
+            )
+        )
+        finish()
     }
 
     private fun finish() {

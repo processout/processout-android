@@ -5,4 +5,7 @@
     <string name="create_invoice">Create Invoice</string>
     <string name="amount">Amount</string>
     <string name="currency">Currency</string>
+    <string name="result_success">Success</string>
+    <string name="result_failure">Failure</string>
+    <string name="result_canceled">Canceled</string>
 </resources>

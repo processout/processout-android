@@ -29,7 +29,7 @@ class AlternativePaymentMethodsViewModel(
             ) as T
     }
 
-    private val _uiState = MutableStateFlow(APMUiModel(emptyList()))
+    private val _uiState = MutableStateFlow(AlternativePaymentMethodsUiModel(emptyList()))
     val uiState = _uiState.asStateFlow()
 
     init {

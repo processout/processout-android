@@ -5,11 +5,12 @@ import android.view.View
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType.*
 
-internal sealed class NativeAPMUiState {
-    object Initial : NativeAPMUiState()
-    object Loading : NativeAPMUiState()
+internal sealed class PONativeAlternativePaymentMethodUiState {
+    object Initial : PONativeAlternativePaymentMethodUiState()
+    object Loading : PONativeAlternativePaymentMethodUiState()
 
-    data class UserInput(val uiModel: NativeAPMUiModel) : NativeAPMUiState() {
+    data class UserInput(val uiModel: PONativeAlternativePaymentMethodUiModel) :
+        PONativeAlternativePaymentMethodUiState() {
         override fun equals(other: Any?): Boolean {
             return uiModel == other
         }
@@ -19,11 +20,11 @@ internal sealed class NativeAPMUiState {
         }
     }
 
-    object Success : NativeAPMUiState()
-    object Failure : NativeAPMUiState()
+    object Success : PONativeAlternativePaymentMethodUiState()
+    object Failure : PONativeAlternativePaymentMethodUiState()
 }
 
-internal data class NativeAPMUiModel(
+internal data class PONativeAlternativePaymentMethodUiModel(
     val logoUrl: String?,
     val promptMessage: String? = null,
     val failureMessage: String? = null,
@@ -46,10 +47,10 @@ internal data class InputParameter(
     }
 }
 
-internal inline fun NativeAPMUiState.doWhenUserInput(
-    crossinline block: (uiModel: NativeAPMUiModel) -> Unit
+internal inline fun PONativeAlternativePaymentMethodUiState.doWhenUserInput(
+    crossinline block: (uiModel: PONativeAlternativePaymentMethodUiModel) -> Unit
 ) {
-    if (this is NativeAPMUiState.UserInput) {
+    if (this is PONativeAlternativePaymentMethodUiState.UserInput) {
         block(uiModel)
     }
 }

@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-internal class NativeAlternativePaymentMethodViewModel(
+internal class PONativeAlternativePaymentMethodViewModel(
     private val gatewayConfigurationId: String,
     private val invoiceId: String,
     private val gatewayConfigurationsRepository: GatewayConfigurationsRepository,
@@ -31,7 +31,7 @@ internal class NativeAlternativePaymentMethodViewModel(
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
             ProcessOutApi.instance.run {
-                NativeAlternativePaymentMethodViewModel(
+                PONativeAlternativePaymentMethodViewModel(
                     gatewayConfigurationId,
                     invoiceId,
                     gatewayConfigurations,
@@ -40,7 +40,9 @@ internal class NativeAlternativePaymentMethodViewModel(
             }
     }
 
-    private val _uiState = MutableStateFlow<NativeAPMUiState>(NativeAPMUiState.Initial)
+    private val _uiState = MutableStateFlow<PONativeAlternativePaymentMethodUiState>(
+        PONativeAlternativePaymentMethodUiState.Initial
+    )
     val uiState = _uiState.asStateFlow()
 
     init {
@@ -49,17 +51,17 @@ internal class NativeAlternativePaymentMethodViewModel(
 
     private fun loadGatewayConfiguration() {
         viewModelScope.launch {
-            _uiState.value = NativeAPMUiState.Loading
+            _uiState.value = PONativeAlternativePaymentMethodUiState.Loading
 
             val request = POGatewayConfigurationRequest(gatewayConfigurationId, withGateway = true)
             when (val result = gatewayConfigurationsRepository.find(request)) {
                 is ProcessOutResult.Success -> {
                     val parameters = result.value.gateway?.nativeApmConfig?.parameters
                     if (parameters.isNullOrEmpty()) {
-                        _uiState.value = NativeAPMUiState.Failure
+                        _uiState.value = PONativeAlternativePaymentMethodUiState.Failure
                     } else {
-                        _uiState.value = NativeAPMUiState.UserInput(
-                            NativeAPMUiModel(
+                        _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(
+                            PONativeAlternativePaymentMethodUiModel(
                                 logoUrl = result.value.gateway.logoUrl,
                                 promptMessage = result.value.gateway.displayName,
                                 inputParameters = parameters.toInputParameters(),
@@ -69,7 +71,7 @@ internal class NativeAlternativePaymentMethodViewModel(
                         )
                     }
                 }
-                is ProcessOutResult.Failure -> _uiState.value = NativeAPMUiState.Failure
+                is ProcessOutResult.Failure -> _uiState.value = PONativeAlternativePaymentMethodUiState.Failure
             }
         }
     }
@@ -77,7 +79,7 @@ internal class NativeAlternativePaymentMethodViewModel(
     fun updateInputValue(id: Int, newValue: String) {
         _uiState.value.doWhenUserInput { uiModel ->
             uiModel.inputParameters.find { it.id == id }?.apply { value = newValue }
-            _uiState.value = NativeAPMUiState.UserInput(
+            _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(
                 uiModel.copy(
                     isSubmitAllowed = uiModel.inputParameters.map { isInputValid(it) }.all { it }
                 )
@@ -111,7 +113,7 @@ internal class NativeAlternativePaymentMethodViewModel(
         }
     }
 
-    private fun initiatePayment(uiModel: NativeAPMUiModel, data: Map<String, String>) {
+    private fun initiatePayment(uiModel: PONativeAlternativePaymentMethodUiModel, data: Map<String, String>) {
         viewModelScope.launch {
             val request = PONativeAlternativePaymentMethodRequest(
                 invoiceId, gatewayConfigurationId, data
@@ -122,9 +124,9 @@ internal class NativeAlternativePaymentMethodViewModel(
                         PONativeAlternativePaymentMethod.State.CUSTOMER_INPUT -> {
                             val parameters = result.value.parameterDefinitions
                             if (parameters.isNullOrEmpty()) {
-                                _uiState.value = NativeAPMUiState.Failure
+                                _uiState.value = PONativeAlternativePaymentMethodUiState.Failure
                             } else {
-                                _uiState.value = NativeAPMUiState.UserInput(
+                                _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(
                                     uiModel.copy(
                                         promptMessage = result.value.parameterValues?.message,
                                         inputParameters = parameters.toInputParameters(),
@@ -135,9 +137,9 @@ internal class NativeAlternativePaymentMethodViewModel(
                             }
                         }
                         PONativeAlternativePaymentMethod.State.PENDING_CAPTURE ->
-                            _uiState.value = NativeAPMUiState.Success
+                            _uiState.value = PONativeAlternativePaymentMethodUiState.Success
                     }
-                is ProcessOutResult.Failure -> _uiState.value = NativeAPMUiState.Failure
+                is ProcessOutResult.Failure -> _uiState.value = PONativeAlternativePaymentMethodUiState.Failure
             }
         }
     }
