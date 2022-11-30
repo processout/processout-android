@@ -5,8 +5,9 @@ import androidx.annotation.ColorInt
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class POTextStyle(
+data class POBorderStyle(
+    val radiusDp: Int,
+    val widthDp: Int,
     @ColorInt
-    val color: Int,
-    val typography: POTypography
+    val color: Int
 ) : Parcelable

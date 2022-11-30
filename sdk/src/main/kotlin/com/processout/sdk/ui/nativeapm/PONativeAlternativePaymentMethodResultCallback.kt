@@ -1,5 +1,5 @@
 package com.processout.sdk.ui.nativeapm
 
-interface PONativeAlternativePaymentMethodResultCallback {
+fun interface PONativeAlternativePaymentMethodResultCallback {
     fun onNativeAlternativePaymentMethodResult(result: PONativeAlternativePaymentMethodResult)
 }
