@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="poBackgroundPrimary">#121212</color>
+    <color name="poBackgroundInput">#121212</color>
+    <color name="poBackgroundGreyLight">#383838</color>
+    <color name="poBackgroundGreyDark">#212121</color>
+    <color name="poBackgroundSuccessLight">#339091</color>
+    <color name="poBackgroundSuccessDark">#339091</color>
+    <color name="poBackgroundSuccessDarker">#154747</color>
+
+    <color name="poTextPrimary">#FCFCFC</color>
+    <color name="poTextSecondary">#F4F4F4</color>
+    <color name="poTextLink">#F1F0FA</color>
+    <color name="poTextDisabled">#DBDADD</color>
+    <color name="poTextError">#F4D8D4</color>
+    <color name="poTextSuccess">#BFE8E7</color>
+
+    <color name="poBorderPrimary">#F4F4F4</color>
+    <color name="poBorderActive">#B7B4D7</color>
+    <color name="poBorderError">#F4D8D4</color>
+
+    <color name="poIconPrimary">#FCFCFC</color>
+
+    <color name="poButtonPrimary">#F1F0FA</color>
+    <color name="poButtonDisabled">#6F7079</color>
+    <color name="poButtonPressed">#CBC8E2</color>
+    <color name="poButtonTextPrimary">#222254</color>
+    <color name="poButtonTextSecondary">#CBC8E2</color>
+    <color name="poButtonBorder">#CBC8E2</color>
+</resources>

@@ -1,27 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.textfield.TextInputLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="4dp"
-    android:layout_marginBottom="4dp"
-    android:theme="@style/Theme.ProcessOut.TextInputLayout"
-    app:boxBackgroundColor="@android:color/white"
-    app:boxStrokeColor="@color/po_color_control_activated"
+    android:layout_marginTop="@dimen/po_input_marginVertical"
+    android:layout_marginBottom="@dimen/po_input_marginVertical"
     app:errorEnabled="false"
     app:hintEnabled="false"
+    tools:context=".ui.nativeapm.PONativeAlternativePaymentMethodActivity"
     tools:viewBindingIgnore="true">
 
     <com.google.android.material.textfield.TextInputEditText
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingStart="6dp"
-        android:paddingTop="6dp"
-        android:paddingEnd="6dp"
-        android:paddingBottom="6dp"
-        android:textColor="@android:color/black"
-        android:textColorHint="@color/po_color_control_normal"
-        android:textSize="18sp" />
+        android:layout_height="wrap_content" />
 
 </com.google.android.material.textfield.TextInputLayout>

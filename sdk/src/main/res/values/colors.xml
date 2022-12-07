@@ -1,5 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="po_color_control_normal">#9b9b9b</color>
-    <color name="po_color_control_activated">#469d83</color>
+    <color name="poWhite">#FFFFFF</color>
+    <color name="poBlack">#121212</color>
+
+    <color name="poBackgroundPrimary">#FFFFFF</color>
+    <color name="poBackgroundInput">#FFFFFF</color>
+    <color name="poBackgroundGreyLight">#F8F8F8</color>
+    <color name="poBackgroundGreyDark">#F4F4F4</color>
+    <color name="poBackgroundSuccessLight">#F0FEFE</color>
+    <color name="poBackgroundSuccessDark">#D7F8F7</color>
+    <color name="poBackgroundSuccessDarker">#207E7F</color>
+
+    <color name="poTextPrimary">#121212</color>
+    <color name="poTextSecondary">#52535B</color>
+    <color name="poTextLink">#423F86</color>
+    <color name="poTextDisabled">#8D8D95</color>
+    <color name="poTextError">#A32B33</color>
+    <color name="poTextSuccess">#207E7F</color>
+
+    <color name="poBorderPrimary">#6F7079</color>
+    <color name="poBorderActive">#423F86</color>
+    <color name="poBorderError">#A32B33</color>
+
+    <color name="poIconPrimary">#121212</color>
+
+    <color name="poButtonPrimary">#31306D</color>
+    <color name="poButtonDisabled">#ECECEC</color>
+    <color name="poButtonPressed">#423F86</color>
+    <color name="poButtonTextPrimary">#FFFFFF</color>
+    <color name="poButtonTextSecondary">#423F86</color>
+    <color name="poButtonBorder">#6862A9</color>
 </resources>

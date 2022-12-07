@@ -9,13 +9,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.activity.addCallback
+import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.view.children
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import coil.load
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.textfield.TextInputLayout
@@ -24,6 +24,7 @@ import com.processout.sdk.core.exception.ProcessOutException
 import com.processout.sdk.databinding.PoBottomSheetNativeApmBinding
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityContract.Companion.EXTRA_CONFIGURATION
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityContract.Companion.EXTRA_RESULT
+import com.processout.sdk.ui.shared.requestFocusAndShowKeyboard
 import kotlinx.coroutines.launch
 
 class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment() {
@@ -69,7 +70,10 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment() 
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = PoBottomSheetNativeApmBinding.inflate(inflater, container, false)
+        val contextThemeWrapper = ContextThemeWrapper(requireActivity(), R.style.Theme_ProcessOut_Default)
+        val view = inflater.cloneInContext(contextThemeWrapper)
+            .inflate(R.layout.po_bottom_sheet_native_apm, container, false)
+        _binding = PoBottomSheetNativeApmBinding.bind(view)
         return binding.root
     }
 
@@ -108,7 +112,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment() 
 
     private fun bindUiModel(uiModel: PONativeAlternativePaymentMethodUiModel) {
         binding.root.visibility = View.VISIBLE
-        binding.poLogo.load(uiModel.logoUrl)
+        binding.poTitle.text = uiModel.promptMessage
         binding.poSubmitButton.isEnabled = uiModel.isSubmitAllowed
         bindInputs(uiModel.inputParameters)
     }
@@ -145,7 +149,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment() 
                     }
                 }
                 binding.poInputsContainer.addView(input)
-                if (index == 0) input.editText?.requestFocus()
+                if (index == 0) input.editText?.requestFocusAndShowKeyboard()
             }
         }
     }

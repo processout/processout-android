@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:color="@color/po_color_control_normal" android:state_enabled="false" />
-    <item android:color="@color/po_color_control_activated" android:state_enabled="true" />
+    <item android:color="@color/poButtonDisabled" android:state_enabled="false" />
+    <item android:color="@color/poButtonPrimary" android:state_enabled="true" />
 </selector>

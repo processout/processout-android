@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="po_cornerRadius">8dp</dimen>
+    <dimen name="po_borderWidth">1dp</dimen>
+
+    <dimen name="po_inputsContainer_marginVertical">20dp</dimen>
+    <dimen name="po_input_marginVertical">12dp</dimen>
+    <dimen name="po_input_paddingVertical">14dp</dimen>
+    <dimen name="po_input_paddingHorizontal">12dp</dimen>
+
+    <dimen name="po_button_padding">14dp</dimen>
+    <dimen name="po_title_margin">24dp</dimen>
+
+    <dimen name="po_dragHandle_width">32dp</dimen>
+    <dimen name="po_dragHandle_height">4dp</dimen>
+    <dimen name="po_dragHandle_marginTop">16dp</dimen>
+
+    <dimen name="po_bottomSheet_layoutPadding">24dp</dimen>
+</resources>
