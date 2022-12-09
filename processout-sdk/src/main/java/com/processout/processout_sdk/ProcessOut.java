@@ -38,7 +38,7 @@ import java.util.Map;
 
 public class ProcessOut {
 
-    public static final String SDK_VERSION = "v2.18.3";
+    public static final String SDK_VERSION = "v2.18.4";
 
     private String projectId;
     private Context context;
