@@ -12,16 +12,13 @@ import com.processout.sdk.api.repository.GatewayConfigurationsRepository
 import com.processout.sdk.api.repository.InvoicesRepository
 import com.processout.sdk.core.exception.ProcessOutException
 import com.processout.sdk.di.*
-import com.processout.sdk.di.ApiGraph
-import com.processout.sdk.di.NetworkGraphImpl
-import com.processout.sdk.di.RepositoryGraphImpl
 
 class ProcessOutApi private constructor(
     val gatewayConfigurations: GatewayConfigurationsRepository,
     val invoices: InvoicesRepository,
     val cards: CardsRepository,
-    val alternativePaymentMethods: AlternativePaymentMethodProvider,
-    val customerTokens: CustomerTokensRepository
+    val customerTokens: CustomerTokensRepository,
+    val alternativePaymentMethods: AlternativePaymentMethodProvider
 ) {
 
     companion object {
@@ -37,7 +34,7 @@ class ProcessOutApi private constructor(
             val apiGraph = ApiGraph(
                 repositoryGraph = RepositoryGraphImpl(
                     networkGraph = NetworkGraphImpl(
-                        NetworkConfiguration(
+                        configuration = NetworkConfiguration(
                             sdkVersion = VERSION,
                             baseUrl = ApiConstants.BASE_URL,
                             projectId = configuration.projectId,
@@ -49,7 +46,7 @@ class ProcessOutApi private constructor(
                     )
                 ),
                 providerGraph = ProviderGraphImpl(
-                    apmConfiguration = AlternativePaymentMethodProviderConfiguration(
+                    configuration = AlternativePaymentMethodProviderConfiguration(
                         projectId = configuration.projectId,
                         checkoutURL = ApiConstants.CHECKOUT_URL
                     )
@@ -62,8 +59,8 @@ class ProcessOutApi private constructor(
                         it.repositoryGraph.gatewayConfigurationsRepository,
                         it.repositoryGraph.invoicesRepository,
                         it.repositoryGraph.cardsRepository,
-                        it.providerGraph.alternativePaymentMethodProvider,
-                        it.repositoryGraph.customerTokensRepository
+                        it.repositoryGraph.customerTokensRepository,
+                        it.providerGraph.alternativePaymentMethodProvider
                     )
                 }.value
             }

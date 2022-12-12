@@ -15,14 +15,14 @@ internal class RepositoryGraphImpl(
 ) : RepositoryGraph {
 
     override val gatewayConfigurationsRepository: GatewayConfigurationsRepository =
-        GatewayConfigurationsRepositoryImpl(networkGraph.gatewayConfigurationsApi)
+        GatewayConfigurationsRepositoryImpl(networkGraph.moshi, networkGraph.gatewayConfigurationsApi)
 
     override val invoicesRepository: InvoicesRepository =
-        InvoicesRepositoryImpl(networkGraph.invoicesApi, contextGraph, networkGraph.moshi)
+        InvoicesRepositoryImpl(networkGraph.moshi, networkGraph.invoicesApi, contextGraph)
 
     override val cardsRepository: CardsRepository =
-        CardsRepositoryImpl(networkGraph.cardsApi, contextGraph)
+        CardsRepositoryImpl(networkGraph.moshi, networkGraph.cardsApi, contextGraph)
 
     override val customerTokensRepository: CustomerTokensRepository =
-        CustomerTokensRepositoryImpl(networkGraph.customerTokensApi, contextGraph, networkGraph.moshi)
+        CustomerTokensRepositoryImpl(networkGraph.moshi, networkGraph.customerTokensApi, contextGraph)
 }

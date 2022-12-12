@@ -8,7 +8,10 @@ internal interface ProviderGraph {
     val alternativePaymentMethodProvider: AlternativePaymentMethodProvider
 }
 
-internal class ProviderGraphImpl(apmConfiguration: AlternativePaymentMethodProviderConfiguration): ProviderGraph {
+internal class ProviderGraphImpl(
+    configuration: AlternativePaymentMethodProviderConfiguration
+) : ProviderGraph {
+
     override val alternativePaymentMethodProvider: AlternativePaymentMethodProvider =
-    AlternativePaymentMethodProviderImpl(apmConfiguration)
+        AlternativePaymentMethodProviderImpl(configuration)
 }

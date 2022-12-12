@@ -1,11 +1,7 @@
 package com.processout.sdk.di
 
 import com.processout.sdk.BuildConfig
-import com.processout.sdk.api.network.CardsApi
-import com.processout.sdk.api.network.GatewayConfigurationsApi
-import com.processout.sdk.api.network.InvoicesApi
-import com.processout.sdk.api.network.CustomerTokensApi
-import com.processout.sdk.api.network.NetworkConfiguration
+import com.processout.sdk.api.network.*
 import com.processout.sdk.api.network.interceptor.BasicAuthInterceptor
 import com.processout.sdk.api.network.interceptor.UserAgentInterceptor
 import com.squareup.moshi.Moshi
@@ -25,13 +21,13 @@ internal interface NetworkGraph {
     val customerTokensApi: CustomerTokensApi
 }
 
-internal class NetworkGraphImpl(config: NetworkConfiguration) : NetworkGraph {
+internal class NetworkGraphImpl(configuration: NetworkConfiguration) : NetworkGraph {
 
     private val okHttpClient: OkHttpClient =
         OkHttpClient.Builder()
             .callTimeout(30, TimeUnit.SECONDS)
-            .addInterceptor(BasicAuthInterceptor(config.projectId, config.privateKey))
-            .addInterceptor(UserAgentInterceptor(config.sdkVersion))
+            .addInterceptor(BasicAuthInterceptor(configuration.projectId, configuration.privateKey))
+            .addInterceptor(UserAgentInterceptor(configuration.sdkVersion))
             .apply {
                 if (BuildConfig.DEBUG) {
                     addInterceptor(HttpLoggingInterceptor().apply {
@@ -47,7 +43,7 @@ internal class NetworkGraphImpl(config: NetworkConfiguration) : NetworkGraph {
 
     private val retrofit: Retrofit =
         Retrofit.Builder()
-            .baseUrl(config.baseUrl)
+            .baseUrl(configuration.baseUrl)
             .client(okHttpClient)
             .addConverterFactory(moshiConverterFactory)
             .build()

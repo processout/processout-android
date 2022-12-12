@@ -1,14 +1,17 @@
 package com.processout.sdk.api.repository
 
+import com.processout.sdk.api.network.toFailure
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.exception.ProcessOutException
 import com.processout.sdk.core.map
+import com.squareup.moshi.Moshi
 import kotlinx.coroutines.*
 import retrofit2.Response
 import java.io.IOException
 
 internal abstract class BaseRepository(
+    protected val moshi: Moshi,
     protected val repositoryScope: CoroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob()),
     protected val workDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
@@ -21,7 +24,7 @@ internal abstract class BaseRepository(
             when (response.isSuccessful) {
                 true -> response.body()?.let { ProcessOutResult.Success(it) }
                     ?: ProcessOutResult.Failure("Response body is empty.")
-                false -> apiFailure(response)
+                false -> response.toFailure(moshi)
             }
         } catch (e: IOException) {
             ProcessOutResult.Failure(e.message ?: String(), e)

@@ -7,14 +7,18 @@ import com.processout.sdk.core.ProcessOutResult
 
 internal class AlternativePaymentMethodProviderImpl(
     private val configuration: AlternativePaymentMethodProviderConfiguration
-    ) : AlternativePaymentMethodProvider {
+) : AlternativePaymentMethodProvider {
 
     override fun alternativePaymentMethodURL(request: POAlternativePaymentMethodRequest): ProcessOutResult<Uri> {
-        var pathComponents = arrayListOf(configuration.projectId, request.invoiceId, "redirect",
-            request.gatewayConfigurationId)
+        var pathComponents = arrayListOf(
+            configuration.projectId, request.invoiceId, "redirect",
+            request.gatewayConfigurationId
+        )
         if (request.customerId != null && request.tokenId != null) {
-            pathComponents = arrayListOf(configuration.projectId, request.customerId.toString(),
-                request.tokenId.toString(), "redirect", request.gatewayConfigurationId)
+            pathComponents = arrayListOf(
+                configuration.projectId, request.customerId.toString(),
+                request.tokenId.toString(), "redirect", request.gatewayConfigurationId
+            )
         }
         val uriBuilder = Uri.parse(configuration.checkoutURL).buildUpon()
         pathComponents.forEach { pathComponent ->
@@ -29,13 +33,12 @@ internal class AlternativePaymentMethodProviderImpl(
     override fun alternativePaymentMethodResponse(uri: Uri): ProcessOutResult<POAlternativePaymentMethodResponse> {
         if (uri.host != "processout.return") {
             return ProcessOutResult.Failure(
-                    "Invalid or malformed Alternative Payment Mehod URL response provided.",
-                            IllegalArgumentException()
+                "Invalid or malformed Alternative Payment Mehod URL response provided.",
+                IllegalArgumentException()
             )
         }
 
-        val gatewayToken = uri.getQueryParameter("token") ?:
-        return ProcessOutResult.Failure(
+        val gatewayToken = uri.getQueryParameter("token") ?: return ProcessOutResult.Failure(
             "Invalid or malformed Alternative Payment Mehod URL response provided.",
             IllegalArgumentException()
         )
@@ -48,11 +51,13 @@ internal class AlternativePaymentMethodProviderImpl(
             returnType = POAlternativePaymentMethodResponse.APMReturnType.CREATE_TOKEN
         }
 
-        return ProcessOutResult.Success(POAlternativePaymentMethodResponse(
-            gatewayToken,
-            customerId,
-            customerTokenId,
-            returnType
-        ))
+        return ProcessOutResult.Success(
+            POAlternativePaymentMethodResponse(
+                gatewayToken,
+                customerId,
+                customerTokenId,
+                returnType
+            )
+        )
     }
 }

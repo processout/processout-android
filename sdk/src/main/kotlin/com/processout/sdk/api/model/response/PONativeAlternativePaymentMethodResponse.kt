@@ -11,15 +11,10 @@ internal data class PONativeAlternativePaymentMethodResponse(
 
 @JsonClass(generateAdapter = true)
 data class PONativeAlternativePaymentMethod(
-    val state: State,
+    val state: PONativeAlternativePaymentMethodState,
     val parameterDefinitions: List<PONativeAlternativePaymentMethodParameter>?,
     val parameterValues: PONativeAlternativePaymentMethodParameterValues?
-) {
-    enum class State {
-        CUSTOMER_INPUT,
-        PENDING_CAPTURE
-    }
-}
+)
 
 @JsonClass(generateAdapter = true)
 data class PONativeAlternativePaymentMethodParameterValues(

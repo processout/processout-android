@@ -2,11 +2,13 @@ package com.processout.sdk
 
 import com.processout.sdk.api.ProcessOutApi
 import com.processout.sdk.api.model.request.*
+import com.processout.sdk.api.network.exception.ValidationException
 import com.processout.sdk.api.repository.CardsRepository
 import com.processout.sdk.api.repository.InvoicesRepository
 import com.processout.sdk.config.SetupRule
 import com.processout.sdk.config.TestApplication
 import com.processout.sdk.config.assertFailure
+import com.processout.sdk.core.handleFailure
 import com.processout.sdk.core.handleSuccess
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -67,12 +69,13 @@ class InvoicesRepositoryUnitTests {
             result.handleSuccess { invoice ->
                 cards.tokenize(request).let {
                     it.handleSuccess { card ->
-                        invoices.authorize(invoice.id, POInvoiceAuthorizationRequest(
-                            card.id
-                        )).let {
-                            it.assertFailure()
-                            it.handleSuccess {
-                                assert(it.customerAction == null)
+                        invoices.authorize(
+                            invoice.id,
+                            POInvoiceAuthorizationRequest(card.id)
+                        ).let { authResult ->
+                            authResult.assertFailure()
+                            authResult.handleSuccess { authSuccess ->
+                                assert(authSuccess.customerAction == null)
                             }
                         }
                     }
@@ -98,15 +101,45 @@ class InvoicesRepositoryUnitTests {
             result.handleSuccess { invoice ->
                 cards.tokenize(request).let {
                     it.handleSuccess { card ->
-                        invoices.authorize(invoice.id, POInvoiceAuthorizationRequest(
-                            card.id
-                        )).let {
-                            it.assertFailure()
-                            it.handleSuccess {
-                                assert(it.customerAction is POCustomerActionResponse.UriData)
+                        invoices.authorize(
+                            invoice.id,
+                            POInvoiceAuthorizationRequest(card.id)
+                        ).let { authResult ->
+                            authResult.assertFailure()
+                            authResult.handleSuccess { authSuccess ->
+                                assert(authSuccess.customerAction is POCustomerActionResponse.UriData)
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun fetchNativeAlternativePaymentMethodTransactionDetails() = runBlocking {
+        invoices.createInvoice(
+            POCreateInvoiceRequest("sandbox", "199", "USD")
+        ).let { invoiceResult ->
+            invoiceResult.assertFailure()
+            invoiceResult.handleSuccess { invoice ->
+                invoices.fetchNativeAlternativePaymentMethodTransactionDetails(
+                    invoice.id,
+                    "gway_conf_ux3ye8vh2c78c89s8ozp1f1ujixkl11k.adyenblik"
+                ).assertFailure()
+            }
+        }
+    }
+
+    @Test
+    fun captureWithValidationFailure() = runBlocking {
+        invoices.createInvoice(
+            POCreateInvoiceRequest("sandbox", "95", "PLN")
+        ).let { invoiceResult ->
+            invoiceResult.assertFailure()
+            invoiceResult.handleSuccess { invoice ->
+                invoices.capture(invoice.id).handleFailure { _, cause ->
+                    assert(cause is ValidationException)
                 }
             }
         }

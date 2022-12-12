@@ -8,10 +8,12 @@ import com.processout.sdk.api.model.response.POGatewayConfigurationResponse
 import com.processout.sdk.api.network.GatewayConfigurationsApi
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.map
+import com.squareup.moshi.Moshi
 
 internal class GatewayConfigurationsRepositoryImpl(
+    moshi: Moshi,
     private val api: GatewayConfigurationsApi
-) : BaseRepository(), GatewayConfigurationsRepository {
+) : BaseRepository(moshi), GatewayConfigurationsRepository {
 
     override suspend fun fetch(request: POAllGatewayConfigurationsRequest) =
         apiCall { api.fetch(request.toQuery()) }

@@ -1,7 +1,10 @@
 package com.processout.sdk
 
 import com.processout.sdk.api.ProcessOutApi
-import com.processout.sdk.api.model.request.*
+import com.processout.sdk.api.model.request.POCardTokenizationRequest
+import com.processout.sdk.api.model.request.POCreateCustomerRequest
+import com.processout.sdk.api.model.request.POCreateInvoiceRequest
+import com.processout.sdk.api.model.request.POCustomerTokenRequest
 import com.processout.sdk.api.repository.CardsRepository
 import com.processout.sdk.api.repository.CustomerTokensRepository
 import com.processout.sdk.api.repository.InvoicesRepository
@@ -45,37 +48,42 @@ class CustomerTokensRepositoryUnitTests {
             expYear = 2030,
             cvc = "123"
         )
-        customerTokens.createCustomer(POCreateCustomerRequest(
-            "John",
-             "Doe",
-        )).let { createCustomerResult ->
+        customerTokens.createCustomer(
+            POCreateCustomerRequest(
+                "John",
+                "Doe",
+            )
+        ).let { createCustomerResult ->
             createCustomerResult.assertFailure()
             createCustomerResult.handleSuccess { customer ->
                 invoices.createInvoice(
                     POCreateInvoiceRequest("sandbox", "1", "USD")
-                ).let { result ->
-                    result.assertFailure()
-                    result.handleSuccess { invoice ->
-                        cards.tokenize(request).let { cardRes ->
-                            cardRes.assertFailure()
-                            cardRes.handleSuccess { card ->
-                                customerTokens.createCustomerToken(customer.id).let { createTokenResult ->
-                                    createTokenResult.assertFailure()
-                                    createTokenResult.handleSuccess { createTokenResp ->
-                                        createTokenResp.customerToken?.id?.let {
-                                            customerTokens.assignCustomerToken(customer.id, it, POCustomerTokenRequest(
-                                                source = card.id, verify = true,
-                                            )).let { assingTokenRes ->
-                                                assingTokenRes.assertFailure()
-                                                assingTokenRes.handleSuccess { tokenResp ->
-                                                    tokenResp.customerToken?.let { token ->
-                                                        assert(token.id != "")
+                ).let { invoiceResult ->
+                    invoiceResult.assertFailure()
+                    invoiceResult.handleSuccess {
+                        cards.tokenize(request).let { cardResult ->
+                            cardResult.assertFailure()
+                            cardResult.handleSuccess { card ->
+                                customerTokens.createCustomerToken(customer.id)
+                                    .let { createTokenResult ->
+                                        createTokenResult.assertFailure()
+                                        createTokenResult.handleSuccess { createToken ->
+                                            createToken.customerToken.id.let {
+                                                customerTokens.assignCustomerToken(
+                                                    customerId = customer.id,
+                                                    tokenId = it,
+                                                    request = POCustomerTokenRequest(
+                                                        source = card.id, verify = true
+                                                    )
+                                                ).let { assingTokenResult ->
+                                                    assingTokenResult.assertFailure()
+                                                    assingTokenResult.handleSuccess { assingToken ->
+                                                        assert(assingToken.customerToken.id.isNotEmpty())
                                                     }
                                                 }
                                             }
                                         }
                                     }
-                                }
                             }
                         }
                     }

@@ -1,8 +1,10 @@
 package com.processout.sdk.api.repository
 
 import androidx.annotation.RestrictTo
-import com.processout.sdk.api.model.request.*
-import com.processout.sdk.api.model.response.*
+import com.processout.sdk.api.model.request.POCreateCustomerRequest
+import com.processout.sdk.api.model.request.POCustomerTokenRequest
+import com.processout.sdk.api.model.response.POCustomer
+import com.processout.sdk.api.model.response.POCustomerToken
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.ProcessOutResult
 
@@ -12,24 +14,24 @@ interface CustomerTokensRepository {
         customerId: String,
         tokenId: String,
         request: POCustomerTokenRequest
-    ): ProcessOutResult<POCustomerTokenSuccess>
+    ): ProcessOutResult<POCustomerToken>
 
     fun assignCustomerToken(
         customerId: String,
         tokenId: String,
         request: POCustomerTokenRequest,
-        callback: ProcessOutCallback<POCustomerTokenSuccess>
+        callback: ProcessOutCallback<POCustomerToken>
     )
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     suspend fun createCustomerToken(
         customerId: String,
-    ): ProcessOutResult<POCustomerTokenSuccess>
+    ): ProcessOutResult<POCustomerToken>
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun createCustomerToken(
         customerId: String,
-        callback: ProcessOutCallback<POCustomerTokenSuccess>
+        callback: ProcessOutCallback<POCustomerToken>
     )
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

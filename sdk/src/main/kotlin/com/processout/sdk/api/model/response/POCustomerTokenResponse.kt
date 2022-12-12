@@ -28,8 +28,7 @@ data class POToken(
     val metadata: Map<String, String>? = null,
 )
 
-data class POCustomerTokenSuccess(
-    val customerToken: POToken? = null,
-    val customerAction: POCustomerActionResponse? = null
+data class POCustomerToken(
+    val customerToken: POToken,
+    val customerAction: POCustomerActionResponse?
 )
-

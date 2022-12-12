@@ -8,8 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.processout.sdk.api.ProcessOutApi
 import com.processout.sdk.api.model.request.POGatewayConfigurationRequest
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethod
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodState
 import com.processout.sdk.api.repository.GatewayConfigurationsRepository
 import com.processout.sdk.api.repository.InvoicesRepository
 import com.processout.sdk.core.ProcessOutResult
@@ -121,7 +121,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
             when (val result = invoicesRepository.initiatePayment(request)) {
                 is ProcessOutResult.Success ->
                     when (result.value.state) {
-                        PONativeAlternativePaymentMethod.State.CUSTOMER_INPUT -> {
+                        PONativeAlternativePaymentMethodState.CUSTOMER_INPUT -> {
                             val parameters = result.value.parameterDefinitions
                             if (parameters.isNullOrEmpty()) {
                                 _uiState.value = PONativeAlternativePaymentMethodUiState.Failure
@@ -136,7 +136,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                                 )
                             }
                         }
-                        PONativeAlternativePaymentMethod.State.PENDING_CAPTURE ->
+                        PONativeAlternativePaymentMethodState.PENDING_CAPTURE ->
                             _uiState.value = PONativeAlternativePaymentMethodUiState.Success
                     }
                 is ProcessOutResult.Failure -> _uiState.value = PONativeAlternativePaymentMethodUiState.Failure

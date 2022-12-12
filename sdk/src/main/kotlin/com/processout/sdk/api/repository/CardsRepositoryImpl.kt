@@ -10,11 +10,13 @@ import com.processout.sdk.api.network.CardsApi
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.map
 import com.processout.sdk.di.ContextGraph
+import com.squareup.moshi.Moshi
 
 internal class CardsRepositoryImpl(
+    moshi: Moshi,
     private val api: CardsApi,
     private val contextGraph: ContextGraph
-) : BaseRepository(), CardsRepository {
+) : BaseRepository(moshi), CardsRepository {
 
     override suspend fun tokenize(request: POCardTokenizationRequest) =
         apiCall {

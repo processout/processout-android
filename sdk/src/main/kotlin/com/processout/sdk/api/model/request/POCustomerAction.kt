@@ -1,9 +1,8 @@
-package com.processout.sdk.api.model.request;
+package com.processout.sdk.api.model.request
 
 import android.net.Uri
-import com.processout.sdk.api.model.response.POToken
 import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass;
+import com.squareup.moshi.JsonClass
 
 sealed class POCustomerActionResponse {
     data class UriData(val value: Uri) : POCustomerActionResponse()
@@ -15,12 +14,12 @@ sealed class POCustomerActionResponse {
     ) : POCustomerActionResponse()
 }
 
-data class POInvoiceAuthorizeSuccess(
-    val customerAction: POCustomerActionResponse? = null
+data class POInvoiceAuthorizationSuccess(
+    val customerAction: POCustomerActionResponse?
 )
 
 @JsonClass(generateAdapter = true)
-internal data class POAuthorizationResponse(
+internal data class POInvoiceAuthorizationResponse(
     @Json(name = "customer_action")
     val customerAction: POCustomerAction? = null
 )
