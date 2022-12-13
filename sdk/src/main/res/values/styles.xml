@@ -12,7 +12,7 @@
     </style>
 
     <style name="Widget.ProcessOut.TextInputEditText" parent="Widget.MaterialComponents.TextInputEditText.OutlinedBox">
-        <item name="android:textSize">@dimen/po_input_textSize</item>
+        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Input.String</item>
         <item name="android:textColor">@color/poTextPrimary</item>
         <item name="android:textColorHint">@color/poTextDisabled</item>
         <item name="android:paddingLeft">@dimen/po_input_paddingHorizontal</item>
