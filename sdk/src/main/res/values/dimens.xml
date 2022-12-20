@@ -8,6 +8,11 @@
     <dimen name="po_input_paddingVertical">14dp</dimen>
     <dimen name="po_input_paddingHorizontal">12dp</dimen>
 
+    <dimen name="po_codeInput_marginVertical">8dp</dimen>
+    <dimen name="po_codeEditText_width">48dp</dimen>
+    <dimen name="po_codeEditText_height">48dp</dimen>
+    <dimen name="po_codeEditText_space">8dp</dimen>
+
     <dimen name="po_button_padding">14dp</dimen>
     <dimen name="po_title_margin">24dp</dimen>
 

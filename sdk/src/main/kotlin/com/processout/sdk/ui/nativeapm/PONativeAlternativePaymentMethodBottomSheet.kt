@@ -24,7 +24,7 @@ import com.processout.sdk.core.exception.ProcessOutException
 import com.processout.sdk.databinding.PoBottomSheetNativeApmBinding
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityContract.Companion.EXTRA_CONFIGURATION
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityContract.Companion.EXTRA_RESULT
-import com.processout.sdk.ui.shared.requestFocusAndShowKeyboard
+import com.processout.sdk.ui.shared.view.extensions.requestFocusAndShowKeyboard
 import kotlinx.coroutines.launch
 
 class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment() {
