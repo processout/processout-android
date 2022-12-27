@@ -21,24 +21,18 @@
         <item name="colorOnSecondary">@color/poButtonTextPrimary</item>
         <item name="android:colorBackground">@color/poBackgroundPrimary</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.ProcessOut.BottomSheetDialog</item>
-        <item name="textInputStyle">@style/Widget.ProcessOut.TextInputLayout</item>
     </style>
 
-    <style name="Theme.ProcessOut.CodeInput" parent="Theme.ProcessOut.Default">
+    <style name="Theme.ProcessOut.Default.Input">
         <item name="colorPrimary">@color/poTextPrimary</item>
         <item name="colorSecondary">@color/poTextPrimary</item>
+        <item name="editTextStyle">@style/Widget.ProcessOut.EditText</item>
         <item name="poCodeEditTextStyle">@style/Widget.ProcessOut.CodeEditText</item>
     </style>
 
     <style name="ThemeOverlay.ProcessOut.BottomSheetDialog" parent="">
         <item name="android:windowAnimationStyle">@style/Animation.MaterialComponents.BottomSheetDialog</item>
         <item name="android:windowSoftInputMode">adjustResize</item>
-    </style>
-
-    <style name="ThemeOverlay.ProcessOut.TextInputEditText" parent="ThemeOverlay.MaterialComponents.TextInputEditText.OutlinedBox">
-        <item name="colorPrimary">@color/poTextPrimary</item>
-        <item name="colorSecondary">@color/poTextPrimary</item>
-        <item name="editTextStyle">@style/Widget.ProcessOut.TextInputEditText</item>
     </style>
 
 </resources>

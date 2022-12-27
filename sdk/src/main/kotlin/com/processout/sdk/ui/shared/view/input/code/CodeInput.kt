@@ -1,4 +1,4 @@
-package com.processout.sdk.ui.shared.view.codeinput
+package com.processout.sdk.ui.shared.view.input.code
 
 import android.content.Context
 import android.util.AttributeSet
@@ -11,42 +11,34 @@ import androidx.appcompat.view.ContextThemeWrapper
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.widget.doAfterTextChanged
 import com.processout.sdk.R
-import com.processout.sdk.ui.nativeapm.InputParameter
-import com.processout.sdk.ui.shared.view.InputComponent
-import com.processout.sdk.ui.shared.view.POView
+import com.processout.sdk.ui.shared.model.InputParameter
 import com.processout.sdk.ui.shared.view.extensions.requestFocusAndShowKeyboard
+import com.processout.sdk.ui.shared.view.input.Input
+import com.processout.sdk.ui.shared.view.input.InputComponent
 
-internal class CodeInput : ConstraintLayout, InputComponent {
+internal class CodeInput(
+    context: Context,
+    attrs: AttributeSet? = null,
+    override val inputParameter: InputParameter? = null
+) : ConstraintLayout(context, attrs, 0), InputComponent {
 
     constructor(context: Context) : this(context, null)
-    constructor(context: Context, attrs: AttributeSet?) : super(
-        ContextThemeWrapper(context, R.style.Theme_ProcessOut_CodeInput), attrs, 0
-    ) {
-        initialize()
-    }
-
-    constructor(context: Context, inputParameter: InputParameter) : super(
-        ContextThemeWrapper(context, R.style.Theme_ProcessOut_CodeInput), null, 0
-    ) {
-        this.inputParameter = inputParameter
-        initialize()
-    }
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, null)
 
     companion object {
         const val LENGTH_MIN = 1
         const val LENGTH_MAX = 6
     }
 
-    private var inputParameter: InputParameter? = null
-    private var length: Int = LENGTH_MAX
     private var focusIndex: Int = 0
-    private var state: POView.State = POView.State.Default
+    private var state: Input.State = Input.State.Default
 
-    private lateinit var title: TextView
-    private lateinit var container: LinearLayout
-    private lateinit var errorMessage: TextView
+    private val title: TextView
+    private val container: LinearLayout
+    private val errorMessage: TextView
 
     private val editTexts = mutableListOf<CodeEditText>()
+    private var afterValueChanged: ((String) -> Unit)? = null
 
     override var value: String
         get() {
@@ -70,49 +62,64 @@ internal class CodeInput : ConstraintLayout, InputComponent {
             }
         }
 
-    private fun initialize() {
-        LayoutInflater.from(context).inflate(R.layout.po_code_input, this, true)
+    init {
+        LayoutInflater.from(
+            ContextThemeWrapper(context, R.style.Theme_ProcessOut_Default_Input)
+        ).inflate(R.layout.po_code_input, this, true)
+
         title = findViewById(R.id.po_title)
         container = findViewById(R.id.po_container)
         errorMessage = findViewById(R.id.po_error_message)
 
-        inputParameter?.let {
-            it.parameter.length?.run {
-                if (this in LENGTH_MIN..LENGTH_MAX) length = this
-            }
-            title.text = it.parameter.displayName
-        }
-
-        for (index in 0 until length) {
+        for (index in 0 until length()) {
             addEditText(index)
             setListeners(index)
         }
 
+        initWithInputParameters()
         setState(state)
     }
 
-    override fun setState(state: POView.State) {
-        editTexts.forEach {
-            it.setState(state)
-        }
-
-        when (state) {
-            POView.State.Default -> {
-                errorMessage.visibility = View.INVISIBLE
-            }
-            is POView.State.Error -> {
-                errorMessage.text = state.message
-                errorMessage.visibility = View.VISIBLE
+    private fun length(): Int {
+        inputParameter?.let {
+            it.parameter.length?.run {
+                if (this in LENGTH_MIN..LENGTH_MAX)
+                    return this
             }
         }
+        return LENGTH_MAX
+    }
 
-        this.state = state
+    private fun initWithInputParameters() {
+        id = inputParameter?.id ?: View.generateViewId()
+        inputParameter?.let {
+            title.text = it.parameter.displayName
+            value = it.value
+        }
     }
 
     private fun addEditText(index: Int) {
         val editText = CodeEditText(context)
         editTexts.add(index, editText)
         container.addView(editText)
+    }
+
+    override fun setState(state: Input.State) {
+        editTexts.forEach {
+            it.setState(state)
+        }
+
+        when (state) {
+            Input.State.Default -> {
+                errorMessage.visibility = View.INVISIBLE
+            }
+            is Input.State.Error -> {
+                errorMessage.text = state.message
+                errorMessage.visibility = View.VISIBLE
+            }
+        }
+
+        this.state = state
     }
 
     private fun setListeners(index: Int) {
@@ -123,8 +130,8 @@ internal class CodeInput : ConstraintLayout, InputComponent {
         }
 
         editTexts[index].doAfterTextChanged {
-            if (state is POView.State.Error) {
-                setState(POView.State.Default)
+            if (state is Input.State.Error) {
+                setState(Input.State.Default)
             }
 
             it?.let { text ->
@@ -133,10 +140,14 @@ internal class CodeInput : ConstraintLayout, InputComponent {
                     changeFocus(next = true)
                 }
             }
+
+            afterValueChanged?.invoke(value)
         }
 
         editTexts[index].setOnKeyListener { _, keyCode, event ->
-            if (keyCode == KeyEvent.KEYCODE_DEL && event.action == KeyEvent.ACTION_DOWN &&
+            if (keyCode == KeyEvent.KEYCODE_DEL &&
+                event.action == KeyEvent.ACTION_DOWN &&
+                index > 0 &&
                 (editTexts[index].text.isNullOrEmpty() || editTexts[index].selectionStart == 0)
             ) {
                 changeFocus(next = false)
@@ -144,6 +155,10 @@ internal class CodeInput : ConstraintLayout, InputComponent {
             }
             return@setOnKeyListener false
         }
+    }
+
+    override fun doAfterValueChanged(action: (value: String) -> Unit) {
+        afterValueChanged = action
     }
 
     private fun resetFocus() {

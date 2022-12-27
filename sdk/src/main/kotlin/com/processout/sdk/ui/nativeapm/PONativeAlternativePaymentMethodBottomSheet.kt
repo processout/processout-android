@@ -4,27 +4,30 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.view.children
-import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.android.material.textfield.TextInputLayout
 import com.processout.sdk.R
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType
 import com.processout.sdk.core.exception.ProcessOutException
 import com.processout.sdk.databinding.PoBottomSheetNativeApmBinding
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityContract.Companion.EXTRA_CONFIGURATION
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityContract.Companion.EXTRA_RESULT
-import com.processout.sdk.ui.shared.view.extensions.requestFocusAndShowKeyboard
+import com.processout.sdk.ui.shared.model.InputParameter
+import com.processout.sdk.ui.shared.view.input.InputComponent
+import com.processout.sdk.ui.shared.view.input.code.CodeInput
+import com.processout.sdk.ui.shared.view.input.text.TextInput
 import kotlinx.coroutines.launch
 
 class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment() {
@@ -127,40 +130,46 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment() 
         currentInputIds.removeAll(inputParameters.map { it.id })
         currentInputIds.forEach {
             with(binding.poInputsContainer) {
-                removeView(findViewById<ViewGroup>(it))
+                removeView(findViewById(it))
             }
         }
 
         inputParameters.forEachIndexed { index, parameter ->
             // only add inputs that has not been added yet
-            binding.poInputsContainer.findViewById<ViewGroup>(parameter.id) ?: run {
-                val input = layoutInflater.inflate(
-                    R.layout.po_text_input, binding.poInputsContainer, false
-                ) as TextInputLayout
-
-                input.id = parameter.id
-                input.editText?.apply {
-                    tag = parameter
-                    hint = parameter.hint
-                    inputType = parameter.toInputType()
-                    setText(parameter.value, TextView.BufferType.EDITABLE)
-                    doAfterTextChanged {
-                        viewModel.updateInputValue(parameter.id, text.toString())
-                    }
+            binding.poInputsContainer.findViewById(parameter.id) ?: run {
+                val input = addInputComponent(parameter)
+                if (index == 0) {
+                    Handler(Looper.getMainLooper())
+                        .postDelayed({ input.requestFocusAndShowKeyboard() }, 200)
                 }
-                binding.poInputsContainer.addView(input)
-                if (index == 0) input.editText?.requestFocusAndShowKeyboard()
             }
         }
+    }
+
+    private fun addInputComponent(inputParameter: InputParameter): InputComponent {
+        val length = inputParameter.parameter.length
+        val input = if (inputParameter.parameter.type == ParameterType.numeric &&
+            length != null && length in CodeInput.LENGTH_MIN..CodeInput.LENGTH_MAX
+        ) {
+            CodeInput(requireContext(), inputParameter = inputParameter)
+        } else {
+            TextInput(requireContext(), inputParameter = inputParameter)
+        }
+
+        input.doAfterValueChanged { value ->
+            viewModel.updateInputValue(inputParameter.id, value)
+        }
+        binding.poInputsContainer.addView(input)
+        return input
     }
 
     private fun onSubmitClick() {
         val data = mutableMapOf<String, String>()
         binding.poInputsContainer.children.forEach { view ->
-            (view as TextInputLayout).let {
-                val key = (it.editText?.tag as InputParameter).parameter.key
-                val value = it.editText?.text.toString()
-                data[key] = value
+            (view as InputComponent).let {
+                it.inputParameter?.parameter?.run {
+                    data[key] = it.value
+                }
             }
         }
         viewModel.submitPayment(data)

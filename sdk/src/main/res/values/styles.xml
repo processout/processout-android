@@ -1,20 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Widget.ProcessOut.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-        <item name="boxStrokeWidth">@dimen/po_borderWidth</item>
-        <item name="boxStrokeWidthFocused">@dimen/po_borderWidth</item>
-        <item name="boxCornerRadiusBottomEnd">@dimen/po_cornerRadius</item>
-        <item name="boxCornerRadiusBottomStart">@dimen/po_cornerRadius</item>
-        <item name="boxCornerRadiusTopEnd">@dimen/po_cornerRadius</item>
-        <item name="boxCornerRadiusTopStart">@dimen/po_cornerRadius</item>
-        <item name="materialThemeOverlay">@style/ThemeOverlay.ProcessOut.TextInputEditText</item>
-    </style>
-
-    <style name="Widget.ProcessOut.TextInputEditText" parent="Widget.MaterialComponents.TextInputEditText.OutlinedBox">
-        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Input.String</item>
+    <style name="Widget.ProcessOut.EditText" parent="Widget.AppCompat.EditText">
         <item name="android:textColor">@color/poTextPrimary</item>
         <item name="android:textColorHint">@color/poTextDisabled</item>
+        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Input.String</item>
         <item name="android:paddingLeft">@dimen/po_input_paddingHorizontal</item>
         <item name="android:paddingRight">@dimen/po_input_paddingHorizontal</item>
         <item name="android:paddingStart">@dimen/po_input_paddingHorizontal</item>
@@ -31,6 +21,16 @@
         <item name="android:maxLength">1</item>
         <item name="android:textColor">@color/poTextPrimary</item>
         <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Title.Large</item>
+    </style>
+
+    <style name="Widget.ProcessOut.Input.Title" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textColor">@color/poTextPrimary</item>
+        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Input.Label</item>
+    </style>
+
+    <style name="Widget.ProcessOut.Input.ErrorMessage" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textColor">@color/poTextError</item>
+        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Body.Small.Medium</item>
     </style>
 
 </resources>

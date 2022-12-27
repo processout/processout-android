@@ -8,11 +8,10 @@
 
     <TextView
         android:id="@+id/po_title"
+        style="@style/Widget.ProcessOut.Input.Title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/po_codeInput_marginVertical"
-        android:textAppearance="@style/TextAppearance.ProcessOut.Input.Label"
-        android:textColor="@color/poTextPrimary"
+        android:layout_marginBottom="@dimen/po_input_marginVertical"
         app:layout_constraintBottom_toTopOf="@id/po_container"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -32,12 +31,11 @@
 
     <TextView
         android:id="@+id/po_error_message"
+        style="@style/Widget.ProcessOut.Input.ErrorMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/po_codeInput_marginVertical"
-        android:layout_marginBottom="@dimen/po_codeInput_marginVertical"
-        android:textAppearance="@style/TextAppearance.ProcessOut.Body.Small.Medium"
-        android:textColor="@color/poTextError"
+        android:layout_marginTop="@dimen/po_input_marginVertical"
+        android:layout_marginBottom="@dimen/po_input_marginVertical"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"

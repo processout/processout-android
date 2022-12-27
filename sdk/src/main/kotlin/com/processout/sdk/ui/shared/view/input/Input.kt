@@ -1,6 +1,6 @@
-package com.processout.sdk.ui.shared.view
+package com.processout.sdk.ui.shared.view.input
 
-internal interface POView {
+internal interface Input {
     fun setState(state: State)
 
     sealed class State {
