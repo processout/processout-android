@@ -8,7 +8,7 @@ import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodPar
 internal data class InputParameter(
     val id: Int = View.generateViewId(),
     var value: String = String(),
-    val hint: String?,
+    val hint: String? = null,
     val parameter: PONativeAlternativePaymentMethodParameter
 ) {
     fun toInputType() = when (parameter.type) {

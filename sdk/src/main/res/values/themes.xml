@@ -19,8 +19,11 @@
         <item name="colorSecondary">@color/poButtonPrimary</item>
         <item name="colorSecondaryVariant">@color/poButtonPrimary</item>
         <item name="colorOnSecondary">@color/poButtonTextPrimary</item>
+        <item name="colorOnSurface">@color/poTextDisabled</item>
         <item name="android:colorBackground">@color/poBackgroundPrimary</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.ProcessOut.BottomSheetDialog</item>
+        <item name="materialButtonStyle">@style/Widget.ProcessOut.Button</item>
+        <item name="textAppearanceButton">@style/TextAppearance.ProcessOut.Action.Default.Medium</item>
     </style>
 
     <style name="Theme.ProcessOut.Default.Input">

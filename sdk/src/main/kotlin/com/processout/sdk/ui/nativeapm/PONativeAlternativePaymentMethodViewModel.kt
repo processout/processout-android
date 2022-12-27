@@ -110,6 +110,9 @@ internal class PONativeAlternativePaymentMethodViewModel(
 
     fun submitPayment(data: Map<String, String>) {
         _uiState.value.doWhenUserInput { uiModel ->
+            _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(
+                uiModel.copy(isSubmitting = true)
+            )
             initiatePayment(uiModel, data)
         }
     }
@@ -147,4 +150,4 @@ internal class PONativeAlternativePaymentMethodViewModel(
 }
 
 private fun List<PONativeAlternativePaymentMethodParameter>.toInputParameters() =
-    map { InputParameter(parameter = it, hint = it.key) }
+    map { InputParameter(parameter = it) }

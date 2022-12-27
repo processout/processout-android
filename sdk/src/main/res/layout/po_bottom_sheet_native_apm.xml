@@ -7,8 +7,8 @@
     android:layout_height="match_parent"
     android:background="@drawable/po_bottom_sheet_background"
     android:focusableInTouchMode="true"
-    android:paddingHorizontal="@dimen/po_bottomSheet_layoutPadding"
-    android:paddingBottom="@dimen/po_bottomSheet_layoutPadding"
+    android:paddingHorizontal="@dimen/po_bottomSheet_layout_padding"
+    android:paddingBottom="@dimen/po_bottomSheet_layout_padding"
     android:visibility="invisible"
     tools:context=".ui.nativeapm.PONativeAlternativePaymentMethodActivity"
     tools:visibility="visible">
@@ -27,8 +27,8 @@
         android:id="@+id/po_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/po_title_margin"
-        android:layout_marginTop="@dimen/po_title_margin"
+        android:layout_marginHorizontal="@dimen/po_bottomSheet_title_margin"
+        android:layout_marginTop="@dimen/po_bottomSheet_title_margin"
         android:gravity="center"
         android:textAppearance="@style/TextAppearance.ProcessOut.Title.Default"
         android:textColor="@color/poTextPrimary"
@@ -50,16 +50,12 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/po_title" />
 
-    <com.google.android.material.button.MaterialButton
+    <com.processout.sdk.ui.shared.view.button.POButton
         android:id="@+id/po_submit_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:enabled="false"
-        android:maxLines="1"
-        android:padding="@dimen/po_button_padding"
         android:text="@string/po_native_apm_submit_button_text"
-        android:textAppearance="@style/TextAppearance.ProcessOut.Action.Default.Medium"
-        app:cornerRadius="@dimen/po_cornerRadius"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />

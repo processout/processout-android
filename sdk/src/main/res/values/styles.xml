@@ -33,4 +33,13 @@
         <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Body.Small.Medium</item>
     </style>
 
+    <style name="Widget.ProcessOut.Button" parent="Widget.MaterialComponents.Button">
+        <item name="maxLines">1</item>
+        <item name="cornerRadius">@dimen/po_cornerRadius</item>
+        <item name="android:padding">@dimen/po_button_padding</item>
+        <item name="iconPadding">0dp</item>
+        <item name="iconGravity">textStart</item>
+        <item name="backgroundTint">@color/po_submit_button_states</item>
+    </style>
+
 </resources>

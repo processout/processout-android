@@ -25,6 +25,7 @@ import com.processout.sdk.databinding.PoBottomSheetNativeApmBinding
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityContract.Companion.EXTRA_CONFIGURATION
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityContract.Companion.EXTRA_RESULT
 import com.processout.sdk.ui.shared.model.InputParameter
+import com.processout.sdk.ui.shared.view.button.POButton
 import com.processout.sdk.ui.shared.view.input.InputComponent
 import com.processout.sdk.ui.shared.view.input.code.CodeInput
 import com.processout.sdk.ui.shared.view.input.text.TextInput
@@ -116,8 +117,20 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment() 
     private fun bindUiModel(uiModel: PONativeAlternativePaymentMethodUiModel) {
         binding.root.visibility = View.VISIBLE
         binding.poTitle.text = uiModel.promptMessage
-        binding.poSubmitButton.isEnabled = uiModel.isSubmitAllowed
+        bindSubmitButton(uiModel.isSubmitAllowed, uiModel.isSubmitting)
         bindInputs(uiModel.inputParameters)
+    }
+
+    private fun bindSubmitButton(isSubmitAllowed: Boolean, isSubmitting: Boolean) {
+        with(binding.poSubmitButton) {
+            if (isSubmitting) {
+                setState(POButton.State.PROGRESS)
+            } else if (isSubmitAllowed) {
+                setState(POButton.State.ENABLED)
+            } else {
+                setState(POButton.State.DISABLED)
+            }
+        }
     }
 
     private fun bindInputs(inputParameters: List<InputParameter>) {
@@ -164,6 +177,8 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment() 
     }
 
     private fun onSubmitClick() {
+        binding.poSubmitButton.isClickable = false
+
         val data = mutableMapOf<String, String>()
         binding.poInputsContainer.children.forEach { view ->
             (view as InputComponent).let {
