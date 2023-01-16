@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.view.ContextThemeWrapper
@@ -39,6 +40,7 @@ internal class CodeInput(
 
     private val editTexts = mutableListOf<CodeEditText>()
     private var afterValueChanged: ((String) -> Unit)? = null
+    private var keyboardSubmitClick: (() -> Unit)? = null
 
     override var value: String
         get() {
@@ -144,6 +146,15 @@ internal class CodeInput(
             afterValueChanged?.invoke(value)
         }
 
+        editTexts[index].setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                keyboardSubmitClick?.invoke()
+                return@setOnEditorActionListener true
+            } else {
+                return@setOnEditorActionListener false
+            }
+        }
+
         editTexts[index].setOnKeyListener { _, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_DEL &&
                 event.action == KeyEvent.ACTION_DOWN &&
@@ -159,6 +170,10 @@ internal class CodeInput(
 
     override fun doAfterValueChanged(action: (value: String) -> Unit) {
         afterValueChanged = action
+    }
+
+    override fun onKeyboardSubmitClick(action: () -> Unit) {
+        keyboardSubmitClick = action
     }
 
     private fun resetFocus() {

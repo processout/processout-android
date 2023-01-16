@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/po_background_layer_outer"
+        android:gravity="center">
+        <shape android:shape="oval">
+            <solid android:color="@color/poBackgroundGreyLight" />
+            <padding
+                android:bottom="@dimen/po_background_layers_offset"
+                android:left="@dimen/po_background_layers_offset"
+                android:right="@dimen/po_background_layers_offset"
+                android:top="@dimen/po_background_layers_offset" />
+        </shape>
+    </item>
+    <item
+        android:id="@+id/po_background_layer_inner"
+        android:gravity="center">
+        <shape android:shape="oval">
+            <solid android:color="@color/poBackgroundGreyDark" />
+        </shape>
+    </item>
+</layer-list>

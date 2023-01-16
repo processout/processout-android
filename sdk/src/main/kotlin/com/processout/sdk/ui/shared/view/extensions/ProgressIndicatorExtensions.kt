@@ -18,6 +18,6 @@ internal fun indeterminateCircularProgressDrawable(
     )
     spec.indicatorInset = 0
     spec.trackColor = ContextCompat.getColor(context, android.R.color.transparent)
-    spec.trackThickness = 2.dpToPx(context.displayMetrics)
+    spec.trackThickness = 1.dpToPx(context.displayMetrics)
     return IndeterminateDrawable.createCircularDrawable(context, spec)
 }

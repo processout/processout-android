@@ -31,11 +31,26 @@ internal class InvoicesRepositoryImpl(
         api.authorize(invoiceId, request.toDeviceDataRequest(contextGraph.deviceData))
     }
 
-    override suspend fun capture(invoiceId: String) =
-        apiCall { api.capture(invoiceId) }.map { POCaptureSuccess }
+    override suspend fun capture(
+        invoiceId: String,
+        gatewayConfigurationId: String
+    ) = apiCall {
+        api.capture(
+            invoiceId,
+            PONativeAlternativePaymentCaptureRequest(gatewayConfigurationId)
+        )
+    }.map { POCaptureSuccess }
 
-    override fun capture(invoiceId: String, callback: ProcessOutCallback<POCaptureSuccess>) =
-        apiCallScoped(callback, { POCaptureSuccess }) { api.capture(invoiceId) }
+    override fun capture(
+        invoiceId: String,
+        gatewayConfigurationId: String,
+        callback: ProcessOutCallback<POCaptureSuccess>
+    ) = apiCallScoped(callback, { POCaptureSuccess }) {
+        api.capture(
+            invoiceId,
+            PONativeAlternativePaymentCaptureRequest(gatewayConfigurationId)
+        )
+    }
 
     override suspend fun initiatePayment(
         request: PONativeAlternativePaymentMethodRequest

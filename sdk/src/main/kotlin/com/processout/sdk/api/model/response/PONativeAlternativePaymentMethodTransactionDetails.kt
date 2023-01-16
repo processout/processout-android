@@ -14,7 +14,7 @@ data class PONativeAlternativePaymentMethodTransactionDetails(
     val state: PONativeAlternativePaymentMethodState?,
     val gateway: Gateway,
     val invoice: Invoice,
-    val parameters: List<PONativeAlternativePaymentMethodParameter>
+    val parameters: List<PONativeAlternativePaymentMethodParameter>?
 ) {
 
     @JsonClass(generateAdapter = true)
@@ -22,7 +22,11 @@ data class PONativeAlternativePaymentMethodTransactionDetails(
         @Json(name = "display_name")
         val displayName: String,
         @Json(name = "logo_url")
-        val logoUrl: String
+        val logoUrl: String,
+        @Json(name = "customer_action_message")
+        val customerActionMessage: String?,
+        @Json(name = "customer_action_image_url")
+        val customerActionImageUrl: String?
     )
 
     @JsonClass(generateAdapter = true)

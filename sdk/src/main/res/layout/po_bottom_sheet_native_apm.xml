@@ -1,63 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/po_bottom_sheet_background"
-    android:focusableInTouchMode="true"
-    android:paddingHorizontal="@dimen/po_bottomSheet_layout_padding"
-    android:paddingBottom="@dimen/po_bottomSheet_layout_padding"
-    android:visibility="invisible"
-    tools:context=".ui.nativeapm.PONativeAlternativePaymentMethodActivity"
-    tools:visibility="visible">
+    android:background="@color/poBackgroundPrimary"
+    tools:context=".ui.nativeapm.PONativeAlternativePaymentMethodActivity">
 
     <View
         android:id="@+id/po_drag_handle"
         android:layout_width="@dimen/po_dragHandle_width"
         android:layout_height="@dimen/po_dragHandle_height"
+        android:layout_gravity="center_horizontal"
         android:layout_marginTop="@dimen/po_dragHandle_marginTop"
         android:background="@drawable/po_drag_handle"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:elevation="1dp" />
 
-    <TextView
-        android:id="@+id/po_title"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/po_bottomSheet_title_margin"
-        android:layout_marginTop="@dimen/po_bottomSheet_title_margin"
-        android:gravity="center"
-        android:textAppearance="@style/TextAppearance.ProcessOut.Title.Default"
-        android:textColor="@color/poTextPrimary"
-        app:layout_constraintBottom_toTopOf="@+id/po_inputs_container"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/po_drag_handle"
-        tools:text="Pay with APM" />
-
-    <LinearLayout
-        android:id="@+id/po_inputs_container"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/po_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/po_inputsContainer_marginTop"
-        android:layout_marginBottom="@dimen/po_inputsContainer_marginBottom"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="@id/po_submit_button"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/po_title" />
+        android:layout_height="match_parent">
 
-    <com.processout.sdk.ui.shared.view.button.POButton
-        android:id="@+id/po_submit_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:enabled="false"
-        android:text="@string/po_native_apm_submit_button_text"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
+        <include
+            android:id="@+id/po_loading"
+            layout="@layout/po_bottom_sheet_loading"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/po_scrollable_content"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginHorizontal="@dimen/po_bottomSheet_marginHorizontal"
+            android:layout_marginTop="@dimen/po_bottomSheet_marginTop"
+            android:layout_marginBottom="@dimen/po_bottomSheet_marginBottom"
+            android:fillViewport="true"
+            android:isScrollContainer="true"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/po_submit_button"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/po_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/po_title"
+                    style="@style/Widget.ProcessOut.Title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Pay with APM" />
+
+                <LinearLayout
+                    android:id="@+id/po_inputs_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/po_input_marginVertical"
+                    android:focusableInTouchMode="true"
+                    android:orientation="vertical"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/po_title"
+                    app:layout_constraintVertical_bias="0.5" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.core.widget.NestedScrollView>
+
+        <com.processout.sdk.ui.shared.view.button.POButton
+            android:id="@+id/po_submit_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/po_bottomSheet_marginHorizontal"
+            android:layout_marginBottom="@dimen/po_bottomSheet_marginBottom"
+            android:enabled="false"
+            android:text="@string/po_native_apm_submit_button_default_text"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            tools:visibility="visible" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

@@ -14,18 +14,17 @@ class PONativeAlternativePaymentMethodActivity : AppCompatActivity(), BottomShee
             if (bottomSheet == null) {
                 PONativeAlternativePaymentMethodBottomSheet().apply {
                     arguments = intent.extras
-                    isCancelable = false
                     show(supportFragmentManager, PONativeAlternativePaymentMethodBottomSheet.TAG)
                 }
             }
         }
     }
 
-    override fun onBottomSheetBackPressed() {
+    override fun onBottomSheetFinished() {
         finish()
     }
 }
 
 internal interface BottomSheetCallback {
-    fun onBottomSheetBackPressed()
+    fun onBottomSheetFinished()
 }

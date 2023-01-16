@@ -4,6 +4,7 @@ import android.content.Context
 import android.text.InputType
 import android.util.AttributeSet
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatEditText
 import com.processout.sdk.R
@@ -26,6 +27,7 @@ internal class CodeEditText(
     init {
         initLayoutParams()
         inputType = InputType.TYPE_CLASS_NUMBER
+        imeOptions = EditorInfo.IME_ACTION_DONE
         setState(Input.State.Default)
     }
 

@@ -1,9 +1,6 @@
 package com.processout.sdk.api.network
 
-import com.processout.sdk.api.model.request.POCreateInvoiceRequest
-import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequestWithDeviceData
-import com.processout.sdk.api.model.request.POInvoiceAuthorizationResponse
-import com.processout.sdk.api.model.request.PONativeAPMRequestBody
+import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.response.POInvoiceResponse
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodResponse
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetailsResponse
@@ -23,7 +20,8 @@ internal interface InvoicesApi {
 
     @POST("/invoices/{id}/capture")
     suspend fun capture(
-        @Path("id") invoiceId: String
+        @Path("id") invoiceId: String,
+        @Body request: PONativeAlternativePaymentCaptureRequest
     ): Response<Unit>
 
     @POST("/invoices/{id}/native-payment")

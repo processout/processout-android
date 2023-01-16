@@ -5,6 +5,7 @@ import android.text.InputType
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.view.ContextThemeWrapper
@@ -36,11 +37,13 @@ internal class TextInput(
     private val errorBackground = outline(context, R.color.poBorderError)
 
     private var afterValueChanged: ((String) -> Unit)? = null
+    private var keyboardSubmitClick: (() -> Unit)? = null
 
     override var value: String
         get() = editText.text.toString()
         set(value) {
             editText.setText(value, TextView.BufferType.EDITABLE)
+            editText.setSelection(editText.length())
         }
 
     init {
@@ -60,6 +63,7 @@ internal class TextInput(
     private fun initWithInputParameters() {
         id = inputParameter?.id ?: View.generateViewId()
         editText.inputType = inputParameter?.toInputType() ?: InputType.TYPE_CLASS_TEXT
+        editText.imeOptions = EditorInfo.IME_ACTION_DONE
         inputParameter?.let {
             title.text = it.parameter.displayName
             editText.hint = it.hint
@@ -73,6 +77,15 @@ internal class TextInput(
                 setState(Input.State.Default)
             }
             afterValueChanged?.invoke(value)
+        }
+
+        editText.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                keyboardSubmitClick?.invoke()
+                return@setOnEditorActionListener true
+            } else {
+                return@setOnEditorActionListener false
+            }
         }
     }
 
@@ -94,6 +107,10 @@ internal class TextInput(
 
     override fun doAfterValueChanged(action: (value: String) -> Unit) {
         afterValueChanged = action
+    }
+
+    override fun onKeyboardSubmitClick(action: () -> Unit) {
+        keyboardSubmitClick = action
     }
 
     override fun requestFocusAndShowKeyboard() {

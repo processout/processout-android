@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="po_bottomSheet_title_margin">24dp</dimen>
-    <dimen name="po_bottomSheet_layout_padding">24dp</dimen>
+    <dimen name="po_bottomSheet_minHeight">410dp</dimen>
+    <dimen name="po_bottomSheet_marginHorizontal">24dp</dimen>
+    <dimen name="po_bottomSheet_marginTop">44dp</dimen>
+    <dimen name="po_bottomSheet_marginBottom">20dp</dimen>
+    <dimen name="po_bottomSheet_cornerRadius">16dp</dimen>
 
     <dimen name="po_cornerRadius">8dp</dimen>
     <dimen name="po_borderWidth">1dp</dimen>
 
-    <dimen name="po_inputsContainer_marginTop">30dp</dimen>
-    <dimen name="po_inputsContainer_marginBottom">10dp</dimen>
     <dimen name="po_input_marginVertical">8dp</dimen>
     <dimen name="po_input_paddingVertical">14dp</dimen>
     <dimen name="po_input_paddingHorizontal">12dp</dimen>
@@ -22,4 +23,15 @@
     <dimen name="po_dragHandle_width">32dp</dimen>
     <dimen name="po_dragHandle_height">4dp</dimen>
     <dimen name="po_dragHandle_marginTop">16dp</dimen>
+
+    <dimen name="po_background_size">1000dp</dimen>
+    <dimen name="po_background_translationY">-150dp</dimen>
+    <dimen name="po_background_layers_offset">100dp</dimen>
+
+    <dimen name="po_capture_logo_height">32dp</dimen>
+    <dimen name="po_capture_logo_marginTop">70dp</dimen>
+    <dimen name="po_capture_message_marginVertical">18dp</dimen>
+    <dimen name="po_capture_image_height">300dp</dimen>
+    <dimen name="po_capture_image_action_width">200dp</dimen>
+    <dimen name="po_capture_image_success_width">220dp</dimen>
 </resources>

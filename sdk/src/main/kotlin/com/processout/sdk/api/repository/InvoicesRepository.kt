@@ -25,9 +25,16 @@ interface InvoicesRepository {
         callback: ProcessOutCallback<POInvoiceAuthorizationSuccess>
     )
 
-    suspend fun capture(invoiceId: String): ProcessOutResult<POCaptureSuccess>
+    suspend fun capture(
+        invoiceId: String,
+        gatewayConfigurationId: String
+    ): ProcessOutResult<POCaptureSuccess>
 
-    fun capture(invoiceId: String, callback: ProcessOutCallback<POCaptureSuccess>)
+    fun capture(
+        invoiceId: String,
+        gatewayConfigurationId: String,
+        callback: ProcessOutCallback<POCaptureSuccess>
+    )
 
     suspend fun initiatePayment(
         request: PONativeAlternativePaymentMethodRequest

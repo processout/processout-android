@@ -21,13 +21,18 @@ internal class POButton(
         PROGRESS
     }
 
-    private val label: String = text.toString()
+    private var label: String = text.toString()
 
     private val progressDrawable = indeterminateCircularProgressDrawable(
         context,
         context.resources.getDimensionPixelSize(R.dimen.po_button_circularProgressIndicator_size),
         R.color.poButtonTextPrimary
     )
+
+    override fun onTextChanged(charSequence: CharSequence?, i: Int, i1: Int, i2: Int) {
+        super.onTextChanged(charSequence, i, i1, i2)
+        label = charSequence.toString()
+    }
 
     fun setState(state: State) {
         when (state) {

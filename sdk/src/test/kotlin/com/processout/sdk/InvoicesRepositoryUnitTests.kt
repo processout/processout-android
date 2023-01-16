@@ -138,7 +138,10 @@ class InvoicesRepositoryUnitTests {
         ).let { invoiceResult ->
             invoiceResult.assertFailure()
             invoiceResult.handleSuccess { invoice ->
-                invoices.capture(invoice.id).handleFailure { _, cause ->
+                invoices.capture(
+                    invoice.id,
+                    "gway_conf_ux3ye8vh2c78c89s8ozp1f1ujixkl11k.adyenblik"
+                ).handleFailure { _, cause ->
                     assert(cause is ValidationException)
                 }
             }

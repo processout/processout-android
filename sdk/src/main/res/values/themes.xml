@@ -19,11 +19,13 @@
         <item name="colorSecondary">@color/poButtonPrimary</item>
         <item name="colorSecondaryVariant">@color/poButtonPrimary</item>
         <item name="colorOnSecondary">@color/poButtonTextPrimary</item>
+        <item name="colorSurface">@color/poBackgroundPrimary</item>
         <item name="colorOnSurface">@color/poTextDisabled</item>
         <item name="android:colorBackground">@color/poBackgroundPrimary</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.ProcessOut.BottomSheetDialog</item>
         <item name="materialButtonStyle">@style/Widget.ProcessOut.Button</item>
         <item name="textAppearanceButton">@style/TextAppearance.ProcessOut.Action.Default.Medium</item>
+        <item name="circularProgressIndicatorStyle">@style/Widget.MaterialComponents.CircularProgressIndicator.Small</item>
     </style>
 
     <style name="Theme.ProcessOut.Default.Input">
@@ -33,9 +35,10 @@
         <item name="poCodeEditTextStyle">@style/Widget.ProcessOut.CodeEditText</item>
     </style>
 
-    <style name="ThemeOverlay.ProcessOut.BottomSheetDialog" parent="">
-        <item name="android:windowAnimationStyle">@style/Animation.MaterialComponents.BottomSheetDialog</item>
+    <style name="ThemeOverlay.ProcessOut.BottomSheetDialog" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
         <item name="android:windowSoftInputMode">adjustResize</item>
+        <item name="colorSurface">@android:color/transparent</item>
+        <item name="bottomSheetStyle">@style/Widget.ProcessOut.BottomSheet.Modal</item>
     </style>
 
 </resources>

@@ -1,7 +1,7 @@
 package com.processout.sdk.ui.nativeapm
 
 import android.os.Parcelable
-import com.processout.sdk.core.exception.ProcessOutException
+import com.processout.sdk.api.network.exception.ProcessOutApiError
 import kotlinx.parcelize.Parcelize
 
 sealed class PONativeAlternativePaymentMethodResult : Parcelable {
@@ -10,7 +10,10 @@ sealed class PONativeAlternativePaymentMethodResult : Parcelable {
 
     @Parcelize
     data class Failure(
-        val exception: ProcessOutException
+        val message: String,
+        val exceptionMessage: String? = null,
+        val code: Int? = null,
+        val apiError: ProcessOutApiError? = null
     ) : PONativeAlternativePaymentMethodResult()
 
     @Parcelize

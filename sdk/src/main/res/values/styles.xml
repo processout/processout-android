@@ -1,6 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <style name="Widget.ProcessOut.BottomSheet.Modal" parent="Widget.MaterialComponents.BottomSheet.Modal">
+        <item name="android:elevation">0dp</item>
+        <item name="backgroundTint">@android:color/transparent</item>
+    </style>
+
+    <style name="Widget.ProcessOut.Title" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textColor">@color/poTextPrimary</item>
+        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Title.Default</item>
+    </style>
+
+    <style name="Widget.ProcessOut.Body.Medium" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textColor">@color/poTextPrimary</item>
+        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Body.Default.Medium</item>
+    </style>
+
+    <style name="Widget.ProcessOut.Input.Title" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textColor">@color/poTextPrimary</item>
+        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Input.Label</item>
+    </style>
+
+    <style name="Widget.ProcessOut.Input.ErrorMessage" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textColor">@color/poTextError</item>
+        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Body.Small.Medium</item>
+    </style>
+
     <style name="Widget.ProcessOut.EditText" parent="Widget.AppCompat.EditText">
         <item name="android:textColor">@color/poTextPrimary</item>
         <item name="android:textColorHint">@color/poTextDisabled</item>
@@ -21,16 +46,6 @@
         <item name="android:maxLength">1</item>
         <item name="android:textColor">@color/poTextPrimary</item>
         <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Title.Large</item>
-    </style>
-
-    <style name="Widget.ProcessOut.Input.Title" parent="Widget.MaterialComponents.TextView">
-        <item name="android:textColor">@color/poTextPrimary</item>
-        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Input.Label</item>
-    </style>
-
-    <style name="Widget.ProcessOut.Input.ErrorMessage" parent="Widget.MaterialComponents.TextView">
-        <item name="android:textColor">@color/poTextError</item>
-        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Body.Small.Medium</item>
     </style>
 
     <style name="Widget.ProcessOut.Button" parent="Widget.MaterialComponents.Button">
