@@ -4,6 +4,7 @@ plugins {
     id 'org.jetbrains.dokka'
     id 'kotlin-parcelize'
     id 'com.google.devtools.ksp'
+    id 'maven-publish'
 }
 
 android {
@@ -64,6 +65,13 @@ android {
             }
         }
     }
+
+    publishing {
+        singleVariant("prodRelease") {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
 }
 
 def setVersion(buildType) {
@@ -99,4 +107,18 @@ dependencies {
     testImplementation "androidx.test:core-ktx:$androidTestCoreKtxVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidTestJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidTestEspressoVersion"
+}
+
+publishing {
+    publications {
+        prodRelease(MavenPublication) {
+            groupId = 'com.github.processout'
+            artifactId = 'android-v2'
+            version = file('../version.resolved').getText()
+
+            afterEvaluate {
+                from components.prodRelease
+            }
+        }
+    }
 }

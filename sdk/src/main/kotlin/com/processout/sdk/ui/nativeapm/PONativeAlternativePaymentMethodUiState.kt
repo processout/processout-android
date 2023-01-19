@@ -24,12 +24,13 @@ internal sealed class PONativeAlternativePaymentMethodUiState {
 }
 
 internal data class PONativeAlternativePaymentMethodUiModel(
-    val displayName: String,
+    val title: String,
     val logoUrl: String,
+    val inputParameters: List<InputParameter>,
+    val successMessage: String,
+    val failureMessage: String? = null,
     val customerActionMessage: String?,
     val customerActionImageUrl: String?,
-    val inputParameters: List<InputParameter>,
-    val failureMessage: String? = null,
     val submitButtonText: String,
     val isSubmitAllowed: Boolean,
     val isSubmitting: Boolean

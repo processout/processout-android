@@ -8,8 +8,6 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.DialogInterface.OnShowListener
 import android.content.Intent
-import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -60,13 +58,13 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
 
     private var configuration: PONativeAlternativePaymentMethodConfiguration? = null
 
-    @Suppress("DEPRECATION")
     private val viewModel: PONativeAlternativePaymentMethodViewModel by viewModels {
         PONativeAlternativePaymentMethodViewModel.Factory(
             requireActivity().application,
             configuration?.gatewayConfigurationId ?: String(),
             configuration?.invoiceId ?: String(),
-            configuration?.options ?: PONativeAlternativePaymentMethodConfiguration.Options()
+            configuration?.options ?: PONativeAlternativePaymentMethodConfiguration.Options(),
+            configuration?.uiConfiguration
         )
     }
 
@@ -76,7 +74,8 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     private var _bindingCapture: PoBottomSheetCaptureBinding? = null
     private val bindingCapture get() = _bindingCapture!!
 
-    private val bottomSheetBehavior by lazy { (requireDialog() as BottomSheetDialog).behavior }
+    private val bottomSheetDialog by lazy { requireDialog() as BottomSheetDialog }
+    private val bottomSheetBehavior by lazy { bottomSheetDialog.behavior }
     private val displayHeight by lazy { resources.displayMetrics.heightPixels }
     private val maxPeekHeight by lazy { (displayHeight * 0.75).roundToInt() }
     private val minPeekHeight by lazy { resources.getDimensionPixelSize(R.dimen.po_bottomSheet_minHeight) }
@@ -107,6 +106,9 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         val view = inflater.cloneInContext(contextThemeWrapper)
             .inflate(R.layout.po_bottom_sheet_native_apm, container, false)
         _binding = PoBottomSheetNativeApmBinding.bind(view)
+        configuration?.style?.run {
+            binding.applyStyle(this)
+        }
         return binding.root
     }
 
@@ -115,7 +117,11 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         clipRootToOutline()
         dispatchBackPressed()
 
-        requireDialog().setOnShowListener(this)
+        with(bottomSheetDialog) {
+            isCancelable = viewModel.options.isBottomSheetCancelable
+            setOnShowListener(this@PONativeAlternativePaymentMethodBottomSheet)
+        }
+
         binding.poSubmitButton.setOnClickListener { onSubmitClick() }
 
         lifecycleScope.launch {
@@ -259,7 +265,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             binding.poSubmitButton.visibility = View.VISIBLE
         }
 
-        binding.poTitle.text = uiModel.displayName
+        binding.poTitle.text = uiModel.title
         bindSubmitButton(uiModel)
         bindInputs(uiModel.inputParameters)
     }
@@ -312,9 +318,17 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         val input = if (inputParameter.parameter.type == ParameterType.numeric &&
             length != null && length in CodeInput.LENGTH_MIN..CodeInput.LENGTH_MAX
         ) {
-            CodeInput(requireContext(), inputParameter = inputParameter)
+            CodeInput(
+                requireContext(),
+                inputParameter = inputParameter,
+                style = configuration?.style?.codeInput
+            )
         } else {
-            TextInput(requireContext(), inputParameter = inputParameter)
+            TextInput(
+                requireContext(),
+                inputParameter = inputParameter,
+                style = configuration?.style?.input
+            )
         }
 
         input.doAfterValueChanged { value ->
@@ -355,6 +369,9 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                     binding.poContainer, true
                 ).also {
                     _bindingCapture = PoBottomSheetCaptureBinding.bind(it)
+                    configuration?.style?.run {
+                        bindingCapture.applyStyle(this)
+                    }
                 }
             }
         }
@@ -382,11 +399,11 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
 
     private fun bindCapture(uiModel: PONativeAlternativePaymentMethodUiModel) {
         initCaptureView()
+        bindingCapture.poMessage.text = uiModel.customerActionMessage
         bindingCapture.poLogo.load(uiModel.logoUrl)
         bindingCapture.poActionImage.load(uiModel.customerActionImageUrl)
         bindingCapture.poActionImage.visibility = View.VISIBLE
         bindingCapture.poSuccessImage.visibility = View.GONE
-        bindingCapture.poMessage.text = uiModel.customerActionMessage
     }
 
     private fun handleSuccess(uiModel: PONativeAlternativePaymentMethodUiModel) {
@@ -394,8 +411,12 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             Activity.RESULT_OK,
             PONativeAlternativePaymentMethodResult.Success
         )
-        handler.postDelayed({ finish() }, SUCCESS_FINISH_DELAY_MS)
-        showSuccess(uiModel)
+        if (viewModel.options.waitsPaymentConfirmation) {
+            handler.postDelayed({ finish() }, SUCCESS_FINISH_DELAY_MS)
+            showSuccess(uiModel)
+        } else {
+            finish()
+        }
     }
 
     private fun showSuccess(uiModel: PONativeAlternativePaymentMethodUiModel) {
@@ -410,7 +431,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                 ANIMATION_DURATION_MS
             )
 
-            bindingCapture.poBackground.animate()
+            bindingCapture.poBackgroundDecoration.animate()
                 .alpha(0f)
                 .setDuration(ANIMATION_DURATION_MS)
                 .setListener(object : AnimatorListenerAdapter() {
@@ -419,7 +440,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                         adjustPeekHeight(animate = true)
                         fadeIn(
                             listOf(
-                                bindingCapture.poBackground,
+                                bindingCapture.poBackgroundDecoration,
                                 bindingCapture.poMessage,
                                 bindingCapture.poSuccessImage
                             ),
@@ -433,28 +454,23 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     }
 
     private fun bindSuccess(uiModel: PONativeAlternativePaymentMethodUiModel) {
-        bindSuccessBackground()
+        configuration?.style?.backgroundDecoration?.let {
+            bindingCapture.poBackgroundDecoration.applyStyle(it.success)
+        } ?: bindingCapture.poBackgroundDecoration.setBackgroundDecoration(
+            innerColor = ContextCompat.getColor(requireContext(), R.color.poBackgroundSuccessDark),
+            outerColor = ContextCompat.getColor(requireContext(), R.color.poBackgroundSuccessLight)
+        )
+
+        configuration?.style?.successMessage?.let {
+            bindingCapture.poMessage.applyStyle(it)
+        } ?: bindingCapture.poMessage.setTextColor(
+            ContextCompat.getColor(requireContext(), R.color.poTextSuccess)
+        )
+
+        bindingCapture.poMessage.text = uiModel.successMessage
         bindingCapture.poLogo.load(uiModel.logoUrl)
         bindingCapture.poActionImage.visibility = View.GONE
         bindingCapture.poSuccessImage.visibility = View.VISIBLE
-        bindingCapture.poMessage.text = getString(R.string.po_native_apm_success_message)
-        bindingCapture.poMessage.setTextColor(
-            ContextCompat.getColor(requireContext(), R.color.poTextSuccess)
-        )
-    }
-
-    private fun bindSuccessBackground() {
-        (bindingCapture.poBackground.background as LayerDrawable).apply {
-            mutate()
-            (findDrawableByLayerId(R.id.po_background_layer_inner) as GradientDrawable).apply {
-                mutate()
-                setColor(ContextCompat.getColor(requireContext(), R.color.poBackgroundSuccessDark))
-            }
-            (findDrawableByLayerId(R.id.po_background_layer_outer) as GradientDrawable).apply {
-                mutate()
-                setColor(ContextCompat.getColor(requireContext(), R.color.poBackgroundSuccessLight))
-            }
-        }
     }
 
     private fun handleFailure(message: String, cause: Exception?) {
@@ -488,7 +504,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             binding.poContainer.animate().setListener(null)
         }
         if (_bindingCapture != null) {
-            bindingCapture.poBackground.animate().setListener(null)
+            bindingCapture.poBackgroundDecoration.animate().setListener(null)
         }
     }
 
@@ -499,7 +515,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     }
 
     private fun dispatchBackPressed() {
-        (requireDialog() as BottomSheetDialog).onBackPressedDispatcher.addCallback(this) {
+        bottomSheetDialog.onBackPressedDispatcher.addCallback(this) {
             finishWithActivityResult(
                 PONativeAlternativePaymentMethodResult.Canceled
             )

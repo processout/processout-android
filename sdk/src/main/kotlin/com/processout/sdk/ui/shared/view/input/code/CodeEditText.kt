@@ -1,40 +1,71 @@
 package com.processout.sdk.ui.shared.view.input.code
 
 import android.content.Context
+import android.graphics.Color
+import android.os.Build
 import android.text.InputType
 import android.util.AttributeSet
-import android.view.ViewGroup
+import android.view.*
 import android.view.inputmethod.EditorInfo
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatEditText
 import com.processout.sdk.R
-import com.processout.sdk.ui.shared.view.extensions.outline
+import com.processout.sdk.ui.nativeapm.applyStyle
+import com.processout.sdk.ui.shared.style.input.POInputStyle
+import com.processout.sdk.ui.shared.view.extensions.defaultOutlineBackground
+import com.processout.sdk.ui.shared.view.extensions.outlineBackground
 import com.processout.sdk.ui.shared.view.input.Input
 import kotlin.math.roundToInt
 
 internal class CodeEditText(
     context: Context,
-    attrs: AttributeSet? = null
+    attrs: AttributeSet? = null,
+    override val style: POInputStyle? = null
 ) : AppCompatEditText(
     ContextThemeWrapper(context, R.style.Theme_ProcessOut_Default_Input),
     attrs,
     R.attr.poCodeEditTextStyle
-), Input {
+), Input, ActionMode.Callback {
 
-    private val defaultBackground = outline(context, R.color.poBorderPrimary)
-    private val errorBackground = outline(context, R.color.poBorderError)
+    constructor(context: Context) : this(context, null)
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, null)
+
+    private var defaultBackground = defaultOutlineBackground(context, R.color.poBorderPrimary)
+    private var errorBackground = defaultOutlineBackground(context, R.color.poBorderError)
 
     init {
         initLayoutParams()
-        inputType = InputType.TYPE_CLASS_NUMBER
+        disableActionMode()
+        inputType = InputType.TYPE_CLASS_NUMBER or
+                InputType.TYPE_NUMBER_VARIATION_NORMAL or
+                InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
         imeOptions = EditorInfo.IME_ACTION_DONE
+        isLongClickable = false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO
+        }
+
+        highlightColor = Color.TRANSPARENT
+        style?.normal?.field?.let {
+            defaultBackground = outlineBackground(context, it)
+        }
+        style?.error?.field?.let {
+            errorBackground = outlineBackground(context, it)
+        }
+
         setState(Input.State.Default)
     }
 
     override fun setState(state: Input.State) {
-        background = when (state) {
-            Input.State.Default -> defaultBackground
-            is Input.State.Error -> errorBackground
+        when (state) {
+            Input.State.Default -> {
+                background = defaultBackground
+                style?.normal?.field?.text?.let { applyStyle(it) }
+            }
+            is Input.State.Error -> {
+                background = errorBackground
+                style?.error?.field?.text?.let { applyStyle(it) }
+            }
         }
     }
 
@@ -49,4 +80,23 @@ internal class CodeEditText(
             layoutParams = params
         }
     }
+
+    private fun disableActionMode() {
+        customSelectionActionModeCallback = this
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            customInsertionActionModeCallback = this
+        }
+    }
+
+    override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+        menu.clear()
+        menu.close()
+        mode.finish()
+        return false
+    }
+
+    override fun onPrepareActionMode(mode: ActionMode, menu: Menu) = false
+    override fun onActionItemClicked(mode: ActionMode, item: MenuItem) = false
+    override fun onDestroyActionMode(mode: ActionMode) {}
+    override fun isSuggestionsEnabled() = false
 }

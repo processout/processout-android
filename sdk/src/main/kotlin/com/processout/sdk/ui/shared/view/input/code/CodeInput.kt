@@ -12,7 +12,10 @@ import androidx.appcompat.view.ContextThemeWrapper
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.widget.doAfterTextChanged
 import com.processout.sdk.R
+import com.processout.sdk.ui.nativeapm.applyStyle
 import com.processout.sdk.ui.shared.model.InputParameter
+import com.processout.sdk.ui.shared.style.input.POInputStateStyle
+import com.processout.sdk.ui.shared.style.input.POInputStyle
 import com.processout.sdk.ui.shared.view.extensions.requestFocusAndShowKeyboard
 import com.processout.sdk.ui.shared.view.input.Input
 import com.processout.sdk.ui.shared.view.input.InputComponent
@@ -20,11 +23,12 @@ import com.processout.sdk.ui.shared.view.input.InputComponent
 internal class CodeInput(
     context: Context,
     attrs: AttributeSet? = null,
-    override val inputParameter: InputParameter? = null
+    override val inputParameter: InputParameter? = null,
+    override val style: POInputStyle? = null
 ) : ConstraintLayout(context, attrs, 0), InputComponent {
 
     constructor(context: Context) : this(context, null)
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, null)
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, null, null)
 
     companion object {
         const val LENGTH_MIN = 1
@@ -101,7 +105,7 @@ internal class CodeInput(
     }
 
     private fun addEditText(index: Int) {
-        val editText = CodeEditText(context)
+        val editText = CodeEditText(context, style = style)
         editTexts.add(index, editText)
         container.addView(editText)
     }
@@ -110,17 +114,17 @@ internal class CodeInput(
         editTexts.forEach {
             it.setState(state)
         }
-
         when (state) {
             Input.State.Default -> {
+                style?.normal?.let { applyStateStyle(it) }
                 errorMessage.visibility = View.INVISIBLE
             }
             is Input.State.Error -> {
+                style?.error?.let { applyStateStyle(it) }
                 errorMessage.text = state.message
                 errorMessage.visibility = View.VISIBLE
             }
         }
-
         this.state = state
     }
 
@@ -223,4 +227,9 @@ internal class CodeInput(
     }
 
     private fun isNotFilled() = isFilled().not()
+
+    private fun applyStateStyle(stateStyle: POInputStateStyle) {
+        title.applyStyle(stateStyle.title)
+        errorMessage.applyStyle(stateStyle.description)
+    }
 }

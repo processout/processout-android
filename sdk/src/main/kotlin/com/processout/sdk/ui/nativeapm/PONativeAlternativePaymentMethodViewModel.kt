@@ -19,6 +19,7 @@ import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodSta
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails
 import com.processout.sdk.api.repository.InvoicesRepository
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options.Companion.MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
 import com.processout.sdk.ui.shared.model.InputParameter
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -33,7 +34,8 @@ internal class PONativeAlternativePaymentMethodViewModel(
     private val app: Application,
     private val gatewayConfigurationId: String,
     private val invoiceId: String,
-    private val options: PONativeAlternativePaymentMethodConfiguration.Options,
+    val options: PONativeAlternativePaymentMethodConfiguration.Options,
+    private val uiConfiguration: PONativeAlternativePaymentMethodConfiguration.UiConfiguration?,
     private val invoicesRepository: InvoicesRepository
 ) : AndroidViewModel(app) {
 
@@ -41,7 +43,8 @@ internal class PONativeAlternativePaymentMethodViewModel(
         private val app: Application,
         private val gatewayConfigurationId: String,
         private val invoiceId: String,
-        private val options: PONativeAlternativePaymentMethodConfiguration.Options
+        private val options: PONativeAlternativePaymentMethodConfiguration.Options,
+        private val uiConfiguration: PONativeAlternativePaymentMethodConfiguration.UiConfiguration?
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
@@ -49,9 +52,16 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 app,
                 gatewayConfigurationId,
                 invoiceId,
-                options,
+                options.validate(),
+                uiConfiguration,
                 ProcessOutApi.instance.invoices
             ) as T
+
+        private fun PONativeAlternativePaymentMethodConfiguration.Options.validate() = copy(
+            paymentConfirmationTimeoutSeconds =
+            if (paymentConfirmationTimeoutSeconds in 0..MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS)
+                paymentConfirmationTimeoutSeconds else MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
+        )
     }
 
     companion object {
@@ -85,11 +95,13 @@ internal class PONativeAlternativePaymentMethodViewModel(
                     } else {
                         val uiModel = result.value.toUiModel()
 
-                        val deferreds = mutableListOf(async { preloadImage(uiModel.logoUrl) })
-                        uiModel.customerActionImageUrl?.let {
-                            deferreds.add(async { preloadImage(it) })
+                        if (options.waitsPaymentConfirmation) {
+                            val deferreds = mutableListOf(async { preloadImage(uiModel.logoUrl) })
+                            uiModel.customerActionImageUrl?.let {
+                                deferreds.add(async { preloadImage(it) })
+                            }
+                            deferreds.awaitAll()
                         }
-                        deferreds.awaitAll()
 
                         _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(uiModel)
                     }
@@ -169,11 +181,17 @@ internal class PONativeAlternativePaymentMethodViewModel(
                             }
                         }
                         PONativeAlternativePaymentMethodState.PENDING_CAPTURE -> {
-                            animateViewTransition = true
-                            _uiState.value = PONativeAlternativePaymentMethodUiState.Capture(
-                                uiModel.copy()
-                            )
-                            startCapturePolling()
+                            if (options.waitsPaymentConfirmation) {
+                                animateViewTransition = true
+                                _uiState.value = PONativeAlternativePaymentMethodUiState.Capture(
+                                    uiModel.copy()
+                                )
+                                startCapturePolling()
+                            } else {
+                                _uiState.value = PONativeAlternativePaymentMethodUiState.Success(
+                                    uiModel.copy()
+                                )
+                            }
                         }
                     }
                 is ProcessOutResult.Failure ->
@@ -227,12 +245,16 @@ internal class PONativeAlternativePaymentMethodViewModel(
 
     private fun PONativeAlternativePaymentMethodTransactionDetails.toUiModel() =
         PONativeAlternativePaymentMethodUiModel(
-            displayName = app.getString(R.string.po_native_apm_title_format, gateway.displayName),
+            title = uiConfiguration?.title
+                ?: app.getString(R.string.po_native_apm_title_format, gateway.displayName),
             logoUrl = gateway.logoUrl,
+            inputParameters = parameters?.toInputParameters() ?: emptyList(),
+            successMessage = uiConfiguration?.successMessage
+                ?: app.getString(R.string.po_native_apm_success_message),
             customerActionMessage = gateway.customerActionMessage,
             customerActionImageUrl = gateway.customerActionImageUrl,
-            inputParameters = parameters?.toInputParameters() ?: emptyList(),
-            submitButtonText = options.buttonTitle ?: invoice.formatPrice(),
+            submitButtonText = uiConfiguration?.submitButtonText
+                ?: invoice.submitButtonTextWithFormattedPrice(),
             isSubmitAllowed = false,
             isSubmitting = false
         )
@@ -240,7 +262,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
     private fun List<PONativeAlternativePaymentMethodParameter>.toInputParameters() =
         map { InputParameter(parameter = it) }
 
-    private fun PONativeAlternativePaymentMethodTransactionDetails.Invoice.formatPrice() =
+    private fun PONativeAlternativePaymentMethodTransactionDetails.Invoice.submitButtonTextWithFormattedPrice() =
         try {
             val price = NumberFormat.getCurrencyInstance().apply {
                 currency = Currency.getInstance(currencyCode)

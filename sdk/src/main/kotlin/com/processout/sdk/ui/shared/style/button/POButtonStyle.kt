@@ -7,8 +7,9 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class POButtonStyle(
     val normal: POButtonStateStyle,
-    val highlighted: POButtonStateStyle,
     val disabled: POButtonStateStyle,
+    @ColorInt
+    val highlightedBackgroundColor: Int,
     @ColorInt
     val progressIndicatorColor: Int
 ) : Parcelable

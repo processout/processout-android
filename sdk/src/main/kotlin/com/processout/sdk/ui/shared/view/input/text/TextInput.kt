@@ -12,8 +12,12 @@ import androidx.appcompat.view.ContextThemeWrapper
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.widget.doAfterTextChanged
 import com.processout.sdk.R
+import com.processout.sdk.ui.nativeapm.applyStyle
 import com.processout.sdk.ui.shared.model.InputParameter
-import com.processout.sdk.ui.shared.view.extensions.outline
+import com.processout.sdk.ui.shared.style.input.POInputStateStyle
+import com.processout.sdk.ui.shared.style.input.POInputStyle
+import com.processout.sdk.ui.shared.view.extensions.defaultOutlineBackground
+import com.processout.sdk.ui.shared.view.extensions.outlineBackground
 import com.processout.sdk.ui.shared.view.extensions.requestFocusAndShowKeyboard
 import com.processout.sdk.ui.shared.view.input.Input
 import com.processout.sdk.ui.shared.view.input.InputComponent
@@ -21,7 +25,8 @@ import com.processout.sdk.ui.shared.view.input.InputComponent
 internal class TextInput(
     context: Context,
     attrs: AttributeSet? = null,
-    override val inputParameter: InputParameter? = null
+    override val inputParameter: InputParameter? = null,
+    override val style: POInputStyle? = null
 ) : ConstraintLayout(context, attrs, 0), InputComponent {
 
     constructor(context: Context) : this(context, null)
@@ -33,8 +38,8 @@ internal class TextInput(
     private val editText: EditText
     private val errorMessage: TextView
 
-    private val defaultBackground = outline(context, R.color.poBorderPrimary)
-    private val errorBackground = outline(context, R.color.poBorderError)
+    private var defaultBackground = defaultOutlineBackground(context, R.color.poBorderPrimary)
+    private var errorBackground = defaultOutlineBackground(context, R.color.poBorderError)
 
     private var afterValueChanged: ((String) -> Unit)? = null
     private var keyboardSubmitClick: (() -> Unit)? = null
@@ -54,6 +59,13 @@ internal class TextInput(
         title = findViewById(R.id.po_title)
         editText = findViewById(R.id.po_edit_text)
         errorMessage = findViewById(R.id.po_error_message)
+
+        style?.normal?.field?.let {
+            defaultBackground = outlineBackground(context, it)
+        }
+        style?.error?.field?.let {
+            errorBackground = outlineBackground(context, it)
+        }
 
         setListeners()
         initWithInputParameters()
@@ -92,10 +104,12 @@ internal class TextInput(
     override fun setState(state: Input.State) {
         when (state) {
             Input.State.Default -> {
+                style?.normal?.let { applyStateStyle(it) }
                 editText.background = defaultBackground
                 errorMessage.visibility = View.INVISIBLE
             }
             is Input.State.Error -> {
+                style?.error?.let { applyStateStyle(it) }
                 editText.background = errorBackground
                 errorMessage.text = state.message
                 errorMessage.visibility = View.VISIBLE
@@ -115,5 +129,14 @@ internal class TextInput(
 
     override fun requestFocusAndShowKeyboard() {
         editText.requestFocusAndShowKeyboard()
+    }
+
+    private fun applyStateStyle(stateStyle: POInputStateStyle) {
+        title.applyStyle(stateStyle.title)
+        editText.applyStyle(stateStyle.field.text)
+        stateStyle.field.hintTextColor?.let {
+            editText.setHintTextColor(it)
+        }
+        errorMessage.applyStyle(stateStyle.description)
     }
 }

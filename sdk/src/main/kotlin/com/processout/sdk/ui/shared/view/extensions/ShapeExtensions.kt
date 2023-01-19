@@ -7,10 +7,12 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.view.View
 import android.view.ViewOutlineProvider
+import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
 import androidx.core.content.ContextCompat
 import com.processout.sdk.R
+import com.processout.sdk.ui.shared.style.input.POInputFieldStyle
 
 internal class TopRoundedCornersOutlineProvider(
     @DimenRes
@@ -26,15 +28,34 @@ internal class TopRoundedCornersOutlineProvider(
     }
 }
 
-internal fun outline(
-    context: Context,
-    @ColorRes borderColorRes: Int
+internal fun outlineBackground(
+    cornerRadiusPx: Float,
+    borderWidthPx: Int,
+    @ColorInt borderColor: Int,
+    @ColorInt backgroundColor: Int
 ): Drawable = GradientDrawable().apply {
     shape = GradientDrawable.RECTANGLE
-    cornerRadius = context.resources.getDimensionPixelSize(R.dimen.po_cornerRadius).toFloat()
-    setStroke(
-        context.resources.getDimensionPixelSize(R.dimen.po_borderWidth),
-        ContextCompat.getColor(context, borderColorRes)
-    )
-    setColor(Color.TRANSPARENT)
+    cornerRadius = cornerRadiusPx
+    setStroke(borderWidthPx, borderColor)
+    setColor(backgroundColor)
 }
+
+internal fun outlineBackground(
+    context: Context,
+    style: POInputFieldStyle
+): Drawable = outlineBackground(
+    style.border.radiusDp.dpToPx(context).toFloat(),
+    style.border.widthDp.dpToPx(context),
+    style.border.color,
+    style.backgroundColor
+)
+
+internal fun defaultOutlineBackground(
+    context: Context,
+    @ColorRes borderColorRes: Int
+): Drawable = outlineBackground(
+    context.resources.getDimensionPixelSize(R.dimen.po_cornerRadius).toFloat(),
+    context.resources.getDimensionPixelSize(R.dimen.po_borderWidth),
+    ContextCompat.getColor(context, borderColorRes),
+    Color.TRANSPARENT
+)
