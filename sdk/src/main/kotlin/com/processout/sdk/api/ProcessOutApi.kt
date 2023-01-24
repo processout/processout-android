@@ -1,6 +1,7 @@
 package com.processout.sdk.api
 
-import android.content.Context
+import com.processout.processout_sdk.ProcessOut
+import com.processout.processout_sdk.ProcessOutAccessor
 import com.processout.sdk.BuildConfig
 import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.api.network.NetworkConfiguration
@@ -27,7 +28,10 @@ class ProcessOutApi private constructor(
         lateinit var instance: ProcessOutApi
             private set
 
-        fun configure(configuration: Configuration) {
+        lateinit var legacyInstance: ProcessOut
+            private set
+
+        fun configure(configuration: ProcessOutApiConfiguration) {
             if (::instance.isInitialized)
                 throw ProcessOutException("Already configured.")
 
@@ -42,7 +46,7 @@ class ProcessOutApi private constructor(
                         )
                     ),
                     contextGraph = ContextGraphImpl(
-                        context = configuration.context.applicationContext
+                        application = configuration.application
                     )
                 ),
                 providerGraph = ProviderGraphImpl(
@@ -64,17 +68,13 @@ class ProcessOutApi private constructor(
                     )
                 }.value
             }
+
+            legacyInstance = lazy {
+                ProcessOutAccessor.initLegacyProcessOut(
+                    configuration.application,
+                    configuration.projectId
+                )
+            }.value
         }
     }
-
-    data class Configuration(
-        val context: Context,
-        val projectId: String,
-        /**
-         * __Warning: only for testing purposes.__
-         *
-         * Storing private key inside application is extremely dangerous and highly discouraged.
-         */
-        internal val privateKey: String = String()
-    )
 }

@@ -49,4 +49,9 @@ ext {
     androidTestCoreKtxVersion = '1.5.0'
     androidTestJunitVersion = '1.1.5'
     androidTestEspressoVersion = '3.5.1'
+    androidTestRulesVersion = '1.5.0'
+
+    // Legacy
+    volleyVersion = '1.2.1'
+    gsonVersion = '2.9.1'
 }

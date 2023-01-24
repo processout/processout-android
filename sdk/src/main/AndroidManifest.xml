@@ -9,6 +9,8 @@
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.ProcessOut.Default" />
+
+        <activity android:name="com.processout.processout_sdk.TestActivity" />
     </application>
 
 </manifest>
