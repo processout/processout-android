@@ -11,8 +11,7 @@ class ProcessOutExampleApplication : Application() {
         ProcessOutApi.configure(
             ProcessOutApiConfiguration(
                 this,
-                "proj_",
-                "key_test"
+                "proj_"
             )
         )
     }
