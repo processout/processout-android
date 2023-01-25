@@ -1,11 +1,11 @@
 package com.processout.sdk.api.repository
 
-import androidx.annotation.RestrictTo
 import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.network.InvoicesApi
 import com.processout.sdk.api.repository.shared.parseResponse
 import com.processout.sdk.core.ProcessOutCallback
+import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.core.map
 import com.processout.sdk.di.ContextGraph
 import com.squareup.moshi.Moshi
@@ -86,7 +86,7 @@ internal class InvoicesRepositoryImpl(
 
     // <--- Calls meant to be used for testing --->
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @ProcessOutInternalApi
     override suspend fun createInvoice(request: POCreateInvoiceRequest) =
         apiCall { api.createInvoice(request) }.map { it.invoice }
 }

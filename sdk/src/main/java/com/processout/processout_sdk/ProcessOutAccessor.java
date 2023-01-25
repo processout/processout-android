@@ -2,12 +2,12 @@ package com.processout.processout_sdk;
 
 import android.app.Application;
 
-import androidx.annotation.RestrictTo;
+import com.processout.sdk.core.annotation.ProcessOutInternalApi;
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ProcessOutInternalApi
 public final class ProcessOutAccessor {
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @ProcessOutInternalApi
     public static ProcessOut initLegacyProcessOut(Application application, String projectId) {
         return new ProcessOut(application, projectId);
     }

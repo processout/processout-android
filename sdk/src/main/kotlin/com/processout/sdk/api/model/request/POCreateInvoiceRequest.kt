@@ -1,9 +1,9 @@
 package com.processout.sdk.api.model.request
 
-import androidx.annotation.RestrictTo
+import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.squareup.moshi.JsonClass
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ProcessOutInternalApi
 @JsonClass(generateAdapter = true)
 data class POCreateInvoiceRequest(
     val name: String,

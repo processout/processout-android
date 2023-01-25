@@ -1,15 +1,12 @@
 package com.processout.sdk.api
 
 import android.app.Application
+import com.processout.sdk.core.annotation.ProcessOutInternalApi
 
 data class ProcessOutApiConfiguration(
     val application: Application,
     val projectId: String
 ) {
-    /**
-     * __Warning: only for testing purposes.__
-     *
-     * Storing private key inside application is extremely dangerous and highly discouraged.
-     */
+    @ProcessOutInternalApi
     internal val privateKey: String = String()
 }

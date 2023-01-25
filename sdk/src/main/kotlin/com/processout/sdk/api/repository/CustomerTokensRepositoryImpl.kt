@@ -1,6 +1,5 @@
 package com.processout.sdk.api.repository
 
-import androidx.annotation.RestrictTo
 import com.processout.sdk.api.model.request.POCreateCustomerRequest
 import com.processout.sdk.api.model.request.POCustomerTokenRequest
 import com.processout.sdk.api.model.request.POCustomerTokenRequestWithDeviceData
@@ -10,6 +9,7 @@ import com.processout.sdk.api.model.response.POCustomerTokenResponse
 import com.processout.sdk.api.network.CustomerTokensApi
 import com.processout.sdk.api.repository.shared.parseResponse
 import com.processout.sdk.core.ProcessOutCallback
+import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.core.map
 import com.processout.sdk.di.ContextGraph
 import com.squareup.moshi.Moshi
@@ -39,11 +39,11 @@ internal class CustomerTokensRepositoryImpl(
 
     // <--- Calls meant to be used for testing --->
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @ProcessOutInternalApi
     override suspend fun createCustomerToken(customerId: String) =
         apiCall { api.createCustomerToken(customerId) }.map { it.toModel(moshi) }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @ProcessOutInternalApi
     override fun createCustomerToken(
         customerId: String,
         callback: ProcessOutCallback<POCustomerToken>
@@ -51,7 +51,7 @@ internal class CustomerTokensRepositoryImpl(
         api.createCustomerToken(customerId)
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @ProcessOutInternalApi
     override suspend fun createCustomer(request: POCreateCustomerRequest) =
         apiCall { api.createCustomer(request) }.map { it.customer }
 }

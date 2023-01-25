@@ -1,6 +1,6 @@
 package com.processout.sdk.api.model.response
 
-import androidx.annotation.RestrictTo
+import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -9,7 +9,7 @@ internal data class POCustomerResponse(
     val customer: POCustomer
 )
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ProcessOutInternalApi
 @JsonClass(generateAdapter = true)
 data class POCustomer(
     val id: String,

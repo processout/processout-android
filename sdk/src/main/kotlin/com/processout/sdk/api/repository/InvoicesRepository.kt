@@ -1,6 +1,5 @@
 package com.processout.sdk.api.repository
 
-import androidx.annotation.RestrictTo
 import com.processout.sdk.api.model.request.POCreateInvoiceRequest
 import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
 import com.processout.sdk.api.model.request.POInvoiceAuthorizationSuccess
@@ -11,6 +10,7 @@ import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethod
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.annotation.ProcessOutInternalApi
 
 interface InvoicesRepository {
 
@@ -56,6 +56,6 @@ interface InvoicesRepository {
         callback: ProcessOutCallback<PONativeAlternativePaymentMethodTransactionDetails>
     )
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @ProcessOutInternalApi
     suspend fun createInvoice(request: POCreateInvoiceRequest): ProcessOutResult<POInvoice>
 }
