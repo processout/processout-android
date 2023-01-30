@@ -5,8 +5,12 @@ import android.graphics.Color
 import android.os.Build
 import android.text.InputType
 import android.util.AttributeSet
-import android.view.*
+import android.view.ActionMode
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.widget.LinearLayout
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatEditText
 import com.processout.sdk.R
@@ -71,7 +75,7 @@ internal class CodeEditText(
 
     private fun initLayoutParams() {
         with(resources) {
-            val params = ViewGroup.MarginLayoutParams(
+            val params = LinearLayout.LayoutParams(
                 getDimensionPixelSize(R.dimen.po_codeEditText_width),
                 getDimensionPixelSize(R.dimen.po_codeEditText_height)
             )
