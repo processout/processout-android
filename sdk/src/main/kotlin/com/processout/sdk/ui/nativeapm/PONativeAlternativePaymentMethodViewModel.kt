@@ -35,7 +35,6 @@ internal class PONativeAlternativePaymentMethodViewModel(
     private val gatewayConfigurationId: String,
     private val invoiceId: String,
     val options: PONativeAlternativePaymentMethodConfiguration.Options,
-    private val uiConfiguration: PONativeAlternativePaymentMethodConfiguration.UiConfiguration?,
     private val invoicesRepository: InvoicesRepository
 ) : AndroidViewModel(app) {
 
@@ -43,8 +42,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
         private val app: Application,
         private val gatewayConfigurationId: String,
         private val invoiceId: String,
-        private val options: PONativeAlternativePaymentMethodConfiguration.Options,
-        private val uiConfiguration: PONativeAlternativePaymentMethodConfiguration.UiConfiguration?
+        private val options: PONativeAlternativePaymentMethodConfiguration.Options
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
@@ -53,7 +51,6 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 gatewayConfigurationId,
                 invoiceId,
                 options.validate(),
-                uiConfiguration,
                 ProcessOutApi.instance.invoices
             ) as T
 
@@ -245,15 +242,15 @@ internal class PONativeAlternativePaymentMethodViewModel(
 
     private fun PONativeAlternativePaymentMethodTransactionDetails.toUiModel() =
         PONativeAlternativePaymentMethodUiModel(
-            title = uiConfiguration?.title
+            title = options.title
                 ?: app.getString(R.string.po_native_apm_title_format, gateway.displayName),
             logoUrl = gateway.logoUrl,
             inputParameters = parameters?.toInputParameters() ?: emptyList(),
-            successMessage = uiConfiguration?.successMessage
+            successMessage = options.successMessage
                 ?: app.getString(R.string.po_native_apm_success_message),
             customerActionMessage = gateway.customerActionMessage,
             customerActionImageUrl = gateway.customerActionImageUrl,
-            submitButtonText = uiConfiguration?.submitButtonText
+            submitButtonText = options.submitButtonText
                 ?: invoice.submitButtonTextWithFormattedPrice(),
             isSubmitAllowed = false,
             isSubmitting = false

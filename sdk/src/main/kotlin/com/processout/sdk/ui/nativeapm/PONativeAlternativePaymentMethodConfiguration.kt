@@ -14,13 +14,19 @@ data class PONativeAlternativePaymentMethodConfiguration(
     val gatewayConfigurationId: String,
     val invoiceId: String,
     val options: Options = Options(),
-    val uiConfiguration: UiConfiguration? = null,
     val style: Style? = null
 ) : Parcelable {
 
+    /**
+     * @property skipSuccessScreen Only applies when [waitsPaymentConfirmation] is __true__.
+     */
     @Parcelize
     data class Options(
-        val isBottomSheetCancelable: Boolean = true,
+        val title: String? = null,
+        val submitButtonText: String? = null,
+        val successMessage: String? = null,
+        val skipSuccessScreen: Boolean = false,
+        val cancelableBottomSheet: Boolean = true,
         val waitsPaymentConfirmation: Boolean = true,
         val paymentConfirmationTimeoutSeconds: Int = MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
     ) : Parcelable {
@@ -28,13 +34,6 @@ data class PONativeAlternativePaymentMethodConfiguration(
             const val MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS = 180
         }
     }
-
-    @Parcelize
-    data class UiConfiguration(
-        val title: String? = null,
-        val submitButtonText: String? = null,
-        val successMessage: String? = null
-    ) : Parcelable
 
     @Parcelize
     data class Style(

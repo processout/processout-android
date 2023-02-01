@@ -63,8 +63,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             requireActivity().application,
             configuration?.gatewayConfigurationId ?: String(),
             configuration?.invoiceId ?: String(),
-            configuration?.options ?: PONativeAlternativePaymentMethodConfiguration.Options(),
-            configuration?.uiConfiguration
+            configuration?.options ?: PONativeAlternativePaymentMethodConfiguration.Options()
         )
     }
 
@@ -118,7 +117,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         dispatchBackPressed()
 
         with(bottomSheetDialog) {
-            isCancelable = viewModel.options.isBottomSheetCancelable
+            isCancelable = viewModel.options.cancelableBottomSheet
             setOnShowListener(this@PONativeAlternativePaymentMethodBottomSheet)
         }
 
@@ -411,7 +410,9 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             Activity.RESULT_OK,
             PONativeAlternativePaymentMethodResult.Success
         )
-        if (viewModel.options.waitsPaymentConfirmation) {
+        if (viewModel.options.waitsPaymentConfirmation &&
+            viewModel.options.skipSuccessScreen.not()
+        ) {
             handler.postDelayed({ finish() }, SUCCESS_FINISH_DELAY_MS)
             showSuccess(uiModel)
         } else {
