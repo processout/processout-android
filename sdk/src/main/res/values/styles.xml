@@ -36,6 +36,10 @@
         <item name="android:paddingEnd">@dimen/po_input_paddingHorizontal</item>
         <item name="android:paddingTop">@dimen/po_input_paddingVertical</item>
         <item name="android:paddingBottom">@dimen/po_input_paddingVertical</item>
+        <item name="android:textCursorDrawable">@drawable/po_text_cursor</item>
+        <item name="android:textSelectHandle">@drawable/po_text_select_handle</item>
+        <item name="android:textSelectHandleLeft">@drawable/po_text_select_handle_left</item>
+        <item name="android:textSelectHandleRight">@drawable/po_text_select_handle_right</item>
     </style>
 
     <style name="Widget.ProcessOut.CodeEditText" parent="Widget.AppCompat.EditText">
@@ -46,6 +50,10 @@
         <item name="android:maxLength">1</item>
         <item name="android:textColor">@color/poTextPrimary</item>
         <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Title.Large</item>
+        <item name="android:textCursorDrawable">@drawable/po_text_cursor</item>
+        <item name="android:textSelectHandle">@drawable/po_text_select_handle</item>
+        <item name="android:textSelectHandleLeft">@drawable/po_text_select_handle_left</item>
+        <item name="android:textSelectHandleRight">@drawable/po_text_select_handle_right</item>
     </style>
 
     <style name="Widget.ProcessOut.Button" parent="Widget.MaterialComponents.Button">

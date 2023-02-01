@@ -13,5 +13,7 @@ data class POInputFieldStyle(
     val hintTextColor: Int? = null,
     @ColorInt
     val backgroundColor: Int,
+    @ColorInt
+    val controlsTintColor: Int,
     val border: POBorderStyle
 ) : Parcelable

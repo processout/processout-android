@@ -11,9 +11,12 @@ import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.LinearLayout
+import androidx.annotation.ColorInt
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatEditText
+import androidx.core.content.ContextCompat
 import com.processout.sdk.R
+import com.processout.sdk.ui.nativeapm.applyControlsTintColor
 import com.processout.sdk.ui.nativeapm.applyStyle
 import com.processout.sdk.ui.shared.style.input.POInputStyle
 import com.processout.sdk.ui.shared.view.extensions.defaultOutlineBackground
@@ -37,6 +40,12 @@ internal class CodeEditText(
     private var defaultBackground = defaultOutlineBackground(context, R.color.poBorderPrimary)
     private var errorBackground = defaultOutlineBackground(context, R.color.poBorderError)
 
+    @ColorInt
+    private var defaultControlsTintColor = ContextCompat.getColor(context, R.color.poTextPrimary)
+
+    @ColorInt
+    private var errorControlsTintColor = ContextCompat.getColor(context, R.color.poTextError)
+
     init {
         initLayoutParams()
         disableActionMode()
@@ -52,9 +61,11 @@ internal class CodeEditText(
         highlightColor = Color.TRANSPARENT
         style?.normal?.field?.let {
             defaultBackground = outlineBackground(context, it)
+            defaultControlsTintColor = it.controlsTintColor
         }
         style?.error?.field?.let {
             errorBackground = outlineBackground(context, it)
+            errorControlsTintColor = it.controlsTintColor
         }
 
         setState(Input.State.Default)
@@ -64,10 +75,12 @@ internal class CodeEditText(
         when (state) {
             Input.State.Default -> {
                 background = defaultBackground
+                applyControlsTintColor(defaultControlsTintColor)
                 style?.normal?.field?.text?.let { applyStyle(it) }
             }
             is Input.State.Error -> {
                 background = errorBackground
+                applyControlsTintColor(errorControlsTintColor)
                 style?.error?.field?.text?.let { applyStyle(it) }
             }
         }

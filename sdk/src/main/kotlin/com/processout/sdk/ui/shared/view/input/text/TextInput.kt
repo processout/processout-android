@@ -8,10 +8,14 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.TextView
+import androidx.annotation.ColorInt
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.ColorUtils
 import androidx.core.widget.doAfterTextChanged
 import com.processout.sdk.R
+import com.processout.sdk.ui.nativeapm.applyControlsTintColor
 import com.processout.sdk.ui.nativeapm.applyStyle
 import com.processout.sdk.ui.shared.model.InputParameter
 import com.processout.sdk.ui.shared.style.input.POInputStateStyle
@@ -32,6 +36,10 @@ internal class TextInput(
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, null)
 
+    companion object {
+        private const val HIGHLIGHT_COLOR_ALPHA = 95
+    }
+
     private var state: Input.State = Input.State.Default
 
     private val title: TextView
@@ -40,6 +48,12 @@ internal class TextInput(
 
     private var defaultBackground = defaultOutlineBackground(context, R.color.poBorderPrimary)
     private var errorBackground = defaultOutlineBackground(context, R.color.poBorderError)
+
+    @ColorInt
+    private var defaultControlsTintColor = ContextCompat.getColor(context, R.color.poTextPrimary)
+
+    @ColorInt
+    private var errorControlsTintColor = ContextCompat.getColor(context, R.color.poTextError)
 
     private var afterValueChanged: ((String) -> Unit)? = null
     private var keyboardSubmitClick: (() -> Unit)? = null
@@ -62,9 +76,11 @@ internal class TextInput(
 
         style?.normal?.field?.let {
             defaultBackground = outlineBackground(context, it)
+            defaultControlsTintColor = it.controlsTintColor
         }
         style?.error?.field?.let {
             errorBackground = outlineBackground(context, it)
+            errorControlsTintColor = it.controlsTintColor
         }
 
         setListeners()
@@ -106,16 +122,23 @@ internal class TextInput(
             Input.State.Default -> {
                 style?.normal?.let { applyStateStyle(it) }
                 editText.background = defaultBackground
+                editText.highlightColor = ColorUtils.setAlphaComponent(
+                    defaultControlsTintColor, HIGHLIGHT_COLOR_ALPHA
+                )
+                editText.applyControlsTintColor(defaultControlsTintColor)
                 errorMessage.visibility = View.INVISIBLE
             }
             is Input.State.Error -> {
                 style?.error?.let { applyStateStyle(it) }
                 editText.background = errorBackground
+                editText.highlightColor = ColorUtils.setAlphaComponent(
+                    errorControlsTintColor, HIGHLIGHT_COLOR_ALPHA
+                )
+                editText.applyControlsTintColor(errorControlsTintColor)
                 errorMessage.text = state.message
                 errorMessage.visibility = View.VISIBLE
             }
         }
-
         this.state = state
     }
 

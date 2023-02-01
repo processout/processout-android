@@ -1,15 +1,21 @@
 package com.processout.sdk.ui.nativeapm
 
+import android.annotation.SuppressLint
 import android.content.res.ColorStateList
 import android.content.res.Resources.NotFoundException
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.LayerDrawable
+import android.os.Build
+import android.util.Log
 import android.view.View
+import android.widget.EditText
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.TypefaceCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.widget.TextViewCompat
 import com.google.android.material.button.MaterialButton
 import com.processout.sdk.R
@@ -92,3 +98,89 @@ internal fun View.setBackgroundDecoration(
         background = it
     }
 }
+
+internal fun EditText.applyControlsTintColor(@ColorInt tintColor: Int) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        textCursorDrawable?.also { textCursorDrawable = it.tinted(tintColor) }
+        textSelectHandle?.also { setTextSelectHandle(it.tinted(tintColor)) }
+        textSelectHandleLeft?.also { setTextSelectHandleLeft(it.tinted(tintColor)) }
+        textSelectHandleRight?.also { setTextSelectHandleRight(it.tinted(tintColor)) }
+    } else {
+        setTextCursorColorCompat(tintColor)
+        setTextSelectHandleColorCompat(tintColor)
+    }
+}
+
+private fun Drawable.tinted(@ColorInt color: Int) =
+    mutate().also { DrawableCompat.setTint(DrawableCompat.wrap(it), color) }
+
+@SuppressLint("PrivateApi")
+private fun TextView.setTextCursorColorCompat(@ColorInt tintColor: Int) {
+    try {
+        val editorField = TextView::class.java.getAccessibleField("mEditor")
+        val editor = editorField?.get(this) ?: this
+        val editorClass: Class<*> = if (editorField != null) {
+            runCatching {
+                Class.forName("android.widget.Editor")
+            }.getOrNull() ?: editorField.javaClass
+        } else {
+            TextView::class.java
+        }
+
+        val cursorRes = TextView::class.java.getAccessibleField("mCursorDrawableRes")
+            ?.get(this) as? Int ?: return
+        val tintedCursorDrawable = ContextCompat.getDrawable(context, cursorRes)
+            ?.tinted(tintColor) ?: return
+
+        val cursorField = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+            editorClass.getAccessibleField("mDrawableForCursor") else null
+
+        if (cursorField != null) {
+            cursorField.set(editor, tintedCursorDrawable)
+        } else {
+            editorClass.getAccessibleField("mCursorDrawable")
+                ?.set(editor, arrayOf(tintedCursorDrawable, tintedCursorDrawable))
+            editorClass.getAccessibleField("mDrawableForCursor")
+                ?.set(editor, arrayOf(tintedCursorDrawable, tintedCursorDrawable))
+        }
+    } catch (e: Throwable) {
+        Log.w(TextView::class.java.simpleName, "Failed to set text cursor color.", e)
+    }
+}
+
+@SuppressLint("PrivateApi")
+private fun TextView.setTextSelectHandleColorCompat(@ColorInt tintColor: Int) {
+    try {
+        val editorField = TextView::class.java.getAccessibleField("mEditor")
+        val editor = editorField?.get(this) ?: this
+        val editorClass: Class<*> = if (editorField != null) {
+            runCatching {
+                Class.forName("android.widget.Editor")
+            }.getOrNull() ?: editorField.javaClass
+        } else {
+            TextView::class.java
+        }
+
+        val handles = listOf(
+            "mSelectHandleCenter" to "mTextSelectHandleRes",
+            "mSelectHandleLeft" to "mTextSelectHandleLeftRes",
+            "mSelectHandleRight" to "mTextSelectHandleRightRes"
+        )
+
+        for (i in handles.indices) {
+            editorClass.getAccessibleField(handles[i].first)?.let { field ->
+                val drawable = field.get(editor) as? Drawable
+                    ?: TextView::class.java.getAccessibleField(handles[i].second)?.getInt(this)
+                        ?.let { ContextCompat.getDrawable(context, it) }
+                if (drawable != null) field.set(editor, drawable.tinted(tintColor))
+            }
+        }
+    } catch (e: Throwable) {
+        Log.w(TextView::class.java.simpleName, "Failed to set text select handle color.", e)
+    }
+}
+
+private fun Class<*>.getAccessibleField(name: String) =
+    runCatching {
+        getDeclaredField(name).apply { isAccessible = true }
+    }.getOrNull()
