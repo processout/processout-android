@@ -2,12 +2,12 @@ package com.processout.sdk
 
 import com.processout.sdk.api.ProcessOutApi
 import com.processout.sdk.api.model.request.*
-import com.processout.sdk.api.network.exception.ValidationException
 import com.processout.sdk.api.repository.CardsRepository
 import com.processout.sdk.api.repository.InvoicesRepository
 import com.processout.sdk.config.SetupRule
 import com.processout.sdk.config.TestApplication
 import com.processout.sdk.config.assertFailure
+import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.handleFailure
 import com.processout.sdk.core.handleSuccess
 import kotlinx.coroutines.runBlocking
@@ -132,7 +132,7 @@ class InvoicesRepositoryUnitTests {
     }
 
     @Test
-    fun captureWithValidationFailure() = runBlocking {
+    fun captureWithGenericFailure() = runBlocking {
         invoices.createInvoice(
             POCreateInvoiceRequest("sandbox", "95", "PLN")
         ).let { invoiceResult ->
@@ -141,8 +141,8 @@ class InvoicesRepositoryUnitTests {
                 invoices.capture(
                     invoice.id,
                     "gway_conf_ux3ye8vh2c78c89s8ozp1f1ujixkl11k.adyenblik"
-                ).handleFailure { _, cause ->
-                    assert(cause is ValidationException)
+                ).handleFailure { _, code, _, _ ->
+                    assert(code is POFailure.Code.Generic)
                 }
             }
         }

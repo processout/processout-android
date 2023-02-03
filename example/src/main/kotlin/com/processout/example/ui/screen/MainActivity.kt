@@ -23,7 +23,6 @@ class MainActivity : AppCompatActivity() {
     private fun onNativeAlternativePaymentMethodResult(result: PONativeAlternativePaymentMethodResult) {
         when (result) {
             PONativeAlternativePaymentMethodResult.Success -> TODO()
-            PONativeAlternativePaymentMethodResult.Canceled -> TODO()
             is PONativeAlternativePaymentMethodResult.Failure -> TODO()
         }
     }

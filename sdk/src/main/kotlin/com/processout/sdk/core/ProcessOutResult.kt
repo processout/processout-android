@@ -4,6 +4,8 @@ sealed class ProcessOutResult<out T : Any> {
     data class Success<out T : Any>(val value: T) : ProcessOutResult<T>()
     data class Failure(
         val message: String,
+        val code: POFailure.Code,
+        val invalidFields: List<POFailure.InvalidField>? = null,
         val cause: Exception? = null
     ) : ProcessOutResult<Nothing>()
 }
@@ -17,10 +19,15 @@ inline fun <T : Any> ProcessOutResult<T>.handleSuccess(
 }
 
 inline fun <T : Any> ProcessOutResult<T>.handleFailure(
-    block: (message: String, cause: Exception?) -> Unit
+    block: (
+        message: String,
+        code: POFailure.Code,
+        invalidFields: List<POFailure.InvalidField>?,
+        cause: Exception?
+    ) -> Unit
 ) {
     if (this is ProcessOutResult.Failure) {
-        block(message, cause)
+        block(message, code, invalidFields, cause)
     }
 }
 

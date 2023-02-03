@@ -32,8 +32,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.processout.sdk.R
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType
-import com.processout.sdk.api.network.exception.ProcessOutApiError
-import com.processout.sdk.api.network.exception.ProcessOutApiException
+import com.processout.sdk.core.POFailure
+import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.databinding.PoBottomSheetCaptureBinding
 import com.processout.sdk.databinding.PoBottomSheetNativeApmBinding
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityContract.Companion.EXTRA_CONFIGURATION
@@ -90,7 +90,10 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         configuration?.run {
             if (gatewayConfigurationId.isBlank() || invoiceId.isBlank()) {
                 finishWithActivityResult(
-                    PONativeAlternativePaymentMethodResult.Failure("Invalid configuration.")
+                    PONativeAlternativePaymentMethodResult.Failure(
+                        "Invalid configuration.",
+                        POFailure.Code.Internal
+                    )
                 )
             }
         }
@@ -240,7 +243,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             is PONativeAlternativePaymentMethodUiState.Success ->
                 handleSuccess(uiState.uiModel)
             is PONativeAlternativePaymentMethodUiState.Failure ->
-                handleFailure(uiState.message, uiState.cause)
+                handleFailure(uiState.failure)
         }
     }
 
@@ -474,21 +477,14 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         bindingCapture.poSuccessImage.visibility = View.VISIBLE
     }
 
-    private fun handleFailure(message: String, cause: Exception?) {
-        var code: Int? = null
-        var apiError: ProcessOutApiError? = null
-        cause?.let {
-            if (it is ProcessOutApiException) {
-                code = it.code
-                apiError = it.apiError
-            }
-        }
-
-        finishWithActivityResult(
-            PONativeAlternativePaymentMethodResult.Failure(
-                message, cause?.message, code, apiError
+    private fun handleFailure(failure: ProcessOutResult.Failure) {
+        with(failure) {
+            finishWithActivityResult(
+                PONativeAlternativePaymentMethodResult.Failure(
+                    message, code, invalidFields
+                )
             )
-        )
+        }
     }
 
     override fun onPause() {
@@ -511,14 +507,20 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
 
     override fun onCancel(dialog: DialogInterface) {
         finishWithActivityResult(
-            PONativeAlternativePaymentMethodResult.Canceled
+            PONativeAlternativePaymentMethodResult.Failure(
+                "Cancelled by user with swipe or outside touch.",
+                POFailure.Code.Cancelled
+            )
         )
     }
 
     private fun dispatchBackPressed() {
         bottomSheetDialog.onBackPressedDispatcher.addCallback(this) {
             finishWithActivityResult(
-                PONativeAlternativePaymentMethodResult.Canceled
+                PONativeAlternativePaymentMethodResult.Failure(
+                    "Cancelled by user with back press or gesture.",
+                    POFailure.Code.Cancelled
+                )
             )
         }
     }

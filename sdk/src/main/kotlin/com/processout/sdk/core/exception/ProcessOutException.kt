@@ -1,3 +1,3 @@
 package com.processout.sdk.core.exception
 
-open class ProcessOutException(message: String) : Exception(message)
+class ProcessOutException(message: String) : Exception(message)

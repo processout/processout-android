@@ -1,14 +1,14 @@
 package com.processout.sdk.api.repository
 
-import com.processout.sdk.api.network.toFailure
+import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.ProcessOutResult
-import com.processout.sdk.core.exception.ProcessOutException
 import com.processout.sdk.core.map
 import com.squareup.moshi.Moshi
 import kotlinx.coroutines.*
 import retrofit2.Response
 import java.io.IOException
+import java.net.SocketTimeoutException
 
 internal abstract class BaseRepository(
     protected val moshi: Moshi,
@@ -23,13 +23,27 @@ internal abstract class BaseRepository(
             val response = apiMethod()
             when (response.isSuccessful) {
                 true -> response.body()?.let { ProcessOutResult.Success(it) }
-                    ?: ProcessOutResult.Failure("Response body is empty.")
+                    ?: ProcessOutResult.Failure(
+                        "Response body is empty.",
+                        POFailure.Code.Internal
+                    )
                 false -> response.toFailure(moshi)
             }
-        } catch (e: IOException) {
-            ProcessOutResult.Failure(e.message ?: String(), e)
         } catch (e: Exception) {
-            ProcessOutResult.Failure("Unexpected exception during API call.", e)
+            when (e) {
+                is SocketTimeoutException -> ProcessOutResult.Failure(
+                    e.message ?: "Request timed out.",
+                    POFailure.Code.Timeout, cause = e
+                )
+                is IOException -> ProcessOutResult.Failure(
+                    e.message ?: "Network is unreachable.",
+                    POFailure.Code.NetworkUnreachable, cause = e
+                )
+                else -> ProcessOutResult.Failure(
+                    "Unexpected exception during API call.",
+                    POFailure.Code.Internal, cause = e
+                )
+            }
         }
     }
 
@@ -40,9 +54,9 @@ internal abstract class BaseRepository(
         repositoryScope.launch {
             when (val result = apiCall(apiMethod)) {
                 is ProcessOutResult.Success -> callback.onSuccess(result.value)
-                is ProcessOutResult.Failure -> callback.onFailure(
-                    result.cause ?: ProcessOutException(result.message)
-                )
+                is ProcessOutResult.Failure -> with(result) {
+                    callback.onFailure(message, code, invalidFields, cause)
+                }
             }
         }
     }
@@ -55,9 +69,9 @@ internal abstract class BaseRepository(
         repositoryScope.launch {
             when (val result = apiCall(apiMethod).map(transform)) {
                 is ProcessOutResult.Success -> callback.onSuccess(result.value)
-                is ProcessOutResult.Failure -> callback.onFailure(
-                    result.cause ?: ProcessOutException(result.message)
-                )
+                is ProcessOutResult.Failure -> with(result) {
+                    callback.onFailure(message, code, invalidFields, cause)
+                }
             }
         }
     }

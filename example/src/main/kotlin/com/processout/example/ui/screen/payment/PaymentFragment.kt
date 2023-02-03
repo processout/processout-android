@@ -8,6 +8,7 @@ import androidx.navigation.fragment.navArgs
 import com.processout.example.R
 import com.processout.example.databinding.FragmentPaymentBinding
 import com.processout.example.ui.screen.base.BaseFragment
+import com.processout.sdk.core.POFailure
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodLauncher
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodResult
@@ -36,10 +37,13 @@ class PaymentFragment : BaseFragment<FragmentPaymentBinding>(
         when (result) {
             PONativeAlternativePaymentMethodResult.Success ->
                 binding.resultTextView.text = getString(R.string.result_success)
-            is PONativeAlternativePaymentMethodResult.Failure ->
-                binding.resultTextView.text = getString(R.string.result_failure)
-            PONativeAlternativePaymentMethodResult.Canceled ->
-                binding.resultTextView.text = getString(R.string.result_canceled)
+            is PONativeAlternativePaymentMethodResult.Failure -> {
+                when (result.code) {
+                    POFailure.Code.Cancelled ->
+                        binding.resultTextView.text = getString(R.string.result_canceled)
+                    else -> binding.resultTextView.text = getString(R.string.result_failure)
+                }
+            }
         }
     }
 

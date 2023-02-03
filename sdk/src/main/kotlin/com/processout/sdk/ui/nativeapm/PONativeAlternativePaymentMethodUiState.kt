@@ -1,5 +1,6 @@
 package com.processout.sdk.ui.nativeapm
 
+import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.shared.model.InputParameter
 
 internal sealed class PONativeAlternativePaymentMethodUiState {
@@ -18,8 +19,7 @@ internal sealed class PONativeAlternativePaymentMethodUiState {
     ) : PONativeAlternativePaymentMethodUiState()
 
     data class Failure(
-        val message: String,
-        val cause: Exception? = null
+        val failure: ProcessOutResult.Failure
     ) : PONativeAlternativePaymentMethodUiState()
 }
 

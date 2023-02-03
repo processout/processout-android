@@ -1,30 +1,22 @@
 @file:Suppress("unused")
 
-package com.processout.sdk.api.network.exception
+package com.processout.sdk.core
 
 import android.os.Parcelable
-import com.processout.sdk.utils.findBy
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import kotlinx.parcelize.Parcelize
 
-@Parcelize
-@JsonClass(generateAdapter = true)
-data class ProcessOutApiError(
-    @Json(name = "error_type")
-    val errorType: String,
-    val message: String?,
-    @Json(name = "invalid_fields")
-    val invalidFields: List<InvalidField>?,
-    @Json(ignore = true)
-    val validationError: ValidationError? = ValidationError::errorType findBy errorType,
-    @Json(ignore = true)
-    val notFoundError: NotFoundError? = NotFoundError::errorType findBy errorType,
-    @Json(ignore = true)
-    val authenticationError: AuthenticationError? = AuthenticationError::errorType findBy errorType,
-    @Json(ignore = true)
-    val genericError: GenericError? = GenericError::errorType findBy errorType
-) : Parcelable {
+object POFailure {
+
+    @JsonClass(generateAdapter = true)
+    internal data class ApiError(
+        @Json(name = "error_type")
+        val errorType: String,
+        val message: String?,
+        @Json(name = "invalid_fields")
+        val invalidFields: List<InvalidField>?
+    )
 
     @Parcelize
     @JsonClass(generateAdapter = true)
@@ -33,9 +25,45 @@ data class ProcessOutApiError(
         val message: String?
     ) : Parcelable
 
+    sealed class Code : Parcelable {
+        @Parcelize
+        data class Authentication(val authenticationCode: AuthenticationCode) : Code()
+
+        @Parcelize
+        data class Validation(val validationCode: ValidationCode) : Code()
+
+        @Parcelize
+        data class NotFound(val notFoundCode: NotFoundCode) : Code()
+
+        @Parcelize
+        data class Generic(val genericCode: GenericCode) : Code()
+
+        @Parcelize
+        object NetworkUnreachable : Code()
+
+        @Parcelize
+        object Timeout : Code()
+
+        @Parcelize
+        object Cancelled : Code()
+
+        @Parcelize
+        object Internal : Code()
+
+        @Parcelize
+        object Unknown : Code()
+    }
+
     @Parcelize
     @Suppress("EnumEntryName")
-    enum class ValidationError(val errorType: String) : Parcelable {
+    enum class AuthenticationCode(val rawValue: String) : Parcelable {
+        invalid          ("request.authentication.invalid"),
+        invalidProjectId ("request.authentication.invalid-project-id")
+    }
+
+    @Parcelize
+    @Suppress("EnumEntryName")
+    enum class ValidationCode(val rawValue: String) : Parcelable {
         general                   ("request.validation.error"),
         invalidAddress            ("request.validation.invalid-address"),
         invalidAmount             ("request.validation.invalid-amount"),
@@ -88,14 +116,13 @@ data class ProcessOutApiError(
 
     @Parcelize
     @Suppress("EnumEntryName")
-    enum class NotFoundError(val errorType: String) : Parcelable {
+    enum class NotFoundCode(val rawValue: String) : Parcelable {
         activity                  ("resource.activity.not-found"),
         addon                     ("resource.addon.not-found"),
         alert                     ("resource.alert.not-found"),
         apiKey                    ("resource.api-key.not-found"),
         apiRequest                ("resource.api-request.not-found"),
         apiVersion                ("resource.api-version.not-found"),
-        applepayConfiguration     ("resource.applepay-configuration.not-found"),
         board                     ("resource.board.not-found"),
         card                      ("resource.card.not-found"),
         chart                     ("resource.chart.not-found"),
@@ -129,14 +156,7 @@ data class ProcessOutApiError(
 
     @Parcelize
     @Suppress("EnumEntryName")
-    enum class AuthenticationError(val errorType: String) : Parcelable {
-        invalid          ("request.authentication.invalid"),
-        invalidProjectId ("request.authentication.invalid-project-id")
-    }
-
-    @Parcelize
-    @Suppress("EnumEntryName")
-    enum class GenericError(val errorType: String) : Parcelable {
+    enum class GenericCode(val rawValue: String) : Parcelable {
         gatewayDeclined                     ("gateway.declined"),
         requestBadFormat                    ("request.bad-format"),
         requestCardAlreadyUsed              ("request.source.card-already-used"),
@@ -158,3 +178,16 @@ data class ProcessOutApiError(
         serviceNotSupported                 ("service.not-supported")
     }
 }
+
+val POFailure.Code.rawValue: String
+    get() = when (this) {
+        is POFailure.Code.Authentication -> authenticationCode.rawValue
+        is POFailure.Code.Validation -> validationCode.rawValue
+        is POFailure.Code.NotFound -> notFoundCode.rawValue
+        is POFailure.Code.Generic -> genericCode.rawValue
+        POFailure.Code.NetworkUnreachable -> "processout-mobile.network-unreachable"
+        POFailure.Code.Timeout -> "processout-mobile.timeout"
+        POFailure.Code.Cancelled -> "processout-mobile.cancelled"
+        POFailure.Code.Internal -> "processout-mobile.internal"
+        POFailure.Code.Unknown -> "processout-mobile.unknown"
+    }

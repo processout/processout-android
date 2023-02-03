@@ -46,7 +46,13 @@ ProcessOutApi.instance.gatewayConfigurations.fetch(
         override fun onSuccess(result: POAllGatewayConfigurations) {
             TODO()
         }
-        override fun onFailure(e: Exception) {
+
+        override fun onFailure(
+            message: String,
+            code: POFailure.Code,
+            invalidFields: List<POFailure.InvalidField>?,
+            cause: Exception?
+        ) {
             TODO()
         }
     }
@@ -63,7 +69,6 @@ override fun onCreate(savedInstanceState: Bundle?) {
     launcher = PONativeAlternativePaymentMethodLauncher.create(from = this) { result ->
         when (result) {
             PONativeAlternativePaymentMethodResult.Success -> TODO()
-            PONativeAlternativePaymentMethodResult.Canceled -> TODO()
             is PONativeAlternativePaymentMethodResult.Failure -> TODO()
         }
     }
@@ -103,14 +108,39 @@ launcher.launch(
         style = PONativeAlternativePaymentMethodConfiguration.Style(
             submitButton = payButtonStyle
         ),
-        uiConfiguration = PONativeAlternativePaymentMethodConfiguration.UiConfiguration(
+        options = PONativeAlternativePaymentMethodConfiguration.Options(
             title = "Payment details",
             submitButtonText = "Submit",
-            successMessage = "Payment confirmed.\nThank you!"
-        ),
-        options = PONativeAlternativePaymentMethodConfiguration.Options(
-            isBottomSheetCancelable = true
+            successMessage = "Payment confirmed.\nThank you!",
+            skipSuccessScreen = true, // Only applies when 'waitsPaymentConfirmation = true'
+            waitsPaymentConfirmation = true,
+            paymentConfirmationTimeoutSeconds = 180,
+            cancelableBottomSheet = false
         )
     )
 )
+```
+
+## Payment sheet error handling
+```
+when (result) {
+    PONativeAlternativePaymentMethodResult.Success -> TODO()
+    is PONativeAlternativePaymentMethodResult.Failure -> {
+        // Raw error code value is the same on Android and iOS for the same error code.
+        val rawErrorCodeValue: String = result.code.rawValue
+
+        // Handle specific failure types.
+        when (val code = result.code) {
+            is POFailure.Code.Authentication -> code.authenticationCode // TODO()
+            is POFailure.Code.Validation -> code.validationCode // TODO()
+            is POFailure.Code.NotFound -> code.notFoundCode // TODO()
+            is POFailure.Code.Generic -> code.genericCode // TODO()
+            POFailure.Code.NetworkUnreachable -> TODO()
+            POFailure.Code.Timeout -> TODO()
+            POFailure.Code.Cancelled -> TODO()
+            POFailure.Code.Internal -> TODO()
+            POFailure.Code.Unknown -> TODO()
+        }
+    }
+}
 ```

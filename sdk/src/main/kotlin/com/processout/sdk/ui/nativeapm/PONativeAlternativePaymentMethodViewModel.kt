@@ -18,6 +18,7 @@ import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodPar
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodState
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails
 import com.processout.sdk.api.repository.InvoicesRepository
+import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options.Companion.MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
 import com.processout.sdk.ui.shared.model.InputParameter
@@ -87,7 +88,10 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 is ProcessOutResult.Success -> {
                     if (result.value.parameters.isNullOrEmpty()) {
                         _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
-                            "Missing input parameters."
+                            ProcessOutResult.Failure(
+                                "Input field parameters is missing in response.",
+                                POFailure.Code.Internal
+                            )
                         )
                     } else {
                         val uiModel = result.value.toUiModel()
@@ -104,9 +108,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                     }
                 }
                 is ProcessOutResult.Failure ->
-                    _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
-                        result.message, result.cause
-                    )
+                    _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(result)
             }
         }
     }
@@ -165,7 +167,10 @@ internal class PONativeAlternativePaymentMethodViewModel(
                             val parameters = result.value.parameterDefinitions
                             if (parameters.isNullOrEmpty()) {
                                 _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
-                                    "Missing input parameters."
+                                    ProcessOutResult.Failure(
+                                        "Input field parameters is missing in response.",
+                                        POFailure.Code.Internal
+                                    )
                                 )
                             } else {
                                 _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(
@@ -192,9 +197,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                         }
                     }
                 is ProcessOutResult.Failure ->
-                    _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
-                        result.message, result.cause
-                    )
+                    _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(result)
             }
         }
     }

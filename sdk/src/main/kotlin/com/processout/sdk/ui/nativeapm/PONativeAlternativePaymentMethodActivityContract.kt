@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContract
 import com.processout.sdk.BuildConfig
+import com.processout.sdk.core.POFailure
 
 class PONativeAlternativePaymentMethodActivityContract : ActivityResultContract
 <PONativeAlternativePaymentMethodConfiguration, PONativeAlternativePaymentMethodResult>() {
@@ -25,5 +26,8 @@ class PONativeAlternativePaymentMethodActivityContract : ActivityResultContract
         intent: Intent?
     ): PONativeAlternativePaymentMethodResult =
         intent?.getParcelableExtra(EXTRA_RESULT)
-            ?: PONativeAlternativePaymentMethodResult.Canceled
+            ?: PONativeAlternativePaymentMethodResult.Failure(
+                "Activity result was not provided.",
+                POFailure.Code.Internal
+            )
 }

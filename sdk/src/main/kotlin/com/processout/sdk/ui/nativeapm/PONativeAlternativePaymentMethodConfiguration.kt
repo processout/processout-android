@@ -26,9 +26,9 @@ data class PONativeAlternativePaymentMethodConfiguration(
         val submitButtonText: String? = null,
         val successMessage: String? = null,
         val skipSuccessScreen: Boolean = false,
-        val cancelableBottomSheet: Boolean = true,
         val waitsPaymentConfirmation: Boolean = true,
-        val paymentConfirmationTimeoutSeconds: Int = MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
+        val paymentConfirmationTimeoutSeconds: Int = MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS,
+        val cancelableBottomSheet: Boolean = true
     ) : Parcelable {
         companion object {
             const val MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS = 180

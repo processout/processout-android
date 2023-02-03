@@ -3,6 +3,7 @@ package com.processout.sdk.api.provider
 import android.net.Uri
 import com.processout.sdk.api.model.request.POAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
+import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
 
 internal class AlternativePaymentMethodProviderImpl(
@@ -34,14 +35,15 @@ internal class AlternativePaymentMethodProviderImpl(
         if (uri.host != "processout.return") {
             return ProcessOutResult.Failure(
                 "Invalid or malformed Alternative Payment Mehod URL response provided.",
-                IllegalArgumentException()
+                POFailure.Code.Internal
             )
         }
 
-        val gatewayToken = uri.getQueryParameter("token") ?: return ProcessOutResult.Failure(
-            "Invalid or malformed Alternative Payment Mehod URL response provided.",
-            IllegalArgumentException()
-        )
+        val gatewayToken = uri.getQueryParameter("token")
+            ?: return ProcessOutResult.Failure(
+                "Invalid or malformed Alternative Payment Mehod URL response provided.",
+                POFailure.Code.Internal
+            )
 
         var returnType = POAlternativePaymentMethodResponse.APMReturnType.AUTHORIZATION
         val customerTokenId = uri.getQueryParameter("token_id")
