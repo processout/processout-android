@@ -36,7 +36,7 @@ internal class CodeInput(
     }
 
     private var focusIndex: Int = 0
-    private var state: Input.State = Input.State.Default
+    private var state: Input.State = inputParameter?.state ?: Input.State.Default
 
     private val title: TextView
     private val container: LinearLayout
@@ -83,7 +83,7 @@ internal class CodeInput(
         }
 
         initWithInputParameters()
-        setState(state)
+        applyState(state)
     }
 
     private fun length(): Int {
@@ -97,7 +97,7 @@ internal class CodeInput(
     }
 
     private fun initWithInputParameters() {
-        id = inputParameter?.id ?: View.generateViewId()
+        id = inputParameter?.viewId ?: View.generateViewId()
         inputParameter?.let {
             title.text = it.parameter.displayName
             value = it.value
@@ -111,6 +111,11 @@ internal class CodeInput(
     }
 
     override fun setState(state: Input.State) {
+        if (this.state == state) return
+        applyState(state)
+    }
+
+    private fun applyState(state: Input.State) {
         editTexts.forEach {
             it.setState(state)
         }
@@ -136,10 +141,6 @@ internal class CodeInput(
         }
 
         editTexts[index].doAfterTextChanged {
-            if (state is Input.State.Error) {
-                setState(Input.State.Default)
-            }
-
             it?.let { text ->
                 if (text.isNotEmpty()) {
                     editTexts[index].setSelection(text.length)

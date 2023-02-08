@@ -9,6 +9,6 @@ internal interface Input {
 
     sealed class State {
         object Default : State()
-        data class Error(val message: String) : State()
+        data class Error(val message: String?) : State()
     }
 }

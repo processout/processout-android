@@ -40,7 +40,7 @@ internal class TextInput(
         private const val HIGHLIGHT_COLOR_ALPHA = 95
     }
 
-    private var state: Input.State = Input.State.Default
+    private var state: Input.State = inputParameter?.state ?: Input.State.Default
 
     private val title: TextView
     private val editText: EditText
@@ -85,11 +85,11 @@ internal class TextInput(
 
         setListeners()
         initWithInputParameters()
-        setState(state)
+        applyState(state)
     }
 
     private fun initWithInputParameters() {
-        id = inputParameter?.id ?: View.generateViewId()
+        id = inputParameter?.viewId ?: View.generateViewId()
         editText.inputType = inputParameter?.toInputType() ?: InputType.TYPE_CLASS_TEXT
         editText.imeOptions = EditorInfo.IME_ACTION_DONE
         inputParameter?.let {
@@ -101,9 +101,6 @@ internal class TextInput(
 
     private fun setListeners() {
         editText.doAfterTextChanged {
-            if (state is Input.State.Error) {
-                setState(Input.State.Default)
-            }
             afterValueChanged?.invoke(value)
         }
 
@@ -118,6 +115,11 @@ internal class TextInput(
     }
 
     override fun setState(state: Input.State) {
+        if (this.state == state) return
+        applyState(state)
+    }
+
+    private fun applyState(state: Input.State) {
         when (state) {
             Input.State.Default -> {
                 style?.normal?.let { applyStateStyle(it) }

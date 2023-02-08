@@ -14,6 +14,7 @@ import coil.request.ImageResult
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOutApi
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethod
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodState
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails
@@ -22,12 +23,10 @@ import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options.Companion.MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
 import com.processout.sdk.ui.shared.model.InputParameter
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.delay
+import com.processout.sdk.ui.shared.view.input.Input
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.*
 
@@ -87,25 +86,14 @@ internal class PONativeAlternativePaymentMethodViewModel(
             when (result) {
                 is ProcessOutResult.Success -> {
                     if (result.value.parameters.isNullOrEmpty()) {
-                        _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
-                            ProcessOutResult.Failure(
-                                "Input field parameters is missing in response.",
-                                POFailure.Code.Internal
-                            )
-                        )
-                    } else {
-                        val uiModel = result.value.toUiModel()
-
-                        if (options.waitsPaymentConfirmation) {
-                            val deferreds = mutableListOf(async { preloadImage(uiModel.logoUrl) })
-                            uiModel.customerActionImageUrl?.let {
-                                deferreds.add(async { preloadImage(it) })
-                            }
-                            deferreds.awaitAll()
-                        }
-
-                        _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(uiModel)
+                        handleInputParametersFailure()
+                        return@launch
                     }
+                    val uiModel = result.value.toUiModel()
+                    if (options.waitsPaymentConfirmation) {
+                        preloadAllImages(coroutineScope = this, uiModel)
+                    }
+                    _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(uiModel)
                 }
                 is ProcessOutResult.Failure ->
                     _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(result)
@@ -113,10 +101,22 @@ internal class PONativeAlternativePaymentMethodViewModel(
         }
     }
 
-    fun updateInputValue(id: Int, newValue: String) {
+    private fun handleInputParametersFailure() {
+        _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
+            ProcessOutResult.Failure(
+                "Input field parameters is missing in response.",
+                POFailure.Code.Internal
+            )
+        )
+    }
+
+    fun updateInputValue(key: String, newValue: String) {
         _uiState.value.doWhenUserInput { uiModel ->
-            val updatedInputParameters = uiModel.inputParameters.map { it.copy() }
-            updatedInputParameters.find { it.id == id }?.apply { value = newValue }
+            val updatedInputParameters = uiModel.inputParameters.map {
+                if (it.parameter.key == key)
+                    it.copy(value = newValue, state = Input.State.Default)
+                else it.copy()
+            }
             _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(
                 uiModel.copy(
                     inputParameters = updatedInputParameters,
@@ -128,6 +128,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
 
     private fun isInputValid(input: InputParameter): Boolean {
         if (input.parameter.required.not()) return true
+        if (input.state is Input.State.Error) return false
 
         val isLengthValid = input.parameter.length?.let {
             input.value.length == it
@@ -155,51 +156,80 @@ internal class PONativeAlternativePaymentMethodViewModel(
         }
     }
 
-    private fun initiatePayment(uiModel: PONativeAlternativePaymentMethodUiModel, data: Map<String, String>) {
+    private fun initiatePayment(
+        uiModel: PONativeAlternativePaymentMethodUiModel,
+        data: Map<String, String>
+    ) {
         viewModelScope.launch {
             val request = PONativeAlternativePaymentMethodRequest(
                 invoiceId, gatewayConfigurationId, data
             )
             when (val result = invoicesRepository.initiatePayment(request)) {
-                is ProcessOutResult.Success ->
-                    when (result.value.state) {
-                        PONativeAlternativePaymentMethodState.CUSTOMER_INPUT -> {
-                            val parameters = result.value.parameterDefinitions
-                            if (parameters.isNullOrEmpty()) {
-                                _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
-                                    ProcessOutResult.Failure(
-                                        "Input field parameters is missing in response.",
-                                        POFailure.Code.Internal
-                                    )
-                                )
-                            } else {
-                                _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(
-                                    uiModel.copy(
-                                        inputParameters = parameters.toInputParameters(),
-                                        isSubmitAllowed = false,
-                                        isSubmitting = false
-                                    )
-                                )
-                            }
-                        }
-                        PONativeAlternativePaymentMethodState.PENDING_CAPTURE -> {
-                            if (options.waitsPaymentConfirmation) {
-                                animateViewTransition = true
-                                _uiState.value = PONativeAlternativePaymentMethodUiState.Capture(
-                                    uiModel.copy()
-                                )
-                                startCapturePolling()
-                            } else {
-                                _uiState.value = PONativeAlternativePaymentMethodUiState.Success(
-                                    uiModel.copy()
-                                )
-                            }
-                        }
-                    }
-                is ProcessOutResult.Failure ->
-                    _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(result)
+                is ProcessOutResult.Success -> handlePaymentSuccess(result, uiModel)
+                is ProcessOutResult.Failure -> handlePaymentFailure(result, uiModel)
             }
         }
+    }
+
+    private fun handlePaymentSuccess(
+        success: ProcessOutResult.Success<PONativeAlternativePaymentMethod>,
+        uiModel: PONativeAlternativePaymentMethodUiModel
+    ) {
+        when (success.value.state) {
+            PONativeAlternativePaymentMethodState.CUSTOMER_INPUT ->
+                handleCustomerInput(success.value.parameterDefinitions, uiModel)
+            PONativeAlternativePaymentMethodState.PENDING_CAPTURE ->
+                handlePendingCapture(uiModel)
+        }
+    }
+
+    private fun handleCustomerInput(
+        parameterDefinitions: List<PONativeAlternativePaymentMethodParameter>?,
+        uiModel: PONativeAlternativePaymentMethodUiModel
+    ) {
+        if (parameterDefinitions.isNullOrEmpty()) {
+            handleInputParametersFailure()
+            return
+        }
+        _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(
+            uiModel.copy(
+                inputParameters = parameterDefinitions.toInputParameters(),
+                isSubmitAllowed = false,
+                isSubmitting = false
+            )
+        )
+    }
+
+    private fun handlePendingCapture(uiModel: PONativeAlternativePaymentMethodUiModel) {
+        if (options.waitsPaymentConfirmation) {
+            animateViewTransition = true
+            _uiState.value = PONativeAlternativePaymentMethodUiState.Capture(uiModel.copy())
+            startCapturePolling()
+            return
+        }
+        _uiState.value = PONativeAlternativePaymentMethodUiState.Success(uiModel.copy())
+    }
+
+    private fun handlePaymentFailure(
+        failure: ProcessOutResult.Failure,
+        uiModel: PONativeAlternativePaymentMethodUiModel
+    ) {
+        if (failure.invalidFields.isNullOrEmpty()) {
+            _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(failure)
+            return
+        }
+        val updatedInputParameters = uiModel.inputParameters.map { inputParameter ->
+            failure.invalidFields.find { it.name == inputParameter.parameter.key }?.let {
+                inputParameter.copy(state = Input.State.Error(it.message))
+            } ?: inputParameter.copy()
+        }
+        _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(
+            uiModel.copy(
+                inputParameters = updatedInputParameters,
+                isSubmitAllowed = false,
+                isSubmitting = false
+            )
+        )
     }
 
     private fun startCapturePolling() {
@@ -212,26 +242,44 @@ internal class PONativeAlternativePaymentMethodViewModel(
     private fun capture() {
         viewModelScope.launch {
             val timePassed = System.currentTimeMillis() - capturePollingStartTimestamp
-            if (timePassed < options.paymentConfirmationTimeoutSeconds * 1000) {
-                when (invoicesRepository.capture(invoiceId, gatewayConfigurationId)) {
-                    is ProcessOutResult.Success -> {
-                        capturePollingStartTimestamp = 0L
-                        _uiState.value.doWhenCapture { uiModel ->
-                            animateViewTransition = true
-                            _uiState.value = PONativeAlternativePaymentMethodUiState.Success(
-                                uiModel.copy()
-                            )
-                        }
-                    }
-                    is ProcessOutResult.Failure -> {
-                        delay(CAPTURE_POLLING_DELAY_MS)
-                        capture()
+            if (timePassed >= options.paymentConfirmationTimeoutSeconds * 1000) {
+                capturePollingStartTimestamp = 0L
+                _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
+                    ProcessOutResult.Failure(
+                        "Payment confirmation timed out.",
+                        POFailure.Code.Timeout
+                    )
+                )
+                return@launch
+            }
+
+            when (invoicesRepository.capture(invoiceId, gatewayConfigurationId)) {
+                is ProcessOutResult.Success -> {
+                    capturePollingStartTimestamp = 0L
+                    _uiState.value.doWhenCapture { uiModel ->
+                        animateViewTransition = true
+                        _uiState.value = PONativeAlternativePaymentMethodUiState.Success(
+                            uiModel.copy()
+                        )
                     }
                 }
-            } else {
-                capturePollingStartTimestamp = 0L
+                is ProcessOutResult.Failure -> {
+                    delay(CAPTURE_POLLING_DELAY_MS)
+                    capture()
+                }
             }
         }
+    }
+
+    private suspend fun preloadAllImages(
+        coroutineScope: CoroutineScope,
+        uiModel: PONativeAlternativePaymentMethodUiModel
+    ) {
+        val deferreds = mutableListOf(coroutineScope.async { preloadImage(uiModel.logoUrl) })
+        uiModel.customerActionImageUrl?.let {
+            deferreds.add(coroutineScope.async { preloadImage(it) })
+        }
+        deferreds.awaitAll()
     }
 
     private suspend fun preloadImage(url: String): ImageResult {

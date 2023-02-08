@@ -294,7 +294,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         binding.poInputsContainer.children.forEach {
             currentInputIds.add(it.id)
         }
-        currentInputIds.removeAll(inputParameters.map { it.id })
+        currentInputIds.removeAll(inputParameters.map { it.viewId })
         currentInputIds.forEach {
             with(binding.poInputsContainer) {
                 removeView(findViewById(it))
@@ -302,8 +302,9 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         }
 
         inputParameters.forEachIndexed { index, parameter ->
-            // only add inputs that has not been added yet
-            binding.poInputsContainer.findViewById(parameter.id) ?: run {
+            binding.poInputsContainer.findViewById<View>(parameter.viewId)?.let {
+                (it as InputComponent).setState(parameter.state)
+            } ?: let {
                 val input = addInputComponent(parameter)
                 if (index == 0) {
                     input.requestFocusAndShowKeyboard()
@@ -334,7 +335,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         }
 
         input.doAfterValueChanged { value ->
-            viewModel.updateInputValue(inputParameter.id, value)
+            viewModel.updateInputValue(inputParameter.parameter.key, value)
         }
         input.onKeyboardSubmitClick {
             viewModel.uiState.value.doWhenUserInput { uiModel ->
