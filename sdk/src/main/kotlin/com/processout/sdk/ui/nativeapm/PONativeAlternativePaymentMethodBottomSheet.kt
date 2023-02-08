@@ -402,10 +402,20 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
 
     private fun bindCapture(uiModel: PONativeAlternativePaymentMethodUiModel) {
         initCaptureView()
-        bindingCapture.poMessage.text = uiModel.customerActionMessage
-        bindingCapture.poLogo.load(uiModel.logoUrl)
-        bindingCapture.poActionImage.load(uiModel.customerActionImageUrl)
-        bindingCapture.poActionImage.visibility = View.VISIBLE
+        if (uiModel.showCustomerAction) {
+            bindingCapture.poCircularProgressIndicator.visibility = View.GONE
+            bindingCapture.poMessage.text = uiModel.customerActionMessage
+            bindingCapture.poMessage.visibility = View.VISIBLE
+            bindingCapture.poLogo.load(uiModel.logoUrl)
+            bindingCapture.poLogo.visibility = View.VISIBLE
+            bindingCapture.poActionImage.load(uiModel.customerActionImageUrl)
+            bindingCapture.poActionImage.visibility = View.VISIBLE
+        } else {
+            bindingCapture.poCircularProgressIndicator.visibility = View.VISIBLE
+            bindingCapture.poMessage.visibility = View.GONE
+            bindingCapture.poLogo.visibility = View.GONE
+            bindingCapture.poActionImage.visibility = View.GONE
+        }
         bindingCapture.poSuccessImage.visibility = View.GONE
     }
 
@@ -430,6 +440,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             viewModel.animateViewTransition = false
             fadeOut(
                 listOf(
+                    bindingCapture.poCircularProgressIndicator,
                     bindingCapture.poMessage,
                     bindingCapture.poActionImage
                 ),
@@ -444,11 +455,15 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                         bindSuccess(uiModel)
                         adjustPeekHeight(animate = true)
                         fadeIn(
-                            listOf(
+                            mutableListOf(
                                 bindingCapture.poBackgroundDecoration,
                                 bindingCapture.poMessage,
                                 bindingCapture.poSuccessImage
-                            ),
+                            ).also {
+                                if (uiModel.showCustomerAction.not()) {
+                                    it.add(bindingCapture.poLogo)
+                                }
+                            },
                             ANIMATION_DURATION_MS
                         )
                     }
@@ -472,8 +487,11 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             ContextCompat.getColor(requireContext(), R.color.poTextSuccess)
         )
 
+        bindingCapture.poCircularProgressIndicator.visibility = View.GONE
         bindingCapture.poMessage.text = uiModel.successMessage
+        bindingCapture.poMessage.visibility = View.VISIBLE
         bindingCapture.poLogo.load(uiModel.logoUrl)
+        bindingCapture.poLogo.visibility = View.VISIBLE
         bindingCapture.poActionImage.visibility = View.GONE
         bindingCapture.poSuccessImage.visibility = View.VISIBLE
     }

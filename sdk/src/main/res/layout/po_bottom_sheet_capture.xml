@@ -18,6 +18,17 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/po_circular_progress_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ImageView
         android:id="@+id/po_logo"
         android:layout_width="wrap_content"
@@ -25,6 +36,7 @@
         android:layout_marginTop="@dimen/po_capture_logo_marginTop"
         android:adjustViewBounds="true"
         android:scaleType="fitCenter"
+        android:visibility="gone"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -40,6 +52,7 @@
         android:gravity="center"
         android:paddingLeft="@dimen/po_bottomSheet_marginHorizontal"
         android:paddingRight="@dimen/po_bottomSheet_marginHorizontal"
+        android:visibility="gone"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/po_logo"
@@ -51,6 +64,7 @@
         android:layout_height="@dimen/po_capture_image_height"
         android:layout_marginTop="@dimen/po_capture_message_marginVertical"
         android:scaleType="fitCenter"
+        android:visibility="gone"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/po_message"

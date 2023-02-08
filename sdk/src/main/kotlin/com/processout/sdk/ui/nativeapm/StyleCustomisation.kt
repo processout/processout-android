@@ -41,6 +41,7 @@ internal fun PoBottomSheetCaptureBinding.applyStyle(
     style: PONativeAlternativePaymentMethodConfiguration.Style
 ) {
     style.backgroundDecoration?.let { poBackgroundDecoration.applyStyle(it.normal) }
+    style.progressIndicatorColor?.let { poCircularProgressIndicator.setIndicatorColor(it) }
     style.successImageResId?.let { poSuccessImage.setImageResource(it) }
     style.message?.let { poMessage.applyStyle(it) }
 }
