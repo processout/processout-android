@@ -13,6 +13,9 @@ import coil.request.ImageRequest
 import coil.request.ImageResult
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOutApi
+import com.processout.sdk.api.dispatcher.NativeAlternativePaymentMethodEventDispatcher
+import com.processout.sdk.api.dispatcher.PONativeAlternativePaymentMethodEvent
+import com.processout.sdk.api.dispatcher.PONativeAlternativePaymentMethodEvent.*
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethod
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter
@@ -35,7 +38,8 @@ internal class PONativeAlternativePaymentMethodViewModel(
     private val gatewayConfigurationId: String,
     private val invoiceId: String,
     val options: PONativeAlternativePaymentMethodConfiguration.Options,
-    private val invoicesRepository: InvoicesRepository
+    private val invoicesRepository: InvoicesRepository,
+    private val eventDispatcher: NativeAlternativePaymentMethodEventDispatcher
 ) : AndroidViewModel(app) {
 
     internal class Factory(
@@ -46,13 +50,16 @@ internal class PONativeAlternativePaymentMethodViewModel(
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            PONativeAlternativePaymentMethodViewModel(
-                app,
-                gatewayConfigurationId,
-                invoiceId,
-                options.validate(),
-                ProcessOutApi.instance.invoices
-            ) as T
+            with(ProcessOutApi.instance) {
+                PONativeAlternativePaymentMethodViewModel(
+                    app,
+                    gatewayConfigurationId,
+                    invoiceId,
+                    options.validate(),
+                    invoices,
+                    nativeAlternativePaymentMethodEventDispatcher
+                )
+            } as T
 
         private fun PONativeAlternativePaymentMethodConfiguration.Options.validate() = copy(
             paymentConfirmationTimeoutSeconds =
@@ -75,6 +82,8 @@ internal class PONativeAlternativePaymentMethodViewModel(
     private var capturePollingStartTimestamp = 0L
 
     init {
+        dispatch(WillStart)
+        dispatchFailure()
         fetchTransactionDetails()
     }
 
@@ -94,6 +103,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                         preloadAllImages(coroutineScope = this, uiModel)
                     }
                     _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(uiModel)
+                    dispatch(DidStart)
                 }
                 is ProcessOutResult.Failure ->
                     _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(result)
@@ -123,6 +133,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                     isSubmitAllowed = updatedInputParameters.map { isInputValid(it) }.all { it }
                 )
             )
+            dispatch(ParametersChanged)
         }
     }
 
@@ -152,6 +163,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
             _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(
                 uiModel.copy(isSubmitting = true)
             )
+            dispatch(WillSubmitParameters)
             initiatePayment(uiModel, data)
         }
     }
@@ -198,10 +210,17 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 isSubmitting = false
             )
         )
+        dispatch(DidSubmitParameters(additionalParametersExpected = true))
     }
 
     private fun handlePendingCapture(uiModel: PONativeAlternativePaymentMethodUiModel) {
+        dispatch(DidSubmitParameters(additionalParametersExpected = false))
         if (options.waitsPaymentConfirmation) {
+            dispatch(
+                WillWaitForCaptureConfirmation(
+                    additionalActionExpected = uiModel.showCustomerAction
+                )
+            )
             animateViewTransition = true
             _uiState.value = PONativeAlternativePaymentMethodUiState.Capture(uiModel.copy())
             startCapturePolling()
@@ -230,6 +249,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 isSubmitting = false
             )
         )
+        dispatch(DidFailToSubmitParameters(failure))
     }
 
     private fun startCapturePolling() {
@@ -256,6 +276,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
             when (invoicesRepository.capture(invoiceId, gatewayConfigurationId)) {
                 is ProcessOutResult.Success -> {
                     capturePollingStartTimestamp = 0L
+                    dispatch(DidCompletePayment)
                     _uiState.value.doWhenCapture { uiModel ->
                         animateViewTransition = true
                         _uiState.value = PONativeAlternativePaymentMethodUiState.Success(
@@ -289,6 +310,22 @@ internal class PONativeAlternativePaymentMethodViewModel(
             .diskCachePolicy(CachePolicy.ENABLED)
             .build()
         return app.imageLoader.execute(request)
+    }
+
+    private fun dispatch(event: PONativeAlternativePaymentMethodEvent) {
+        viewModelScope.launch {
+            eventDispatcher.send(event)
+        }
+    }
+
+    private fun dispatchFailure() {
+        viewModelScope.launch {
+            _uiState.collect {
+                if (it is PONativeAlternativePaymentMethodUiState.Failure) {
+                    eventDispatcher.send(DidFail(it.failure))
+                }
+            }
+        }
     }
 
     private fun PONativeAlternativePaymentMethodTransactionDetails.toUiModel() =

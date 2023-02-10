@@ -144,3 +144,25 @@ when (result) {
     }
 }
 ```
+
+## Subscribe to payment sheet lifecycle events
+```
+viewModelScope.launch {
+    ProcessOutApi.instance
+        .nativeAlternativePaymentMethodEventDispatcher
+        .events
+        .collect { event ->
+            when (event) {
+                PONativeAlternativePaymentMethodEvent.WillStart -> TODO()
+                PONativeAlternativePaymentMethodEvent.DidStart -> TODO()
+                PONativeAlternativePaymentMethodEvent.ParametersChanged -> TODO()
+                PONativeAlternativePaymentMethodEvent.WillSubmitParameters -> TODO()
+                is PONativeAlternativePaymentMethodEvent.DidSubmitParameters -> TODO()
+                is PONativeAlternativePaymentMethodEvent.DidFailToSubmitParameters -> TODO()
+                is PONativeAlternativePaymentMethodEvent.WillWaitForCaptureConfirmation -> TODO()
+                PONativeAlternativePaymentMethodEvent.DidCompletePayment -> TODO()
+                is PONativeAlternativePaymentMethodEvent.DidFail -> TODO()
+            }
+        }
+}
+```

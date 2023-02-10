@@ -3,6 +3,7 @@ package com.processout.sdk.api
 import com.processout.processout_sdk.ProcessOut
 import com.processout.processout_sdk.ProcessOutAccessor
 import com.processout.sdk.BuildConfig
+import com.processout.sdk.api.dispatcher.NativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.api.network.NetworkConfiguration
 import com.processout.sdk.api.provider.AlternativePaymentMethodProvider
@@ -19,7 +20,8 @@ class ProcessOutApi private constructor(
     val invoices: InvoicesRepository,
     val cards: CardsRepository,
     val customerTokens: CustomerTokensRepository,
-    val alternativePaymentMethods: AlternativePaymentMethodProvider
+    val alternativePaymentMethods: AlternativePaymentMethodProvider,
+    val nativeAlternativePaymentMethodEventDispatcher: NativeAlternativePaymentMethodEventDispatcher
 ) {
 
     companion object {
@@ -54,7 +56,8 @@ class ProcessOutApi private constructor(
                         projectId = configuration.projectId,
                         checkoutURL = ApiConstants.CHECKOUT_URL
                     )
-                )
+                ),
+                dispatcherGraph = DispatcherGraphImpl()
             )
 
             apiGraph.let {
@@ -64,7 +67,8 @@ class ProcessOutApi private constructor(
                         it.repositoryGraph.invoicesRepository,
                         it.repositoryGraph.cardsRepository,
                         it.repositoryGraph.customerTokensRepository,
-                        it.providerGraph.alternativePaymentMethodProvider
+                        it.providerGraph.alternativePaymentMethodProvider,
+                        it.dispatcherGraph.nativeAlternativePaymentMethodEventDispatcher
                     )
                 }.value
             }

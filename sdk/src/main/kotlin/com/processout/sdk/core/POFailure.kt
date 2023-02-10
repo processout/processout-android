@@ -7,7 +7,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import kotlinx.parcelize.Parcelize
 
-object POFailure {
+class POFailure private constructor() {
 
     @JsonClass(generateAdapter = true)
     internal data class ApiError(
