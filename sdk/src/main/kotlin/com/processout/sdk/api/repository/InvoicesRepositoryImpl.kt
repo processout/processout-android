@@ -113,6 +113,8 @@ private fun POInvoiceAuthorizationRequest.toDeviceDataRequest(deviceData: PODevi
         invoiceDetailsIds,
         overrideMacBlocking,
         initialSchemeTransactionId,
+        authorizeOnly,
+        allowFallbackToSale,
         metadata,
         deviceData
     )

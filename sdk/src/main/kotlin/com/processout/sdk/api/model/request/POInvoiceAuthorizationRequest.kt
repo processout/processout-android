@@ -21,6 +21,10 @@ data class POInvoiceAuthorizationRequest(
     val overrideMacBlocking: Boolean? = null,
     // Allows to specify which scheme ID to use for subsequent CIT/MITs if applicable.
     val initialSchemeTransactionId: String? = null,
+    // Should only authorize the invoice, or should also capture it.
+    val authorizeOnly: Boolean? = null,
+    // Should fallback to sale if the gateway does not support sepration between authorization and capture.
+    val allowFallbackToSale: Boolean? = null,
     // Additional matadata.
     val metadata: Map<String, String>? = null,
 )
@@ -42,6 +46,10 @@ internal data class POInvoiceAuthorizationRequestWithDeviceData(
     val overrideMacBlocking: Boolean? = null,
     @Json(name = "initial_scheme_transaction_id")
     val initialSchemeTransactionId: String? = null,
+    @Json(name = "authorize_only")
+    val authorizeOnly: Boolean? = null,
+    @Json(name = "allow_fallback_to_sale")
+    val allowFallbackToSale: Boolean? = null,
     val metadata: Map<String, String>? = null,
     @Json(name = "device")
     val deviceData: PODeviceData? = null
