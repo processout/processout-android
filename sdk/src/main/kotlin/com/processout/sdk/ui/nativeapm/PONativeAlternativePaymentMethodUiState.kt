@@ -6,7 +6,15 @@ import com.processout.sdk.ui.shared.model.InputParameter
 internal sealed class PONativeAlternativePaymentMethodUiState {
     object Loading : PONativeAlternativePaymentMethodUiState()
 
+    data class Loaded(
+        val uiModel: PONativeAlternativePaymentMethodUiModel
+    ) : PONativeAlternativePaymentMethodUiState()
+
     data class UserInput(
+        val uiModel: PONativeAlternativePaymentMethodUiModel
+    ) : PONativeAlternativePaymentMethodUiState()
+
+    data class Submitted(
         val uiModel: PONativeAlternativePaymentMethodUiModel
     ) : PONativeAlternativePaymentMethodUiState()
 

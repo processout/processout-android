@@ -27,14 +27,14 @@ ext {
     buildToolsVersion = '33.0.1'
 
     androidxCoreVersion = '1.9.0'
-    androidxAppCompatVersion = '1.6.0'
+    androidxAppCompatVersion = '1.6.1'
     androidxConstraintLayoutVersion = '2.1.4'
     androidxActivityKtxVersion = '1.6.1'
     androidxFragmentKtxVersion = '1.5.5'
     androidxLifecycleVersion = '2.5.1'
     androidxRecyclerViewVersion = '1.2.1'
 
-    materialVersion = '1.7.0'
+    materialVersion = '1.8.0'
 
     retrofitVersion = '2.9.0'
     moshiVersion = '1.14.0'

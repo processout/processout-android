@@ -14,8 +14,9 @@ import coil.request.ImageResult
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOutApi
 import com.processout.sdk.api.dispatcher.NativeAlternativePaymentMethodEventDispatcher
-import com.processout.sdk.api.dispatcher.PONativeAlternativePaymentMethodEvent
-import com.processout.sdk.api.dispatcher.PONativeAlternativePaymentMethodEvent.*
+import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
+import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.*
+import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodDefaultValuesRequest
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethod
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter
@@ -81,9 +82,12 @@ internal class PONativeAlternativePaymentMethodViewModel(
 
     private var capturePollingStartTimestamp = 0L
 
+    private val defaultValuesRequests = mutableSetOf<PONativeAlternativePaymentMethodDefaultValuesRequest>()
+
     init {
         dispatch(WillStart)
         dispatchFailure()
+        collectDefaultValues()
         fetchTransactionDetails()
     }
 
@@ -102,13 +106,21 @@ internal class PONativeAlternativePaymentMethodViewModel(
                     if (options.waitsPaymentConfirmation) {
                         preloadAllImages(coroutineScope = this, uiModel)
                     }
-                    _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(uiModel)
-                    dispatch(DidStart)
+                    _uiState.value = PONativeAlternativePaymentMethodUiState.Loaded(uiModel)
+
+                    if (eventDispatcher.subscribedForDefaultValuesRequest())
+                        requestDefaultValues(result.value.parameters)
+                    else startUserInput(uiModel)
                 }
                 is ProcessOutResult.Failure ->
                     _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(result)
             }
         }
+    }
+
+    private fun startUserInput(uiModel: PONativeAlternativePaymentMethodUiModel) {
+        _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(uiModel.copy())
+        dispatch(DidStart)
     }
 
     private fun handleInputParametersFailure() {
@@ -117,6 +129,53 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 "Input field parameters is missing in response.",
                 POFailure.Code.Internal
             )
+        )
+    }
+
+    private fun requestDefaultValues(parameters: List<PONativeAlternativePaymentMethodParameter>) {
+        viewModelScope.launch {
+            eventDispatcher.send(
+                PONativeAlternativePaymentMethodDefaultValuesRequest(
+                    gatewayConfigurationId, invoiceId, parameters
+                ).also { defaultValuesRequests.add(it) }
+            )
+        }
+    }
+
+    private fun collectDefaultValues() {
+        viewModelScope.launch {
+            eventDispatcher.defaultValuesResponse.collect { response ->
+                if (defaultValuesRequests.removeAll { it.uuid == response.uuid }) {
+                    when (val uiState = _uiState.value) {
+                        is PONativeAlternativePaymentMethodUiState.Loaded ->
+                            startUserInput(
+                                uiState.uiModel.withDefaultValues(response.defaultValues)
+                            )
+                        is PONativeAlternativePaymentMethodUiState.Submitted ->
+                            continueUserInput(
+                                uiState.uiModel.withDefaultValues(response.defaultValues)
+                            )
+                        else -> {}
+                    }
+                }
+            }
+        }
+    }
+
+    private fun PONativeAlternativePaymentMethodUiModel.withDefaultValues(
+        defaultValues: Map<String, String>
+    ): PONativeAlternativePaymentMethodUiModel {
+        val updatedInputParameters = inputParameters.map { inputParameter ->
+            defaultValues.entries.find { it.key == inputParameter.parameter.key }?.let {
+                val defaultValue = inputParameter.parameter.length?.let { length ->
+                    it.value.take(length)
+                } ?: it.value
+                inputParameter.copy(value = defaultValue)
+            } ?: inputParameter.copy()
+        }
+        return copy(
+            inputParameters = updatedInputParameters,
+            isSubmitAllowed = isSubmitAllowed(updatedInputParameters)
         )
     }
 
@@ -130,12 +189,15 @@ internal class PONativeAlternativePaymentMethodViewModel(
             _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(
                 uiModel.copy(
                     inputParameters = updatedInputParameters,
-                    isSubmitAllowed = updatedInputParameters.map { isInputValid(it) }.all { it }
+                    isSubmitAllowed = isSubmitAllowed(updatedInputParameters)
                 )
             )
             dispatch(ParametersChanged)
         }
     }
+
+    private fun isSubmitAllowed(parameters: List<InputParameter>) =
+        parameters.map { isInputValid(it) }.all { it }
 
     private fun isInputValid(input: InputParameter): Boolean {
         if (input.parameter.required.not()) return true
@@ -196,16 +258,24 @@ internal class PONativeAlternativePaymentMethodViewModel(
     }
 
     private fun handleCustomerInput(
-        parameterDefinitions: List<PONativeAlternativePaymentMethodParameter>?,
+        parameters: List<PONativeAlternativePaymentMethodParameter>?,
         uiModel: PONativeAlternativePaymentMethodUiModel
     ) {
-        if (parameterDefinitions.isNullOrEmpty()) {
+        if (parameters.isNullOrEmpty()) {
             handleInputParametersFailure()
             return
         }
+        val updatedUiModel = uiModel.copy(inputParameters = parameters.toInputParameters())
+        _uiState.value = PONativeAlternativePaymentMethodUiState.Submitted(updatedUiModel)
+
+        if (eventDispatcher.subscribedForDefaultValuesRequest())
+            requestDefaultValues(parameters)
+        else continueUserInput(updatedUiModel)
+    }
+
+    private fun continueUserInput(uiModel: PONativeAlternativePaymentMethodUiModel) {
         _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(
             uiModel.copy(
-                inputParameters = parameterDefinitions.toInputParameters(),
                 isSubmitAllowed = false,
                 isSubmitting = false
             )
@@ -214,7 +284,14 @@ internal class PONativeAlternativePaymentMethodViewModel(
     }
 
     private fun handlePendingCapture(uiModel: PONativeAlternativePaymentMethodUiModel) {
+        _uiState.value = PONativeAlternativePaymentMethodUiState.Submitted(
+            uiModel.copy(
+                isSubmitAllowed = false,
+                isSubmitting = false
+            )
+        )
         dispatch(DidSubmitParameters(additionalParametersExpected = false))
+
         if (options.waitsPaymentConfirmation) {
             dispatch(
                 WillWaitForCaptureConfirmation(

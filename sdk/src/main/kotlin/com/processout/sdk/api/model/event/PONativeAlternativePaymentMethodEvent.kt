@@ -1,4 +1,4 @@
-package com.processout.sdk.api.dispatcher
+package com.processout.sdk.api.model.event
 
 import com.processout.sdk.core.ProcessOutResult
 

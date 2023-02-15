@@ -205,7 +205,9 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     private fun adjustPeekHeight(animate: Boolean) {
         val peekHeight = when (viewModel.uiState.value) {
             PONativeAlternativePaymentMethodUiState.Loading -> minPeekHeight
+            is PONativeAlternativePaymentMethodUiState.Loaded -> minPeekHeight
             is PONativeAlternativePaymentMethodUiState.UserInput -> minPeekHeight
+            is PONativeAlternativePaymentMethodUiState.Submitted -> minPeekHeight
             is PONativeAlternativePaymentMethodUiState.Capture -> maxPeekHeight
             is PONativeAlternativePaymentMethodUiState.Success -> maxPeekHeight
             is PONativeAlternativePaymentMethodUiState.Failure -> bottomSheetBehavior.peekHeight
@@ -244,6 +246,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                 handleSuccess(uiState.uiModel)
             is PONativeAlternativePaymentMethodUiState.Failure ->
                 handleFailure(uiState.failure)
+            else -> {}
         }
     }
 
