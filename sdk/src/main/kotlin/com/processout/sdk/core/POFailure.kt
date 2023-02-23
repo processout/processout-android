@@ -46,17 +46,17 @@ class POFailure private constructor() {
 
         @Parcelize
         data class Timeout(
-            val timeoutCode: TimeoutCode = TimeoutCode.processoutMobileTimeout
+            val timeoutCode: TimeoutCode = TimeoutCode.mobile
         ) : Code()
 
         @Parcelize
         data class Internal(
-            val internalCode: InternalCode = InternalCode.processoutMobileInternal
+            val internalCode: InternalCode = InternalCode.mobile
         ) : Code()
 
         @Parcelize
         data class Unknown(
-            val unknownCode: UnknownCode = UnknownCode.processoutMobileUnknown
+            val unknownCode: UnknownCode = UnknownCode.mobile
         ) : Code()
     }
 
@@ -191,22 +191,22 @@ class POFailure private constructor() {
     @Parcelize
     @Suppress("EnumEntryName")
     enum class TimeoutCode(val rawValue: String) : Parcelable {
-        processoutMobileTimeout ("processout-mobile.timeout"),
-        gatewayTimeout          ("gateway.timeout")
+        mobile  ("processout-mobile.timeout"),
+        gateway ("gateway.timeout")
     }
 
     @Parcelize
     @Suppress("EnumEntryName")
     enum class InternalCode(val rawValue: String) : Parcelable {
-        processoutMobileInternal ("processout-mobile.internal"),
-        gatewayInternalError     ("gateway-internal-error")
+        mobile  ("processout-mobile.internal"),
+        gateway ("gateway-internal-error")
     }
 
     @Parcelize
     @Suppress("EnumEntryName")
     enum class UnknownCode(val rawValue: String) : Parcelable {
-        processoutMobileUnknown ("processout-mobile.unknown"),
-        gatewayUnknownError     ("gateway.unknown-error")
+        mobile  ("processout-mobile.unknown"),
+        gateway ("gateway.unknown-error")
     }
 }
 
