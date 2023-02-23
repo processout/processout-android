@@ -8,7 +8,7 @@ internal interface Input {
     fun setState(state: State)
 
     sealed class State {
-        object Default : State()
+        data class Default(val editable: Boolean = true) : State()
         data class Error(val message: String?) : State()
     }
 }

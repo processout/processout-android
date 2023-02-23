@@ -41,6 +41,7 @@ import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityC
 import com.processout.sdk.ui.shared.model.InputParameter
 import com.processout.sdk.ui.shared.view.button.POButton
 import com.processout.sdk.ui.shared.view.extensions.*
+import com.processout.sdk.ui.shared.view.input.Input
 import com.processout.sdk.ui.shared.view.input.InputComponent
 import com.processout.sdk.ui.shared.view.input.code.CodeInput
 import com.processout.sdk.ui.shared.view.input.text.TextInput
@@ -272,7 +273,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
 
         binding.poTitle.text = uiModel.title
         bindSubmitButton(uiModel)
-        bindInputs(uiModel.inputParameters)
+        bindInputs(uiModel)
     }
 
     private fun bindSubmitButton(uiModel: PONativeAlternativePaymentMethodUiModel) {
@@ -288,7 +289,8 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         }
     }
 
-    private fun bindInputs(inputParameters: List<InputParameter>) {
+    private fun bindInputs(uiModel: PONativeAlternativePaymentMethodUiModel) {
+        val inputParameters = resolveInputParametersState(uiModel)
         val inputsCountBefore = binding.poInputsContainer.childCount
 
         // find and remove inputs that currently present in the container
@@ -304,20 +306,28 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             }
         }
 
-        inputParameters.forEachIndexed { index, parameter ->
-            binding.poInputsContainer.findViewById<View>(parameter.viewId)?.let {
-                (it as InputComponent).setState(parameter.state)
-            } ?: let {
-                val input = addInputComponent(parameter)
-                if (index == 0) {
-                    input.requestFocusAndShowKeyboard()
-                }
+        inputParameters.forEach { inputParameter ->
+            with(findOrAddInputComponent(inputParameter)) {
+                setState(inputParameter.state)
             }
         }
+        resolveInputFocus(uiModel.focusedInputId)
 
         val inputsCountAfter = binding.poInputsContainer.childCount
         adjustBottomSheetState(inputsCountBefore, inputsCountAfter)
     }
+
+    private fun resolveInputParametersState(uiModel: PONativeAlternativePaymentMethodUiModel) =
+        uiModel.inputParameters.run {
+            if (uiModel.isSubmitting)
+                map { it.copy(state = Input.State.Default(editable = false)) }
+            else this@run
+        }
+
+    private fun findOrAddInputComponent(inputParameter: InputParameter): InputComponent =
+        binding.poInputsContainer.findViewById<View>(inputParameter.viewId)?.let {
+            (it as InputComponent)
+        } ?: addInputComponent(inputParameter)
 
     private fun addInputComponent(inputParameter: InputParameter): InputComponent {
         val length = inputParameter.parameter.length
@@ -340,6 +350,9 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         input.doAfterValueChanged { value ->
             viewModel.updateInputValue(inputParameter.parameter.key, value)
         }
+        input.onFocused { id ->
+            viewModel.updateFocusedInputId(id)
+        }
         input.onKeyboardSubmitClick {
             viewModel.uiState.value.doWhenUserInput { uiModel ->
                 if (uiModel.isSubmitAllowed) {
@@ -349,6 +362,16 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         }
         binding.poInputsContainer.addView(input)
         return input
+    }
+
+    private fun resolveInputFocus(focusedInputId: Int) {
+        binding.poInputsContainer.children.forEachIndexed { index, view ->
+            with(view as InputComponent) {
+                if ((focusedInputId == View.NO_ID && index == 0) ||
+                    view.id == focusedInputId
+                ) requestFocusAndShowKeyboard()
+            }
+        }
     }
 
     private fun onSubmitClick() {
@@ -366,7 +389,6 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     }
 
     private fun initCaptureView() {
-        view?.hideKeyboard()
         if (_bindingCapture == null) {
             with(binding.poContainer) {
                 removeAllViews()

@@ -16,10 +16,7 @@ internal fun View.requestFocusAndShowKeyboard() {
             // but InputMethodManager is not ready yet.
             post {
                 val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                val isInputMethodManagerReady = imm.showSoftInput(this, SHOW_IMPLICIT)
-                if (!isInputMethodManagerReady) {
-                    requestFocusAndShowKeyboard()
-                }
+                imm.showSoftInput(this, SHOW_IMPLICIT)
             }
         }
     }
@@ -38,9 +35,4 @@ internal fun View.requestFocusAndShowKeyboard() {
                 }
             })
     }
-}
-
-internal fun View.hideKeyboard() {
-    val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-    imm.hideSoftInputFromWindow(windowToken, 0)
 }

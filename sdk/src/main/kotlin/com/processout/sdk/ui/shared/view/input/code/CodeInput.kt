@@ -9,7 +9,6 @@ import android.view.inputmethod.EditorInfo
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.view.ContextThemeWrapper
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.widget.doAfterTextChanged
 import com.processout.sdk.R
 import com.processout.sdk.ui.nativeapm.applyStyle
@@ -25,7 +24,7 @@ internal class CodeInput(
     attrs: AttributeSet? = null,
     override val inputParameter: InputParameter? = null,
     override val style: POInputStyle? = null
-) : ConstraintLayout(context, attrs, 0), InputComponent {
+) : LinearLayout(context, attrs, 0), InputComponent {
 
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, null, null)
@@ -36,7 +35,7 @@ internal class CodeInput(
     }
 
     private var focusIndex: Int = 0
-    private var state: Input.State = inputParameter?.state ?: Input.State.Default
+    private var state: Input.State = inputParameter?.state ?: Input.State.Default()
 
     private val title: TextView
     private val container: LinearLayout
@@ -45,6 +44,7 @@ internal class CodeInput(
     private val editTexts = mutableListOf<CodeEditText>()
     private var afterValueChanged: ((String) -> Unit)? = null
     private var keyboardSubmitClick: (() -> Unit)? = null
+    private var onFocusedAction: ((Int) -> Unit)? = null
 
     override var value: String
         get() {
@@ -55,7 +55,7 @@ internal class CodeInput(
             return value
         }
         set(value) {
-            val newValue = value.replace(Regex("[^0-9 ]"), String())
+            val newValue = value.replace(Regex("[^\\d ]"), String())
             editTexts.forEachIndexed { index, editText ->
                 val char = newValue.getOrNull(index)
                 val text = char?.let {
@@ -63,19 +63,21 @@ internal class CodeInput(
                 }
                 editText.setText(text, TextView.BufferType.EDITABLE)
             }
-            if (isNotFilled()) {
-                resetFocus()
-            }
         }
 
     init {
         LayoutInflater.from(
             ContextThemeWrapper(context, R.style.Theme_ProcessOut_Default_Input)
         ).inflate(R.layout.po_code_input, this, true)
+        layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+        orientation = VERTICAL
 
         title = findViewById(R.id.po_title)
-        container = findViewById(R.id.po_container)
         errorMessage = findViewById(R.id.po_error_message)
+        container = findViewById(R.id.po_container)
+        container.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) changeFocus(next = true)
+        }
 
         for (index in 0 until length()) {
             addEditText(index)
@@ -100,6 +102,13 @@ internal class CodeInput(
         id = inputParameter?.viewId ?: View.generateViewId()
         inputParameter?.let {
             title.text = it.parameter.displayName
+            container.id = it.focusableViewId
+            it.keyboardAction?.let { action ->
+                editTexts.forEach { editText ->
+                    editText.imeOptions = action.imeOptions
+                    editText.nextFocusForwardId = action.nextFocusForwardId
+                }
+            }
             value = it.value
         }
     }
@@ -120,7 +129,7 @@ internal class CodeInput(
             it.setState(state)
         }
         when (state) {
-            Input.State.Default -> {
+            is Input.State.Default -> {
                 style?.normal?.let { applyStateStyle(it) }
                 errorMessage.visibility = View.INVISIBLE
             }
@@ -133,10 +142,16 @@ internal class CodeInput(
         this.state = state
     }
 
+    private fun applyStateStyle(stateStyle: POInputStateStyle) {
+        title.applyStyle(stateStyle.title)
+        errorMessage.applyStyle(stateStyle.description)
+    }
+
     private fun setListeners(index: Int) {
         editTexts[index].setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 focusIndex = index
+                onFocusedAction?.invoke(id)
             }
         }
 
@@ -147,7 +162,6 @@ internal class CodeInput(
                     changeFocus(next = true)
                 }
             }
-
             afterValueChanged?.invoke(value)
         }
 
@@ -171,19 +185,6 @@ internal class CodeInput(
             }
             return@setOnKeyListener false
         }
-    }
-
-    override fun doAfterValueChanged(action: (value: String) -> Unit) {
-        afterValueChanged = action
-    }
-
-    override fun onKeyboardSubmitClick(action: () -> Unit) {
-        keyboardSubmitClick = action
-    }
-
-    private fun resetFocus() {
-        focusIndex = 0
-        changeFocus(next = true)
     }
 
     private fun changeFocus(next: Boolean) {
@@ -217,7 +218,14 @@ internal class CodeInput(
     }
 
     override fun requestFocusAndShowKeyboard() {
-        editTexts[focusIndex].requestFocusAndShowKeyboard()
+        if (editTexts[focusIndex].isFocused.not()) {
+            editTexts[focusIndex].requestFocusAndShowKeyboard()
+        }
+    }
+
+    private fun resetFocus() {
+        focusIndex = 0
+        changeFocus(next = true)
     }
 
     private fun isFilled(): Boolean {
@@ -227,10 +235,15 @@ internal class CodeInput(
         return true
     }
 
-    private fun isNotFilled() = isFilled().not()
+    override fun doAfterValueChanged(action: (value: String) -> Unit) {
+        afterValueChanged = action
+    }
 
-    private fun applyStateStyle(stateStyle: POInputStateStyle) {
-        title.applyStyle(stateStyle.title)
-        errorMessage.applyStyle(stateStyle.description)
+    override fun onKeyboardSubmitClick(action: () -> Unit) {
+        keyboardSubmitClick = action
+    }
+
+    override fun onFocused(action: (id: Int) -> Unit) {
+        onFocusedAction = action
     }
 }

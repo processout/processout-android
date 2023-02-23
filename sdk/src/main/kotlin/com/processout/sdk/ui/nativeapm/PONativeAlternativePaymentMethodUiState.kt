@@ -1,5 +1,6 @@
 package com.processout.sdk.ui.nativeapm
 
+import android.view.View
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.shared.model.InputParameter
 
@@ -35,6 +36,7 @@ internal data class PONativeAlternativePaymentMethodUiModel(
     val title: String,
     val logoUrl: String,
     val inputParameters: List<InputParameter>,
+    val focusedInputId: Int = View.NO_ID,
     val successMessage: String,
     val failureMessage: String? = null,
     val customerActionMessage: String?,

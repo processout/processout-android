@@ -2,6 +2,8 @@ package com.processout.sdk.ui.nativeapm
 
 import android.app.Application
 import android.util.Patterns
+import android.view.View
+import android.view.inputmethod.EditorInfo
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
@@ -183,7 +185,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
         _uiState.value.doWhenUserInput { uiModel ->
             val updatedInputParameters = uiModel.inputParameters.map {
                 if (it.parameter.key == key)
-                    it.copy(value = newValue, state = Input.State.Default)
+                    it.copy(value = newValue, state = Input.State.Default())
                 else it.copy()
             }
             _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(
@@ -220,13 +222,22 @@ internal class PONativeAlternativePaymentMethodViewModel(
         }
     }
 
+    fun updateFocusedInputId(id: Int) {
+        _uiState.value.doWhenUserInput { uiModel ->
+            if (uiModel.focusedInputId != id) {
+                _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(
+                    uiModel.copy(focusedInputId = id)
+                )
+            }
+        }
+    }
+
     fun submitPayment(data: Map<String, String>) {
         _uiState.value.doWhenUserInput { uiModel ->
-            _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(
-                uiModel.copy(isSubmitting = true)
-            )
+            val updatedUiModel = uiModel.copy(isSubmitting = true)
+            _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(updatedUiModel)
             dispatch(WillSubmitParameters)
-            initiatePayment(uiModel, data)
+            initiatePayment(updatedUiModel, data)
         }
     }
 
@@ -265,7 +276,10 @@ internal class PONativeAlternativePaymentMethodViewModel(
             handleInputParametersFailure()
             return
         }
-        val updatedUiModel = uiModel.copy(inputParameters = parameters.toInputParameters())
+        val updatedUiModel = uiModel.copy(
+            inputParameters = parameters.toInputParameters(),
+            focusedInputId = View.NO_ID
+        )
         _uiState.value = PONativeAlternativePaymentMethodUiState.Submitted(updatedUiModel)
 
         if (eventDispatcher.subscribedForDefaultValuesRequest())
@@ -422,7 +436,25 @@ internal class PONativeAlternativePaymentMethodViewModel(
         )
 
     private fun List<PONativeAlternativePaymentMethodParameter>.toInputParameters() =
-        map { InputParameter(parameter = it) }
+        map { InputParameter(parameter = it) }.let { inputParameters ->
+            inputParameters.mapIndexed { index, inputParameter ->
+                if (index == inputParameters.lastIndex) {
+                    inputParameter.copy(
+                        keyboardAction = InputParameter.KeyboardAction(
+                            imeOptions = EditorInfo.IME_ACTION_DONE
+                        )
+                    )
+                } else {
+                    inputParameter.copy(
+                        keyboardAction = InputParameter.KeyboardAction(
+                            imeOptions = EditorInfo.IME_ACTION_NEXT,
+                            nextFocusForwardId = inputParameters.getOrNull(index + 1)
+                                ?.focusableViewId ?: View.NO_ID
+                        )
+                    )
+                }
+            }
+        }
 
     private fun PONativeAlternativePaymentMethodTransactionDetails.Invoice.submitButtonTextWithFormattedPrice() =
         try {

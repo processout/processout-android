@@ -8,9 +8,11 @@ import com.processout.sdk.ui.shared.view.input.Input
 
 internal data class InputParameter(
     val viewId: Int = View.generateViewId(),
+    val focusableViewId: Int = View.generateViewId(),
     val value: String = String(),
     val hint: String? = null,
-    val state: Input.State = Input.State.Default,
+    val state: Input.State = Input.State.Default(),
+    val keyboardAction: KeyboardAction? = null,
     val parameter: PONativeAlternativePaymentMethodParameter
 ) {
     fun toInputType() = when (parameter.type) {
@@ -19,4 +21,9 @@ internal data class InputParameter(
         ParameterType.email -> InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
         ParameterType.phone -> InputType.TYPE_CLASS_PHONE
     }
+
+    data class KeyboardAction(
+        val imeOptions: Int,
+        val nextFocusForwardId: Int = View.NO_ID
+    )
 }

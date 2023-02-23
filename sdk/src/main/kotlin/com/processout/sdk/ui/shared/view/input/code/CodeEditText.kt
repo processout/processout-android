@@ -47,6 +47,7 @@ internal class CodeEditText(
     private var errorControlsTintColor = ContextCompat.getColor(context, R.color.poTextError)
 
     init {
+        id = View.generateViewId()
         initLayoutParams()
         disableActionMode()
         inputType = InputType.TYPE_CLASS_NUMBER or
@@ -68,17 +69,19 @@ internal class CodeEditText(
             errorControlsTintColor = it.controlsTintColor
         }
 
-        setState(Input.State.Default)
+        setState(Input.State.Default())
     }
 
     override fun setState(state: Input.State) {
         when (state) {
-            Input.State.Default -> {
+            is Input.State.Default -> {
+                isEnabled = state.editable
                 background = defaultBackground
                 applyControlsTintColor(defaultControlsTintColor)
                 style?.normal?.field?.text?.let { applyStyle(it) }
             }
             is Input.State.Error -> {
+                isEnabled = true
                 background = errorBackground
                 applyControlsTintColor(errorControlsTintColor)
                 style?.error?.field?.text?.let { applyStyle(it) }

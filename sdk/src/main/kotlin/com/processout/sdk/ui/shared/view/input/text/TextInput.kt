@@ -1,16 +1,15 @@
 package com.processout.sdk.ui.shared.view.input.text
 
 import android.content.Context
-import android.text.InputType
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.appcompat.view.ContextThemeWrapper
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import androidx.core.widget.doAfterTextChanged
@@ -31,7 +30,7 @@ internal class TextInput(
     attrs: AttributeSet? = null,
     override val inputParameter: InputParameter? = null,
     override val style: POInputStyle? = null
-) : ConstraintLayout(context, attrs, 0), InputComponent {
+) : LinearLayout(context, attrs, 0), InputComponent {
 
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, null)
@@ -40,7 +39,7 @@ internal class TextInput(
         private const val HIGHLIGHT_COLOR_ALPHA = 95
     }
 
-    private var state: Input.State = inputParameter?.state ?: Input.State.Default
+    private var state: Input.State = inputParameter?.state ?: Input.State.Default()
 
     private val title: TextView
     private val editText: EditText
@@ -57,6 +56,7 @@ internal class TextInput(
 
     private var afterValueChanged: ((String) -> Unit)? = null
     private var keyboardSubmitClick: (() -> Unit)? = null
+    private var onFocusedAction: ((Int) -> Unit)? = null
 
     override var value: String
         get() = editText.text.toString()
@@ -69,6 +69,8 @@ internal class TextInput(
         LayoutInflater.from(
             ContextThemeWrapper(context, R.style.Theme_ProcessOut_Default_Input)
         ).inflate(R.layout.po_text_input, this, true)
+        layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+        orientation = VERTICAL
 
         title = findViewById(R.id.po_title)
         editText = findViewById(R.id.po_edit_text)
@@ -90,16 +92,28 @@ internal class TextInput(
 
     private fun initWithInputParameters() {
         id = inputParameter?.viewId ?: View.generateViewId()
-        editText.inputType = inputParameter?.toInputType() ?: InputType.TYPE_CLASS_TEXT
-        editText.imeOptions = EditorInfo.IME_ACTION_DONE
         inputParameter?.let {
             title.text = it.parameter.displayName
-            editText.hint = it.hint
+            with(editText) {
+                id = it.focusableViewId
+                hint = it.hint
+                inputType = it.toInputType()
+                it.keyboardAction?.let { action ->
+                    imeOptions = action.imeOptions
+                    nextFocusForwardId = action.nextFocusForwardId
+                }
+            }
             value = it.value
         }
     }
 
     private fun setListeners() {
+        editText.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                onFocusedAction?.invoke(id)
+            }
+        }
+
         editText.doAfterTextChanged {
             afterValueChanged?.invoke(value)
         }
@@ -114,6 +128,12 @@ internal class TextInput(
         }
     }
 
+    override fun requestFocusAndShowKeyboard() {
+        if (editText.isFocused.not()) {
+            editText.requestFocusAndShowKeyboard()
+        }
+    }
+
     override fun setState(state: Input.State) {
         if (this.state == state) return
         applyState(state)
@@ -121,8 +141,9 @@ internal class TextInput(
 
     private fun applyState(state: Input.State) {
         when (state) {
-            Input.State.Default -> {
+            is Input.State.Default -> {
                 style?.normal?.let { applyStateStyle(it) }
+                editText.isEnabled = state.editable
                 editText.background = defaultBackground
                 editText.highlightColor = ColorUtils.setAlphaComponent(
                     defaultControlsTintColor, HIGHLIGHT_COLOR_ALPHA
@@ -132,6 +153,7 @@ internal class TextInput(
             }
             is Input.State.Error -> {
                 style?.error?.let { applyStateStyle(it) }
+                editText.isEnabled = true
                 editText.background = errorBackground
                 editText.highlightColor = ColorUtils.setAlphaComponent(
                     errorControlsTintColor, HIGHLIGHT_COLOR_ALPHA
@@ -144,6 +166,15 @@ internal class TextInput(
         this.state = state
     }
 
+    private fun applyStateStyle(stateStyle: POInputStateStyle) {
+        title.applyStyle(stateStyle.title)
+        editText.applyStyle(stateStyle.field.text)
+        stateStyle.field.hintTextColor?.let {
+            editText.setHintTextColor(it)
+        }
+        errorMessage.applyStyle(stateStyle.description)
+    }
+
     override fun doAfterValueChanged(action: (value: String) -> Unit) {
         afterValueChanged = action
     }
@@ -152,16 +183,7 @@ internal class TextInput(
         keyboardSubmitClick = action
     }
 
-    override fun requestFocusAndShowKeyboard() {
-        editText.requestFocusAndShowKeyboard()
-    }
-
-    private fun applyStateStyle(stateStyle: POInputStateStyle) {
-        title.applyStyle(stateStyle.title)
-        editText.applyStyle(stateStyle.field.text)
-        stateStyle.field.hintTextColor?.let {
-            editText.setHintTextColor(it)
-        }
-        errorMessage.applyStyle(stateStyle.description)
+    override fun onFocused(action: (id: Int) -> Unit) {
+        onFocusedAction = action
     }
 }
