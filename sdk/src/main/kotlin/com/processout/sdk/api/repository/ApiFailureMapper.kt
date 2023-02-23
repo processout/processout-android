@@ -29,13 +29,19 @@ internal fun <T : Any> Response<T>.toFailure(moshi: Moshi): ProcessOutResult.Fai
                 ?.let { POFailure.Code.Validation(it) }
                 ?: POFailure.GenericCode::rawValue.findBy(apiError?.errorType)
                     ?.let { POFailure.Code.Generic(it) }
-        in 500..599 -> POFailure.Code.Internal
-        else -> POFailure.Code.Unknown
+                ?: POFailure.TimeoutCode::rawValue.findBy(apiError?.errorType)
+                    ?.let { POFailure.Code.Timeout(it) }
+                ?: POFailure.InternalCode::rawValue.findBy(apiError?.errorType)
+                    ?.let { POFailure.Code.Internal(it) }
+                ?: POFailure.UnknownCode::rawValue.findBy(apiError?.errorType)
+                    ?.let { POFailure.Code.Unknown(it) }
+        in 500..599 -> POFailure.Code.Internal()
+        else -> POFailure.Code.Unknown()
     }
 
     return ProcessOutResult.Failure(
         message,
-        failureCode ?: POFailure.Code.Unknown,
+        failureCode ?: POFailure.Code.Unknown(),
         apiError?.invalidFields
     )
 }

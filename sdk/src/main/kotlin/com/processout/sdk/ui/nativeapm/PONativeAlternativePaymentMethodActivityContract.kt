@@ -28,6 +28,6 @@ class PONativeAlternativePaymentMethodActivityContract : ActivityResultContract
         intent?.getParcelableExtra(EXTRA_RESULT)
             ?: PONativeAlternativePaymentMethodResult.Failure(
                 "Activity result was not provided.",
-                POFailure.Code.Internal
+                POFailure.Code.Internal()
             )
 }

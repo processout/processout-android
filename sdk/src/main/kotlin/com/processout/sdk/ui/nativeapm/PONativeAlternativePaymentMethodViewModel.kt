@@ -129,7 +129,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
         _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
             ProcessOutResult.Failure(
                 "Input field parameters is missing in response.",
-                POFailure.Code.Internal
+                POFailure.Code.Internal()
             )
         )
     }
@@ -358,7 +358,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
                     ProcessOutResult.Failure(
                         "Payment confirmation timed out.",
-                        POFailure.Code.Timeout
+                        POFailure.Code.Timeout()
                     )
                 )
                 return@launch

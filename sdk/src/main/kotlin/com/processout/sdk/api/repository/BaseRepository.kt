@@ -25,7 +25,7 @@ internal abstract class BaseRepository(
                 true -> response.body()?.let { ProcessOutResult.Success(it) }
                     ?: ProcessOutResult.Failure(
                         "Response body is empty.",
-                        POFailure.Code.Internal
+                        POFailure.Code.Internal()
                     )
                 false -> response.toFailure(moshi)
             }
@@ -33,7 +33,7 @@ internal abstract class BaseRepository(
             when (e) {
                 is SocketTimeoutException -> ProcessOutResult.Failure(
                     e.message ?: "Request timed out.",
-                    POFailure.Code.Timeout, cause = e
+                    POFailure.Code.Timeout(), cause = e
                 )
                 is IOException -> ProcessOutResult.Failure(
                     e.message ?: "Network is unreachable.",
@@ -41,7 +41,7 @@ internal abstract class BaseRepository(
                 )
                 else -> ProcessOutResult.Failure(
                     "Unexpected exception during API call.",
-                    POFailure.Code.Internal, cause = e
+                    POFailure.Code.Internal(), cause = e
                 )
             }
         }

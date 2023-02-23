@@ -93,7 +93,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                 finishWithActivityResult(
                     PONativeAlternativePaymentMethodResult.Failure(
                         "Invalid configuration.",
-                        POFailure.Code.Internal
+                        POFailure.Code.Internal()
                     )
                 )
             }
