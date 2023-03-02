@@ -1,17 +1,15 @@
 package com.processout.sdk.ui.shared.view.button
 
 import android.content.Context
-import android.content.res.ColorStateList
 import android.util.AttributeSet
-import android.widget.TextView
 import androidx.appcompat.view.ContextThemeWrapper
-import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
 import com.google.android.material.button.MaterialButton
 import com.processout.sdk.R
+import com.processout.sdk.ui.nativeapm.applyButtonStatesStyle
 import com.processout.sdk.ui.nativeapm.applyStyle
 import com.processout.sdk.ui.shared.style.button.POButtonStyle
 import com.processout.sdk.ui.shared.view.extensions.buttonCircularProgressDrawable
+import com.processout.sdk.ui.shared.view.extensions.dpToPx
 
 internal class POButton(
     context: Context,
@@ -30,11 +28,8 @@ internal class POButton(
     private var state: State = State.DISABLED
     private var style: POButtonStyle? = null
     private var label: String = text.toString()
-
-    private var progressDrawable = buttonCircularProgressDrawable(
-        context,
-        ContextCompat.getColor(context, R.color.poButtonTextPrimary)
-    )
+    private val defaultElevation = elevation
+    private var progressDrawable = buttonCircularProgressDrawable(context, textColors.defaultColor)
 
     init {
         setState(state)
@@ -75,35 +70,23 @@ internal class POButton(
     fun applyStyle(style: POButtonStyle) {
         this.style = style
         progressDrawable = buttonCircularProgressDrawable(context, style.progressIndicatorColor)
-
-        val colorStateList = ColorStateList(
-            arrayOf(
-                intArrayOf(android.R.attr.state_pressed),
-                intArrayOf(android.R.attr.state_enabled),
-                intArrayOf(-android.R.attr.state_enabled)
-            ),
-            intArrayOf(
-                style.highlightedBackgroundColor,
-                style.normal.backgroundColor,
-                style.disabled.backgroundColor
-            )
-        )
-        ViewCompat.setBackgroundTintList(this, colorStateList)
-
+        applyButtonStatesStyle(style)
         setState(state)
     }
 
     private fun applyEnabledStyle() {
-        style?.normal?.text?.let {
-            (this as TextView).applyStyle(it)
+        elevation = style?.normal?.elevationDp?.dpToPx(context)?.toFloat() ?: defaultElevation
+        style?.normal?.let {
+            applyStyle(it.text.typography)
+            applyStyle(it.border)
         }
-        style?.normal?.border?.let { applyStyle(it) }
     }
 
     private fun applyDisabledStyle() {
-        style?.disabled?.text?.let {
-            (this as TextView).applyStyle(it)
+        elevation = style?.disabled?.elevationDp?.dpToPx(context)?.toFloat() ?: 0f
+        style?.disabled?.let {
+            applyStyle(it.text.typography)
+            applyStyle(it.border)
         }
-        style?.disabled?.border?.let { applyStyle(it) }
     }
 }

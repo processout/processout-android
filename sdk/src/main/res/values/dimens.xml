@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="po_bottomSheet_minHeight">410dp</dimen>
+    <dimen name="po_bottomSheet_minHeight">438dp</dimen>
+    <dimen name="po_bottomSheet_marginTop">40dp</dimen>
     <dimen name="po_bottomSheet_marginHorizontal">24dp</dimen>
-    <dimen name="po_bottomSheet_marginTop">44dp</dimen>
-    <dimen name="po_bottomSheet_marginBottom">20dp</dimen>
+    <dimen name="po_bottomSheet_content_marginBottom">20dp</dimen>
+    <dimen name="po_bottomSheet_buttons_marginHorizontal">20dp</dimen>
+    <dimen name="po_bottomSheet_buttons_marginBottom">16dp</dimen>
     <dimen name="po_bottomSheet_cornerRadius">16dp</dimen>
 
     <dimen name="po_cornerRadius">8dp</dimen>
@@ -18,6 +20,10 @@
     <dimen name="po_codeEditText_space">8dp</dimen>
 
     <dimen name="po_button_padding">14dp</dimen>
+    <dimen name="po_button_marginTop">12dp</dimen>
+    <dimen name="po_button_insetTop">0dp</dimen>
+    <dimen name="po_button_insetBottom">8dp</dimen>
+    <dimen name="po_button_insetHorizontal">4dp</dimen>
     <dimen name="po_button_circularProgressIndicator_size">18dp</dimen>
 
     <dimen name="po_dragHandle_width">32dp</dimen>

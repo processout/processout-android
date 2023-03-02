@@ -56,13 +56,30 @@
         <item name="android:textSelectHandleRight">@drawable/po_text_select_handle_right</item>
     </style>
 
-    <style name="Widget.ProcessOut.Button" parent="Widget.MaterialComponents.Button">
-        <item name="maxLines">1</item>
+    <style name="Widget.ProcessOut.Button" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+        <item name="android:maxLines">1</item>
         <item name="cornerRadius">@dimen/po_cornerRadius</item>
         <item name="android:padding">@dimen/po_button_padding</item>
         <item name="iconPadding">0dp</item>
         <item name="iconGravity">textStart</item>
-        <item name="backgroundTint">@color/po_submit_button_states</item>
+        <item name="android:insetTop">@dimen/po_button_insetTop</item>
+        <item name="android:insetBottom">@dimen/po_button_insetBottom</item>
+        <item name="android:insetLeft">@dimen/po_button_insetHorizontal</item>
+        <item name="android:insetRight">@dimen/po_button_insetHorizontal</item>
+    </style>
+
+    <style name="Widget.ProcessOut.Button.Primary">
+        <item name="backgroundTint">@color/po_button_primary_background_states</item>
+        <item name="android:textColor">@color/po_button_primary_text_states</item>
+        <item name="android:elevation">2dp</item>
+    </style>
+
+    <style name="Widget.ProcessOut.Button.Secondary">
+        <item name="backgroundTint">@color/po_button_secondary_background_states</item>
+        <item name="android:textColor">@color/po_button_secondary_text_states</item>
+        <item name="strokeColor">@color/po_button_secondary_border_states</item>
+        <item name="strokeWidth">@dimen/po_borderWidth</item>
+        <item name="android:elevation">0dp</item>
     </style>
 
 </resources>

@@ -43,6 +43,7 @@ internal data class PONativeAlternativePaymentMethodUiModel(
     val customerActionImageUrl: String?,
     val showCustomerAction: Boolean = customerActionMessage.isNullOrBlank().not(),
     val submitButtonText: String,
+    val secondaryButtonText: String,
     val isSubmitAllowed: Boolean,
     val isSubmitting: Boolean
 )

@@ -23,24 +23,37 @@ data class PONativeAlternativePaymentMethodConfiguration(
     @Parcelize
     data class Options(
         val title: String? = null,
-        val submitButtonText: String? = null,
+        val primaryActionText: String? = null,
+        val secondaryAction: SecondaryAction? = null,
+        val cancellation: Cancellation = Cancellation(),
         val successMessage: String? = null,
         val skipSuccessScreen: Boolean = false,
         val waitsPaymentConfirmation: Boolean = true,
-        val paymentConfirmationTimeoutSeconds: Int = MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS,
-        val cancelableBottomSheet: Boolean = true
+        val paymentConfirmationTimeoutSeconds: Int = MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
     ) : Parcelable {
         companion object {
             const val MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS = 180
         }
     }
 
+    sealed class SecondaryAction : Parcelable {
+        @Parcelize
+        data class Cancel(val text: String? = null) : SecondaryAction()
+    }
+
+    @Parcelize
+    data class Cancellation(
+        val dragDown: Boolean = true,
+        val touchOutside: Boolean = true
+    ) : Parcelable
+
     @Parcelize
     data class Style(
         val title: POTextStyle? = null,
         val input: POInputStyle? = null,
         val codeInput: POInputStyle? = null,
-        val submitButton: POButtonStyle? = null,
+        val primaryButton: POButtonStyle? = null,
+        val secondaryButton: POButtonStyle? = null,
         @ColorInt
         val backgroundColor: Int? = null,
         @ColorInt

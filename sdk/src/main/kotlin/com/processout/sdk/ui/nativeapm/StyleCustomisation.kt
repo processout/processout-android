@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.TypefaceCompat
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.core.view.ViewCompat
 import androidx.core.widget.TextViewCompat
 import com.google.android.material.button.MaterialButton
 import com.processout.sdk.R
@@ -23,7 +24,9 @@ import com.processout.sdk.databinding.PoBottomSheetCaptureBinding
 import com.processout.sdk.databinding.PoBottomSheetNativeApmBinding
 import com.processout.sdk.ui.shared.style.POBorderStyle
 import com.processout.sdk.ui.shared.style.POTextStyle
+import com.processout.sdk.ui.shared.style.POTypography
 import com.processout.sdk.ui.shared.style.background.POBackgroundDecorationStateStyle
+import com.processout.sdk.ui.shared.style.button.POButtonStyle
 import com.processout.sdk.ui.shared.view.extensions.dpToPx
 import com.processout.sdk.ui.shared.view.extensions.spToPx
 
@@ -34,7 +37,8 @@ internal fun PoBottomSheetNativeApmBinding.applyStyle(
     style.backgroundDecoration?.let { poLoading.poBackgroundDecoration.applyStyle(it.normal) }
     style.progressIndicatorColor?.let { poLoading.poCircularProgressIndicator.setIndicatorColor(it) }
     style.title?.let { poTitle.applyStyle(it) }
-    style.submitButton?.let { poSubmitButton.applyStyle(it) }
+    style.primaryButton?.let { poSubmitButton.applyStyle(it) }
+    style.secondaryButton?.let { poSecondaryButton.applyStyle(it) }
 }
 
 internal fun PoBottomSheetCaptureBinding.applyStyle(
@@ -48,7 +52,11 @@ internal fun PoBottomSheetCaptureBinding.applyStyle(
 
 internal fun TextView.applyStyle(style: POTextStyle) {
     setTextColor(style.color)
-    style.typography.let {
+    applyStyle(style.typography)
+}
+
+internal fun TextView.applyStyle(typography: POTypography) {
+    typography.let {
         textSize = it.textSizeSp.toFloat()
         TextViewCompat.setLineHeight(this, it.lineHeightSp.spToPx(context))
         val customTypeface = it.fontResId?.let { fontResId ->
@@ -64,10 +72,51 @@ internal fun TextView.applyStyle(style: POTextStyle) {
     }
 }
 
+internal fun MaterialButton.applyButtonStatesStyle(style: POButtonStyle) {
+    ViewCompat.setBackgroundTintList(
+        this, createButtonColorStateList(
+            style.normal.backgroundColor,
+            style.disabled.backgroundColor,
+            style.highlighted.backgroundColor
+        )
+    )
+    setTextColor(
+        createButtonColorStateList(
+            style.normal.text.color,
+            style.disabled.text.color,
+            style.highlighted.textColor
+        )
+    )
+    strokeColor = createButtonColorStateList(
+        style.normal.border.color,
+        style.disabled.border.color,
+        style.highlighted.borderColor
+    )
+}
+
+internal fun createButtonColorStateList(
+    @ColorInt
+    enabledColor: Int,
+    @ColorInt
+    disabledColor: Int,
+    @ColorInt
+    pressedColor: Int
+) = ColorStateList(
+    arrayOf(
+        intArrayOf(android.R.attr.state_pressed),
+        intArrayOf(-android.R.attr.state_enabled),
+        intArrayOf()
+    ),
+    intArrayOf(
+        pressedColor,
+        disabledColor,
+        enabledColor
+    )
+)
+
 internal fun MaterialButton.applyStyle(style: POBorderStyle) {
     cornerRadius = style.radiusDp.dpToPx(context)
     strokeWidth = style.widthDp.dpToPx(context)
-    strokeColor = ColorStateList.valueOf(style.color)
 }
 
 internal fun View.applyStyle(style: POBackgroundDecorationStateStyle) {

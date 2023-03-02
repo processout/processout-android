@@ -169,7 +169,7 @@ internal class TextInput(
     private fun applyStateStyle(stateStyle: POInputStateStyle) {
         title.applyStyle(stateStyle.title)
         editText.applyStyle(stateStyle.field.text)
-        stateStyle.field.hintTextColor?.let {
+        stateStyle.field.hintTextColor.let {
             editText.setHintTextColor(it)
         }
         errorMessage.applyStyle(stateStyle.description)

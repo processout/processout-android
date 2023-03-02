@@ -429,8 +429,8 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 ?: app.getString(R.string.po_native_apm_success_message),
             customerActionMessage = gateway.customerActionMessage,
             customerActionImageUrl = gateway.customerActionImageUrl,
-            submitButtonText = options.submitButtonText
-                ?: invoice.submitButtonTextWithFormattedPrice(),
+            submitButtonText = options.primaryActionText ?: invoice.formatPrimaryButtonText(),
+            secondaryButtonText = getSecondaryButtonText(),
             isSubmitAllowed = false,
             isSubmitting = false
         )
@@ -456,7 +456,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
             }
         }
 
-    private fun PONativeAlternativePaymentMethodTransactionDetails.Invoice.submitButtonTextWithFormattedPrice() =
+    private fun PONativeAlternativePaymentMethodTransactionDetails.Invoice.formatPrimaryButtonText() =
         try {
             val price = NumberFormat.getCurrencyInstance().apply {
                 currency = Currency.getInstance(currencyCode)
@@ -465,4 +465,13 @@ internal class PONativeAlternativePaymentMethodViewModel(
         } catch (_: Exception) {
             app.getString(R.string.po_native_apm_submit_button_default_text)
         }
+
+    private fun getSecondaryButtonText(): String {
+        val defaultText = app.getString(R.string.po_native_apm_cancel_button_default_text)
+        return when (val action = options.secondaryAction) {
+            is PONativeAlternativePaymentMethodConfiguration.SecondaryAction.Cancel ->
+                action.text ?: defaultText
+            null -> defaultText
+        }
+    }
 }

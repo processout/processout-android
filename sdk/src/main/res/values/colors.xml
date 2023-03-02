@@ -24,10 +24,27 @@
 
     <color name="poIconPrimary">#121212</color>
 
+    <!-- Button Primary -->
+
     <color name="poButtonPrimary">#31306D</color>
-    <color name="poButtonDisabled">#ECECEC</color>
-    <color name="poButtonPressed">#423F86</color>
-    <color name="poButtonTextPrimary">#FFFFFF</color>
-    <color name="poButtonTextSecondary">#423F86</color>
-    <color name="poButtonBorder">#6862A9</color>
+    <color name="poButtonPrimaryDisabled">#ECECEC</color>
+    <color name="poButtonPrimaryPressed">#423F86</color>
+
+    <color name="poButtonPrimaryText">#FFFFFF</color>
+    <color name="poButtonPrimaryTextDisabled">#8D8D95</color>
+    <color name="poButtonPrimaryTextPressed">#FFFFFF</color>
+
+    <!-- Button Secondary -->
+
+    <color name="poButtonSecondary">#FFFFFF</color>
+    <color name="poButtonSecondaryDisabled">#FFFFFF</color>
+    <color name="poButtonSecondaryPressed">#E5E5E7</color>
+
+    <color name="poButtonSecondaryBorder">#8D8D95</color>
+    <color name="poButtonSecondaryBorderDisabled">#C4C4C8</color>
+    <color name="poButtonSecondaryBorderPressed">#8D8D95</color>
+
+    <color name="poButtonSecondaryText">#313135</color>
+    <color name="poButtonSecondaryTextDisabled">#8D8D95</color>
+    <color name="poButtonSecondaryTextPressed">#313135</color>
 </resources>

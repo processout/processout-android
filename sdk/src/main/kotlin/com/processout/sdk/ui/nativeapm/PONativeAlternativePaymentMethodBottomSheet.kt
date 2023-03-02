@@ -17,6 +17,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.activity.addCallback
 import androidx.appcompat.view.ContextThemeWrapper
+import androidx.core.animation.addListener
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -52,6 +53,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
 
     companion object {
         const val TAG = "PONativeAlternativePaymentMethodBottomSheet"
+        private const val REQUIRED_DISPLAY_HEIGHT_PERCENTAGE = 0.62
         private const val MAX_INPUTS_COUNT_IN_COLLAPSED_STATE = 2
         private const val SUCCESS_FINISH_DELAY_MS = 3000L
         private const val ANIMATION_DURATION_MS = 350L
@@ -121,11 +123,15 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         dispatchBackPressed()
 
         with(bottomSheetDialog) {
-            isCancelable = viewModel.options.cancelableBottomSheet
+            with(viewModel.options.cancellation) {
+                isCancelable = dragDown
+                setCanceledOnTouchOutside(touchOutside)
+            }
             setOnShowListener(this@PONativeAlternativePaymentMethodBottomSheet)
         }
 
         binding.poSubmitButton.setOnClickListener { onSubmitClick() }
+        binding.poSecondaryButton.setOnClickListener { onCancelClick() }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -144,7 +150,6 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     override fun onShow(dialog: DialogInterface) {
         allowExpandToFullScreen()
         adjustPeekHeight(animate = false)
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
 
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
@@ -195,14 +200,6 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         }
     }
 
-    private fun adjustBottomSheetState(previousInputsCount: Int, currentInputsCount: Int) {
-        if (currentInputsCount != previousInputsCount &&
-            currentInputsCount > MAX_INPUTS_COUNT_IN_COLLAPSED_STATE
-        ) {
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-        }
-    }
-
     private fun adjustPeekHeight(animate: Boolean) {
         val peekHeight = when (viewModel.uiState.value) {
             PONativeAlternativePaymentMethodUiState.Loading -> minPeekHeight
@@ -215,9 +212,12 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         }
 
         if (peekHeight != bottomSheetBehavior.peekHeight) {
-            if (animate)
+            if (animate) {
                 animatePeekHeight(peekHeight)
-            else bottomSheetBehavior.peekHeight = peekHeight
+            } else {
+                bottomSheetBehavior.peekHeight = peekHeight
+                setDefaultBottomSheetState()
+            }
             binding.poContainer.updateLayoutParams {
                 height = if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
                     ViewGroup.LayoutParams.MATCH_PARENT else peekHeight
@@ -230,10 +230,38 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             addUpdateListener {
                 bottomSheetBehavior.peekHeight = it.animatedValue as Int
             }
+            addListener(onEnd = {
+                setDefaultBottomSheetState()
+            })
             duration = ANIMATION_DURATION_MS
             start()
         }
     }
+
+    private fun setDefaultBottomSheetState() {
+        bottomSheetBehavior.skipCollapsed = false
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetBehavior.isDraggable = true
+    }
+
+    private fun adjustBottomSheetState(previousInputsCount: Int, currentInputsCount: Int) {
+        if (currentInputsCount != previousInputsCount) {
+            val forceExpand = displayHeight * REQUIRED_DISPLAY_HEIGHT_PERCENTAGE < minPeekHeight
+            if (forceExpand) {
+                bottomSheetBehavior.skipCollapsed = true
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                bottomSheetBehavior.isDraggable = viewModel.options.cancellation.dragDown
+            } else if (shouldExpandAllowingCollapse(currentInputsCount)) {
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+            }
+        }
+    }
+
+    private fun shouldExpandAllowingCollapse(inputsCount: Int) =
+        bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED &&
+                inputsCount > MAX_INPUTS_COUNT_IN_COLLAPSED_STATE ||
+                (inputsCount >= MAX_INPUTS_COUNT_IN_COLLAPSED_STATE &&
+                        viewModel.options.secondaryAction != null)
 
     private fun handleUiState(uiState: PONativeAlternativePaymentMethodUiState) {
         when (uiState) {
@@ -255,24 +283,37 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         binding.poLoading.root.visibility = View.VISIBLE
         binding.poScrollableContent.visibility = View.GONE
         binding.poSubmitButton.visibility = View.GONE
+        binding.poSecondaryButton.visibility = View.GONE
     }
 
     private fun bindUserInput(uiModel: PONativeAlternativePaymentMethodUiModel) {
+        binding.poTitle.text = uiModel.title
+        bindSubmitButton(uiModel)
+        bindSecondaryButton(uiModel)
+
         if (viewModel.animateViewTransition) {
             viewModel.animateViewTransition = false
             crossfade(
                 viewsToHide = listOf(binding.poLoading.root),
-                viewsToShow = listOf(binding.poScrollableContent, binding.poSubmitButton),
+                viewsToShow = mutableListOf(
+                    binding.poScrollableContent,
+                    binding.poSubmitButton
+                ).also { list ->
+                    viewModel.options.secondaryAction?.let {
+                        list.add(binding.poSecondaryButton)
+                    }
+                },
                 duration = ANIMATION_DURATION_MS
             )
         } else {
             binding.poLoading.root.visibility = View.GONE
             binding.poScrollableContent.visibility = View.VISIBLE
             binding.poSubmitButton.visibility = View.VISIBLE
+            viewModel.options.secondaryAction?.let {
+                binding.poSecondaryButton.visibility = View.VISIBLE
+            }
         }
 
-        binding.poTitle.text = uiModel.title
-        bindSubmitButton(uiModel)
         bindInputs(uiModel)
     }
 
@@ -285,6 +326,19 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                 setState(POButton.State.ENABLED)
             } else {
                 setState(POButton.State.DISABLED)
+            }
+        }
+    }
+
+    private fun bindSecondaryButton(uiModel: PONativeAlternativePaymentMethodUiModel) {
+        viewModel.options.secondaryAction?.let {
+            with(binding.poSecondaryButton) {
+                text = uiModel.secondaryButtonText
+                if (uiModel.isSubmitting) {
+                    setState(POButton.State.DISABLED)
+                } else {
+                    setState(POButton.State.ENABLED)
+                }
             }
         }
     }
@@ -311,10 +365,10 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                 setState(inputParameter.state)
             }
         }
-        resolveInputFocus(uiModel.focusedInputId)
 
         val inputsCountAfter = binding.poInputsContainer.childCount
         adjustBottomSheetState(inputsCountBefore, inputsCountAfter)
+        resolveInputFocus(uiModel.focusedInputId)
     }
 
     private fun resolveInputParametersState(uiModel: PONativeAlternativePaymentMethodUiModel) =
@@ -386,6 +440,15 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             }
         }
         viewModel.submitPayment(data)
+    }
+
+    private fun onCancelClick() {
+        finishWithActivityResult(
+            PONativeAlternativePaymentMethodResult.Failure(
+                "Cancelled by user with secondary cancel action.",
+                POFailure.Code.Cancelled
+            )
+        )
     }
 
     private fun initCaptureView() {

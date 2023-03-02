@@ -15,15 +15,15 @@
     <style name="Theme.ProcessOut.Default" parent="Theme.ProcessOut.Base.Transparent">
         <item name="colorPrimary">@color/poButtonPrimary</item>
         <item name="colorPrimaryVariant">@color/poButtonPrimary</item>
-        <item name="colorOnPrimary">@color/poButtonTextPrimary</item>
+        <item name="colorOnPrimary">@color/poButtonPrimaryText</item>
         <item name="colorSecondary">@color/poButtonPrimary</item>
         <item name="colorSecondaryVariant">@color/poButtonPrimary</item>
-        <item name="colorOnSecondary">@color/poButtonTextPrimary</item>
-        <item name="colorSurface">@color/poBackgroundPrimary</item>
-        <item name="colorOnSurface">@color/poTextDisabled</item>
+        <item name="colorOnSecondary">@color/poButtonPrimaryText</item>
         <item name="android:colorBackground">@color/poBackgroundPrimary</item>
+        <item name="colorSurface">@color/poBackgroundPrimary</item>
+        <item name="colorOnSurface">@color/poTextPrimary</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.ProcessOut.BottomSheetDialog</item>
-        <item name="materialButtonStyle">@style/Widget.ProcessOut.Button</item>
+        <item name="materialButtonStyle">@style/Widget.ProcessOut.Button.Primary</item>
         <item name="textAppearanceButton">@style/TextAppearance.ProcessOut.Action.Default.Medium</item>
         <item name="circularProgressIndicatorStyle">@style/Widget.MaterialComponents.CircularProgressIndicator.Small</item>
     </style>
