@@ -39,13 +39,13 @@ internal class InvoicesRepositoryImpl(
             invoiceId,
             PONativeAlternativePaymentCaptureRequest(gatewayConfigurationId)
         )
-    }.map { POCaptureSuccess }
+    }.map { it.toModel() }
 
     override fun capture(
         invoiceId: String,
         gatewayConfigurationId: String,
-        callback: ProcessOutCallback<POCaptureSuccess>
-    ) = apiCallScoped(callback, { POCaptureSuccess }) {
+        callback: ProcessOutCallback<PONativeAlternativePaymentMethodCapture>
+    ) = apiCallScoped(callback, POCaptureResponse::toModel) {
         api.capture(
             invoiceId,
             PONativeAlternativePaymentCaptureRequest(gatewayConfigurationId)
@@ -100,6 +100,8 @@ private fun PONativeAlternativePaymentMethodRequest.toBody() =
     )
 
 private fun PONativeAlternativePaymentMethodResponse.toModel() = nativeApm
+
+private fun POCaptureResponse.toModel() = nativeApm
 
 // <--- Authorization Private Functions --->
 

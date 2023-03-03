@@ -4,9 +4,9 @@ import com.processout.sdk.api.model.request.POCreateInvoiceRequest
 import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
 import com.processout.sdk.api.model.request.POInvoiceAuthorizationSuccess
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
-import com.processout.sdk.api.model.response.POCaptureSuccess
 import com.processout.sdk.api.model.response.POInvoice
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethod
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodCapture
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.ProcessOutResult
@@ -28,12 +28,12 @@ interface InvoicesRepository {
     suspend fun capture(
         invoiceId: String,
         gatewayConfigurationId: String
-    ): ProcessOutResult<POCaptureSuccess>
+    ): ProcessOutResult<PONativeAlternativePaymentMethodCapture>
 
     fun capture(
         invoiceId: String,
         gatewayConfigurationId: String,
-        callback: ProcessOutCallback<POCaptureSuccess>
+        callback: ProcessOutCallback<PONativeAlternativePaymentMethodCapture>
     )
 
     suspend fun initiatePayment(

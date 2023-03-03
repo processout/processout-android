@@ -20,10 +20,7 @@ import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.*
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodDefaultValuesRequest
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethod
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodState
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails
+import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.repository.InvoicesRepository
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
@@ -265,6 +262,8 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 handleCustomerInput(success.value.parameterDefinitions, uiModel)
             PONativeAlternativePaymentMethodState.PENDING_CAPTURE ->
                 handlePendingCapture(uiModel)
+            PONativeAlternativePaymentMethodState.CAPTURED ->
+                handleCaptured(uiModel)
         }
     }
 
@@ -320,6 +319,14 @@ internal class PONativeAlternativePaymentMethodViewModel(
         _uiState.value = PONativeAlternativePaymentMethodUiState.Success(uiModel.copy())
     }
 
+    private fun handleCaptured(uiModel: PONativeAlternativePaymentMethodUiModel) {
+        if (options.waitsPaymentConfirmation) {
+            dispatch(DidCompletePayment)
+        }
+        animateViewTransition = true
+        _uiState.value = PONativeAlternativePaymentMethodUiState.Success(uiModel.copy())
+    }
+
     private fun handlePaymentFailure(
         failure: ProcessOutResult.Failure,
         uiModel: PONativeAlternativePaymentMethodUiModel
@@ -364,22 +371,37 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 return@launch
             }
 
-            when (invoicesRepository.capture(invoiceId, gatewayConfigurationId)) {
-                is ProcessOutResult.Success -> {
-                    capturePollingStartTimestamp = 0L
-                    dispatch(DidCompletePayment)
-                    _uiState.value.doWhenCapture { uiModel ->
-                        animateViewTransition = true
-                        _uiState.value = PONativeAlternativePaymentMethodUiState.Success(
-                            uiModel.copy()
-                        )
-                    }
-                }
-                is ProcessOutResult.Failure -> {
-                    delay(CAPTURE_POLLING_DELAY_MS)
-                    capture()
-                }
+            val result = invoicesRepository.capture(invoiceId, gatewayConfigurationId)
+            if (isCaptureRetryable(result)) {
+                delay(CAPTURE_POLLING_DELAY_MS)
+                capture()
+                return@launch
             }
+
+            capturePollingStartTimestamp = 0L
+            when (result) {
+                is ProcessOutResult.Success ->
+                    _uiState.value.doWhenCapture { uiModel ->
+                        handleCaptured(uiModel)
+                    }
+                is ProcessOutResult.Failure ->
+                    _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(result)
+            }
+        }
+    }
+
+    private fun isCaptureRetryable(
+        result: ProcessOutResult<PONativeAlternativePaymentMethodCapture>
+    ) = when (result) {
+        is ProcessOutResult.Success ->
+            result.value.state != PONativeAlternativePaymentMethodState.CAPTURED
+        is ProcessOutResult.Failure -> {
+            val retryableCodes = listOf(
+                POFailure.Code.NetworkUnreachable,
+                POFailure.Code.Timeout(),
+                POFailure.Code.Internal()
+            )
+            retryableCodes.contains(result.code)
         }
     }
 
@@ -416,6 +438,12 @@ internal class PONativeAlternativePaymentMethodViewModel(
                     eventDispatcher.send(DidFail(it.failure))
                 }
             }
+        }
+    }
+
+    fun onViewFailure(failure: PONativeAlternativePaymentMethodResult.Failure) {
+        with(failure) {
+            dispatch(DidFail(ProcessOutResult.Failure(message, code, invalidFields)))
         }
     }
 

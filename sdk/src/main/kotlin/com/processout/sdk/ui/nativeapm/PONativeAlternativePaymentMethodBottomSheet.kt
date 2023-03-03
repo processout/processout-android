@@ -96,7 +96,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                     PONativeAlternativePaymentMethodResult.Failure(
                         "Invalid configuration.",
                         POFailure.Code.Internal()
-                    )
+                    ), dispatchEvent = true
                 )
             }
         }
@@ -443,11 +443,12 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     }
 
     private fun onCancelClick() {
+        binding.poSecondaryButton.isClickable = false
         finishWithActivityResult(
             PONativeAlternativePaymentMethodResult.Failure(
                 "Cancelled by user with secondary cancel action.",
                 POFailure.Code.Cancelled
-            )
+            ), dispatchEvent = true
         )
     }
 
@@ -508,17 +509,13 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     }
 
     private fun handleSuccess(uiModel: PONativeAlternativePaymentMethodUiModel) {
-        setActivityResult(
-            Activity.RESULT_OK,
-            PONativeAlternativePaymentMethodResult.Success
-        )
         if (viewModel.options.waitsPaymentConfirmation &&
             viewModel.options.skipSuccessScreen.not()
         ) {
-            handler.postDelayed({ finish() }, SUCCESS_FINISH_DELAY_MS)
+            handler.postDelayed({ finishWithSuccess() }, SUCCESS_FINISH_DELAY_MS)
             showSuccess(uiModel)
         } else {
-            finish()
+            finishWithSuccess()
         }
     }
 
@@ -589,7 +586,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             finishWithActivityResult(
                 PONativeAlternativePaymentMethodResult.Failure(
                     message, code, invalidFields
-                )
+                ), dispatchEvent = false
             )
         }
     }
@@ -598,9 +595,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         super.onPause()
         clearAnimationListeners()
         handler.removeCallbacksAndMessages(null)
-        if (viewModel.uiState.value is PONativeAlternativePaymentMethodUiState.Success) {
-            finish()
-        }
+        finishWithSuccess()
     }
 
     private fun clearAnimationListeners() {
@@ -617,7 +612,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             PONativeAlternativePaymentMethodResult.Failure(
                 "Cancelled by user with swipe or outside touch.",
                 POFailure.Code.Cancelled
-            )
+            ), dispatchEvent = true
         )
     }
 
@@ -627,19 +622,34 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                 PONativeAlternativePaymentMethodResult.Failure(
                     "Cancelled by user with back press or gesture.",
                     POFailure.Code.Cancelled
-                )
+                ), dispatchEvent = true
             )
         }
     }
 
     private fun finishWithActivityResult(
-        result: PONativeAlternativePaymentMethodResult
+        result: PONativeAlternativePaymentMethodResult.Failure,
+        dispatchEvent: Boolean
     ) {
-        // prevent overriding of Success result
-        if (viewModel.uiState.value !is PONativeAlternativePaymentMethodUiState.Success) {
+        if (finishWithSuccess().not()) {
+            if (dispatchEvent) {
+                viewModel.onViewFailure(result)
+            }
             setActivityResult(Activity.RESULT_CANCELED, result)
+            finish()
         }
-        finish()
+    }
+
+    private fun finishWithSuccess(): Boolean {
+        if (viewModel.uiState.value is PONativeAlternativePaymentMethodUiState.Success) {
+            setActivityResult(
+                Activity.RESULT_OK,
+                PONativeAlternativePaymentMethodResult.Success
+            )
+            finish()
+            return true
+        }
+        return false
     }
 
     private fun setActivityResult(
