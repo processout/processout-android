@@ -19,29 +19,29 @@ internal fun <T : Any> Response<T>.toFailure(moshi: Moshi): ProcessOutResult.Fai
         } ?: it
     }
 
-    val failureCode: POFailure.Code? = when (code()) {
-        401 -> POFailure.AuthenticationCode::rawValue.findBy(apiError?.errorType)
-            ?.let { POFailure.Code.Authentication(it) }
-        404 -> POFailure.NotFoundCode::rawValue.findBy(apiError?.errorType)
-            ?.let { POFailure.Code.NotFound(it) }
-        in 400..499 ->
-            POFailure.ValidationCode::rawValue.findBy(apiError?.errorType)
-                ?.let { POFailure.Code.Validation(it) }
-                ?: POFailure.GenericCode::rawValue.findBy(apiError?.errorType)
-                    ?.let { POFailure.Code.Generic(it) }
-                ?: POFailure.TimeoutCode::rawValue.findBy(apiError?.errorType)
-                    ?.let { POFailure.Code.Timeout(it) }
-                ?: POFailure.InternalCode::rawValue.findBy(apiError?.errorType)
-                    ?.let { POFailure.Code.Internal(it) }
-                ?: POFailure.UnknownCode::rawValue.findBy(apiError?.errorType)
-                    ?.let { POFailure.Code.Unknown(it) }
-        in 500..599 -> POFailure.Code.Internal()
-        else -> POFailure.Code.Unknown()
-    }
+    val failureCode = apiError?.errorType?.let {
+        failureCode(code(), it)
+    } ?: POFailure.Code.Internal()
 
-    return ProcessOutResult.Failure(
-        message,
-        failureCode ?: POFailure.Code.Unknown(),
-        apiError?.invalidFields
-    )
+    return ProcessOutResult.Failure(message, failureCode, apiError?.invalidFields)
+}
+
+private fun failureCode(httpStatusCode: Int, errorType: String): POFailure.Code {
+    val failureCode = when (httpStatusCode) {
+        401 -> POFailure.AuthenticationCode::rawValue.findBy(errorType)
+            ?.let { POFailure.Code.Authentication(it) }
+        404 -> POFailure.NotFoundCode::rawValue.findBy(errorType)
+            ?.let { POFailure.Code.NotFound(it) }
+        in 400..599 ->
+            POFailure.ValidationCode::rawValue.findBy(errorType)
+                ?.let { POFailure.Code.Validation(it) }
+                ?: POFailure.GenericCode::rawValue.findBy(errorType)
+                    ?.let { POFailure.Code.Generic(it) }
+                ?: POFailure.TimeoutCode::rawValue.findBy(errorType)
+                    ?.let { POFailure.Code.Timeout(it) }
+                ?: POFailure.InternalCode::rawValue.findBy(errorType)
+                    ?.let { POFailure.Code.Internal(it) }
+        else -> null
+    }
+    return failureCode ?: POFailure.Code.Unknown(errorType)
 }

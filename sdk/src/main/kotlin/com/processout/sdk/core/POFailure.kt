@@ -45,19 +45,13 @@ class POFailure private constructor() {
         object NetworkUnreachable : Code()
 
         @Parcelize
-        data class Timeout(
-            val timeoutCode: TimeoutCode = TimeoutCode.mobile
-        ) : Code()
+        data class Timeout(val timeoutCode: TimeoutCode = TimeoutCode.mobile) : Code()
 
         @Parcelize
-        data class Internal(
-            val internalCode: InternalCode = InternalCode.mobile
-        ) : Code()
+        data class Internal(val internalCode: InternalCode = InternalCode.mobile) : Code()
 
         @Parcelize
-        data class Unknown(
-            val unknownCode: UnknownCode = UnknownCode.mobile
-        ) : Code()
+        data class Unknown(val rawValue: String) : Code()
     }
 
     @Parcelize
@@ -71,6 +65,7 @@ class POFailure private constructor() {
     @Suppress("EnumEntryName")
     enum class ValidationCode(val rawValue: String) : Parcelable {
         general                   ("request.validation.error"),
+        gateway                   ("gateway.validation-error"),
         invalidAddress            ("request.validation.invalid-address"),
         invalidAmount             ("request.validation.invalid-amount"),
         invalidChallengeIndicator ("request.validation.invalid-challenge-indicator"),
@@ -163,11 +158,14 @@ class POFailure private constructor() {
     @Parcelize
     @Suppress("EnumEntryName")
     enum class GenericCode(val rawValue: String) : Parcelable {
+        mobile                              ("processout-mobile.generic.error"),
         cardExceededLimits                  ("card.exceeded-limits"),
+        cardIssuerDown                      ("card.issuer-down"),
         cardIssuerFailed                    ("card.issuer-failed"),
         cardNoMoney                         ("card.no-money"),
         cardNotAuthorized                   ("card.not-authorized"),
         gatewayDeclined                     ("gateway.declined"),
+        gatewayUnknownError                 ("gateway.unknown-error"),
         requestBadFormat                    ("request.bad-format"),
         requestCardAlreadyUsed              ("request.source.card-already-used"),
         requestGatewayNotAvailable          ("request.gateway.not-available"),
@@ -201,13 +199,6 @@ class POFailure private constructor() {
         mobile  ("processout-mobile.internal"),
         gateway ("gateway-internal-error")
     }
-
-    @Parcelize
-    @Suppress("EnumEntryName")
-    enum class UnknownCode(val rawValue: String) : Parcelable {
-        mobile  ("processout-mobile.unknown"),
-        gateway ("gateway.unknown-error")
-    }
 }
 
 val POFailure.Code.rawValue: String
@@ -220,5 +211,5 @@ val POFailure.Code.rawValue: String
         POFailure.Code.NetworkUnreachable -> "processout-mobile.network-unreachable"
         is POFailure.Code.Timeout -> timeoutCode.rawValue
         is POFailure.Code.Internal -> internalCode.rawValue
-        is POFailure.Code.Unknown -> unknownCode.rawValue
+        is POFailure.Code.Unknown -> rawValue
     }
