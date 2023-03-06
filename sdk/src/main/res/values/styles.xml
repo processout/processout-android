@@ -62,8 +62,8 @@
         <item name="android:padding">@dimen/po_button_padding</item>
         <item name="iconPadding">0dp</item>
         <item name="iconGravity">textStart</item>
-        <item name="android:insetTop">@dimen/po_button_insetTop</item>
-        <item name="android:insetBottom">@dimen/po_button_insetBottom</item>
+        <item name="android:insetTop">@dimen/po_button_insetVertical</item>
+        <item name="android:insetBottom">@dimen/po_button_insetVertical</item>
         <item name="android:insetLeft">@dimen/po_button_insetHorizontal</item>
         <item name="android:insetRight">@dimen/po_button_insetHorizontal</item>
     </style>

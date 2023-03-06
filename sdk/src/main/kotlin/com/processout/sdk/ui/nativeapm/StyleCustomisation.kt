@@ -17,6 +17,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.TypefaceCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.view.ViewCompat
+import androidx.core.view.setPadding
 import androidx.core.widget.TextViewCompat
 import com.google.android.material.button.MaterialButton
 import com.processout.sdk.R
@@ -26,6 +27,7 @@ import com.processout.sdk.ui.shared.style.POBorderStyle
 import com.processout.sdk.ui.shared.style.POTextStyle
 import com.processout.sdk.ui.shared.style.POTypography
 import com.processout.sdk.ui.shared.style.background.POBackgroundDecorationStateStyle
+import com.processout.sdk.ui.shared.style.button.POButtonStateStyle
 import com.processout.sdk.ui.shared.style.button.POButtonStyle
 import com.processout.sdk.ui.shared.view.extensions.dpToPx
 import com.processout.sdk.ui.shared.view.extensions.spToPx
@@ -37,7 +39,7 @@ internal fun PoBottomSheetNativeApmBinding.applyStyle(
     style.backgroundDecoration?.let { poLoading.poBackgroundDecoration.applyStyle(it.normal) }
     style.progressIndicatorColor?.let { poLoading.poCircularProgressIndicator.setIndicatorColor(it) }
     style.title?.let { poTitle.applyStyle(it) }
-    style.primaryButton?.let { poSubmitButton.applyStyle(it) }
+    style.primaryButton?.let { poPrimaryButton.applyStyle(it) }
     style.secondaryButton?.let { poSecondaryButton.applyStyle(it) }
 }
 
@@ -113,6 +115,12 @@ internal fun createButtonColorStateList(
         enabledColor
     )
 )
+
+internal fun MaterialButton.applyStyle(style: POButtonStateStyle) {
+    applyStyle(style.text.typography)
+    applyStyle(style.border)
+    setPadding(style.paddingDp.dpToPx(context))
+}
 
 internal fun MaterialButton.applyStyle(style: POBorderStyle) {
     cornerRadius = style.radiusDp.dpToPx(context)

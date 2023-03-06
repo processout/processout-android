@@ -10,7 +10,12 @@ import kotlinx.parcelize.Parcelize
 data class POButtonStateStyle(
     val text: POTextStyle,
     val border: POBorderStyle,
-    val elevationDp: Int,
     @ColorInt
-    val backgroundColor: Int
-) : Parcelable
+    val backgroundColor: Int,
+    val elevationDp: Int,
+    val paddingDp: Int = DEFAULT_PADDING
+) : Parcelable {
+    companion object {
+        const val DEFAULT_PADDING = 22
+    }
+}

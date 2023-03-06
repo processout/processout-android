@@ -94,7 +94,7 @@
             app:layout_constraintRight_toRightOf="parent">
 
             <com.processout.sdk.ui.shared.view.button.POButton
-                android:id="@+id/po_submit_button"
+                android:id="@+id/po_primary_button"
                 style="@style/Widget.ProcessOut.Button.Primary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

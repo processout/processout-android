@@ -90,14 +90,22 @@ val payButtonStyle = POButtonStyle(
     normal = POButtonStateStyle(
         text = POTextStyle(Color.WHITE, POTypography.actionDefaultMedium),
         border = POBorderStyle(radiusDp = 16, widthDp = 0, color = Color.TRANSPARENT),
-        backgroundColor = Color.parseColor("#ffff8800")
+        backgroundColor = Color.parseColor("#ffff8800"),
+        elevationDp = 2,
+        paddingDp = POButtonStateStyle.DEFAULT_PADDING
     ),
     disabled = POButtonStateStyle(
         text = POTextStyle(Color.GRAY, POTypography.actionDefaultMedium),
         border = POBorderStyle(radiusDp = 16, widthDp = 0, color = Color.TRANSPARENT),
-        backgroundColor = Color.LTGRAY
+        backgroundColor = Color.LTGRAY,
+        elevationDp = 0,
+        paddingDp = POButtonStateStyle.DEFAULT_PADDING
     ),
-    highlightedBackgroundColor = Color.parseColor("#ffffbb33"),
+    highlighted = POButtonHighlightedStyle(
+        textColor = Color.WHITE,
+        borderColor = Color.TRANSPARENT,
+        backgroundColor = Color.parseColor("#ffffbb33")
+    ),
     progressIndicatorColor = Color.WHITE
 )
 
@@ -105,17 +113,21 @@ launcher.launch(
     PONativeAlternativePaymentMethodConfiguration(
         gatewayConfigurationId = "gateway_configuration_id",
         invoiceId = "invoice_id",
-        style = PONativeAlternativePaymentMethodConfiguration.Style(
-            submitButton = payButtonStyle
+        style = Style(
+            primaryButton = payButtonStyle
         ),
-        options = PONativeAlternativePaymentMethodConfiguration.Options(
+        options = Options(
             title = "Payment details",
-            submitButtonText = "Submit",
+            primaryActionText = "Submit",
+            secondaryAction = SecondaryAction.Cancel("Go Back"),
+            cancellation = Cancellation(
+                dragDown = true,
+                touchOutside = false
+            ),
             successMessage = "Payment confirmed.\nThank you!",
             skipSuccessScreen = true, // Only applies when 'waitsPaymentConfirmation = true'
             waitsPaymentConfirmation = true,
-            paymentConfirmationTimeoutSeconds = 180,
-            cancelableBottomSheet = false
+            paymentConfirmationTimeoutSeconds = Options.MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
         )
     )
 )

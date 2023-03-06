@@ -76,17 +76,11 @@ internal class POButton(
 
     private fun applyEnabledStyle() {
         elevation = style?.normal?.elevationDp?.dpToPx(context)?.toFloat() ?: defaultElevation
-        style?.normal?.let {
-            applyStyle(it.text.typography)
-            applyStyle(it.border)
-        }
+        style?.normal?.let { applyStyle(it) }
     }
 
     private fun applyDisabledStyle() {
         elevation = style?.disabled?.elevationDp?.dpToPx(context)?.toFloat() ?: 0f
-        style?.disabled?.let {
-            applyStyle(it.text.typography)
-            applyStyle(it.border)
-        }
+        style?.disabled?.let { applyStyle(it) }
     }
 }

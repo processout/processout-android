@@ -130,7 +130,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             setOnShowListener(this@PONativeAlternativePaymentMethodBottomSheet)
         }
 
-        binding.poSubmitButton.setOnClickListener { onSubmitClick() }
+        binding.poPrimaryButton.setOnClickListener { onSubmitClick() }
         binding.poSecondaryButton.setOnClickListener { onCancelClick() }
 
         lifecycleScope.launch {
@@ -282,13 +282,13 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     private fun bindLoading() {
         binding.poLoading.root.visibility = View.VISIBLE
         binding.poScrollableContent.visibility = View.GONE
-        binding.poSubmitButton.visibility = View.GONE
+        binding.poPrimaryButton.visibility = View.GONE
         binding.poSecondaryButton.visibility = View.GONE
     }
 
     private fun bindUserInput(uiModel: PONativeAlternativePaymentMethodUiModel) {
         binding.poTitle.text = uiModel.title
-        bindSubmitButton(uiModel)
+        bindPrimaryButton(uiModel)
         bindSecondaryButton(uiModel)
 
         if (viewModel.animateViewTransition) {
@@ -297,7 +297,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                 viewsToHide = listOf(binding.poLoading.root),
                 viewsToShow = mutableListOf(
                     binding.poScrollableContent,
-                    binding.poSubmitButton
+                    binding.poPrimaryButton
                 ).also { list ->
                     viewModel.options.secondaryAction?.let {
                         list.add(binding.poSecondaryButton)
@@ -308,7 +308,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         } else {
             binding.poLoading.root.visibility = View.GONE
             binding.poScrollableContent.visibility = View.VISIBLE
-            binding.poSubmitButton.visibility = View.VISIBLE
+            binding.poPrimaryButton.visibility = View.VISIBLE
             viewModel.options.secondaryAction?.let {
                 binding.poSecondaryButton.visibility = View.VISIBLE
             }
@@ -317,9 +317,9 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         bindInputs(uiModel)
     }
 
-    private fun bindSubmitButton(uiModel: PONativeAlternativePaymentMethodUiModel) {
-        with(binding.poSubmitButton) {
-            text = uiModel.submitButtonText
+    private fun bindPrimaryButton(uiModel: PONativeAlternativePaymentMethodUiModel) {
+        with(binding.poPrimaryButton) {
+            text = uiModel.primaryActionText
             if (uiModel.isSubmitting) {
                 setState(POButton.State.PROGRESS)
             } else if (uiModel.isSubmitAllowed) {
@@ -333,7 +333,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     private fun bindSecondaryButton(uiModel: PONativeAlternativePaymentMethodUiModel) {
         viewModel.options.secondaryAction?.let {
             with(binding.poSecondaryButton) {
-                text = uiModel.secondaryButtonText
+                text = uiModel.secondaryActionText
                 if (uiModel.isSubmitting) {
                     setState(POButton.State.DISABLED)
                 } else {
@@ -429,7 +429,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     }
 
     private fun onSubmitClick() {
-        binding.poSubmitButton.isClickable = false
+        binding.poPrimaryButton.isClickable = false
 
         val data = mutableMapOf<String, String>()
         binding.poInputsContainer.children.forEach { view ->
@@ -628,14 +628,14 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     }
 
     private fun finishWithActivityResult(
-        result: PONativeAlternativePaymentMethodResult.Failure,
+        failure: PONativeAlternativePaymentMethodResult.Failure,
         dispatchEvent: Boolean
     ) {
         if (finishWithSuccess().not()) {
             if (dispatchEvent) {
-                viewModel.onViewFailure(result)
+                viewModel.onViewFailure(failure)
             }
-            setActivityResult(Activity.RESULT_CANCELED, result)
+            setActivityResult(Activity.RESULT_CANCELED, failure)
             finish()
         }
     }

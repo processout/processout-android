@@ -38,12 +38,11 @@ internal data class PONativeAlternativePaymentMethodUiModel(
     val inputParameters: List<InputParameter>,
     val focusedInputId: Int = View.NO_ID,
     val successMessage: String,
-    val failureMessage: String? = null,
     val customerActionMessage: String?,
     val customerActionImageUrl: String?,
     val showCustomerAction: Boolean = customerActionMessage.isNullOrBlank().not(),
-    val submitButtonText: String,
-    val secondaryButtonText: String,
+    val primaryActionText: String,
+    val secondaryActionText: String,
     val isSubmitAllowed: Boolean,
     val isSubmitting: Boolean
 )
