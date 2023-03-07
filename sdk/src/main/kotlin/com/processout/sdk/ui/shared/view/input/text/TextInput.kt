@@ -1,6 +1,8 @@
 package com.processout.sdk.ui.shared.view.input.text
 
 import android.content.Context
+import android.text.InputFilter
+import android.text.InputType
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
@@ -114,6 +116,17 @@ internal class TextInput(
             }
         }
 
+        editText.filters = arrayOf(InputFilter { source, _, _, destination, _, destinationEnd ->
+            when (editText.inputType) {
+                InputType.TYPE_CLASS_PHONE -> {
+                    return@InputFilter filterPhoneNumber(
+                        source, destination.toString(), destinationEnd
+                    )
+                }
+                else -> return@InputFilter source
+            }
+        })
+
         editText.doAfterTextChanged {
             afterValueChanged?.invoke(value)
         }
@@ -127,6 +140,18 @@ internal class TextInput(
             }
         }
     }
+
+    private fun filterPhoneNumber(source: CharSequence, destination: String, destinationEnd: Int) =
+        if (source.isNotEmpty()) {
+            if (destination.isEmpty())
+                if (source.startsWith("+")) source
+                else "+$source"
+            else source
+        } else {
+            if (destination == "+") "+"
+            else if (destinationEnd == 1) "+"
+            else source
+        }
 
     override fun requestFocusAndShowKeyboard() {
         if (editText.isFocused.not()) {

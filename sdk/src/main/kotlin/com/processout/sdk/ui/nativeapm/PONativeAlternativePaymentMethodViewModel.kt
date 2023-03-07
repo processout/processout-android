@@ -455,7 +455,10 @@ internal class PONativeAlternativePaymentMethodViewModel(
             inputParameters = parameters?.toInputParameters() ?: emptyList(),
             successMessage = options.successMessage
                 ?: app.getString(R.string.po_native_apm_success_message),
-            customerActionMessage = gateway.customerActionMessage,
+            customerActionMessage = gateway.customerActionMessage?.let {
+                // TODO: Delete this when backend localisation is done.
+                app.getString(R.string.po_native_apm_awaiting_capture_message)
+            },
             customerActionImageUrl = gateway.customerActionImageUrl,
             primaryActionText = options.primaryActionText ?: invoice.formatPrimaryActionText(),
             secondaryActionText = getSecondaryActionText(),
@@ -464,7 +467,12 @@ internal class PONativeAlternativePaymentMethodViewModel(
         )
 
     private fun List<PONativeAlternativePaymentMethodParameter>.toInputParameters() =
-        map { InputParameter(parameter = it) }.let { inputParameters ->
+        map {
+            InputParameter(
+                parameter = it,
+                hint = getInputHint(it.type)
+            )
+        }.let { inputParameters ->
             inputParameters.mapIndexed { index, inputParameter ->
                 if (index == inputParameters.lastIndex) {
                     inputParameter.copy(
@@ -502,4 +510,13 @@ internal class PONativeAlternativePaymentMethodViewModel(
             null -> defaultText
         }
     }
+
+    private fun getInputHint(type: PONativeAlternativePaymentMethodParameter.ParameterType) =
+        when (type) {
+            PONativeAlternativePaymentMethodParameter.ParameterType.phone ->
+                app.getString(R.string.po_native_apm_input_hint_phone)
+            PONativeAlternativePaymentMethodParameter.ParameterType.email ->
+                app.getString(R.string.po_native_apm_input_hint_email)
+            else -> null
+        }
 }
