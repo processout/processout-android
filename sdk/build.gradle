@@ -130,7 +130,7 @@ publishing {
     publications {
         prodRelease(MavenPublication) {
             groupId = 'com.github.processout'
-            artifactId = 'android-v2'
+            artifactId = 'processout-android'
             version = file('../version.resolved').getText()
 
             afterEvaluate {
