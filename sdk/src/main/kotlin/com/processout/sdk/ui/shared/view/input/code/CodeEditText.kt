@@ -49,12 +49,11 @@ internal class CodeEditText(
     init {
         id = View.generateViewId()
         initLayoutParams()
-        disableActionMode()
+        customSelectionActionModeCallback = this
         inputType = InputType.TYPE_CLASS_NUMBER or
                 InputType.TYPE_NUMBER_VARIATION_NORMAL or
                 InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
         imeOptions = EditorInfo.IME_ACTION_DONE
-        isLongClickable = false
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO
         }
@@ -98,13 +97,6 @@ internal class CodeEditText(
             val horizontalMargin = (getDimension(R.dimen.po_codeEditText_space) / 2).roundToInt()
             params.setMargins(horizontalMargin, 0, horizontalMargin, 0)
             layoutParams = params
-        }
-    }
-
-    private fun disableActionMode() {
-        customSelectionActionModeCallback = this
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            customInsertionActionModeCallback = this
         }
     }
 

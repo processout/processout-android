@@ -1,6 +1,7 @@
 package com.processout.sdk.ui.shared.view.input.code
 
 import android.content.Context
+import android.text.InputFilter
 import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -155,6 +156,20 @@ internal class CodeInput(
             }
         }
 
+        editTexts[index].filters = arrayOf(InputFilter { source, _, _, _, _, _ ->
+            val trimmedSource = source.replace(Regex("\\D"), String())
+            if (trimmedSource.length > 1) {
+                clear()
+                value = trimmedSource
+                return@InputFilter String()
+            } else {
+                if (editTexts[index].text.isNullOrEmpty().not() && trimmedSource.isNotEmpty()) {
+                    return@InputFilter String()
+                }
+                return@InputFilter trimmedSource
+            }
+        })
+
         editTexts[index].doAfterTextChanged {
             it?.let { text ->
                 if (text.isNotEmpty()) {
@@ -233,6 +248,12 @@ internal class CodeInput(
             if (it.text.isNullOrEmpty()) return false
         }
         return true
+    }
+
+    private fun clear() {
+        editTexts.forEach {
+            it.setText(String(), TextView.BufferType.EDITABLE)
+        }
     }
 
     override fun doAfterValueChanged(action: (value: String) -> Unit) {
