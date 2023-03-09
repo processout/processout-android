@@ -29,7 +29,7 @@ internal class NetworkGraphImpl(configuration: NetworkConfiguration) : NetworkGr
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
             .addInterceptor(BasicAuthInterceptor(configuration.projectId, configuration.privateKey))
-            .addInterceptor(UserAgentInterceptor(configuration.sdkVersion))
+            .addInterceptor(UserAgentInterceptor(configuration.application, configuration.sdkVersion))
             .apply {
                 if (BuildConfig.DEBUG) {
                     addInterceptor(HttpLoggingInterceptor().apply {

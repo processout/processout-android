@@ -25,6 +25,7 @@ class ProcessOutApi private constructor(
 ) {
 
     companion object {
+        const val NAME = BuildConfig.LIBRARY_NAME
         const val VERSION = BuildConfig.LIBRARY_VERSION
 
         lateinit var instance: ProcessOutApi
@@ -41,6 +42,7 @@ class ProcessOutApi private constructor(
                 repositoryGraph = RepositoryGraphImpl(
                     networkGraph = NetworkGraphImpl(
                         configuration = NetworkConfiguration(
+                            application = configuration.application,
                             sdkVersion = VERSION,
                             baseUrl = ApiConstants.BASE_URL,
                             projectId = configuration.projectId,

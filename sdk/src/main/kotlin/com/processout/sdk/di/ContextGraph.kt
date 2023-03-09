@@ -1,8 +1,8 @@
 package com.processout.sdk.di
 
 import android.app.Application
-import android.os.Build
 import com.processout.sdk.api.model.request.PODeviceData
+import com.processout.sdk.utils.currentAppLocale
 import java.util.*
 
 internal interface ContextGraph {
@@ -11,28 +11,20 @@ internal interface ContextGraph {
 
 internal class ContextGraphImpl(private val application: Application) : ContextGraph {
 
-    private fun provideDeviceData(): PODeviceData {
-        // fetch timezone offset
-        val calendar = Calendar.getInstance()
-        val timeZoneOffSet = -(calendar.get(Calendar.ZONE_OFFSET) +
-                calendar.get(Calendar.DST_OFFSET)) / (1000 * 60)
+    override val deviceData: PODeviceData
+        get() = provideDeviceData()
 
+    private fun provideDeviceData(): PODeviceData {
         val displayMetrics = application.resources.displayMetrics
-        val locale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            application.resources.configuration.locales[0]
-        } else {
-            @Suppress("DEPRECATION")
-            application.resources.configuration.locale
+        val timeZoneOffSet = Calendar.getInstance().let {
+            -(it.get(Calendar.ZONE_OFFSET) + it.get(Calendar.DST_OFFSET)) / (1000 * 60)
         }
 
         return PODeviceData(
-            locale.language,
+            application.currentAppLocale().toLanguageTag(),
             displayMetrics.widthPixels,
             displayMetrics.heightPixels,
             timeZoneOffSet
         )
     }
-
-    override val deviceData: PODeviceData
-        get() = provideDeviceData()
 }

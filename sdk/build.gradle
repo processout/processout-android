@@ -16,7 +16,7 @@ android {
         minSdk rootProject.ext.minSdkVersion
         targetSdk rootProject.ext.targetSdkVersion
 
-        setVersion(it)
+        setBuildConfig(it)
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -75,8 +75,9 @@ android {
     }
 }
 
-def setVersion(buildType) {
+def setBuildConfig(buildType) {
     def version = file('../version.resolved').getText()
+    buildType.buildConfigField("String", "LIBRARY_NAME", "\"ProcessOut Android SDK\"")
     buildType.buildConfigField("String", "LIBRARY_VERSION", "\"$version\"")
 }
 

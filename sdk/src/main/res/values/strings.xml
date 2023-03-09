@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="po_sdk_name">ProcessOut SDK</string>
+    <string name="po_locale_language_code">en</string>
 
     <string name="po_native_apm_title_format">Pay with %s</string>
     <string name="po_native_apm_submit_button_text_format">Pay %s</string>
