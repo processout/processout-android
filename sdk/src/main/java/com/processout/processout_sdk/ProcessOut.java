@@ -21,7 +21,6 @@ import com.processout.processout_sdk.POWebViews.PaymentWebView;
 import com.processout.processout_sdk.POWebViews.ProcessOutWebView;
 import com.processout.processout_sdk.ProcessOutExceptions.ProcessOutException;
 import com.processout.sdk.BuildConfig;
-import com.processout.sdk.R;
 import com.processout.sdk.api.network.ApiConstants;
 
 import org.json.JSONArray;
@@ -42,6 +41,7 @@ import java.util.Map;
 @Deprecated(since = "3.0.0", forRemoval = true)
 public final class ProcessOut {
 
+    public static final String SDK_NAME = BuildConfig.LIBRARY_NAME;
     public static final String SDK_VERSION = BuildConfig.LIBRARY_VERSION;
 
     private String projectId;
@@ -916,7 +916,7 @@ public final class ProcessOut {
             @Override
             public void doChallenge(AuthenticationChallengeData authData, final DoChallengeCallback callback) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle(R.string.po_sdk_name);
+                builder.setTitle(SDK_NAME);
                 builder.setMessage("Validate mobile 3DS2 challenge?");
                 builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
