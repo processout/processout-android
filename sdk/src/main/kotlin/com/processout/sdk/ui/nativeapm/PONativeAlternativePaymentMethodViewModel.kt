@@ -173,8 +173,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
             } ?: inputParameter.copy()
         }
         return copy(
-            inputParameters = updatedInputParameters,
-            isSubmitAllowed = isSubmitAllowed(updatedInputParameters)
+            inputParameters = updatedInputParameters
         )
     }
 
@@ -187,16 +186,12 @@ internal class PONativeAlternativePaymentMethodViewModel(
             }
             _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(
                 uiModel.copy(
-                    inputParameters = updatedInputParameters,
-                    isSubmitAllowed = isSubmitAllowed(updatedInputParameters)
+                    inputParameters = updatedInputParameters
                 )
             )
             dispatch(ParametersChanged)
         }
     }
-
-    private fun isSubmitAllowed(parameters: List<InputParameter>) =
-        parameters.map { isInputValid(it) }.all { it }
 
     private fun isInputValid(input: InputParameter): Boolean {
         if (input.parameter.required.not()) return true
@@ -288,27 +283,21 @@ internal class PONativeAlternativePaymentMethodViewModel(
 
     private fun continueUserInput(uiModel: PONativeAlternativePaymentMethodUiModel) {
         _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(
-            uiModel.copy(
-                isSubmitAllowed = false,
-                isSubmitting = false
-            )
+            uiModel.copy(isSubmitting = false)
         )
         dispatch(DidSubmitParameters(additionalParametersExpected = true))
     }
 
     private fun handlePendingCapture(uiModel: PONativeAlternativePaymentMethodUiModel) {
         _uiState.value = PONativeAlternativePaymentMethodUiState.Submitted(
-            uiModel.copy(
-                isSubmitAllowed = false,
-                isSubmitting = false
-            )
+            uiModel.copy(isSubmitting = false)
         )
         dispatch(DidSubmitParameters(additionalParametersExpected = false))
 
         if (options.waitsPaymentConfirmation) {
             dispatch(
                 WillWaitForCaptureConfirmation(
-                    additionalActionExpected = uiModel.showCustomerAction
+                    additionalActionExpected = uiModel.showCustomerAction()
                 )
             )
             animateViewTransition = true
@@ -343,7 +332,6 @@ internal class PONativeAlternativePaymentMethodViewModel(
         _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(
             uiModel.copy(
                 inputParameters = updatedInputParameters,
-                isSubmitAllowed = false,
                 isSubmitting = false
             )
         )
@@ -462,7 +450,6 @@ internal class PONativeAlternativePaymentMethodViewModel(
             customerActionImageUrl = gateway.customerActionImageUrl,
             primaryActionText = options.primaryActionText ?: invoice.formatPrimaryActionText(),
             secondaryActionText = getSecondaryActionText(),
-            isSubmitAllowed = false,
             isSubmitting = false
         )
 

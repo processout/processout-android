@@ -322,7 +322,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             text = uiModel.primaryActionText
             if (uiModel.isSubmitting) {
                 setState(POButton.State.PROGRESS)
-            } else if (uiModel.isSubmitAllowed) {
+            } else if (uiModel.isSubmitAllowed()) {
                 setState(POButton.State.ENABLED)
             } else {
                 setState(POButton.State.DISABLED)
@@ -409,7 +409,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         }
         input.onKeyboardSubmitClick {
             viewModel.uiState.value.doWhenUserInput { uiModel ->
-                if (uiModel.isSubmitAllowed) {
+                if (uiModel.isSubmitAllowed()) {
                     onSubmitClick()
                 }
             }
@@ -491,7 +491,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
 
     private fun bindCapture(uiModel: PONativeAlternativePaymentMethodUiModel) {
         initCaptureView()
-        if (uiModel.showCustomerAction) {
+        if (uiModel.showCustomerAction()) {
             bindingCapture.poCircularProgressIndicator.visibility = View.GONE
             bindingCapture.poMessage.text = uiModel.customerActionMessage
             bindingCapture.poMessage.visibility = View.VISIBLE
@@ -545,7 +545,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                                 bindingCapture.poMessage,
                                 bindingCapture.poSuccessImage
                             ).also {
-                                if (uiModel.showCustomerAction.not()) {
+                                if (uiModel.showCustomerAction().not()) {
                                     it.add(bindingCapture.poLogo)
                                 }
                             },

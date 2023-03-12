@@ -25,7 +25,7 @@ internal class POButton(
         PROGRESS
     }
 
-    private var state: State = State.DISABLED
+    private var state: State = State.ENABLED
     private var style: POButtonStyle? = null
     private var label: String = text.toString()
     private val defaultElevation = elevation
