@@ -430,16 +430,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
 
     private fun onSubmitClick() {
         binding.poPrimaryButton.isClickable = false
-
-        val data = mutableMapOf<String, String>()
-        binding.poInputsContainer.children.forEach { view ->
-            (view as InputComponent).let {
-                it.inputParameter?.parameter?.run {
-                    data[key] = it.value
-                }
-            }
-        }
-        viewModel.submitPayment(data)
+        viewModel.submitPayment()
     }
 
     private fun onCancelClick() {

@@ -4,6 +4,7 @@ import android.app.Application
 import android.util.Patterns
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import androidx.annotation.StringRes
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
@@ -27,6 +28,7 @@ import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options.Companion.MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
 import com.processout.sdk.ui.shared.model.InputParameter
 import com.processout.sdk.ui.shared.view.input.Input
+import com.processout.sdk.utils.isAlphanumericsOnly
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -193,27 +195,6 @@ internal class PONativeAlternativePaymentMethodViewModel(
         }
     }
 
-    private fun isInputValid(input: InputParameter): Boolean {
-        if (input.parameter.required.not()) return true
-        if (input.state is Input.State.Error) return false
-
-        val isLengthValid = input.parameter.length?.let {
-            input.value.length == it
-        } ?: run {
-            input.value.isNotBlank()
-        }
-
-        return when (input.parameter.type) {
-            PONativeAlternativePaymentMethodParameter.ParameterType.numeric ->
-                isLengthValid && input.value.isDigitsOnly()
-            PONativeAlternativePaymentMethodParameter.ParameterType.text -> isLengthValid
-            PONativeAlternativePaymentMethodParameter.ParameterType.email ->
-                Patterns.EMAIL_ADDRESS.matcher(input.value).matches()
-            PONativeAlternativePaymentMethodParameter.ParameterType.phone ->
-                isLengthValid && Patterns.PHONE.matcher(input.value).matches()
-        }
-    }
-
     fun updateFocusedInputId(id: Int) {
         _uiState.value.doWhenUserInput { uiModel ->
             if (uiModel.focusedInputId != id) {
@@ -224,20 +205,69 @@ internal class PONativeAlternativePaymentMethodViewModel(
         }
     }
 
-    fun submitPayment(data: Map<String, String>) {
+    fun submitPayment() {
         _uiState.value.doWhenUserInput { uiModel ->
-            val updatedUiModel = uiModel.copy(isSubmitting = true)
-            _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(updatedUiModel)
-            dispatch(WillSubmitParameters)
-            initiatePayment(updatedUiModel, data)
+            val updatedUiModel = uiModel.copy(
+                inputParameters = uiModel.inputParameters.map { it.validate() }
+            )
+            if (updatedUiModel.isSubmitAllowed()) {
+                _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(
+                    updatedUiModel.copy(isSubmitting = true)
+                )
+                dispatch(WillSubmitParameters)
+                initiatePayment(updatedUiModel)
+            } else {
+                _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(updatedUiModel)
+            }
         }
     }
 
-    private fun initiatePayment(
-        uiModel: PONativeAlternativePaymentMethodUiModel,
-        data: Map<String, String>
-    ) {
+    private fun InputParameter.validate(): InputParameter {
+        val value = plainValue()
+        if (parameter.required.not())
+            return copy(state = Input.State.Default())
+        else if (value.isBlank())
+            return stateError(R.string.po_native_apm_error_required_parameter)
+
+        parameter.length?.let {
+            if (value.length != it) {
+                return copy(
+                    state = Input.State.Error(
+                        app.resources.getQuantityString(
+                            R.plurals.po_native_apm_error_invalid_length, it, it
+                        )
+                    )
+                )
+            }
+        }
+
+        when (parameter.type) {
+            PONativeAlternativePaymentMethodParameter.ParameterType.numeric ->
+                if (value.isDigitsOnly().not())
+                    return stateError(R.string.po_native_apm_error_invalid_number)
+            PONativeAlternativePaymentMethodParameter.ParameterType.text ->
+                if (value.isAlphanumericsOnly().not())
+                    return stateError(R.string.po_native_apm_error_invalid_text)
+            PONativeAlternativePaymentMethodParameter.ParameterType.email ->
+                if (Patterns.EMAIL_ADDRESS.matcher(value).matches().not())
+                    return stateError(R.string.po_native_apm_error_invalid_email)
+            PONativeAlternativePaymentMethodParameter.ParameterType.phone ->
+                if (Patterns.PHONE.matcher(value).matches().not())
+                    return stateError(R.string.po_native_apm_error_invalid_phone)
+        }
+        return copy(state = Input.State.Default())
+    }
+
+    private fun InputParameter.stateError(@StringRes resId: Int) = copy(
+        state = Input.State.Error(app.getString(resId))
+    )
+
+    private fun initiatePayment(uiModel: PONativeAlternativePaymentMethodUiModel) {
         viewModelScope.launch {
+            val data = mutableMapOf<String, String>()
+            uiModel.inputParameters.forEach {
+                data[it.parameter.key] = it.plainValue()
+            }
             val request = PONativeAlternativePaymentMethodRequest(
                 invoiceId, gatewayConfigurationId, data
             )
