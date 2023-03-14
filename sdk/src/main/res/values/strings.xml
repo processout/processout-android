@@ -8,8 +8,8 @@
     <string name="po_native_apm_cancel_button_default_text">Cancel</string>
     <string name="po_native_apm_awaiting_capture_message">To complete the payment please confirm it from your banking app.</string>
     <string name="po_native_apm_success_message">Success!\nPayment approved</string>
-    <string name="po_native_apm_input_hint_phone">Your phone number…</string>
-    <string name="po_native_apm_input_hint_email">example@domain.com</string>
+    <string name="po_native_apm_input_hint_phone">Enter phone number</string>
+    <string name="po_native_apm_input_hint_email">name@example.com</string>
 
     <string name="po_native_apm_error_required_parameter">Parameter is required</string>
     <string name="po_native_apm_error_invalid_number">Number is not valid</string>
