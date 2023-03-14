@@ -15,6 +15,13 @@ internal data class InputParameter(
     val keyboardAction: KeyboardAction? = null,
     val parameter: PONativeAlternativePaymentMethodParameter
 ) {
+
+    fun plainValue() = when (parameter.type) {
+        ParameterType.numeric -> value.replace(" ", String())
+        ParameterType.phone -> value.replace(Regex("[-() ]"), String())
+        else -> value
+    }
+
     fun toInputType() = when (parameter.type) {
         ParameterType.numeric -> InputType.TYPE_CLASS_NUMBER
         ParameterType.text -> InputType.TYPE_CLASS_TEXT

@@ -2,7 +2,7 @@
 
 ## Requirements
 
-*Android 5.0 (API level 21)*
+*Android 5.0 (API level 21) +*
 
 ## Documentation
 

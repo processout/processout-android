@@ -4,6 +4,7 @@ import android.app.Application
 import android.util.Patterns
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import androidx.annotation.StringRes
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
@@ -173,8 +174,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
             } ?: inputParameter.copy()
         }
         return copy(
-            inputParameters = updatedInputParameters,
-            isSubmitAllowed = isSubmitAllowed(updatedInputParameters)
+            inputParameters = updatedInputParameters
         )
     }
 
@@ -187,35 +187,10 @@ internal class PONativeAlternativePaymentMethodViewModel(
             }
             _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(
                 uiModel.copy(
-                    inputParameters = updatedInputParameters,
-                    isSubmitAllowed = isSubmitAllowed(updatedInputParameters)
+                    inputParameters = updatedInputParameters
                 )
             )
             dispatch(ParametersChanged)
-        }
-    }
-
-    private fun isSubmitAllowed(parameters: List<InputParameter>) =
-        parameters.map { isInputValid(it) }.all { it }
-
-    private fun isInputValid(input: InputParameter): Boolean {
-        if (input.parameter.required.not()) return true
-        if (input.state is Input.State.Error) return false
-
-        val isLengthValid = input.parameter.length?.let {
-            input.value.length == it
-        } ?: run {
-            input.value.isNotBlank()
-        }
-
-        return when (input.parameter.type) {
-            PONativeAlternativePaymentMethodParameter.ParameterType.numeric ->
-                isLengthValid && input.value.isDigitsOnly()
-            PONativeAlternativePaymentMethodParameter.ParameterType.text -> isLengthValid
-            PONativeAlternativePaymentMethodParameter.ParameterType.email ->
-                Patterns.EMAIL_ADDRESS.matcher(input.value).matches()
-            PONativeAlternativePaymentMethodParameter.ParameterType.phone ->
-                isLengthValid && Patterns.PHONE.matcher(input.value).matches()
         }
     }
 
@@ -229,26 +204,80 @@ internal class PONativeAlternativePaymentMethodViewModel(
         }
     }
 
-    fun submitPayment(data: Map<String, String>) {
+    fun submitPayment() {
         _uiState.value.doWhenUserInput { uiModel ->
+            dispatch(WillSubmitParameters)
+
+            val invalidFields = uiModel.inputParameters.mapNotNull { it.validate() }
+            if (invalidFields.isNotEmpty()) {
+                val failure = ProcessOutResult.Failure(
+                    "Invalid fields.",
+                    POFailure.Code.Validation(POFailure.ValidationCode.general),
+                    invalidFields
+                )
+                handlePaymentFailure(failure, uiModel, replaceToLocalMessage = false)
+                return@doWhenUserInput
+            }
+
             val updatedUiModel = uiModel.copy(isSubmitting = true)
             _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(updatedUiModel)
-            dispatch(WillSubmitParameters)
-            initiatePayment(updatedUiModel, data)
+            initiatePayment(updatedUiModel)
         }
     }
 
-    private fun initiatePayment(
-        uiModel: PONativeAlternativePaymentMethodUiModel,
-        data: Map<String, String>
-    ) {
+    private fun InputParameter.validate(): POFailure.InvalidField? {
+        val value = plainValue()
+        if (parameter.required.not())
+            return null
+        else if (value.isBlank())
+            return invalidField(R.string.po_native_apm_error_required_parameter)
+
+        parameter.length?.let {
+            if (value.length != it) {
+                return POFailure.InvalidField(
+                    name = parameter.key,
+                    message = app.resources.getQuantityString(
+                        R.plurals.po_native_apm_error_invalid_length, it, it
+                    )
+                )
+            }
+        }
+
+        when (parameter.type) {
+            PONativeAlternativePaymentMethodParameter.ParameterType.numeric ->
+                if (value.isDigitsOnly().not())
+                    return invalidField(R.string.po_native_apm_error_invalid_number)
+            PONativeAlternativePaymentMethodParameter.ParameterType.email ->
+                if (Patterns.EMAIL_ADDRESS.matcher(value).matches().not())
+                    return invalidField(R.string.po_native_apm_error_invalid_email)
+            PONativeAlternativePaymentMethodParameter.ParameterType.phone ->
+                if (Patterns.PHONE.matcher(value).matches().not())
+                    return invalidField(R.string.po_native_apm_error_invalid_phone)
+            else -> {}
+        }
+        return null
+    }
+
+    private fun InputParameter.invalidField(@StringRes resId: Int) =
+        POFailure.InvalidField(
+            name = parameter.key,
+            message = app.getString(resId)
+        )
+
+    private fun initiatePayment(uiModel: PONativeAlternativePaymentMethodUiModel) {
         viewModelScope.launch {
+            val data = mutableMapOf<String, String>()
+            uiModel.inputParameters.forEach {
+                data[it.parameter.key] = it.plainValue()
+            }
             val request = PONativeAlternativePaymentMethodRequest(
                 invoiceId, gatewayConfigurationId, data
             )
             when (val result = invoicesRepository.initiatePayment(request)) {
                 is ProcessOutResult.Success -> handlePaymentSuccess(result, uiModel)
-                is ProcessOutResult.Failure -> handlePaymentFailure(result, uiModel)
+                is ProcessOutResult.Failure -> handlePaymentFailure(
+                    result, uiModel, replaceToLocalMessage = true
+                )
             }
         }
     }
@@ -288,27 +317,21 @@ internal class PONativeAlternativePaymentMethodViewModel(
 
     private fun continueUserInput(uiModel: PONativeAlternativePaymentMethodUiModel) {
         _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(
-            uiModel.copy(
-                isSubmitAllowed = false,
-                isSubmitting = false
-            )
+            uiModel.copy(isSubmitting = false)
         )
         dispatch(DidSubmitParameters(additionalParametersExpected = true))
     }
 
     private fun handlePendingCapture(uiModel: PONativeAlternativePaymentMethodUiModel) {
         _uiState.value = PONativeAlternativePaymentMethodUiState.Submitted(
-            uiModel.copy(
-                isSubmitAllowed = false,
-                isSubmitting = false
-            )
+            uiModel.copy(isSubmitting = false)
         )
         dispatch(DidSubmitParameters(additionalParametersExpected = false))
 
         if (options.waitsPaymentConfirmation) {
             dispatch(
                 WillWaitForCaptureConfirmation(
-                    additionalActionExpected = uiModel.showCustomerAction
+                    additionalActionExpected = uiModel.showCustomerAction()
                 )
             )
             animateViewTransition = true
@@ -329,7 +352,8 @@ internal class PONativeAlternativePaymentMethodViewModel(
 
     private fun handlePaymentFailure(
         failure: ProcessOutResult.Failure,
-        uiModel: PONativeAlternativePaymentMethodUiModel
+        uiModel: PONativeAlternativePaymentMethodUiModel,
+        replaceToLocalMessage: Boolean // TODO: Delete this when backend localisation is done.
     ) {
         if (failure.invalidFields.isNullOrEmpty()) {
             _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(failure)
@@ -337,18 +361,41 @@ internal class PONativeAlternativePaymentMethodViewModel(
         }
         val updatedInputParameters = uiModel.inputParameters.map { inputParameter ->
             failure.invalidFields.find { it.name == inputParameter.parameter.key }?.let {
-                inputParameter.copy(state = Input.State.Error(it.message))
+                inputParameter.copy(
+                    state = Input.State.Error(
+                        resolveInputErrorMessage(
+                            replaceToLocalMessage, inputParameter.parameter.type, it.message
+                        )
+                    )
+                )
             } ?: inputParameter.copy()
         }
         _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(
             uiModel.copy(
                 inputParameters = updatedInputParameters,
-                isSubmitAllowed = false,
                 isSubmitting = false
             )
         )
         dispatch(DidFailToSubmitParameters(failure))
     }
+
+    // TODO: Delete this when backend localisation is done.
+    private fun resolveInputErrorMessage(
+        replaceToLocalMessage: Boolean,
+        type: PONativeAlternativePaymentMethodParameter.ParameterType,
+        originalMessage: String?
+    ) = if (replaceToLocalMessage)
+        when (type) {
+            PONativeAlternativePaymentMethodParameter.ParameterType.numeric ->
+                app.getString(R.string.po_native_apm_error_invalid_number)
+            PONativeAlternativePaymentMethodParameter.ParameterType.text ->
+                app.getString(R.string.po_native_apm_error_invalid_text)
+            PONativeAlternativePaymentMethodParameter.ParameterType.email ->
+                app.getString(R.string.po_native_apm_error_invalid_email)
+            PONativeAlternativePaymentMethodParameter.ParameterType.phone ->
+                app.getString(R.string.po_native_apm_error_invalid_phone)
+        }
+    else originalMessage
 
     private fun startCapturePolling() {
         if (capturePollingStartTimestamp == 0L) {
@@ -462,7 +509,6 @@ internal class PONativeAlternativePaymentMethodViewModel(
             customerActionImageUrl = gateway.customerActionImageUrl,
             primaryActionText = options.primaryActionText ?: invoice.formatPrimaryActionText(),
             secondaryActionText = getSecondaryActionText(),
-            isSubmitAllowed = false,
             isSubmitting = false
         )
 

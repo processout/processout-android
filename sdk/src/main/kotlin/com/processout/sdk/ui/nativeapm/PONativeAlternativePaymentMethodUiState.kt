@@ -3,6 +3,7 @@ package com.processout.sdk.ui.nativeapm
 import android.view.View
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.shared.model.InputParameter
+import com.processout.sdk.ui.shared.view.input.Input
 
 internal sealed class PONativeAlternativePaymentMethodUiState {
     object Loading : PONativeAlternativePaymentMethodUiState()
@@ -40,12 +41,13 @@ internal data class PONativeAlternativePaymentMethodUiModel(
     val successMessage: String,
     val customerActionMessage: String?,
     val customerActionImageUrl: String?,
-    val showCustomerAction: Boolean = customerActionMessage.isNullOrBlank().not(),
     val primaryActionText: String,
     val secondaryActionText: String,
-    val isSubmitAllowed: Boolean,
     val isSubmitting: Boolean
-)
+) {
+    fun isSubmitAllowed() = inputParameters.all { it.state is Input.State.Default }
+    fun showCustomerAction() = customerActionMessage.isNullOrBlank().not()
+}
 
 internal inline fun PONativeAlternativePaymentMethodUiState.doWhenUserInput(
     crossinline block: (uiModel: PONativeAlternativePaymentMethodUiModel) -> Unit
