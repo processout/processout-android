@@ -206,35 +206,38 @@ internal class PONativeAlternativePaymentMethodViewModel(
 
     fun submitPayment() {
         _uiState.value.doWhenUserInput { uiModel ->
-            val updatedUiModel = uiModel.copy(
-                inputParameters = uiModel.inputParameters.map { it.validate() }
-            )
-            if (updatedUiModel.isSubmitAllowed()) {
-                _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(
-                    updatedUiModel.copy(isSubmitting = true)
+            dispatch(WillSubmitParameters)
+
+            val invalidFields = uiModel.inputParameters.mapNotNull { it.validate() }
+            if (invalidFields.isNotEmpty()) {
+                val failure = ProcessOutResult.Failure(
+                    "Invalid fields.",
+                    POFailure.Code.Validation(POFailure.ValidationCode.general),
+                    invalidFields
                 )
-                dispatch(WillSubmitParameters)
-                initiatePayment(updatedUiModel)
-            } else {
-                _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(updatedUiModel)
+                handlePaymentFailure(failure, uiModel)
+                return@doWhenUserInput
             }
+
+            val updatedUiModel = uiModel.copy(isSubmitting = true)
+            _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(updatedUiModel)
+            initiatePayment(updatedUiModel)
         }
     }
 
-    private fun InputParameter.validate(): InputParameter {
+    private fun InputParameter.validate(): POFailure.InvalidField? {
         val value = plainValue()
         if (parameter.required.not())
-            return copy(state = Input.State.Default())
+            return null
         else if (value.isBlank())
-            return stateError(R.string.po_native_apm_error_required_parameter)
+            return invalidField(R.string.po_native_apm_error_required_parameter)
 
         parameter.length?.let {
             if (value.length != it) {
-                return copy(
-                    state = Input.State.Error(
-                        app.resources.getQuantityString(
-                            R.plurals.po_native_apm_error_invalid_length, it, it
-                        )
+                return POFailure.InvalidField(
+                    name = parameter.key,
+                    message = app.resources.getQuantityString(
+                        R.plurals.po_native_apm_error_invalid_length, it, it
                     )
                 )
             }
@@ -243,21 +246,23 @@ internal class PONativeAlternativePaymentMethodViewModel(
         when (parameter.type) {
             PONativeAlternativePaymentMethodParameter.ParameterType.numeric ->
                 if (value.isDigitsOnly().not())
-                    return stateError(R.string.po_native_apm_error_invalid_number)
+                    return invalidField(R.string.po_native_apm_error_invalid_number)
             PONativeAlternativePaymentMethodParameter.ParameterType.email ->
                 if (Patterns.EMAIL_ADDRESS.matcher(value).matches().not())
-                    return stateError(R.string.po_native_apm_error_invalid_email)
+                    return invalidField(R.string.po_native_apm_error_invalid_email)
             PONativeAlternativePaymentMethodParameter.ParameterType.phone ->
                 if (Patterns.PHONE.matcher(value).matches().not())
-                    return stateError(R.string.po_native_apm_error_invalid_phone)
+                    return invalidField(R.string.po_native_apm_error_invalid_phone)
             else -> {}
         }
-        return copy(state = Input.State.Default())
+        return null
     }
 
-    private fun InputParameter.stateError(@StringRes resId: Int) = copy(
-        state = Input.State.Error(app.getString(resId))
-    )
+    private fun InputParameter.invalidField(@StringRes resId: Int) =
+        POFailure.InvalidField(
+            name = parameter.key,
+            message = app.getString(resId)
+        )
 
     private fun initiatePayment(uiModel: PONativeAlternativePaymentMethodUiModel) {
         viewModelScope.launch {
