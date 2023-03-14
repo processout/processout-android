@@ -215,7 +215,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                     POFailure.Code.Validation(POFailure.ValidationCode.general),
                     invalidFields
                 )
-                handlePaymentFailure(failure, uiModel)
+                handlePaymentFailure(failure, uiModel, replaceToLocalMessage = false)
                 return@doWhenUserInput
             }
 
@@ -275,7 +275,9 @@ internal class PONativeAlternativePaymentMethodViewModel(
             )
             when (val result = invoicesRepository.initiatePayment(request)) {
                 is ProcessOutResult.Success -> handlePaymentSuccess(result, uiModel)
-                is ProcessOutResult.Failure -> handlePaymentFailure(result, uiModel)
+                is ProcessOutResult.Failure -> handlePaymentFailure(
+                    result, uiModel, replaceToLocalMessage = true
+                )
             }
         }
     }
@@ -350,7 +352,8 @@ internal class PONativeAlternativePaymentMethodViewModel(
 
     private fun handlePaymentFailure(
         failure: ProcessOutResult.Failure,
-        uiModel: PONativeAlternativePaymentMethodUiModel
+        uiModel: PONativeAlternativePaymentMethodUiModel,
+        replaceToLocalMessage: Boolean // TODO: Delete this when backend localisation is done.
     ) {
         if (failure.invalidFields.isNullOrEmpty()) {
             _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(failure)
@@ -358,7 +361,13 @@ internal class PONativeAlternativePaymentMethodViewModel(
         }
         val updatedInputParameters = uiModel.inputParameters.map { inputParameter ->
             failure.invalidFields.find { it.name == inputParameter.parameter.key }?.let {
-                inputParameter.copy(state = Input.State.Error(it.message))
+                inputParameter.copy(
+                    state = Input.State.Error(
+                        resolveInputErrorMessage(
+                            replaceToLocalMessage, inputParameter.parameter.type, it.message
+                        )
+                    )
+                )
             } ?: inputParameter.copy()
         }
         _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(
@@ -369,6 +378,24 @@ internal class PONativeAlternativePaymentMethodViewModel(
         )
         dispatch(DidFailToSubmitParameters(failure))
     }
+
+    // TODO: Delete this when backend localisation is done.
+    private fun resolveInputErrorMessage(
+        replaceToLocalMessage: Boolean,
+        type: PONativeAlternativePaymentMethodParameter.ParameterType,
+        originalMessage: String?
+    ) = if (replaceToLocalMessage)
+        when (type) {
+            PONativeAlternativePaymentMethodParameter.ParameterType.numeric ->
+                app.getString(R.string.po_native_apm_error_invalid_number)
+            PONativeAlternativePaymentMethodParameter.ParameterType.text ->
+                app.getString(R.string.po_native_apm_error_invalid_text)
+            PONativeAlternativePaymentMethodParameter.ParameterType.email ->
+                app.getString(R.string.po_native_apm_error_invalid_email)
+            PONativeAlternativePaymentMethodParameter.ParameterType.phone ->
+                app.getString(R.string.po_native_apm_error_invalid_phone)
+        }
+    else originalMessage
 
     private fun startCapturePolling() {
         if (capturePollingStartTimestamp == 0L) {
