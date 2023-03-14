@@ -13,6 +13,7 @@
 
     <string name="po_native_apm_error_required_parameter">Parameter is required</string>
     <string name="po_native_apm_error_invalid_number">Number is not valid</string>
+    <string name="po_native_apm_error_invalid_text">Value is not valid</string>
     <string name="po_native_apm_error_invalid_email">Email is not valid</string>
     <string name="po_native_apm_error_invalid_phone">Phone number is not valid</string>
     <plurals name="po_native_apm_error_invalid_length">
