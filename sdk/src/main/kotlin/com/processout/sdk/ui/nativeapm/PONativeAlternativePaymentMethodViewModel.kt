@@ -28,7 +28,6 @@ import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options.Companion.MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
 import com.processout.sdk.ui.shared.model.InputParameter
 import com.processout.sdk.ui.shared.view.input.Input
-import com.processout.sdk.utils.isAlphanumericsOnly
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -245,15 +244,13 @@ internal class PONativeAlternativePaymentMethodViewModel(
             PONativeAlternativePaymentMethodParameter.ParameterType.numeric ->
                 if (value.isDigitsOnly().not())
                     return stateError(R.string.po_native_apm_error_invalid_number)
-            PONativeAlternativePaymentMethodParameter.ParameterType.text ->
-                if (value.isAlphanumericsOnly().not())
-                    return stateError(R.string.po_native_apm_error_invalid_text)
             PONativeAlternativePaymentMethodParameter.ParameterType.email ->
                 if (Patterns.EMAIL_ADDRESS.matcher(value).matches().not())
                     return stateError(R.string.po_native_apm_error_invalid_email)
             PONativeAlternativePaymentMethodParameter.ParameterType.phone ->
                 if (Patterns.PHONE.matcher(value).matches().not())
                     return stateError(R.string.po_native_apm_error_invalid_phone)
+            else -> {}
         }
         return copy(state = Input.State.Default())
     }
