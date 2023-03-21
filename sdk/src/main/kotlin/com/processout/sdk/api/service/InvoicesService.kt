@@ -1,22 +1,22 @@
-package com.processout.sdk.api.repository
+package com.processout.sdk.api.service
 
 import com.processout.sdk.api.model.request.POCreateInvoiceRequest
 import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
-import com.processout.sdk.api.model.response.*
+import com.processout.sdk.api.model.response.POInvoice
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethod
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodCapture
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 
-internal interface InvoicesRepository {
+interface InvoicesService {
 
-    suspend fun authorize(
-        request: POInvoiceAuthorizationRequest
-    ): ProcessOutResult<POInvoiceAuthorizationSuccess>
-
-    fun authorize(
+    fun authorizeInvoice(
         request: POInvoiceAuthorizationRequest,
-        callback: ProcessOutCallback<POInvoiceAuthorizationSuccess>
+        threeDSHandler: PO3DSHandler,
+        callback: (PO3DSResult<Unit>) -> Unit
     )
 
     suspend fun capture(

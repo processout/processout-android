@@ -17,18 +17,16 @@ internal class InvoicesRepositoryImpl(
 ) : BaseRepository(moshi), InvoicesRepository {
 
     override suspend fun authorize(
-        invoiceId: String,
         request: POInvoiceAuthorizationRequest
     ) = apiCall {
-        api.authorize(invoiceId, request.toDeviceDataRequest(contextGraph.deviceData))
+        api.authorize(request.invoiceId, request.toDeviceDataRequest(contextGraph.deviceData))
     }.map { it.toModel(moshi) }
 
     override fun authorize(
-        invoiceId: String,
         request: POInvoiceAuthorizationRequest,
         callback: ProcessOutCallback<POInvoiceAuthorizationSuccess>
     ) = apiCallScoped(callback, { it.toModel(moshi) }) {
-        api.authorize(invoiceId, request.toDeviceDataRequest(contextGraph.deviceData))
+        api.authorize(request.invoiceId, request.toDeviceDataRequest(contextGraph.deviceData))
     }
 
     override suspend fun capture(
@@ -115,6 +113,8 @@ private fun POInvoiceAuthorizationRequest.toDeviceDataRequest(deviceData: PODevi
         invoiceDetailsIds,
         overrideMacBlocking,
         initialSchemeTransactionId,
+        autoCaptureAt,
+        captureAmount,
         authorizeOnly,
         allowFallbackToSale,
         metadata,

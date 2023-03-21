@@ -2,6 +2,7 @@ package com.processout.sdk
 
 import com.processout.sdk.api.ProcessOutApi
 import com.processout.sdk.api.model.request.*
+import com.processout.sdk.api.model.response.PO3DSCustomerAction
 import com.processout.sdk.api.repository.CardsRepository
 import com.processout.sdk.api.repository.InvoicesRepository
 import com.processout.sdk.config.SetupRule
@@ -31,7 +32,7 @@ class InvoicesRepositoryUnitTests {
 
     @Before
     fun setUp() {
-        invoices = ProcessOutApi.instance.invoices
+        invoices = ProcessOutApi.instance.apiGraph.repositoryGraph.invoicesRepository
         cards = ProcessOutApi.instance.cards
     }
 
@@ -70,8 +71,7 @@ class InvoicesRepositoryUnitTests {
                 cards.tokenize(request).let {
                     it.handleSuccess { card ->
                         invoices.authorize(
-                            invoice.id,
-                            POInvoiceAuthorizationRequest(card.id)
+                            POInvoiceAuthorizationRequest(invoice.id, card.id)
                         ).let { authResult ->
                             authResult.assertFailure()
                             authResult.handleSuccess { authSuccess ->
@@ -102,12 +102,11 @@ class InvoicesRepositoryUnitTests {
                 cards.tokenize(request).let {
                     it.handleSuccess { card ->
                         invoices.authorize(
-                            invoice.id,
-                            POInvoiceAuthorizationRequest(card.id)
+                            POInvoiceAuthorizationRequest(invoice.id, card.id)
                         ).let { authResult ->
                             authResult.assertFailure()
                             authResult.handleSuccess { authSuccess ->
-                                assert(authSuccess.customerAction is POCustomerActionResponse.UriData)
+                                assert(authSuccess.customerAction is PO3DSCustomerAction.Redirect)
                             }
                         }
                     }

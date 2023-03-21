@@ -1,7 +1,5 @@
 package com.processout.sdk.api.model.response
 
-import com.processout.sdk.api.model.request.POCustomerAction
-import com.processout.sdk.api.model.request.POCustomerActionResponse
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -30,5 +28,5 @@ data class POToken(
 
 data class POCustomerToken(
     val customerToken: POToken,
-    val customerAction: POCustomerActionResponse?
+    val customerAction: PO3DSCustomerAction?
 )
