@@ -22,7 +22,7 @@ import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodDefaultValuesRequest
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.*
-import com.processout.sdk.api.repository.InvoicesRepository
+import com.processout.sdk.api.service.InvoicesService
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options.Companion.MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
@@ -39,7 +39,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
     private val gatewayConfigurationId: String,
     private val invoiceId: String,
     val options: PONativeAlternativePaymentMethodConfiguration.Options,
-    private val invoicesRepository: InvoicesRepository,
+    private val invoicesService: InvoicesService,
     private val eventDispatcher: NativeAlternativePaymentMethodEventDispatcher
 ) : AndroidViewModel(app) {
 
@@ -93,7 +93,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
 
     private fun fetchTransactionDetails() {
         viewModelScope.launch {
-            val result = invoicesRepository.fetchNativeAlternativePaymentMethodTransactionDetails(
+            val result = invoicesService.fetchNativeAlternativePaymentMethodTransactionDetails(
                 invoiceId, gatewayConfigurationId
             )
             when (result) {
@@ -273,7 +273,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
             val request = PONativeAlternativePaymentMethodRequest(
                 invoiceId, gatewayConfigurationId, data
             )
-            when (val result = invoicesRepository.initiatePayment(request)) {
+            when (val result = invoicesService.initiatePayment(request)) {
                 is ProcessOutResult.Success -> handlePaymentSuccess(result, uiModel)
                 is ProcessOutResult.Failure -> handlePaymentFailure(
                     result, uiModel, replaceToLocalMessage = true
@@ -418,7 +418,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 return@launch
             }
 
-            val result = invoicesRepository.capture(invoiceId, gatewayConfigurationId)
+            val result = invoicesService.capture(invoiceId, gatewayConfigurationId)
             if (isCaptureRetryable(result)) {
                 delay(CAPTURE_POLLING_DELAY_MS)
                 capture()
