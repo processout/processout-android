@@ -1,14 +1,9 @@
 package com.processout.sdk.api.repository
 
+import com.processout.sdk.api.model.request.POAssignCustomerTokenRequest
+import com.processout.sdk.api.model.request.POAssignCustomerTokenRequestWithDeviceData
 import com.processout.sdk.api.model.request.POCreateCustomerRequest
-import com.processout.sdk.api.model.request.POCustomerTokenRequest
-import com.processout.sdk.api.model.request.POCustomerTokenRequestWithDeviceData
-import com.processout.sdk.api.model.request.PODeviceData
-import com.processout.sdk.api.model.response.POCustomerToken
-import com.processout.sdk.api.model.response.POCustomerTokenResponse
 import com.processout.sdk.api.network.CustomerTokensApi
-import com.processout.sdk.api.repository.shared.parseResponse
-import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.core.map
 import com.processout.sdk.di.ContextGraph
@@ -21,59 +16,32 @@ internal class CustomerTokensRepositoryImpl(
 ) : BaseRepository(moshi), CustomerTokensRepository {
 
     override suspend fun assignCustomerToken(
-        customerId: String,
-        tokenId: String,
-        request: POCustomerTokenRequest
+        request: POAssignCustomerTokenRequest
     ) = apiCall {
-        api.assignCustomerToken(customerId, tokenId, request.toDeviceDataRequest(contextGraph.deviceData))
-    }.map { it.toModel(moshi) }
-
-    override fun assignCustomerToken(
-        customerId: String,
-        tokenId: String,
-        request: POCustomerTokenRequest,
-        callback: ProcessOutCallback<POCustomerToken>
-    ) = apiCallScoped(callback, { it.toModel(moshi) }) {
-        api.assignCustomerToken(customerId, tokenId, request.toDeviceDataRequest(contextGraph.deviceData))
+        api.assignCustomerToken(
+            request.customerId,
+            request.tokenId,
+            request.toDeviceDataRequest()
+        )
     }
-
-    // <--- Calls meant to be used for testing --->
 
     @ProcessOutInternalApi
     override suspend fun createCustomerToken(customerId: String) =
-        apiCall { api.createCustomerToken(customerId) }.map { it.toModel(moshi) }
-
-    @ProcessOutInternalApi
-    override fun createCustomerToken(
-        customerId: String,
-        callback: ProcessOutCallback<POCustomerToken>
-    ) = apiCallScoped(callback, { it.toModel(moshi) }) {
-        api.createCustomerToken(customerId)
-    }
+        apiCall { api.createCustomerToken(customerId) }
 
     @ProcessOutInternalApi
     override suspend fun createCustomer(request: POCreateCustomerRequest) =
         apiCall { api.createCustomer(request) }.map { it.customer }
+
+    private fun POAssignCustomerTokenRequest.toDeviceDataRequest() =
+        POAssignCustomerTokenRequestWithDeviceData(
+            source,
+            preferredScheme,
+            enableThreeDS2,
+            verify,
+            verificationInvoiceId,
+            thirdPartySdkVersion,
+            metadata,
+            contextGraph.deviceData
+        )
 }
-
-// <--- CustomerTokens Private Functions --->
-
-private fun POCustomerTokenRequest.toDeviceDataRequest(deviceData: PODeviceData) =
-    POCustomerTokenRequestWithDeviceData(
-        source,
-        threeDS2Enabled,
-        verify,
-        metadata,
-        verifyMetadata,
-        thirdPartySDKVersion,
-        preferredScheme,
-        verificationInvoiceUID,
-        manualInvoiceCancellation,
-        description,
-        returnURL,
-        cancelURL,
-        deviceData
-    )
-
-private fun POCustomerTokenResponse.toModel(moshi: Moshi) =
-    POCustomerToken(token, customerAction.parseResponse(moshi))

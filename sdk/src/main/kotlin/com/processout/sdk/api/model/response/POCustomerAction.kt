@@ -1,38 +1,48 @@
 package com.processout.sdk.api.model.response
 
 import android.net.Uri
+import com.processout.sdk.utils.findBy
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
-// TODO: check usages in Invoices and CustomerTokens after refactoring,
-// TODO: maybe it can be 'internal'
-sealed class PO3DSCustomerAction {
-    data class FingerprintMobile(
-        val value: PO3DS2Configuration
-    ) : PO3DSCustomerAction()
-
-    data class ChallengeMobile(
-        val value: PO3DS2Challenge
-    ) : PO3DSCustomerAction()
-
-    data class Fingerprint(val value: Uri) : PO3DSCustomerAction()
-    data class Redirect(val value: Uri) : PO3DSCustomerAction()
-}
-
-data class POInvoiceAuthorizationSuccess(
-    val customerAction: PO3DSCustomerAction?
-)
-
-@JsonClass(generateAdapter = true)
-internal data class POInvoiceAuthorizationResponse(
-    @Json(name = "customer_action")
-    val customerAction: POCustomerAction? = null
-)
-
 @JsonClass(generateAdapter = true)
 internal data class POCustomerAction(
-    val type: String,
+    @Json(name = "type")
+    val rawType: String,
     val value: String
+) {
+    fun type() = Type::rawType.findBy(rawType) ?: Type.UNSUPPORTED
+
+    enum class Type(val rawType: String) {
+        FINGERPRINT_MOBILE("fingerprint-mobile"),
+        CHALLENGE_MOBILE("challenge-mobile"),
+        FINGERPRINT("fingerprint"),
+        REDIRECT("redirect"),
+        URL("url"),
+        UNSUPPORTED(String())
+    }
+}
+
+/**
+ * Represents the configuration parameters that are required by the 3DS SDK for initialization.
+ *
+ * @param directoryServerId The identifier of the directory server to use during the transaction creation phase.
+ * @param directoryServerPublicKey The public key of the directory server to use during the transaction creation phase.
+ * @param directoryServerTransactionId Unique identifier for the authentication assigned by the DS (Card Scheme).
+ * @param directoryServerRootCAs List of directory server root CAs.
+ * @param messageVersion 3DS protocol version identifier.
+ * @param scheme Optional directory server scheme.
+ */
+@JsonClass(generateAdapter = true)
+data class PO3DS2Configuration(
+    @Json(name = "directoryServerID")
+    val directoryServerId: String,
+    val directoryServerPublicKey: String,
+    @Json(name = "threeDSServerTransID")
+    val directoryServerTransactionId: String,
+    val directoryServerRootCAs: List<String>,
+    val messageVersion: String,
+    val scheme: String?
 )
 
 /**
@@ -54,24 +64,6 @@ data class PO3DS2Challenge(
 )
 
 /**
- * Represents the configuration parameters that are required by the 3DS SDK for initialization.
- *
- * @param directoryServerId The identifier of the directory server to use during the transaction creation phase.
- * @param directoryServerPublicKey The public key of the directory server to use during the transaction creation phase.
- * @param directoryServerTransactionId Unique identifier for the authentication assigned by the DS (Card Scheme).
- * @param messageVersion 3DS protocol version identifier.
- */
-@JsonClass(generateAdapter = true)
-data class PO3DS2Configuration(
-    @Json(name = "directoryServerID")
-    val directoryServerId: String,
-    val directoryServerPublicKey: String,
-    @Json(name = "threeDSServerTransID")
-    val directoryServerTransactionId: String,
-    val messageVersion: String
-)
-
-/**
  * @param uri Redirect URI.
  * @param isHeadlessModeAllowed Boolean value that indicates whether a given URL can be handled in headless mode, meaning without showing any UI for the user.
  * @param timeoutSeconds Optional timeout interval in seconds.
@@ -81,11 +73,3 @@ data class PO3DSRedirect(
     val isHeadlessModeAllowed: Boolean,
     val timeoutSeconds: Int? = null
 )
-
-enum class CustomerActionType(val value: String) {
-    FINGERPRINT_MOBILE("fingerprint-mobile"),
-    CHALLENGE_MOBILE("challenge-mobile"),
-    URL("url"),
-    REDIRECT("redirect"),
-    FINGERPRINT("fingerprint")
-}

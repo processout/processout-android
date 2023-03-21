@@ -19,17 +19,6 @@ interface InvoicesService {
         callback: (PO3DSResult<Unit>) -> Unit
     )
 
-    suspend fun capture(
-        invoiceId: String,
-        gatewayConfigurationId: String
-    ): ProcessOutResult<PONativeAlternativePaymentMethodCapture>
-
-    fun capture(
-        invoiceId: String,
-        gatewayConfigurationId: String,
-        callback: ProcessOutCallback<PONativeAlternativePaymentMethodCapture>
-    )
-
     suspend fun initiatePayment(
         request: PONativeAlternativePaymentMethodRequest
     ): ProcessOutResult<PONativeAlternativePaymentMethod>
@@ -48,6 +37,17 @@ interface InvoicesService {
         invoiceId: String,
         gatewayConfigurationId: String,
         callback: ProcessOutCallback<PONativeAlternativePaymentMethodTransactionDetails>
+    )
+
+    suspend fun captureNativeAlternativePayment(
+        invoiceId: String,
+        gatewayConfigurationId: String
+    ): ProcessOutResult<PONativeAlternativePaymentMethodCapture>
+
+    fun captureNativeAlternativePayment(
+        invoiceId: String,
+        gatewayConfigurationId: String,
+        callback: ProcessOutCallback<PONativeAlternativePaymentMethodCapture>
     )
 
     @ProcessOutInternalApi

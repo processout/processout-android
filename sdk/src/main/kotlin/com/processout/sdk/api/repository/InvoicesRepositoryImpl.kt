@@ -3,7 +3,6 @@ package com.processout.sdk.api.repository
 import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.network.InvoicesApi
-import com.processout.sdk.api.repository.shared.parseResponse
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.core.map
@@ -16,38 +15,10 @@ internal class InvoicesRepositoryImpl(
     private val contextGraph: ContextGraph
 ) : BaseRepository(moshi), InvoicesRepository {
 
-    override suspend fun authorize(
+    override suspend fun authorizeInvoice(
         request: POInvoiceAuthorizationRequest
     ) = apiCall {
-        api.authorize(request.invoiceId, request.toDeviceDataRequest(contextGraph.deviceData))
-    }.map { it.toModel(moshi) }
-
-    override fun authorize(
-        request: POInvoiceAuthorizationRequest,
-        callback: ProcessOutCallback<POInvoiceAuthorizationSuccess>
-    ) = apiCallScoped(callback, { it.toModel(moshi) }) {
-        api.authorize(request.invoiceId, request.toDeviceDataRequest(contextGraph.deviceData))
-    }
-
-    override suspend fun capture(
-        invoiceId: String,
-        gatewayConfigurationId: String
-    ) = apiCall {
-        api.capture(
-            invoiceId,
-            PONativeAlternativePaymentCaptureRequest(gatewayConfigurationId)
-        )
-    }.map { it.toModel() }
-
-    override fun capture(
-        invoiceId: String,
-        gatewayConfigurationId: String,
-        callback: ProcessOutCallback<PONativeAlternativePaymentMethodCapture>
-    ) = apiCallScoped(callback, POCaptureResponse::toModel) {
-        api.capture(
-            invoiceId,
-            PONativeAlternativePaymentCaptureRequest(gatewayConfigurationId)
-        )
+        api.authorizeInvoice(request.invoiceId, request.toDeviceDataRequest())
     }
 
     override suspend fun initiatePayment(
@@ -82,48 +53,58 @@ internal class InvoicesRepositoryImpl(
         )
     }
 
-    // <--- Calls meant to be used for testing --->
+    override suspend fun captureNativeAlternativePayment(
+        invoiceId: String,
+        gatewayConfigurationId: String
+    ) = apiCall {
+        api.captureNativeAlternativePayment(
+            invoiceId,
+            PONativeAlternativePaymentCaptureRequest(gatewayConfigurationId)
+        )
+    }.map { it.toModel() }
+
+    override fun captureNativeAlternativePayment(
+        invoiceId: String,
+        gatewayConfigurationId: String,
+        callback: ProcessOutCallback<PONativeAlternativePaymentMethodCapture>
+    ) = apiCallScoped(callback, POCaptureResponse::toModel) {
+        api.captureNativeAlternativePayment(
+            invoiceId,
+            PONativeAlternativePaymentCaptureRequest(gatewayConfigurationId)
+        )
+    }
 
     @ProcessOutInternalApi
     override suspend fun createInvoice(request: POCreateInvoiceRequest) =
         apiCall { api.createInvoice(request) }.map { it.invoice }
+
+    private fun POInvoiceAuthorizationRequest.toDeviceDataRequest() =
+        POInvoiceAuthorizationRequestWithDeviceData(
+            source,
+            incremental,
+            enableThreeDS2,
+            preferredScheme,
+            thirdPartySdkVersion,
+            invoiceDetailsIds,
+            overrideMacBlocking,
+            initialSchemeTransactionId,
+            autoCaptureAt,
+            captureAmount,
+            authorizeOnly,
+            allowFallbackToSale,
+            metadata,
+            contextGraph.deviceData
+        )
+
+    private fun PONativeAlternativePaymentMethodRequest.toBody() =
+        PONativeAPMRequestBody(
+            gatewayConfigurationId,
+            PONativeAPMRequestParameters(parameters)
+        )
 }
-
-// <--- Native APM Payment Private Functions --->
-
-private fun PONativeAlternativePaymentMethodRequest.toBody() =
-    PONativeAPMRequestBody(
-        gatewayConfigurationId,
-        PONativeAPMRequestParameters(parameters)
-    )
 
 private fun PONativeAlternativePaymentMethodResponse.toModel() = nativeApm
 
-private fun POCaptureResponse.toModel() = nativeApm
-
-// <--- Authorization Private Functions --->
-
-private fun POInvoiceAuthorizationRequest.toDeviceDataRequest(deviceData: PODeviceData) =
-    POInvoiceAuthorizationRequestWithDeviceData(
-        source,
-        incremental,
-        enableThreeDS2,
-        preferredScheme,
-        thirdPartySdkVersion,
-        invoiceDetailsIds,
-        overrideMacBlocking,
-        initialSchemeTransactionId,
-        autoCaptureAt,
-        captureAmount,
-        authorizeOnly,
-        allowFallbackToSale,
-        metadata,
-        deviceData
-    )
-
-private fun POInvoiceAuthorizationResponse.toModel(moshi: Moshi) =
-    POInvoiceAuthorizationSuccess(customerAction.parseResponse(moshi))
-
-// <--- Native APM Transaction Details --->
-
 private fun PONativeAlternativePaymentMethodTransactionDetailsResponse.toModel() = nativeApm
+
+private fun POCaptureResponse.toModel() = nativeApm
