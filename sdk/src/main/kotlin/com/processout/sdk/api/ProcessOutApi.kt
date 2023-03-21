@@ -1,3 +1,5 @@
+@file:Suppress("MemberVisibilityCanBePrivate")
+
 package com.processout.sdk.api
 
 import com.processout.processout_sdk.ProcessOut
@@ -6,10 +8,10 @@ import com.processout.sdk.BuildConfig
 import com.processout.sdk.api.dispatcher.NativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.api.network.NetworkConfiguration
-import com.processout.sdk.api.provider.AlternativePaymentMethodProvider
-import com.processout.sdk.api.provider.AlternativePaymentMethodProviderConfiguration
 import com.processout.sdk.api.repository.CardsRepository
 import com.processout.sdk.api.repository.GatewayConfigurationsRepository
+import com.processout.sdk.api.service.AlternativePaymentMethodsConfiguration
+import com.processout.sdk.api.service.AlternativePaymentMethodsService
 import com.processout.sdk.api.service.CustomerTokensService
 import com.processout.sdk.api.service.InvoicesService
 import com.processout.sdk.core.exception.ProcessOutException
@@ -23,10 +25,8 @@ class ProcessOutApi private constructor(
     val cards: CardsRepository
     val invoices: InvoicesService
     val customerTokens: CustomerTokensService
-    val alternativePaymentMethods: AlternativePaymentMethodProvider =
-        apiGraph.providerGraph.alternativePaymentMethodProvider
-    val nativeAlternativePaymentMethodEventDispatcher: NativeAlternativePaymentMethodEventDispatcher =
-        apiGraph.dispatcherGraph.nativeAlternativePaymentMethodEventDispatcher
+    val alternativePaymentMethods: AlternativePaymentMethodsService
+    val nativeAlternativePaymentMethodEventDispatcher: NativeAlternativePaymentMethodEventDispatcher
 
     init {
         with(apiGraph.repositoryGraph) {
@@ -36,7 +36,10 @@ class ProcessOutApi private constructor(
         with(apiGraph.serviceGraph) {
             invoices = invoicesService
             customerTokens = customerTokensService
+            alternativePaymentMethods = alternativePaymentMethodsService
         }
+        nativeAlternativePaymentMethodEventDispatcher =
+            apiGraph.dispatcherGraph.nativeAlternativePaymentMethodEventDispatcher
     }
 
     companion object {
@@ -70,11 +73,11 @@ class ProcessOutApi private constructor(
 
             val apiGraph = ApiGraph(
                 repositoryGraph = repositoryGraph,
-                serviceGraph = ServiceGraphImpl(repositoryGraph),
-                providerGraph = ProviderGraphImpl(
-                    configuration = AlternativePaymentMethodProviderConfiguration(
-                        projectId = configuration.projectId,
-                        checkoutURL = ApiConstants.CHECKOUT_URL
+                serviceGraph = ServiceGraphImpl(
+                    repositoryGraph = repositoryGraph,
+                    configuration = AlternativePaymentMethodsConfiguration(
+                        baseUrl = ApiConstants.CHECKOUT_URL,
+                        projectId = configuration.projectId
                     )
                 ),
                 dispatcherGraph = DispatcherGraphImpl()
