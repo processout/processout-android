@@ -34,9 +34,9 @@ class CustomerTokensRepositoryUnitTests {
 
     @Before
     fun setUp() {
-        invoices = ProcessOutApi.instance.invoices
+        invoices = ProcessOutApi.instance.apiGraph.repositoryGraph.invoicesRepository
         cards = ProcessOutApi.instance.cards
-        customerTokens = ProcessOutApi.instance.customerTokens
+        customerTokens = ProcessOutApi.instance.apiGraph.repositoryGraph.customerTokensRepository
     }
 
     @Test

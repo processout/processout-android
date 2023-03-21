@@ -1,3 +1,5 @@
+@file:Suppress("MemberVisibilityCanBePrivate")
+
 package com.processout.sdk.api
 
 import com.processout.processout_sdk.ProcessOut
@@ -6,23 +8,39 @@ import com.processout.sdk.BuildConfig
 import com.processout.sdk.api.dispatcher.NativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.api.network.NetworkConfiguration
-import com.processout.sdk.api.provider.AlternativePaymentMethodProvider
-import com.processout.sdk.api.provider.AlternativePaymentMethodProviderConfiguration
 import com.processout.sdk.api.repository.CardsRepository
-import com.processout.sdk.api.repository.CustomerTokensRepository
 import com.processout.sdk.api.repository.GatewayConfigurationsRepository
-import com.processout.sdk.api.repository.InvoicesRepository
+import com.processout.sdk.api.service.AlternativePaymentMethodsConfiguration
+import com.processout.sdk.api.service.AlternativePaymentMethodsService
+import com.processout.sdk.api.service.CustomerTokensService
+import com.processout.sdk.api.service.InvoicesService
 import com.processout.sdk.core.exception.ProcessOutException
 import com.processout.sdk.di.*
 
 class ProcessOutApi private constructor(
-    val gatewayConfigurations: GatewayConfigurationsRepository,
-    val invoices: InvoicesRepository,
-    val cards: CardsRepository,
-    val customerTokens: CustomerTokensRepository,
-    val alternativePaymentMethods: AlternativePaymentMethodProvider,
-    val nativeAlternativePaymentMethodEventDispatcher: NativeAlternativePaymentMethodEventDispatcher
+    internal val apiGraph: ApiGraph
 ) {
+
+    val gatewayConfigurations: GatewayConfigurationsRepository
+    val cards: CardsRepository
+    val invoices: InvoicesService
+    val customerTokens: CustomerTokensService
+    val alternativePaymentMethods: AlternativePaymentMethodsService
+    val nativeAlternativePaymentMethodEventDispatcher: NativeAlternativePaymentMethodEventDispatcher
+
+    init {
+        with(apiGraph.repositoryGraph) {
+            gatewayConfigurations = gatewayConfigurationsRepository
+            cards = cardsRepository
+        }
+        with(apiGraph.serviceGraph) {
+            invoices = invoicesService
+            customerTokens = customerTokensService
+            alternativePaymentMethods = alternativePaymentMethodsService
+        }
+        nativeAlternativePaymentMethodEventDispatcher =
+            apiGraph.dispatcherGraph.nativeAlternativePaymentMethodEventDispatcher
+    }
 
     companion object {
         const val NAME = BuildConfig.LIBRARY_NAME
@@ -38,41 +56,35 @@ class ProcessOutApi private constructor(
             if (::instance.isInitialized)
                 throw ProcessOutException("Already configured.")
 
-            val apiGraph = ApiGraph(
-                repositoryGraph = RepositoryGraphImpl(
-                    networkGraph = NetworkGraphImpl(
-                        configuration = NetworkConfiguration(
-                            application = configuration.application,
-                            sdkVersion = VERSION,
-                            baseUrl = ApiConstants.BASE_URL,
-                            projectId = configuration.projectId,
-                            privateKey = configuration.privateKey
-                        )
-                    ),
-                    contextGraph = ContextGraphImpl(
-                        application = configuration.application
+            val repositoryGraph = RepositoryGraphImpl(
+                networkGraph = NetworkGraphImpl(
+                    configuration = NetworkConfiguration(
+                        application = configuration.application,
+                        sdkVersion = VERSION,
+                        baseUrl = ApiConstants.BASE_URL,
+                        projectId = configuration.projectId,
+                        privateKey = configuration.privateKey
                     )
                 ),
-                providerGraph = ProviderGraphImpl(
-                    configuration = AlternativePaymentMethodProviderConfiguration(
-                        projectId = configuration.projectId,
-                        checkoutURL = ApiConstants.CHECKOUT_URL
+                contextGraph = ContextGraphImpl(
+                    application = configuration.application
+                )
+            )
+
+            val apiGraph = ApiGraph(
+                repositoryGraph = repositoryGraph,
+                serviceGraph = ServiceGraphImpl(
+                    repositoryGraph = repositoryGraph,
+                    configuration = AlternativePaymentMethodsConfiguration(
+                        baseUrl = ApiConstants.CHECKOUT_URL,
+                        projectId = configuration.projectId
                     )
                 ),
                 dispatcherGraph = DispatcherGraphImpl()
             )
 
             apiGraph.let {
-                instance = lazy {
-                    ProcessOutApi(
-                        it.repositoryGraph.gatewayConfigurationsRepository,
-                        it.repositoryGraph.invoicesRepository,
-                        it.repositoryGraph.cardsRepository,
-                        it.repositoryGraph.customerTokensRepository,
-                        it.providerGraph.alternativePaymentMethodProvider,
-                        it.dispatcherGraph.nativeAlternativePaymentMethodEventDispatcher
-                    )
-                }.value
+                instance = lazy { ProcessOutApi(it) }.value
             }
 
             legacyInstance = lazy {

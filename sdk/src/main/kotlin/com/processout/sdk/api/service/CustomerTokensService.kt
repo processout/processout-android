@@ -1,27 +1,13 @@
-package com.processout.sdk.api.repository
+package com.processout.sdk.api.service
 
 import com.processout.sdk.api.model.request.POCreateCustomerRequest
-import com.processout.sdk.api.model.request.POCustomerTokenRequest
 import com.processout.sdk.api.model.response.POCustomer
 import com.processout.sdk.api.model.response.POCustomerToken
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 
-internal interface CustomerTokensRepository {
-
-    suspend fun assignCustomerToken(
-        customerId: String,
-        tokenId: String,
-        request: POCustomerTokenRequest
-    ): ProcessOutResult<POCustomerToken>
-
-    fun assignCustomerToken(
-        customerId: String,
-        tokenId: String,
-        request: POCustomerTokenRequest,
-        callback: ProcessOutCallback<POCustomerToken>
-    )
+interface CustomerTokensService {
 
     @ProcessOutInternalApi
     suspend fun createCustomerToken(

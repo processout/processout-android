@@ -31,7 +31,7 @@ class InvoicesRepositoryUnitTests {
 
     @Before
     fun setUp() {
-        invoices = ProcessOutApi.instance.invoices
+        invoices = ProcessOutApi.instance.apiGraph.repositoryGraph.invoicesRepository
         cards = ProcessOutApi.instance.cards
     }
 

@@ -1,8 +1,6 @@
-package com.processout.sdk.api.repository
+package com.processout.sdk.api.service
 
 import com.processout.sdk.api.model.request.POCreateInvoiceRequest
-import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
-import com.processout.sdk.api.model.request.POInvoiceAuthorizationSuccess
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.POInvoice
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethod
@@ -12,18 +10,7 @@ import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 
-internal interface InvoicesRepository {
-
-    suspend fun authorize(
-        invoiceId: String,
-        request: POInvoiceAuthorizationRequest
-    ): ProcessOutResult<POInvoiceAuthorizationSuccess>
-
-    fun authorize(
-        invoiceId: String,
-        request: POInvoiceAuthorizationRequest,
-        callback: ProcessOutCallback<POInvoiceAuthorizationSuccess>
-    )
+interface InvoicesService {
 
     suspend fun capture(
         invoiceId: String,

@@ -1,4 +1,4 @@
-package com.processout.sdk.api.provider
+package com.processout.sdk.api.service
 
 import android.net.Uri
 import com.processout.sdk.api.model.request.POAlternativePaymentMethodRequest
@@ -6,11 +6,11 @@ import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
 
-internal class AlternativePaymentMethodProviderImpl(
-    private val configuration: AlternativePaymentMethodProviderConfiguration
-) : AlternativePaymentMethodProvider {
+internal class AlternativePaymentMethodsServiceImpl(
+    private val configuration: AlternativePaymentMethodsConfiguration
+) : AlternativePaymentMethodsService {
 
-    override fun alternativePaymentMethodURL(request: POAlternativePaymentMethodRequest): ProcessOutResult<Uri> {
+    override fun alternativePaymentMethodUri(request: POAlternativePaymentMethodRequest): ProcessOutResult<Uri> {
         var pathComponents = arrayListOf(
             configuration.projectId, request.invoiceId, "redirect",
             request.gatewayConfigurationId
@@ -21,7 +21,7 @@ internal class AlternativePaymentMethodProviderImpl(
                 request.tokenId.toString(), "redirect", request.gatewayConfigurationId
             )
         }
-        val uriBuilder = Uri.parse(configuration.checkoutURL).buildUpon()
+        val uriBuilder = Uri.parse(configuration.baseUrl).buildUpon()
         pathComponents.forEach { pathComponent ->
             uriBuilder.appendPath(pathComponent)
         }
@@ -34,14 +34,14 @@ internal class AlternativePaymentMethodProviderImpl(
     override fun alternativePaymentMethodResponse(uri: Uri): ProcessOutResult<POAlternativePaymentMethodResponse> {
         if (uri.host != "processout.return") {
             return ProcessOutResult.Failure(
-                "Invalid or malformed Alternative Payment Mehod URL response provided.",
+                "Invalid or malformed Alternative Payment Method URL.",
                 POFailure.Code.Internal()
             )
         }
 
         val gatewayToken = uri.getQueryParameter("token")
             ?: return ProcessOutResult.Failure(
-                "Invalid or malformed Alternative Payment Mehod URL response provided.",
+                "Invalid or malformed Alternative Payment Method URL.",
                 POFailure.Code.Internal()
             )
 
