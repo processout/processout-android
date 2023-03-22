@@ -67,6 +67,17 @@ data class PO3DS2Configuration(
     val messageVersion: String
 )
 
+/**
+ * @param uri Redirect URI.
+ * @param isHeadlessModeAllowed Boolean value that indicates whether a given URL can be handled in headless mode, meaning without showing any UI for the user.
+ * @param timeoutSeconds Optional timeout interval in seconds.
+ */
+data class PO3DSRedirect(
+    val uri: Uri,
+    val isHeadlessModeAllowed: Boolean,
+    val timeoutSeconds: Int? = null
+)
+
 enum class CustomerActionType(val value: String) {
     FINGERPRINT_MOBILE("fingerprint-mobile"),
     CHALLENGE_MOBILE("challenge-mobile"),
