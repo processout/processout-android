@@ -1,4 +1,4 @@
-@file:Suppress("MemberVisibilityCanBePrivate")
+@file:Suppress("MemberVisibilityCanBePrivate", "unused")
 
 package com.processout.sdk.api
 
@@ -56,16 +56,18 @@ class ProcessOutApi private constructor(
             if (::instance.isInitialized)
                 throw ProcessOutException("Already configured.")
 
+            val networkGraph = NetworkGraphImpl(
+                configuration = NetworkConfiguration(
+                    application = configuration.application,
+                    sdkVersion = VERSION,
+                    baseUrl = ApiConstants.BASE_URL,
+                    projectId = configuration.projectId,
+                    privateKey = configuration.privateKey
+                )
+            )
+
             val repositoryGraph = RepositoryGraphImpl(
-                networkGraph = NetworkGraphImpl(
-                    configuration = NetworkConfiguration(
-                        application = configuration.application,
-                        sdkVersion = VERSION,
-                        baseUrl = ApiConstants.BASE_URL,
-                        projectId = configuration.projectId,
-                        privateKey = configuration.privateKey
-                    )
-                ),
+                networkGraph = networkGraph,
                 contextGraph = ContextGraphImpl(
                     application = configuration.application
                 )
@@ -74,6 +76,7 @@ class ProcessOutApi private constructor(
             val apiGraph = ApiGraph(
                 repositoryGraph = repositoryGraph,
                 serviceGraph = ServiceGraphImpl(
+                    networkGraph = networkGraph,
                     repositoryGraph = repositoryGraph,
                     configuration = AlternativePaymentMethodsConfiguration(
                         baseUrl = ApiConstants.CHECKOUT_URL,

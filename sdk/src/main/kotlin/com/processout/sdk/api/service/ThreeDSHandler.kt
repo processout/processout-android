@@ -1,5 +1,5 @@
 package com.processout.sdk.api.service
 
-internal interface ThreeDSService {
+internal interface ThreeDSHandler {
     // TODO: define
 }

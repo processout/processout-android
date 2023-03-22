@@ -1,6 +1,7 @@
 package com.processout.sdk.api.service
 
 import com.processout.sdk.api.model.request.POCreateInvoiceRequest
+import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.POInvoice
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethod
@@ -13,8 +14,16 @@ import com.processout.sdk.core.annotation.ProcessOutInternalApi
 
 internal class InvoicesServiceImpl(
     private val repository: InvoicesRepository,
-    private val threeDSService: ThreeDSService
+    private val threeDSHandler: ThreeDSHandler
 ) : InvoicesService {
+
+    override fun authorizeInvoice(
+        request: POInvoiceAuthorizationRequest,
+        threeDSService: PO3DSService,
+        callback: (PO3DSResult<Unit>) -> Unit
+    ) {
+        TODO("Not yet implemented")
+    }
 
     override suspend fun capture(
         invoiceId: String,

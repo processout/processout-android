@@ -1,6 +1,7 @@
 package com.processout.sdk.api.service
 
 import com.processout.sdk.api.model.request.POCreateInvoiceRequest
+import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.POInvoice
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethod
@@ -11,6 +12,12 @@ import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 
 interface InvoicesService {
+
+    fun authorizeInvoice(
+        request: POInvoiceAuthorizationRequest,
+        threeDSService: PO3DSService,
+        callback: (PO3DSResult<Unit>) -> Unit
+    )
 
     suspend fun capture(
         invoiceId: String,
