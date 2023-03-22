@@ -7,7 +7,7 @@ import com.squareup.moshi.JsonClass
 sealed class POCustomerActionResponse {
     data class UriData(val value: Uri) : POCustomerActionResponse()
     data class AuthenticationChallengeData(
-        val value: POAuthenticationChallengeData
+        val value: PO3DS2Challenge
     ) : POCustomerActionResponse()
 
     data class AuthenticationFingerprintData(
@@ -31,12 +31,22 @@ internal data class POCustomerAction(
     val value: String
 )
 
+/**
+ * Information from the 3DS Server authentication response that could be used by the 3DS2 SDK to initiate the challenge flow.
+ *
+ * @param acsTransactionId Unique transaction identifier assigned by the ACS.
+ * @param acsReferenceNumber Unique identifier that identifies the ACS service provider.
+ * @param acsSignedContent The encrypted message containing the ACS information (including Ephemeral Public Key) and the 3DS2 SDK ephemeral public key.
+ * @param threeDSServerTransactionId Unique identifier for the authentication assigned by the DS (Card Scheme).
+ */
 @JsonClass(generateAdapter = true)
-data class POAuthenticationChallengeData(
-    val acsTransID: String,
+data class PO3DS2Challenge(
+    @Json(name = "acsTransID")
+    val acsTransactionId: String,
     val acsReferenceNumber: String,
     val acsSignedContent: String,
-    val threeDSServerTransID: String
+    @Json(name = "threeDSServerTransID")
+    val threeDSServerTransactionId: String
 )
 
 /**

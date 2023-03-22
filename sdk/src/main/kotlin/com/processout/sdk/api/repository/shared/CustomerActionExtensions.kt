@@ -16,7 +16,7 @@ internal fun POCustomerAction?.parseResponse(moshi: Moshi) =
                 }
             }
             CustomerActionType.CHALLENGE_MOBILE.value -> {
-                val challengeData = moshi.adapter(POAuthenticationChallengeData::class.java)
+                val challengeData = moshi.adapter(PO3DS2Challenge::class.java)
                     .fromJson(String(Base64.decode(it.value, Base64.NO_WRAP)))
                 challengeData?.let {
                     POCustomerActionResponse.AuthenticationChallengeData(challengeData)
