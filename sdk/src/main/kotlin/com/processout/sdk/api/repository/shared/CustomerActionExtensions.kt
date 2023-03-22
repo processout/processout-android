@@ -9,7 +9,7 @@ internal fun POCustomerAction?.parseResponse(moshi: Moshi) =
     this?.let {
         when (it.type) {
             CustomerActionType.FINGERPRINT_MOBILE.value -> {
-                val fingerprintData = moshi.adapter(POAuthenticationFingerprintData::class.java)
+                val fingerprintData = moshi.adapter(PO3DS2Configuration::class.java)
                     .fromJson(String(Base64.decode(it.value, Base64.NO_WRAP)))
                 fingerprintData?.let {
                     POCustomerActionResponse.AuthenticationFingerprintData(fingerprintData)

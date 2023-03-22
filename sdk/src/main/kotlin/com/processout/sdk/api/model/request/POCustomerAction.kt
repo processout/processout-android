@@ -9,8 +9,9 @@ sealed class POCustomerActionResponse {
     data class AuthenticationChallengeData(
         val value: POAuthenticationChallengeData
     ) : POCustomerActionResponse()
+
     data class AuthenticationFingerprintData(
-        val value: POAuthenticationFingerprintData
+        val value: PO3DS2Configuration
     ) : POCustomerActionResponse()
 }
 
@@ -38,11 +39,21 @@ data class POAuthenticationChallengeData(
     val threeDSServerTransID: String
 )
 
+/**
+ * Represents the configuration parameters that are required by the 3DS SDK for initialization.
+ *
+ * @param directoryServerId The identifier of the directory server to use during the transaction creation phase.
+ * @param directoryServerPublicKey The public key of the directory server to use during the transaction creation phase.
+ * @param directoryServerTransactionId Unique identifier for the authentication assigned by the DS (Card Scheme).
+ * @param messageVersion 3DS protocol version identifier.
+ */
 @JsonClass(generateAdapter = true)
-data class POAuthenticationFingerprintData(
-    val directoryServerID: String,
+data class PO3DS2Configuration(
+    @Json(name = "directoryServerID")
+    val directoryServerId: String,
     val directoryServerPublicKey: String,
-    val threeDSServerTransactionID: String,
+    @Json(name = "threeDSServerTransID")
+    val directoryServerTransactionId: String,
     val messageVersion: String
 )
 
