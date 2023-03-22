@@ -115,6 +115,8 @@ private fun POInvoiceAuthorizationRequest.toDeviceDataRequest(deviceData: PODevi
         invoiceDetailsIds,
         overrideMacBlocking,
         initialSchemeTransactionId,
+        autoCaptureAt,
+        captureAmount,
         authorizeOnly,
         allowFallbackToSale,
         metadata,
