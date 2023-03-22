@@ -18,7 +18,7 @@ data class PONativeAlternativePaymentMethodConfiguration(
 ) : Parcelable {
 
     /**
-     * @property skipSuccessScreen Only applies when [waitsPaymentConfirmation] is __true__.
+     * @param skipSuccessScreen Only applies when [waitsPaymentConfirmation] is _true_.
      */
     @Parcelize
     data class Options(
