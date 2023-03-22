@@ -11,12 +11,10 @@ import com.processout.sdk.core.annotation.ProcessOutInternalApi
 internal interface InvoicesRepository {
 
     suspend fun authorize(
-        invoiceId: String,
         request: POInvoiceAuthorizationRequest
     ): ProcessOutResult<POInvoiceAuthorizationSuccess>
 
     fun authorize(
-        invoiceId: String,
         request: POInvoiceAuthorizationRequest,
         callback: ProcessOutCallback<POInvoiceAuthorizationSuccess>
     )

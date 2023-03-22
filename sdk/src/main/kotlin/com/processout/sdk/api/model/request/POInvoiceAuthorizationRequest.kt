@@ -5,6 +5,7 @@ import com.squareup.moshi.JsonClass
 import java.util.*
 
 /**
+ * @param invoiceId Invoice identifier to authorize.
  * @param source Payment source to use for authorization.
  * @param incremental Boolean value indicating if authorization is incremental. Default value is _false_.
  * @param enableThreeDS2 Boolean value indicating whether 3DS2 is enabled. Default value is _true_.
@@ -20,6 +21,7 @@ import java.util.*
  * @param metadata Additional metadata.
  */
 data class POInvoiceAuthorizationRequest(
+    val invoiceId: String,
     val source: String,
     val incremental: Boolean = false,
     val enableThreeDS2: Boolean = true,

@@ -71,8 +71,7 @@ class InvoicesRepositoryUnitTests {
                 cards.tokenize(request).let {
                     it.handleSuccess { card ->
                         invoices.authorize(
-                            invoice.id,
-                            POInvoiceAuthorizationRequest(card.id)
+                            POInvoiceAuthorizationRequest(invoice.id, card.id)
                         ).let { authResult ->
                             authResult.assertFailure()
                             authResult.handleSuccess { authSuccess ->
@@ -103,8 +102,7 @@ class InvoicesRepositoryUnitTests {
                 cards.tokenize(request).let {
                     it.handleSuccess { card ->
                         invoices.authorize(
-                            invoice.id,
-                            POInvoiceAuthorizationRequest(card.id)
+                            POInvoiceAuthorizationRequest(invoice.id, card.id)
                         ).let { authResult ->
                             authResult.assertFailure()
                             authResult.handleSuccess { authSuccess ->
