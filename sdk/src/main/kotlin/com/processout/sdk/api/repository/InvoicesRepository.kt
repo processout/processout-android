@@ -2,12 +2,8 @@ package com.processout.sdk.api.repository
 
 import com.processout.sdk.api.model.request.POCreateInvoiceRequest
 import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
-import com.processout.sdk.api.model.request.POInvoiceAuthorizationSuccess
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
-import com.processout.sdk.api.model.response.POInvoice
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethod
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodCapture
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails
+import com.processout.sdk.api.model.response.*
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.annotation.ProcessOutInternalApi

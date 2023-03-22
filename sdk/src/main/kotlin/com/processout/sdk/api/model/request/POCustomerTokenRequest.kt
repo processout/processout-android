@@ -67,4 +67,3 @@ internal data class POCustomerTokenRequestWithDeviceData(
     @Json(name = "device")
     val deviceData: PODeviceData? = null
 )
-

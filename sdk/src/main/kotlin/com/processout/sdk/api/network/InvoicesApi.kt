@@ -1,10 +1,7 @@
 package com.processout.sdk.api.network
 
 import com.processout.sdk.api.model.request.*
-import com.processout.sdk.api.model.response.POCaptureResponse
-import com.processout.sdk.api.model.response.POInvoiceResponse
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodResponse
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetailsResponse
+import com.processout.sdk.api.model.response.*
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET

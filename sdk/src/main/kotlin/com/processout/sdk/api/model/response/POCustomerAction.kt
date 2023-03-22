@@ -1,4 +1,4 @@
-package com.processout.sdk.api.model.request
+package com.processout.sdk.api.model.response
 
 import android.net.Uri
 import com.squareup.moshi.Json

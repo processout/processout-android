@@ -2,7 +2,7 @@ package com.processout.sdk.api.repository.shared
 
 import android.net.Uri
 import android.util.Base64
-import com.processout.sdk.api.model.request.*
+import com.processout.sdk.api.model.response.*
 import com.squareup.moshi.Moshi
 
 internal fun POCustomerAction?.parseResponse(moshi: Moshi) =

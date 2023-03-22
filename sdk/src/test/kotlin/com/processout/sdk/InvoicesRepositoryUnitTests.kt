@@ -2,6 +2,7 @@ package com.processout.sdk
 
 import com.processout.sdk.api.ProcessOutApi
 import com.processout.sdk.api.model.request.*
+import com.processout.sdk.api.model.response.POCustomerActionResponse
 import com.processout.sdk.api.repository.CardsRepository
 import com.processout.sdk.api.repository.InvoicesRepository
 import com.processout.sdk.config.SetupRule

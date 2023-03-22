@@ -1,7 +1,5 @@
 package com.processout.sdk.api.model.response
 
-import com.processout.sdk.api.model.request.POCustomerAction
-import com.processout.sdk.api.model.request.POCustomerActionResponse
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
