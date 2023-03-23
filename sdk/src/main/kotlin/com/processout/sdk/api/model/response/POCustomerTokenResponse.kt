@@ -28,5 +28,5 @@ data class POToken(
 
 data class POCustomerToken(
     val customerToken: POToken,
-    val customerAction: POCustomerActionResponse?
+    val customerAction: PO3DSCustomerAction?
 )

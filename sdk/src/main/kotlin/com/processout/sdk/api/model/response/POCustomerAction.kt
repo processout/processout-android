@@ -4,19 +4,23 @@ import android.net.Uri
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
-sealed class POCustomerActionResponse {
-    data class UriData(val value: Uri) : POCustomerActionResponse()
-    data class AuthenticationChallengeData(
-        val value: PO3DS2Challenge
-    ) : POCustomerActionResponse()
-
-    data class AuthenticationFingerprintData(
+// TODO: check usages in Invoices and CustomerTokens after refactoring,
+// TODO: maybe it can be 'internal'
+sealed class PO3DSCustomerAction {
+    data class FingerprintMobile(
         val value: PO3DS2Configuration
-    ) : POCustomerActionResponse()
+    ) : PO3DSCustomerAction()
+
+    data class ChallengeMobile(
+        val value: PO3DS2Challenge
+    ) : PO3DSCustomerAction()
+
+    data class Fingerprint(val value: Uri) : PO3DSCustomerAction()
+    data class Redirect(val value: Uri) : PO3DSCustomerAction()
 }
 
 data class POInvoiceAuthorizationSuccess(
-    val customerAction: POCustomerActionResponse?
+    val customerAction: PO3DSCustomerAction?
 )
 
 @JsonClass(generateAdapter = true)
