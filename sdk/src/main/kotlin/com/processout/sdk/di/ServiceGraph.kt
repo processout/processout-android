@@ -3,7 +3,7 @@ package com.processout.sdk.di
 import com.processout.sdk.api.service.*
 
 internal interface ServiceGraph {
-    val threeDSHandler: ThreeDSHandler
+    val threeDSService: ThreeDSService
     val invoicesService: InvoicesService
     val customerTokensService: CustomerTokensService
     val alternativePaymentMethodsService: AlternativePaymentMethodsService
@@ -15,13 +15,13 @@ internal class ServiceGraphImpl(
     configuration: AlternativePaymentMethodsConfiguration
 ) : ServiceGraph {
 
-    override val threeDSHandler: ThreeDSHandler = ThreeDSHandlerImpl(networkGraph.moshi)
+    override val threeDSService: ThreeDSService = ThreeDSServiceImpl(networkGraph.moshi)
 
     override val invoicesService: InvoicesService =
-        InvoicesServiceImpl(repositoryGraph.invoicesRepository, threeDSHandler)
+        InvoicesServiceImpl(repositoryGraph.invoicesRepository, threeDSService)
 
     override val customerTokensService: CustomerTokensService =
-        CustomerTokensServiceImpl(repositoryGraph.customerTokensRepository, threeDSHandler)
+        CustomerTokensServiceImpl(repositoryGraph.customerTokensRepository, threeDSService)
 
     override val alternativePaymentMethodsService: AlternativePaymentMethodsService =
         AlternativePaymentMethodsServiceImpl(configuration)

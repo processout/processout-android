@@ -14,12 +14,12 @@ import com.processout.sdk.core.annotation.ProcessOutInternalApi
 
 internal class InvoicesServiceImpl(
     private val repository: InvoicesRepository,
-    private val threeDSHandler: ThreeDSHandler
+    private val threeDSService: ThreeDSService
 ) : InvoicesService {
 
     override fun authorizeInvoice(
         request: POInvoiceAuthorizationRequest,
-        threeDSService: PO3DSService,
+        threeDSHandler: PO3DSHandler,
         callback: (PO3DSResult<Unit>) -> Unit
     ) {
         TODO("Not yet implemented")

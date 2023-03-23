@@ -10,7 +10,7 @@ import com.processout.sdk.core.annotation.ProcessOutInternalApi
 
 internal class CustomerTokensServiceImpl(
     private val repository: CustomerTokensRepository,
-    private val threeDSHandler: ThreeDSHandler
+    private val threeDSService: ThreeDSService
 ) : CustomerTokensService {
 
     @ProcessOutInternalApi
