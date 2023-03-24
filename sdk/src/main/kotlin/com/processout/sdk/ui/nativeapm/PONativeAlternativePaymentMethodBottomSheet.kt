@@ -148,6 +148,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     }
 
     override fun onShow(dialog: DialogInterface) {
+        if (getDialog() == null) return
         allowExpandToFullScreen()
         adjustPeekHeight(animate = false)
 

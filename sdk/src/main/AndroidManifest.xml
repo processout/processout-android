@@ -6,11 +6,12 @@
     <application>
         <activity
             android:name=".ui.nativeapm.PONativeAlternativePaymentMethodActivity"
-            android:exported="true"
-            android:screenOrientation="portrait"
+            android:exported="false"
             android:theme="@style/Theme.ProcessOut.Default" />
 
-        <activity android:name="com.processout.processout_sdk.TestActivity" />
+        <activity
+            android:name="com.processout.processout_sdk.TestActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
