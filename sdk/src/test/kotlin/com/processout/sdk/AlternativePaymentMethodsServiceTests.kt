@@ -18,17 +18,17 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestApplication::class)
-class AlternativePaymentMethodsServiceUnitTests {
+class AlternativePaymentMethodsServiceTests {
 
     @Rule
     @JvmField
     val setupRule = SetupRule()
 
-    private lateinit var service: AlternativePaymentMethodsService
+    private lateinit var apmService: AlternativePaymentMethodsService
 
     @Before
     fun setUp() {
-        service = ProcessOutApi.instance.alternativePaymentMethods
+        apmService = ProcessOutApi.instance.alternativePaymentMethods
     }
 
     @Test
@@ -41,7 +41,8 @@ class AlternativePaymentMethodsServiceUnitTests {
 
         val expectedUrl = "https://checkout.processout.ninja/test-proj_2hO7lwt5vf3FjBFB37glPzMG3Y8Lq8O8/" +
                 "iv_test/redirect/gway_conf_test?additional_data%5Bfield1%5D=test&additional_data%5Bfield2%5D=test2"
-        service.alternativePaymentMethodUri(request).let { result ->
+
+        apmService.alternativePaymentMethodUri(request).let { result ->
             result.assertFailure()
             result.handleSuccess { response ->
                 assert(response.toString() == expectedUrl)
@@ -58,9 +59,10 @@ class AlternativePaymentMethodsServiceUnitTests {
             tokenId = "tok_test"
         )
 
-        val expectedUrl =
-            "https://checkout.processout.ninja/test-proj_2hO7lwt5vf3FjBFB37glPzMG3Y8Lq8O8/cust_test/tok_test/redirect/gway_conf_test"
-        service.alternativePaymentMethodUri(request).let { result ->
+        val expectedUrl = "https://checkout.processout.ninja/test-proj_2hO7lwt5vf3FjBFB37glPzMG3Y8Lq8O8/" +
+                "cust_test/tok_test/redirect/gway_conf_test"
+
+        apmService.alternativePaymentMethodUri(request).let { result ->
             result.assertFailure()
             result.handleSuccess { response ->
                 assert(response.toString() == expectedUrl)
@@ -72,7 +74,7 @@ class AlternativePaymentMethodsServiceUnitTests {
     fun alternativePaymentMethodResponse() {
         val returnUrl = "https://processout.return?token=gway_req_test"
 
-        service.alternativePaymentMethodResponse(Uri.parse(returnUrl)).let { result ->
+        apmService.alternativePaymentMethodResponse(Uri.parse(returnUrl)).let { result ->
             result.assertFailure()
             result.handleSuccess { response ->
                 assert(response.gatewayToken != null)
@@ -86,7 +88,7 @@ class AlternativePaymentMethodsServiceUnitTests {
         val returnUrl = "https://processout.return?token=gway_req_test" +
                 "&token_id=tok_test&customer_id=cust_test"
 
-        service.alternativePaymentMethodResponse(Uri.parse(returnUrl)).let { result ->
+        apmService.alternativePaymentMethodResponse(Uri.parse(returnUrl)).let { result ->
             result.assertFailure()
             result.handleSuccess { response ->
                 assert(response.gatewayToken != null)

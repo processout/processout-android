@@ -1,9 +1,11 @@
 package com.processout.sdk.di
 
 import com.processout.sdk.api.service.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 
 internal interface ServiceGraph {
-    val threeDSService: ThreeDSService
     val invoicesService: InvoicesService
     val customerTokensService: CustomerTokensService
     val alternativePaymentMethodsService: AlternativePaymentMethodsService
@@ -15,13 +17,24 @@ internal class ServiceGraphImpl(
     configuration: AlternativePaymentMethodsConfiguration
 ) : ServiceGraph {
 
-    override val threeDSService: ThreeDSService = ThreeDSServiceImpl(networkGraph.moshi)
+    private val mainCoroutineScope: CoroutineScope
+        get() = CoroutineScope(Dispatchers.Main + SupervisorJob())
+
+    private val threeDSService: ThreeDSService = ThreeDSServiceImpl(networkGraph.moshi)
 
     override val invoicesService: InvoicesService =
-        InvoicesServiceImpl(repositoryGraph.invoicesRepository, threeDSService)
+        InvoicesServiceImpl(
+            mainCoroutineScope,
+            repositoryGraph.invoicesRepository,
+            threeDSService
+        )
 
     override val customerTokensService: CustomerTokensService =
-        CustomerTokensServiceImpl(repositoryGraph.customerTokensRepository, threeDSService)
+        CustomerTokensServiceImpl(
+            mainCoroutineScope,
+            repositoryGraph.customerTokensRepository,
+            threeDSService
+        )
 
     override val alternativePaymentMethodsService: AlternativePaymentMethodsService =
         AlternativePaymentMethodsServiceImpl(configuration)

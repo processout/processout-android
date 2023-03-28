@@ -11,8 +11,11 @@ import com.processout.sdk.api.repository.InvoicesRepository
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 internal class InvoicesServiceImpl(
+    private val scope: CoroutineScope,
     private val repository: InvoicesRepository,
     private val threeDSService: ThreeDSService
 ) : InvoicesService {
@@ -22,21 +25,25 @@ internal class InvoicesServiceImpl(
         threeDSHandler: PO3DSHandler,
         callback: (PO3DSResult<Unit>) -> Unit
     ) {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun capture(
-        invoiceId: String,
-        gatewayConfigurationId: String
-    ): ProcessOutResult<PONativeAlternativePaymentMethodCapture> =
-        repository.capture(invoiceId, gatewayConfigurationId)
-
-    override fun capture(
-        invoiceId: String,
-        gatewayConfigurationId: String,
-        callback: ProcessOutCallback<PONativeAlternativePaymentMethodCapture>
-    ) {
-        repository.capture(invoiceId, gatewayConfigurationId, callback)
+        scope.launch {
+            when (val result = repository.authorizeInvoice(request)) {
+                is ProcessOutResult.Success ->
+                    result.value.customerAction?.let { action ->
+                        threeDSService.handle(action, threeDSHandler) { serviceResult ->
+                            when (serviceResult) {
+                                is PO3DSResult.Success ->
+                                    authorizeInvoice(
+                                        request.copy(source = serviceResult.value),
+                                        threeDSHandler,
+                                        callback
+                                    )
+                                is PO3DSResult.Failure -> callback(serviceResult)
+                            }
+                        }
+                    } ?: callback(PO3DSResult.Success(Unit))
+                is ProcessOutResult.Failure -> callback(result.to3DSFailure())
+            }
+        }
     }
 
     override suspend fun initiatePayment(
@@ -67,6 +74,20 @@ internal class InvoicesServiceImpl(
         repository.fetchNativeAlternativePaymentMethodTransactionDetails(
             invoiceId, gatewayConfigurationId, callback
         )
+    }
+
+    override suspend fun captureNativeAlternativePayment(
+        invoiceId: String,
+        gatewayConfigurationId: String
+    ): ProcessOutResult<PONativeAlternativePaymentMethodCapture> =
+        repository.captureNativeAlternativePayment(invoiceId, gatewayConfigurationId)
+
+    override fun captureNativeAlternativePayment(
+        invoiceId: String,
+        gatewayConfigurationId: String,
+        callback: ProcessOutCallback<PONativeAlternativePaymentMethodCapture>
+    ) {
+        repository.captureNativeAlternativePayment(invoiceId, gatewayConfigurationId, callback)
     }
 
     @ProcessOutInternalApi

@@ -418,7 +418,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 return@launch
             }
 
-            val result = invoicesService.capture(invoiceId, gatewayConfigurationId)
+            val result = invoicesService.captureNativeAlternativePayment(invoiceId, gatewayConfigurationId)
             if (isCaptureRetryable(result)) {
                 delay(CAPTURE_POLLING_DELAY_MS)
                 capture()

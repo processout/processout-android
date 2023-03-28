@@ -63,5 +63,5 @@ internal data class POInvoiceAuthorizationRequestWithDeviceData(
     val allowFallbackToSale: Boolean,
     val metadata: Map<String, String>?,
     @Json(name = "device")
-    val deviceData: PODeviceData?
+    val deviceData: PODeviceData
 )

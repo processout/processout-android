@@ -10,25 +10,9 @@ import com.processout.sdk.core.annotation.ProcessOutInternalApi
 
 internal interface InvoicesRepository {
 
-    suspend fun authorize(
+    suspend fun authorizeInvoice(
         request: POInvoiceAuthorizationRequest
-    ): ProcessOutResult<POInvoiceAuthorizationSuccess>
-
-    fun authorize(
-        request: POInvoiceAuthorizationRequest,
-        callback: ProcessOutCallback<POInvoiceAuthorizationSuccess>
-    )
-
-    suspend fun capture(
-        invoiceId: String,
-        gatewayConfigurationId: String
-    ): ProcessOutResult<PONativeAlternativePaymentMethodCapture>
-
-    fun capture(
-        invoiceId: String,
-        gatewayConfigurationId: String,
-        callback: ProcessOutCallback<PONativeAlternativePaymentMethodCapture>
-    )
+    ): ProcessOutResult<POInvoiceAuthorizationResponse>
 
     suspend fun initiatePayment(
         request: PONativeAlternativePaymentMethodRequest
@@ -48,6 +32,17 @@ internal interface InvoicesRepository {
         invoiceId: String,
         gatewayConfigurationId: String,
         callback: ProcessOutCallback<PONativeAlternativePaymentMethodTransactionDetails>
+    )
+
+    suspend fun captureNativeAlternativePayment(
+        invoiceId: String,
+        gatewayConfigurationId: String
+    ): ProcessOutResult<PONativeAlternativePaymentMethodCapture>
+
+    fun captureNativeAlternativePayment(
+        invoiceId: String,
+        gatewayConfigurationId: String,
+        callback: ProcessOutCallback<PONativeAlternativePaymentMethodCapture>
     )
 
     @ProcessOutInternalApi

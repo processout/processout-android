@@ -18,7 +18,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestApplication::class)
-class CardsRepositoryUnitTests {
+class CardsRepositoryTests {
 
     @Rule
     @JvmField
