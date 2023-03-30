@@ -1,9 +1,9 @@
 package com.processout.sdk.api.model.response
 
-import android.net.Uri
 import com.processout.sdk.utils.findBy
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import java.net.URL
 
 @JsonClass(generateAdapter = true)
 internal data class POCustomerAction(
@@ -64,12 +64,12 @@ data class PO3DS2Challenge(
 )
 
 /**
- * @param uri Redirect URI.
+ * @param url Redirect URL.
  * @param isHeadlessModeAllowed Boolean value that indicates whether a given URL can be handled in headless mode, meaning without showing any UI for the user.
  * @param timeoutSeconds Optional timeout interval in seconds.
  */
 data class PO3DSRedirect(
-    val uri: Uri,
+    val url: URL,
     val isHeadlessModeAllowed: Boolean,
     val timeoutSeconds: Int? = null
 )

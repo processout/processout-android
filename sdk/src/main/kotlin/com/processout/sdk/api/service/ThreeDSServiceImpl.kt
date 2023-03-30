@@ -4,11 +4,13 @@ import android.util.Base64
 import com.processout.sdk.api.model.request.PO3DS2AuthenticationRequest
 import com.processout.sdk.api.model.response.PO3DS2Challenge
 import com.processout.sdk.api.model.response.PO3DS2Configuration
+import com.processout.sdk.api.model.response.PO3DSRedirect
 import com.processout.sdk.api.model.response.POCustomerAction
 import com.processout.sdk.api.model.response.POCustomerAction.Type.*
 import com.processout.sdk.core.POFailure
 import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
+import java.net.MalformedURLException
 
 internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
 
@@ -32,7 +34,7 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
                 encodedChallenge = action.value, threeDSHandler, callback
             )
             FINGERPRINT -> TODO()
-            REDIRECT, URL -> TODO()
+            REDIRECT, URL -> redirect(url = action.value, threeDSHandler, callback)
             UNSUPPORTED -> callback(
                 PO3DSResult.Failure(
                     POFailure.Code.Internal(),
@@ -100,6 +102,29 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
                 PO3DSResult.Failure(
                     POFailure.Code.Internal(),
                     "Failed to decode challenge: ${e.message}", e
+                )
+            )
+        }
+    }
+
+    private fun redirect(
+        url: String,
+        threeDSHandler: PO3DSHandler,
+        callback: (PO3DSResult<String>) -> Unit
+    ) {
+        try {
+            threeDSHandler.handle(
+                PO3DSRedirect(
+                    url = java.net.URL(url),
+                    isHeadlessModeAllowed = false,
+                    timeoutSeconds = null
+                ), callback
+            )
+        } catch (e: MalformedURLException) {
+            callback(
+                PO3DSResult.Failure(
+                    POFailure.Code.Internal(),
+                    "Failed to parse redirect URL from raw value: $url", e
                 )
             )
         }
