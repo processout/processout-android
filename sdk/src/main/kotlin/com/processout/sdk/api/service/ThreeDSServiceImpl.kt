@@ -60,7 +60,7 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
                             is PO3DSResult.Success -> callback(
                                 ChallengeResponse(body = encode(result.value)), callback
                             )
-                            is PO3DSResult.Failure -> callback(result)
+                            is PO3DSResult.Failure -> callback(result.copy())
                         }
                     }
                 }
@@ -91,7 +91,7 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
                                 else CHALLENGE_FAILURE_RESPONSE_BODY
                                 callback(ChallengeResponse(body = body), callback)
                             }
-                            is PO3DSResult.Failure -> callback(result)
+                            is PO3DSResult.Failure -> callback(result.copy())
                         }
                     }
                 }
