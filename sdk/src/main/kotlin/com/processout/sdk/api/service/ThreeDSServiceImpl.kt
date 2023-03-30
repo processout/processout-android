@@ -132,13 +132,21 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
                         }
                 }
             }
-        } catch (e: MalformedURLException) {
-            callback(
-                PO3DSResult.Failure(
-                    POFailure.Code.Internal(),
-                    "Failed to parse fingerprint URL from raw value: $url", e
+        } catch (e: Exception) {
+            when (e) {
+                is MalformedURLException -> callback(
+                    PO3DSResult.Failure(
+                        POFailure.Code.Internal(),
+                        "Failed to parse fingerprint URL from raw value: $url", e
+                    )
                 )
-            )
+                else -> callback(
+                    PO3DSResult.Failure(
+                        POFailure.Code.Internal(),
+                        "Failed to handle fingerprint for URL: $url", e
+                    )
+                )
+            }
         }
     }
 
