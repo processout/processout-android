@@ -19,6 +19,8 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
         private const val TOKEN_PREFIX = "gway_req_"
         private const val CHALLENGE_SUCCESS_RESPONSE_BODY = """{ "transStatus": "Y" }"""
         private const val CHALLENGE_FAILURE_RESPONSE_BODY = """{ "transStatus": "N" }"""
+        private const val WEB_FINGERPRINT_TIMEOUT_RESPONSE_BODY = """{ "threeDS2FingerprintTimeout": true }"""
+        private const val WEB_FINGERPRINT_TIMEOUT_SECONDS = 10
     }
 
     override fun handle(
@@ -33,7 +35,7 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
             CHALLENGE_MOBILE -> challengeMobile(
                 encodedChallenge = action.value, threeDSHandler, callback
             )
-            FINGERPRINT -> TODO()
+            FINGERPRINT -> fingerprint(url = action.value, threeDSHandler, callback)
             REDIRECT, URL -> redirect(url = action.value, threeDSHandler, callback)
             UNSUPPORTED -> callback(
                 PO3DSResult.Failure(
@@ -56,8 +58,7 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
                     threeDSHandler.authenticationRequest(configuration) { result ->
                         when (result) {
                             is PO3DSResult.Success -> callback(
-                                ChallengeResponse(body = encode(result.value)),
-                                callback
+                                ChallengeResponse(body = encode(result.value)), callback
                             )
                             is PO3DSResult.Failure -> callback(result)
                         }
@@ -88,10 +89,7 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
                                 val body = if (result.value)
                                     CHALLENGE_SUCCESS_RESPONSE_BODY
                                 else CHALLENGE_FAILURE_RESPONSE_BODY
-                                callback(
-                                    ChallengeResponse(body = body),
-                                    callback
-                                )
+                                callback(ChallengeResponse(body = body), callback)
                             }
                             is PO3DSResult.Failure -> callback(result)
                         }
@@ -107,6 +105,43 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
         }
     }
 
+    private fun fingerprint(
+        url: String,
+        threeDSHandler: PO3DSHandler,
+        callback: (PO3DSResult<String>) -> Unit
+    ) {
+        try {
+            threeDSHandler.handle(
+                PO3DSRedirect(
+                    url = java.net.URL(url),
+                    isHeadlessModeAllowed = true,
+                    timeoutSeconds = WEB_FINGERPRINT_TIMEOUT_SECONDS
+                )
+            ) { result ->
+                when (result) {
+                    is PO3DSResult.Success -> callback(result.copy())
+                    is PO3DSResult.Failure ->
+                        when (result.code == POFailure.Code.Timeout()) {
+                            true -> callback(
+                                ChallengeResponse(
+                                    body = WEB_FINGERPRINT_TIMEOUT_RESPONSE_BODY,
+                                    url = url
+                                ), callback
+                            )
+                            false -> callback(result.copy())
+                        }
+                }
+            }
+        } catch (e: MalformedURLException) {
+            callback(
+                PO3DSResult.Failure(
+                    POFailure.Code.Internal(),
+                    "Failed to parse fingerprint URL from raw value: $url", e
+                )
+            )
+        }
+    }
+
     private fun redirect(
         url: String,
         threeDSHandler: PO3DSHandler,
@@ -116,8 +151,7 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
             threeDSHandler.handle(
                 PO3DSRedirect(
                     url = java.net.URL(url),
-                    isHeadlessModeAllowed = false,
-                    timeoutSeconds = null
+                    isHeadlessModeAllowed = false
                 ), callback
             )
         } catch (e: MalformedURLException) {
