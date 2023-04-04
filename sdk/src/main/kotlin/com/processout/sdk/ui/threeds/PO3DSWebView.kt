@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit
 class PO3DSWebView private constructor(
     context: Context,
     private val configuration: Configuration,
-    private val callback: (PO3DSResult<String>) -> Unit
+    private val callback: ((PO3DSResult<String>) -> Unit)?
 ) : WebView(context) {
 
     private companion object {
@@ -35,13 +35,7 @@ class PO3DSWebView private constructor(
 
     init {
         setup()
-        loadUrl(configuration.uri.toString())
-        configuration.timeoutSeconds?.let {
-            timeoutHandler.postDelayed(
-                { complete(PO3DSResult.Failure(POFailure.Code.Timeout())) },
-                TimeUnit.SECONDS.toMillis(it.toLong())
-            )
-        }
+        load()
     }
 
     private fun setup() {
@@ -52,6 +46,18 @@ class PO3DSWebView private constructor(
         }
         CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
         setClient()
+    }
+
+    private fun load() {
+        with(configuration) {
+            uri?.let { loadUrl(it.toString()) }
+            timeoutSeconds?.let {
+                timeoutHandler.postDelayed(
+                    { complete(PO3DSResult.Failure(POFailure.Code.Timeout())) },
+                    TimeUnit.SECONDS.toMillis(it.toLong())
+                )
+            }
+        }
     }
 
     private fun setClient() {
@@ -149,28 +155,35 @@ class PO3DSWebView private constructor(
 
     private fun complete(result: PO3DSResult<String>) {
         timeoutHandler.removeCallbacksAndMessages(null)
-        callback(result)
+        callback?.invoke(result)
     }
 
     private data class Configuration(
-        val uri: Uri,
+        val uri: Uri?,
         val returnUris: List<Uri>,
         val sdkVersion: String,
         val timeoutSeconds: Int?
     )
 
-    data class Builder(
-        val activity: Activity,
-        val redirect: PO3DSRedirect,
-        val callback: (PO3DSResult<String>) -> Unit
+    class Builder(
+        private val activity: Activity
     ) {
+        private var redirect: PO3DSRedirect? = null
+        private var callback: ((PO3DSResult<String>) -> Unit)? = null
+
+        fun with(redirect: PO3DSRedirect, callback: (PO3DSResult<String>) -> Unit) =
+            apply {
+                this.redirect = redirect
+                this.callback = callback
+            }
+
         fun build(): WebView = PO3DSWebView(
             activity,
             Configuration(
-                uri = Uri.parse(redirect.url.toString()),
+                uri = redirect?.url?.let { Uri.parse(it.toString()) },
                 returnUris = listOf(Uri.parse(ApiConstants.CHECKOUT_URL)),
                 sdkVersion = ProcessOutApi.VERSION,
-                timeoutSeconds = redirect.timeoutSeconds
+                timeoutSeconds = redirect?.timeoutSeconds
             ),
             callback
         )
