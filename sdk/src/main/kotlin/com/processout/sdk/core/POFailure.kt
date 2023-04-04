@@ -36,7 +36,7 @@ class POFailure private constructor() {
         data class NotFound(val notFoundCode: NotFoundCode) : Code()
 
         @Parcelize
-        data class Generic(val genericCode: GenericCode) : Code()
+        data class Generic(val genericCode: GenericCode = GenericCode.mobile) : Code()
 
         @Parcelize
         object Cancelled : Code()
