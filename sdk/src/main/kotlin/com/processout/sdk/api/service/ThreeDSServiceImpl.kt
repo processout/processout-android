@@ -4,11 +4,13 @@ import android.util.Base64
 import com.processout.sdk.api.model.request.PO3DS2AuthenticationRequest
 import com.processout.sdk.api.model.response.PO3DS2Challenge
 import com.processout.sdk.api.model.response.PO3DS2Configuration
+import com.processout.sdk.api.model.response.PO3DSRedirect
 import com.processout.sdk.api.model.response.POCustomerAction
 import com.processout.sdk.api.model.response.POCustomerAction.Type.*
 import com.processout.sdk.core.POFailure
 import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
+import java.net.MalformedURLException
 
 internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
 
@@ -17,6 +19,8 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
         private const val TOKEN_PREFIX = "gway_req_"
         private const val CHALLENGE_SUCCESS_RESPONSE_BODY = """{ "transStatus": "Y" }"""
         private const val CHALLENGE_FAILURE_RESPONSE_BODY = """{ "transStatus": "N" }"""
+        private const val WEB_FINGERPRINT_TIMEOUT_RESPONSE_BODY = """{ "threeDS2FingerprintTimeout": true }"""
+        private const val WEB_FINGERPRINT_TIMEOUT_SECONDS = 10
     }
 
     override fun handle(
@@ -31,8 +35,8 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
             CHALLENGE_MOBILE -> challengeMobile(
                 encodedChallenge = action.value, threeDSHandler, callback
             )
-            FINGERPRINT -> TODO()
-            REDIRECT, URL -> TODO()
+            FINGERPRINT -> fingerprint(url = action.value, threeDSHandler, callback)
+            REDIRECT, URL -> redirect(url = action.value, threeDSHandler, callback)
             UNSUPPORTED -> callback(
                 PO3DSResult.Failure(
                     POFailure.Code.Internal(),
@@ -54,10 +58,9 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
                     threeDSHandler.authenticationRequest(configuration) { result ->
                         when (result) {
                             is PO3DSResult.Success -> callback(
-                                ChallengeResponse(body = encode(result.value)),
-                                callback
+                                ChallengeResponse(body = encode(result.value)), callback
                             )
-                            is PO3DSResult.Failure -> callback(result)
+                            is PO3DSResult.Failure -> callback(result.copy())
                         }
                     }
                 }
@@ -86,12 +89,9 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
                                 val body = if (result.value)
                                     CHALLENGE_SUCCESS_RESPONSE_BODY
                                 else CHALLENGE_FAILURE_RESPONSE_BODY
-                                callback(
-                                    ChallengeResponse(body = body),
-                                    callback
-                                )
+                                callback(ChallengeResponse(body = body), callback)
                             }
-                            is PO3DSResult.Failure -> callback(result)
+                            is PO3DSResult.Failure -> callback(result.copy())
                         }
                     }
                 }
@@ -100,6 +100,73 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
                 PO3DSResult.Failure(
                     POFailure.Code.Internal(),
                     "Failed to decode challenge: ${e.message}", e
+                )
+            )
+        }
+    }
+
+    private fun fingerprint(
+        url: String,
+        threeDSHandler: PO3DSHandler,
+        callback: (PO3DSResult<String>) -> Unit
+    ) {
+        try {
+            threeDSHandler.handle(
+                PO3DSRedirect(
+                    url = java.net.URL(url),
+                    isHeadlessModeAllowed = true,
+                    timeoutSeconds = WEB_FINGERPRINT_TIMEOUT_SECONDS
+                )
+            ) { result ->
+                when (result) {
+                    is PO3DSResult.Success -> callback(result.copy())
+                    is PO3DSResult.Failure ->
+                        when (result.code == POFailure.Code.Timeout()) {
+                            true -> callback(
+                                ChallengeResponse(
+                                    body = WEB_FINGERPRINT_TIMEOUT_RESPONSE_BODY,
+                                    url = url
+                                ), callback
+                            )
+                            false -> callback(result.copy())
+                        }
+                }
+            }
+        } catch (e: Exception) {
+            when (e) {
+                is MalformedURLException -> callback(
+                    PO3DSResult.Failure(
+                        POFailure.Code.Internal(),
+                        "Failed to parse fingerprint URL from raw value: $url", e
+                    )
+                )
+                else -> callback(
+                    PO3DSResult.Failure(
+                        POFailure.Code.Internal(),
+                        "Failed to handle fingerprint for URL: $url", e
+                    )
+                )
+            }
+        }
+    }
+
+    private fun redirect(
+        url: String,
+        threeDSHandler: PO3DSHandler,
+        callback: (PO3DSResult<String>) -> Unit
+    ) {
+        try {
+            threeDSHandler.handle(
+                PO3DSRedirect(
+                    url = java.net.URL(url),
+                    isHeadlessModeAllowed = false
+                ), callback
+            )
+        } catch (e: MalformedURLException) {
+            callback(
+                PO3DSResult.Failure(
+                    POFailure.Code.Internal(),
+                    "Failed to parse redirect URL from raw value: $url", e
                 )
             )
         }

@@ -37,7 +37,7 @@ internal class InvoicesServiceImpl(
                                         threeDSHandler,
                                         callback
                                     )
-                                is PO3DSResult.Failure -> callback(serviceResult)
+                                is PO3DSResult.Failure -> callback(serviceResult.copy())
                             }
                         }
                     } ?: callback(PO3DSResult.Success(Unit))
