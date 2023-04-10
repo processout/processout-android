@@ -11,6 +11,13 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { url 'https://jitpack.io' }
+        maven {
+            url = uri("https://maven.pkg.github.com/checkout/checkout-3ds-sdk-android")
+            credentials {
+                username = "your-github-username"
+                password = "your-github-access-token"
+            }
+        }
     }
 }
 rootProject.name = "processout-android"

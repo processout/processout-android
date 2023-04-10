@@ -55,6 +55,7 @@ def setBuildConfig(buildType) {
 
 dependencies {
     implementation project(path: ':sdk')
+    api "com.checkout:checkout-sdk-3ds-android:3.0.0-testonly-04"
 
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidTestJunitVersion"
