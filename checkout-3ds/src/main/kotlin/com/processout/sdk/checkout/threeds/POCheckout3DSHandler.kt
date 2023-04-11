@@ -82,9 +82,10 @@ class POCheckout3DSHandler private constructor(
                 when (result.resultType) {
                     Successful -> callback(PO3DSResult.Success(true))
                     Failed -> callback(PO3DSResult.Success(false))
-                    Error -> if (result is AuthenticationError)
-                        callback(result.toFailure())
-                    else callback(PO3DSResult.Failure(POFailure.Code.Generic()))
+                    Error -> when (result) {
+                        is AuthenticationError -> callback(result.toFailure())
+                        else -> callback(PO3DSResult.Failure(POFailure.Code.Generic()))
+                    }
                 }
             }
         } catch (e: Exception) {
@@ -97,7 +98,7 @@ class POCheckout3DSHandler private constructor(
         delegate.handle(redirect, callback)
     }
 
-    private fun cleanup() {
+    override fun cleanup() {
         if (::serviceContext.isInitialized)
             with(serviceContext) {
                 transaction.close()

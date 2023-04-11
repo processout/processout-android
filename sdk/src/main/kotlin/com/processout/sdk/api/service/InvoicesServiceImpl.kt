@@ -40,8 +40,14 @@ internal class InvoicesServiceImpl(
                                 is PO3DSResult.Failure -> callback(serviceResult.copy())
                             }
                         }
-                    } ?: callback(PO3DSResult.Success(Unit))
-                is ProcessOutResult.Failure -> callback(result.to3DSFailure())
+                    } ?: run {
+                        threeDSHandler.cleanup()
+                        callback(PO3DSResult.Success(Unit))
+                    }
+                is ProcessOutResult.Failure -> {
+                    threeDSHandler.cleanup()
+                    callback(result.to3DSFailure())
+                }
             }
         }
     }

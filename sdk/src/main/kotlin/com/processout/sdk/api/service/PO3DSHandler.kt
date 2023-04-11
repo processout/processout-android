@@ -21,4 +21,6 @@ interface PO3DSHandler {
         redirect: PO3DSRedirect,
         callback: (PO3DSResult<String>) -> Unit
     )
+
+    fun cleanup() {}
 }
