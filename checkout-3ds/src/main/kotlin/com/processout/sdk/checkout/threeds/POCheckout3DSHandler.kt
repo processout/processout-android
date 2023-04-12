@@ -94,15 +94,13 @@ class POCheckout3DSHandler private constructor(
             serviceContext.transaction.doChallenge(
                 activity, challenge.toChallengeParameters()
             ) { result ->
+                setIdleState(serviceContext)
                 when (result.resultType) {
                     Successful -> callback(PO3DSResult.Success(true))
                     Failed -> callback(PO3DSResult.Success(false))
-                    Error -> {
-                        setIdleState(serviceContext)
-                        when (result) {
-                            is AuthenticationError -> callback(result.toFailure())
-                            else -> callback(PO3DSResult.Failure(POFailure.Code.Generic()))
-                        }
+                    Error -> when (result) {
+                        is AuthenticationError -> callback(result.toFailure())
+                        else -> callback(PO3DSResult.Failure(POFailure.Code.Generic()))
                     }
                 }
             }
