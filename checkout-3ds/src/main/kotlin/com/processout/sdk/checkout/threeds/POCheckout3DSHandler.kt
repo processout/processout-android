@@ -6,8 +6,6 @@ import com.checkout.threeds.domain.model.AuthenticationError
 import com.checkout.threeds.domain.model.AuthenticationErrorType.*
 import com.checkout.threeds.domain.model.ResultType.*
 import com.checkout.threeds.standalone.Standalone3DSService
-import com.checkout.threeds.standalone.api.ThreeDS2Service
-import com.checkout.threeds.standalone.api.Transaction
 import com.checkout.threeds.standalone.dochallenge.models.ChallengeParameters
 import com.checkout.threeds.standalone.models.AuthenticationRequestParameters
 import com.checkout.threeds.standalone.models.ConfigParameters
@@ -19,6 +17,7 @@ import com.processout.sdk.api.model.response.PO3DS2Configuration
 import com.processout.sdk.api.model.response.PO3DSRedirect
 import com.processout.sdk.api.service.PO3DSHandler
 import com.processout.sdk.api.service.PO3DSResult
+import com.processout.sdk.checkout.threeds.POCheckout3DSHandlerState.*
 import com.processout.sdk.core.POFailure
 
 class POCheckout3DSHandler private constructor(
@@ -33,7 +32,7 @@ class POCheckout3DSHandler private constructor(
         fun build(): PO3DSHandler = POCheckout3DSHandler(activity, delegate)
     }
 
-    private lateinit var serviceContext: ServiceContext
+    private var state: POCheckout3DSHandlerState = Idle
 
     override fun authenticationRequest(
         configuration: PO3DS2Configuration,
@@ -41,56 +40,54 @@ class POCheckout3DSHandler private constructor(
     ) {
         try {
             val serviceConfiguration = delegate.configuration(configuration.toConfigParameters())
-            Standalone3DSService(Environment.PRODUCTION)
-                .initialize(serviceConfiguration)
-                .also { service ->
-                    serviceContext = ServiceContext(
-                        threeDS2Service = service,
-                        transaction = service.createTransaction()
-                    )
-                }
+            val service = Standalone3DSService(Environment.PRODUCTION).initialize(serviceConfiguration)
+            val serviceContext = POCheckout3DSServiceContext(
+                threeDS2Service = service,
+                transaction = service.createTransaction()
+            )
+            state = Fingerprinting(serviceContext)
 
             val warnings = serviceContext.threeDS2Service.getWarnings().toSet()
             delegate.shouldContinue(warnings) { shouldContinue ->
                 if (shouldContinue.not()) {
-                    cleanup()
+                    setIdleState(serviceContext)
                     callback(PO3DSResult.Failure(POFailure.Code.Cancelled))
                     return@shouldContinue
                 }
                 when (val result = serviceContext.transaction.getAuthenticationRequestParameters()) {
-                    is StandaloneResult.Success -> callback(
-                        PO3DSResult.Success(result.value.toAuthenticationRequest())
-                    )
+                    is StandaloneResult.Success -> {
+                        state = Fingerprinted(serviceContext)
+                        callback(PO3DSResult.Success(result.value.toAuthenticationRequest()))
+                    }
                     is StandaloneResult.Failure -> {
-                        cleanup()
+                        setIdleState(serviceContext)
                         callback(result.error.toFailure())
                     }
                 }
             }
-        } catch (e: Exception) {
-            if (::serviceContext.isInitialized) cleanup()
+        } catch (e: Exception) { // FIXME: catch AuthenticationProcessError when it's visible
             callback(PO3DSResult.Failure(POFailure.Code.Generic(), e.message, e))
         }
     }
 
     override fun handle(challenge: PO3DS2Challenge, callback: (PO3DSResult<Boolean>) -> Unit) {
-        try {
+        state.doWhenFingerprinted { serviceContext ->
+            state = Challenging(serviceContext)
             serviceContext.transaction.doChallenge(
                 activity, challenge.toChallengeParameters()
             ) { result ->
-                cleanup()
                 when (result.resultType) {
                     Successful -> callback(PO3DSResult.Success(true))
                     Failed -> callback(PO3DSResult.Success(false))
-                    Error -> when (result) {
-                        is AuthenticationError -> callback(result.toFailure())
-                        else -> callback(PO3DSResult.Failure(POFailure.Code.Generic()))
+                    Error -> {
+                        setIdleState(serviceContext)
+                        when (result) {
+                            is AuthenticationError -> callback(result.toFailure())
+                            else -> callback(PO3DSResult.Failure(POFailure.Code.Generic()))
+                        }
                     }
                 }
             }
-        } catch (e: Exception) {
-            cleanup()
-            callback(PO3DSResult.Failure(POFailure.Code.Generic(), e.message, e))
         }
     }
 
@@ -99,17 +96,19 @@ class POCheckout3DSHandler private constructor(
     }
 
     override fun cleanup() {
-        if (::serviceContext.isInitialized)
-            with(serviceContext) {
-                transaction.close()
-                threeDS2Service.cleanup()
-            }
+        when (val currentState = state) {
+            is Fingerprinted -> setIdleState(currentState.serviceContext)
+            else -> {} // Ignore as service is idle or processing and will be cleaned after that.
+        }
     }
 
-    private data class ServiceContext(
-        val threeDS2Service: ThreeDS2Service,
-        val transaction: Transaction
-    )
+    private fun setIdleState(serviceContext: POCheckout3DSServiceContext) {
+        with(serviceContext) {
+            transaction.close()
+            threeDS2Service.cleanup()
+        }
+        state = Idle
+    }
 }
 
 private fun PO3DS2Configuration.toConfigParameters() =
@@ -117,24 +116,12 @@ private fun PO3DS2Configuration.toConfigParameters() =
         directoryServerData = DirectoryServerData(
             directoryServerID = directoryServerId,
             directoryServerPublicKey = directoryServerPublicKey,
-            // FIXME: pass collection of certificates when supported
-            directoryServerRootCertificate = directoryServerRootCAs[1]
+            directoryServerRootCertificates = directoryServerRootCAs
         ),
         messageVersion = messageVersion,
         // FIXME: map to supported scheme types
         scheme = scheme ?: String()
     )
-
-private fun AuthenticationError.toFailure(): PO3DSResult.Failure {
-    val code = when (errorType) {
-        ConnectivityError -> POFailure.Code.NetworkUnreachable
-        AuthenticationProcessError,
-        ThreeDS1ProtocolError,
-        ThreeDS2ProtocolError,
-        InternalError -> POFailure.Code.Generic()
-    }
-    return PO3DSResult.Failure(code, message = errorCode)
-}
 
 private fun AuthenticationRequestParameters.toAuthenticationRequest() =
     PO3DS2AuthenticationRequest(
@@ -152,3 +139,14 @@ private fun PO3DS2Challenge.toChallengeParameters() =
         acsRefNumber = acsReferenceNumber,
         acsSignedContent = acsSignedContent
     )
+
+private fun AuthenticationError.toFailure(): PO3DSResult.Failure {
+    val code = when (errorType) {
+        ConnectivityError -> POFailure.Code.NetworkUnreachable
+        AuthenticationProcessError,
+        ThreeDS1ProtocolError,
+        ThreeDS2ProtocolError,
+        InternalError -> POFailure.Code.Generic()
+    }
+    return PO3DSResult.Failure(code, message = errorCode)
+}
