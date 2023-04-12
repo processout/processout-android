@@ -38,10 +38,19 @@ class POCheckout3DSHandler private constructor(
         configuration: PO3DS2Configuration,
         callback: (PO3DSResult<PO3DS2AuthenticationRequest>) -> Unit
     ) {
+        if (state !is Idle) {
+            callback(
+                PO3DSResult.Failure(
+                    POFailure.Code.Generic(),
+                    "3DS2 service is already running."
+                )
+            )
+            return
+        }
         try {
             val serviceConfiguration = delegate.configuration(configuration.toConfigParameters())
             val service = Standalone3DSService(Environment.PRODUCTION).initialize(serviceConfiguration)
-            val serviceContext = POCheckout3DSServiceContext(
+            val serviceContext = POCheckout3DS2ServiceContext(
                 threeDS2Service = service,
                 transaction = service.createTransaction()
             )
@@ -71,6 +80,15 @@ class POCheckout3DSHandler private constructor(
     }
 
     override fun handle(challenge: PO3DS2Challenge, callback: (PO3DSResult<Boolean>) -> Unit) {
+        if (state !is Fingerprinted) {
+            callback(
+                PO3DSResult.Failure(
+                    POFailure.Code.Generic(),
+                    "Unable to handle 3DS2 challenge: not fingerprinted."
+                )
+            )
+            return
+        }
         state.doWhenFingerprinted { serviceContext ->
             state = Challenging(serviceContext)
             serviceContext.transaction.doChallenge(
@@ -102,7 +120,7 @@ class POCheckout3DSHandler private constructor(
         }
     }
 
-    private fun setIdleState(serviceContext: POCheckout3DSServiceContext) {
+    private fun setIdleState(serviceContext: POCheckout3DS2ServiceContext) {
         with(serviceContext) {
             transaction.close()
             threeDS2Service.cleanup()
