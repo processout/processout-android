@@ -25,7 +25,7 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
 
     override fun handle(
         action: POCustomerAction,
-        delegate: PO3DSHandler,
+        delegate: PO3DSService,
         callback: (PO3DSResult<String>) -> Unit
     ) {
         when (action.type()) {
@@ -48,7 +48,7 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
 
     private fun fingerprintMobile(
         encodedConfiguration: String,
-        delegate: PO3DSHandler,
+        delegate: PO3DSService,
         callback: (PO3DSResult<String>) -> Unit
     ) {
         try {
@@ -76,7 +76,7 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
 
     private fun challengeMobile(
         encodedChallenge: String,
-        delegate: PO3DSHandler,
+        delegate: PO3DSService,
         callback: (PO3DSResult<String>) -> Unit
     ) {
         try {
@@ -107,7 +107,7 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
 
     private fun fingerprint(
         url: String,
-        delegate: PO3DSHandler,
+        delegate: PO3DSService,
         callback: (PO3DSResult<String>) -> Unit
     ) {
         try {
@@ -152,7 +152,7 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
 
     private fun redirect(
         url: String,
-        delegate: PO3DSHandler,
+        delegate: PO3DSService,
         callback: (PO3DSResult<String>) -> Unit
     ) {
         try {

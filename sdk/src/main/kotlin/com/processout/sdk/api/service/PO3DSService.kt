@@ -5,7 +5,7 @@ import com.processout.sdk.api.model.threeds.PO3DS2Challenge
 import com.processout.sdk.api.model.threeds.PO3DS2Configuration
 import com.processout.sdk.api.model.threeds.PO3DSRedirect
 
-interface PO3DSHandler {
+interface PO3DSService {
 
     fun authenticationRequest(
         configuration: PO3DS2Configuration,

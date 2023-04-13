@@ -15,24 +15,24 @@ import com.processout.sdk.api.model.threeds.PO3DS2AuthenticationRequest
 import com.processout.sdk.api.model.threeds.PO3DS2Challenge
 import com.processout.sdk.api.model.threeds.PO3DS2Configuration
 import com.processout.sdk.api.model.threeds.PO3DSRedirect
-import com.processout.sdk.api.service.PO3DSHandler
 import com.processout.sdk.api.service.PO3DSResult
-import com.processout.sdk.checkout.threeds.POCheckout3DSHandlerState.*
+import com.processout.sdk.api.service.PO3DSService
+import com.processout.sdk.checkout.threeds.Checkout3DSServiceState.*
 import com.processout.sdk.core.POFailure
 
-class POCheckout3DSHandler private constructor(
+class POCheckout3DSService private constructor(
     private val activity: Activity,
-    private val delegate: POCheckout3DSDelegate
-) : PO3DSHandler {
+    private val delegate: POCheckout3DSServiceDelegate
+) : PO3DSService {
 
     class Builder(
         private val activity: Activity,
-        private val delegate: POCheckout3DSDelegate
+        private val delegate: POCheckout3DSServiceDelegate
     ) {
-        fun build(): PO3DSHandler = POCheckout3DSHandler(activity, delegate)
+        fun build(): PO3DSService = POCheckout3DSService(activity, delegate)
     }
 
-    private var state: POCheckout3DSHandlerState = Idle
+    private var state: Checkout3DSServiceState = Idle
 
     override fun authenticationRequest(
         configuration: PO3DS2Configuration,
@@ -50,7 +50,7 @@ class POCheckout3DSHandler private constructor(
         try {
             val serviceConfiguration = delegate.configuration(configuration.toConfigParameters())
             val service = Standalone3DSService(Environment.PRODUCTION).initialize(serviceConfiguration)
-            val serviceContext = POCheckout3DS2ServiceContext(
+            val serviceContext = Checkout3DSServiceContext(
                 threeDS2Service = service,
                 transaction = service.createTransaction()
             )
@@ -118,7 +118,7 @@ class POCheckout3DSHandler private constructor(
         }
     }
 
-    private fun setIdleState(serviceContext: POCheckout3DS2ServiceContext) {
+    private fun setIdleState(serviceContext: Checkout3DSServiceContext) {
         with(serviceContext) {
             transaction.close()
             threeDS2Service.cleanup()

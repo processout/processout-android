@@ -6,7 +6,7 @@ import com.checkout.threeds.standalone.models.ThreeDS2ServiceConfiguration
 import com.processout.sdk.api.model.threeds.PO3DSRedirect
 import com.processout.sdk.api.service.PO3DSResult
 
-interface POCheckout3DSDelegate {
+interface POCheckout3DSServiceDelegate {
 
     fun configuration(parameters: ConfigParameters): ThreeDS2ServiceConfiguration
 
