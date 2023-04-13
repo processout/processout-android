@@ -62,7 +62,6 @@ class Default3DSHandler(activity: Activity) : PO3DSHandler {
     private fun destroyWebView() {
         webView?.run {
             loadUrl("about:blank")
-            clearHistory()
             rootLayout.removeView(this)
             destroy()
         }.also { webView = null }
