@@ -26,17 +26,18 @@ internal class CustomerTokensServiceImpl(
             when (val result = repository.assignCustomerToken(request)) {
                 is ProcessOutResult.Success ->
                     result.value.customerAction?.let { action ->
-                        threeDSService.handle(action, threeDSHandler) { serviceResult ->
-                            when (serviceResult) {
-                                is PO3DSResult.Success ->
-                                    assignCustomerToken(
-                                        request.copy(source = serviceResult.value),
-                                        threeDSHandler,
-                                        callback
-                                    )
-                                is PO3DSResult.Failure -> callback(serviceResult.copy())
+                        this@CustomerTokensServiceImpl.threeDSService
+                            .handle(action, threeDSHandler) { serviceResult ->
+                                when (serviceResult) {
+                                    is PO3DSResult.Success ->
+                                        assignCustomerToken(
+                                            request.copy(source = serviceResult.value),
+                                            threeDSHandler,
+                                            callback
+                                        )
+                                    is PO3DSResult.Failure -> callback(serviceResult.copy())
+                                }
                             }
-                        }
                     } ?: run {
                         threeDSHandler.cleanup()
                         callback(PO3DSResult.Success(result.value.token))

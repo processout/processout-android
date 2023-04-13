@@ -25,18 +25,18 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
 
     override fun handle(
         action: POCustomerAction,
-        threeDSHandler: PO3DSHandler,
+        delegate: PO3DSHandler,
         callback: (PO3DSResult<String>) -> Unit
     ) {
         when (action.type()) {
             FINGERPRINT_MOBILE -> fingerprintMobile(
-                encodedConfiguration = action.value, threeDSHandler, callback
+                encodedConfiguration = action.value, delegate, callback
             )
             CHALLENGE_MOBILE -> challengeMobile(
-                encodedChallenge = action.value, threeDSHandler, callback
+                encodedChallenge = action.value, delegate, callback
             )
-            FINGERPRINT -> fingerprint(url = action.value, threeDSHandler, callback)
-            REDIRECT, URL -> redirect(url = action.value, threeDSHandler, callback)
+            FINGERPRINT -> fingerprint(url = action.value, delegate, callback)
+            REDIRECT, URL -> redirect(url = action.value, delegate, callback)
             UNSUPPORTED -> callback(
                 PO3DSResult.Failure(
                     POFailure.Code.Internal(),
@@ -48,14 +48,14 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
 
     private fun fingerprintMobile(
         encodedConfiguration: String,
-        threeDSHandler: PO3DSHandler,
+        delegate: PO3DSHandler,
         callback: (PO3DSResult<String>) -> Unit
     ) {
         try {
             moshi.adapter(PO3DS2Configuration::class.java)
                 .fromJson(String(Base64.decode(encodedConfiguration, Base64.NO_WRAP)))!!
                 .let { configuration ->
-                    threeDSHandler.authenticationRequest(configuration) { result ->
+                    delegate.authenticationRequest(configuration) { result ->
                         when (result) {
                             is PO3DSResult.Success -> callback(
                                 ChallengeResponse(body = encode(result.value)), callback
@@ -76,14 +76,14 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
 
     private fun challengeMobile(
         encodedChallenge: String,
-        threeDSHandler: PO3DSHandler,
+        delegate: PO3DSHandler,
         callback: (PO3DSResult<String>) -> Unit
     ) {
         try {
             moshi.adapter(PO3DS2Challenge::class.java)
                 .fromJson(String(Base64.decode(encodedChallenge, Base64.NO_WRAP)))!!
                 .let { challenge ->
-                    threeDSHandler.handle(challenge) { result ->
+                    delegate.handle(challenge) { result ->
                         when (result) {
                             is PO3DSResult.Success -> {
                                 val body = if (result.value)
@@ -107,11 +107,11 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
 
     private fun fingerprint(
         url: String,
-        threeDSHandler: PO3DSHandler,
+        delegate: PO3DSHandler,
         callback: (PO3DSResult<String>) -> Unit
     ) {
         try {
-            threeDSHandler.handle(
+            delegate.handle(
                 PO3DSRedirect(
                     url = java.net.URL(url),
                     isHeadlessModeAllowed = true,
@@ -152,11 +152,11 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
 
     private fun redirect(
         url: String,
-        threeDSHandler: PO3DSHandler,
+        delegate: PO3DSHandler,
         callback: (PO3DSResult<String>) -> Unit
     ) {
         try {
-            threeDSHandler.handle(
+            delegate.handle(
                 PO3DSRedirect(
                     url = java.net.URL(url),
                     isHeadlessModeAllowed = false
