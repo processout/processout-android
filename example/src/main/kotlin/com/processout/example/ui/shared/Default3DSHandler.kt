@@ -5,10 +5,10 @@ import android.webkit.WebView
 import android.widget.FrameLayout
 import androidx.appcompat.app.AlertDialog
 import com.processout.sdk.api.ProcessOutApi
-import com.processout.sdk.api.model.request.PO3DS2AuthenticationRequest
-import com.processout.sdk.api.model.response.PO3DS2Challenge
-import com.processout.sdk.api.model.response.PO3DS2Configuration
-import com.processout.sdk.api.model.response.PO3DSRedirect
+import com.processout.sdk.api.model.threeds.PO3DS2AuthenticationRequest
+import com.processout.sdk.api.model.threeds.PO3DS2Challenge
+import com.processout.sdk.api.model.threeds.PO3DS2Configuration
+import com.processout.sdk.api.model.threeds.PO3DSRedirect
 import com.processout.sdk.api.service.PO3DSHandler
 import com.processout.sdk.api.service.PO3DSResult
 import com.processout.sdk.ui.threeds.PO3DSWebView

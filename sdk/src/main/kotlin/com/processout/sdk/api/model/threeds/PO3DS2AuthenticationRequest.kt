@@ -1,4 +1,4 @@
-package com.processout.sdk.api.model.request
+package com.processout.sdk.api.model.threeds
 
 /**
  * Holds transaction data that the 3DS Server requires to create the AReq.

@@ -3,7 +3,7 @@ package com.processout.sdk.checkout.threeds
 import com.checkout.threeds.domain.model.Warning
 import com.checkout.threeds.standalone.models.ConfigParameters
 import com.checkout.threeds.standalone.models.ThreeDS2ServiceConfiguration
-import com.processout.sdk.api.model.response.PO3DSRedirect
+import com.processout.sdk.api.model.threeds.PO3DSRedirect
 import com.processout.sdk.api.service.PO3DSResult
 
 interface POCheckout3DSDelegate {

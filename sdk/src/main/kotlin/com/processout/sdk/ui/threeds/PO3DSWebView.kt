@@ -12,7 +12,7 @@ import android.os.Looper
 import android.webkit.*
 import androidx.annotation.RequiresApi
 import com.processout.sdk.api.ProcessOutApi
-import com.processout.sdk.api.model.response.PO3DSRedirect
+import com.processout.sdk.api.model.threeds.PO3DSRedirect
 import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.api.service.PO3DSResult
 import com.processout.sdk.core.POFailure

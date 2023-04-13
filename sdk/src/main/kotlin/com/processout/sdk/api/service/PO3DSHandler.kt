@@ -1,9 +1,9 @@
 package com.processout.sdk.api.service
 
-import com.processout.sdk.api.model.request.PO3DS2AuthenticationRequest
-import com.processout.sdk.api.model.response.PO3DS2Challenge
-import com.processout.sdk.api.model.response.PO3DS2Configuration
-import com.processout.sdk.api.model.response.PO3DSRedirect
+import com.processout.sdk.api.model.threeds.PO3DS2AuthenticationRequest
+import com.processout.sdk.api.model.threeds.PO3DS2Challenge
+import com.processout.sdk.api.model.threeds.PO3DS2Configuration
+import com.processout.sdk.api.model.threeds.PO3DSRedirect
 
 interface PO3DSHandler {
 
