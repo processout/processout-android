@@ -6,6 +6,7 @@ import com.checkout.threeds.domain.model.AuthenticationError
 import com.checkout.threeds.domain.model.AuthenticationErrorType.*
 import com.checkout.threeds.domain.model.ResultType.*
 import com.checkout.threeds.standalone.Standalone3DSService
+import com.checkout.threeds.standalone.api.ThreeDS2Service
 import com.checkout.threeds.standalone.dochallenge.models.ChallengeParameters
 import com.checkout.threeds.standalone.models.AuthenticationRequestParameters
 import com.checkout.threeds.standalone.models.ConfigParameters
@@ -47,35 +48,42 @@ class POCheckout3DSService private constructor(
             )
             return
         }
-        try {
-            val serviceConfiguration = delegate.configuration(configuration.toConfigParameters())
-            val service = Standalone3DSService(Environment.PRODUCTION).initialize(serviceConfiguration)
-            val serviceContext = Checkout3DSServiceContext(
-                threeDS2Service = service,
-                transaction = service.createTransaction()
-            )
-            state = Fingerprinting(serviceContext)
+        val serviceConfiguration = delegate.configuration(configuration.toConfigParameters())
+        Standalone3DSService(Environment.PRODUCTION).let {
+            when (val result = it.initialize(serviceConfiguration)) {
+                is StandaloneResult.Success -> fingerprint(result.value, callback)
+                is StandaloneResult.Failure -> callback(result.error.toFailure())
+            }
+        }
+    }
 
-            val warnings = serviceContext.threeDS2Service.getWarnings().toSet()
-            delegate.shouldContinue(warnings) { shouldContinue ->
-                if (shouldContinue.not()) {
-                    setIdleState(serviceContext)
-                    callback(PO3DSResult.Failure(POFailure.Code.Cancelled))
-                    return@shouldContinue
+    private fun fingerprint(
+        threeDS2Service: ThreeDS2Service,
+        callback: (PO3DSResult<PO3DS2AuthenticationRequest>) -> Unit
+    ) {
+        val serviceContext = Checkout3DSServiceContext(
+            threeDS2Service = threeDS2Service,
+            transaction = threeDS2Service.createTransaction()
+        )
+        state = Fingerprinting(serviceContext)
+
+        val warnings = serviceContext.threeDS2Service.getWarnings().toSet()
+        delegate.shouldContinue(warnings) { shouldContinue ->
+            if (shouldContinue.not()) {
+                setIdleState(serviceContext)
+                callback(PO3DSResult.Failure(POFailure.Code.Cancelled))
+                return@shouldContinue
+            }
+            when (val result = serviceContext.transaction.getAuthenticationRequestParameters()) {
+                is StandaloneResult.Success -> {
+                    state = Fingerprinted(serviceContext)
+                    callback(PO3DSResult.Success(result.value.toAuthenticationRequest()))
                 }
-                when (val result = serviceContext.transaction.getAuthenticationRequestParameters()) {
-                    is StandaloneResult.Success -> {
-                        state = Fingerprinted(serviceContext)
-                        callback(PO3DSResult.Success(result.value.toAuthenticationRequest()))
-                    }
-                    is StandaloneResult.Failure -> {
-                        setIdleState(serviceContext)
-                        callback(result.error.toFailure())
-                    }
+                is StandaloneResult.Failure -> {
+                    setIdleState(serviceContext)
+                    callback(result.error.toFailure())
                 }
             }
-        } catch (e: Exception) { // FIXME: catch AuthenticationProcessError when it's visible
-            callback(PO3DSResult.Failure(POFailure.Code.Generic(), e.message, e))
         }
     }
 
