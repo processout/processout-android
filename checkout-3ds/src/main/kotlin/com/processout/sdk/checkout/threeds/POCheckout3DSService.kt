@@ -145,7 +145,7 @@ private fun PO3DS2Configuration.toConfigParameters() =
         directoryServerData = DirectoryServerData(
             directoryServerID = directoryServerId,
             directoryServerPublicKey = directoryServerPublicKey,
-            directoryServerRootCertificates = directoryServerRootCAs
+            directoryServerRootCertificates = directoryServerRootCertificates
         ),
         messageVersion = messageVersion,
         // FIXME: map to supported scheme types
