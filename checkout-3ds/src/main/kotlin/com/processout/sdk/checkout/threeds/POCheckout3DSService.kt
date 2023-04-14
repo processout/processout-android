@@ -23,14 +23,19 @@ import com.processout.sdk.core.POFailure
 
 class POCheckout3DSService private constructor(
     private val activity: Activity,
-    private val delegate: POCheckout3DSServiceDelegate
+    private val delegate: POCheckout3DSServiceDelegate,
+    private val environment: Environment
 ) : PO3DSService {
 
     class Builder(
         private val activity: Activity,
         private val delegate: POCheckout3DSServiceDelegate
     ) {
-        fun build(): PO3DSService = POCheckout3DSService(activity, delegate)
+        private var environment: Environment = Environment.PRODUCTION
+
+        fun with(environment: Environment) = apply { this.environment = environment }
+
+        fun build(): PO3DSService = POCheckout3DSService(activity, delegate, environment)
     }
 
     private var state: Checkout3DSServiceState = Idle
@@ -49,7 +54,7 @@ class POCheckout3DSService private constructor(
             return
         }
         val serviceConfiguration = delegate.configuration(configuration.toConfigParameters())
-        Standalone3DSService(Environment.PRODUCTION).let {
+        Standalone3DSService(environment).let {
             when (val result = it.initialize(serviceConfiguration)) {
                 is StandaloneResult.Success -> fingerprint(result.value, callback)
                 is StandaloneResult.Failure -> callback(result.error.toFailure())
