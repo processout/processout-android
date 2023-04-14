@@ -1,5 +1,6 @@
 package com.processout.sdk.api.model.threeds
 
+import com.processout.sdk.utils.findBy
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -24,4 +25,22 @@ data class PO3DS2Configuration(
     val directoryServerRootCertificates: List<String>,
     val messageVersion: String,
     val scheme: String?
-)
+) {
+    fun schemeType() = CardScheme::rawType.findBy(scheme) ?: CardScheme.UNKNOWN
+
+    /**
+     * Supported card schemes.
+     */
+    enum class CardScheme(val rawType: String) {
+        VISA("visa"),
+        MASTERCARD("mastercard"),
+        EUROPAY("europay"),
+        CARTE_BANCAIRE("carte bancaire"),
+        JCB("jcb"),
+        DINERS("diners"),
+        DISCOVER("discover"),
+        UNIONPAY("unionpay"),
+        AMERICAN_EXPRESS("american express"),
+        UNKNOWN(String())
+    }
+}
