@@ -140,6 +140,18 @@ class POCheckout3DSService private constructor(
     }
 }
 
+/**
+ * Card schemes supported by Checkout.
+ */
+private enum class CheckoutCardScheme(val rawType: String) {
+    VISA("visa"),
+    MASTERCARD("mastercard"),
+    UNKNOWN(String())
+}
+
+private fun PO3DS2Configuration.checkoutSchemeType() =
+    CheckoutCardScheme::rawType.findBy(scheme) ?: CheckoutCardScheme.UNKNOWN
+
 private fun PO3DS2Configuration.toConfigParameters() =
     ConfigParameters(
         directoryServerData = DirectoryServerData(
@@ -148,8 +160,7 @@ private fun PO3DS2Configuration.toConfigParameters() =
             directoryServerRootCertificates = directoryServerRootCertificates
         ),
         messageVersion = messageVersion,
-        // FIXME: map to supported scheme types
-        scheme = scheme ?: String()
+        scheme = checkoutSchemeType().rawType
     )
 
 private fun AuthenticationRequestParameters.toAuthenticationRequest() =
