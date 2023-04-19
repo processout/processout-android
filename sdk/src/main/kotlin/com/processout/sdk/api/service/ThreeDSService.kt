@@ -6,7 +6,7 @@ internal interface ThreeDSService {
 
     fun handle(
         action: POCustomerAction,
-        threeDSHandler: PO3DSHandler,
+        delegate: PO3DSService,
         callback: (PO3DSResult<String>) -> Unit
     )
 }

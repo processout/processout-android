@@ -19,30 +19,31 @@ internal class CustomerTokensServiceImpl(
 
     override fun assignCustomerToken(
         request: POAssignCustomerTokenRequest,
-        threeDSHandler: PO3DSHandler,
+        threeDSService: PO3DSService,
         callback: (PO3DSResult<POCustomerToken>) -> Unit
     ) {
         scope.launch {
             when (val result = repository.assignCustomerToken(request)) {
                 is ProcessOutResult.Success ->
                     result.value.customerAction?.let { action ->
-                        threeDSService.handle(action, threeDSHandler) { serviceResult ->
-                            when (serviceResult) {
-                                is PO3DSResult.Success ->
-                                    assignCustomerToken(
-                                        request.copy(source = serviceResult.value),
-                                        threeDSHandler,
-                                        callback
-                                    )
-                                is PO3DSResult.Failure -> callback(serviceResult.copy())
+                        this@CustomerTokensServiceImpl.threeDSService
+                            .handle(action, threeDSService) { serviceResult ->
+                                when (serviceResult) {
+                                    is PO3DSResult.Success ->
+                                        assignCustomerToken(
+                                            request.copy(source = serviceResult.value),
+                                            threeDSService,
+                                            callback
+                                        )
+                                    is PO3DSResult.Failure -> callback(serviceResult.copy())
+                                }
                             }
-                        }
                     } ?: run {
-                        threeDSHandler.cleanup()
+                        threeDSService.cleanup()
                         callback(PO3DSResult.Success(result.value.token))
                     }
                 is ProcessOutResult.Failure -> {
-                    threeDSHandler.cleanup()
+                    threeDSService.cleanup()
                     callback(result.to3DSFailure())
                 }
             }

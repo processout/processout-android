@@ -11,7 +11,7 @@ interface CustomerTokensService {
 
     fun assignCustomerToken(
         request: POAssignCustomerTokenRequest,
-        threeDSHandler: PO3DSHandler,
+        threeDSService: PO3DSService,
         callback: (PO3DSResult<POCustomerToken>) -> Unit
     )
 

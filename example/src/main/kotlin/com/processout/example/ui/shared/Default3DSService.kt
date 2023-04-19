@@ -5,15 +5,15 @@ import android.webkit.WebView
 import android.widget.FrameLayout
 import androidx.appcompat.app.AlertDialog
 import com.processout.sdk.api.ProcessOutApi
-import com.processout.sdk.api.model.request.PO3DS2AuthenticationRequest
-import com.processout.sdk.api.model.response.PO3DS2Challenge
-import com.processout.sdk.api.model.response.PO3DS2Configuration
-import com.processout.sdk.api.model.response.PO3DSRedirect
-import com.processout.sdk.api.service.PO3DSHandler
+import com.processout.sdk.api.model.threeds.PO3DS2AuthenticationRequest
+import com.processout.sdk.api.model.threeds.PO3DS2Challenge
+import com.processout.sdk.api.model.threeds.PO3DS2Configuration
+import com.processout.sdk.api.model.threeds.PO3DSRedirect
 import com.processout.sdk.api.service.PO3DSResult
+import com.processout.sdk.api.service.PO3DSService
 import com.processout.sdk.ui.threeds.PO3DSWebView
 
-class Default3DSHandler(activity: Activity) : PO3DSHandler {
+class Default3DSService(activity: Activity) : PO3DSService {
 
     private val rootLayout: FrameLayout = activity.findViewById(android.R.id.content)
     private val dialogBuilder = AlertDialog.Builder(activity)
@@ -62,7 +62,6 @@ class Default3DSHandler(activity: Activity) : PO3DSHandler {
     private fun destroyWebView() {
         webView?.run {
             loadUrl("about:blank")
-            clearHistory()
             rootLayout.removeView(this)
             destroy()
         }.also { webView = null }

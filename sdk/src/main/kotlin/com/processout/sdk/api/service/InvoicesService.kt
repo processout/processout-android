@@ -15,7 +15,7 @@ interface InvoicesService {
 
     fun authorizeInvoice(
         request: POInvoiceAuthorizationRequest,
-        threeDSHandler: PO3DSHandler,
+        threeDSService: PO3DSService,
         callback: (PO3DSResult<Unit>) -> Unit
     )
 

@@ -39,7 +39,7 @@ internal class CustomerTokensRepositoryImpl(
             preferredScheme,
             enableThreeDS2,
             verify,
-            verificationInvoiceId,
+            invoiceId,
             thirdPartySdkVersion,
             metadata,
             contextGraph.deviceData

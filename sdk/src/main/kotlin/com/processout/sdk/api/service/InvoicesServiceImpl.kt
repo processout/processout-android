@@ -22,30 +22,31 @@ internal class InvoicesServiceImpl(
 
     override fun authorizeInvoice(
         request: POInvoiceAuthorizationRequest,
-        threeDSHandler: PO3DSHandler,
+        threeDSService: PO3DSService,
         callback: (PO3DSResult<Unit>) -> Unit
     ) {
         scope.launch {
             when (val result = repository.authorizeInvoice(request)) {
                 is ProcessOutResult.Success ->
                     result.value.customerAction?.let { action ->
-                        threeDSService.handle(action, threeDSHandler) { serviceResult ->
-                            when (serviceResult) {
-                                is PO3DSResult.Success ->
-                                    authorizeInvoice(
-                                        request.copy(source = serviceResult.value),
-                                        threeDSHandler,
-                                        callback
-                                    )
-                                is PO3DSResult.Failure -> callback(serviceResult.copy())
+                        this@InvoicesServiceImpl.threeDSService
+                            .handle(action, threeDSService) { serviceResult ->
+                                when (serviceResult) {
+                                    is PO3DSResult.Success ->
+                                        authorizeInvoice(
+                                            request.copy(source = serviceResult.value),
+                                            threeDSService,
+                                            callback
+                                        )
+                                    is PO3DSResult.Failure -> callback(serviceResult.copy())
+                                }
                             }
-                        }
                     } ?: run {
-                        threeDSHandler.cleanup()
+                        threeDSService.cleanup()
                         callback(PO3DSResult.Success(Unit))
                     }
                 is ProcessOutResult.Failure -> {
-                    threeDSHandler.cleanup()
+                    threeDSService.cleanup()
                     callback(result.to3DSFailure())
                 }
             }

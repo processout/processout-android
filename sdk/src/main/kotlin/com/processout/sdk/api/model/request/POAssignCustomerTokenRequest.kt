@@ -11,8 +11,8 @@ import com.squareup.moshi.JsonClass
  * @param preferredScheme Card scheme or co-scheme that should get priority if it is available.
  * @param enableThreeDS2 Boolean value indicating whether 3DS2 is enabled. Default value is _true_.
  * @param verify Boolean value that indicates whether token should be verified.
- * Make sure to also pass valid [verificationInvoiceId] if you want verification to happen. Default value is _false_.
- * @param verificationInvoiceId Invoice identifier that will be used for token verification.
+ * Make sure to also pass valid [invoiceId] if you want verification to happen. Default value is _false_.
+ * @param invoiceId Invoice identifier that will be used for token verification.
  * @param thirdPartySdkVersion Can be used for a 3DS2 request to indicate which third party SDK is used for the call.
  * @param metadata Additional metadata.
  */
@@ -23,7 +23,7 @@ data class POAssignCustomerTokenRequest(
     val preferredScheme: String? = null,
     val enableThreeDS2: Boolean = true,
     val verify: Boolean = false,
-    val verificationInvoiceId: String? = null,
+    val invoiceId: String? = null,
     val thirdPartySdkVersion: String? = null,
     val metadata: Map<String, String>? = null
 )
@@ -37,7 +37,7 @@ internal data class POAssignCustomerTokenRequestWithDeviceData(
     val enableThreeDS2: Boolean,
     val verify: Boolean,
     @Json(name = "invoice_id")
-    val verificationInvoiceId: String?,
+    val invoiceId: String?,
     @Json(name = "third_party_sdk_version")
     val thirdPartySdkVersion: String?,
     val metadata: Map<String, String>?,
