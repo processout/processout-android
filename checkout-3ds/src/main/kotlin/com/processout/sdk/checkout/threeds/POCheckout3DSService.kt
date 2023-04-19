@@ -4,6 +4,8 @@ import android.app.Activity
 import com.checkout.threeds.Environment
 import com.checkout.threeds.domain.model.AuthenticationError
 import com.checkout.threeds.domain.model.AuthenticationErrorType.*
+import com.checkout.threeds.domain.model.AuthenticationFailed
+import com.checkout.threeds.domain.model.AuthenticationSuccess
 import com.checkout.threeds.domain.model.ResultType.*
 import com.checkout.threeds.standalone.Standalone3DSService
 import com.checkout.threeds.standalone.api.ThreeDS2Service
@@ -109,8 +111,14 @@ class POCheckout3DSService private constructor(
             ) { result ->
                 setIdleState(serviceContext)
                 when (result.resultType) {
-                    Successful -> callback(PO3DSResult.Success(true))
-                    Failed -> callback(PO3DSResult.Success(false))
+                    Successful -> when (result) {
+                        is AuthenticationSuccess -> completeChallenge(result.transactionStatus, callback)
+                        else -> callback(PO3DSResult.Failure(POFailure.Code.Generic()))
+                    }
+                    Failed -> when (result) {
+                        is AuthenticationFailed -> completeChallenge(result.transactionStatus, callback)
+                        else -> callback(PO3DSResult.Failure(POFailure.Code.Generic()))
+                    }
                     Error -> when (result) {
                         is AuthenticationError -> callback(result.toFailure())
                         else -> callback(PO3DSResult.Failure(POFailure.Code.Generic()))
@@ -118,6 +126,10 @@ class POCheckout3DSService private constructor(
                 }
             }
         }
+    }
+
+    private fun completeChallenge(transactionStatus: String, callback: (PO3DSResult<Boolean>) -> Unit) {
+        callback(PO3DSResult.Success(transactionStatus.uppercase() == "Y"))
     }
 
     override fun handle(redirect: PO3DSRedirect, callback: (PO3DSResult<String>) -> Unit) {
