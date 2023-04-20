@@ -140,7 +140,7 @@ class InvoicesRepositoryTests {
                 invoices.captureNativeAlternativePayment(
                     invoice.id,
                     "gway_conf_ux3ye8vh2c78c89s8ozp1f1ujixkl11k.adyenblik"
-                ).handleFailure { _, code, _, _ ->
+                ).handleFailure { code, _, _, _ ->
                     assert(code is POFailure.Code.Generic)
                 }
             }

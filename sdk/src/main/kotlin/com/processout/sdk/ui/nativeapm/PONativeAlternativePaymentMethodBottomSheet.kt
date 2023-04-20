@@ -94,8 +94,8 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             if (gatewayConfigurationId.isBlank() || invoiceId.isBlank()) {
                 finishWithActivityResult(
                     PONativeAlternativePaymentMethodResult.Failure(
-                        "Invalid configuration.",
-                        POFailure.Code.Internal()
+                        POFailure.Code.Internal(),
+                        "Invalid configuration."
                     ), dispatchEvent = true
                 )
             }
@@ -438,8 +438,8 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         binding.poSecondaryButton.isClickable = false
         finishWithActivityResult(
             PONativeAlternativePaymentMethodResult.Failure(
-                "Cancelled by user with secondary cancel action.",
-                POFailure.Code.Cancelled
+                POFailure.Code.Cancelled,
+                "Cancelled by user with secondary cancel action."
             ), dispatchEvent = true
         )
     }
@@ -577,7 +577,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         with(failure) {
             finishWithActivityResult(
                 PONativeAlternativePaymentMethodResult.Failure(
-                    message, code, invalidFields
+                    code, message, invalidFields
                 ), dispatchEvent = false
             )
         }
@@ -602,8 +602,8 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     override fun onCancel(dialog: DialogInterface) {
         finishWithActivityResult(
             PONativeAlternativePaymentMethodResult.Failure(
-                "Cancelled by user with swipe or outside touch.",
-                POFailure.Code.Cancelled
+                POFailure.Code.Cancelled,
+                "Cancelled by user with swipe or outside touch."
             ), dispatchEvent = true
         )
     }
@@ -612,8 +612,8 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         bottomSheetDialog.onBackPressedDispatcher.addCallback(this) {
             finishWithActivityResult(
                 PONativeAlternativePaymentMethodResult.Failure(
-                    "Cancelled by user with back press or gesture.",
-                    POFailure.Code.Cancelled
+                    POFailure.Code.Cancelled,
+                    "Cancelled by user with back press or gesture."
                 ), dispatchEvent = true
             )
         }

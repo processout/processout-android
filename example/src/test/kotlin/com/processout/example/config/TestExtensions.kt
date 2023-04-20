@@ -7,7 +7,7 @@ import com.processout.sdk.core.rawValue
 
 fun <T : Any> ProcessOutResult<T>.assertFailure() {
     handleSuccess { println(it) }
-    handleFailure { message, code, _, cause ->
+    handleFailure { code, message, _, cause ->
         throw AssertionError("$message | ${code.rawValue}", cause)
     }
 }
