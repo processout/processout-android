@@ -8,6 +8,7 @@ import com.processout.sdk.api.model.threeds.PO3DS2Challenge
 import com.processout.sdk.api.model.threeds.PO3DS2Configuration
 import com.processout.sdk.api.model.threeds.PO3DSRedirect
 import com.processout.sdk.core.POFailure
+import com.processout.sdk.core.ProcessOutResult
 import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
 import java.net.MalformedURLException
@@ -26,7 +27,7 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
     override fun handle(
         action: POCustomerAction,
         delegate: PO3DSService,
-        callback: (PO3DSResult<String>) -> Unit
+        callback: (ProcessOutResult<String>) -> Unit
     ) {
         when (action.type()) {
             FINGERPRINT_MOBILE -> fingerprintMobile(
@@ -38,7 +39,7 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
             FINGERPRINT -> fingerprint(url = action.value, delegate, callback)
             REDIRECT, URL -> redirect(url = action.value, delegate, callback)
             UNSUPPORTED -> callback(
-                PO3DSResult.Failure(
+                ProcessOutResult.Failure(
                     POFailure.Code.Internal(),
                     "Unsupported 3DS customer action type: ${action.rawType}"
                 )
@@ -49,7 +50,7 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
     private fun fingerprintMobile(
         encodedConfiguration: String,
         delegate: PO3DSService,
-        callback: (PO3DSResult<String>) -> Unit
+        callback: (ProcessOutResult<String>) -> Unit
     ) {
         try {
             moshi.adapter(PO3DS2Configuration::class.java)
@@ -57,18 +58,18 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
                 .let { configuration ->
                     delegate.authenticationRequest(configuration) { result ->
                         when (result) {
-                            is PO3DSResult.Success -> callback(
+                            is ProcessOutResult.Success -> callback(
                                 ChallengeResponse(body = encode(result.value)), callback
                             )
-                            is PO3DSResult.Failure -> callback(result.copy())
+                            is ProcessOutResult.Failure -> callback(result.copy())
                         }
                     }
                 }
         } catch (e: Exception) {
             callback(
-                PO3DSResult.Failure(
+                ProcessOutResult.Failure(
                     POFailure.Code.Internal(),
-                    "Failed to decode configuration: ${e.message}", e
+                    "Failed to decode configuration: ${e.message}", cause = e
                 )
             )
         }
@@ -77,7 +78,7 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
     private fun challengeMobile(
         encodedChallenge: String,
         delegate: PO3DSService,
-        callback: (PO3DSResult<String>) -> Unit
+        callback: (ProcessOutResult<String>) -> Unit
     ) {
         try {
             moshi.adapter(PO3DS2Challenge::class.java)
@@ -85,21 +86,21 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
                 .let { challenge ->
                     delegate.handle(challenge) { result ->
                         when (result) {
-                            is PO3DSResult.Success -> {
+                            is ProcessOutResult.Success -> {
                                 val body = if (result.value)
                                     CHALLENGE_SUCCESS_RESPONSE_BODY
                                 else CHALLENGE_FAILURE_RESPONSE_BODY
                                 callback(ChallengeResponse(body = body), callback)
                             }
-                            is PO3DSResult.Failure -> callback(result.copy())
+                            is ProcessOutResult.Failure -> callback(result.copy())
                         }
                     }
                 }
         } catch (e: Exception) {
             callback(
-                PO3DSResult.Failure(
+                ProcessOutResult.Failure(
                     POFailure.Code.Internal(),
-                    "Failed to decode challenge: ${e.message}", e
+                    "Failed to decode challenge: ${e.message}", cause = e
                 )
             )
         }
@@ -108,7 +109,7 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
     private fun fingerprint(
         url: String,
         delegate: PO3DSService,
-        callback: (PO3DSResult<String>) -> Unit
+        callback: (ProcessOutResult<String>) -> Unit
     ) {
         try {
             delegate.handle(
@@ -119,8 +120,8 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
                 )
             ) { result ->
                 when (result) {
-                    is PO3DSResult.Success -> callback(result.copy())
-                    is PO3DSResult.Failure ->
+                    is ProcessOutResult.Success -> callback(result.copy())
+                    is ProcessOutResult.Failure ->
                         when (result.code == POFailure.Code.Timeout()) {
                             true -> callback(
                                 ChallengeResponse(
@@ -135,15 +136,15 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
         } catch (e: Exception) {
             when (e) {
                 is MalformedURLException -> callback(
-                    PO3DSResult.Failure(
+                    ProcessOutResult.Failure(
                         POFailure.Code.Internal(),
-                        "Failed to parse fingerprint URL from raw value: $url", e
+                        "Failed to parse fingerprint URL from raw value: $url", cause = e
                     )
                 )
                 else -> callback(
-                    PO3DSResult.Failure(
+                    ProcessOutResult.Failure(
                         POFailure.Code.Internal(),
-                        "Failed to handle fingerprint for URL: $url", e
+                        "Failed to handle fingerprint for URL: $url", cause = e
                     )
                 )
             }
@@ -153,7 +154,7 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
     private fun redirect(
         url: String,
         delegate: PO3DSService,
-        callback: (PO3DSResult<String>) -> Unit
+        callback: (ProcessOutResult<String>) -> Unit
     ) {
         try {
             delegate.handle(
@@ -164,9 +165,9 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
             )
         } catch (e: MalformedURLException) {
             callback(
-                PO3DSResult.Failure(
+                ProcessOutResult.Failure(
                     POFailure.Code.Internal(),
-                    "Failed to parse redirect URL from raw value: $url", e
+                    "Failed to parse redirect URL from raw value: $url", cause = e
                 )
             )
         }
@@ -189,10 +190,10 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
         return moshi.adapter(ThreeDS2AuthenticationRequest::class.java).toJson(authRequest)
     }
 
-    private fun callback(response: ChallengeResponse, callback: (PO3DSResult<String>) -> Unit) {
+    private fun callback(response: ChallengeResponse, callback: (ProcessOutResult<String>) -> Unit) {
         val bytes = moshi.adapter(ChallengeResponse::class.java).toJson(response).toByteArray()
         val token = TOKEN_PREFIX + Base64.encodeToString(bytes, Base64.NO_WRAP)
-        callback(PO3DSResult.Success(token))
+        callback(ProcessOutResult.Success(token))
     }
 
     @JsonClass(generateAdapter = true)

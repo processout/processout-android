@@ -16,7 +16,7 @@ interface InvoicesService {
     fun authorizeInvoice(
         request: POInvoiceAuthorizationRequest,
         threeDSService: PO3DSService,
-        callback: (PO3DSResult<Unit>) -> Unit
+        callback: (ProcessOutResult<Unit>) -> Unit
     )
 
     suspend fun initiatePayment(

@@ -14,15 +14,15 @@ import androidx.annotation.RequiresApi
 import com.processout.sdk.api.ProcessOutApi
 import com.processout.sdk.api.model.threeds.PO3DSRedirect
 import com.processout.sdk.api.network.ApiConstants
-import com.processout.sdk.api.service.PO3DSResult
 import com.processout.sdk.core.POFailure
+import com.processout.sdk.core.ProcessOutResult
 import java.util.concurrent.TimeUnit
 
 @SuppressLint("ViewConstructor", "SetJavaScriptEnabled")
 class PO3DSWebView private constructor(
     context: Context,
     private val configuration: Configuration,
-    private val callback: ((PO3DSResult<String>) -> Unit)?
+    private val callback: ((ProcessOutResult<String>) -> Unit)?
 ) : WebView(context) {
 
     private companion object {
@@ -53,7 +53,7 @@ class PO3DSWebView private constructor(
             uri?.let { loadUrl(it.toString()) }
             timeoutSeconds?.let {
                 timeoutHandler.postDelayed(
-                    { complete(PO3DSResult.Failure(POFailure.Code.Timeout())) },
+                    { complete(ProcessOutResult.Failure(POFailure.Code.Timeout())) },
                     TimeUnit.SECONDS.toMillis(it.toLong())
                 )
             }
@@ -74,9 +74,9 @@ class PO3DSWebView private constructor(
                         }?.let {
                             val token = uri.getQueryParameter(TOKEN_QUERY_KEY)
                             if (token != null)
-                                complete(PO3DSResult.Success(token))
+                                complete(ProcessOutResult.Success(token))
                             else complete(
-                                PO3DSResult.Failure(
+                                ProcessOutResult.Failure(
                                     POFailure.Code.Internal(),
                                     "Token not found in URL: $url"
                                 )
@@ -91,7 +91,7 @@ class PO3DSWebView private constructor(
             ) {
                 handler?.cancel()
                 complete(
-                    PO3DSResult.Failure(
+                    ProcessOutResult.Failure(
                         POFailure.Code.Generic(),
                         "SSL error: ${error?.toString()}"
                     )
@@ -124,7 +124,7 @@ class PO3DSWebView private constructor(
             ) {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
                     complete(
-                        PO3DSResult.Failure(
+                        ProcessOutResult.Failure(
                             POFailure.Code.Generic(),
                             "$description | Failed to load URL: $failingUrl"
                         )
@@ -139,21 +139,21 @@ class PO3DSWebView private constructor(
         request?.let {
             if (it.isForMainFrame) {
                 complete(
-                    PO3DSResult.Failure(
+                    ProcessOutResult.Failure(
                         POFailure.Code.Generic(),
                         "$description | Failed to load URL: $failingUrl"
                     )
                 )
             }
         } ?: complete(
-            PO3DSResult.Failure(
+            ProcessOutResult.Failure(
                 POFailure.Code.Internal(),
                 "$description | Failed to load URL: $failingUrl"
             )
         )
     }
 
-    private fun complete(result: PO3DSResult<String>) {
+    private fun complete(result: ProcessOutResult<String>) {
         timeoutHandler.removeCallbacksAndMessages(null)
         callback?.invoke(result)
     }
@@ -169,9 +169,9 @@ class PO3DSWebView private constructor(
         private val activity: Activity
     ) {
         private var redirect: PO3DSRedirect? = null
-        private var callback: ((PO3DSResult<String>) -> Unit)? = null
+        private var callback: ((ProcessOutResult<String>) -> Unit)? = null
 
-        fun with(redirect: PO3DSRedirect, callback: (PO3DSResult<String>) -> Unit) =
+        fun with(redirect: PO3DSRedirect, callback: (ProcessOutResult<String>) -> Unit) =
             apply {
                 this.redirect = redirect
                 this.callback = callback

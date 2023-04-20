@@ -4,7 +4,7 @@ import com.checkout.threeds.domain.model.Warning
 import com.checkout.threeds.standalone.models.ConfigParameters
 import com.checkout.threeds.standalone.models.ThreeDS2ServiceConfiguration
 import com.processout.sdk.api.model.threeds.PO3DSRedirect
-import com.processout.sdk.api.service.PO3DSResult
+import com.processout.sdk.core.ProcessOutResult
 
 interface POCheckout3DSServiceDelegate {
 
@@ -21,6 +21,6 @@ interface POCheckout3DSServiceDelegate {
 
     fun handle(
         redirect: PO3DSRedirect,
-        callback: (PO3DSResult<String>) -> Unit
+        callback: (ProcessOutResult<String>) -> Unit
     )
 }
