@@ -1,4 +1,4 @@
-package com.processout.example.ui.shared
+package com.processout.sdk.ui.threeds
 
 import android.app.Activity
 import android.webkit.WebView
@@ -11,13 +11,12 @@ import com.processout.sdk.api.model.threeds.PO3DS2Configuration
 import com.processout.sdk.api.model.threeds.PO3DSRedirect
 import com.processout.sdk.api.service.PO3DSService
 import com.processout.sdk.core.ProcessOutResult
-import com.processout.sdk.ui.threeds.PO3DSWebView
 
-class Default3DSService(activity: Activity) : PO3DSService {
+class POTest3DSService(activity: Activity) : PO3DSService {
 
     private val rootLayout: FrameLayout = activity.findViewById(android.R.id.content)
     private val dialogBuilder = AlertDialog.Builder(activity)
-    private val webViewBuilder = PO3DSWebView.Builder(activity)
+    private val webViewBuilder = PO3DSRedirectWebViewBuilder(activity)
     private var webView: WebView? = null
 
     override fun authenticationRequest(

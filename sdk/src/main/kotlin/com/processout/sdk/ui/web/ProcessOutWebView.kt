@@ -1,7 +1,6 @@
-package com.processout.sdk.ui.threeds
+package com.processout.sdk.ui.web
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
@@ -11,24 +10,26 @@ import android.os.Handler
 import android.os.Looper
 import android.webkit.*
 import androidx.annotation.RequiresApi
-import com.processout.sdk.api.ProcessOutApi
-import com.processout.sdk.api.model.threeds.PO3DSRedirect
-import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
 import java.util.concurrent.TimeUnit
 
 @SuppressLint("ViewConstructor", "SetJavaScriptEnabled")
-class PO3DSWebView private constructor(
+internal class ProcessOutWebView(
     context: Context,
     private val configuration: Configuration,
-    private val callback: ((ProcessOutResult<String>) -> Unit)?
+    private val delegate: WebViewDelegate?
 ) : WebView(context) {
+
+    internal data class Configuration(
+        val returnUris: List<Uri>,
+        val sdkVersion: String,
+        val timeoutSeconds: Int?
+    )
 
     private companion object {
         private const val USER_AGENT_PREFIX = "ProcessOut Android-WebView/"
         private const val RETURN_URL_PATH_PREFIX = "/helpers/mobile-processout-webview-landing"
-        private const val TOKEN_QUERY_KEY = "token"
     }
 
     private val timeoutHandler by lazy { Handler(Looper.getMainLooper()) }
@@ -49,14 +50,12 @@ class PO3DSWebView private constructor(
     }
 
     private fun load() {
-        with(configuration) {
-            uri?.let { loadUrl(it.toString()) }
-            timeoutSeconds?.let {
-                timeoutHandler.postDelayed(
-                    { complete(ProcessOutResult.Failure(POFailure.Code.Timeout())) },
-                    TimeUnit.SECONDS.toMillis(it.toLong())
-                )
-            }
+        delegate?.uri?.let { loadUrl(it.toString()) }
+        configuration.timeoutSeconds?.let {
+            timeoutHandler.postDelayed(
+                { complete(ProcessOutResult.Failure(POFailure.Code.Timeout())) },
+                TimeUnit.SECONDS.toMillis(it.toLong())
+            )
         }
     }
 
@@ -71,17 +70,7 @@ class PO3DSWebView private constructor(
                     ) {
                         configuration.returnUris.find { returnUri ->
                             uri.scheme == returnUri.scheme && uri.host == returnUri.host
-                        }?.let {
-                            val token = uri.getQueryParameter(TOKEN_QUERY_KEY)
-                            if (token != null)
-                                complete(ProcessOutResult.Success(token))
-                            else complete(
-                                ProcessOutResult.Failure(
-                                    POFailure.Code.Internal(),
-                                    "Token not found in URL: $url"
-                                )
-                            )
-                        }
+                        }?.let { complete(uri) }
                     }
                 }
             }
@@ -153,39 +142,13 @@ class PO3DSWebView private constructor(
         )
     }
 
-    private fun complete(result: ProcessOutResult<String>) {
+    private fun complete(uri: Uri) {
         timeoutHandler.removeCallbacksAndMessages(null)
-        callback?.invoke(result)
+        delegate?.complete(uri)
     }
 
-    private data class Configuration(
-        val uri: Uri?,
-        val returnUris: List<Uri>,
-        val sdkVersion: String,
-        val timeoutSeconds: Int?
-    )
-
-    class Builder(
-        private val activity: Activity
-    ) {
-        private var redirect: PO3DSRedirect? = null
-        private var callback: ((ProcessOutResult<String>) -> Unit)? = null
-
-        fun with(redirect: PO3DSRedirect, callback: (ProcessOutResult<String>) -> Unit) =
-            apply {
-                this.redirect = redirect
-                this.callback = callback
-            }
-
-        fun build(): WebView = PO3DSWebView(
-            activity,
-            Configuration(
-                uri = redirect?.url?.let { Uri.parse(it.toString()) },
-                returnUris = listOf(Uri.parse(ApiConstants.CHECKOUT_URL)),
-                sdkVersion = ProcessOutApi.VERSION,
-                timeoutSeconds = redirect?.timeoutSeconds
-            ),
-            callback
-        )
+    private fun complete(failure: ProcessOutResult.Failure) {
+        timeoutHandler.removeCallbacksAndMessages(null)
+        delegate?.complete(failure)
     }
 }
