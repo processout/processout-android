@@ -26,6 +26,6 @@ internal class ThreeDSRedirectWebViewDelegate(
     }
 
     override fun complete(failure: ProcessOutResult.Failure) {
-        callback(failure)
+        callback(failure.copy())
     }
 }
