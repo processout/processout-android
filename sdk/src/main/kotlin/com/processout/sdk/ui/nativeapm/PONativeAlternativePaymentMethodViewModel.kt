@@ -22,7 +22,7 @@ import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodDefaultValuesRequest
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.*
-import com.processout.sdk.api.repository.InvoicesRepository
+import com.processout.sdk.api.service.InvoicesService
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options.Companion.MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
@@ -39,7 +39,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
     private val gatewayConfigurationId: String,
     private val invoiceId: String,
     val options: PONativeAlternativePaymentMethodConfiguration.Options,
-    private val invoicesRepository: InvoicesRepository,
+    private val invoicesService: InvoicesService,
     private val eventDispatcher: NativeAlternativePaymentMethodEventDispatcher
 ) : AndroidViewModel(app) {
 
@@ -93,7 +93,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
 
     private fun fetchTransactionDetails() {
         viewModelScope.launch {
-            val result = invoicesRepository.fetchNativeAlternativePaymentMethodTransactionDetails(
+            val result = invoicesService.fetchNativeAlternativePaymentMethodTransactionDetails(
                 invoiceId, gatewayConfigurationId
             )
             when (result) {
@@ -126,8 +126,8 @@ internal class PONativeAlternativePaymentMethodViewModel(
     private fun handleInputParametersFailure() {
         _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
             ProcessOutResult.Failure(
-                "Input field parameters is missing in response.",
-                POFailure.Code.Internal()
+                POFailure.Code.Internal(),
+                "Input field parameters is missing in response."
             )
         )
     }
@@ -211,8 +211,8 @@ internal class PONativeAlternativePaymentMethodViewModel(
             val invalidFields = uiModel.inputParameters.mapNotNull { it.validate() }
             if (invalidFields.isNotEmpty()) {
                 val failure = ProcessOutResult.Failure(
-                    "Invalid fields.",
                     POFailure.Code.Validation(POFailure.ValidationCode.general),
+                    "Invalid fields.",
                     invalidFields
                 )
                 handlePaymentFailure(failure, uiModel, replaceToLocalMessage = false)
@@ -273,7 +273,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
             val request = PONativeAlternativePaymentMethodRequest(
                 invoiceId, gatewayConfigurationId, data
             )
-            when (val result = invoicesRepository.initiatePayment(request)) {
+            when (val result = invoicesService.initiatePayment(request)) {
                 is ProcessOutResult.Success -> handlePaymentSuccess(result, uiModel)
                 is ProcessOutResult.Failure -> handlePaymentFailure(
                     result, uiModel, replaceToLocalMessage = true
@@ -411,14 +411,14 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 capturePollingStartTimestamp = 0L
                 _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
                     ProcessOutResult.Failure(
-                        "Payment confirmation timed out.",
-                        POFailure.Code.Timeout()
+                        POFailure.Code.Timeout(),
+                        "Payment confirmation timed out."
                     )
                 )
                 return@launch
             }
 
-            val result = invoicesRepository.capture(invoiceId, gatewayConfigurationId)
+            val result = invoicesService.captureNativeAlternativePayment(invoiceId, gatewayConfigurationId)
             if (isCaptureRetryable(result)) {
                 delay(CAPTURE_POLLING_DELAY_MS)
                 capture()
@@ -490,7 +490,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
 
     fun onViewFailure(failure: PONativeAlternativePaymentMethodResult.Failure) {
         with(failure) {
-            dispatch(DidFail(ProcessOutResult.Failure(message, code, invalidFields)))
+            dispatch(DidFail(ProcessOutResult.Failure(code, message, invalidFields)))
         }
     }
 

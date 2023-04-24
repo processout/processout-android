@@ -1,10 +1,10 @@
 package com.processout.sdk
 
 import com.processout.sdk.api.ProcessOutApi
+import com.processout.sdk.api.model.request.POAssignCustomerTokenRequest
 import com.processout.sdk.api.model.request.POCardTokenizationRequest
 import com.processout.sdk.api.model.request.POCreateCustomerRequest
 import com.processout.sdk.api.model.request.POCreateInvoiceRequest
-import com.processout.sdk.api.model.request.POCustomerTokenRequest
 import com.processout.sdk.api.repository.CardsRepository
 import com.processout.sdk.api.repository.CustomerTokensRepository
 import com.processout.sdk.api.repository.InvoicesRepository
@@ -22,21 +22,21 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestApplication::class)
-class CustomerTokensRepositoryUnitTests {
+class CustomerTokensRepositoryTests {
 
     @Rule
     @JvmField
     val setupRule = SetupRule()
 
+    private lateinit var customerTokens: CustomerTokensRepository
     private lateinit var invoices: InvoicesRepository
     private lateinit var cards: CardsRepository
-    private lateinit var customerTokens: CustomerTokensRepository
 
     @Before
     fun setUp() {
-        invoices = ProcessOutApi.instance.invoices
+        customerTokens = ProcessOutApi.instance.apiGraph.repositoryGraph.customerTokensRepository
+        invoices = ProcessOutApi.instance.apiGraph.repositoryGraph.invoicesRepository
         cards = ProcessOutApi.instance.cards
-        customerTokens = ProcessOutApi.instance.customerTokens
     }
 
     @Test
@@ -68,17 +68,19 @@ class CustomerTokensRepositoryUnitTests {
                                     .let { createTokenResult ->
                                         createTokenResult.assertFailure()
                                         createTokenResult.handleSuccess { createToken ->
-                                            createToken.customerToken.id.let {
+                                            createToken.token.id.let {
                                                 customerTokens.assignCustomerToken(
-                                                    customerId = customer.id,
-                                                    tokenId = it,
-                                                    request = POCustomerTokenRequest(
-                                                        source = card.id, verify = true
+                                                    request = POAssignCustomerTokenRequest(
+                                                        customerId = customer.id,
+                                                        tokenId = it,
+                                                        source = card.id,
+                                                        enableThreeDS2 = false,
+                                                        verify = true
                                                     )
-                                                ).let { assingTokenResult ->
-                                                    assingTokenResult.assertFailure()
-                                                    assingTokenResult.handleSuccess { assingToken ->
-                                                        assert(assingToken.customerToken.id.isNotEmpty())
+                                                ).let { assignTokenResult ->
+                                                    assignTokenResult.assertFailure()
+                                                    assignTokenResult.handleSuccess { assignToken ->
+                                                        assert(assignToken.token.id.isNotEmpty())
                                                     }
                                                 }
                                             }

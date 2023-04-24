@@ -10,8 +10,8 @@ sealed class PONativeAlternativePaymentMethodResult : Parcelable {
 
     @Parcelize
     data class Failure(
-        val message: String,
         val code: POFailure.Code,
+        val message: String? = null,
         val invalidFields: List<POFailure.InvalidField>? = null
     ) : PONativeAlternativePaymentMethodResult()
 }

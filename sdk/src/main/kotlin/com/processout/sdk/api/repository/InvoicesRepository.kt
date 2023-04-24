@@ -2,39 +2,17 @@ package com.processout.sdk.api.repository
 
 import com.processout.sdk.api.model.request.POCreateInvoiceRequest
 import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
-import com.processout.sdk.api.model.request.POInvoiceAuthorizationSuccess
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
-import com.processout.sdk.api.model.response.POInvoice
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethod
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodCapture
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails
+import com.processout.sdk.api.model.response.*
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 
-interface InvoicesRepository {
+internal interface InvoicesRepository {
 
-    suspend fun authorize(
-        invoiceId: String,
+    suspend fun authorizeInvoice(
         request: POInvoiceAuthorizationRequest
-    ): ProcessOutResult<POInvoiceAuthorizationSuccess>
-
-    fun authorize(
-        invoiceId: String,
-        request: POInvoiceAuthorizationRequest,
-        callback: ProcessOutCallback<POInvoiceAuthorizationSuccess>
-    )
-
-    suspend fun capture(
-        invoiceId: String,
-        gatewayConfigurationId: String
-    ): ProcessOutResult<PONativeAlternativePaymentMethodCapture>
-
-    fun capture(
-        invoiceId: String,
-        gatewayConfigurationId: String,
-        callback: ProcessOutCallback<PONativeAlternativePaymentMethodCapture>
-    )
+    ): ProcessOutResult<POInvoiceAuthorizationResponse>
 
     suspend fun initiatePayment(
         request: PONativeAlternativePaymentMethodRequest
@@ -54,6 +32,17 @@ interface InvoicesRepository {
         invoiceId: String,
         gatewayConfigurationId: String,
         callback: ProcessOutCallback<PONativeAlternativePaymentMethodTransactionDetails>
+    )
+
+    suspend fun captureNativeAlternativePayment(
+        invoiceId: String,
+        gatewayConfigurationId: String
+    ): ProcessOutResult<PONativeAlternativePaymentMethodCapture>
+
+    fun captureNativeAlternativePayment(
+        invoiceId: String,
+        gatewayConfigurationId: String,
+        callback: ProcessOutCallback<PONativeAlternativePaymentMethodCapture>
     )
 
     @ProcessOutInternalApi

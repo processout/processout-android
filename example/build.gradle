@@ -25,7 +25,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
-            debuggable true
             applicationIdSuffix ".debug"
         }
     }
@@ -64,6 +63,7 @@ android {
 
 dependencies {
     implementation project(path: ':sdk')
+    implementation project(path: ':checkout-3ds')
 
     implementation "androidx.core:core-ktx:$androidxCoreVersion"
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"

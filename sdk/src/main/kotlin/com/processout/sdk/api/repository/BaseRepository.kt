@@ -24,24 +24,24 @@ internal abstract class BaseRepository(
             when (response.isSuccessful) {
                 true -> response.body()?.let { ProcessOutResult.Success(it) }
                     ?: ProcessOutResult.Failure(
-                        "Response body is empty.",
-                        POFailure.Code.Internal()
+                        POFailure.Code.Internal(),
+                        "Response body is empty."
                     )
                 false -> response.toFailure(moshi)
             }
         } catch (e: Exception) {
             when (e) {
                 is SocketTimeoutException -> ProcessOutResult.Failure(
-                    e.message ?: "Request timed out.",
-                    POFailure.Code.Timeout(), cause = e
+                    POFailure.Code.Timeout(),
+                    e.message ?: "Request timed out.", cause = e
                 )
                 is IOException -> ProcessOutResult.Failure(
-                    e.message ?: "Network is unreachable.",
-                    POFailure.Code.NetworkUnreachable, cause = e
+                    POFailure.Code.NetworkUnreachable,
+                    e.message ?: "Network is unreachable.", cause = e
                 )
                 else -> ProcessOutResult.Failure(
-                    "Unexpected exception during API call.",
-                    POFailure.Code.Internal(), cause = e
+                    POFailure.Code.Internal(),
+                    "Unexpected exception during API call.", cause = e
                 )
             }
         }
@@ -55,7 +55,7 @@ internal abstract class BaseRepository(
             when (val result = apiCall(apiMethod)) {
                 is ProcessOutResult.Success -> callback.onSuccess(result.value)
                 is ProcessOutResult.Failure -> with(result) {
-                    callback.onFailure(message, code, invalidFields, cause)
+                    callback.onFailure(code, message, invalidFields, cause)
                 }
             }
         }
@@ -70,7 +70,7 @@ internal abstract class BaseRepository(
             when (val result = apiCall(apiMethod).map(transform)) {
                 is ProcessOutResult.Success -> callback.onSuccess(result.value)
                 is ProcessOutResult.Failure -> with(result) {
-                    callback.onFailure(message, code, invalidFields, cause)
+                    callback.onFailure(code, message, invalidFields, cause)
                 }
             }
         }

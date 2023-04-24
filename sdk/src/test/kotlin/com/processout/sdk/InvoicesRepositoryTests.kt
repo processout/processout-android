@@ -2,6 +2,7 @@ package com.processout.sdk
 
 import com.processout.sdk.api.ProcessOutApi
 import com.processout.sdk.api.model.request.*
+import com.processout.sdk.api.model.response.POCustomerAction
 import com.processout.sdk.api.repository.CardsRepository
 import com.processout.sdk.api.repository.InvoicesRepository
 import com.processout.sdk.config.SetupRule
@@ -20,7 +21,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestApplication::class)
-class InvoicesRepositoryUnitTests {
+class InvoicesRepositoryTests {
 
     @Rule
     @JvmField
@@ -31,7 +32,7 @@ class InvoicesRepositoryUnitTests {
 
     @Before
     fun setUp() {
-        invoices = ProcessOutApi.instance.invoices
+        invoices = ProcessOutApi.instance.apiGraph.repositoryGraph.invoicesRepository
         cards = ProcessOutApi.instance.cards
     }
 
@@ -69,9 +70,8 @@ class InvoicesRepositoryUnitTests {
             result.handleSuccess { invoice ->
                 cards.tokenize(request).let {
                     it.handleSuccess { card ->
-                        invoices.authorize(
-                            invoice.id,
-                            POInvoiceAuthorizationRequest(card.id)
+                        invoices.authorizeInvoice(
+                            POInvoiceAuthorizationRequest(invoice.id, card.id)
                         ).let { authResult ->
                             authResult.assertFailure()
                             authResult.handleSuccess { authSuccess ->
@@ -101,13 +101,12 @@ class InvoicesRepositoryUnitTests {
             result.handleSuccess { invoice ->
                 cards.tokenize(request).let {
                     it.handleSuccess { card ->
-                        invoices.authorize(
-                            invoice.id,
-                            POInvoiceAuthorizationRequest(card.id)
+                        invoices.authorizeInvoice(
+                            POInvoiceAuthorizationRequest(invoice.id, card.id)
                         ).let { authResult ->
                             authResult.assertFailure()
                             authResult.handleSuccess { authSuccess ->
-                                assert(authSuccess.customerAction is POCustomerActionResponse.UriData)
+                                assert(authSuccess.customerAction?.type() == POCustomerAction.Type.URL)
                             }
                         }
                     }
@@ -138,10 +137,10 @@ class InvoicesRepositoryUnitTests {
         ).let { invoiceResult ->
             invoiceResult.assertFailure()
             invoiceResult.handleSuccess { invoice ->
-                invoices.capture(
+                invoices.captureNativeAlternativePayment(
                     invoice.id,
                     "gway_conf_ux3ye8vh2c78c89s8ozp1f1ujixkl11k.adyenblik"
-                ).handleFailure { _, code, _, _ ->
+                ).handleFailure { code, _, _, _ ->
                     assert(code is POFailure.Code.Generic)
                 }
             }
