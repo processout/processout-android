@@ -3,8 +3,11 @@ package com.processout.sdk.api.service
 import android.net.Uri
 import com.processout.sdk.api.model.request.POAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
-import com.processout.sdk.core.POFailure
+import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse.APMReturnType
+import com.processout.sdk.core.POFailure.*
+import com.processout.sdk.core.POFailure.Code.*
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.utils.findBy
 
 internal class AlternativePaymentMethodsServiceImpl(
     private val configuration: AlternativePaymentMethodsConfiguration
@@ -32,34 +35,44 @@ internal class AlternativePaymentMethodsServiceImpl(
     }
 
     override fun alternativePaymentMethodResponse(uri: Uri): ProcessOutResult<POAlternativePaymentMethodResponse> {
-        if (uri.host != "processout.return") {
-            return ProcessOutResult.Failure(
-                POFailure.Code.Internal(),
-                "Invalid or malformed Alternative Payment Method URL."
-            )
+        val errorMessage = "Invalid or malformed Alternative Payment Method URL: $uri"
+        if (uri.isOpaque)
+            return ProcessOutResult.Failure(code = Internal(), message = errorMessage)
+
+        uri.getQueryParameter("error_code")?.let { errorCode ->
+            return ProcessOutResult.Failure(failureCode(errorCode))
         }
 
         val gatewayToken = uri.getQueryParameter("token")
-            ?: return ProcessOutResult.Failure(
-                POFailure.Code.Internal(),
-                "Invalid or malformed Alternative Payment Method URL."
-            )
+            ?: return ProcessOutResult.Failure(code = Internal(), message = errorMessage)
 
-        var returnType = POAlternativePaymentMethodResponse.APMReturnType.AUTHORIZATION
-        val customerTokenId = uri.getQueryParameter("token_id")
         val customerId = uri.getQueryParameter("customer_id")
-
-        if (customerTokenId != null && customerId != null) {
-            returnType = POAlternativePaymentMethodResponse.APMReturnType.CREATE_TOKEN
-        }
+        val tokenId = uri.getQueryParameter("token_id")
+        val returnType = if (customerId != null && tokenId != null)
+            APMReturnType.CREATE_TOKEN else APMReturnType.AUTHORIZATION
 
         return ProcessOutResult.Success(
             POAlternativePaymentMethodResponse(
-                gatewayToken,
-                customerId,
-                customerTokenId,
-                returnType
+                gatewayToken = gatewayToken,
+                customerId = customerId,
+                tokenId = tokenId,
+                returnType = returnType
             )
         )
     }
+
+    private fun failureCode(errorCode: String): Code =
+        AuthenticationCode::rawValue.findBy(errorCode)
+            ?.let { Authentication(it) }
+            ?: NotFoundCode::rawValue.findBy(errorCode)
+                ?.let { NotFound(it) }
+            ?: ValidationCode::rawValue.findBy(errorCode)
+                ?.let { Validation(it) }
+            ?: GenericCode::rawValue.findBy(errorCode)
+                ?.let { Generic(it) }
+            ?: TimeoutCode::rawValue.findBy(errorCode)
+                ?.let { Timeout(it) }
+            ?: InternalCode::rawValue.findBy(errorCode)
+                ?.let { Internal(it) }
+            ?: Unknown(errorCode)
 }

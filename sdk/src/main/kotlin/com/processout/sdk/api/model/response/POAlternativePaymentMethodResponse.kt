@@ -14,8 +14,8 @@ data class POAlternativePaymentMethodResponse(
     val tokenId: String?,
     val returnType: APMReturnType
 ) {
-    enum class APMReturnType(val value: String) {
-        AUTHORIZATION("AUTHORIZATION"),
-        CREATE_TOKEN("CREATETOKEN")
+    enum class APMReturnType {
+        AUTHORIZATION,
+        CREATE_TOKEN
     }
 }
