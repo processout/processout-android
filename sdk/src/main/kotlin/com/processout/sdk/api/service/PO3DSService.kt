@@ -4,22 +4,23 @@ import com.processout.sdk.api.model.threeds.PO3DS2AuthenticationRequest
 import com.processout.sdk.api.model.threeds.PO3DS2Challenge
 import com.processout.sdk.api.model.threeds.PO3DS2Configuration
 import com.processout.sdk.api.model.threeds.PO3DSRedirect
+import com.processout.sdk.core.ProcessOutResult
 
 interface PO3DSService {
 
     fun authenticationRequest(
         configuration: PO3DS2Configuration,
-        callback: (PO3DSResult<PO3DS2AuthenticationRequest>) -> Unit
+        callback: (ProcessOutResult<PO3DS2AuthenticationRequest>) -> Unit
     )
 
     fun handle(
         challenge: PO3DS2Challenge,
-        callback: (PO3DSResult<Boolean>) -> Unit
+        callback: (ProcessOutResult<Boolean>) -> Unit
     )
 
     fun handle(
         redirect: PO3DSRedirect,
-        callback: (PO3DSResult<String>) -> Unit
+        callback: (ProcessOutResult<String>) -> Unit
     )
 
     fun cleanup() {}

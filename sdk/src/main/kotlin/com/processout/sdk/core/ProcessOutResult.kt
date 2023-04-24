@@ -3,8 +3,8 @@ package com.processout.sdk.core
 sealed class ProcessOutResult<out T : Any> {
     data class Success<out T : Any>(val value: T) : ProcessOutResult<T>()
     data class Failure(
-        val message: String,
         val code: POFailure.Code,
+        val message: String? = null,
         val invalidFields: List<POFailure.InvalidField>? = null,
         val cause: Exception? = null
     ) : ProcessOutResult<Nothing>()
@@ -20,14 +20,14 @@ inline fun <T : Any> ProcessOutResult<T>.handleSuccess(
 
 inline fun <T : Any> ProcessOutResult<T>.handleFailure(
     block: (
-        message: String,
         code: POFailure.Code,
+        message: String?,
         invalidFields: List<POFailure.InvalidField>?,
         cause: Exception?
     ) -> Unit
 ) {
     if (this is ProcessOutResult.Failure) {
-        block(message, code, invalidFields, cause)
+        block(code, message, invalidFields, cause)
     }
 }
 

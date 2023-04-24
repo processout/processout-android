@@ -126,8 +126,8 @@ internal class PONativeAlternativePaymentMethodViewModel(
     private fun handleInputParametersFailure() {
         _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
             ProcessOutResult.Failure(
-                "Input field parameters is missing in response.",
-                POFailure.Code.Internal()
+                POFailure.Code.Internal(),
+                "Input field parameters is missing in response."
             )
         )
     }
@@ -211,8 +211,8 @@ internal class PONativeAlternativePaymentMethodViewModel(
             val invalidFields = uiModel.inputParameters.mapNotNull { it.validate() }
             if (invalidFields.isNotEmpty()) {
                 val failure = ProcessOutResult.Failure(
-                    "Invalid fields.",
                     POFailure.Code.Validation(POFailure.ValidationCode.general),
+                    "Invalid fields.",
                     invalidFields
                 )
                 handlePaymentFailure(failure, uiModel, replaceToLocalMessage = false)
@@ -411,8 +411,8 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 capturePollingStartTimestamp = 0L
                 _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
                     ProcessOutResult.Failure(
-                        "Payment confirmation timed out.",
-                        POFailure.Code.Timeout()
+                        POFailure.Code.Timeout(),
+                        "Payment confirmation timed out."
                     )
                 )
                 return@launch
@@ -490,7 +490,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
 
     fun onViewFailure(failure: PONativeAlternativePaymentMethodResult.Failure) {
         with(failure) {
-            dispatch(DidFail(ProcessOutResult.Failure(message, code, invalidFields)))
+            dispatch(DidFail(ProcessOutResult.Failure(code, message, invalidFields)))
         }
     }
 

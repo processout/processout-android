@@ -1,4 +1,4 @@
-package com.processout.example.ui.shared
+package com.processout.sdk.ui.threeds
 
 import android.app.Activity
 import android.webkit.WebView
@@ -9,20 +9,19 @@ import com.processout.sdk.api.model.threeds.PO3DS2AuthenticationRequest
 import com.processout.sdk.api.model.threeds.PO3DS2Challenge
 import com.processout.sdk.api.model.threeds.PO3DS2Configuration
 import com.processout.sdk.api.model.threeds.PO3DSRedirect
-import com.processout.sdk.api.service.PO3DSResult
 import com.processout.sdk.api.service.PO3DSService
-import com.processout.sdk.ui.threeds.PO3DSWebView
+import com.processout.sdk.core.ProcessOutResult
 
-class Default3DSService(activity: Activity) : PO3DSService {
+class POTest3DSService(activity: Activity) : PO3DSService {
 
     private val rootLayout: FrameLayout = activity.findViewById(android.R.id.content)
     private val dialogBuilder = AlertDialog.Builder(activity)
-    private val webViewBuilder = PO3DSWebView.Builder(activity)
+    private val webViewBuilder = PO3DSRedirectWebViewBuilder(activity)
     private var webView: WebView? = null
 
     override fun authenticationRequest(
         configuration: PO3DS2Configuration,
-        callback: (PO3DSResult<PO3DS2AuthenticationRequest>) -> Unit
+        callback: (ProcessOutResult<PO3DS2AuthenticationRequest>) -> Unit
     ) {
         val request = PO3DS2AuthenticationRequest(
             deviceData = String(),
@@ -31,25 +30,25 @@ class Default3DSService(activity: Activity) : PO3DSService {
             sdkReferenceNumber = String(),
             sdkTransactionId = String()
         )
-        callback(PO3DSResult.Success(request))
+        callback(ProcessOutResult.Success(request))
     }
 
-    override fun handle(challenge: PO3DS2Challenge, callback: (PO3DSResult<Boolean>) -> Unit) {
+    override fun handle(challenge: PO3DS2Challenge, callback: (ProcessOutResult<Boolean>) -> Unit) {
         with(dialogBuilder) {
             setTitle(ProcessOutApi.NAME)
             setMessage("Validate mobile 3DS2 challenge?")
             setPositiveButton("Yes") { dialog, _ ->
                 dialog.dismiss()
-                callback(PO3DSResult.Success(true))
+                callback(ProcessOutResult.Success(true))
             }
             setNegativeButton("No") { dialog, _ ->
                 dialog.dismiss()
-                callback(PO3DSResult.Success(false))
+                callback(ProcessOutResult.Success(false))
             }
         }.also { it.show() }
     }
 
-    override fun handle(redirect: PO3DSRedirect, callback: (PO3DSResult<String>) -> Unit) {
+    override fun handle(redirect: PO3DSRedirect, callback: (ProcessOutResult<String>) -> Unit) {
         webView = webViewBuilder.with(redirect) { result ->
             destroyWebView()
             callback(result)

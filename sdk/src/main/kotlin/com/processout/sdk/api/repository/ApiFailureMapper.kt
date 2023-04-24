@@ -23,7 +23,7 @@ internal fun <T : Any> Response<T>.toFailure(moshi: Moshi): ProcessOutResult.Fai
         failureCode(code(), it)
     } ?: POFailure.Code.Internal()
 
-    return ProcessOutResult.Failure(message, failureCode, apiError?.invalidFields)
+    return ProcessOutResult.Failure(failureCode, message, apiError?.invalidFields)
 }
 
 private fun failureCode(httpStatusCode: Int, errorType: String): POFailure.Code {

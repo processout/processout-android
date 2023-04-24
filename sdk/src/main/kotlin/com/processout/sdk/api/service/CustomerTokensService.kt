@@ -12,7 +12,7 @@ interface CustomerTokensService {
     fun assignCustomerToken(
         request: POAssignCustomerTokenRequest,
         threeDSService: PO3DSService,
-        callback: (PO3DSResult<POCustomerToken>) -> Unit
+        callback: (ProcessOutResult<POCustomerToken>) -> Unit
     )
 
     @ProcessOutInternalApi

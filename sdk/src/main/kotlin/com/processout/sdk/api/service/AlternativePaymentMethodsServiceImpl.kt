@@ -34,15 +34,15 @@ internal class AlternativePaymentMethodsServiceImpl(
     override fun alternativePaymentMethodResponse(uri: Uri): ProcessOutResult<POAlternativePaymentMethodResponse> {
         if (uri.host != "processout.return") {
             return ProcessOutResult.Failure(
-                "Invalid or malformed Alternative Payment Method URL.",
-                POFailure.Code.Internal()
+                POFailure.Code.Internal(),
+                "Invalid or malformed Alternative Payment Method URL."
             )
         }
 
         val gatewayToken = uri.getQueryParameter("token")
             ?: return ProcessOutResult.Failure(
-                "Invalid or malformed Alternative Payment Method URL.",
-                POFailure.Code.Internal()
+                POFailure.Code.Internal(),
+                "Invalid or malformed Alternative Payment Method URL."
             )
 
         var returnType = POAlternativePaymentMethodResponse.APMReturnType.AUTHORIZATION

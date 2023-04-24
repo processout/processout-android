@@ -23,7 +23,7 @@ internal class InvoicesServiceImpl(
     override fun authorizeInvoice(
         request: POInvoiceAuthorizationRequest,
         threeDSService: PO3DSService,
-        callback: (PO3DSResult<Unit>) -> Unit
+        callback: (ProcessOutResult<Unit>) -> Unit
     ) {
         scope.launch {
             when (val result = repository.authorizeInvoice(request)) {
@@ -32,22 +32,22 @@ internal class InvoicesServiceImpl(
                         this@InvoicesServiceImpl.threeDSService
                             .handle(action, threeDSService) { serviceResult ->
                                 when (serviceResult) {
-                                    is PO3DSResult.Success ->
+                                    is ProcessOutResult.Success ->
                                         authorizeInvoice(
                                             request.copy(source = serviceResult.value),
                                             threeDSService,
                                             callback
                                         )
-                                    is PO3DSResult.Failure -> callback(serviceResult.copy())
+                                    is ProcessOutResult.Failure -> callback(serviceResult.copy())
                                 }
                             }
                     } ?: run {
                         threeDSService.cleanup()
-                        callback(PO3DSResult.Success(Unit))
+                        callback(ProcessOutResult.Success(Unit))
                     }
                 is ProcessOutResult.Failure -> {
                     threeDSService.cleanup()
-                    callback(result.to3DSFailure())
+                    callback(result.copy())
                 }
             }
         }
