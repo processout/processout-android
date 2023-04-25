@@ -22,6 +22,8 @@ import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodDefaultValuesRequest
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.*
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType.*
 import com.processout.sdk.api.service.InvoicesService
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
@@ -243,16 +245,13 @@ internal class PONativeAlternativePaymentMethodViewModel(
             }
         }
 
-        when (parameter.type) {
-            PONativeAlternativePaymentMethodParameter.ParameterType.numeric ->
-                if (value.isDigitsOnly().not())
-                    return invalidField(R.string.po_native_apm_error_invalid_number)
-            PONativeAlternativePaymentMethodParameter.ParameterType.email ->
-                if (Patterns.EMAIL_ADDRESS.matcher(value).matches().not())
-                    return invalidField(R.string.po_native_apm_error_invalid_email)
-            PONativeAlternativePaymentMethodParameter.ParameterType.phone ->
-                if (Patterns.PHONE.matcher(value).matches().not())
-                    return invalidField(R.string.po_native_apm_error_invalid_phone)
+        when (parameter.type()) {
+            NUMERIC -> if (value.isDigitsOnly().not())
+                return invalidField(R.string.po_native_apm_error_invalid_number)
+            EMAIL -> if (Patterns.EMAIL_ADDRESS.matcher(value).matches().not())
+                return invalidField(R.string.po_native_apm_error_invalid_email)
+            PHONE -> if (Patterns.PHONE.matcher(value).matches().not())
+                return invalidField(R.string.po_native_apm_error_invalid_phone)
             else -> {}
         }
         return null
@@ -364,7 +363,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 inputParameter.copy(
                     state = Input.State.Error(
                         resolveInputErrorMessage(
-                            replaceToLocalMessage, inputParameter.parameter.type, it.message
+                            replaceToLocalMessage, inputParameter.parameter.type(), it.message
                         )
                     )
                 )
@@ -382,18 +381,15 @@ internal class PONativeAlternativePaymentMethodViewModel(
     // TODO: Delete this when backend localisation is done.
     private fun resolveInputErrorMessage(
         replaceToLocalMessage: Boolean,
-        type: PONativeAlternativePaymentMethodParameter.ParameterType,
+        type: ParameterType,
         originalMessage: String?
     ) = if (replaceToLocalMessage)
         when (type) {
-            PONativeAlternativePaymentMethodParameter.ParameterType.numeric ->
-                app.getString(R.string.po_native_apm_error_invalid_number)
-            PONativeAlternativePaymentMethodParameter.ParameterType.text ->
-                app.getString(R.string.po_native_apm_error_invalid_text)
-            PONativeAlternativePaymentMethodParameter.ParameterType.email ->
-                app.getString(R.string.po_native_apm_error_invalid_email)
-            PONativeAlternativePaymentMethodParameter.ParameterType.phone ->
-                app.getString(R.string.po_native_apm_error_invalid_phone)
+            NUMERIC -> app.getString(R.string.po_native_apm_error_invalid_number)
+            TEXT -> app.getString(R.string.po_native_apm_error_invalid_text)
+            EMAIL -> app.getString(R.string.po_native_apm_error_invalid_email)
+            PHONE -> app.getString(R.string.po_native_apm_error_invalid_phone)
+            else -> null
         }
     else originalMessage
 
@@ -516,7 +512,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
         map {
             InputParameter(
                 parameter = it,
-                hint = getInputHint(it.type)
+                hint = getInputHint(it.type())
             )
         }.let { inputParameters ->
             inputParameters.mapIndexed { index, inputParameter ->
@@ -557,12 +553,10 @@ internal class PONativeAlternativePaymentMethodViewModel(
         }
     }
 
-    private fun getInputHint(type: PONativeAlternativePaymentMethodParameter.ParameterType) =
+    private fun getInputHint(type: ParameterType) =
         when (type) {
-            PONativeAlternativePaymentMethodParameter.ParameterType.phone ->
-                app.getString(R.string.po_native_apm_input_hint_phone)
-            PONativeAlternativePaymentMethodParameter.ParameterType.email ->
-                app.getString(R.string.po_native_apm_input_hint_email)
+            PHONE -> app.getString(R.string.po_native_apm_input_hint_phone)
+            EMAIL -> app.getString(R.string.po_native_apm_input_hint_email)
             else -> null
         }
 }

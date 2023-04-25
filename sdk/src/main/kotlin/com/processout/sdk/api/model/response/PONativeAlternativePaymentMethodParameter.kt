@@ -1,5 +1,6 @@
 package com.processout.sdk.api.model.response
 
+import com.processout.sdk.utils.findBy
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -8,15 +9,20 @@ data class PONativeAlternativePaymentMethodParameter(
     val key: String,
     val length: Int?,
     val required: Boolean,
-    val type: ParameterType,
+    @Json(name = "type")
+    val rawType: String,
     @Json(name = "display_name")
     val displayName: String
 ) {
-    @Suppress("EnumEntryName")
-    enum class ParameterType {
-        numeric,
-        text,
-        email,
-        phone
+
+    fun type() = ParameterType::rawType.findBy(rawType) ?: ParameterType.UNKNOWN
+
+    enum class ParameterType(val rawType: String) {
+        NUMERIC("numeric"),
+        TEXT("text"),
+        EMAIL("email"),
+        PHONE("phone"),
+        SINGLE_SELECT("single-select"),
+        UNKNOWN(String())
     }
 }

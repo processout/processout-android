@@ -386,7 +386,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
 
     private fun addInputComponent(inputParameter: InputParameter): InputComponent {
         val length = inputParameter.parameter.length
-        val input = if (inputParameter.parameter.type == ParameterType.numeric &&
+        val input = if (inputParameter.parameter.type() == ParameterType.NUMERIC &&
             length != null && length in CodeInput.LENGTH_MIN..CodeInput.LENGTH_MAX
         ) {
             CodeInput(

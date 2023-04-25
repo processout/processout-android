@@ -16,17 +16,18 @@ internal data class InputParameter(
     val parameter: PONativeAlternativePaymentMethodParameter
 ) {
 
-    fun plainValue() = when (parameter.type) {
-        ParameterType.numeric -> value.replace(" ", String())
-        ParameterType.phone -> value.replace(Regex("[-() ]"), String())
+    fun plainValue() = when (parameter.type()) {
+        ParameterType.NUMERIC -> value.replace(" ", String())
+        ParameterType.PHONE -> value.replace(Regex("[-() ]"), String())
         else -> value
     }
 
-    fun toInputType() = when (parameter.type) {
-        ParameterType.numeric -> InputType.TYPE_CLASS_NUMBER
-        ParameterType.text -> InputType.TYPE_CLASS_TEXT
-        ParameterType.email -> InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
-        ParameterType.phone -> InputType.TYPE_CLASS_PHONE
+    fun toInputType() = when (parameter.type()) {
+        ParameterType.NUMERIC -> InputType.TYPE_CLASS_NUMBER
+        ParameterType.TEXT -> InputType.TYPE_CLASS_TEXT
+        ParameterType.EMAIL -> InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+        ParameterType.PHONE -> InputType.TYPE_CLASS_PHONE
+        else -> InputType.TYPE_NULL
     }
 
     data class KeyboardAction(
