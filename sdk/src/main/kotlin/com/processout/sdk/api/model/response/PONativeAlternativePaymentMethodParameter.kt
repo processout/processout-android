@@ -12,7 +12,9 @@ data class PONativeAlternativePaymentMethodParameter(
     @Json(name = "type")
     val rawType: String,
     @Json(name = "display_name")
-    val displayName: String
+    val displayName: String,
+    @Json(name = "available_values")
+    val availableValues: List<ParameterValue>?
 ) {
 
     fun type() = ParameterType::rawType.findBy(rawType) ?: ParameterType.UNKNOWN
@@ -25,4 +27,12 @@ data class PONativeAlternativePaymentMethodParameter(
         SINGLE_SELECT("single-select"),
         UNKNOWN(String())
     }
+
+    @JsonClass(generateAdapter = true)
+    data class ParameterValue(
+        val value: String,
+        @Json(name = "display_name")
+        val displayName: String,
+        val default: Boolean?
+    )
 }
