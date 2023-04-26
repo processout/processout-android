@@ -100,10 +100,18 @@ internal class PONativeAlternativePaymentMethodViewModel(
             )
             when (result) {
                 is ProcessOutResult.Success -> {
-                    if (result.value.parameters.isNullOrEmpty()) {
-                        handleInputParametersFailure()
+                    val parameters = result.value.parameters
+                    if (parameters.isNullOrEmpty()) {
+                        _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
+                            ProcessOutResult.Failure(
+                                POFailure.Code.Internal(),
+                                "Input field parameters is missing in response."
+                            )
+                        )
                         return@launch
                     }
+                    if (handleInvalidInputParameters(parameters)) return@launch
+
                     val uiModel = result.value.toUiModel()
                     if (options.waitsPaymentConfirmation) {
                         preloadAllImages(coroutineScope = this, uiModel)
@@ -111,7 +119,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                     _uiState.value = PONativeAlternativePaymentMethodUiState.Loaded(uiModel)
 
                     if (eventDispatcher.subscribedForDefaultValuesRequest())
-                        requestDefaultValues(result.value.parameters)
+                        requestDefaultValues(parameters)
                     else startUserInput(uiModel)
                 }
                 is ProcessOutResult.Failure ->
@@ -125,13 +133,19 @@ internal class PONativeAlternativePaymentMethodViewModel(
         dispatch(DidStart)
     }
 
-    private fun handleInputParametersFailure() {
-        _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
-            ProcessOutResult.Failure(
-                POFailure.Code.Internal(),
-                "Input field parameters is missing in response."
+    private fun handleInvalidInputParameters(
+        parameters: List<PONativeAlternativePaymentMethodParameter>
+    ): Boolean {
+        parameters.find { it.type() == UNKNOWN }?.let {
+            _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
+                ProcessOutResult.Failure(
+                    POFailure.Code.Internal(),
+                    "Unknown input field type: ${it.rawType}"
+                )
             )
-        )
+            return true
+        }
+        return false
     }
 
     private fun requestDefaultValues(parameters: List<PONativeAlternativePaymentMethodParameter>) {
@@ -286,8 +300,19 @@ internal class PONativeAlternativePaymentMethodViewModel(
         uiModel: PONativeAlternativePaymentMethodUiModel
     ) {
         when (success.value.state) {
-            PONativeAlternativePaymentMethodState.CUSTOMER_INPUT ->
-                handleCustomerInput(success.value.parameterDefinitions, uiModel)
+            PONativeAlternativePaymentMethodState.CUSTOMER_INPUT -> {
+                val parameters = success.value.parameterDefinitions
+                if (parameters.isNullOrEmpty()) {
+                    _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
+                        ProcessOutResult.Failure(
+                            POFailure.Code.Internal(),
+                            "Input field parameters is missing in response."
+                        )
+                    )
+                    return
+                }
+                handleCustomerInput(parameters, uiModel)
+            }
             PONativeAlternativePaymentMethodState.PENDING_CAPTURE ->
                 handlePendingCapture(uiModel)
             PONativeAlternativePaymentMethodState.CAPTURED ->
@@ -296,13 +321,10 @@ internal class PONativeAlternativePaymentMethodViewModel(
     }
 
     private fun handleCustomerInput(
-        parameters: List<PONativeAlternativePaymentMethodParameter>?,
+        parameters: List<PONativeAlternativePaymentMethodParameter>,
         uiModel: PONativeAlternativePaymentMethodUiModel
     ) {
-        if (parameters.isNullOrEmpty()) {
-            handleInputParametersFailure()
-            return
-        }
+        if (handleInvalidInputParameters(parameters)) return
         val updatedUiModel = uiModel.copy(
             inputParameters = parameters.toInputParameters(),
             focusedInputId = View.NO_ID
@@ -363,7 +385,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 inputParameter.copy(
                     state = Input.State.Error(
                         resolveInputErrorMessage(
-                            replaceToLocalMessage, inputParameter.parameter.type(), it.message
+                            replaceToLocalMessage, inputParameter.type(), it.message
                         )
                     )
                 )
@@ -514,25 +536,41 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 parameter = it,
                 hint = getInputHint(it.type())
             )
-        }.let { inputParameters ->
-            inputParameters.mapIndexed { index, inputParameter ->
-                if (index == inputParameters.lastIndex) {
-                    inputParameter.copy(
-                        keyboardAction = InputParameter.KeyboardAction(
-                            imeOptions = EditorInfo.IME_ACTION_DONE
-                        )
+        }.let { resolveInputsKeyboardAction(it) }
+
+    private fun resolveInputsKeyboardAction(inputParameters: List<InputParameter>) =
+        inputParameters.mapIndexed { index, inputParameter ->
+            if (isInputKeyboardActionSupported(inputParameter.type())) {
+                val nextIndex = nextFocusableInputIndex(index, inputParameters)
+                inputParameter.copy(
+                    keyboardAction = InputParameter.KeyboardAction(
+                        imeOptions = if (nextIndex != -1)
+                            EditorInfo.IME_ACTION_NEXT
+                        else EditorInfo.IME_ACTION_DONE,
+                        nextFocusForwardId = inputParameters.getOrNull(nextIndex)
+                            ?.focusableViewId ?: View.NO_ID
                     )
-                } else {
-                    inputParameter.copy(
-                        keyboardAction = InputParameter.KeyboardAction(
-                            imeOptions = EditorInfo.IME_ACTION_NEXT,
-                            nextFocusForwardId = inputParameters.getOrNull(index + 1)
-                                ?.focusableViewId ?: View.NO_ID
-                        )
-                    )
-                }
-            }
+                )
+            } else inputParameter.copy()
         }
+
+    private fun isInputKeyboardActionSupported(type: ParameterType) =
+        when (type) {
+            SINGLE_SELECT,
+            UNKNOWN -> false
+            else -> true
+        }
+
+    private fun nextFocusableInputIndex(
+        currentIndex: Int,
+        inputParameters: List<InputParameter>
+    ): Int {
+        for (index in currentIndex + 1..inputParameters.lastIndex) {
+            if (isInputKeyboardActionSupported(inputParameters[index].type()))
+                return index else continue
+        }
+        return -1
+    }
 
     private fun PONativeAlternativePaymentMethodTransactionDetails.Invoice.formatPrimaryActionText() =
         try {

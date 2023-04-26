@@ -22,7 +22,9 @@ internal data class InputParameter(
         else -> value
     }
 
-    fun toInputType() = when (parameter.type()) {
+    fun type() = parameter.type()
+
+    fun toInputType() = when (type()) {
         ParameterType.NUMERIC -> InputType.TYPE_CLASS_NUMBER
         ParameterType.TEXT -> InputType.TYPE_CLASS_TEXT
         ParameterType.EMAIL -> InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS

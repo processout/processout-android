@@ -229,10 +229,10 @@ internal class CodeInput(
             focusIndex < 0 -> focusIndex = 0
             focusIndex >= editTexts.size -> focusIndex = editTexts.size - 1
         }
-        requestFocusAndShowKeyboard()
+        gainFocus()
     }
 
-    override fun requestFocusAndShowKeyboard() {
+    override fun gainFocus() {
         if (editTexts[focusIndex].isFocused.not()) {
             editTexts[focusIndex].requestFocusAndShowKeyboard()
         }
