@@ -8,12 +8,15 @@ import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.annotation.LayoutRes
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterValue
+import com.processout.sdk.ui.nativeapm.applyStyle
+import com.processout.sdk.ui.shared.style.POTextStyle
 
 internal class ParameterValueAdapter(
     context: Context,
     @LayoutRes
     private val itemLayoutRes: Int,
-    private val values: List<ParameterValue>
+    private val values: List<ParameterValue>,
+    private val textStyle: POTextStyle? = null
 ) : ArrayAdapter<ParameterValue>(
     context, itemLayoutRes, values
 ) {
@@ -32,6 +35,7 @@ internal class ParameterValueAdapter(
                 itemLayoutRes, parent, false
             ) as TextView
         view.text = getItem(position)?.displayName
+        textStyle?.let { view.applyStyle(it) }
         return view
     }
 }

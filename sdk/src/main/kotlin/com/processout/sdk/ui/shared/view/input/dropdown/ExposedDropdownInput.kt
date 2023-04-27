@@ -68,7 +68,16 @@ internal class ExposedDropdownInput(
         dropdownAutoComplete = findViewById(R.id.po_dropdown_auto_complete)
         errorMessage = findViewById(R.id.po_error_message)
 
-        dropdownAutoComplete.setDropDownBackgroundDrawable(defaultDropdownBackground)
+        style?.normal?.field?.let {
+            defaultBackground = outlineBackground(context, it)
+        }
+        style?.error?.field?.let {
+            errorBackground = outlineBackground(context, it)
+        }
+        val dropdownBackground = dropdownMenuStyle?.let {
+            outlineBackground(context, it)
+        } ?: defaultDropdownBackground
+        dropdownAutoComplete.setDropDownBackgroundDrawable(dropdownBackground)
 
         setListeners()
         initWithInputParameters()
@@ -80,7 +89,12 @@ internal class ExposedDropdownInput(
         title.text = inputParameter?.parameter?.displayName
 
         val options = inputParameter?.parameter?.availableValues ?: emptyList()
-        adapter = ParameterValueAdapter(context, R.layout.po_exposed_dropdown_item, options)
+        adapter = ParameterValueAdapter(
+            context,
+            R.layout.po_exposed_dropdown_item,
+            options,
+            dropdownMenuStyle?.text
+        )
         dropdownAutoComplete.setAdapter(adapter)
 
         inputParameter?.value?.let { value ->
