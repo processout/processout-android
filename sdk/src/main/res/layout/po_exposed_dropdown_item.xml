@@ -3,11 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/po_dropdown_item"
+    style="@style/Widget.ProcessOut.ExposedDropdown.Item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:ellipsize="end"
-    android:maxLines="1"
-    android:padding="16dp"
-    tools:text="Option 1">
-
-</TextView>
+    tools:text="Option 1" />

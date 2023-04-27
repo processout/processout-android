@@ -28,6 +28,7 @@
 
         <com.google.android.material.textfield.MaterialAutoCompleteTextView
             android:id="@+id/po_dropdown_auto_complete"
+            style="@style/Widget.ProcessOut.EditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@null"
