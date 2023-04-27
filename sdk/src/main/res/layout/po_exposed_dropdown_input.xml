@@ -21,7 +21,7 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/po_dropdown_layout"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        style="@style/Widget.ProcessOut.ExposedDropdown.TextInputLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal">
@@ -30,6 +30,7 @@
             android:id="@+id/po_dropdown_auto_complete"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@null"
             android:imeOptions="actionNone"
             android:inputType="none" />
 
