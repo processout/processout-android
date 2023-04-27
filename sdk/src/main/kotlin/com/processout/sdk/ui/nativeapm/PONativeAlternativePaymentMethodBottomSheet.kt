@@ -431,7 +431,8 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         ExposedDropdownInput(
             requireContext(),
             inputParameter = inputParameter,
-            style = null // TODO: pass style
+            style = configuration?.style?.input,
+            dropdownMenuStyle = configuration?.style?.dropdownMenu
         )
 
     private fun resolveInputFocus(focusedInputId: Int) {

@@ -14,6 +14,7 @@ import com.google.android.material.textfield.TextInputLayout
 import com.processout.sdk.R
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterValue
 import com.processout.sdk.ui.shared.model.InputParameter
+import com.processout.sdk.ui.shared.style.input.POInputFieldStyle
 import com.processout.sdk.ui.shared.style.input.POInputStyle
 import com.processout.sdk.ui.shared.view.extensions.defaultOutlineBackground
 import com.processout.sdk.ui.shared.view.extensions.hideKeyboard
@@ -25,11 +26,12 @@ internal class ExposedDropdownInput(
     context: Context,
     attrs: AttributeSet? = null,
     override val inputParameter: InputParameter? = null,
-    override val style: POInputStyle? = null
+    override val style: POInputStyle? = null,
+    private val dropdownMenuStyle: POInputFieldStyle? = null
 ) : LinearLayout(context, attrs, 0), InputComponent {
 
     constructor(context: Context) : this(context, null)
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, null, null)
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, null, null, null)
 
     private var state: Input.State = inputParameter?.state ?: Input.State.Default()
 
