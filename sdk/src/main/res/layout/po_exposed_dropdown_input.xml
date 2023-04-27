@@ -32,6 +32,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@null"
+            android:completionThreshold="1"
             android:imeOptions="actionNone"
             android:inputType="none" />
 
