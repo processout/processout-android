@@ -53,10 +53,6 @@ internal class ExposedDropdownInput(
     private var onFocusedAction: ((Int) -> Unit)? = null
 
     override var value: String = String()
-        set(value) {
-            field = value
-            afterValueChanged?.invoke(value)
-        }
 
     init {
         LayoutInflater.from(
@@ -80,14 +76,16 @@ internal class ExposedDropdownInput(
     private fun initWithInputParameters() {
         id = inputParameter?.viewId ?: View.generateViewId()
         title.text = inputParameter?.parameter?.displayName
-        initAdapter()
-    }
 
-    private fun initAdapter() {
         val options = inputParameter?.parameter?.availableValues ?: emptyList()
         adapter = ParameterValueAdapter(context, R.layout.po_exposed_dropdown_item, options)
         dropdownAutoComplete.setAdapter(adapter)
-        options.find { it.default == true }?.also { setValue(it) }
+
+        inputParameter?.value?.let { value ->
+            if (value.isNotBlank()) {
+                options.find { it.value == value }?.also { setValue(it) }
+            }
+        }
     }
 
     private fun setListeners() {
@@ -99,7 +97,10 @@ internal class ExposedDropdownInput(
         }
 
         dropdownAutoComplete.setOnItemClickListener { _, _, position, _ ->
-            adapter?.getItem(position)?.also { setValue(it) }
+            adapter?.getItem(position)?.also {
+                setValue(it)
+                afterValueChanged?.invoke(value)
+            }
         }
     }
 
@@ -110,7 +111,6 @@ internal class ExposedDropdownInput(
 
     override fun doAfterValueChanged(action: (value: String) -> Unit) {
         afterValueChanged = action
-        action(value)
     }
 
     override fun onFocused(action: (id: Int) -> Unit) {

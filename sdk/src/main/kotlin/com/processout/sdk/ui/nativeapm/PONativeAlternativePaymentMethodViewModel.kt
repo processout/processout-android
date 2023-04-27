@@ -531,10 +531,11 @@ internal class PONativeAlternativePaymentMethodViewModel(
         )
 
     private fun List<PONativeAlternativePaymentMethodParameter>.toInputParameters() =
-        map {
+        map { parameter ->
             InputParameter(
-                parameter = it,
-                hint = getInputHint(it.type())
+                parameter = parameter,
+                value = parameter.availableValues?.find { it.default == true }?.value ?: String(),
+                hint = getInputHint(parameter.type())
             )
         }.let { resolveInputsKeyboardAction(it) }
 
