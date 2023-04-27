@@ -13,8 +13,10 @@ import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import com.processout.sdk.R
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterValue
+import com.processout.sdk.ui.nativeapm.applyStyle
 import com.processout.sdk.ui.shared.model.InputParameter
 import com.processout.sdk.ui.shared.style.input.POInputFieldStyle
+import com.processout.sdk.ui.shared.style.input.POInputStateStyle
 import com.processout.sdk.ui.shared.style.input.POInputStyle
 import com.processout.sdk.ui.shared.view.extensions.defaultOutlineBackground
 import com.processout.sdk.ui.shared.view.extensions.hideKeyboard
@@ -145,15 +147,16 @@ internal class ExposedDropdownInput(
     }
 
     private fun applyState(state: Input.State) {
-        // TODO: apply states style
         when (state) {
             is Input.State.Default -> {
+                style?.normal?.let { applyStateStyle(it) }
                 dropdownAutoComplete.isEnabled = state.editable
                 dropdownLayout.background = defaultBackground
                 errorMessage.text = String()
                 errorMessage.visibility = View.INVISIBLE
             }
             is Input.State.Error -> {
+                style?.error?.let { applyStateStyle(it) }
                 dropdownAutoComplete.isEnabled = true
                 dropdownLayout.background = errorBackground
                 errorMessage.text = state.message
@@ -161,5 +164,11 @@ internal class ExposedDropdownInput(
             }
         }
         this.state = state
+    }
+
+    private fun applyStateStyle(stateStyle: POInputStateStyle) {
+        title.applyStyle(stateStyle.title)
+        dropdownAutoComplete.applyStyle(stateStyle.field.text)
+        errorMessage.applyStyle(stateStyle.description)
     }
 }
