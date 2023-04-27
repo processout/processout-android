@@ -132,6 +132,7 @@ internal class CodeInput(
         when (state) {
             is Input.State.Default -> {
                 style?.normal?.let { applyStateStyle(it) }
+                errorMessage.text = String()
                 errorMessage.visibility = View.INVISIBLE
             }
             is Input.State.Error -> {

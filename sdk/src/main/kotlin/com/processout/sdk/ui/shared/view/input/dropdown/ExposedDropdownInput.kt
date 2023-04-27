@@ -60,11 +60,14 @@ internal class ExposedDropdownInput(
 
     private fun initWithInputParameters() {
         id = inputParameter?.viewId ?: View.generateViewId()
+        title.text = inputParameter?.parameter?.displayName
+        initAdapter()
+    }
 
+    private fun initAdapter() {
         val options = inputParameter?.parameter?.availableValues ?: emptyList()
         adapter = ParameterValueAdapter(context, R.layout.po_exposed_dropdown_item, options)
         dropdownAutoComplete.setAdapter(adapter)
-
         options.find { it.default == true }?.also { setValue(it) }
     }
 
@@ -108,6 +111,18 @@ internal class ExposedDropdownInput(
 
     private fun applyState(state: Input.State) {
         // TODO: apply states style
+        when (state) {
+            is Input.State.Default -> {
+                dropdownAutoComplete.isEnabled = state.editable
+                errorMessage.text = String()
+                errorMessage.visibility = View.INVISIBLE
+            }
+            is Input.State.Error -> {
+                dropdownAutoComplete.isEnabled = true
+                errorMessage.text = state.message
+                errorMessage.visibility = View.VISIBLE
+            }
+        }
         this.state = state
     }
 }
