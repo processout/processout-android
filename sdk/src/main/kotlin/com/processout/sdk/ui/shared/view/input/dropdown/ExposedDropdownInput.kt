@@ -1,12 +1,14 @@
 package com.processout.sdk.ui.shared.view.input.dropdown
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.annotation.ColorInt
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
@@ -45,6 +47,12 @@ internal class ExposedDropdownInput(
     private var defaultBackground = defaultOutlineBackground(context, R.color.poBorderPrimary)
     private var errorBackground = defaultOutlineBackground(context, R.color.poBorderError)
 
+    @ColorInt
+    private var defaultControlsTintColor = ContextCompat.getColor(context, R.color.poTextPrimary)
+
+    @ColorInt
+    private var errorControlsTintColor = ContextCompat.getColor(context, R.color.poTextError)
+
     private var defaultDropdownBackground = outlineBackground(
         cornerRadiusPx = context.resources.getDimensionPixelSize(R.dimen.po_cornerRadius).toFloat(),
         borderWidthPx = 0,
@@ -72,9 +80,11 @@ internal class ExposedDropdownInput(
 
         style?.normal?.field?.let {
             defaultBackground = outlineBackground(context, it)
+            defaultControlsTintColor = it.controlsTintColor
         }
         style?.error?.field?.let {
             errorBackground = outlineBackground(context, it)
+            errorControlsTintColor = it.controlsTintColor
         }
         val dropdownBackground = dropdownMenuStyle?.let {
             outlineBackground(context, it)
@@ -152,6 +162,7 @@ internal class ExposedDropdownInput(
                 style?.normal?.let { applyStateStyle(it) }
                 dropdownAutoComplete.isEnabled = state.editable
                 dropdownLayout.background = defaultBackground
+                dropdownLayout.setEndIconTintList(ColorStateList.valueOf(defaultControlsTintColor))
                 errorMessage.text = String()
                 errorMessage.visibility = View.INVISIBLE
             }
@@ -159,6 +170,7 @@ internal class ExposedDropdownInput(
                 style?.error?.let { applyStateStyle(it) }
                 dropdownAutoComplete.isEnabled = true
                 dropdownLayout.background = errorBackground
+                dropdownLayout.setEndIconTintList(ColorStateList.valueOf(errorControlsTintColor))
                 errorMessage.text = state.message
                 errorMessage.visibility = View.VISIBLE
             }

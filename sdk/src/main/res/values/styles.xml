@@ -92,7 +92,7 @@
         <item name="boxCornerRadiusBottomStart">@dimen/po_cornerRadius</item>
         <item name="boxCornerRadiusBottomEnd">@dimen/po_cornerRadius</item>
         <item name="endIconDrawable">@drawable/po_dropdown_icon_states</item>
-        <item name="endIconTint">@color/poIconPrimary</item>
+        <item name="endIconTint">@color/poTextPrimary</item>
     </style>
 
     <style name="Widget.ProcessOut.ExposedDropdown.Item" parent="Widget.MaterialComponents.TextView">
