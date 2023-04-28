@@ -17,10 +17,12 @@ import com.processout.sdk.R
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterValue
 import com.processout.sdk.ui.nativeapm.applyStyle
 import com.processout.sdk.ui.shared.model.InputParameter
+import com.processout.sdk.ui.shared.style.POBorderStyle
 import com.processout.sdk.ui.shared.style.input.POInputFieldStyle
 import com.processout.sdk.ui.shared.style.input.POInputStateStyle
 import com.processout.sdk.ui.shared.style.input.POInputStyle
 import com.processout.sdk.ui.shared.view.extensions.defaultOutlineBackground
+import com.processout.sdk.ui.shared.view.extensions.dpToPx
 import com.processout.sdk.ui.shared.view.extensions.hideKeyboard
 import com.processout.sdk.ui.shared.view.extensions.outlineBackground
 import com.processout.sdk.ui.shared.view.input.Input
@@ -182,5 +184,12 @@ internal class ExposedDropdownInput(
         title.applyStyle(stateStyle.title)
         dropdownAutoComplete.applyStyle(stateStyle.field.text)
         errorMessage.applyStyle(stateStyle.description)
+        applyRippleStyle(stateStyle.field.border)
+    }
+
+    private fun applyRippleStyle(borderStyle: POBorderStyle) {
+        borderStyle.radiusDp.dpToPx(context).toFloat().let {
+            dropdownLayout.setBoxCornerRadii(it, it, it, it)
+        }
     }
 }
