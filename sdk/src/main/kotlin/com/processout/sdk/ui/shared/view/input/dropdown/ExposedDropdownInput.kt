@@ -56,10 +56,10 @@ internal class ExposedDropdownInput(
     private var errorControlsTintColor = ContextCompat.getColor(context, R.color.poTextError)
 
     private var defaultDropdownBackground = outlineBackground(
-        cornerRadiusPx = context.resources.getDimensionPixelSize(R.dimen.po_cornerRadius).toFloat(),
+        cornerRadiusPx = resources.getDimensionPixelSize(R.dimen.po_cornerRadius).toFloat(),
         borderWidthPx = 0,
         borderColor = Color.TRANSPARENT,
-        backgroundColor = ContextCompat.getColor(context, R.color.poBackgroundPrimary)
+        backgroundColor = ContextCompat.getColor(context, R.color.poBackgroundGreyLight)
     )
 
     private var adapter: ParameterValueAdapter? = null
@@ -92,6 +92,9 @@ internal class ExposedDropdownInput(
             outlineBackground(context, it)
         } ?: defaultDropdownBackground
         dropdownAutoComplete.setDropDownBackgroundDrawable(dropdownBackground)
+        dropdownAutoComplete.dropDownVerticalOffset = resources.getDimensionPixelSize(
+            R.dimen.po_dropdown_menu_offsetVertical
+        )
 
         setListeners()
         initWithInputParameters()
