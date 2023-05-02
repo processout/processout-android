@@ -6,7 +6,6 @@
     <string name="po_native_apm_submit_button_text_format">Zapłać %s</string>
     <string name="po_native_apm_submit_button_default_text">Zapłać</string>
     <string name="po_native_apm_cancel_button_default_text">Anuluj</string>
-    <string name="po_native_apm_awaiting_capture_message">Aby dokończyć transakcję zatwierdź ją w aplikacji swojego banku.</string>
     <string name="po_native_apm_success_message">Sukces!\nPłatność przyjęta</string>
     <string name="po_native_apm_input_hint_phone">Twój numer telefonu</string>
     <string name="po_native_apm_input_hint_email">imię@przykład.pl</string>

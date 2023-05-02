@@ -520,10 +520,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
             inputParameters = parameters?.toInputParameters() ?: emptyList(),
             successMessage = options.successMessage
                 ?: app.getString(R.string.po_native_apm_success_message),
-            customerActionMessage = gateway.customerActionMessage?.let {
-                // TODO: Delete this when backend localisation is done.
-                app.getString(R.string.po_native_apm_awaiting_capture_message)
-            },
+            customerActionMessage = gateway.customerActionMessage,
             customerActionImageUrl = gateway.customerActionImageUrl,
             primaryActionText = options.primaryActionText ?: invoice.formatPrimaryActionText(),
             secondaryActionText = getSecondaryActionText(),
