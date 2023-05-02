@@ -84,4 +84,10 @@ dependencies {
     testImplementation "androidx.test:core-ktx:$androidTestCoreKtxVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidTestJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidTestEspressoVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-web:$androidTestEspressoVersion"
+    androidTestImplementation "androidx.test:rules:$androidTestRulesVersion"
+
+    // Legacy
+    androidTestImplementation "com.android.volley:volley:$volleyVersion"
+    androidTestImplementation "com.google.code.gson:gson:$gsonVersion"
 }

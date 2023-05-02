@@ -116,8 +116,6 @@ dependencies {
     testImplementation "androidx.test:core-ktx:$androidTestCoreKtxVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidTestJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidTestEspressoVersion"
-    androidTestImplementation "androidx.test.espresso:espresso-web:$androidTestEspressoVersion"
-    androidTestImplementation "androidx.test:rules:$androidTestRulesVersion"
 
     // Legacy
     implementation "com.android.volley:volley:$volleyVersion"

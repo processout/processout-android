@@ -1,6 +1,13 @@
 package com.processout.processout_sdk;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
 import android.net.Uri;
+
+import androidx.test.core.app.ApplicationProvider;
 
 import com.android.volley.Request;
 import com.google.gson.Gson;
@@ -13,20 +20,13 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
-import androidx.test.core.app.ApplicationProvider;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
-
-
+@SuppressWarnings("removal")
 public class ProcessOutTest {
 
-    private String projectId = "test-proj_gAO1Uu0ysZJvDuUpOGPkUBeE3pGalk3x";
-    private String privateKey = "key_sandbox_mah31RDFqcDxmaS7MvhDbJfDJvjtsFTB";
-    final private ProcessOut p = new ProcessOut(ApplicationProvider.getApplicationContext(), projectId);
-    private Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+    private final String projectId = "test-proj_2hO7lwt5vf3FjBFB37glPzMG3Y8Lq8O8";
+    private final String privateKey = "key_test_R56fdFWMpcAzt5Cenn3oK4emCowFe4l4";
+    private final ProcessOut p = new ProcessOut(ApplicationProvider.getApplicationContext(), projectId);
+    private final Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 
     @Test
     public void tokenize() {
@@ -69,9 +69,8 @@ public class ProcessOutTest {
 
                 @Override
                 public void onSuccess(JSONObject json) {
-                    Invoice invoiceResult = null;
                     try {
-                        invoiceResult = gson.fromJson(json.getJSONObject("invoice").toString(), Invoice.class);
+                        Invoice invoiceResult = gson.fromJson(json.getJSONObject("invoice").toString(), Invoice.class);
                     } catch (JSONException e) {
                         fail("Unhandled exception");
                         e.printStackTrace();
