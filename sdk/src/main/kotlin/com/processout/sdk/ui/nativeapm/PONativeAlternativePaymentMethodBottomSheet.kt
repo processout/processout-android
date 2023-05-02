@@ -45,6 +45,7 @@ import com.processout.sdk.ui.shared.view.extensions.*
 import com.processout.sdk.ui.shared.view.input.Input
 import com.processout.sdk.ui.shared.view.input.InputComponent
 import com.processout.sdk.ui.shared.view.input.code.CodeInput
+import com.processout.sdk.ui.shared.view.input.dropdown.ExposedDropdownInput
 import com.processout.sdk.ui.shared.view.input.text.TextInput
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -385,21 +386,14 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         } ?: addInputComponent(inputParameter)
 
     private fun addInputComponent(inputParameter: InputParameter): InputComponent {
-        val length = inputParameter.parameter.length
-        val input = if (inputParameter.parameter.type == ParameterType.numeric &&
-            length != null && length in CodeInput.LENGTH_MIN..CodeInput.LENGTH_MAX
-        ) {
-            CodeInput(
-                requireContext(),
-                inputParameter = inputParameter,
-                style = configuration?.style?.codeInput
-            )
-        } else {
-            TextInput(
-                requireContext(),
-                inputParameter = inputParameter,
-                style = configuration?.style?.input
-            )
+        val input = when (inputParameter.type()) {
+            ParameterType.NUMERIC -> inputParameter.parameter.length.let { length ->
+                if (length != null && length in CodeInput.LENGTH_MIN..CodeInput.LENGTH_MAX)
+                    createCodeInput(inputParameter)
+                else createTextInput(inputParameter)
+            }
+            ParameterType.SINGLE_SELECT -> createExposedDropdownInput(inputParameter)
+            else -> createTextInput(inputParameter)
         }
 
         input.doAfterValueChanged { value ->
@@ -419,12 +413,34 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         return input
     }
 
+    private fun createTextInput(inputParameter: InputParameter) =
+        TextInput(
+            requireContext(),
+            inputParameter = inputParameter,
+            style = configuration?.style?.input
+        )
+
+    private fun createCodeInput(inputParameter: InputParameter) =
+        CodeInput(
+            requireContext(),
+            inputParameter = inputParameter,
+            style = configuration?.style?.codeInput
+        )
+
+    private fun createExposedDropdownInput(inputParameter: InputParameter) =
+        ExposedDropdownInput(
+            requireContext(),
+            inputParameter = inputParameter,
+            style = configuration?.style?.input,
+            dropdownMenuStyle = configuration?.style?.dropdownMenu
+        )
+
     private fun resolveInputFocus(focusedInputId: Int) {
         binding.poInputsContainer.children.forEachIndexed { index, view ->
             with(view as InputComponent) {
                 if ((focusedInputId == View.NO_ID && index == 0) ||
                     view.id == focusedInputId
-                ) requestFocusAndShowKeyboard()
+                ) gainFocus()
             }
         }
     }

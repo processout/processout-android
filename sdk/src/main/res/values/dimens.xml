@@ -15,6 +15,9 @@
     <dimen name="po_input_paddingVertical">14dp</dimen>
     <dimen name="po_input_paddingHorizontal">12dp</dimen>
 
+    <dimen name="po_dropdown_menu_offsetVertical">1dp</dimen>
+    <dimen name="po_dropdown_item_paddingVertical">16dp</dimen>
+
     <dimen name="po_codeEditText_width">48dp</dimen>
     <dimen name="po_codeEditText_height">48dp</dimen>
     <dimen name="po_codeEditText_space">8dp</dimen>

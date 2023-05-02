@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:layout_height="wrap_content"
+    tools:layout_width="match_parent"
+    tools:orientation="vertical"
+    tools:parentTag="android.widget.LinearLayout"
+    tools:viewBindingIgnore="true">
+
+    <TextView
+        android:id="@+id/po_title"
+        style="@style/Widget.ProcessOut.Input.Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/po_input_marginVertical"
+        android:layout_marginBottom="@dimen/po_input_marginVertical"
+        android:gravity="center"
+        tools:text="Title" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/po_dropdown_layout"
+        style="@style/Widget.ProcessOut.ExposedDropdown.TextInputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal">
+
+        <com.google.android.material.textfield.MaterialAutoCompleteTextView
+            android:id="@+id/po_dropdown_auto_complete"
+            style="@style/Widget.ProcessOut.EditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:completionThreshold="1"
+            android:imeOptions="actionNone"
+            android:inputType="none" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/po_error_message"
+        style="@style/Widget.ProcessOut.Input.ErrorMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/po_input_marginVertical"
+        android:gravity="center"
+        android:visibility="invisible"
+        tools:text="Error message"
+        tools:visibility="visible" />
+
+</merge>

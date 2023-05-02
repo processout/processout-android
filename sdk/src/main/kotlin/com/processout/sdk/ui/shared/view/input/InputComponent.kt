@@ -7,7 +7,7 @@ internal interface InputComponent : Input {
     val inputParameter: InputParameter?
 
     fun doAfterValueChanged(action: (value: String) -> Unit)
-    fun onKeyboardSubmitClick(action: () -> Unit)
+    fun onKeyboardSubmitClick(action: () -> Unit) {}
     fun onFocused(action: (id: Int) -> Unit)
-    fun requestFocusAndShowKeyboard()
+    fun gainFocus()
 }

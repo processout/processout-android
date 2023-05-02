@@ -22,6 +22,8 @@ import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodDefaultValuesRequest
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.*
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType.*
 import com.processout.sdk.api.service.InvoicesService
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
@@ -98,10 +100,18 @@ internal class PONativeAlternativePaymentMethodViewModel(
             )
             when (result) {
                 is ProcessOutResult.Success -> {
-                    if (result.value.parameters.isNullOrEmpty()) {
-                        handleInputParametersFailure()
+                    val parameters = result.value.parameters
+                    if (parameters.isNullOrEmpty()) {
+                        _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
+                            ProcessOutResult.Failure(
+                                POFailure.Code.Internal(),
+                                "Input field parameters is missing in response."
+                            )
+                        )
                         return@launch
                     }
+                    if (handleInvalidInputParameters(parameters)) return@launch
+
                     val uiModel = result.value.toUiModel()
                     if (options.waitsPaymentConfirmation) {
                         preloadAllImages(coroutineScope = this, uiModel)
@@ -109,7 +119,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                     _uiState.value = PONativeAlternativePaymentMethodUiState.Loaded(uiModel)
 
                     if (eventDispatcher.subscribedForDefaultValuesRequest())
-                        requestDefaultValues(result.value.parameters)
+                        requestDefaultValues(parameters)
                     else startUserInput(uiModel)
                 }
                 is ProcessOutResult.Failure ->
@@ -123,13 +133,19 @@ internal class PONativeAlternativePaymentMethodViewModel(
         dispatch(DidStart)
     }
 
-    private fun handleInputParametersFailure() {
-        _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
-            ProcessOutResult.Failure(
-                POFailure.Code.Internal(),
-                "Input field parameters is missing in response."
+    private fun handleInvalidInputParameters(
+        parameters: List<PONativeAlternativePaymentMethodParameter>
+    ): Boolean {
+        parameters.find { it.type() == UNKNOWN }?.let {
+            _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
+                ProcessOutResult.Failure(
+                    POFailure.Code.Internal(),
+                    "Unknown input field type: ${it.rawType}"
+                )
             )
-        )
+            return true
+        }
+        return false
     }
 
     private fun requestDefaultValues(parameters: List<PONativeAlternativePaymentMethodParameter>) {
@@ -243,16 +259,13 @@ internal class PONativeAlternativePaymentMethodViewModel(
             }
         }
 
-        when (parameter.type) {
-            PONativeAlternativePaymentMethodParameter.ParameterType.numeric ->
-                if (value.isDigitsOnly().not())
-                    return invalidField(R.string.po_native_apm_error_invalid_number)
-            PONativeAlternativePaymentMethodParameter.ParameterType.email ->
-                if (Patterns.EMAIL_ADDRESS.matcher(value).matches().not())
-                    return invalidField(R.string.po_native_apm_error_invalid_email)
-            PONativeAlternativePaymentMethodParameter.ParameterType.phone ->
-                if (Patterns.PHONE.matcher(value).matches().not())
-                    return invalidField(R.string.po_native_apm_error_invalid_phone)
+        when (parameter.type()) {
+            NUMERIC -> if (value.isDigitsOnly().not())
+                return invalidField(R.string.po_native_apm_error_invalid_number)
+            EMAIL -> if (Patterns.EMAIL_ADDRESS.matcher(value).matches().not())
+                return invalidField(R.string.po_native_apm_error_invalid_email)
+            PHONE -> if (Patterns.PHONE.matcher(value).matches().not())
+                return invalidField(R.string.po_native_apm_error_invalid_phone)
             else -> {}
         }
         return null
@@ -287,8 +300,19 @@ internal class PONativeAlternativePaymentMethodViewModel(
         uiModel: PONativeAlternativePaymentMethodUiModel
     ) {
         when (success.value.state) {
-            PONativeAlternativePaymentMethodState.CUSTOMER_INPUT ->
-                handleCustomerInput(success.value.parameterDefinitions, uiModel)
+            PONativeAlternativePaymentMethodState.CUSTOMER_INPUT -> {
+                val parameters = success.value.parameterDefinitions
+                if (parameters.isNullOrEmpty()) {
+                    _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
+                        ProcessOutResult.Failure(
+                            POFailure.Code.Internal(),
+                            "Input field parameters is missing in response."
+                        )
+                    )
+                    return
+                }
+                handleCustomerInput(parameters, uiModel)
+            }
             PONativeAlternativePaymentMethodState.PENDING_CAPTURE ->
                 handlePendingCapture(uiModel)
             PONativeAlternativePaymentMethodState.CAPTURED ->
@@ -297,13 +321,10 @@ internal class PONativeAlternativePaymentMethodViewModel(
     }
 
     private fun handleCustomerInput(
-        parameters: List<PONativeAlternativePaymentMethodParameter>?,
+        parameters: List<PONativeAlternativePaymentMethodParameter>,
         uiModel: PONativeAlternativePaymentMethodUiModel
     ) {
-        if (parameters.isNullOrEmpty()) {
-            handleInputParametersFailure()
-            return
-        }
+        if (handleInvalidInputParameters(parameters)) return
         val updatedUiModel = uiModel.copy(
             inputParameters = parameters.toInputParameters(),
             focusedInputId = View.NO_ID
@@ -364,7 +385,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 inputParameter.copy(
                     state = Input.State.Error(
                         resolveInputErrorMessage(
-                            replaceToLocalMessage, inputParameter.parameter.type, it.message
+                            replaceToLocalMessage, inputParameter.type(), it.message
                         )
                     )
                 )
@@ -382,18 +403,15 @@ internal class PONativeAlternativePaymentMethodViewModel(
     // TODO: Delete this when backend localisation is done.
     private fun resolveInputErrorMessage(
         replaceToLocalMessage: Boolean,
-        type: PONativeAlternativePaymentMethodParameter.ParameterType,
+        type: ParameterType,
         originalMessage: String?
     ) = if (replaceToLocalMessage)
         when (type) {
-            PONativeAlternativePaymentMethodParameter.ParameterType.numeric ->
-                app.getString(R.string.po_native_apm_error_invalid_number)
-            PONativeAlternativePaymentMethodParameter.ParameterType.text ->
-                app.getString(R.string.po_native_apm_error_invalid_text)
-            PONativeAlternativePaymentMethodParameter.ParameterType.email ->
-                app.getString(R.string.po_native_apm_error_invalid_email)
-            PONativeAlternativePaymentMethodParameter.ParameterType.phone ->
-                app.getString(R.string.po_native_apm_error_invalid_phone)
+            NUMERIC -> app.getString(R.string.po_native_apm_error_invalid_number)
+            TEXT -> app.getString(R.string.po_native_apm_error_invalid_text)
+            EMAIL -> app.getString(R.string.po_native_apm_error_invalid_email)
+            PHONE -> app.getString(R.string.po_native_apm_error_invalid_phone)
+            else -> null
         }
     else originalMessage
 
@@ -513,30 +531,47 @@ internal class PONativeAlternativePaymentMethodViewModel(
         )
 
     private fun List<PONativeAlternativePaymentMethodParameter>.toInputParameters() =
-        map {
+        map { parameter ->
             InputParameter(
-                parameter = it,
-                hint = getInputHint(it.type)
+                parameter = parameter,
+                value = parameter.availableValues?.find { it.default == true }?.value ?: String(),
+                hint = getInputHint(parameter.type())
             )
-        }.let { inputParameters ->
-            inputParameters.mapIndexed { index, inputParameter ->
-                if (index == inputParameters.lastIndex) {
-                    inputParameter.copy(
-                        keyboardAction = InputParameter.KeyboardAction(
-                            imeOptions = EditorInfo.IME_ACTION_DONE
-                        )
+        }.let { resolveInputsKeyboardAction(it) }
+
+    private fun resolveInputsKeyboardAction(inputParameters: List<InputParameter>) =
+        inputParameters.mapIndexed { index, inputParameter ->
+            if (isInputKeyboardActionSupported(inputParameter.type())) {
+                val nextIndex = nextFocusableInputIndex(index, inputParameters)
+                inputParameter.copy(
+                    keyboardAction = InputParameter.KeyboardAction(
+                        imeOptions = if (nextIndex != -1)
+                            EditorInfo.IME_ACTION_NEXT
+                        else EditorInfo.IME_ACTION_DONE,
+                        nextFocusForwardId = inputParameters.getOrNull(nextIndex)
+                            ?.focusableViewId ?: View.NO_ID
                     )
-                } else {
-                    inputParameter.copy(
-                        keyboardAction = InputParameter.KeyboardAction(
-                            imeOptions = EditorInfo.IME_ACTION_NEXT,
-                            nextFocusForwardId = inputParameters.getOrNull(index + 1)
-                                ?.focusableViewId ?: View.NO_ID
-                        )
-                    )
-                }
-            }
+                )
+            } else inputParameter.copy()
         }
+
+    private fun isInputKeyboardActionSupported(type: ParameterType) =
+        when (type) {
+            SINGLE_SELECT,
+            UNKNOWN -> false
+            else -> true
+        }
+
+    private fun nextFocusableInputIndex(
+        currentIndex: Int,
+        inputParameters: List<InputParameter>
+    ): Int {
+        for (index in currentIndex + 1..inputParameters.lastIndex) {
+            if (isInputKeyboardActionSupported(inputParameters[index].type()))
+                return index else continue
+        }
+        return -1
+    }
 
     private fun PONativeAlternativePaymentMethodTransactionDetails.Invoice.formatPrimaryActionText() =
         try {
@@ -557,12 +592,10 @@ internal class PONativeAlternativePaymentMethodViewModel(
         }
     }
 
-    private fun getInputHint(type: PONativeAlternativePaymentMethodParameter.ParameterType) =
+    private fun getInputHint(type: ParameterType) =
         when (type) {
-            PONativeAlternativePaymentMethodParameter.ParameterType.phone ->
-                app.getString(R.string.po_native_apm_input_hint_phone)
-            PONativeAlternativePaymentMethodParameter.ParameterType.email ->
-                app.getString(R.string.po_native_apm_input_hint_email)
+            PHONE -> app.getString(R.string.po_native_apm_input_hint_phone)
+            EMAIL -> app.getString(R.string.po_native_apm_input_hint_email)
             else -> null
         }
 }

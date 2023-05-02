@@ -132,6 +132,7 @@ internal class CodeInput(
         when (state) {
             is Input.State.Default -> {
                 style?.normal?.let { applyStateStyle(it) }
+                errorMessage.text = String()
                 errorMessage.visibility = View.INVISIBLE
             }
             is Input.State.Error -> {
@@ -229,10 +230,10 @@ internal class CodeInput(
             focusIndex < 0 -> focusIndex = 0
             focusIndex >= editTexts.size -> focusIndex = editTexts.size - 1
         }
-        requestFocusAndShowKeyboard()
+        gainFocus()
     }
 
-    override fun requestFocusAndShowKeyboard() {
+    override fun gainFocus() {
         if (editTexts[focusIndex].isFocused.not()) {
             editTexts[focusIndex].requestFocusAndShowKeyboard()
         }

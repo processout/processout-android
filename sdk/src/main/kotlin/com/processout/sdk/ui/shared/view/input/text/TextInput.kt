@@ -153,7 +153,7 @@ internal class TextInput(
             else source
         }
 
-    override fun requestFocusAndShowKeyboard() {
+    override fun gainFocus() {
         if (editText.isFocused.not()) {
             editText.requestFocusAndShowKeyboard()
         }
@@ -174,6 +174,7 @@ internal class TextInput(
                     defaultControlsTintColor, HIGHLIGHT_COLOR_ALPHA
                 )
                 editText.applyControlsTintColor(defaultControlsTintColor)
+                errorMessage.text = String()
                 errorMessage.visibility = View.INVISIBLE
             }
             is Input.State.Error -> {

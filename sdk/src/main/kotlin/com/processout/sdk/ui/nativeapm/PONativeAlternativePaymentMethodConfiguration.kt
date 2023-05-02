@@ -6,6 +6,7 @@ import androidx.annotation.DrawableRes
 import com.processout.sdk.ui.shared.style.POTextStyle
 import com.processout.sdk.ui.shared.style.background.POBackgroundDecorationStyle
 import com.processout.sdk.ui.shared.style.button.POButtonStyle
+import com.processout.sdk.ui.shared.style.input.POInputFieldStyle
 import com.processout.sdk.ui.shared.style.input.POInputStyle
 import kotlinx.parcelize.Parcelize
 
@@ -52,6 +53,7 @@ data class PONativeAlternativePaymentMethodConfiguration(
         val title: POTextStyle? = null,
         val input: POInputStyle? = null,
         val codeInput: POInputStyle? = null,
+        val dropdownMenu: POInputFieldStyle? = null,
         val primaryButton: POButtonStyle? = null,
         val secondaryButton: POButtonStyle? = null,
         @ColorInt

@@ -82,4 +82,30 @@
         <item name="android:elevation">0dp</item>
     </style>
 
+    <style name="Widget.ProcessOut.ExposedDropdown.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+        <item name="hintEnabled">false</item>
+        <item name="errorEnabled">false</item>
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="boxStrokeWidthFocused">0dp</item>
+        <item name="boxCornerRadiusTopStart">@dimen/po_cornerRadius</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/po_cornerRadius</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/po_cornerRadius</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/po_cornerRadius</item>
+        <item name="endIconDrawable">@drawable/po_dropdown_icon_states</item>
+        <item name="endIconTint">@color/poTextPrimary</item>
+    </style>
+
+    <style name="Widget.ProcessOut.ExposedDropdown.Item" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textColor">@color/poTextPrimary</item>
+        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Input.String</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:paddingLeft">@dimen/po_input_paddingHorizontal</item>
+        <item name="android:paddingRight">@dimen/po_input_paddingHorizontal</item>
+        <item name="android:paddingStart">@dimen/po_input_paddingHorizontal</item>
+        <item name="android:paddingEnd">@dimen/po_input_paddingHorizontal</item>
+        <item name="android:paddingTop">@dimen/po_dropdown_item_paddingVertical</item>
+        <item name="android:paddingBottom">@dimen/po_dropdown_item_paddingVertical</item>
+    </style>
+
 </resources>

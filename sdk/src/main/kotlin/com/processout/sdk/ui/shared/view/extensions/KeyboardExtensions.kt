@@ -15,8 +15,9 @@ internal fun View.requestFocusAndShowKeyboard() {
             // Post to the message queue to handle case when the window focus changed
             // but InputMethodManager is not ready yet.
             post {
-                val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.showSoftInput(this, SHOW_IMPLICIT)
+                with(context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager) {
+                    showSoftInput(this@showKeyboard, SHOW_IMPLICIT)
+                }
             }
         }
     }
@@ -34,5 +35,11 @@ internal fun View.requestFocusAndShowKeyboard() {
                     }
                 }
             })
+    }
+}
+
+internal fun View.hideKeyboard() {
+    with(context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager) {
+        hideSoftInputFromWindow(windowToken, 0)
     }
 }
