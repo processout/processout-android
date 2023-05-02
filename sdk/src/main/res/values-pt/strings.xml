@@ -6,7 +6,6 @@
     <string name="po_native_apm_submit_button_text_format">Pagar %s</string>
     <string name="po_native_apm_submit_button_default_text">Pagar</string>
     <string name="po_native_apm_cancel_button_default_text">Cancelar</string>
-    <string name="po_native_apm_awaiting_capture_message">Para completar o pagamento, por favor confirme-o na aplicação bancária.</string>
     <string name="po_native_apm_success_message">Successo!\nPagamento aprovado</string>
     <string name="po_native_apm_input_hint_phone">Insira o seu número de telemóvel</string>
     <string name="po_native_apm_input_hint_email">nome@exemplo.pt</string>
