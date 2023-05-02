@@ -243,9 +243,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
 
     private fun InputParameter.validate(): POFailure.InvalidField? {
         val value = plainValue()
-        if (parameter.required.not())
-            return null
-        else if (value.isBlank())
+        if (parameter.required && value.isBlank())
             return invalidField(R.string.po_native_apm_error_required_parameter)
 
         parameter.length?.let {
