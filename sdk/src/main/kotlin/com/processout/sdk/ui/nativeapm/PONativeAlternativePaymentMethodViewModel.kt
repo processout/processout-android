@@ -123,7 +123,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                     else startUserInput(uiModel)
                 }
                 is ProcessOutResult.Failure ->
-                    _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(result)
+                    _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(result.copy())
             }
         }
     }
@@ -375,7 +375,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
         replaceToLocalMessage: Boolean // TODO: Delete this when backend localisation is done.
     ) {
         if (failure.invalidFields.isNullOrEmpty()) {
-            _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(failure)
+            _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(failure.copy())
             return
         }
         val updatedInputParameters = uiModel.inputParameters.map { inputParameter ->
@@ -448,7 +448,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                         handleCaptured(uiModel)
                     }
                 is ProcessOutResult.Failure ->
-                    _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(result)
+                    _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(result.copy())
             }
         }
     }
