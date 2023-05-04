@@ -1,6 +1,6 @@
 package com.processout.sdk
 
-import com.processout.sdk.api.ProcessOutApi
+import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.response.POCustomerAction
 import com.processout.sdk.api.repository.CardsRepository
@@ -32,8 +32,8 @@ class InvoicesRepositoryTests {
 
     @Before
     fun setUp() {
-        invoices = ProcessOutApi.instance.apiGraph.repositoryGraph.invoicesRepository
-        cards = ProcessOutApi.instance.cards
+        invoices = ProcessOut.instance.apiGraph.repositoryGraph.invoicesRepository
+        cards = ProcessOut.instance.cards
     }
 
     @Test

@@ -1,6 +1,6 @@
 package com.processout.sdk
 
-import com.processout.sdk.api.ProcessOutApi
+import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POAllGatewayConfigurationsRequest
 import com.processout.sdk.api.model.request.POGatewayConfigurationRequest
 import com.processout.sdk.api.repository.GatewayConfigurationsRepository
@@ -27,7 +27,7 @@ class GatewayConfigurationsRepositoryTests {
 
     @Before
     fun setUp() {
-        gatewayConfigurations = ProcessOutApi.instance.gatewayConfigurations
+        gatewayConfigurations = ProcessOut.instance.gatewayConfigurations
     }
 
     @Test

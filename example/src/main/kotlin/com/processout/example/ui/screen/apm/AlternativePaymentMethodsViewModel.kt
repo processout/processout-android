@@ -3,7 +3,7 @@ package com.processout.example.ui.screen.apm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.processout.sdk.api.ProcessOutApi
+import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POAllGatewayConfigurationsRequest
 import com.processout.sdk.api.model.response.POAllGatewayConfigurations
 import com.processout.sdk.api.repository.GatewayConfigurationsRepository
@@ -25,7 +25,7 @@ class AlternativePaymentMethodsViewModel(
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
             AlternativePaymentMethodsViewModel(
                 filter,
-                ProcessOutApi.instance.gatewayConfigurations
+                ProcessOut.instance.gatewayConfigurations
             ) as T
     }
 

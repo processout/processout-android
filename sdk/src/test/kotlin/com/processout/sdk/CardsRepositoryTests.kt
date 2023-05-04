@@ -1,6 +1,6 @@
 package com.processout.sdk
 
-import com.processout.sdk.api.ProcessOutApi
+import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POCardTokenizationRequest
 import com.processout.sdk.api.model.request.POCardUpdateCVCRequest
 import com.processout.sdk.api.repository.CardsRepository
@@ -28,7 +28,7 @@ class CardsRepositoryTests {
 
     @Before
     fun setUp() {
-        cards = ProcessOutApi.instance.cards
+        cards = ProcessOut.instance.cards
     }
 
     @Test

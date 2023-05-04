@@ -2,7 +2,6 @@
 
 package com.processout.sdk.api
 
-import com.processout.processout_sdk.ProcessOut
 import com.processout.processout_sdk.ProcessOutAccessor
 import com.processout.sdk.BuildConfig
 import com.processout.sdk.api.dispatcher.NativeAlternativePaymentMethodEventDispatcher
@@ -17,7 +16,7 @@ import com.processout.sdk.api.service.InvoicesService
 import com.processout.sdk.core.exception.ProcessOutException
 import com.processout.sdk.di.*
 
-class ProcessOutApi private constructor(
+class ProcessOut private constructor(
     internal val apiGraph: ApiGraph
 ) {
 
@@ -46,10 +45,10 @@ class ProcessOutApi private constructor(
         const val NAME = BuildConfig.LIBRARY_NAME
         const val VERSION = BuildConfig.LIBRARY_VERSION
 
-        lateinit var instance: ProcessOutApi
+        lateinit var instance: ProcessOut
             private set
 
-        lateinit var legacyInstance: ProcessOut
+        lateinit var legacyInstance: com.processout.processout_sdk.ProcessOut
             private set
 
         fun configure(configuration: ProcessOutApiConfiguration) {
@@ -87,7 +86,7 @@ class ProcessOutApi private constructor(
             )
 
             apiGraph.let {
-                instance = lazy { ProcessOutApi(it) }.value
+                instance = lazy { ProcessOut(it) }.value
             }
 
             legacyInstance = lazy {

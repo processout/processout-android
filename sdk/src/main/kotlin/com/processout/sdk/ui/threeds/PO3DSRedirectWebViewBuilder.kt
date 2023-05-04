@@ -3,7 +3,7 @@ package com.processout.sdk.ui.threeds
 import android.app.Activity
 import android.net.Uri
 import android.webkit.WebView
-import com.processout.sdk.api.ProcessOutApi
+import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.threeds.PO3DSRedirect
 import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.core.ProcessOutResult
@@ -29,7 +29,7 @@ class PO3DSRedirectWebViewBuilder(
         activity,
         ProcessOutWebView.Configuration(
             returnUris = listOf(Uri.parse(ApiConstants.CHECKOUT_URL)),
-            sdkVersion = ProcessOutApi.VERSION,
+            sdkVersion = ProcessOut.VERSION,
             timeoutSeconds = redirect?.timeoutSeconds
         ),
         delegate

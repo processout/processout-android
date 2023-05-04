@@ -15,7 +15,7 @@ import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.request.ImageResult
 import com.processout.sdk.R
-import com.processout.sdk.api.ProcessOutApi
+import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.dispatcher.NativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.*
@@ -53,7 +53,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            with(ProcessOutApi.instance) {
+            with(ProcessOut.instance) {
                 PONativeAlternativePaymentMethodViewModel(
                     app,
                     gatewayConfigurationId,

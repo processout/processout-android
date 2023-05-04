@@ -1,7 +1,7 @@
 package com.processout.sdk
 
 import android.net.Uri
-import com.processout.sdk.api.ProcessOutApi
+import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.service.AlternativePaymentMethodsService
@@ -28,7 +28,7 @@ class AlternativePaymentMethodsServiceTests {
 
     @Before
     fun setUp() {
-        apmService = ProcessOutApi.instance.alternativePaymentMethods
+        apmService = ProcessOut.instance.alternativePaymentMethods
     }
 
     @Test
