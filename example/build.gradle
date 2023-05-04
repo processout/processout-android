@@ -31,7 +31,7 @@ android {
 
     flavorDimensions 'environment'
     productFlavors {
-        prod {
+        production {
             dimension 'environment'
         }
         staging {

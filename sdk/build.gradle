@@ -31,7 +31,7 @@ android {
 
     flavorDimensions 'environment'
     productFlavors {
-        prod {
+        production {
             dimension 'environment'
         }
         staging {
@@ -65,7 +65,7 @@ android {
     }
 
     publishing {
-        singleVariant("prodRelease") {
+        singleVariant("productionRelease") {
             withSourcesJar()
             withJavadocJar()
         }
@@ -124,13 +124,13 @@ dependencies {
 
 publishing {
     publications {
-        prodRelease(MavenPublication) {
+        productionRelease(MavenPublication) {
             groupId = 'com.github.processout'
             artifactId = 'processout-android'
             version = file('../version.resolved').getText()
 
             afterEvaluate {
-                from components.prodRelease
+                from components.productionRelease
             }
         }
     }
