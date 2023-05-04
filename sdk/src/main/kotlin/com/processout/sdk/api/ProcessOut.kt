@@ -51,6 +51,13 @@ class ProcessOut private constructor(
         lateinit var legacyInstance: com.processout.processout_sdk.ProcessOut
             private set
 
+        /**
+         * Entry point to ProcessOut SDK.
+         * Configures singleton instances accessible by [ProcessOut.instance] and [ProcessOut.legacyInstance].
+         * Method must be called only once and will throw [ProcessOutException] on subsequent calls.
+         *
+         * @throws ProcessOutException Thrown on subsequent calls indicating that ProcessOut SDK is already configured.
+         */
         fun configure(configuration: ProcessOutConfiguration) {
             if (::instance.isInitialized)
                 throw ProcessOutException("Already configured.")
