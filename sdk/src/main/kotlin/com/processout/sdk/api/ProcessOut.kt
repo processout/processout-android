@@ -51,7 +51,7 @@ class ProcessOut private constructor(
         lateinit var legacyInstance: com.processout.processout_sdk.ProcessOut
             private set
 
-        fun configure(configuration: ProcessOutApiConfiguration) {
+        fun configure(configuration: ProcessOutConfiguration) {
             if (::instance.isInitialized)
                 throw ProcessOutException("Already configured.")
 
