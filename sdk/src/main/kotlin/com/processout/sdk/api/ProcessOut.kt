@@ -85,9 +85,7 @@ class ProcessOut private constructor(
                 dispatcherGraph = DispatcherGraphImpl()
             )
 
-            apiGraph.let {
-                instance = lazy { ProcessOut(it) }.value
-            }
+            instance = lazy { ProcessOut(apiGraph) }.value
 
             legacyInstance = lazy {
                 ProcessOutAccessor.initLegacyProcessOut(
