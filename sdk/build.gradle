@@ -79,10 +79,12 @@ def setBuildConfig(buildType) {
 }
 
 dokkaHtml {
-    def version = file('../version.resolved').getText()
-    outputDirectory.set(file("dokka/ProcessOut_Android-SDK-${version}_Documentation"))
     dokkaSourceSets {
-        configureEach {
+        named("main") {
+            def version = file('../version.resolved').getText()
+            outputDirectory.set(file("dokka/ProcessOut_Android_SDK_${version}_Documentation"))
+            moduleName.set("ProcessOut Android SDK")
+            moduleVersion.set(version)
             includes.from("dokka/ProcessOut.md")
         }
     }

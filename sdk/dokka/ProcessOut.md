@@ -1,4 +1,4 @@
-# Module sdk
+# Module ProcessOut Android SDK
 
 ## Initialization
 ```
