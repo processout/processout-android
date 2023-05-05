@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POAllGatewayConfigurationsRequest
 import com.processout.sdk.api.model.response.POAllGatewayConfigurations
-import com.processout.sdk.api.repository.GatewayConfigurationsRepository
+import com.processout.sdk.api.repository.POGatewayConfigurationsRepository
 import com.processout.sdk.core.handleSuccess
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 
 class AlternativePaymentMethodsViewModel(
     private val filter: POAllGatewayConfigurationsRequest.Filter,
-    private val gatewayConfigurations: GatewayConfigurationsRepository
+    private val gatewayConfigurations: POGatewayConfigurationsRepository
 ) : ViewModel() {
 
     class Factory(

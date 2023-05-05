@@ -5,7 +5,7 @@ import com.processout.sdk.api.model.request.POAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.core.ProcessOutResult
 
-interface AlternativePaymentMethodsService {
+interface POAlternativePaymentMethodsService {
 
     fun alternativePaymentMethodUri(request: POAlternativePaymentMethodRequest): ProcessOutResult<Uri>
 

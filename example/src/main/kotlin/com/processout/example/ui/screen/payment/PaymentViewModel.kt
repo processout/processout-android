@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POCreateInvoiceRequest
-import com.processout.sdk.api.service.InvoicesService
+import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.handleSuccess
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -14,7 +14,7 @@ import java.util.*
 
 class PaymentViewModel(
     private val gatewayConfigurationId: String,
-    private val invoices: InvoicesService
+    private val invoices: POInvoicesService
 ) : ViewModel() {
 
     class Factory(

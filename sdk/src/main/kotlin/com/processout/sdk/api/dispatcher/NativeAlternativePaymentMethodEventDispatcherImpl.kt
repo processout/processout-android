@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
 internal object NativeAlternativePaymentMethodEventDispatcherImpl
-    : NativeAlternativePaymentMethodEventDispatcher() {
+    : PONativeAlternativePaymentMethodEventDispatcher() {
 
     private val _events = MutableSharedFlow<PONativeAlternativePaymentMethodEvent>()
     override val events = _events.asSharedFlow()

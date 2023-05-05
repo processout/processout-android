@@ -4,7 +4,7 @@ import android.net.Uri
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
-import com.processout.sdk.api.service.AlternativePaymentMethodsService
+import com.processout.sdk.api.service.POAlternativePaymentMethodsService
 import com.processout.sdk.config.SetupRule
 import com.processout.sdk.config.TestApplication
 import com.processout.sdk.config.assertFailure
@@ -24,7 +24,7 @@ class AlternativePaymentMethodsServiceTests {
     @JvmField
     val setupRule = SetupRule()
 
-    private lateinit var apmService: AlternativePaymentMethodsService
+    private lateinit var apmService: POAlternativePaymentMethodsService
 
     @Before
     fun setUp() {

@@ -3,7 +3,7 @@ package com.processout.sdk
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.response.POCustomerAction
-import com.processout.sdk.api.repository.CardsRepository
+import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.api.repository.InvoicesRepository
 import com.processout.sdk.config.SetupRule
 import com.processout.sdk.config.TestApplication
@@ -28,7 +28,7 @@ class InvoicesRepositoryTests {
     val setupRule = SetupRule()
 
     private lateinit var invoices: InvoicesRepository
-    private lateinit var cards: CardsRepository
+    private lateinit var cards: POCardsRepository
 
     @Before
     fun setUp() {

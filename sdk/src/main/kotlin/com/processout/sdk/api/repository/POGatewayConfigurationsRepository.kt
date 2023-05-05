@@ -7,7 +7,7 @@ import com.processout.sdk.api.model.response.POGatewayConfiguration
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.ProcessOutResult
 
-interface GatewayConfigurationsRepository {
+interface POGatewayConfigurationsRepository {
 
     suspend fun fetch(request: POAllGatewayConfigurationsRequest): ProcessOutResult<POAllGatewayConfigurations>
     fun fetch(

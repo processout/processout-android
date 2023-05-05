@@ -16,7 +16,7 @@ internal class CardsRepositoryImpl(
     moshi: Moshi,
     private val api: CardsApi,
     private val contextGraph: ContextGraph
-) : BaseRepository(moshi), CardsRepository {
+) : BaseRepository(moshi), POCardsRepository {
 
     override suspend fun tokenize(request: POCardTokenizationRequest) =
         apiCall {

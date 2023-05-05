@@ -4,15 +4,15 @@ package com.processout.sdk.api
 
 import com.processout.processout_sdk.ProcessOutAccessor
 import com.processout.sdk.BuildConfig
-import com.processout.sdk.api.dispatcher.NativeAlternativePaymentMethodEventDispatcher
+import com.processout.sdk.api.dispatcher.PONativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.api.network.NetworkConfiguration
-import com.processout.sdk.api.repository.CardsRepository
-import com.processout.sdk.api.repository.GatewayConfigurationsRepository
+import com.processout.sdk.api.repository.POCardsRepository
+import com.processout.sdk.api.repository.POGatewayConfigurationsRepository
 import com.processout.sdk.api.service.AlternativePaymentMethodsConfiguration
-import com.processout.sdk.api.service.AlternativePaymentMethodsService
-import com.processout.sdk.api.service.CustomerTokensService
-import com.processout.sdk.api.service.InvoicesService
+import com.processout.sdk.api.service.POAlternativePaymentMethodsService
+import com.processout.sdk.api.service.POCustomerTokensService
+import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.exception.ProcessOutException
 import com.processout.sdk.di.*
 
@@ -20,12 +20,12 @@ class ProcessOut private constructor(
     internal val apiGraph: ApiGraph
 ) {
 
-    val gatewayConfigurations: GatewayConfigurationsRepository
-    val cards: CardsRepository
-    val invoices: InvoicesService
-    val customerTokens: CustomerTokensService
-    val alternativePaymentMethods: AlternativePaymentMethodsService
-    val nativeAlternativePaymentMethodEventDispatcher: NativeAlternativePaymentMethodEventDispatcher
+    val gatewayConfigurations: POGatewayConfigurationsRepository
+    val cards: POCardsRepository
+    val invoices: POInvoicesService
+    val customerTokens: POCustomerTokensService
+    val alternativePaymentMethods: POAlternativePaymentMethodsService
+    val nativeAlternativePaymentMethodEventDispatcher: PONativeAlternativePaymentMethodEventDispatcher
 
     init {
         with(apiGraph.repositoryGraph) {

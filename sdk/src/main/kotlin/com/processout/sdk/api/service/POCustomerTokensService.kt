@@ -7,7 +7,7 @@ import com.processout.sdk.api.model.response.POCustomerToken
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 
-interface CustomerTokensService {
+interface POCustomerTokensService {
 
     fun assignCustomerToken(
         request: POAssignCustomerTokenRequest,

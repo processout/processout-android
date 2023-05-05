@@ -3,9 +3,9 @@ package com.processout.sdk.di
 import com.processout.sdk.api.repository.*
 
 internal interface RepositoryGraph {
-    val gatewayConfigurationsRepository: GatewayConfigurationsRepository
+    val gatewayConfigurationsRepository: POGatewayConfigurationsRepository
     val invoicesRepository: InvoicesRepository
-    val cardsRepository: CardsRepository
+    val cardsRepository: POCardsRepository
     val customerTokensRepository: CustomerTokensRepository
 }
 
@@ -14,13 +14,13 @@ internal class RepositoryGraphImpl(
     contextGraph: ContextGraph
 ) : RepositoryGraph {
 
-    override val gatewayConfigurationsRepository: GatewayConfigurationsRepository =
+    override val gatewayConfigurationsRepository: POGatewayConfigurationsRepository =
         GatewayConfigurationsRepositoryImpl(networkGraph.moshi, networkGraph.gatewayConfigurationsApi)
 
     override val invoicesRepository: InvoicesRepository =
         InvoicesRepositoryImpl(networkGraph.moshi, networkGraph.invoicesApi, contextGraph)
 
-    override val cardsRepository: CardsRepository =
+    override val cardsRepository: POCardsRepository =
         CardsRepositoryImpl(networkGraph.moshi, networkGraph.cardsApi, contextGraph)
 
     override val customerTokensRepository: CustomerTokensRepository =

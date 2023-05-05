@@ -5,7 +5,7 @@ import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodDefa
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodDefaultValuesResponse
 import kotlinx.coroutines.flow.SharedFlow
 
-abstract class NativeAlternativePaymentMethodEventDispatcher {
+abstract class PONativeAlternativePaymentMethodEventDispatcher {
 
     abstract val events: SharedFlow<PONativeAlternativePaymentMethodEvent>
 
