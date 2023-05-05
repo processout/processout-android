@@ -85,7 +85,11 @@ dokkaHtml {
             outputDirectory.set(file("dokka/ProcessOut_Android_SDK_${version}_Documentation"))
             moduleName.set("ProcessOut Android SDK")
             moduleVersion.set(version)
-            includes.from("dokka/ProcessOut.md")
+            includes.from(
+                    "dokka/Initialization.md",
+                    "dokka/ApiExamples.md",
+                    "dokka/NativeAlternativePaymentMethods.md"
+            )
         }
     }
 }
