@@ -30,8 +30,8 @@ ProcessOut.instance.gatewayConfigurations.fetch(
         }
 
         override fun onFailure(
-            message: String,
             code: POFailure.Code,
+            message: String?,
             invalidFields: List<POFailure.InvalidField>?,
             cause: Exception?
         ) {

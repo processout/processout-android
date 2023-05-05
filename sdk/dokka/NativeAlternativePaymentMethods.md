@@ -90,11 +90,11 @@ when (result) {
             is POFailure.Code.Validation -> code.validationCode // TODO()
             is POFailure.Code.NotFound -> code.notFoundCode // TODO()
             is POFailure.Code.Generic -> code.genericCode // TODO()
+            is POFailure.Code.Timeout -> code.timeoutCode // TODO()
+            is POFailure.Code.Internal -> code.internalCode // TODO()
+            is POFailure.Code.Unknown -> code.rawValue // TODO()
             POFailure.Code.NetworkUnreachable -> TODO()
-            POFailure.Code.Timeout -> TODO()
             POFailure.Code.Cancelled -> TODO()
-            POFailure.Code.Internal -> TODO()
-            POFailure.Code.Unknown -> TODO()
         }
     }
 }
@@ -136,7 +136,7 @@ viewModelScope.launch {
             // Populate default values map based on request parameters.
             // It's not mandatory to provide defaults for all parameters.
             request.parameters.find {
-                it.type == ParameterType.phone
+                it.type() == ParameterType.PHONE
             }?.also {
                 defaultValues[it.key] = "+111122223333"
             }
