@@ -1,6 +1,6 @@
 # Module ProcessOut Android SDK
 
-## API Examples
+## API Usage Examples
 
 ### List available native APMs
 ```

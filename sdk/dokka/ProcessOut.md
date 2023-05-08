@@ -2,7 +2,9 @@
 
 ### [Initialization](Initialization.md)
 
-### [API Examples](ApiExamples.md)
+### [API Usage Examples](ApiExamples.md)
+
+### [Getting Started With 3DS](3DS.md)
 
 ### [Native Alternative Payment Methods](NativeAlternativePaymentMethods.md)
 
