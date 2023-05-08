@@ -6,7 +6,7 @@ import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.ProcessOutResult
 
-interface CardsRepository {
+interface POCardsRepository {
 
     suspend fun tokenize(request: POCardTokenizationRequest): ProcessOutResult<POCard>
     fun tokenize(

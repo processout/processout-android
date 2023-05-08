@@ -1,15 +1,15 @@
 package com.processout.example
 
 import android.app.Application
-import com.processout.sdk.api.ProcessOutApi
-import com.processout.sdk.api.ProcessOutApiConfiguration
+import com.processout.sdk.api.ProcessOut
+import com.processout.sdk.api.ProcessOutConfiguration
 
 class ProcessOutExampleApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        ProcessOutApi.configure(
-            ProcessOutApiConfiguration(
+        ProcessOut.configure(
+            ProcessOutConfiguration(
                 this,
                 "proj_"
             )

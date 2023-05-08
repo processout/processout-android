@@ -31,7 +31,7 @@ android {
 
     flavorDimensions 'environment'
     productFlavors {
-        prod {
+        production {
             dimension 'environment'
         }
         staging {
@@ -45,11 +45,11 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = '11'
+        jvmTarget = '17'
         freeCompilerArgs += '-opt-in=com.processout.sdk.core.annotation.ProcessOutInternalApi'
     }
 
@@ -84,4 +84,10 @@ dependencies {
     testImplementation "androidx.test:core-ktx:$androidTestCoreKtxVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidTestJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidTestEspressoVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-web:$androidTestEspressoVersion"
+    androidTestImplementation "androidx.test:rules:$androidTestRulesVersion"
+
+    // Legacy
+    androidTestImplementation "com.android.volley:volley:$volleyVersion"
+    androidTestImplementation "com.google.code.gson:gson:$gsonVersion"
 }

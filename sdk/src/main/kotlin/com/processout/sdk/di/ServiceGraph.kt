@@ -6,9 +6,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 
 internal interface ServiceGraph {
-    val invoicesService: InvoicesService
-    val customerTokensService: CustomerTokensService
-    val alternativePaymentMethodsService: AlternativePaymentMethodsService
+    val invoicesService: POInvoicesService
+    val customerTokensService: POCustomerTokensService
+    val alternativePaymentMethodsService: POAlternativePaymentMethodsService
 }
 
 internal class ServiceGraphImpl(
@@ -22,20 +22,20 @@ internal class ServiceGraphImpl(
 
     private val threeDSService: ThreeDSService = ThreeDSServiceImpl(networkGraph.moshi)
 
-    override val invoicesService: InvoicesService =
+    override val invoicesService: POInvoicesService =
         InvoicesServiceImpl(
             mainCoroutineScope,
             repositoryGraph.invoicesRepository,
             threeDSService
         )
 
-    override val customerTokensService: CustomerTokensService =
+    override val customerTokensService: POCustomerTokensService =
         CustomerTokensServiceImpl(
             mainCoroutineScope,
             repositoryGraph.customerTokensRepository,
             threeDSService
         )
 
-    override val alternativePaymentMethodsService: AlternativePaymentMethodsService =
+    override val alternativePaymentMethodsService: POAlternativePaymentMethodsService =
         AlternativePaymentMethodsServiceImpl(configuration)
 }

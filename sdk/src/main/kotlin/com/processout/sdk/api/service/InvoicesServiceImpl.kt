@@ -18,7 +18,7 @@ internal class InvoicesServiceImpl(
     private val scope: CoroutineScope,
     private val repository: InvoicesRepository,
     private val threeDSService: ThreeDSService
-) : InvoicesService {
+) : POInvoicesService {
 
     override fun authorizeInvoice(
         request: POInvoiceAuthorizationRequest,

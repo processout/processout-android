@@ -1,13 +1,20 @@
 package com.processout.processout_sdk;
 
+import static org.junit.Assert.fail;
+
 import android.app.Activity;
 import android.os.Handler;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import androidx.test.filters.LargeTest;
+import androidx.test.rule.ActivityTestRule;
+import androidx.test.runner.AndroidJUnit4;
+
 import com.android.volley.Request;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.processout.example.ui.screen.TestActivity;
 import com.processout.processout_sdk.POWebViews.ProcessOutWebView;
 
 import org.json.JSONException;
@@ -19,24 +26,19 @@ import org.junit.runner.RunWith;
 import java.util.Calendar;
 import java.util.concurrent.CountDownLatch;
 
-import androidx.test.filters.LargeTest;
-import androidx.test.rule.ActivityTestRule;
-import androidx.test.runner.AndroidJUnit4;
-
-import static org.junit.Assert.fail;
-
 /**
  * Instrumented test, which will execute on an Android device.
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
+@SuppressWarnings({"removal", "NewClassNamingConvention"})
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class UITestSuite {
+public class UiTestSuite {
 
-    private static final String projectId = "test-proj_gAO1Uu0ysZJvDuUpOGPkUBeE3pGalk3x";
-    private static final String privateKey = "key_sandbox_mah31RDFqcDxmaS7MvhDbJfDJvjtsFTB";
-    private Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+    private static final String projectId = "test-proj_2hO7lwt5vf3FjBFB37glPzMG3Y8Lq8O8";
+    private static final String privateKey = "key_test_R56fdFWMpcAzt5Cenn3oK4emCowFe4l4";
+    private final Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 
     private static final int cardExpirationYear;
     private static final int cardExpirationMonth;
@@ -55,7 +57,6 @@ public class UITestSuite {
     /**
      * TEST MAKE CARD PAYMENT
      */
-
     @Test
     public void testSuccessful3DSPayment() {
         final CountDownLatch signal = new CountDownLatch(1);
@@ -412,8 +413,6 @@ public class UITestSuite {
     /**
      * TEST MAKE CARD TOKEN
      */
-
-
     @Test
     public void testSuccessful3DS2Token() {
         final CountDownLatch signal = new CountDownLatch(1);
@@ -737,7 +736,7 @@ public class UITestSuite {
 
                             @Override
                             public void onSuccess(String invoiceId) {
-                                if(invoiceId.length() != INVOICE_ID_LENGTH) {
+                                if (invoiceId.length() != INVOICE_ID_LENGTH) {
                                     fail("Authorization did not return a valid invoice id");
                                 } else {
                                     signal.countDown();
@@ -825,7 +824,7 @@ public class UITestSuite {
 
                             @Override
                             public void onSuccess(String invoiceId) {
-                                if(invoiceId.length() != INVOICE_ID_LENGTH) {
+                                if (invoiceId.length() != INVOICE_ID_LENGTH) {
                                     fail("Authorization did not return a valid invoice id");
                                 } else {
                                     p.incrementAuthorizationAmount(finalInvoiceResult.getId(), 1, new ThreeDSHandler() {

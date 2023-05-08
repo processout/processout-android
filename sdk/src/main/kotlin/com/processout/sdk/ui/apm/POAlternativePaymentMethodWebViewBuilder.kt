@@ -3,7 +3,7 @@ package com.processout.sdk.ui.apm
 import android.app.Activity
 import android.net.Uri
 import android.webkit.WebView
-import com.processout.sdk.api.ProcessOutApi
+import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.network.ApiConstants
@@ -23,7 +23,7 @@ class POAlternativePaymentMethodWebViewBuilder(
     ) = apply {
         this.request = request
         this.delegate = AlternativePaymentMethodWebViewDelegate(
-            ProcessOutApi.instance.alternativePaymentMethods,
+            ProcessOut.instance.alternativePaymentMethods,
             request, callback
         )
     }
@@ -32,7 +32,7 @@ class POAlternativePaymentMethodWebViewBuilder(
         activity,
         ProcessOutWebView.Configuration(
             returnUris = listOf(Uri.parse(ApiConstants.CHECKOUT_URL)),
-            sdkVersion = ProcessOutApi.VERSION,
+            sdkVersion = ProcessOut.VERSION,
             timeoutSeconds = null
         ),
         delegate

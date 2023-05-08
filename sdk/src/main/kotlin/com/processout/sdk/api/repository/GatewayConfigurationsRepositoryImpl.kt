@@ -13,7 +13,7 @@ import com.squareup.moshi.Moshi
 internal class GatewayConfigurationsRepositoryImpl(
     moshi: Moshi,
     private val api: GatewayConfigurationsApi
-) : BaseRepository(moshi), GatewayConfigurationsRepository {
+) : BaseRepository(moshi), POGatewayConfigurationsRepository {
 
     override suspend fun fetch(request: POAllGatewayConfigurationsRequest) =
         apiCall { api.fetch(request.toQuery()) }

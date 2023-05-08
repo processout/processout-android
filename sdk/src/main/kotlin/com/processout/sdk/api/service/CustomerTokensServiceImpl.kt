@@ -15,7 +15,7 @@ internal class CustomerTokensServiceImpl(
     private val scope: CoroutineScope,
     private val repository: CustomerTokensRepository,
     private val threeDSService: ThreeDSService
-) : CustomerTokensService {
+) : POCustomerTokensService {
 
     override fun assignCustomerToken(
         request: POAssignCustomerTokenRequest,

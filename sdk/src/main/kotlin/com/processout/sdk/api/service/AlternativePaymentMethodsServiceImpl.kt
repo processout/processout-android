@@ -11,7 +11,7 @@ import com.processout.sdk.utils.findBy
 
 internal class AlternativePaymentMethodsServiceImpl(
     private val configuration: AlternativePaymentMethodsConfiguration
-) : AlternativePaymentMethodsService {
+) : POAlternativePaymentMethodsService {
 
     override fun alternativePaymentMethodUri(request: POAlternativePaymentMethodRequest): ProcessOutResult<Uri> {
         var pathComponents = arrayListOf(

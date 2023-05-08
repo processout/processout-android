@@ -7,11 +7,8 @@
         <activity
             android:name=".ui.nativeapm.PONativeAlternativePaymentMethodActivity"
             android:exported="false"
+            android:launchMode="singleTop"
             android:theme="@style/Theme.ProcessOut.Default" />
-
-        <activity
-            android:name="com.processout.processout_sdk.TestActivity"
-            android:exported="false" />
     </application>
 
 </manifest>

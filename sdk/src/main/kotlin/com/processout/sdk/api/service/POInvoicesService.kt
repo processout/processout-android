@@ -11,7 +11,7 @@ import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 
-interface InvoicesService {
+interface POInvoicesService {
 
     fun authorizeInvoice(
         request: POInvoiceAuthorizationRequest,

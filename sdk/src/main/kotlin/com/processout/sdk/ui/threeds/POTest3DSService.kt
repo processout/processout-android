@@ -4,7 +4,7 @@ import android.app.Activity
 import android.webkit.WebView
 import android.widget.FrameLayout
 import androidx.appcompat.app.AlertDialog
-import com.processout.sdk.api.ProcessOutApi
+import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.threeds.PO3DS2AuthenticationRequest
 import com.processout.sdk.api.model.threeds.PO3DS2Challenge
 import com.processout.sdk.api.model.threeds.PO3DS2Configuration
@@ -35,7 +35,7 @@ class POTest3DSService(activity: Activity) : PO3DSService {
 
     override fun handle(challenge: PO3DS2Challenge, callback: (ProcessOutResult<Boolean>) -> Unit) {
         with(dialogBuilder) {
-            setTitle(ProcessOutApi.NAME)
+            setTitle(ProcessOut.NAME)
             setMessage("Validate mobile 3DS2 challenge?")
             setPositiveButton("Yes") { dialog, _ ->
                 dialog.dismiss()

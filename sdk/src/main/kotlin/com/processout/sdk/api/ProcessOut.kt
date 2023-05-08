@@ -2,31 +2,30 @@
 
 package com.processout.sdk.api
 
-import com.processout.processout_sdk.ProcessOut
 import com.processout.processout_sdk.ProcessOutAccessor
 import com.processout.sdk.BuildConfig
-import com.processout.sdk.api.dispatcher.NativeAlternativePaymentMethodEventDispatcher
+import com.processout.sdk.api.dispatcher.PONativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.api.network.NetworkConfiguration
-import com.processout.sdk.api.repository.CardsRepository
-import com.processout.sdk.api.repository.GatewayConfigurationsRepository
+import com.processout.sdk.api.repository.POCardsRepository
+import com.processout.sdk.api.repository.POGatewayConfigurationsRepository
 import com.processout.sdk.api.service.AlternativePaymentMethodsConfiguration
-import com.processout.sdk.api.service.AlternativePaymentMethodsService
-import com.processout.sdk.api.service.CustomerTokensService
-import com.processout.sdk.api.service.InvoicesService
+import com.processout.sdk.api.service.POAlternativePaymentMethodsService
+import com.processout.sdk.api.service.POCustomerTokensService
+import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.exception.ProcessOutException
 import com.processout.sdk.di.*
 
-class ProcessOutApi private constructor(
+class ProcessOut private constructor(
     internal val apiGraph: ApiGraph
 ) {
 
-    val gatewayConfigurations: GatewayConfigurationsRepository
-    val cards: CardsRepository
-    val invoices: InvoicesService
-    val customerTokens: CustomerTokensService
-    val alternativePaymentMethods: AlternativePaymentMethodsService
-    val nativeAlternativePaymentMethodEventDispatcher: NativeAlternativePaymentMethodEventDispatcher
+    val gatewayConfigurations: POGatewayConfigurationsRepository
+    val cards: POCardsRepository
+    val invoices: POInvoicesService
+    val customerTokens: POCustomerTokensService
+    val alternativePaymentMethods: POAlternativePaymentMethodsService
+    val nativeAlternativePaymentMethodEventDispatcher: PONativeAlternativePaymentMethodEventDispatcher
 
     init {
         with(apiGraph.repositoryGraph) {
@@ -46,13 +45,20 @@ class ProcessOutApi private constructor(
         const val NAME = BuildConfig.LIBRARY_NAME
         const val VERSION = BuildConfig.LIBRARY_VERSION
 
-        lateinit var instance: ProcessOutApi
+        lateinit var instance: ProcessOut
             private set
 
-        lateinit var legacyInstance: ProcessOut
+        lateinit var legacyInstance: com.processout.processout_sdk.ProcessOut
             private set
 
-        fun configure(configuration: ProcessOutApiConfiguration) {
+        /**
+         * Entry point to ProcessOut SDK.
+         * Configures singleton instances accessible by [ProcessOut.instance] and [ProcessOut.legacyInstance].
+         * Method must be called only once and will throw [ProcessOutException] on subsequent calls.
+         *
+         * @throws ProcessOutException Thrown on subsequent calls indicating that ProcessOut SDK is already configured.
+         */
+        fun configure(configuration: ProcessOutConfiguration) {
             if (::instance.isInitialized)
                 throw ProcessOutException("Already configured.")
 
@@ -86,9 +92,7 @@ class ProcessOutApi private constructor(
                 dispatcherGraph = DispatcherGraphImpl()
             )
 
-            apiGraph.let {
-                instance = lazy { ProcessOutApi(it) }.value
-            }
+            instance = lazy { ProcessOut(apiGraph) }.value
 
             legacyInstance = lazy {
                 ProcessOutAccessor.initLegacyProcessOut(

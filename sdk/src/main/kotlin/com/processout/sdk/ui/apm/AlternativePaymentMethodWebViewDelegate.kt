@@ -3,12 +3,12 @@ package com.processout.sdk.ui.apm
 import android.net.Uri
 import com.processout.sdk.api.model.request.POAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
-import com.processout.sdk.api.service.AlternativePaymentMethodsService
+import com.processout.sdk.api.service.POAlternativePaymentMethodsService
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.web.WebViewDelegate
 
 internal class AlternativePaymentMethodWebViewDelegate(
-    private val service: AlternativePaymentMethodsService,
+    private val service: POAlternativePaymentMethodsService,
     private val request: POAlternativePaymentMethodRequest,
     private val callback: ((ProcessOutResult<POAlternativePaymentMethodResponse>) -> Unit)
 ) : WebViewDelegate {

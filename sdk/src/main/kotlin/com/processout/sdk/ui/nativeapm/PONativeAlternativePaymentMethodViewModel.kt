@@ -15,8 +15,8 @@ import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.request.ImageResult
 import com.processout.sdk.R
-import com.processout.sdk.api.ProcessOutApi
-import com.processout.sdk.api.dispatcher.NativeAlternativePaymentMethodEventDispatcher
+import com.processout.sdk.api.ProcessOut
+import com.processout.sdk.api.dispatcher.PONativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.*
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodDefaultValuesRequest
@@ -24,7 +24,7 @@ import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequ
 import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType.*
-import com.processout.sdk.api.service.InvoicesService
+import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options.Companion.MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
@@ -41,8 +41,8 @@ internal class PONativeAlternativePaymentMethodViewModel(
     private val gatewayConfigurationId: String,
     private val invoiceId: String,
     val options: PONativeAlternativePaymentMethodConfiguration.Options,
-    private val invoicesService: InvoicesService,
-    private val eventDispatcher: NativeAlternativePaymentMethodEventDispatcher
+    private val invoicesService: POInvoicesService,
+    private val eventDispatcher: PONativeAlternativePaymentMethodEventDispatcher
 ) : AndroidViewModel(app) {
 
     internal class Factory(
@@ -53,7 +53,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            with(ProcessOutApi.instance) {
+            with(ProcessOut.instance) {
                 PONativeAlternativePaymentMethodViewModel(
                     app,
                     gatewayConfigurationId,
@@ -123,7 +123,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                     else startUserInput(uiModel)
                 }
                 is ProcessOutResult.Failure ->
-                    _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(result)
+                    _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(result.copy())
             }
         }
     }
@@ -243,9 +243,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
 
     private fun InputParameter.validate(): POFailure.InvalidField? {
         val value = plainValue()
-        if (parameter.required.not())
-            return null
-        else if (value.isBlank())
+        if (parameter.required && value.isBlank())
             return invalidField(R.string.po_native_apm_error_required_parameter)
 
         parameter.length?.let {
@@ -377,7 +375,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
         replaceToLocalMessage: Boolean // TODO: Delete this when backend localisation is done.
     ) {
         if (failure.invalidFields.isNullOrEmpty()) {
-            _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(failure)
+            _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(failure.copy())
             return
         }
         val updatedInputParameters = uiModel.inputParameters.map { inputParameter ->
@@ -450,7 +448,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                         handleCaptured(uiModel)
                     }
                 is ProcessOutResult.Failure ->
-                    _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(result)
+                    _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(result.copy())
             }
         }
     }

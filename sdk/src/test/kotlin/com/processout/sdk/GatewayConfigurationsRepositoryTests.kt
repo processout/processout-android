@@ -1,9 +1,9 @@
 package com.processout.sdk
 
-import com.processout.sdk.api.ProcessOutApi
+import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POAllGatewayConfigurationsRequest
 import com.processout.sdk.api.model.request.POGatewayConfigurationRequest
-import com.processout.sdk.api.repository.GatewayConfigurationsRepository
+import com.processout.sdk.api.repository.POGatewayConfigurationsRepository
 import com.processout.sdk.config.SetupRule
 import com.processout.sdk.config.TestApplication
 import com.processout.sdk.config.assertFailure
@@ -23,11 +23,11 @@ class GatewayConfigurationsRepositoryTests {
     @JvmField
     val setupRule = SetupRule()
 
-    private lateinit var gatewayConfigurations: GatewayConfigurationsRepository
+    private lateinit var gatewayConfigurations: POGatewayConfigurationsRepository
 
     @Before
     fun setUp() {
-        gatewayConfigurations = ProcessOutApi.instance.gatewayConfigurations
+        gatewayConfigurations = ProcessOut.instance.gatewayConfigurations
     }
 
     @Test
