@@ -16,4 +16,4 @@ dependencyResolutionManagement {
 rootProject.name = "processout-android"
 include ':example'
 include ':sdk'
-include ':checkout-3ds'
+//include ':checkout-3ds'
