@@ -8,6 +8,10 @@ import com.processout.sdk.core.ProcessOutResult
 
 interface POCheckout3DSServiceDelegate {
 
+    /**
+     * Notifies delegate that service is about to fingerprint device.
+     * Implementation should create [ThreeDS2ServiceConfiguration] using [parameters] and return it.
+     */
     fun configuration(parameters: ConfigParameters): ThreeDS2ServiceConfiguration
 
     /**
@@ -19,6 +23,9 @@ interface POCheckout3DSServiceDelegate {
         callback: (Boolean) -> Unit
     ) = callback(true)
 
+    /**
+     * Asks delegate to handle 3DS redirect.
+     */
     fun handle(
         redirect: PO3DSRedirect,
         callback: (ProcessOutResult<String>) -> Unit
