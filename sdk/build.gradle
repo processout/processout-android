@@ -78,19 +78,18 @@ android {
     }
 }
 
+@SuppressWarnings('GrMethodMayBeStatic')
 def setBuildConfig(buildType) {
-    def version = file('../version.resolved').getText()
     buildType.buildConfigField("String", "LIBRARY_NAME", "\"ProcessOut Android SDK\"")
-    buildType.buildConfigField("String", "LIBRARY_VERSION", "\"$version\"")
+    buildType.buildConfigField("String", "LIBRARY_VERSION", "\"$publishVersion\"")
 }
 
 dokkaHtml {
     dokkaSourceSets {
         named("main") {
-            def version = file('../version.resolved').getText()
-            outputDirectory.set(file("dokka/ProcessOut_Android_SDK_${version}_Documentation"))
+            outputDirectory.set(file("dokka/ProcessOut_Android_SDK_${publishVersion}_Documentation"))
             moduleName.set("ProcessOut Android SDK")
-            moduleVersion.set(version)
+            moduleVersion.set(publishVersion)
             includes.from(
                     "dokka/Initialization.md",
                     "dokka/ApiExamples.md",

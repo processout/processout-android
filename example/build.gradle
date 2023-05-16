@@ -13,8 +13,8 @@ android {
         applicationId "com.processout.example"
         minSdk rootProject.ext.minSdkVersion
         targetSdk rootProject.ext.targetSdkVersion
-        versionCode file('../version.resolved').getText().replace(".", "").toInteger()
-        versionName file('../version.resolved').getText()
+        versionCode rootProject.ext.publishVersion.replace(".", "").toInteger()
+        versionName rootProject.ext.publishVersion
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

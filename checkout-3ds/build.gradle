@@ -60,10 +60,10 @@ android {
     }
 }
 
+@SuppressWarnings('GrMethodMayBeStatic')
 def setBuildConfig(buildType) {
-    def version = file('../version.resolved').getText()
     buildType.buildConfigField("String", "LIBRARY_NAME", "\"ProcessOut Android SDK - Checkout 3DS\"")
-    buildType.buildConfigField("String", "LIBRARY_VERSION", "\"$version\"")
+    buildType.buildConfigField("String", "LIBRARY_VERSION", "\"$publishVersion\"")
 }
 
 dependencies {
