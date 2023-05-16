@@ -21,14 +21,15 @@ jobs:
         run: |
           ./gradlew :sdk:assembleProductionRelease
           ./gradlew :checkout-3ds:assembleProductionRelease
+        env:
+          CI_GITHUB_USER: ${{ secrets.PO_GITHUB_USER }}
+          CI_GITHUB_TOKEN: ${{ secrets.PO_GITHUB_TOKEN }}
 
       - name: Publish
         run: |
           ./gradlew :sdk:publishProductionReleasePublicationToSonatypeRepository --max-workers 1
           ./gradlew :checkout-3ds:publishProductionReleasePublicationToSonatypeRepository --max-workers 1
         env:
-          CI_GITHUB_USER: ${{ secrets.PO_GITHUB_USER }}
-          CI_GITHUB_TOKEN: ${{ secrets.PO_GITHUB_TOKEN }}
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
           SONATYPE_STAGING_PROFILE_ID: ${{ secrets.SONATYPE_STAGING_PROFILE_ID }}
