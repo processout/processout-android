@@ -1,0 +1,45 @@
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+group = publishGroupId
+version = publishVersion
+
+afterEvaluate {
+    publishing {
+        publications {
+            productionRelease(MavenPublication) {
+                from components.productionRelease
+
+                groupId = publishGroupId
+                artifactId = publishArtifactId
+                version = publishVersion
+
+                pom {
+                    name = publishArtifactId
+                    description = publishDescription
+                    url = 'https://github.com/processout/processout-android'
+                    licenses {
+                        license {
+                            name = 'MIT License'
+                            url = 'https://github.com/processout/processout-android/blob/master/LICENSE'
+                        }
+                    }
+                    scm {
+                        connection = 'scm:git:github.com/processout/processout-android.git'
+                        developerConnection = 'scm:git:ssh://github.com/processout/processout-android.git'
+                        url = 'https://github.com/processout/processout-android/tree/master'
+                    }
+                }
+            }
+        }
+    }
+}
+
+signing {
+    useInMemoryPgpKeys(
+            rootProject.ext["signing.keyId"],
+            rootProject.ext["signing.key"],
+            rootProject.ext["signing.password"],
+    )
+    sign publishing.publications
+}

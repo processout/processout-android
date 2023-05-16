@@ -4,8 +4,14 @@ plugins {
     id 'org.jetbrains.dokka'
     id 'kotlin-parcelize'
     id 'com.google.devtools.ksp'
-    id 'maven-publish'
 }
+
+ext {
+    publishArtifactId = 'processout-android'
+    publishDescription = 'ProcessOut Android SDK'
+}
+
+apply from: "${rootProject.projectDir}/scripts/publish-module.gradle"
 
 android {
     namespace 'com.processout.sdk'
@@ -128,18 +134,4 @@ dependencies {
     // Legacy
     implementation "com.android.volley:volley:$volleyVersion"
     implementation "com.google.code.gson:gson:$gsonVersion"
-}
-
-publishing {
-    publications {
-        productionRelease(MavenPublication) {
-            groupId = 'com.github.processout'
-            artifactId = 'processout-android'
-            version = file('../version.resolved').getText()
-
-            afterEvaluate {
-                from components.productionRelease
-            }
-        }
-    }
 }

@@ -10,10 +10,16 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://jitpack.io' }
+        maven {
+            url = uri("https://maven.pkg.github.com/checkout/checkout-3ds-sdk-android")
+            credentials {
+                username = settings.ext.find('GITHUB_USER') ?: System.getenv('CI_GITHUB_USER')
+                password = settings.ext.find('GITHUB_TOKEN') ?: System.getenv('CI_GITHUB_TOKEN')
+            }
+        }
     }
 }
 rootProject.name = "processout-android"
 include ':example'
 include ':sdk'
-//include ':checkout-3ds'
+include ':checkout-3ds'
