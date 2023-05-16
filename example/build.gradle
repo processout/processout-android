@@ -13,8 +13,8 @@ android {
         applicationId "com.processout.example"
         minSdk rootProject.ext.minSdkVersion
         targetSdk rootProject.ext.targetSdkVersion
-        versionCode file('../version.resolved').getText().replace(".", "").toInteger()
-        versionName file('../version.resolved').getText()
+        versionCode rootProject.ext.publishVersion.replace(".", "").toInteger()
+        versionName rootProject.ext.publishVersion
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -63,7 +63,7 @@ android {
 
 dependencies {
     implementation project(path: ':sdk')
-//    implementation project(path: ':checkout-3ds')
+    implementation project(path: ':checkout-3ds')
 
     implementation "androidx.core:core-ktx:$androidxCoreVersion"
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"

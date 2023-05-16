@@ -1,9 +1,15 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
-    id 'com.google.devtools.ksp'
-    id 'maven-publish'
+    id 'org.jetbrains.dokka'
 }
+
+ext {
+    publishArtifactId = 'processout-android-checkout-3ds'
+    publishDescription = 'ProcessOut Android SDK - Checkout 3DS'
+}
+
+apply from: "${rootProject.projectDir}/scripts/publish-module.gradle"
 
 android {
     namespace 'com.processout.sdk.checkout.threeds'
@@ -45,12 +51,19 @@ android {
         jvmTarget = '17'
         freeCompilerArgs += '-opt-in=com.processout.sdk.core.annotation.ProcessOutInternalApi'
     }
+
+    publishing {
+        singleVariant("productionRelease") {
+            withSourcesJar()
+//            withJavadocJar() // FIXME: this fails build with error "PermittedSubclasses requires ASM9"
+        }
+    }
 }
 
+@SuppressWarnings('GrMethodMayBeStatic')
 def setBuildConfig(buildType) {
-    def version = file('../version.resolved').getText()
     buildType.buildConfigField("String", "LIBRARY_NAME", "\"ProcessOut Android SDK - Checkout 3DS\"")
-    buildType.buildConfigField("String", "LIBRARY_VERSION", "\"$version\"")
+    buildType.buildConfigField("String", "LIBRARY_VERSION", "\"$publishVersion\"")
 }
 
 dependencies {
