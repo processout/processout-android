@@ -45,7 +45,8 @@ data class PONativeAlternativePaymentMethodConfiguration(
     @Parcelize
     data class Cancellation(
         val dragDown: Boolean = true,
-        val touchOutside: Boolean = true
+        val touchOutside: Boolean = true,
+        val backPressed: Boolean = true
     ) : Parcelable
 
     @Parcelize
