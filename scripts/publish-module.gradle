@@ -24,6 +24,13 @@ afterEvaluate {
                             url = 'https://github.com/processout/processout-android/blob/master/LICENSE'
                         }
                     }
+                    developers {
+                        developer {
+                            id = rootProject.ext["developer.id"]
+                            name = rootProject.ext["developer.name"]
+                            email = rootProject.ext["developer.email"]
+                        }
+                    }
                     scm {
                         connection = 'scm:git:github.com/processout/processout-android.git'
                         developerConnection = 'scm:git:ssh://github.com/processout/processout-android.git'
@@ -38,8 +45,8 @@ afterEvaluate {
 signing {
     useInMemoryPgpKeys(
             rootProject.ext["signing.keyId"],
-            rootProject.ext["signing.key"],
             rootProject.ext["signing.password"],
+            rootProject.ext["signing.key"]
     )
     sign publishing.publications
 }
