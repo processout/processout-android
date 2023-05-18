@@ -626,12 +626,14 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
 
     private fun dispatchBackPressed() {
         bottomSheetDialog.onBackPressedDispatcher.addCallback(this) {
-            finishWithActivityResult(
-                PONativeAlternativePaymentMethodResult.Failure(
-                    POFailure.Code.Cancelled,
-                    "Cancelled by user with back press or gesture."
-                ), dispatchEvent = true
-            )
+            if (viewModel.options.cancellation.backPressed) {
+                finishWithActivityResult(
+                    PONativeAlternativePaymentMethodResult.Failure(
+                        POFailure.Code.Cancelled,
+                        "Cancelled by user with back press or gesture."
+                    ), dispatchEvent = true
+                )
+            }
         }
     }
 

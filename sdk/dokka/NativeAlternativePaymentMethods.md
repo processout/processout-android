@@ -65,7 +65,8 @@ launcher.launch(
             secondaryAction = SecondaryAction.Cancel("Go Back"),
             cancellation = Cancellation(
                 dragDown = true,
-                touchOutside = false
+                touchOutside = false,
+                backPressed = false
             ),
             successMessage = "Payment confirmed.\nThank you!",
             skipSuccessScreen = true, // Only applies when 'waitsPaymentConfirmation = true'
