@@ -71,7 +71,11 @@ launcher.launch(
             successMessage = "Payment confirmed.\nThank you!",
             skipSuccessScreen = true, // Only applies when 'waitsPaymentConfirmation = true'
             waitsPaymentConfirmation = true,
-            paymentConfirmationTimeoutSeconds = Options.MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
+            paymentConfirmationTimeoutSeconds = Options.MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS,
+            paymentConfirmationSecondaryAction = SecondaryAction.Cancel(
+                text = "Cancel",
+                disabledForSeconds = 30
+            )
         )
     )
 )

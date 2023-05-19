@@ -1,10 +1,13 @@
 package com.processout.sdk.ui.nativeapm
 
 import android.app.Application
+import android.os.Handler
+import android.os.Looper
 import android.util.Patterns
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.annotation.StringRes
+import androidx.core.os.postDelayed
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
@@ -29,12 +32,15 @@ import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options.Companion.MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
 import com.processout.sdk.ui.shared.model.InputParameter
+import com.processout.sdk.ui.shared.model.SecondaryActionUiModel
+import com.processout.sdk.ui.shared.view.button.POButton
 import com.processout.sdk.ui.shared.view.input.Input
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.text.NumberFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 internal class PONativeAlternativePaymentMethodViewModel(
     private val app: Application,
@@ -75,6 +81,8 @@ internal class PONativeAlternativePaymentMethodViewModel(
         private const val CAPTURE_POLLING_DELAY_MS = 3000L
     }
 
+    private var capturePollingStartTimestamp = 0L
+
     private val _uiState = MutableStateFlow<PONativeAlternativePaymentMethodUiState>(
         PONativeAlternativePaymentMethodUiState.Loading
     )
@@ -82,7 +90,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
 
     var animateViewTransition = true
 
-    private var capturePollingStartTimestamp = 0L
+    private val handler by lazy { Handler(Looper.getMainLooper()) }
 
     private val defaultValuesRequests = mutableSetOf<PONativeAlternativePaymentMethodDefaultValuesRequest>()
 
@@ -130,6 +138,9 @@ internal class PONativeAlternativePaymentMethodViewModel(
 
     private fun startUserInput(uiModel: PONativeAlternativePaymentMethodUiModel) {
         _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(uiModel.copy())
+        uiModel.secondaryAction?.let {
+            scheduleSecondaryActionEnabling(it) { enableSecondaryAction() }
+        }
         dispatch(DidStart)
     }
 
@@ -355,6 +366,11 @@ internal class PONativeAlternativePaymentMethodViewModel(
             )
             animateViewTransition = true
             _uiState.value = PONativeAlternativePaymentMethodUiState.Capture(uiModel.copy())
+
+            uiModel.paymentConfirmationSecondaryAction?.let {
+                scheduleSecondaryActionEnabling(it) { enablePaymentConfirmationSecondaryAction() }
+            }
+
             startCapturePolling()
             return
         }
@@ -521,7 +537,8 @@ internal class PONativeAlternativePaymentMethodViewModel(
             customerActionMessage = gateway.customerActionMessage,
             customerActionImageUrl = gateway.customerActionImageUrl,
             primaryActionText = options.primaryActionText ?: invoice.formatPrimaryActionText(),
-            secondaryActionText = getSecondaryActionText(),
+            secondaryAction = options.secondaryAction?.toUiModel(),
+            paymentConfirmationSecondaryAction = options.paymentConfirmationSecondaryAction?.toUiModel(),
             isSubmitting = false
         )
 
@@ -568,6 +585,13 @@ internal class PONativeAlternativePaymentMethodViewModel(
         return -1
     }
 
+    private fun getInputHint(type: ParameterType) =
+        when (type) {
+            PHONE -> app.getString(R.string.po_native_apm_input_hint_phone)
+            EMAIL -> app.getString(R.string.po_native_apm_input_hint_email)
+            else -> null
+        }
+
     private fun PONativeAlternativePaymentMethodTransactionDetails.Invoice.formatPrimaryActionText() =
         try {
             val price = NumberFormat.getCurrencyInstance().apply {
@@ -578,19 +602,50 @@ internal class PONativeAlternativePaymentMethodViewModel(
             app.getString(R.string.po_native_apm_submit_button_default_text)
         }
 
-    private fun getSecondaryActionText(): String {
-        val defaultText = app.getString(R.string.po_native_apm_cancel_button_default_text)
-        return when (val action = options.secondaryAction) {
+    private fun PONativeAlternativePaymentMethodConfiguration.SecondaryAction.toUiModel() =
+        when (this) {
             is PONativeAlternativePaymentMethodConfiguration.SecondaryAction.Cancel ->
-                action.text ?: defaultText
-            null -> defaultText
+                SecondaryActionUiModel.Cancel(
+                    text = text ?: app.getString(R.string.po_native_apm_cancel_button_default_text),
+                    state = if (disabledForSeconds == 0) POButton.State.ENABLED else POButton.State.DISABLED,
+                    disabledForMillis = TimeUnit.SECONDS.toMillis(disabledForSeconds.toLong())
+                )
+        }
+
+    private fun scheduleSecondaryActionEnabling(action: SecondaryActionUiModel, enable: () -> Unit) {
+        when (action) {
+            is SecondaryActionUiModel.Cancel -> if (action.state == POButton.State.DISABLED) {
+                handler.postDelayed(delayInMillis = action.disabledForMillis) { enable() }
+            }
         }
     }
 
-    private fun getInputHint(type: ParameterType) =
-        when (type) {
-            PHONE -> app.getString(R.string.po_native_apm_input_hint_phone)
-            EMAIL -> app.getString(R.string.po_native_apm_input_hint_email)
-            else -> null
+    private fun enableSecondaryAction() {
+        _uiState.value.doWhenUserInput { uiModel ->
+            _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(
+                uiModel.copy(
+                    secondaryAction = uiModel.secondaryAction?.copyWith(
+                        state = POButton.State.ENABLED
+                    )
+                )
+            )
         }
+    }
+
+    private fun enablePaymentConfirmationSecondaryAction() {
+        _uiState.value.doWhenCapture { uiModel ->
+            _uiState.value = PONativeAlternativePaymentMethodUiState.Capture(
+                uiModel.copy(
+                    paymentConfirmationSecondaryAction = uiModel.paymentConfirmationSecondaryAction?.copyWith(
+                        state = POButton.State.ENABLED
+                    )
+                )
+            )
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        handler.removeCallbacksAndMessages(null)
+    }
 }

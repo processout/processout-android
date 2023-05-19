@@ -40,6 +40,7 @@ import com.processout.sdk.databinding.PoBottomSheetNativeApmBinding
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityContract.Companion.EXTRA_CONFIGURATION
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityContract.Companion.EXTRA_RESULT
 import com.processout.sdk.ui.shared.model.InputParameter
+import com.processout.sdk.ui.shared.model.SecondaryActionUiModel
 import com.processout.sdk.ui.shared.view.button.POButton
 import com.processout.sdk.ui.shared.view.extensions.*
 import com.processout.sdk.ui.shared.view.input.Input
@@ -132,7 +133,6 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         }
 
         binding.poPrimaryButton.setOnClickListener { onSubmitClick() }
-        binding.poSecondaryButton.setOnClickListener { onCancelClick() }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -246,24 +246,29 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         bottomSheetBehavior.isDraggable = true
     }
 
-    private fun adjustBottomSheetState(previousInputsCount: Int, currentInputsCount: Int) {
+    private fun adjustBottomSheetState(
+        uiModel: PONativeAlternativePaymentMethodUiModel,
+        previousInputsCount: Int,
+        currentInputsCount: Int
+    ) {
         if (currentInputsCount != previousInputsCount) {
             val forceExpand = displayHeight * REQUIRED_DISPLAY_HEIGHT_PERCENTAGE < minPeekHeight
             if (forceExpand) {
                 bottomSheetBehavior.skipCollapsed = true
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
                 bottomSheetBehavior.isDraggable = viewModel.options.cancellation.dragDown
-            } else if (shouldExpandAllowingCollapse(currentInputsCount)) {
+            } else if (shouldExpandAllowingCollapse(uiModel, currentInputsCount)) {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
             }
         }
     }
 
-    private fun shouldExpandAllowingCollapse(inputsCount: Int) =
-        bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED &&
-                inputsCount > MAX_INPUTS_COUNT_IN_COLLAPSED_STATE ||
-                (inputsCount >= MAX_INPUTS_COUNT_IN_COLLAPSED_STATE &&
-                        viewModel.options.secondaryAction != null)
+    private fun shouldExpandAllowingCollapse(
+        uiModel: PONativeAlternativePaymentMethodUiModel,
+        inputsCount: Int
+    ) = bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED &&
+            inputsCount > MAX_INPUTS_COUNT_IN_COLLAPSED_STATE ||
+            (inputsCount >= MAX_INPUTS_COUNT_IN_COLLAPSED_STATE && uiModel.secondaryAction != null)
 
     private fun handleUiState(uiState: PONativeAlternativePaymentMethodUiState) {
         when (uiState) {
@@ -301,7 +306,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                     binding.poScrollableContent,
                     binding.poPrimaryButton
                 ).also { list ->
-                    viewModel.options.secondaryAction?.let {
+                    uiModel.secondaryAction?.let {
                         list.add(binding.poSecondaryButton)
                     }
                 },
@@ -311,7 +316,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             binding.poLoading.root.visibility = View.GONE
             binding.poScrollableContent.visibility = View.VISIBLE
             binding.poPrimaryButton.visibility = View.VISIBLE
-            viewModel.options.secondaryAction?.let {
+            uiModel.secondaryAction?.let {
                 binding.poSecondaryButton.visibility = View.VISIBLE
             }
         }
@@ -333,13 +338,18 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     }
 
     private fun bindSecondaryButton(uiModel: PONativeAlternativePaymentMethodUiModel) {
-        viewModel.options.secondaryAction?.let {
+        uiModel.secondaryAction?.let { action ->
             with(binding.poSecondaryButton) {
-                text = uiModel.secondaryActionText
-                if (uiModel.isSubmitting) {
-                    setState(POButton.State.DISABLED)
-                } else {
-                    setState(POButton.State.ENABLED)
+                when (action) {
+                    is SecondaryActionUiModel.Cancel -> {
+                        setOnClickListener { onCancelClick() }
+                        text = action.text
+                        if (uiModel.isSubmitting) {
+                            setState(POButton.State.DISABLED)
+                        } else {
+                            setState(action.state)
+                        }
+                    }
                 }
             }
         }
@@ -369,7 +379,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         }
 
         val inputsCountAfter = binding.poInputsContainer.childCount
-        adjustBottomSheetState(inputsCountBefore, inputsCountAfter)
+        adjustBottomSheetState(uiModel, inputsCountBefore, inputsCountAfter)
         resolveInputFocus(uiModel.focusedInputId)
     }
 
@@ -451,7 +461,8 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     }
 
     private fun onCancelClick() {
-        binding.poSecondaryButton.isClickable = false
+        _binding?.let { it.poSecondaryButton.isClickable = false }
+        _bindingCapture?.let { it.poSecondaryButton.isClickable = false }
         finishWithActivityResult(
             PONativeAlternativePaymentMethodResult.Failure(
                 POFailure.Code.Cancelled,
@@ -499,6 +510,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
 
     private fun bindCapture(uiModel: PONativeAlternativePaymentMethodUiModel) {
         initCaptureView()
+        bindPaymentConfirmationSecondaryButton(uiModel)
         if (uiModel.showCustomerAction()) {
             bindingCapture.poCircularProgressIndicator.visibility = View.GONE
             bindingCapture.poMessage.text = uiModel.customerActionMessage
@@ -514,6 +526,23 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             bindingCapture.poActionImage.visibility = View.GONE
         }
         bindingCapture.poSuccessImage.visibility = View.GONE
+    }
+
+    private fun bindPaymentConfirmationSecondaryButton(
+        uiModel: PONativeAlternativePaymentMethodUiModel
+    ) {
+        uiModel.paymentConfirmationSecondaryAction?.let { action ->
+            with(bindingCapture.poSecondaryButton) {
+                when (action) {
+                    is SecondaryActionUiModel.Cancel -> {
+                        setOnClickListener { onCancelClick() }
+                        text = action.text
+                        setState(action.state)
+                        visibility = View.VISIBLE
+                    }
+                }
+            }
+        } ?: run { bindingCapture.poSecondaryButton.visibility = View.GONE }
     }
 
     private fun handleSuccess(uiModel: PONativeAlternativePaymentMethodUiModel) {
@@ -535,7 +564,8 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                 listOf(
                     bindingCapture.poCircularProgressIndicator,
                     bindingCapture.poMessage,
-                    bindingCapture.poActionImage
+                    bindingCapture.poActionImage,
+                    bindingCapture.poSecondaryButton
                 ),
                 ANIMATION_DURATION_MS
             )
@@ -587,6 +617,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         bindingCapture.poLogo.visibility = View.VISIBLE
         bindingCapture.poActionImage.visibility = View.GONE
         bindingCapture.poSuccessImage.visibility = View.VISIBLE
+        bindingCapture.poSecondaryButton.visibility = View.GONE
     }
 
     private fun handleFailure(failure: ProcessOutResult.Failure) {

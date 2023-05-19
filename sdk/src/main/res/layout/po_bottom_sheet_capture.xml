@@ -84,4 +84,18 @@
         app:layout_constraintTop_toBottomOf="@id/po_message"
         tools:ignore="ContentDescription,RtlHardcoded" />
 
+    <com.processout.sdk.ui.shared.view.button.POButton
+        android:id="@+id/po_secondary_button"
+        style="@style/Widget.ProcessOut.Button.Secondary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/po_bottomSheet_buttons_marginHorizontal"
+        android:layout_marginBottom="@dimen/po_bottomSheet_buttons_marginBottom"
+        android:text="@string/po_native_apm_cancel_button_default_text"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        tools:visibility="visible" />
+
 </merge>
