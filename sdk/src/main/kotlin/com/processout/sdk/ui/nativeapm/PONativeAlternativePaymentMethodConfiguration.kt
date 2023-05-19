@@ -30,7 +30,8 @@ data class PONativeAlternativePaymentMethodConfiguration(
         val successMessage: String? = null,
         val skipSuccessScreen: Boolean = false,
         val waitsPaymentConfirmation: Boolean = true,
-        val paymentConfirmationTimeoutSeconds: Int = MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
+        val paymentConfirmationTimeoutSeconds: Int = MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS,
+        val paymentConfirmationSecondaryAction: SecondaryAction? = null
     ) : Parcelable {
         companion object {
             const val MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS = 180
@@ -38,8 +39,16 @@ data class PONativeAlternativePaymentMethodConfiguration(
     }
 
     sealed class SecondaryAction : Parcelable {
+        /**
+         * @param text Action text. Pass _null_ to use default text.
+         * @param disabledForSeconds Initially disables action for the given amount of time in seconds.
+         * By default user can interact with action immediately when it's visible.
+         */
         @Parcelize
-        data class Cancel(val text: String? = null) : SecondaryAction()
+        data class Cancel(
+            val text: String? = null,
+            val disabledForSeconds: Int = 0
+        ) : SecondaryAction()
     }
 
     @Parcelize

@@ -50,6 +50,7 @@ internal fun PoBottomSheetCaptureBinding.applyStyle(
     style.progressIndicatorColor?.let { poCircularProgressIndicator.setIndicatorColor(it) }
     style.successImageResId?.let { poSuccessImage.setImageResource(it) }
     style.message?.let { poMessage.applyStyle(it) }
+    style.secondaryButton?.let { poSecondaryButton.applyStyle(it) }
 }
 
 internal fun TextView.applyStyle(style: POTextStyle) {

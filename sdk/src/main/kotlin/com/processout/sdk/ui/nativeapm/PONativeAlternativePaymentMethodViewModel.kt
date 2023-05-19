@@ -1,10 +1,13 @@
 package com.processout.sdk.ui.nativeapm
 
 import android.app.Application
+import android.os.Handler
+import android.os.Looper
 import android.util.Patterns
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.annotation.StringRes
+import androidx.core.os.postDelayed
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
@@ -29,12 +32,15 @@ import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options.Companion.MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
 import com.processout.sdk.ui.shared.model.InputParameter
+import com.processout.sdk.ui.shared.model.SecondaryAction
+import com.processout.sdk.ui.shared.view.button.POButton
 import com.processout.sdk.ui.shared.view.input.Input
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.text.NumberFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 internal class PONativeAlternativePaymentMethodViewModel(
     private val app: Application,
@@ -75,6 +81,8 @@ internal class PONativeAlternativePaymentMethodViewModel(
         private const val CAPTURE_POLLING_DELAY_MS = 3000L
     }
 
+    private var capturePollingStartTimestamp = 0L
+
     private val _uiState = MutableStateFlow<PONativeAlternativePaymentMethodUiState>(
         PONativeAlternativePaymentMethodUiState.Loading
     )
@@ -82,7 +90,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
 
     var animateViewTransition = true
 
-    private var capturePollingStartTimestamp = 0L
+    private val handler by lazy { Handler(Looper.getMainLooper()) }
 
     private val defaultValuesRequests = mutableSetOf<PONativeAlternativePaymentMethodDefaultValuesRequest>()
 
@@ -129,7 +137,18 @@ internal class PONativeAlternativePaymentMethodViewModel(
     }
 
     private fun startUserInput(uiModel: PONativeAlternativePaymentMethodUiModel) {
-        _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(uiModel.copy())
+        _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(
+            uiModel.copy(
+                secondaryAction = uiModel.secondaryAction.copy(
+                    state = initSecondaryActionState(options.secondaryAction)
+                )
+            )
+        )
+        options.secondaryAction?.let {
+            handler.postDelayed(
+                delayInMillis = getSecondaryActionDisabledDelayMillis(it)
+            ) { enableSecondaryAction() }
+        }
         dispatch(DidStart)
     }
 
@@ -354,7 +373,20 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 )
             )
             animateViewTransition = true
-            _uiState.value = PONativeAlternativePaymentMethodUiState.Capture(uiModel.copy())
+            _uiState.value = PONativeAlternativePaymentMethodUiState.Capture(
+                uiModel.copy(
+                    paymentConfirmationSecondaryAction = uiModel.paymentConfirmationSecondaryAction.copy(
+                        state = initSecondaryActionState(options.paymentConfirmationSecondaryAction)
+                    )
+                )
+            )
+
+            options.paymentConfirmationSecondaryAction?.let {
+                handler.postDelayed(
+                    delayInMillis = getSecondaryActionDisabledDelayMillis(it)
+                ) { enablePaymentConfirmationSecondaryAction() }
+            }
+
             startCapturePolling()
             return
         }
@@ -521,7 +553,12 @@ internal class PONativeAlternativePaymentMethodViewModel(
             customerActionMessage = gateway.customerActionMessage,
             customerActionImageUrl = gateway.customerActionImageUrl,
             primaryActionText = options.primaryActionText ?: invoice.formatPrimaryActionText(),
-            secondaryActionText = getSecondaryActionText(),
+            secondaryAction = SecondaryAction(
+                getSecondaryActionText(options.secondaryAction)
+            ),
+            paymentConfirmationSecondaryAction = SecondaryAction(
+                getSecondaryActionText(options.paymentConfirmationSecondaryAction)
+            ),
             isSubmitting = false
         )
 
@@ -568,6 +605,13 @@ internal class PONativeAlternativePaymentMethodViewModel(
         return -1
     }
 
+    private fun getInputHint(type: ParameterType) =
+        when (type) {
+            PHONE -> app.getString(R.string.po_native_apm_input_hint_phone)
+            EMAIL -> app.getString(R.string.po_native_apm_input_hint_email)
+            else -> null
+        }
+
     private fun PONativeAlternativePaymentMethodTransactionDetails.Invoice.formatPrimaryActionText() =
         try {
             val price = NumberFormat.getCurrencyInstance().apply {
@@ -578,19 +622,60 @@ internal class PONativeAlternativePaymentMethodViewModel(
             app.getString(R.string.po_native_apm_submit_button_default_text)
         }
 
-    private fun getSecondaryActionText(): String {
+    private fun getSecondaryActionText(
+        action: PONativeAlternativePaymentMethodConfiguration.SecondaryAction?
+    ): String {
         val defaultText = app.getString(R.string.po_native_apm_cancel_button_default_text)
-        return when (val action = options.secondaryAction) {
+        return when (action) {
             is PONativeAlternativePaymentMethodConfiguration.SecondaryAction.Cancel ->
                 action.text ?: defaultText
             null -> defaultText
         }
     }
 
-    private fun getInputHint(type: ParameterType) =
-        when (type) {
-            PHONE -> app.getString(R.string.po_native_apm_input_hint_phone)
-            EMAIL -> app.getString(R.string.po_native_apm_input_hint_email)
-            else -> null
+    private fun initSecondaryActionState(
+        action: PONativeAlternativePaymentMethodConfiguration.SecondaryAction?
+    ): POButton.State = when (action) {
+        is PONativeAlternativePaymentMethodConfiguration.SecondaryAction.Cancel ->
+            if (action.disabledForSeconds == 0)
+                POButton.State.ENABLED
+            else POButton.State.DISABLED
+        null -> POButton.State.DISABLED
+    }
+
+    private fun getSecondaryActionDisabledDelayMillis(
+        action: PONativeAlternativePaymentMethodConfiguration.SecondaryAction
+    ): Long = when (action) {
+        is PONativeAlternativePaymentMethodConfiguration.SecondaryAction.Cancel ->
+            TimeUnit.SECONDS.toMillis(action.disabledForSeconds.toLong())
+    }
+
+    private fun enableSecondaryAction() {
+        _uiState.value.doWhenUserInput { uiModel ->
+            _uiState.value = PONativeAlternativePaymentMethodUiState.UserInput(
+                uiModel.copy(
+                    secondaryAction = uiModel.secondaryAction.copy(
+                        state = POButton.State.ENABLED
+                    )
+                )
+            )
         }
+    }
+
+    private fun enablePaymentConfirmationSecondaryAction() {
+        _uiState.value.doWhenCapture { uiModel ->
+            _uiState.value = PONativeAlternativePaymentMethodUiState.Capture(
+                uiModel.copy(
+                    paymentConfirmationSecondaryAction = uiModel.paymentConfirmationSecondaryAction.copy(
+                        state = POButton.State.ENABLED
+                    )
+                )
+            )
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        handler.removeCallbacksAndMessages(null)
+    }
 }
