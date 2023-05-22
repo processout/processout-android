@@ -15,11 +15,12 @@ jobs:
   update-version:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
 
       - name: Update Version
         run: |
-          source scripts/UpdateVersion.sh --${{ inputs.release_type }}
+          source scripts/update-version.sh --${{ inputs.release_type }}
           echo "UPDATED_VERSION=$(cat version.resolved)" >> $GITHUB_ENV
 
       - name: Create Pull Request
