@@ -14,20 +14,6 @@ Download the latest version from Maven Central.
 [ProcessOut Android SDK - Checkout 3DS](https://central.sonatype.com/artifact/com.processout/processout-android-checkout-3ds)\
 `implementation 'com.processout:processout-android-checkout-3ds:<version>'`
 
-Checkout 3DS SDK requires GitHub Packages authentication:
-
-```
-repositories {
-    maven {
-        url = uri("https://maven.pkg.github.com/checkout/checkout-3ds-sdk-android")
-        credentials {
-            username = "" // GitHub username
-            password = "" // GitHub personal access token
-        }
-    }
-}
-```
-
 Older versions up to `4.0.0` (including) only [available on the JitPack](https://jitpack.io/#processout/processout-android).
 
 ## Documentation
