@@ -27,9 +27,6 @@ jobs:
         run: |
           ./gradlew :sdk:assembleProductionRelease
           ./gradlew :checkout-3ds:assembleProductionRelease
-        env:
-          CI_GITHUB_USER: ${{ secrets.PO_GITHUB_USER }}
-          CI_GITHUB_TOKEN: ${{ secrets.PO_GITHUB_TOKEN }}
 
       - name: Publish To Maven Central
         run: |
