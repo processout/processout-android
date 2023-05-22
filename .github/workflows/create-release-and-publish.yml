@@ -1,14 +1,20 @@
-name: Publish To Maven Central
+name: Create Release & Publish To Maven Central
 on:
   workflow_dispatch:
 
 jobs:
-  publish:
+  create-release-and-publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-        with:
-          ref: master
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Create Release
+        run: |
+          RELEASE_VERSION=$(cat version.resolved)
+          gh release create $RELEASE_VERSION --generate-notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup JDK 17
         uses: actions/setup-java@v3
@@ -21,14 +27,11 @@ jobs:
         run: |
           ./gradlew :sdk:assembleProductionRelease
           ./gradlew :checkout-3ds:assembleProductionRelease
-        env:
-          CI_GITHUB_USER: ${{ secrets.PO_GITHUB_USER }}
-          CI_GITHUB_TOKEN: ${{ secrets.PO_GITHUB_TOKEN }}
 
-      - name: Publish
+      - name: Publish To Maven Central
         run: |
-          ./gradlew :sdk:publishProductionReleasePublicationToSonatypeRepository --max-workers 1 closeAndReleaseSonatypeStagingRepository
-          ./gradlew :checkout-3ds:publishProductionReleasePublicationToSonatypeRepository --max-workers 1 closeAndReleaseSonatypeStagingRepository
+          ./gradlew :sdk:publishProductionReleasePublicationToSonatypeRepository closeAndReleaseSonatypeStagingRepository --max-workers=1
+          ./gradlew :checkout-3ds:publishProductionReleasePublicationToSonatypeRepository closeAndReleaseSonatypeStagingRepository --max-workers=1
         env:
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}

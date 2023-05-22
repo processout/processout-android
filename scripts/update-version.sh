@@ -2,7 +2,7 @@
 
 set -e
 
-VERSION=$(cat ../version.resolved)
+VERSION=$(cat version.resolved)
 VERSION_REGEX="^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$"
 
 if [[ $VERSION =~ $VERSION_REGEX ]]; then
@@ -16,6 +16,11 @@ if [[ $VERSION =~ $VERSION_REGEX ]]; then
         MINOR=$((MINOR + 1))
         PATCH=0
     fi
+    if [[ "$@" =~ '--major' ]]; then
+        MAJOR=$((MAJOR + 1))
+        MINOR=0
+        PATCH=0
+    fi
     VERSION="${MAJOR}.${MINOR}.${PATCH}"
 else
     echo "Resolved version is invalid."
@@ -23,4 +28,4 @@ else
 fi
 
 # Writes resolved version to file
-echo -n $VERSION > ../version.resolved
+echo -n $VERSION > version.resolved

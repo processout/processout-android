@@ -13,7 +13,7 @@ android {
         applicationId "com.processout.example"
         minSdk rootProject.ext.minSdkVersion
         targetSdk rootProject.ext.targetSdkVersion
-        versionCode rootProject.ext.publishVersion.replace(".", "").toInteger()
+        versionCode generateVersionCode()
         versionName rootProject.ext.publishVersion
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -59,6 +59,12 @@ android {
             includeAndroidResources = true
         }
     }
+}
+
+static def generateVersionCode() {
+    def commitsCount = "git rev-list --first-parent --count HEAD".execute().text.trim()
+    if (commitsCount.empty) throw new RuntimeException("Could not generate version code.")
+    return commitsCount.toInteger()
 }
 
 dependencies {
