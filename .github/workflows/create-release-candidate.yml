@@ -10,6 +10,7 @@ on:
         options:
           - minor
           - patch
+          - major
 jobs:
   update-version:
     runs-on: ubuntu-latest
@@ -22,13 +23,12 @@ jobs:
           echo "UPDATED_VERSION=$(cat version.resolved)" >> $GITHUB_ENV
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@v5
         with:
-          token: ${{ secrets.PO_GITHUB_USER }}
-          add-paths:
-            - version.resolved
+          token: ${{ secrets.PO_GITHUB_TOKEN }}
+          add-paths: version.resolved
           commit-message: Update version
           branch: release/${{ env.UPDATED_VERSION }}
           delete-branch: true
-          title: Release/${{ env.UPDATED_VERSION }}
+          title: 'feat(release): ${{ env.UPDATED_VERSION }}'
           assignees: ${{ github.actor }}
