@@ -30,7 +30,7 @@ ext {
     buildToolsVersion = '33.0.1'
 
     publishGroupId = 'com.processout'
-    publishVersion = file('version.resolved').getText()
+    publishVersion = file('version.resolved').getText().trim()
 
     androidxCoreVersion = '1.10.1'
     androidxAppCompatVersion = '1.6.1'
