@@ -62,7 +62,7 @@ android {
 }
 
 static def generateVersionCode() {
-    def commitsCount = "git rev-list --first-parent --count origin/master".execute().text.trim()
+    def commitsCount = "git rev-list --first-parent --count HEAD".execute().text.trim()
     if (commitsCount.empty) throw new RuntimeException("Could not generate version code.")
     return commitsCount.toInteger()
 }
