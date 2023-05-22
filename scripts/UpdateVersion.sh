@@ -2,7 +2,7 @@
 
 set -e
 
-VERSION=$(cat ../version.resolved)
+VERSION=$(cat version.resolved)
 VERSION_REGEX="^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$"
 
 if [[ $VERSION =~ $VERSION_REGEX ]]; then
@@ -28,4 +28,4 @@ else
 fi
 
 # Writes resolved version to file
-echo -n $VERSION > ../version.resolved
+echo -n $VERSION > version.resolved
