@@ -12,7 +12,10 @@ import com.processout.sdk.api.model.threeds.PO3DSRedirect
 import com.processout.sdk.api.service.PO3DSService
 import com.processout.sdk.core.ProcessOutResult
 
-class POTest3DSService(activity: Activity) : PO3DSService {
+class POTest3DSService(
+    activity: Activity,
+    private val customTabLauncher: PO3DSRedirectCustomTabLauncher? = null
+) : PO3DSService {
 
     private val rootLayout: FrameLayout = activity.findViewById(android.R.id.content)
     private val dialogBuilder = AlertDialog.Builder(activity)
@@ -49,12 +52,18 @@ class POTest3DSService(activity: Activity) : PO3DSService {
     }
 
     override fun handle(redirect: PO3DSRedirect, callback: (ProcessOutResult<String>) -> Unit) {
-        webView = webViewBuilder.with(redirect) { result ->
-            destroyWebView()
-            callback(result)
-        }.build()
-        if (redirect.isHeadlessModeAllowed.not()) {
-            rootLayout.addView(webView)
+        customTabLauncher?.let {
+            it.launch(redirect) { result ->
+                callback(result)
+            }
+        } ?: run {
+            webView = webViewBuilder.with(redirect) { result ->
+                destroyWebView()
+                callback(result)
+            }.build()
+            if (redirect.isHeadlessModeAllowed.not()) {
+                rootLayout.addView(webView)
+            }
         }
     }
 
