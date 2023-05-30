@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -9,6 +10,40 @@
             android:exported="false"
             android:launchMode="singleTop"
             android:theme="@style/Theme.ProcessOut.Default" />
+
+        <activity
+            android:name=".ui.web.POCustomTabAuthorizationActivity"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|keyboard|keyboardHidden"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <activity
+            android:name=".ui.web.POCustomTabRedirectActivity"
+            android:exported="true">
+            <intent-filter
+                android:autoVerify="true"
+                tools:targetApi="m">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <!--suppress AndroidDomInspection -->
+                <data
+                    android:host="${processoutRedirectHost}"
+                    android:pathPrefix="${processoutRedirectPathPrefix}"
+                    android:scheme="${processoutRedirectScheme}" />
+            </intent-filter>
+        </activity>
     </application>
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
+        </intent>
+    </queries>
 
 </manifest>
