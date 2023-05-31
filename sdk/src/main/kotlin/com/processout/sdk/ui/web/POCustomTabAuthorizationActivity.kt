@@ -5,20 +5,27 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
+import com.processout.sdk.api.model.request.POAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.threeds.PO3DSRedirect
+import com.processout.sdk.ui.apm.CustomTabAPMAuthorizationActivityContract
 import com.processout.sdk.ui.threeds.CustomTab3DSAuthorizationActivityContract
 
 class POCustomTabAuthorizationActivity : AppCompatActivity() {
 
-    private var redirect: PO3DSRedirect? = null
+    private var threeDSRedirect: PO3DSRedirect? = null
+    private var alternativePaymentMethodRequest: POAlternativePaymentMethodRequest? = null
 
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        redirect = intent.getParcelableExtra(
+        threeDSRedirect = intent.getParcelableExtra(
             CustomTab3DSAuthorizationActivityContract.EXTRA_CONFIGURATION
         )
-        redirect?.let {
+        alternativePaymentMethodRequest = intent.getParcelableExtra(
+            CustomTabAPMAuthorizationActivityContract.EXTRA_CONFIGURATION
+        )
+
+        threeDSRedirect?.let {
             val intent: CustomTabsIntent = CustomTabsIntent.Builder()
                 .setShareState(CustomTabsIntent.SHARE_STATE_OFF)
                 .build()

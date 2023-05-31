@@ -1,5 +1,8 @@
 package com.processout.sdk.api.model.response
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
 /**
  * Response of the alternative payment.
  *
@@ -8,13 +11,16 @@ package com.processout.sdk.api.model.response
  * @param tokenId Customer token ID that may be used for creating APM recurring token.
  * @param returnType Indicates if this is an APM token creation or a payment creation response.
  */
+@Parcelize
 data class POAlternativePaymentMethodResponse(
     val gatewayToken: String,
     val customerId: String?,
     val tokenId: String?,
     val returnType: APMReturnType
-) {
-    enum class APMReturnType {
+) : Parcelable {
+
+    @Parcelize
+    enum class APMReturnType : Parcelable {
         AUTHORIZATION,
         CREATE_TOKEN
     }
