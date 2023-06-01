@@ -11,6 +11,7 @@ import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.api.repository.POGatewayConfigurationsRepository
 import com.processout.sdk.api.service.AlternativePaymentMethodsConfiguration
 import com.processout.sdk.api.service.POAlternativePaymentMethodsService
+import com.processout.sdk.api.service.POBrowserCapabilitiesService
 import com.processout.sdk.api.service.POCustomerTokensService
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.exception.ProcessOutException
@@ -25,6 +26,7 @@ class ProcessOut private constructor(
     val invoices: POInvoicesService
     val customerTokens: POCustomerTokensService
     val alternativePaymentMethods: POAlternativePaymentMethodsService
+    val browserCapabilities: POBrowserCapabilitiesService
     val nativeAlternativePaymentMethodEventDispatcher: PONativeAlternativePaymentMethodEventDispatcher
 
     init {
@@ -36,6 +38,7 @@ class ProcessOut private constructor(
             invoices = invoicesService
             customerTokens = customerTokensService
             alternativePaymentMethods = alternativePaymentMethodsService
+            browserCapabilities = browserCapabilitiesService
         }
         nativeAlternativePaymentMethodEventDispatcher =
             apiGraph.dispatcherGraph.nativeAlternativePaymentMethodEventDispatcher
@@ -62,6 +65,10 @@ class ProcessOut private constructor(
             if (::instance.isInitialized)
                 throw ProcessOutException("Already configured.")
 
+            val contextGraph = ContextGraphImpl(
+                application = configuration.application
+            )
+
             val networkGraph = NetworkGraphImpl(
                 configuration = NetworkConfiguration(
                     application = configuration.application,
@@ -73,18 +80,17 @@ class ProcessOut private constructor(
             )
 
             val repositoryGraph = RepositoryGraphImpl(
-                networkGraph = networkGraph,
-                contextGraph = ContextGraphImpl(
-                    application = configuration.application
-                )
+                contextGraph = contextGraph,
+                networkGraph = networkGraph
             )
 
             val apiGraph = ApiGraph(
                 repositoryGraph = repositoryGraph,
                 serviceGraph = ServiceGraphImpl(
+                    contextGraph = contextGraph,
                     networkGraph = networkGraph,
                     repositoryGraph = repositoryGraph,
-                    configuration = AlternativePaymentMethodsConfiguration(
+                    alternativePaymentMethodsConfiguration = AlternativePaymentMethodsConfiguration(
                         baseUrl = ApiConstants.CHECKOUT_URL,
                         projectId = configuration.projectId
                     )

@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import com.processout.sdk.api.model.request.POAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.threeds.PO3DSRedirect
+import com.processout.sdk.api.service.POBrowserCapabilitiesService.Companion.CHROME_PACKAGE
 import com.processout.sdk.ui.apm.CustomTabAPMAuthorizationActivityContract
 import com.processout.sdk.ui.threeds.CustomTab3DSAuthorizationActivityContract
 
@@ -26,10 +27,11 @@ class POCustomTabAuthorizationActivity : AppCompatActivity() {
         )
 
         threeDSRedirect?.let {
-            val intent: CustomTabsIntent = CustomTabsIntent.Builder()
+            val customTabsIntent: CustomTabsIntent = CustomTabsIntent.Builder()
                 .setShareState(CustomTabsIntent.SHARE_STATE_OFF)
                 .build()
-            intent.launchUrl(this, Uri.parse(it.url.toString()))
+            customTabsIntent.intent.setPackage(CHROME_PACKAGE)
+            customTabsIntent.launchUrl(this, Uri.parse(it.url.toString()))
         }
     }
 
