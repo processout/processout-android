@@ -16,12 +16,6 @@ android {
         versionCode generateVersionCode()
         versionName rootProject.ext.publishVersion
 
-        manifestPlaceholders = [
-                processoutRedirectScheme    : "$applicationId",
-                processoutRedirectHost      : "processout",
-                processoutRedirectPathPrefix: "/return"
-        ]
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 

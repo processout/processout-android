@@ -30,11 +30,10 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <!--suppress AndroidDomInspection -->
                 <data
-                    android:host="${processoutRedirectHost}"
-                    android:pathPrefix="${processoutRedirectPathPrefix}"
-                    android:scheme="${processoutRedirectScheme}" />
+                    android:host="processout"
+                    android:pathPrefix="/return"
+                    android:scheme="${applicationId}" />
             </intent-filter>
         </activity>
     </application>
@@ -44,6 +43,9 @@
             <action android:name="android.intent.action.VIEW" />
             <category android:name="android.intent.category.BROWSABLE" />
             <data android:scheme="https" />
+        </intent>
+        <intent>
+            <action android:name="android.support.customtabs.action.CustomTabsService" />
         </intent>
     </queries>
 
