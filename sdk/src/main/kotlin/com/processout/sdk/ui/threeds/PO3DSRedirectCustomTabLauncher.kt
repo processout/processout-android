@@ -10,12 +10,12 @@ import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.web.CustomTabAuthorizationActivityContract
 import com.processout.sdk.ui.web.CustomTabAuthorizationConfiguration
-import com.processout.sdk.ui.web.WebViewDelegate
+import com.processout.sdk.ui.web.WebAuthorizationDelegate
 
 class PO3DSRedirectCustomTabLauncher private constructor() {
 
     private lateinit var launcher: ActivityResultLauncher<CustomTabAuthorizationConfiguration>
-    private lateinit var delegate: WebViewDelegate
+    private lateinit var delegate: WebAuthorizationDelegate
 
     companion object {
         fun create(from: Fragment) = PO3DSRedirectCustomTabLauncher().apply {
@@ -35,7 +35,7 @@ class PO3DSRedirectCustomTabLauncher private constructor() {
     }
 
     fun launch(redirect: PO3DSRedirect, callback: (ProcessOutResult<String>) -> Unit) {
-        delegate = ThreeDSRedirectWebViewDelegate(
+        delegate = ThreeDSRedirectWebAuthorizationDelegate(
             redirect.url.let { Uri.parse(it.toString()) },
             callback
         )

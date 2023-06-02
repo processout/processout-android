@@ -3,12 +3,12 @@ package com.processout.sdk.ui.threeds
 import android.net.Uri
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
-import com.processout.sdk.ui.web.WebViewDelegate
+import com.processout.sdk.ui.web.WebAuthorizationDelegate
 
-internal class ThreeDSRedirectWebViewDelegate(
+internal class ThreeDSRedirectWebAuthorizationDelegate(
     override val uri: Uri,
     private val callback: ((ProcessOutResult<String>) -> Unit)
-) : WebViewDelegate {
+) : WebAuthorizationDelegate {
 
     private companion object {
         private const val TOKEN_QUERY_KEY = "token"

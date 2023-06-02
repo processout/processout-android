@@ -9,20 +9,20 @@ import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.web.ProcessOutWebView
-import com.processout.sdk.ui.web.WebViewDelegate
+import com.processout.sdk.ui.web.WebAuthorizationDelegate
 
 class POAlternativePaymentMethodWebViewBuilder(
     private val activity: Activity
 ) {
     private var request: POAlternativePaymentMethodRequest? = null
-    private var delegate: WebViewDelegate? = null
+    private var delegate: WebAuthorizationDelegate? = null
 
     fun with(
         request: POAlternativePaymentMethodRequest,
         callback: (ProcessOutResult<POAlternativePaymentMethodResponse>) -> Unit
     ) = apply {
         this.request = request
-        this.delegate = AlternativePaymentMethodWebViewDelegate(
+        this.delegate = AlternativePaymentMethodWebAuthorizationDelegate(
             ProcessOut.instance.alternativePaymentMethods,
             request, callback
         )

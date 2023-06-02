@@ -5,13 +5,13 @@ import com.processout.sdk.api.model.request.POAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.service.POAlternativePaymentMethodsService
 import com.processout.sdk.core.ProcessOutResult
-import com.processout.sdk.ui.web.WebViewDelegate
+import com.processout.sdk.ui.web.WebAuthorizationDelegate
 
-internal class AlternativePaymentMethodWebViewDelegate(
+internal class AlternativePaymentMethodWebAuthorizationDelegate(
     private val service: POAlternativePaymentMethodsService,
     private val request: POAlternativePaymentMethodRequest,
     private val callback: ((ProcessOutResult<POAlternativePaymentMethodResponse>) -> Unit)
-) : WebViewDelegate {
+) : WebAuthorizationDelegate {
 
     override val uri: Uri
         get() = when (val result = service.alternativePaymentMethodUri(request)) {

@@ -12,12 +12,12 @@ import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.web.CustomTabAuthorizationActivityContract
 import com.processout.sdk.ui.web.CustomTabAuthorizationConfiguration
-import com.processout.sdk.ui.web.WebViewDelegate
+import com.processout.sdk.ui.web.WebAuthorizationDelegate
 
 class POAlternativePaymentMethodCustomTabLauncher private constructor() {
 
     private lateinit var launcher: ActivityResultLauncher<CustomTabAuthorizationConfiguration>
-    private lateinit var delegate: WebViewDelegate
+    private lateinit var delegate: WebAuthorizationDelegate
 
     companion object {
         fun create(from: Fragment) = POAlternativePaymentMethodCustomTabLauncher().apply {
@@ -40,7 +40,7 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor() {
         request: POAlternativePaymentMethodRequest,
         callback: (ProcessOutResult<POAlternativePaymentMethodResponse>) -> Unit
     ) {
-        delegate = AlternativePaymentMethodWebViewDelegate(
+        delegate = AlternativePaymentMethodWebAuthorizationDelegate(
             ProcessOut.instance.alternativePaymentMethods,
             request, callback
         )

@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit
 internal class ProcessOutWebView(
     context: Context,
     private val configuration: Configuration,
-    private val delegate: WebViewDelegate?
+    private val delegate: WebAuthorizationDelegate?
 ) : WebView(context) {
 
     internal data class Configuration(
