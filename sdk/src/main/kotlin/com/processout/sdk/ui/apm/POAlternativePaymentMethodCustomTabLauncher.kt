@@ -1,31 +1,35 @@
 package com.processout.sdk.ui.apm
 
+import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.Fragment
+import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.ui.web.CustomTabAuthorizationActivityContract
+import com.processout.sdk.ui.web.CustomTabAuthorizationConfiguration
+import com.processout.sdk.ui.web.WebViewDelegate
 
 class POAlternativePaymentMethodCustomTabLauncher private constructor() {
 
-    private lateinit var launcher: ActivityResultLauncher<POAlternativePaymentMethodRequest>
-
-    private var callback: ((ProcessOutResult<POAlternativePaymentMethodResponse>) -> Unit)? = null
+    private lateinit var launcher: ActivityResultLauncher<CustomTabAuthorizationConfiguration>
+    private lateinit var delegate: WebViewDelegate
 
     companion object {
         fun create(from: Fragment) = POAlternativePaymentMethodCustomTabLauncher().apply {
             launcher = from.registerForActivityResult(
-                CustomTabAPMAuthorizationActivityContract(),
+                CustomTabAuthorizationActivityContract(),
                 activityResultCallback
             )
         }
 
         fun create(from: ComponentActivity) = POAlternativePaymentMethodCustomTabLauncher().apply {
             launcher = from.registerForActivityResult(
-                CustomTabAPMAuthorizationActivityContract(),
+                CustomTabAuthorizationActivityContract(),
                 from.activityResultRegistry,
                 activityResultCallback
             )
@@ -36,17 +40,24 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor() {
         request: POAlternativePaymentMethodRequest,
         callback: (ProcessOutResult<POAlternativePaymentMethodResponse>) -> Unit
     ) {
-        this.callback = callback
-        launcher.launch(request)
+        delegate = AlternativePaymentMethodWebViewDelegate(
+            ProcessOut.instance.alternativePaymentMethods,
+            request, callback
+        )
+        launcher.launch(
+            CustomTabAuthorizationConfiguration(
+                uri = delegate.uri,
+                timeoutSeconds = null
+            )
+        )
     }
 
-    private val activityResultCallback =
-        ActivityResultCallback<ProcessOutActivityResult<POAlternativePaymentMethodResponse>> {
-            when (it) {
-                is ProcessOutActivityResult.Success ->
-                    callback?.invoke(ProcessOutResult.Success(it.value))
-                is ProcessOutActivityResult.Failure ->
-                    callback?.invoke(ProcessOutResult.Failure(it.code, it.message))
-            }
+    private val activityResultCallback = ActivityResultCallback<ProcessOutActivityResult<Uri>> {
+        when (it) {
+            is ProcessOutActivityResult.Success -> delegate.complete(uri = it.value)
+            is ProcessOutActivityResult.Failure -> delegate.complete(
+                ProcessOutResult.Failure(it.code, it.message)
+            )
         }
+    }
 }

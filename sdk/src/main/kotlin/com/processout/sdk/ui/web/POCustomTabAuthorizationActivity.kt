@@ -1,37 +1,27 @@
 package com.processout.sdk.ui.web
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
-import com.processout.sdk.api.model.request.POAlternativePaymentMethodRequest
-import com.processout.sdk.api.model.threeds.PO3DSRedirect
 import com.processout.sdk.api.service.POBrowserCapabilitiesService.Companion.CHROME_PACKAGE
-import com.processout.sdk.ui.apm.CustomTabAPMAuthorizationActivityContract
-import com.processout.sdk.ui.threeds.CustomTab3DSAuthorizationActivityContract
+import com.processout.sdk.ui.web.CustomTabAuthorizationActivityContract.Companion.EXTRA_CONFIGURATION
 
 class POCustomTabAuthorizationActivity : AppCompatActivity() {
 
-    private var threeDSRedirect: PO3DSRedirect? = null
-    private var alternativePaymentMethodRequest: POAlternativePaymentMethodRequest? = null
+    private var configuration: CustomTabAuthorizationConfiguration? = null
 
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        threeDSRedirect = intent.getParcelableExtra(
-            CustomTab3DSAuthorizationActivityContract.EXTRA_CONFIGURATION
-        )
-        alternativePaymentMethodRequest = intent.getParcelableExtra(
-            CustomTabAPMAuthorizationActivityContract.EXTRA_CONFIGURATION
-        )
+        configuration = intent.getParcelableExtra(EXTRA_CONFIGURATION)
 
-        threeDSRedirect?.let {
+        configuration?.let {
             val customTabsIntent: CustomTabsIntent = CustomTabsIntent.Builder()
                 .setShareState(CustomTabsIntent.SHARE_STATE_OFF)
                 .build()
             customTabsIntent.intent.setPackage(CHROME_PACKAGE)
-            customTabsIntent.launchUrl(this, Uri.parse(it.url.toString()))
+            customTabsIntent.launchUrl(this, it.uri)
         }
     }
 
