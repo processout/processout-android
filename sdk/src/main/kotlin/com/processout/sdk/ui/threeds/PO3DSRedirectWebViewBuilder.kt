@@ -9,6 +9,7 @@ import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.web.ProcessOutWebView
 import com.processout.sdk.ui.web.WebAuthorizationDelegate
+import com.processout.sdk.ui.web.WebViewConfiguration
 
 class PO3DSRedirectWebViewBuilder(
     private val activity: Activity
@@ -27,7 +28,7 @@ class PO3DSRedirectWebViewBuilder(
 
     fun build(): WebView = ProcessOutWebView(
         activity,
-        ProcessOutWebView.Configuration(
+        WebViewConfiguration(
             uri = delegate?.uri,
             returnUris = listOf(Uri.parse(ApiConstants.CHECKOUT_URL)),
             sdkVersion = ProcessOut.VERSION,

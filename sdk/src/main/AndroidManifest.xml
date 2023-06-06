@@ -36,6 +36,13 @@
                     android:scheme="${applicationId}" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".ui.web.POWebViewAuthorizationActivity"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|keyboard|keyboardHidden"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.ProcessOut.Base.Transparent" />
     </application>
 
     <queries>

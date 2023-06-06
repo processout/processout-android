@@ -9,7 +9,7 @@ import com.processout.sdk.ui.web.CustomTabAuthorizationActivityContract.Companio
 
 class POCustomTabAuthorizationActivity : AppCompatActivity() {
 
-    private var configuration: CustomTabAuthorizationConfiguration? = null
+    private var configuration: CustomTabConfiguration? = null
 
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {

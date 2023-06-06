@@ -8,8 +8,8 @@ import com.processout.sdk.BuildConfig
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutActivityResult
 
-internal class CustomTabAuthorizationActivityContract : ActivityResultContract
-<CustomTabConfiguration, ProcessOutActivityResult<Uri>>() {
+internal class WebViewAuthorizationActivityContract : ActivityResultContract
+<WebViewConfiguration, ProcessOutActivityResult<Uri>>() {
 
     companion object {
         const val EXTRA_CONFIGURATION = "${BuildConfig.LIBRARY_PACKAGE_NAME}.EXTRA_CONFIGURATION"
@@ -18,8 +18,8 @@ internal class CustomTabAuthorizationActivityContract : ActivityResultContract
 
     override fun createIntent(
         context: Context,
-        input: CustomTabConfiguration
-    ) = Intent(context, POCustomTabAuthorizationActivity::class.java)
+        input: WebViewConfiguration
+    ) = Intent(context, POWebViewAuthorizationActivity::class.java)
         .putExtra(EXTRA_CONFIGURATION, input)
 
     @Suppress("DEPRECATION")

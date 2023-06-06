@@ -5,32 +5,39 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.Fragment
+import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.threeds.PO3DSRedirect
+import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.web.CustomTabAuthorizationActivityContract
-import com.processout.sdk.ui.web.CustomTabAuthorizationConfiguration
+import com.processout.sdk.ui.web.CustomTabConfiguration
 import com.processout.sdk.ui.web.WebAuthorizationDelegate
+import com.processout.sdk.ui.web.WebViewAuthorizationActivityLauncher
+import com.processout.sdk.ui.web.WebViewConfiguration
 
 class PO3DSRedirectCustomTabLauncher private constructor() {
 
-    private lateinit var launcher: ActivityResultLauncher<CustomTabAuthorizationConfiguration>
+    private lateinit var customTabLauncher: ActivityResultLauncher<CustomTabConfiguration>
+    private lateinit var webViewFallbackLauncher: WebViewAuthorizationActivityLauncher
     private lateinit var delegate: WebAuthorizationDelegate
 
     companion object {
         fun create(from: Fragment) = PO3DSRedirectCustomTabLauncher().apply {
-            launcher = from.registerForActivityResult(
+            customTabLauncher = from.registerForActivityResult(
                 CustomTabAuthorizationActivityContract(),
                 activityResultCallback
             )
+            webViewFallbackLauncher = WebViewAuthorizationActivityLauncher.create(from)
         }
 
         fun create(from: ComponentActivity) = PO3DSRedirectCustomTabLauncher().apply {
-            launcher = from.registerForActivityResult(
+            customTabLauncher = from.registerForActivityResult(
                 CustomTabAuthorizationActivityContract(),
                 from.activityResultRegistry,
                 activityResultCallback
             )
+            webViewFallbackLauncher = WebViewAuthorizationActivityLauncher.create(from)
         }
     }
 
@@ -39,12 +46,23 @@ class PO3DSRedirectCustomTabLauncher private constructor() {
             redirect.url.let { Uri.parse(it.toString()) },
             callback
         )
-        launcher.launch(
-            CustomTabAuthorizationConfiguration(
-                uri = delegate.uri,
-                timeoutSeconds = redirect.timeoutSeconds
+        if (ProcessOut.instance.browserCapabilities.isCustomTabsSupported()) {
+            customTabLauncher.launch(
+                CustomTabConfiguration(
+                    uri = delegate.uri,
+                    timeoutSeconds = redirect.timeoutSeconds
+                )
             )
-        )
+        } else {
+            webViewFallbackLauncher.launch(
+                WebViewConfiguration(
+                    uri = delegate.uri,
+                    returnUris = listOf(Uri.parse(ApiConstants.CHECKOUT_URL)),
+                    sdkVersion = ProcessOut.VERSION,
+                    timeoutSeconds = redirect.timeoutSeconds
+                ), delegate
+            )
+        }
     }
 
     private val activityResultCallback = ActivityResultCallback<ProcessOutActivityResult<Uri>> {

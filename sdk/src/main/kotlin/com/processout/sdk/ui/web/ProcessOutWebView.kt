@@ -17,16 +17,9 @@ import java.util.concurrent.TimeUnit
 @SuppressLint("ViewConstructor", "SetJavaScriptEnabled")
 internal class ProcessOutWebView(
     context: Context,
-    private val configuration: Configuration,
+    private val configuration: WebViewConfiguration,
     private val callback: (ProcessOutResult<Uri>) -> Unit
 ) : WebView(context) {
-
-    internal data class Configuration(
-        val uri: Uri?,
-        val returnUris: List<Uri>,
-        val sdkVersion: String,
-        val timeoutSeconds: Int?
-    )
 
     private companion object {
         private const val USER_AGENT_PREFIX = "ProcessOut Android-WebView/"

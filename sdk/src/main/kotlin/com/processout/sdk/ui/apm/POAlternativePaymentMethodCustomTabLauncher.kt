@@ -8,31 +8,37 @@ import androidx.fragment.app.Fragment
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
+import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.web.CustomTabAuthorizationActivityContract
-import com.processout.sdk.ui.web.CustomTabAuthorizationConfiguration
+import com.processout.sdk.ui.web.CustomTabConfiguration
 import com.processout.sdk.ui.web.WebAuthorizationDelegate
+import com.processout.sdk.ui.web.WebViewAuthorizationActivityLauncher
+import com.processout.sdk.ui.web.WebViewConfiguration
 
 class POAlternativePaymentMethodCustomTabLauncher private constructor() {
 
-    private lateinit var launcher: ActivityResultLauncher<CustomTabAuthorizationConfiguration>
+    private lateinit var customTabLauncher: ActivityResultLauncher<CustomTabConfiguration>
+    private lateinit var webViewFallbackLauncher: WebViewAuthorizationActivityLauncher
     private lateinit var delegate: WebAuthorizationDelegate
 
     companion object {
         fun create(from: Fragment) = POAlternativePaymentMethodCustomTabLauncher().apply {
-            launcher = from.registerForActivityResult(
+            customTabLauncher = from.registerForActivityResult(
                 CustomTabAuthorizationActivityContract(),
                 activityResultCallback
             )
+            webViewFallbackLauncher = WebViewAuthorizationActivityLauncher.create(from)
         }
 
         fun create(from: ComponentActivity) = POAlternativePaymentMethodCustomTabLauncher().apply {
-            launcher = from.registerForActivityResult(
+            customTabLauncher = from.registerForActivityResult(
                 CustomTabAuthorizationActivityContract(),
                 from.activityResultRegistry,
                 activityResultCallback
             )
+            webViewFallbackLauncher = WebViewAuthorizationActivityLauncher.create(from)
         }
     }
 
@@ -44,12 +50,23 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor() {
             ProcessOut.instance.alternativePaymentMethods,
             request, callback
         )
-        launcher.launch(
-            CustomTabAuthorizationConfiguration(
-                uri = delegate.uri,
-                timeoutSeconds = null
+        if (ProcessOut.instance.browserCapabilities.isCustomTabsSupported()) {
+            customTabLauncher.launch(
+                CustomTabConfiguration(
+                    uri = delegate.uri,
+                    timeoutSeconds = null
+                )
             )
-        )
+        } else {
+            webViewFallbackLauncher.launch(
+                WebViewConfiguration(
+                    uri = delegate.uri,
+                    returnUris = listOf(Uri.parse(ApiConstants.CHECKOUT_URL)),
+                    sdkVersion = ProcessOut.VERSION,
+                    timeoutSeconds = null
+                ), delegate
+            )
+        }
     }
 
     private val activityResultCallback = ActivityResultCallback<ProcessOutActivityResult<Uri>> {
