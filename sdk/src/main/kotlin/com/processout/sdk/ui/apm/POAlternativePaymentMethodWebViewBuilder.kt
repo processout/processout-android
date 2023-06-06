@@ -8,9 +8,9 @@ import com.processout.sdk.api.model.request.POAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.core.ProcessOutResult
-import com.processout.sdk.ui.web.ProcessOutWebView
+import com.processout.sdk.ui.web.webview.ProcessOutWebView
 import com.processout.sdk.ui.web.WebAuthorizationDelegate
-import com.processout.sdk.ui.web.WebViewConfiguration
+import com.processout.sdk.ui.web.webview.WebViewConfiguration
 
 class POAlternativePaymentMethodWebViewBuilder(
     private val activity: Activity

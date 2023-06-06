@@ -1,11 +1,11 @@
-package com.processout.sdk.ui.web
+package com.processout.sdk.ui.web.customtab
 
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import com.processout.sdk.api.service.POBrowserCapabilitiesService.Companion.CHROME_PACKAGE
-import com.processout.sdk.ui.web.CustomTabAuthorizationActivityContract.Companion.EXTRA_CONFIGURATION
+import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationActivityContract.Companion.EXTRA_CONFIGURATION
 
 class POCustomTabAuthorizationActivity : AppCompatActivity() {
 

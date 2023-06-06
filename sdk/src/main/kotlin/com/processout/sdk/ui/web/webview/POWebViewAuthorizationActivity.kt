@@ -1,8 +1,8 @@
-package com.processout.sdk.ui.web
+package com.processout.sdk.ui.web.webview
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.processout.sdk.ui.web.WebViewAuthorizationActivityContract.Companion.EXTRA_CONFIGURATION
+import com.processout.sdk.ui.web.webview.WebViewAuthorizationActivityContract.Companion.EXTRA_CONFIGURATION
 
 class POWebViewAuthorizationActivity : AppCompatActivity() {
 

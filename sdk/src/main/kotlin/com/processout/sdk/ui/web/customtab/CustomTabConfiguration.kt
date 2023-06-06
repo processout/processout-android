@@ -1,4 +1,4 @@
-package com.processout.sdk.ui.web
+package com.processout.sdk.ui.web.customtab
 
 import android.net.Uri
 import android.os.Parcelable
