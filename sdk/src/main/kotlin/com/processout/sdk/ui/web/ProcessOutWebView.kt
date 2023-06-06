@@ -18,10 +18,11 @@ import java.util.concurrent.TimeUnit
 internal class ProcessOutWebView(
     context: Context,
     private val configuration: Configuration,
-    private val delegate: WebAuthorizationDelegate?
+    private val callback: (ProcessOutResult<Uri>) -> Unit
 ) : WebView(context) {
 
     internal data class Configuration(
+        val uri: Uri?,
         val returnUris: List<Uri>,
         val sdkVersion: String,
         val timeoutSeconds: Int?
@@ -50,12 +51,14 @@ internal class ProcessOutWebView(
     }
 
     private fun load() {
-        delegate?.uri?.let { loadUrl(it.toString()) }
-        configuration.timeoutSeconds?.let {
-            timeoutHandler.postDelayed(
-                { complete(ProcessOutResult.Failure(POFailure.Code.Timeout())) },
-                TimeUnit.SECONDS.toMillis(it.toLong())
-            )
+        with(configuration) {
+            uri?.let { loadUrl(it.toString()) }
+            timeoutSeconds?.let {
+                timeoutHandler.postDelayed(
+                    { complete(ProcessOutResult.Failure(POFailure.Code.Timeout())) },
+                    TimeUnit.SECONDS.toMillis(it.toLong())
+                )
+            }
         }
     }
 
@@ -144,11 +147,11 @@ internal class ProcessOutWebView(
 
     private fun complete(uri: Uri) {
         timeoutHandler.removeCallbacksAndMessages(null)
-        delegate?.complete(uri)
+        callback(ProcessOutResult.Success(uri))
     }
 
     private fun complete(failure: ProcessOutResult.Failure) {
         timeoutHandler.removeCallbacksAndMessages(null)
-        delegate?.complete(failure)
+        callback(failure)
     }
 }

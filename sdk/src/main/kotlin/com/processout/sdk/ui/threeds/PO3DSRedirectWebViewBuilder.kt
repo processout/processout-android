@@ -28,10 +28,15 @@ class PO3DSRedirectWebViewBuilder(
     fun build(): WebView = ProcessOutWebView(
         activity,
         ProcessOutWebView.Configuration(
+            uri = delegate?.uri,
             returnUris = listOf(Uri.parse(ApiConstants.CHECKOUT_URL)),
             sdkVersion = ProcessOut.VERSION,
             timeoutSeconds = redirect?.timeoutSeconds
-        ),
-        delegate
-    )
+        )
+    ) { result ->
+        when (result) {
+            is ProcessOutResult.Success -> delegate?.complete(uri = result.value)
+            is ProcessOutResult.Failure -> delegate?.complete(failure = result)
+        }
+    }
 }

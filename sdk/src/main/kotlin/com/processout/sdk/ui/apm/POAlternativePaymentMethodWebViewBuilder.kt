@@ -14,15 +14,13 @@ import com.processout.sdk.ui.web.WebAuthorizationDelegate
 class POAlternativePaymentMethodWebViewBuilder(
     private val activity: Activity
 ) {
-    private var request: POAlternativePaymentMethodRequest? = null
     private var delegate: WebAuthorizationDelegate? = null
 
     fun with(
         request: POAlternativePaymentMethodRequest,
         callback: (ProcessOutResult<POAlternativePaymentMethodResponse>) -> Unit
     ) = apply {
-        this.request = request
-        this.delegate = AlternativePaymentMethodWebAuthorizationDelegate(
+        delegate = AlternativePaymentMethodWebAuthorizationDelegate(
             ProcessOut.instance.alternativePaymentMethods,
             request, callback
         )
@@ -31,10 +29,15 @@ class POAlternativePaymentMethodWebViewBuilder(
     fun build(): WebView = ProcessOutWebView(
         activity,
         ProcessOutWebView.Configuration(
+            uri = delegate?.uri,
             returnUris = listOf(Uri.parse(ApiConstants.CHECKOUT_URL)),
             sdkVersion = ProcessOut.VERSION,
             timeoutSeconds = null
-        ),
-        delegate
-    )
+        )
+    ) { result ->
+        when (result) {
+            is ProcessOutResult.Success -> delegate?.complete(uri = result.value)
+            is ProcessOutResult.Failure -> delegate?.complete(failure = result)
+        }
+    }
 }
