@@ -10,9 +10,9 @@ import com.processout.sdk.api.model.threeds.PO3DSRedirect
 import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.ui.web.WebAuthorizationDelegate
 import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationActivityContract
 import com.processout.sdk.ui.web.customtab.CustomTabConfiguration
-import com.processout.sdk.ui.web.WebAuthorizationDelegate
 import com.processout.sdk.ui.web.webview.WebViewAuthorizationActivityLauncher
 import com.processout.sdk.ui.web.webview.WebViewConfiguration
 
