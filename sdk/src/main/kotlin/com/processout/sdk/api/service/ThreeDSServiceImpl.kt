@@ -2,7 +2,12 @@ package com.processout.sdk.api.service
 
 import android.util.Base64
 import com.processout.sdk.api.model.response.POCustomerAction
-import com.processout.sdk.api.model.response.POCustomerAction.Type.*
+import com.processout.sdk.api.model.response.POCustomerAction.Type.CHALLENGE_MOBILE
+import com.processout.sdk.api.model.response.POCustomerAction.Type.FINGERPRINT
+import com.processout.sdk.api.model.response.POCustomerAction.Type.FINGERPRINT_MOBILE
+import com.processout.sdk.api.model.response.POCustomerAction.Type.REDIRECT
+import com.processout.sdk.api.model.response.POCustomerAction.Type.UNSUPPORTED
+import com.processout.sdk.api.model.response.POCustomerAction.Type.URL
 import com.processout.sdk.api.model.threeds.PO3DS2AuthenticationRequest
 import com.processout.sdk.api.model.threeds.PO3DS2Challenge
 import com.processout.sdk.api.model.threeds.PO3DS2Configuration
@@ -115,7 +120,6 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
             delegate.handle(
                 PO3DSRedirect(
                     url = java.net.URL(url),
-                    isHeadlessModeAllowed = true,
                     timeoutSeconds = WEB_FINGERPRINT_TIMEOUT_SECONDS
                 )
             ) { result ->
@@ -157,12 +161,7 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
         callback: (ProcessOutResult<String>) -> Unit
     ) {
         try {
-            delegate.handle(
-                PO3DSRedirect(
-                    url = java.net.URL(url),
-                    isHeadlessModeAllowed = false
-                ), callback
-            )
+            delegate.handle(PO3DSRedirect(url = java.net.URL(url)), callback)
         } catch (e: MalformedURLException) {
             callback(
                 ProcessOutResult.Failure(
