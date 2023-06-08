@@ -28,7 +28,7 @@ fun authorizeInvoice(invoiceId: String, cardId: String) {
             invoiceId = invoiceId,
             source = cardId
         ),
-        threeDSService = POTest3DSService(activity = this)
+        threeDSService = POTest3DSService(activity = this, customTabLauncher = null)
     ) { result ->
         when (result) {
             is ProcessOutResult.Success -> TODO()
@@ -38,15 +38,47 @@ fun authorizeInvoice(invoiceId: String, cardId: String) {
 }
 ```
 
-### 3DS Redirect
+### 3DS Redirect with Custom Chrome Tabs
+
+To handle web based redirects service must implement method:\
+`PO3DSService.handle(redirect: PO3DSRedirect, callback: (ProcessOutResult<String>) -> Unit)`
+
+`PO3DSRedirectCustomTabLauncher` allows to automatically redirect user to provided url and collect the result.
+Launcher will open Custom Tab ([overview](https://developer.chrome.com/docs/android/custom-tabs/)) when Chrome
+is installed and enabled on the device even if it's not a default browser,
+otherwise it will automatically fallback to the WebView.
+
+SDK handles [deep link](https://developer.android.com/training/app-links#deep-links) to return back to your app after authorization
+in the following format: `your.application.id://processout/return`\
+It is required to provide this deep link as `return_url` when creating invoice.
+
+Integration steps:
+```kotlin
+// 1) Initialize launcher in onCreate() method of Activity or Fragment.
+
+private lateinit var customTabLauncher: PO3DSRedirectCustomTabLauncher
+
+override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    customTabLauncher = PO3DSRedirectCustomTabLauncher.create(from = this)
+}
+
+// 2) Pass launcher to your implementation of PO3DSService or POTest3DSService and handle redirect.
+
+override fun handle(redirect: PO3DSRedirect, callback: (ProcessOutResult<String>) -> Unit) {
+    customTabLauncher.launch(redirect) { result ->
+        callback(result)
+    }
+}
+```
+
+### 3DS Redirect with WebView (Deprecated)
 
 To handle web based redirects service must implement method:\
 `PO3DSService.handle(redirect: PO3DSRedirect, callback: (ProcessOutResult<String>) -> Unit)`
 
 `PO3DSRedirectWebViewBuilder` allows to create WebView that will automatically redirect user to provided url and collect
-the result. Note that some redirects can be handled silently to user. Check `isHeadlessModeAllowed` in `PO3DSRedirect`,
-if value of this property is `true` then redirect can be handled without showing any additional UI to user,
-otherwise WebView must be visible and added to the screen layout.
+the result. WebView must be visible and added to the screen layout.\
 Example implementation:
 ```
 private val rootLayout: FrameLayout = activity.findViewById(android.R.id.content)
@@ -58,9 +90,7 @@ override fun handle(redirect: PO3DSRedirect, callback: (ProcessOutResult<String>
         destroyWebView()
         callback(result)
     }.build()
-    if (redirect.isHeadlessModeAllowed.not()) {
-        rootLayout.addView(webView)
-    }
+    rootLayout.addView(webView)
 }
 
 private fun destroyWebView() {
