@@ -12,7 +12,7 @@ import com.processout.sdk.core.ProcessOutResult
 
 class POTest3DSService(
     activity: Activity,
-    private val customTabLauncher: PO3DSRedirectCustomTabLauncher
+    private val customTabLauncher: PO3DSRedirectCustomTabLauncher? = null
 ) : PO3DSService {
 
     private val dialogBuilder = AlertDialog.Builder(activity)
@@ -47,7 +47,7 @@ class POTest3DSService(
     }
 
     override fun handle(redirect: PO3DSRedirect, callback: (ProcessOutResult<String>) -> Unit) {
-        customTabLauncher.launch(redirect) { result ->
+        customTabLauncher?.launch(redirect) { result ->
             callback(result)
         }
     }
