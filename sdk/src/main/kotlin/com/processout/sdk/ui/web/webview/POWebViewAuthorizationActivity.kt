@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Bundle
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
+import com.processout.sdk.R
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.toActivityResult
@@ -55,5 +56,10 @@ class POWebViewAuthorizationActivity : AppCompatActivity() {
 
     private fun setActivityResult(resultCode: Int, result: ProcessOutActivityResult<Uri>) {
         setResult(resultCode, Intent().putExtra(EXTRA_RESULT, result))
+    }
+
+    override fun finish() {
+        super.finish()
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
     }
 }

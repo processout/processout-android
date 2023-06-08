@@ -12,6 +12,7 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.processout.sdk.R
 import com.processout.sdk.api.service.POBrowserCapabilitiesService.Companion.CHROME_PACKAGE
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutActivityResult
@@ -77,6 +78,8 @@ class POCustomTabAuthorizationActivity : AppCompatActivity() {
 
     private fun launchCustomTab(uri: Uri) {
         CustomTabsIntent.Builder()
+            .setStartAnimations(this, R.anim.slide_in_right, R.anim.slide_out_left)
+            .setExitAnimations(this, R.anim.slide_in_left, R.anim.slide_out_right)
             .setShareState(CustomTabsIntent.SHARE_STATE_OFF)
             .build()
             .also {
