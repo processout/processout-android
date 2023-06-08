@@ -8,21 +8,21 @@ import com.processout.sdk.api.model.request.POAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.core.ProcessOutResult
-import com.processout.sdk.ui.web.ProcessOutWebView
-import com.processout.sdk.ui.web.WebViewDelegate
+import com.processout.sdk.ui.web.WebAuthorizationDelegate
+import com.processout.sdk.ui.web.webview.ProcessOutWebView
+import com.processout.sdk.ui.web.webview.WebViewConfiguration
 
+@Deprecated("Use POAlternativePaymentMethodCustomTabLauncher.")
 class POAlternativePaymentMethodWebViewBuilder(
     private val activity: Activity
 ) {
-    private var request: POAlternativePaymentMethodRequest? = null
-    private var delegate: WebViewDelegate? = null
+    private var delegate: WebAuthorizationDelegate? = null
 
     fun with(
         request: POAlternativePaymentMethodRequest,
         callback: (ProcessOutResult<POAlternativePaymentMethodResponse>) -> Unit
     ) = apply {
-        this.request = request
-        this.delegate = AlternativePaymentMethodWebViewDelegate(
+        delegate = AlternativePaymentMethodWebAuthorizationDelegate(
             ProcessOut.instance.alternativePaymentMethods,
             request, callback
         )
@@ -30,11 +30,16 @@ class POAlternativePaymentMethodWebViewBuilder(
 
     fun build(): WebView = ProcessOutWebView(
         activity,
-        ProcessOutWebView.Configuration(
+        WebViewConfiguration(
+            uri = delegate?.uri,
             returnUris = listOf(Uri.parse(ApiConstants.CHECKOUT_URL)),
             sdkVersion = ProcessOut.VERSION,
             timeoutSeconds = null
-        ),
-        delegate
-    )
+        )
+    ) { result ->
+        when (result) {
+            is ProcessOutResult.Success -> delegate?.complete(uri = result.value)
+            is ProcessOutResult.Failure -> delegate?.complete(failure = result)
+        }
+    }
 }

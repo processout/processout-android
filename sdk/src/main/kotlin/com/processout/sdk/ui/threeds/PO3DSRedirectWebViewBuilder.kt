@@ -7,19 +7,21 @@ import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.threeds.PO3DSRedirect
 import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.core.ProcessOutResult
-import com.processout.sdk.ui.web.ProcessOutWebView
-import com.processout.sdk.ui.web.WebViewDelegate
+import com.processout.sdk.ui.web.WebAuthorizationDelegate
+import com.processout.sdk.ui.web.webview.ProcessOutWebView
+import com.processout.sdk.ui.web.webview.WebViewConfiguration
 
+@Deprecated("Use PO3DSRedirectCustomTabLauncher.")
 class PO3DSRedirectWebViewBuilder(
     private val activity: Activity
 ) {
     private var redirect: PO3DSRedirect? = null
-    private var delegate: WebViewDelegate? = null
+    private var delegate: WebAuthorizationDelegate? = null
 
     fun with(redirect: PO3DSRedirect, callback: (ProcessOutResult<String>) -> Unit) =
         apply {
             this.redirect = redirect
-            this.delegate = ThreeDSRedirectWebViewDelegate(
+            this.delegate = ThreeDSRedirectWebAuthorizationDelegate(
                 redirect.url.let { Uri.parse(it.toString()) },
                 callback
             )
@@ -27,11 +29,16 @@ class PO3DSRedirectWebViewBuilder(
 
     fun build(): WebView = ProcessOutWebView(
         activity,
-        ProcessOutWebView.Configuration(
+        WebViewConfiguration(
+            uri = delegate?.uri,
             returnUris = listOf(Uri.parse(ApiConstants.CHECKOUT_URL)),
             sdkVersion = ProcessOut.VERSION,
             timeoutSeconds = redirect?.timeoutSeconds
-        ),
-        delegate
-    )
+        )
+    ) { result ->
+        when (result) {
+            is ProcessOutResult.Success -> delegate?.complete(uri = result.value)
+            is ProcessOutResult.Failure -> delegate?.complete(failure = result)
+        }
+    }
 }

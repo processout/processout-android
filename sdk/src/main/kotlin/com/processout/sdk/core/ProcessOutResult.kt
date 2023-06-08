@@ -1,5 +1,7 @@
 package com.processout.sdk.core
 
+import android.os.Parcelable
+
 sealed class ProcessOutResult<out T : Any> {
     data class Success<out T : Any>(val value: T) : ProcessOutResult<T>()
     data class Failure(
@@ -37,3 +39,9 @@ inline fun <T : Any, R : Any> ProcessOutResult<T>.map(
     is ProcessOutResult.Success -> ProcessOutResult.Success(transform(value))
     is ProcessOutResult.Failure -> this.copy()
 }
+
+internal fun <T : Parcelable> ProcessOutResult<T>.toActivityResult(): ProcessOutActivityResult<T> =
+    when (this) {
+        is ProcessOutResult.Success -> ProcessOutActivityResult.Success(value)
+        is ProcessOutResult.Failure -> ProcessOutActivityResult.Failure(code, message)
+    }

@@ -10,8 +10,8 @@ internal interface RepositoryGraph {
 }
 
 internal class RepositoryGraphImpl(
-    networkGraph: NetworkGraph,
-    contextGraph: ContextGraph
+    contextGraph: ContextGraph,
+    networkGraph: NetworkGraph
 ) : RepositoryGraph {
 
     override val gatewayConfigurationsRepository: POGatewayConfigurationsRepository =

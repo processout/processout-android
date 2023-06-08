@@ -9,12 +9,14 @@ internal interface ServiceGraph {
     val invoicesService: POInvoicesService
     val customerTokensService: POCustomerTokensService
     val alternativePaymentMethodsService: POAlternativePaymentMethodsService
+    val browserCapabilitiesService: POBrowserCapabilitiesService
 }
 
 internal class ServiceGraphImpl(
+    contextGraph: ContextGraph,
     networkGraph: NetworkGraph,
     repositoryGraph: RepositoryGraph,
-    configuration: AlternativePaymentMethodsConfiguration
+    alternativePaymentMethodsConfiguration: AlternativePaymentMethodsConfiguration
 ) : ServiceGraph {
 
     private val mainCoroutineScope: CoroutineScope
@@ -37,5 +39,8 @@ internal class ServiceGraphImpl(
         )
 
     override val alternativePaymentMethodsService: POAlternativePaymentMethodsService =
-        AlternativePaymentMethodsServiceImpl(configuration)
+        AlternativePaymentMethodsServiceImpl(alternativePaymentMethodsConfiguration)
+
+    override val browserCapabilitiesService: POBrowserCapabilitiesService =
+        BrowserCapabilitiesServiceImpl(contextGraph.application)
 }
