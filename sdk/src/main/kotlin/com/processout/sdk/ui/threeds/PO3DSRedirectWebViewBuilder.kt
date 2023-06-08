@@ -11,6 +11,7 @@ import com.processout.sdk.ui.web.WebAuthorizationDelegate
 import com.processout.sdk.ui.web.webview.ProcessOutWebView
 import com.processout.sdk.ui.web.webview.WebViewConfiguration
 
+@Deprecated("Use PO3DSRedirectCustomTabLauncher.")
 class PO3DSRedirectWebViewBuilder(
     private val activity: Activity
 ) {

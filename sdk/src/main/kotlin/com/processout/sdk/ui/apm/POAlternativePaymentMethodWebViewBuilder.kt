@@ -12,6 +12,7 @@ import com.processout.sdk.ui.web.WebAuthorizationDelegate
 import com.processout.sdk.ui.web.webview.ProcessOutWebView
 import com.processout.sdk.ui.web.webview.WebViewConfiguration
 
+@Deprecated("Use POAlternativePaymentMethodCustomTabLauncher.")
 class POAlternativePaymentMethodWebViewBuilder(
     private val activity: Activity
 ) {
