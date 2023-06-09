@@ -498,8 +498,8 @@ internal class PONativeAlternativePaymentMethodViewModel(
     private suspend fun preloadImage(url: String): ImageResult {
         val request = ImageRequest.Builder(app)
             .data(url)
-            .memoryCachePolicy(CachePolicy.DISABLED)
-            .diskCachePolicy(CachePolicy.ENABLED)
+            .memoryCachePolicy(CachePolicy.ENABLED)
+            .diskCachePolicy(CachePolicy.DISABLED)
             .build()
         return app.imageLoader.execute(request)
     }
