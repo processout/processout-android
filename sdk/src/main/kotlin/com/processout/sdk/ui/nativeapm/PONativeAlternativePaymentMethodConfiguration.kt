@@ -19,6 +19,9 @@ data class PONativeAlternativePaymentMethodConfiguration(
 ) : Parcelable {
 
     /**
+     * @param inlineSingleSelectValuesLimit Defines maximum number of options that will be
+     * displayed inline for parameters where user should select single option (e.g. radio buttons).
+     * Default value is _5_.
      * @param skipSuccessScreen Only applies when [waitsPaymentConfirmation] is _true_.
      */
     @Parcelize
@@ -26,6 +29,7 @@ data class PONativeAlternativePaymentMethodConfiguration(
         val title: String? = null,
         val primaryActionText: String? = null,
         val secondaryAction: SecondaryAction? = null,
+        val inlineSingleSelectValuesLimit: Int = 5,
         val cancellation: Cancellation = Cancellation(),
         val successMessage: String? = null,
         val skipSuccessScreen: Boolean = false,

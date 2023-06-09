@@ -47,6 +47,7 @@ import com.processout.sdk.ui.shared.view.input.Input
 import com.processout.sdk.ui.shared.view.input.InputComponent
 import com.processout.sdk.ui.shared.view.input.code.CodeInput
 import com.processout.sdk.ui.shared.view.input.dropdown.ExposedDropdownInput
+import com.processout.sdk.ui.shared.view.input.radio.RadioInput
 import com.processout.sdk.ui.shared.view.input.text.TextInput
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -402,7 +403,12 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                     createCodeInput(inputParameter)
                 else createTextInput(inputParameter)
             }
-            ParameterType.SINGLE_SELECT -> createExposedDropdownInput(inputParameter)
+            ParameterType.SINGLE_SELECT -> {
+                val optionsCount = inputParameter.parameter.availableValues?.size ?: 0
+                if (optionsCount <= viewModel.options.inlineSingleSelectValuesLimit)
+                    createRadioInput(inputParameter)
+                else createExposedDropdownInput(inputParameter)
+            }
             else -> createTextInput(inputParameter)
         }
 
@@ -443,6 +449,13 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             inputParameter = inputParameter,
             style = configuration?.style?.input,
             dropdownMenuStyle = configuration?.style?.dropdownMenu
+        )
+
+    private fun createRadioInput(inputParameter: InputParameter) =
+        RadioInput(
+            requireContext(),
+            inputParameter = inputParameter,
+            style = configuration?.style?.input
         )
 
     private fun resolveInputFocus(focusedInputId: Int) {
