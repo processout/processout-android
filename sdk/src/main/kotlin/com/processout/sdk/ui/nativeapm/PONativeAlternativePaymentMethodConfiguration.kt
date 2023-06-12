@@ -8,6 +8,7 @@ import com.processout.sdk.ui.shared.style.background.POBackgroundDecorationStyle
 import com.processout.sdk.ui.shared.style.button.POButtonStyle
 import com.processout.sdk.ui.shared.style.input.POInputFieldStyle
 import com.processout.sdk.ui.shared.style.input.POInputStyle
+import com.processout.sdk.ui.shared.style.radio.PORadioButtonStyle
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -68,6 +69,7 @@ data class PONativeAlternativePaymentMethodConfiguration(
         val input: POInputStyle? = null,
         val codeInput: POInputStyle? = null,
         val dropdownMenu: POInputFieldStyle? = null,
+        val radioButton: PORadioButtonStyle? = null,
         val primaryButton: POButtonStyle? = null,
         val secondaryButton: POButtonStyle? = null,
         @ColorInt
