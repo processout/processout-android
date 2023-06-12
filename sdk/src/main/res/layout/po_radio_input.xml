@@ -31,7 +31,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="@dimen/po_input_marginVertical"
         android:gravity="center"
         android:visibility="invisible"
         tools:text="Error message"

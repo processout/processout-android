@@ -73,6 +73,7 @@ internal class RadioInput(
 
     private fun addRadioButton(index: Int, parameterValue: ParameterValue) {
         MaterialRadioButton(context).let {
+            it.initLayoutParams()
             it.id = index
             it.text = parameterValue.displayName
             it.tag = parameterValue.value
@@ -86,6 +87,17 @@ internal class RadioInput(
 
             radioButtons.add(index, it)
             radioGroup.addView(it)
+        }
+    }
+
+    private fun MaterialRadioButton.initLayoutParams() {
+        with(resources) {
+            val params = RadioGroup.LayoutParams(
+                LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT
+            )
+            val marginBottom = getDimensionPixelSize(R.dimen.po_radioButton_marginBottom)
+            params.setMargins(0, 0, 0, marginBottom)
+            layoutParams = params
         }
     }
 
