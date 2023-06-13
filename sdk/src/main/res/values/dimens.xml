@@ -29,7 +29,7 @@
     <dimen name="po_button_circularProgressIndicator_size">18dp</dimen>
 
     <dimen name="po_radioButton_minHeight">40dp</dimen>
-    <dimen name="po_radioButton_paddingLeft">6dp</dimen>
+    <dimen name="po_radioButton_paddingLeft">8dp</dimen>
     <dimen name="po_radioButton_marginBottom">8dp</dimen>
 
     <dimen name="po_dragHandle_width">32dp</dimen>

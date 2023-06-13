@@ -74,6 +74,8 @@ internal class RadioInput(
     private fun addRadioButton(index: Int, parameterValue: ParameterValue) {
         MaterialRadioButton(context).let {
             it.initLayoutParams()
+            it.setButtonDrawable(R.drawable.po_btn_radio_material_anim)
+
             it.id = index
             it.text = parameterValue.displayName
             it.tag = parameterValue.value
