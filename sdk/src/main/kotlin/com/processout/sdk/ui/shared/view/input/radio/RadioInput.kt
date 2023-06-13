@@ -11,7 +11,8 @@ import androidx.appcompat.view.ContextThemeWrapper
 import com.google.android.material.radiobutton.MaterialRadioButton
 import com.processout.sdk.R
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterValue
-import com.processout.sdk.ui.nativeapm.applyRadioButtonStatesStyle
+import com.processout.sdk.ui.nativeapm.applyErrorStateStyle
+import com.processout.sdk.ui.nativeapm.applyStatesStyle
 import com.processout.sdk.ui.nativeapm.applyStyle
 import com.processout.sdk.ui.shared.model.InputParameter
 import com.processout.sdk.ui.shared.style.radio.PORadioButtonStyle
@@ -80,13 +81,13 @@ internal class RadioInput(
             it.setButtonDrawable(
                 style?.knobDrawableResId ?: R.drawable.po_btn_radio_material_anim
             )
-            style?.let { style -> it.applyRadioButtonStatesStyle(style) }
 
             it.id = index
             it.text = parameterValue.displayName
             it.tag = parameterValue.value
 
             it.setOnCheckedChangeListener { buttonView, isChecked ->
+                style?.let { style -> (buttonView as MaterialRadioButton).applyStatesStyle(style) }
                 if (isChecked) {
                     value = buttonView.tag as String
                     afterValueChanged?.invoke(value)
@@ -121,12 +122,18 @@ internal class RadioInput(
     private fun applyState(state: Input.State) {
         when (state) {
             is Input.State.Default -> {
-                radioButtons.forEach { it.isEnabled = state.editable }
+                radioButtons.forEach {
+                    style?.let { style -> it.applyStatesStyle(style) }
+                    it.isEnabled = state.editable
+                }
                 errorMessage.text = String()
                 errorMessage.visibility = View.INVISIBLE
             }
             is Input.State.Error -> {
-                radioButtons.forEach { it.isEnabled = true }
+                radioButtons.forEach {
+                    style?.let { style -> it.applyErrorStateStyle(style) }
+                    it.isEnabled = true
+                }
                 errorMessage.text = state.message
                 errorMessage.visibility = View.VISIBLE
             }

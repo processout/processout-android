@@ -130,17 +130,20 @@ internal fun MaterialButton.applyStyle(style: POBorderStyle) {
     strokeWidth = style.widthDp.dpToPx(context)
 }
 
-internal fun MaterialRadioButton.applyRadioButtonStatesStyle(style: PORadioButtonStyle) {
+internal fun MaterialRadioButton.applyStatesStyle(style: PORadioButtonStyle) {
     buttonTintList = createRadioButtonColorStateList(
         style.normal.knobColor,
         style.selected.knobColor
     )
-    setTextColor(
-        createRadioButtonColorStateList(
-            style.normal.text.color,
-            style.selected.text.color
-        )
-    )
+    if (isChecked) applyStyle(style.selected.text)
+    else applyStyle(style.normal.text)
+}
+
+internal fun MaterialRadioButton.applyErrorStateStyle(style: PORadioButtonStyle) {
+    with(style.error) {
+        buttonTintList = ColorStateList.valueOf(knobColor)
+        applyStyle(text)
+    }
 }
 
 internal fun createRadioButtonColorStateList(
