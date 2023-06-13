@@ -119,10 +119,12 @@ internal class RadioInput(
     private fun applyState(state: Input.State) {
         when (state) {
             is Input.State.Default -> {
+                radioButtons.forEach { it.isEnabled = state.editable }
                 errorMessage.text = String()
                 errorMessage.visibility = View.INVISIBLE
             }
             is Input.State.Error -> {
+                radioButtons.forEach { it.isEnabled = true }
                 errorMessage.text = state.message
                 errorMessage.visibility = View.VISIBLE
             }
