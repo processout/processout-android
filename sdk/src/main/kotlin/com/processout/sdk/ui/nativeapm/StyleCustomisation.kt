@@ -130,37 +130,37 @@ internal fun MaterialButton.applyStyle(style: POBorderStyle) {
     strokeWidth = style.widthDp.dpToPx(context)
 }
 
-internal fun MaterialRadioButton.applyStatesStyle(style: PORadioButtonStyle) {
-    buttonTintList = createRadioButtonColorStateList(
-        style.normal.knobColor,
-        style.selected.knobColor
-    )
-    if (isChecked) applyStyle(style.selected.text)
-    else applyStyle(style.normal.text)
+internal fun MaterialRadioButton.applyStatesStyle(
+    style: PORadioButtonStyle?,
+    defaultButtonTintList: ColorStateList
+) {
+    style?.let {
+        buttonTintList = ColorStateList(
+            arrayOf(
+                intArrayOf(android.R.attr.state_checked),
+                intArrayOf()
+            ),
+            intArrayOf(
+                it.selected.knobColor,
+                it.normal.knobColor
+            )
+        )
+        if (isChecked) applyStyle(it.selected.text)
+        else applyStyle(it.normal.text)
+    } ?: run { buttonTintList = defaultButtonTintList }
 }
 
-internal fun MaterialRadioButton.applyErrorStateStyle(style: PORadioButtonStyle) {
-    with(style.error) {
-        buttonTintList = ColorStateList.valueOf(knobColor)
-        applyStyle(text)
-    }
+internal fun MaterialRadioButton.applyErrorStateStyle(
+    style: PORadioButtonStyle?,
+    defaultButtonTintList: ColorStateList
+) {
+    style?.let {
+        with(it.error) {
+            buttonTintList = ColorStateList.valueOf(knobColor)
+            applyStyle(text)
+        }
+    } ?: run { buttonTintList = defaultButtonTintList }
 }
-
-internal fun createRadioButtonColorStateList(
-    @ColorInt
-    normalColor: Int,
-    @ColorInt
-    selectedColor: Int
-) = ColorStateList(
-    arrayOf(
-        intArrayOf(android.R.attr.state_checked),
-        intArrayOf()
-    ),
-    intArrayOf(
-        selectedColor,
-        normalColor
-    )
-)
 
 internal fun View.applyStyle(style: POBackgroundDecorationStateStyle) {
     when (style) {

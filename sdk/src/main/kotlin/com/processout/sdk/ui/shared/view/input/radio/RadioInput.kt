@@ -8,6 +8,7 @@ import android.widget.LinearLayout
 import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.appcompat.view.ContextThemeWrapper
+import androidx.core.content.ContextCompat
 import com.google.android.material.radiobutton.MaterialRadioButton
 import com.processout.sdk.R
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterValue
@@ -35,6 +36,9 @@ internal class RadioInput(
     private val radioGroup: RadioGroup
     private val radioButtons = mutableListOf<MaterialRadioButton>()
     private val errorMessage: TextView
+
+    private val defaultKnobTintList = ContextCompat.getColorStateList(context, R.color.po_radio_button_states)!!
+    private val errorKnobTintList = ContextCompat.getColorStateList(context, R.color.poTextError)!!
 
     override var value: String = String()
     private var afterValueChanged: ((String) -> Unit)? = null
@@ -78,16 +82,14 @@ internal class RadioInput(
     private fun addRadioButton(index: Int, parameterValue: ParameterValue) {
         MaterialRadioButton(context).let {
             it.initLayoutParams()
-            it.setButtonDrawable(
-                style?.knobDrawableResId ?: R.drawable.po_btn_radio_material_anim
-            )
+            it.setButtonDrawable(style?.knobDrawableResId ?: R.drawable.po_btn_radio_material_anim)
 
             it.id = index
             it.text = parameterValue.displayName
             it.tag = parameterValue.value
 
             it.setOnCheckedChangeListener { buttonView, isChecked ->
-                style?.let { style -> (buttonView as MaterialRadioButton).applyStatesStyle(style) }
+                it.applyStatesStyle(style, defaultButtonTintList = defaultKnobTintList)
                 if (isChecked) {
                     value = buttonView.tag as String
                     afterValueChanged?.invoke(value)
@@ -123,7 +125,7 @@ internal class RadioInput(
         when (state) {
             is Input.State.Default -> {
                 radioButtons.forEach {
-                    style?.let { style -> it.applyStatesStyle(style) }
+                    it.applyStatesStyle(style, defaultButtonTintList = defaultKnobTintList)
                     it.isEnabled = state.editable
                 }
                 errorMessage.text = String()
@@ -131,7 +133,7 @@ internal class RadioInput(
             }
             is Input.State.Error -> {
                 radioButtons.forEach {
-                    style?.let { style -> it.applyErrorStateStyle(style) }
+                    it.applyErrorStateStyle(style, defaultButtonTintList = errorKnobTintList)
                     it.isEnabled = true
                 }
                 errorMessage.text = state.message
