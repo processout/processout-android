@@ -31,7 +31,7 @@ internal class TextInput(
     context: Context,
     attrs: AttributeSet? = null,
     override val inputParameter: InputParameter? = null,
-    override val style: POInputStyle? = null
+    private val style: POInputStyle? = null
 ) : LinearLayout(context, attrs, 0), InputComponent {
 
     constructor(context: Context) : this(context, null)

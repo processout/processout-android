@@ -13,8 +13,7 @@ import com.processout.sdk.R
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterValue
 import com.processout.sdk.ui.nativeapm.applyStyle
 import com.processout.sdk.ui.shared.model.InputParameter
-import com.processout.sdk.ui.shared.style.input.POInputStateStyle
-import com.processout.sdk.ui.shared.style.input.POInputStyle
+import com.processout.sdk.ui.shared.style.radio.PORadioButtonStyle
 import com.processout.sdk.ui.shared.view.input.Input
 import com.processout.sdk.ui.shared.view.input.InputComponent
 
@@ -22,7 +21,7 @@ internal class RadioInput(
     context: Context,
     attrs: AttributeSet? = null,
     override val inputParameter: InputParameter? = null,
-    override val style: POInputStyle? = null
+    private val style: PORadioButtonStyle? = null
 ) : LinearLayout(context, attrs, 0), InputComponent {
 
     constructor(context: Context) : this(context, null)
@@ -48,6 +47,9 @@ internal class RadioInput(
         title = findViewById(R.id.po_title)
         radioGroup = findViewById(R.id.po_radio_group)
         errorMessage = findViewById(R.id.po_error_message)
+
+        style?.title?.let { title.applyStyle(it) }
+        style?.errorDescription?.let { errorMessage.applyStyle(it) }
 
         initWithInputParameters()
         applyState(state)
@@ -115,21 +117,14 @@ internal class RadioInput(
     private fun applyState(state: Input.State) {
         when (state) {
             is Input.State.Default -> {
-                style?.normal?.let { applyStateStyle(it) }
                 errorMessage.text = String()
                 errorMessage.visibility = View.INVISIBLE
             }
             is Input.State.Error -> {
-                style?.error?.let { applyStateStyle(it) }
                 errorMessage.text = state.message
                 errorMessage.visibility = View.VISIBLE
             }
         }
         this.state = state
-    }
-
-    private fun applyStateStyle(stateStyle: POInputStateStyle) {
-        title.applyStyle(stateStyle.title)
-        errorMessage.applyStyle(stateStyle.description)
     }
 }

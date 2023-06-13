@@ -41,6 +41,7 @@ import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityC
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityContract.Companion.EXTRA_RESULT
 import com.processout.sdk.ui.shared.model.InputParameter
 import com.processout.sdk.ui.shared.model.SecondaryActionUiModel
+import com.processout.sdk.ui.shared.style.dropdown.ExposedDropdownStyle
 import com.processout.sdk.ui.shared.view.button.POButton
 import com.processout.sdk.ui.shared.view.extensions.*
 import com.processout.sdk.ui.shared.view.input.Input
@@ -447,15 +448,17 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         ExposedDropdownInput(
             requireContext(),
             inputParameter = inputParameter,
-            style = configuration?.style?.input,
-            dropdownMenuStyle = configuration?.style?.dropdownMenu
+            style = ExposedDropdownStyle(
+                input = configuration?.style?.input,
+                dropdownMenu = configuration?.style?.dropdownMenu
+            )
         )
 
     private fun createRadioInput(inputParameter: InputParameter) =
         RadioInput(
             requireContext(),
             inputParameter = inputParameter,
-            style = configuration?.style?.input
+            style = configuration?.style?.radioButton
         )
 
     private fun resolveInputFocus(focusedInputId: Int) {
