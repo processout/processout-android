@@ -11,6 +11,7 @@ import androidx.appcompat.view.ContextThemeWrapper
 import com.google.android.material.radiobutton.MaterialRadioButton
 import com.processout.sdk.R
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterValue
+import com.processout.sdk.ui.nativeapm.applyRadioButtonStatesStyle
 import com.processout.sdk.ui.nativeapm.applyStyle
 import com.processout.sdk.ui.shared.model.InputParameter
 import com.processout.sdk.ui.shared.style.radio.PORadioButtonStyle
@@ -79,6 +80,7 @@ internal class RadioInput(
             it.setButtonDrawable(
                 style?.knobDrawableResId ?: R.drawable.po_btn_radio_material_anim
             )
+            style?.let { style -> it.applyRadioButtonStatesStyle(style) }
 
             it.id = index
             it.text = parameterValue.displayName
