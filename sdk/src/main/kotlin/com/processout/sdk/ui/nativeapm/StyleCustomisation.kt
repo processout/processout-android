@@ -20,6 +20,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.setPadding
 import androidx.core.widget.TextViewCompat
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.radiobutton.MaterialRadioButton
 import com.processout.sdk.R
 import com.processout.sdk.databinding.PoBottomSheetCaptureBinding
 import com.processout.sdk.databinding.PoBottomSheetNativeApmBinding
@@ -29,6 +30,7 @@ import com.processout.sdk.ui.shared.style.POTypography
 import com.processout.sdk.ui.shared.style.background.POBackgroundDecorationStateStyle
 import com.processout.sdk.ui.shared.style.button.POButtonStateStyle
 import com.processout.sdk.ui.shared.style.button.POButtonStyle
+import com.processout.sdk.ui.shared.style.radio.PORadioButtonStyle
 import com.processout.sdk.ui.shared.view.extensions.dpToPx
 import com.processout.sdk.ui.shared.view.extensions.spToPx
 
@@ -126,6 +128,38 @@ internal fun MaterialButton.applyStyle(style: POButtonStateStyle) {
 internal fun MaterialButton.applyStyle(style: POBorderStyle) {
     cornerRadius = style.radiusDp.dpToPx(context)
     strokeWidth = style.widthDp.dpToPx(context)
+}
+
+internal fun MaterialRadioButton.applyStatesStyle(
+    style: PORadioButtonStyle?,
+    defaultButtonTintList: ColorStateList
+) {
+    style?.let {
+        buttonTintList = ColorStateList(
+            arrayOf(
+                intArrayOf(android.R.attr.state_checked),
+                intArrayOf()
+            ),
+            intArrayOf(
+                it.selected.knobColor,
+                it.normal.knobColor
+            )
+        )
+        if (isChecked) applyStyle(it.selected.text)
+        else applyStyle(it.normal.text)
+    } ?: run { buttonTintList = defaultButtonTintList }
+}
+
+internal fun MaterialRadioButton.applyErrorStateStyle(
+    style: PORadioButtonStyle?,
+    defaultButtonTintList: ColorStateList
+) {
+    style?.let {
+        with(it.error) {
+            buttonTintList = ColorStateList.valueOf(knobColor)
+            applyStyle(text)
+        }
+    } ?: run { buttonTintList = defaultButtonTintList }
 }
 
 internal fun View.applyStyle(style: POBackgroundDecorationStateStyle) {

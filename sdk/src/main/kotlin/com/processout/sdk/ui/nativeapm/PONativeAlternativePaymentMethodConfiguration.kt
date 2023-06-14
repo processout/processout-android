@@ -8,6 +8,7 @@ import com.processout.sdk.ui.shared.style.background.POBackgroundDecorationStyle
 import com.processout.sdk.ui.shared.style.button.POButtonStyle
 import com.processout.sdk.ui.shared.style.input.POInputFieldStyle
 import com.processout.sdk.ui.shared.style.input.POInputStyle
+import com.processout.sdk.ui.shared.style.radio.PORadioButtonStyle
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -19,6 +20,9 @@ data class PONativeAlternativePaymentMethodConfiguration(
 ) : Parcelable {
 
     /**
+     * @param inlineSingleSelectValuesLimit Defines maximum number of options that will be
+     * displayed inline for parameters where user should select single option (e.g. radio buttons).
+     * Default value is _5_.
      * @param skipSuccessScreen Only applies when [waitsPaymentConfirmation] is _true_.
      */
     @Parcelize
@@ -26,6 +30,7 @@ data class PONativeAlternativePaymentMethodConfiguration(
         val title: String? = null,
         val primaryActionText: String? = null,
         val secondaryAction: SecondaryAction? = null,
+        val inlineSingleSelectValuesLimit: Int = 5,
         val cancellation: Cancellation = Cancellation(),
         val successMessage: String? = null,
         val skipSuccessScreen: Boolean = false,
@@ -64,6 +69,7 @@ data class PONativeAlternativePaymentMethodConfiguration(
         val input: POInputStyle? = null,
         val codeInput: POInputStyle? = null,
         val dropdownMenu: POInputFieldStyle? = null,
+        val radioButton: PORadioButtonStyle? = null,
         val primaryButton: POButtonStyle? = null,
         val secondaryButton: POButtonStyle? = null,
         @ColorInt

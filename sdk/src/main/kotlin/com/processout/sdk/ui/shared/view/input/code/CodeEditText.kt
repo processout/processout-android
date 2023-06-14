@@ -27,7 +27,7 @@ import kotlin.math.roundToInt
 internal class CodeEditText(
     context: Context,
     attrs: AttributeSet? = null,
-    override val style: POInputStyle? = null
+    private val style: POInputStyle? = null
 ) : AppCompatEditText(
     ContextThemeWrapper(context, R.style.Theme_ProcessOut_Default_Input),
     attrs,

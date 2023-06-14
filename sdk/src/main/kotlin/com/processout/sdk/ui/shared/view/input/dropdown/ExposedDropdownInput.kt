@@ -18,9 +18,8 @@ import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodPar
 import com.processout.sdk.ui.nativeapm.applyStyle
 import com.processout.sdk.ui.shared.model.InputParameter
 import com.processout.sdk.ui.shared.style.POBorderStyle
-import com.processout.sdk.ui.shared.style.input.POInputFieldStyle
+import com.processout.sdk.ui.shared.style.dropdown.ExposedDropdownStyle
 import com.processout.sdk.ui.shared.style.input.POInputStateStyle
-import com.processout.sdk.ui.shared.style.input.POInputStyle
 import com.processout.sdk.ui.shared.view.extensions.defaultOutlineBackground
 import com.processout.sdk.ui.shared.view.extensions.dpToPx
 import com.processout.sdk.ui.shared.view.extensions.hideKeyboard
@@ -32,12 +31,11 @@ internal class ExposedDropdownInput(
     context: Context,
     attrs: AttributeSet? = null,
     override val inputParameter: InputParameter? = null,
-    override val style: POInputStyle? = null,
-    private val dropdownMenuStyle: POInputFieldStyle? = null
+    private val style: ExposedDropdownStyle? = null
 ) : LinearLayout(context, attrs, 0), InputComponent {
 
     constructor(context: Context) : this(context, null)
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, null, null, null)
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, null, null)
 
     private var state: Input.State = inputParameter?.state ?: Input.State.Default()
 
@@ -80,15 +78,15 @@ internal class ExposedDropdownInput(
         dropdownAutoComplete = findViewById(R.id.po_dropdown_auto_complete)
         errorMessage = findViewById(R.id.po_error_message)
 
-        style?.normal?.field?.let {
+        style?.input?.normal?.field?.let {
             defaultBackground = outlineBackground(context, it)
             defaultControlsTintColor = it.controlsTintColor
         }
-        style?.error?.field?.let {
+        style?.input?.error?.field?.let {
             errorBackground = outlineBackground(context, it)
             errorControlsTintColor = it.controlsTintColor
         }
-        val dropdownBackground = dropdownMenuStyle?.let {
+        val dropdownBackground = style?.dropdownMenu?.let {
             outlineBackground(context, it)
         } ?: defaultDropdownBackground
         dropdownAutoComplete.setDropDownBackgroundDrawable(dropdownBackground)
@@ -110,7 +108,7 @@ internal class ExposedDropdownInput(
             context,
             R.layout.po_exposed_dropdown_item,
             options,
-            dropdownMenuStyle?.text
+            style?.dropdownMenu?.text
         )
         dropdownAutoComplete.setAdapter(adapter)
 
@@ -164,7 +162,7 @@ internal class ExposedDropdownInput(
     private fun applyState(state: Input.State) {
         when (state) {
             is Input.State.Default -> {
-                style?.normal?.let { applyStateStyle(it) }
+                style?.input?.normal?.let { applyStateStyle(it) }
                 dropdownAutoComplete.isEnabled = state.editable
                 dropdownLayout.background = defaultBackground
                 dropdownLayout.setEndIconTintList(ColorStateList.valueOf(defaultControlsTintColor))
@@ -172,7 +170,7 @@ internal class ExposedDropdownInput(
                 errorMessage.visibility = View.INVISIBLE
             }
             is Input.State.Error -> {
-                style?.error?.let { applyStateStyle(it) }
+                style?.input?.error?.let { applyStateStyle(it) }
                 dropdownAutoComplete.isEnabled = true
                 dropdownLayout.background = errorBackground
                 dropdownLayout.setEndIconTintList(ColorStateList.valueOf(errorControlsTintColor))

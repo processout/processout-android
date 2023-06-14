@@ -8,6 +8,6 @@ internal interface InputComponent : Input {
 
     fun doAfterValueChanged(action: (value: String) -> Unit)
     fun onKeyboardSubmitClick(action: () -> Unit) {}
-    fun onFocused(action: (id: Int) -> Unit)
-    fun gainFocus()
+    fun onFocused(action: (id: Int) -> Unit) {}
+    fun gainFocus() {}
 }
