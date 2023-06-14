@@ -59,6 +59,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         const val TAG = "PONativeAlternativePaymentMethodBottomSheet"
         private const val REQUIRED_DISPLAY_HEIGHT_PERCENTAGE = 0.62
         private const val MAX_INPUTS_COUNT_IN_COLLAPSED_STATE = 2
+        private const val MAX_INLINE_SINGLE_SELECT_IN_COLLAPSED_STATE = 3
         private const val SUCCESS_FINISH_DELAY_MS = 3000L
         private const val ANIMATION_DURATION_MS = 350L
     }
@@ -249,28 +250,36 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     }
 
     private fun adjustBottomSheetState(
-        uiModel: PONativeAlternativePaymentMethodUiModel,
-        previousInputsCount: Int,
-        currentInputsCount: Int
+        uiModel: PONativeAlternativePaymentMethodUiModel
     ) {
-        if (currentInputsCount != previousInputsCount) {
-            val forceExpand = displayHeight * REQUIRED_DISPLAY_HEIGHT_PERCENTAGE < minPeekHeight
-            if (forceExpand) {
-                bottomSheetBehavior.skipCollapsed = true
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-                bottomSheetBehavior.isDraggable = viewModel.options.cancellation.dragDown
-            } else if (shouldExpandAllowingCollapse(uiModel, currentInputsCount)) {
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-            }
+        val forceExpand = displayHeight * REQUIRED_DISPLAY_HEIGHT_PERCENTAGE < minPeekHeight
+        if (forceExpand) {
+            bottomSheetBehavior.skipCollapsed = true
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+            bottomSheetBehavior.isDraggable = viewModel.options.cancellation.dragDown
+        } else if (shouldExpandAllowingCollapse(uiModel)) {
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
     }
 
     private fun shouldExpandAllowingCollapse(
-        uiModel: PONativeAlternativePaymentMethodUiModel,
-        inputsCount: Int
-    ) = bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED &&
-            inputsCount > MAX_INPUTS_COUNT_IN_COLLAPSED_STATE ||
-            (inputsCount >= MAX_INPUTS_COUNT_IN_COLLAPSED_STATE && uiModel.secondaryAction != null)
+        uiModel: PONativeAlternativePaymentMethodUiModel
+    ): Boolean {
+        if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
+            val inputsCount = uiModel.inputParameters.size
+            if (inputsCount > MAX_INPUTS_COUNT_IN_COLLAPSED_STATE)
+                return true
+            if (inputsCount >= MAX_INPUTS_COUNT_IN_COLLAPSED_STATE && uiModel.secondaryAction != null)
+                return true
+            uiModel.inputParameters.find { it.type() == ParameterType.SINGLE_SELECT }?.let {
+                it.parameter.availableValues?.let { options ->
+                    if (options.size in MAX_INLINE_SINGLE_SELECT_IN_COLLAPSED_STATE + 1..viewModel.options.inlineSingleSelectValuesLimit)
+                        return true
+                }
+            }
+        }
+        return false
+    }
 
     private fun handleUiState(uiState: PONativeAlternativePaymentMethodUiState) {
         when (uiState) {
@@ -359,7 +368,6 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
 
     private fun bindInputs(uiModel: PONativeAlternativePaymentMethodUiModel) {
         val inputParameters = resolveInputParametersState(uiModel)
-        val inputsCountBefore = binding.poInputsContainer.childCount
 
         // find and remove inputs that currently present in the container
         // but does not exist in provided input parameters
@@ -367,7 +375,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         binding.poInputsContainer.children.forEach {
             currentInputIds.add(it.id)
         }
-        currentInputIds.removeAll(inputParameters.map { it.viewId })
+        val newStep = currentInputIds.removeAll(inputParameters.map { it.viewId }).not()
         currentInputIds.forEach {
             with(binding.poInputsContainer) {
                 removeView(findViewById(it))
@@ -380,8 +388,9 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             }
         }
 
-        val inputsCountAfter = binding.poInputsContainer.childCount
-        adjustBottomSheetState(uiModel, inputsCountBefore, inputsCountAfter)
+        if (newStep) {
+            adjustBottomSheetState(uiModel)
+        }
         resolveInputFocus(uiModel.focusedInputId)
     }
 
