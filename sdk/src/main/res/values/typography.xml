@@ -1,54 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="TextAppearance.ProcessOut.Title.Large" parent="TextAppearance.MaterialComponents.Headline5">
-        <item name="android:textSize">24sp</item>
-        <item name="lineHeight">32sp</item>
-    </style>
-
-    <style name="TextAppearance.ProcessOut.Title.Default" parent="TextAppearance.MaterialComponents.Headline5">
-        <item name="android:textSize">20sp</item>
-        <item name="lineHeight">24sp</item>
-    </style>
-
-    <style name="TextAppearance.ProcessOut.Body.Default" parent="TextAppearance.MaterialComponents.Body1">
+    <style name="TextAppearance.ProcessOut" parent="TextAppearance.MaterialComponents.Body1">
+        <item name="fontFamily">@font/work_sans_regular</item>
+        <item name="android:fontFamily">@font/work_sans_regular</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textAllCaps">false</item>
         <item name="android:textSize">16sp</item>
-        <item name="lineHeight">24sp</item>
+        <item name="android:letterSpacing">0</item>
     </style>
 
-    <style name="TextAppearance.ProcessOut.Body.Default.Medium">
-        <item name="fontFamily">sans-serif-medium</item>
-        <item name="android:fontFamily">sans-serif-medium</item>
-    </style>
+    <!-- Fixed -->
 
-    <style name="TextAppearance.ProcessOut.Body.Small" parent="TextAppearance.MaterialComponents.Body2">
+    <style name="TextAppearance.ProcessOut.Fixed" />
+
+    <style name="TextAppearance.ProcessOut.Fixed.Caption">
         <item name="android:textSize">12sp</item>
         <item name="lineHeight">16sp</item>
     </style>
 
-    <style name="TextAppearance.ProcessOut.Body.Small.Medium">
-        <item name="fontFamily">sans-serif-medium</item>
-        <item name="android:fontFamily">sans-serif-medium</item>
+    <style name="TextAppearance.ProcessOut.Fixed.Tag">
+        <item name="fontFamily">@font/work_sans_medium</item>
+        <item name="android:fontFamily">@font/work_sans_medium</item>
+        <item name="android:textSize">12sp</item>
+        <item name="lineHeight">16sp</item>
     </style>
 
-    <style name="TextAppearance.ProcessOut.Input.Label" parent="TextAppearance.MaterialComponents.Body1">
+    <style name="TextAppearance.ProcessOut.Fixed.Button">
+        <item name="fontFamily">@font/work_sans_medium</item>
+        <item name="android:fontFamily">@font/work_sans_medium</item>
+        <item name="android:textSize">14sp</item>
+        <item name="lineHeight">14sp</item>
+    </style>
+
+    <style name="TextAppearance.ProcessOut.Fixed.Tabular">
+        <item name="android:textSize">14sp</item>
+        <item name="lineHeight">20sp</item>
+    </style>
+
+    <style name="TextAppearance.ProcessOut.Fixed.Body">
         <item name="android:textSize">16sp</item>
         <item name="lineHeight">24sp</item>
     </style>
 
-    <style name="TextAppearance.ProcessOut.Input.String" parent="TextAppearance.MaterialComponents.Body1">
-        <item name="android:textSize">16sp</item>
+    <style name="TextAppearance.ProcessOut.Fixed.Label">
+        <item name="android:textSize">14sp</item>
+        <item name="lineHeight">18sp</item>
+    </style>
+
+    <style name="TextAppearance.ProcessOut.Fixed.Label.Heading">
+        <item name="fontFamily">@font/work_sans_medium</item>
+        <item name="android:fontFamily">@font/work_sans_medium</item>
+    </style>
+
+    <!-- Medium -->
+
+    <style name="TextAppearance.ProcessOut.Medium">
+        <item name="fontFamily">@font/work_sans_medium</item>
+        <item name="android:fontFamily">@font/work_sans_medium</item>
+    </style>
+
+    <style name="TextAppearance.ProcessOut.Medium.Subtitle">
+        <item name="android:textSize">18sp</item>
         <item name="lineHeight">24sp</item>
     </style>
 
-    <style name="TextAppearance.ProcessOut.Action.Default" parent="TextAppearance.MaterialComponents.Body1">
-        <item name="android:textSize">16sp</item>
-        <item name="lineHeight">24sp</item>
+    <style name="TextAppearance.ProcessOut.Medium.Title">
+        <item name="android:textSize">20sp</item>
+        <item name="lineHeight">28sp</item>
     </style>
 
-    <style name="TextAppearance.ProcessOut.Action.Default.Medium">
-        <item name="fontFamily">sans-serif-medium</item>
-        <item name="android:fontFamily">sans-serif-medium</item>
+    <style name="TextAppearance.ProcessOut.Medium.Headline">
+        <item name="android:textSize">24sp</item>
+        <item name="lineHeight">32sp</item>
+    </style>
+
+    <style name="TextAppearance.ProcessOut.Medium.Display">
+        <item name="android:textSize">36sp</item>
+        <item name="lineHeight">44sp</item>
+    </style>
+
+    <!-- Large -->
+
+    <style name="TextAppearance.ProcessOut.Large">
+        <item name="fontFamily">@font/work_sans_medium</item>
+        <item name="android:fontFamily">@font/work_sans_medium</item>
+    </style>
+
+    <style name="TextAppearance.ProcessOut.Large.Subtitle">
+        <item name="android:textSize">20sp</item>
+        <item name="lineHeight">28sp</item>
+    </style>
+
+    <style name="TextAppearance.ProcessOut.Large.Title">
+        <item name="android:textSize">24sp</item>
+        <item name="lineHeight">32sp</item>
+    </style>
+
+    <style name="TextAppearance.ProcessOut.Large.Headline">
+        <item name="android:textSize">32sp</item>
+        <item name="lineHeight">40sp</item>
+    </style>
+
+    <style name="TextAppearance.ProcessOut.Large.Display">
+        <item name="android:textSize">48sp</item>
+        <item name="lineHeight">48sp</item>
     </style>
 
 </resources>

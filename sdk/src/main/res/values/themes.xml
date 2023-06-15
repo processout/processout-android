@@ -28,7 +28,7 @@
         <item name="colorOnSurface">@color/poTextPrimary</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.ProcessOut.BottomSheetDialog</item>
         <item name="circularProgressIndicatorStyle">@style/Widget.MaterialComponents.CircularProgressIndicator.Small</item>
-        <item name="textAppearanceButton">@style/TextAppearance.ProcessOut.Action.Default.Medium</item>
+        <item name="textAppearanceButton">@style/TextAppearance.ProcessOut.Fixed.Button</item>
         <item name="materialButtonStyle">@style/Widget.ProcessOut.Button.Primary</item>
         <item name="radioButtonStyle">@style/Widget.ProcessOut.RadioButton</item>
     </style>

@@ -8,71 +8,106 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextAppearance.Title.Large"
-        android:textAppearance="@style/TextAppearance.ProcessOut.Title.Large"
+        android:text="Fixed.Caption"
+        android:textAppearance="@style/TextAppearance.ProcessOut.Fixed.Caption"
         android:textColor="@android:color/black" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextAppearance.Title.Default"
-        android:textAppearance="@style/TextAppearance.ProcessOut.Title.Default"
+        android:text="Fixed.Tag"
+        android:textAppearance="@style/TextAppearance.ProcessOut.Fixed.Tag"
         android:textColor="@android:color/black" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextAppearance.Body.Default"
-        android:textAppearance="@style/TextAppearance.ProcessOut.Body.Default"
+        android:text="Fixed.Button"
+        android:textAppearance="@style/TextAppearance.ProcessOut.Fixed.Button"
         android:textColor="@android:color/black" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextAppearance.Body.Default.Medium"
-        android:textAppearance="@style/TextAppearance.ProcessOut.Body.Default.Medium"
+        android:text="Fixed.Tabular"
+        android:textAppearance="@style/TextAppearance.ProcessOut.Fixed.Tabular"
         android:textColor="@android:color/black" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextAppearance.Body.Small"
-        android:textAppearance="@style/TextAppearance.ProcessOut.Body.Small"
+        android:text="Fixed.Body"
+        android:textAppearance="@style/TextAppearance.ProcessOut.Fixed.Body"
         android:textColor="@android:color/black" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextAppearance.Body.Small.Medium"
-        android:textAppearance="@style/TextAppearance.ProcessOut.Body.Small.Medium"
+        android:text="Fixed.Label"
+        android:textAppearance="@style/TextAppearance.ProcessOut.Fixed.Label"
         android:textColor="@android:color/black" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextAppearance.Input.Label"
-        android:textAppearance="@style/TextAppearance.ProcessOut.Input.Label"
+        android:text="Fixed.Label.Heading"
+        android:textAppearance="@style/TextAppearance.ProcessOut.Fixed.Label.Heading"
         android:textColor="@android:color/black" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextAppearance.Input.String"
-        android:textAppearance="@style/TextAppearance.ProcessOut.Input.String"
+        android:text="Medium.Subtitle"
+        android:textAppearance="@style/TextAppearance.ProcessOut.Medium.Subtitle"
         android:textColor="@android:color/black" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextAppearance.Action.Default"
-        android:textAppearance="@style/TextAppearance.ProcessOut.Action.Default"
+        android:text="Medium.Title"
+        android:textAppearance="@style/TextAppearance.ProcessOut.Medium.Title"
         android:textColor="@android:color/black" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextAppearance.Action.Default.Medium"
-        android:textAppearance="@style/TextAppearance.ProcessOut.Action.Default.Medium"
+        android:text="Medium.Headline"
+        android:textAppearance="@style/TextAppearance.ProcessOut.Medium.Headline"
+        android:textColor="@android:color/black" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Medium.Display"
+        android:textAppearance="@style/TextAppearance.ProcessOut.Medium.Display"
+        android:textColor="@android:color/black" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Large.Subtitle"
+        android:textAppearance="@style/TextAppearance.ProcessOut.Large.Subtitle"
+        android:textColor="@android:color/black" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Large.Title"
+        android:textAppearance="@style/TextAppearance.ProcessOut.Large.Title"
+        android:textColor="@android:color/black" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Large.Headline"
+        android:textAppearance="@style/TextAppearance.ProcessOut.Large.Headline"
+        android:textColor="@android:color/black" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Large.Display"
+        android:textAppearance="@style/TextAppearance.ProcessOut.Large.Display"
         android:textColor="@android:color/black" />
 
 </LinearLayout>
