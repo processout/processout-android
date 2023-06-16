@@ -4,7 +4,7 @@
         android:id="@+id/po_background_layer_outer"
         android:gravity="center">
         <shape android:shape="oval">
-            <solid android:color="@color/poBackgroundGreyLight" />
+            <solid android:color="@color/po_surface_level1" />
             <padding
                 android:bottom="@dimen/po_background_layers_offset"
                 android:left="@dimen/po_background_layers_offset"
@@ -16,7 +16,7 @@
         android:id="@+id/po_background_layer_inner"
         android:gravity="center">
         <shape android:shape="oval">
-            <solid android:color="@color/poBackgroundGreyDark" />
+            <solid android:color="@color/po_surface_level1" />
         </shape>
     </item>
 </layer-list>

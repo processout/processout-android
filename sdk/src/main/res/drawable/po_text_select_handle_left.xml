@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <bitmap xmlns:android="http://schemas.android.com/apk/res/android"
     android:src="@drawable/po_text_select_handle_material_left"
-    android:tint="@color/poTextPrimary" />
+    android:tint="@color/po_text_primary" />

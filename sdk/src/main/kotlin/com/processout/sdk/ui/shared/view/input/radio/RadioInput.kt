@@ -38,7 +38,7 @@ internal class RadioInput(
     private val errorMessage: TextView
 
     private val defaultKnobTintList = ContextCompat.getColorStateList(context, R.color.po_radio_button_states)!!
-    private val errorKnobTintList = ContextCompat.getColorStateList(context, R.color.poTextError)!!
+    private val errorKnobTintList = ContextCompat.getColorStateList(context, R.color.po_text_error)!!
 
     override var value: String = String()
     private var afterValueChanged: ((String) -> Unit)? = null

@@ -51,10 +51,10 @@ internal class TextInput(
     private var errorBackground = defaultOutlineBackground(context, R.color.po_text_error)
 
     @ColorInt
-    private var defaultControlsTintColor = ContextCompat.getColor(context, R.color.poTextPrimary)
+    private var defaultControlsTintColor = ContextCompat.getColor(context, R.color.po_text_primary)
 
     @ColorInt
-    private var errorControlsTintColor = ContextCompat.getColor(context, R.color.poTextError)
+    private var errorControlsTintColor = ContextCompat.getColor(context, R.color.po_text_error)
 
     private var afterValueChanged: ((String) -> Unit)? = null
     private var keyboardSubmitClick: (() -> Unit)? = null

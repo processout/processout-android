@@ -48,16 +48,16 @@ internal class ExposedDropdownInput(
     private var errorBackground = defaultOutlineBackground(context, R.color.po_text_error)
 
     @ColorInt
-    private var defaultControlsTintColor = ContextCompat.getColor(context, R.color.poTextPrimary)
+    private var defaultControlsTintColor = ContextCompat.getColor(context, R.color.po_text_primary)
 
     @ColorInt
-    private var errorControlsTintColor = ContextCompat.getColor(context, R.color.poTextError)
+    private var errorControlsTintColor = ContextCompat.getColor(context, R.color.po_text_error)
 
     private var defaultDropdownBackground = outlineBackground(
         cornerRadiusPx = resources.getDimensionPixelSize(R.dimen.po_cornerRadius).toFloat(),
         borderWidthPx = 0,
         borderColor = Color.TRANSPARENT,
-        backgroundColor = ContextCompat.getColor(context, R.color.poBackgroundGreyLight)
+        backgroundColor = ContextCompat.getColor(context, R.color.po_surface_neutral)
     )
 
     private var adapter: ParameterValueAdapter? = null

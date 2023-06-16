@@ -1,12 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="poBackgroundGreyLight">#F8F8F8</color>
-    <color name="poBackgroundGreyDark">#F4F4F4</color>
-
-    <color name="poTextPrimary">#121212</color>
-    <color name="poTextSecondary">#52535B</color>
-    <color name="poTextLink">#423F86</color>
-    <color name="poTextDisabled">#8D8D95</color>
-    <color name="poTextError">#A32B33</color>
     <color name="poTextSuccess">#207E7F</color>
 </resources>
