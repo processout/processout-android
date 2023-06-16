@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:color="@color/poButtonSecondaryTextPressed" android:state_pressed="true" />
-    <item android:color="@color/poButtonSecondaryTextDisabled" android:state_enabled="false" />
-    <item android:color="@color/poButtonSecondaryText" />
+    <item android:color="@color/po_text_secondary" android:state_pressed="true" />
+    <item android:color="@color/po_text_disabled" android:state_enabled="false" />
+    <item android:color="@color/po_text_secondary" />
 </selector>
