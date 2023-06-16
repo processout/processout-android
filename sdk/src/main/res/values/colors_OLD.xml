@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="poWhite">#FFFFFF</color>
-    <color name="poBlack">#121212</color>
-
     <color name="poBackgroundPrimary">#FFFFFF</color>
     <color name="poBackgroundInput">#FFFFFF</color>
     <color name="poBackgroundGreyLight">#F8F8F8</color>

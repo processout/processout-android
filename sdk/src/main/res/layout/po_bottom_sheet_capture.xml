@@ -41,7 +41,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="ContentDescription"
-        tools:src="@color/poBlack" />
+        tools:src="@android:color/black" />
 
     <TextView
         android:id="@+id/po_message"
@@ -69,7 +69,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/po_message"
         tools:ignore="ContentDescription"
-        tools:src="@color/poBlack" />
+        tools:src="@android:color/black" />
 
     <ImageView
         android:id="@+id/po_success_image"
