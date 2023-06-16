@@ -625,8 +625,8 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         configuration?.style?.backgroundDecoration?.let {
             bindingCapture.poBackgroundDecoration.applyStyle(it.success)
         } ?: bindingCapture.poBackgroundDecoration.setBackgroundDecoration(
-            innerColor = ContextCompat.getColor(requireContext(), R.color.poBackgroundSuccessDark),
-            outerColor = ContextCompat.getColor(requireContext(), R.color.poBackgroundSuccessLight)
+            innerColor = ContextCompat.getColor(requireContext(), R.color.po_surface_success),
+            outerColor = ContextCompat.getColor(requireContext(), R.color.po_surface_success)
         )
 
         configuration?.style?.successMessage?.let {

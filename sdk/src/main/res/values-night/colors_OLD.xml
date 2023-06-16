@@ -3,10 +3,6 @@
     <color name="poBackgroundGreyLight">#383838</color>
     <color name="poBackgroundGreyDark">#212121</color>
 
-    <color name="poBackgroundSuccessLight">#339091</color>
-    <color name="poBackgroundSuccessDark">#339091</color>
-    <color name="poBackgroundSuccessDarker">#154747</color>
-
     <color name="poTextPrimary">#FCFCFC</color>
     <color name="poTextSecondary">#F4F4F4</color>
     <color name="poTextLink">#F1F0FA</color>
