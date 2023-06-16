@@ -47,8 +47,8 @@ internal class TextInput(
     private val editText: EditText
     private val errorMessage: TextView
 
-    private var defaultBackground = defaultOutlineBackground(context, R.color.poBorderPrimary)
-    private var errorBackground = defaultOutlineBackground(context, R.color.poBorderError)
+    private var defaultBackground = defaultOutlineBackground(context, R.color.po_border_default)
+    private var errorBackground = defaultOutlineBackground(context, R.color.po_text_error)
 
     @ColorInt
     private var defaultControlsTintColor = ContextCompat.getColor(context, R.color.poTextPrimary)

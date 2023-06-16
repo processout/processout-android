@@ -13,8 +13,4 @@
     <color name="poTextDisabled">#DBDADD</color>
     <color name="poTextError">#F4D8D4</color>
     <color name="poTextSuccess">#BFE8E7</color>
-
-    <color name="poBorderPrimary">#F4F4F4</color>
-    <color name="poBorderActive">#B7B4D7</color>
-    <color name="poBorderError">#F4D8D4</color>
 </resources>
