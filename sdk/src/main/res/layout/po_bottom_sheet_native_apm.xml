@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/poBackgroundPrimary"
+    android:background="@color/po_surface_level1"
     tools:context=".ui.nativeapm.PONativeAlternativePaymentMethodActivity">
 
     <View

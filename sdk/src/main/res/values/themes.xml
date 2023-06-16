@@ -23,8 +23,8 @@
         <item name="colorSecondary">@color/po_action_primary_default</item>
         <item name="colorSecondaryVariant">@color/po_action_primary_default</item>
         <item name="colorOnSecondary">@color/po_text_onColor</item>
-        <item name="android:colorBackground">@color/po_surface_background</item>
-        <item name="colorSurface">@color/po_surface_background</item>
+        <item name="android:colorBackground">@color/po_surface_level1</item>
+        <item name="colorSurface">@color/po_surface_level1</item>
         <item name="colorOnSurface">@color/po_text_primary</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.ProcessOut.BottomSheetDialog</item>
         <item name="circularProgressIndicatorStyle">@style/Widget.MaterialComponents.CircularProgressIndicator.Small</item>

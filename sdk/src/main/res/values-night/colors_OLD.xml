@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="poBackgroundPrimary">#121212</color>
-    <color name="poBackgroundInput">#121212</color>
     <color name="poBackgroundGreyLight">#383838</color>
     <color name="poBackgroundGreyDark">#212121</color>
+
     <color name="poBackgroundSuccessLight">#339091</color>
     <color name="poBackgroundSuccessDark">#339091</color>
     <color name="poBackgroundSuccessDarker">#154747</color>
