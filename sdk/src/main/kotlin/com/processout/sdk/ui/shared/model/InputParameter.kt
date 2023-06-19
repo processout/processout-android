@@ -26,7 +26,7 @@ internal data class InputParameter(
 
     fun toInputType() = when (type()) {
         ParameterType.NUMERIC -> InputType.TYPE_CLASS_NUMBER
-        ParameterType.TEXT -> InputType.TYPE_CLASS_TEXT
+        ParameterType.TEXT -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
         ParameterType.EMAIL -> InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
         ParameterType.PHONE -> InputType.TYPE_CLASS_PHONE
         else -> InputType.TYPE_NULL
