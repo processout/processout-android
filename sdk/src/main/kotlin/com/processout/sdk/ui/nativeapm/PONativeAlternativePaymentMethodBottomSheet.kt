@@ -19,6 +19,7 @@ import androidx.activity.addCallback
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.animation.addListener
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
@@ -637,8 +638,16 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         configuration?.style?.successMessage?.let {
             bindingCapture.poMessage.applyStyle(it)
         } ?: bindingCapture.poMessage.setTextColor(
-            ContextCompat.getColor(requireContext(), R.color.poTextSuccess)
+            ContextCompat.getColor(requireContext(), R.color.po_text_success)
         )
+
+        // Use same color for message and image, but only when custom image is not provided.
+        if (configuration?.style?.successImageResId == null) {
+            DrawableCompat.setTint(
+                DrawableCompat.wrap(bindingCapture.poSuccessImage.drawable.mutate()),
+                bindingCapture.poMessage.currentTextColor
+            )
+        }
 
         bindingCapture.poCircularProgressIndicator.visibility = View.GONE
         bindingCapture.poMessage.text = uiModel.successMessage
