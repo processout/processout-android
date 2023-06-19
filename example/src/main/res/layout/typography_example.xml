@@ -82,32 +82,4 @@
         android:textAppearance="@style/TextAppearance.ProcessOut.Medium.Display"
         android:textColor="@android:color/black" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Large.Subtitle"
-        android:textAppearance="@style/TextAppearance.ProcessOut.Large.Subtitle"
-        android:textColor="@android:color/black" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Large.Title"
-        android:textAppearance="@style/TextAppearance.ProcessOut.Large.Title"
-        android:textColor="@android:color/black" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Large.Headline"
-        android:textAppearance="@style/TextAppearance.ProcessOut.Large.Headline"
-        android:textColor="@android:color/black" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Large.Display"
-        android:textAppearance="@style/TextAppearance.ProcessOut.Large.Display"
-        android:textColor="@android:color/black" />
-
 </LinearLayout>

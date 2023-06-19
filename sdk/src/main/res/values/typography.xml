@@ -80,31 +80,4 @@
         <item name="lineHeight">44sp</item>
     </style>
 
-    <!-- Large -->
-
-    <style name="TextAppearance.ProcessOut.Large">
-        <item name="fontFamily">@font/work_sans_medium</item>
-        <item name="android:fontFamily">@font/work_sans_medium</item>
-    </style>
-
-    <style name="TextAppearance.ProcessOut.Large.Subtitle">
-        <item name="android:textSize">20sp</item>
-        <item name="lineHeight">28sp</item>
-    </style>
-
-    <style name="TextAppearance.ProcessOut.Large.Title">
-        <item name="android:textSize">24sp</item>
-        <item name="lineHeight">32sp</item>
-    </style>
-
-    <style name="TextAppearance.ProcessOut.Large.Headline">
-        <item name="android:textSize">32sp</item>
-        <item name="lineHeight">40sp</item>
-    </style>
-
-    <style name="TextAppearance.ProcessOut.Large.Display">
-        <item name="android:textSize">48sp</item>
-        <item name="lineHeight">48sp</item>
-    </style>
-
 </resources>

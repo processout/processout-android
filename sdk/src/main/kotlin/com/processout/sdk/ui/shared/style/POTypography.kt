@@ -53,45 +53,35 @@ data class POTypography(
         val display = POTypography(weight = Weight.MEDIUM, textSizeSp = 36, lineHeightSp = 44)
     }
 
-    object Large {
-        val subtitle = POTypography(weight = Weight.MEDIUM, textSizeSp = 20, lineHeightSp = 28)
-
-        val title = POTypography(weight = Weight.MEDIUM, textSizeSp = 24, lineHeightSp = 32)
-
-        val headline = POTypography(weight = Weight.MEDIUM, textSizeSp = 32, lineHeightSp = 40)
-
-        val display = POTypography(weight = Weight.MEDIUM, textSizeSp = 48, lineHeightSp = 48)
-    }
-
     companion object {
-        @Deprecated(message = "Use .Fixed .Medium .Large")
+        @Deprecated(message = "Use .Fixed .Medium")
         val titleLarge = POTypography(weight = Weight.NORMAL, textSizeSp = 24, lineHeightSp = 32)
 
-        @Deprecated(message = "Use .Fixed .Medium .Large")
+        @Deprecated(message = "Use .Fixed .Medium")
         val titleDefault = POTypography(weight = Weight.NORMAL, textSizeSp = 20, lineHeightSp = 24)
 
-        @Deprecated(message = "Use .Fixed .Medium .Large")
+        @Deprecated(message = "Use .Fixed .Medium")
         val bodyDefault = POTypography(weight = Weight.NORMAL, textSizeSp = 16, lineHeightSp = 24)
 
-        @Deprecated(message = "Use .Fixed .Medium .Large")
+        @Deprecated(message = "Use .Fixed .Medium")
         val bodyDefaultMedium = POTypography(weight = Weight.MEDIUM, textSizeSp = 16, lineHeightSp = 24)
 
-        @Deprecated(message = "Use .Fixed .Medium .Large")
+        @Deprecated(message = "Use .Fixed .Medium")
         val bodySmall = POTypography(weight = Weight.NORMAL, textSizeSp = 12, lineHeightSp = 16)
 
-        @Deprecated(message = "Use .Fixed .Medium .Large")
+        @Deprecated(message = "Use .Fixed .Medium")
         val bodySmallMedium = POTypography(weight = Weight.MEDIUM, textSizeSp = 12, lineHeightSp = 16)
 
-        @Deprecated(message = "Use .Fixed .Medium .Large")
+        @Deprecated(message = "Use .Fixed .Medium")
         val inputLabel = POTypography(weight = Weight.NORMAL, textSizeSp = 16, lineHeightSp = 24)
 
-        @Deprecated(message = "Use .Fixed .Medium .Large")
+        @Deprecated(message = "Use .Fixed .Medium")
         val inputString = POTypography(weight = Weight.NORMAL, textSizeSp = 16, lineHeightSp = 24)
 
-        @Deprecated(message = "Use .Fixed .Medium .Large")
+        @Deprecated(message = "Use .Fixed .Medium")
         val actionDefault = POTypography(weight = Weight.NORMAL, textSizeSp = 16, lineHeightSp = 24)
 
-        @Deprecated(message = "Use .Fixed .Medium .Large")
+        @Deprecated(message = "Use .Fixed .Medium")
         val actionDefaultMedium = POTypography(weight = Weight.MEDIUM, textSizeSp = 16, lineHeightSp = 24)
     }
 }
