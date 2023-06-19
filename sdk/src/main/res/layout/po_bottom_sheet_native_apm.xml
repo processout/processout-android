@@ -22,11 +22,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <include
-            android:id="@+id/po_loading"
-            layout="@layout/po_bottom_sheet_loading"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/po_circular_progress_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"

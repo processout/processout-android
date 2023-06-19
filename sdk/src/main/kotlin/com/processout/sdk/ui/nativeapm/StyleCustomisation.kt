@@ -37,9 +37,10 @@ import com.processout.sdk.ui.shared.view.extensions.spToPx
 internal fun PoBottomSheetNativeApmBinding.applyStyle(
     style: PONativeAlternativePaymentMethodConfiguration.Style
 ) {
-    style.backgroundColor?.let { root.setBackgroundColor(it) }
-    style.backgroundDecoration?.let { poLoading.poBackgroundDecoration.applyStyle(it.normal) }
-    style.progressIndicatorColor?.let { poLoading.poCircularProgressIndicator.setIndicatorColor(it) }
+    (style.background?.normal ?: style.backgroundColor)?.let {
+        root.setBackgroundColor(it)
+    }
+    style.progressIndicatorColor?.let { poCircularProgressIndicator.setIndicatorColor(it) }
     style.title?.let { poTitle.applyStyle(it) }
     style.primaryButton?.let { poPrimaryButton.applyStyle(it) }
     style.secondaryButton?.let { poSecondaryButton.applyStyle(it) }

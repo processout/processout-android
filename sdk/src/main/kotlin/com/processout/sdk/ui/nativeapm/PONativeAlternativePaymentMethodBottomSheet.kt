@@ -298,7 +298,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     }
 
     private fun bindLoading() {
-        binding.poLoading.root.visibility = View.VISIBLE
+        binding.poCircularProgressIndicator.visibility = View.VISIBLE
         binding.poScrollableContent.visibility = View.GONE
         binding.poPrimaryButton.visibility = View.GONE
         binding.poSecondaryButton.visibility = View.GONE
@@ -312,7 +312,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         if (viewModel.animateViewTransition) {
             viewModel.animateViewTransition = false
             crossfade(
-                viewsToHide = listOf(binding.poLoading.root),
+                viewsToHide = listOf(binding.poCircularProgressIndicator),
                 viewsToShow = mutableListOf(
                     binding.poScrollableContent,
                     binding.poPrimaryButton
@@ -324,7 +324,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                 duration = ANIMATION_DURATION_MS
             )
         } else {
-            binding.poLoading.root.visibility = View.GONE
+            binding.poCircularProgressIndicator.visibility = View.GONE
             binding.poScrollableContent.visibility = View.VISIBLE
             binding.poPrimaryButton.visibility = View.VISIBLE
             uiModel.secondaryAction?.let {
