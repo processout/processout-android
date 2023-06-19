@@ -3,6 +3,7 @@ package com.processout.sdk.ui.nativeapm
 import android.os.Parcelable
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
+import com.processout.sdk.ui.shared.style.POBackgroundStyle
 import com.processout.sdk.ui.shared.style.POTextStyle
 import com.processout.sdk.ui.shared.style.background.POBackgroundDecorationStyle
 import com.processout.sdk.ui.shared.style.button.POButtonStyle
@@ -72,7 +73,9 @@ data class PONativeAlternativePaymentMethodConfiguration(
         val radioButton: PORadioButtonStyle? = null,
         val primaryButton: POButtonStyle? = null,
         val secondaryButton: POButtonStyle? = null,
+        val background: POBackgroundStyle? = null,
         @ColorInt
+        @Deprecated("Use property 'background: POBackgroundStyle'.")
         val backgroundColor: Int? = null,
         @ColorInt
         val progressIndicatorColor: Int? = null,
@@ -80,6 +83,7 @@ data class PONativeAlternativePaymentMethodConfiguration(
         val successMessage: POTextStyle? = null,
         @DrawableRes
         val successImageResId: Int? = null,
+        @Deprecated("Use property 'background: POBackgroundStyle'.")
         val backgroundDecoration: POBackgroundDecorationStyle? = null
     ) : Parcelable
 }
