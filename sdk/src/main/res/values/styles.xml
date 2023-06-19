@@ -17,7 +17,7 @@
     </style>
 
     <style name="Widget.ProcessOut.Input.Title" parent="Widget.MaterialComponents.TextView">
-        <item name="android:textColor">@color/po_text_primary</item>
+        <item name="android:textColor">@color/po_text_secondary</item>
         <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Fixed.Label.Heading</item>
     </style>
 
