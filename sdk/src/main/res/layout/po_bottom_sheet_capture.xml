@@ -8,11 +8,9 @@
     tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
     <View
-        android:id="@+id/po_background_decoration"
-        android:layout_width="@dimen/po_background_size"
-        android:layout_height="@dimen/po_background_size"
-        android:background="@drawable/po_background_decoration"
-        android:translationY="@dimen/po_background_translationY"
+        android:id="@+id/po_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

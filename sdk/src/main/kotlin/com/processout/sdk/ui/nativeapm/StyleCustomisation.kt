@@ -4,11 +4,8 @@ import android.annotation.SuppressLint
 import android.content.res.ColorStateList
 import android.content.res.Resources.NotFoundException
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.LayerDrawable
 import android.os.Build
 import android.util.Log
-import android.view.View
 import android.widget.EditText
 import android.widget.TextView
 import androidx.annotation.ColorInt
@@ -21,13 +18,11 @@ import androidx.core.view.setPadding
 import androidx.core.widget.TextViewCompat
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.radiobutton.MaterialRadioButton
-import com.processout.sdk.R
 import com.processout.sdk.databinding.PoBottomSheetCaptureBinding
 import com.processout.sdk.databinding.PoBottomSheetNativeApmBinding
 import com.processout.sdk.ui.shared.style.POBorderStyle
 import com.processout.sdk.ui.shared.style.POTextStyle
 import com.processout.sdk.ui.shared.style.POTypography
-import com.processout.sdk.ui.shared.style.background.POBackgroundDecorationStateStyle
 import com.processout.sdk.ui.shared.style.button.POButtonStateStyle
 import com.processout.sdk.ui.shared.style.button.POButtonStyle
 import com.processout.sdk.ui.shared.style.radio.PORadioButtonStyle
@@ -49,7 +44,6 @@ internal fun PoBottomSheetNativeApmBinding.applyStyle(
 internal fun PoBottomSheetCaptureBinding.applyStyle(
     style: PONativeAlternativePaymentMethodConfiguration.Style
 ) {
-    style.backgroundDecoration?.let { poBackgroundDecoration.applyStyle(it.normal) }
     style.progressIndicatorColor?.let { poCircularProgressIndicator.setIndicatorColor(it) }
     style.successImageResId?.let { poSuccessImage.setImageResource(it) }
     style.message?.let { poMessage.applyStyle(it) }
@@ -161,36 +155,6 @@ internal fun MaterialRadioButton.applyErrorStateStyle(
             applyStyle(text)
         }
     } ?: run { buttonTintList = defaultButtonTintList }
-}
-
-internal fun View.applyStyle(style: POBackgroundDecorationStateStyle) {
-    when (style) {
-        is POBackgroundDecorationStateStyle.Visible -> setBackgroundDecoration(
-            style.primaryColor, style.secondaryColor
-        )
-        POBackgroundDecorationStateStyle.Hidden -> background = null
-    }
-}
-
-internal fun View.setBackgroundDecoration(
-    @ColorInt
-    innerColor: Int,
-    @ColorInt
-    outerColor: Int
-) {
-    (ContextCompat.getDrawable(context, R.drawable.po_background_decoration) as LayerDrawable).apply {
-        mutate()
-        (findDrawableByLayerId(R.id.po_background_layer_inner) as GradientDrawable).apply {
-            mutate()
-            setColor(innerColor)
-        }
-        (findDrawableByLayerId(R.id.po_background_layer_outer) as GradientDrawable).apply {
-            mutate()
-            setColor(outerColor)
-        }
-    }.also {
-        background = it
-    }
 }
 
 internal fun EditText.applyControlsTintColor(@ColorInt tintColor: Int) {

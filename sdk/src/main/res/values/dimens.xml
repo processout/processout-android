@@ -36,10 +36,6 @@
     <dimen name="po_dragHandle_height">4dp</dimen>
     <dimen name="po_dragHandle_marginTop">16dp</dimen>
 
-    <dimen name="po_background_size">1000dp</dimen>
-    <dimen name="po_background_translationY">-150dp</dimen>
-    <dimen name="po_background_layers_offset">100dp</dimen>
-
     <dimen name="po_capture_logo_height">32dp</dimen>
     <dimen name="po_capture_logo_marginTop">70dp</dimen>
     <dimen name="po_capture_message_marginVertical">18dp</dimen>

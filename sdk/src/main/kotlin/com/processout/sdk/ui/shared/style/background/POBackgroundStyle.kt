@@ -1,4 +1,4 @@
-package com.processout.sdk.ui.shared.style
+package com.processout.sdk.ui.shared.style.background
 
 import android.os.Parcelable
 import androidx.annotation.ColorInt
