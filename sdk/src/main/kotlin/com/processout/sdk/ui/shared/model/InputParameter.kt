@@ -13,6 +13,7 @@ internal data class InputParameter(
     val hint: String? = null,
     val state: Input.State = Input.State.Default(),
     val keyboardAction: KeyboardAction? = null,
+    val centered: Boolean = false,
     val parameter: PONativeAlternativePaymentMethodParameter
 ) {
 

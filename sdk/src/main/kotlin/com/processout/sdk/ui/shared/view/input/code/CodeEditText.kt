@@ -22,12 +22,12 @@ import com.processout.sdk.ui.shared.style.input.POInputStyle
 import com.processout.sdk.ui.shared.view.extensions.defaultOutlineBackground
 import com.processout.sdk.ui.shared.view.extensions.outlineBackground
 import com.processout.sdk.ui.shared.view.input.Input
-import kotlin.math.roundToInt
 
 internal class CodeEditText(
     context: Context,
     attrs: AttributeSet? = null,
-    private val style: POInputStyle? = null
+    private val style: POInputStyle? = null,
+    private val centered: Boolean = false
 ) : AppCompatEditText(
     ContextThemeWrapper(context, R.style.Theme_ProcessOut_Default_Input),
     attrs,
@@ -94,8 +94,10 @@ internal class CodeEditText(
                 getDimensionPixelSize(R.dimen.po_codeEditText_width),
                 getDimensionPixelSize(R.dimen.po_codeEditText_height)
             )
-            val horizontalMargin = (getDimension(R.dimen.po_codeEditText_space) / 2).roundToInt()
-            params.setMargins(horizontalMargin, 0, horizontalMargin, 0)
+            val space = getDimensionPixelSize(R.dimen.po_codeEditText_space)
+            if (centered)
+                params.setMargins(space / 2, 0, space / 2, 0)
+            else params.setMargins(0, 0, space, 0)
             layoutParams = params
         }
     }

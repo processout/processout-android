@@ -11,12 +11,12 @@
     <TextView
         android:id="@+id/po_title"
         style="@style/Widget.ProcessOut.Input.Title"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="@dimen/po_input_marginVertical"
         android:layout_marginBottom="@dimen/po_input_marginVertical"
-        android:gravity="center"
+        android:gravity="start"
         tools:text="Title" />
 
     <RadioGroup
@@ -28,10 +28,10 @@
     <TextView
         android:id="@+id/po_error_message"
         style="@style/Widget.ProcessOut.Input.ErrorMessage"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:gravity="center"
+        android:gravity="start"
         android:visibility="invisible"
         tools:text="Error message"
         tools:visibility="visible" />
