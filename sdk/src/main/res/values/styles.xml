@@ -30,12 +30,12 @@
         <item name="android:textColor">@color/po_text_primary</item>
         <item name="android:textColorHint">@color/po_text_muted</item>
         <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Fixed.Label</item>
-        <item name="android:paddingLeft">@dimen/po_input_paddingHorizontal</item>
-        <item name="android:paddingRight">@dimen/po_input_paddingHorizontal</item>
-        <item name="android:paddingStart">@dimen/po_input_paddingHorizontal</item>
-        <item name="android:paddingEnd">@dimen/po_input_paddingHorizontal</item>
-        <item name="android:paddingTop">@dimen/po_input_paddingVertical</item>
-        <item name="android:paddingBottom">@dimen/po_input_paddingVertical</item>
+        <item name="android:paddingLeft">@dimen/po_input_padding</item>
+        <item name="android:paddingRight">@dimen/po_input_padding</item>
+        <item name="android:paddingStart">@dimen/po_input_padding</item>
+        <item name="android:paddingEnd">@dimen/po_input_padding</item>
+        <item name="android:paddingTop">@dimen/po_input_padding</item>
+        <item name="android:paddingBottom">@dimen/po_input_padding</item>
         <item name="android:textCursorDrawable">@drawable/po_text_cursor</item>
         <item name="android:textSelectHandle">@drawable/po_text_select_handle</item>
         <item name="android:textSelectHandleLeft">@drawable/po_text_select_handle_left</item>
@@ -109,10 +109,10 @@
         <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Fixed.Label</item>
         <item name="android:maxLines">1</item>
         <item name="android:ellipsize">end</item>
-        <item name="android:paddingLeft">@dimen/po_input_paddingHorizontal</item>
-        <item name="android:paddingRight">@dimen/po_input_paddingHorizontal</item>
-        <item name="android:paddingStart">@dimen/po_input_paddingHorizontal</item>
-        <item name="android:paddingEnd">@dimen/po_input_paddingHorizontal</item>
+        <item name="android:paddingLeft">@dimen/po_input_padding</item>
+        <item name="android:paddingRight">@dimen/po_input_padding</item>
+        <item name="android:paddingStart">@dimen/po_input_padding</item>
+        <item name="android:paddingEnd">@dimen/po_input_padding</item>
         <item name="android:paddingTop">@dimen/po_dropdown_item_paddingVertical</item>
         <item name="android:paddingBottom">@dimen/po_dropdown_item_paddingVertical</item>
     </style>
