@@ -574,11 +574,11 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                         setOnClickListener { onCancelClick() }
                         text = action.text
                         setState(action.state)
-                        visibility = View.VISIBLE
+                        bindingCapture.poFooter.visibility = View.VISIBLE
                     }
                 }
             }
-        } ?: run { bindingCapture.poSecondaryButton.visibility = View.GONE }
+        } ?: run { bindingCapture.poFooter.visibility = View.GONE }
     }
 
     private fun handleSuccess(uiModel: PONativeAlternativePaymentMethodUiModel) {
@@ -601,7 +601,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                     bindingCapture.poCircularProgressIndicator,
                     bindingCapture.poMessage,
                     bindingCapture.poActionImage,
-                    bindingCapture.poSecondaryButton
+                    bindingCapture.poFooter
                 ),
                 ANIMATION_DURATION_MS
             )
@@ -665,7 +665,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         bindingCapture.poLogo.visibility = View.VISIBLE
         bindingCapture.poActionImage.visibility = View.GONE
         bindingCapture.poSuccessImage.visibility = View.VISIBLE
-        bindingCapture.poSecondaryButton.visibility = View.GONE
+        bindingCapture.poFooter.visibility = View.GONE
     }
 
     private fun handleFailure(failure: ProcessOutResult.Failure) {

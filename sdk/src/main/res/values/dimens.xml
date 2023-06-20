@@ -34,10 +34,9 @@
     <dimen name="po_dragHandle_height">4dp</dimen>
     <dimen name="po_dragHandle_marginTop">12dp</dimen>
 
+    <dimen name="po_capture_content_paddingVertical">28dp</dimen>
+    <dimen name="po_capture_content_margin">16dp</dimen>
     <dimen name="po_capture_logo_height">32dp</dimen>
-    <dimen name="po_capture_logo_marginTop">70dp</dimen>
-    <dimen name="po_capture_message_marginVertical">18dp</dimen>
-    <dimen name="po_capture_image_height">300dp</dimen>
-    <dimen name="po_capture_image_action_width">200dp</dimen>
-    <dimen name="po_capture_image_success_width">220dp</dimen>
+    <dimen name="po_capture_image_width">220dp</dimen>
+    <dimen name="po_capture_image_height">280dp</dimen>
 </resources>
