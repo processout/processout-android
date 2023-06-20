@@ -39,7 +39,7 @@
         <View
             android:id="@+id/po_divider_title"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="@dimen/po_borderWidth"
             android:background="@color/po_border_subtle"
             android:visibility="gone"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -97,7 +97,7 @@
         <View
             android:id="@+id/po_divider_buttons_container"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="@dimen/po_borderWidth"
             android:background="@color/po_border_subtle"
             android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/po_buttons_container"
