@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    tools:context=".ui.nativeapm.PONativeAlternativePaymentMethodActivity"
     tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
     <View
@@ -48,8 +49,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/po_capture_message_marginVertical"
         android:gravity="center"
-        android:paddingLeft="@dimen/po_bottomSheet_marginHorizontal"
-        android:paddingRight="@dimen/po_bottomSheet_marginHorizontal"
+        android:paddingLeft="@dimen/po_bottomSheet_margin"
+        android:paddingRight="@dimen/po_bottomSheet_margin"
         android:visibility="gone"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -88,7 +89,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/po_bottomSheet_buttons_marginHorizontal"
-        android:layout_marginBottom="@dimen/po_bottomSheet_buttons_marginBottom"
+        android:layout_marginBottom="@dimen/po_bottomSheet_buttons_marginVertical"
         android:text="@string/po_native_apm_cancel_button_default_text"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
