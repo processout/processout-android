@@ -547,7 +547,8 @@ internal class PONativeAlternativePaymentMethodViewModel(
             InputParameter(
                 parameter = parameter,
                 value = parameter.availableValues?.find { it.default == true }?.value ?: String(),
-                hint = getInputHint(parameter.type())
+                hint = getInputHint(parameter.type()),
+                centered = size == 1 && find { it.type() == NUMERIC }?.let { true } ?: false
             )
         }.let { resolveInputsKeyboardAction(it) }
 

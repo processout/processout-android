@@ -19,6 +19,7 @@ import androidx.activity.addCallback
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.animation.addListener
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
@@ -41,6 +42,7 @@ import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityC
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityContract.Companion.EXTRA_RESULT
 import com.processout.sdk.ui.shared.model.InputParameter
 import com.processout.sdk.ui.shared.model.SecondaryActionUiModel
+import com.processout.sdk.ui.shared.style.background.POBackgroundDecorationStateStyle
 import com.processout.sdk.ui.shared.style.dropdown.ExposedDropdownStyle
 import com.processout.sdk.ui.shared.view.button.POButton
 import com.processout.sdk.ui.shared.view.extensions.*
@@ -298,8 +300,11 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     }
 
     private fun bindLoading() {
-        binding.poLoading.root.visibility = View.VISIBLE
+        binding.poCircularProgressIndicator.visibility = View.VISIBLE
+        binding.poTitle.visibility = View.GONE
+        binding.poDividerTitle.visibility = View.GONE
         binding.poScrollableContent.visibility = View.GONE
+        binding.poDividerButtonsContainer.visibility = View.GONE
         binding.poPrimaryButton.visibility = View.GONE
         binding.poSecondaryButton.visibility = View.GONE
     }
@@ -312,9 +317,12 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         if (viewModel.animateViewTransition) {
             viewModel.animateViewTransition = false
             crossfade(
-                viewsToHide = listOf(binding.poLoading.root),
+                viewsToHide = listOf(binding.poCircularProgressIndicator),
                 viewsToShow = mutableListOf(
+                    binding.poTitle,
+                    binding.poDividerTitle,
                     binding.poScrollableContent,
+                    binding.poDividerButtonsContainer,
                     binding.poPrimaryButton
                 ).also { list ->
                     uiModel.secondaryAction?.let {
@@ -324,8 +332,11 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                 duration = ANIMATION_DURATION_MS
             )
         } else {
-            binding.poLoading.root.visibility = View.GONE
+            binding.poCircularProgressIndicator.visibility = View.GONE
+            binding.poTitle.visibility = View.VISIBLE
+            binding.poDividerTitle.visibility = View.VISIBLE
             binding.poScrollableContent.visibility = View.VISIBLE
+            binding.poDividerButtonsContainer.visibility = View.VISIBLE
             binding.poPrimaryButton.visibility = View.VISIBLE
             uiModel.secondaryAction?.let {
                 binding.poSecondaryButton.visibility = View.VISIBLE
@@ -563,11 +574,11 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                         setOnClickListener { onCancelClick() }
                         text = action.text
                         setState(action.state)
-                        visibility = View.VISIBLE
+                        bindingCapture.poFooter.visibility = View.VISIBLE
                     }
                 }
             }
-        } ?: run { bindingCapture.poSecondaryButton.visibility = View.GONE }
+        } ?: run { bindingCapture.poFooter.visibility = View.GONE }
     }
 
     private fun handleSuccess(uiModel: PONativeAlternativePaymentMethodUiModel) {
@@ -590,12 +601,12 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                     bindingCapture.poCircularProgressIndicator,
                     bindingCapture.poMessage,
                     bindingCapture.poActionImage,
-                    bindingCapture.poSecondaryButton
+                    bindingCapture.poFooter
                 ),
                 ANIMATION_DURATION_MS
             )
 
-            bindingCapture.poBackgroundDecoration.animate()
+            bindingCapture.poBackground.animate()
                 .alpha(0f)
                 .setDuration(ANIMATION_DURATION_MS)
                 .setListener(object : AnimatorListenerAdapter() {
@@ -604,7 +615,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                         adjustPeekHeight(animate = true)
                         fadeIn(
                             mutableListOf(
-                                bindingCapture.poBackgroundDecoration,
+                                bindingCapture.poBackground,
                                 bindingCapture.poMessage,
                                 bindingCapture.poSuccessImage
                             ).also {
@@ -622,18 +633,30 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     }
 
     private fun bindSuccess(uiModel: PONativeAlternativePaymentMethodUiModel) {
-        configuration?.style?.backgroundDecoration?.let {
-            bindingCapture.poBackgroundDecoration.applyStyle(it.success)
-        } ?: bindingCapture.poBackgroundDecoration.setBackgroundDecoration(
-            innerColor = ContextCompat.getColor(requireContext(), R.color.poBackgroundSuccessDark),
-            outerColor = ContextCompat.getColor(requireContext(), R.color.poBackgroundSuccessLight)
-        )
+        val backgroundDecorationSuccessColor =
+            when (val stateStyle = configuration?.style?.backgroundDecoration?.success) {
+                is POBackgroundDecorationStateStyle.Visible -> stateStyle.primaryColor
+                else -> null
+            }
+        (configuration?.style?.background?.success
+            ?: backgroundDecorationSuccessColor
+            ?: ContextCompat.getColor(requireContext(), R.color.po_surface_success)).let {
+            bindingCapture.poBackground.setBackgroundColor(it)
+        }
 
         configuration?.style?.successMessage?.let {
             bindingCapture.poMessage.applyStyle(it)
         } ?: bindingCapture.poMessage.setTextColor(
-            ContextCompat.getColor(requireContext(), R.color.poTextSuccess)
+            ContextCompat.getColor(requireContext(), R.color.po_text_success)
         )
+
+        // Use same color for message and image, but only when custom image is not provided.
+        if (configuration?.style?.successImageResId == null) {
+            DrawableCompat.setTint(
+                DrawableCompat.wrap(bindingCapture.poSuccessImage.drawable.mutate()),
+                bindingCapture.poMessage.currentTextColor
+            )
+        }
 
         bindingCapture.poCircularProgressIndicator.visibility = View.GONE
         bindingCapture.poMessage.text = uiModel.successMessage
@@ -642,7 +665,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         bindingCapture.poLogo.visibility = View.VISIBLE
         bindingCapture.poActionImage.visibility = View.GONE
         bindingCapture.poSuccessImage.visibility = View.VISIBLE
-        bindingCapture.poSecondaryButton.visibility = View.GONE
+        bindingCapture.poFooter.visibility = View.GONE
     }
 
     private fun handleFailure(failure: ProcessOutResult.Failure) {
@@ -667,7 +690,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             binding.poContainer.animate().setListener(null)
         }
         if (_bindingCapture != null) {
-            bindingCapture.poBackgroundDecoration.animate().setListener(null)
+            bindingCapture.poBackground.animate().setListener(null)
         }
     }
 

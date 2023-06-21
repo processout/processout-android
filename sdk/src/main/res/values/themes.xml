@@ -17,25 +17,25 @@
     <style name="Theme.ProcessOut.Default" parent="Theme.ProcessOut.Base.Transparent">
         <item name="android:backgroundDimEnabled">true</item>
         <item name="android:windowIsFloating">true</item>
-        <item name="colorPrimary">@color/poButtonPrimary</item>
-        <item name="colorPrimaryVariant">@color/poButtonPrimary</item>
-        <item name="colorOnPrimary">@color/poButtonPrimaryText</item>
-        <item name="colorSecondary">@color/poButtonPrimary</item>
-        <item name="colorSecondaryVariant">@color/poButtonPrimary</item>
-        <item name="colorOnSecondary">@color/poButtonPrimaryText</item>
-        <item name="android:colorBackground">@color/poBackgroundPrimary</item>
-        <item name="colorSurface">@color/poBackgroundPrimary</item>
-        <item name="colorOnSurface">@color/poTextPrimary</item>
+        <item name="colorPrimary">@color/po_action_primary_default</item>
+        <item name="colorPrimaryVariant">@color/po_action_primary_default</item>
+        <item name="colorOnPrimary">@color/po_text_onColor</item>
+        <item name="colorSecondary">@color/po_action_primary_default</item>
+        <item name="colorSecondaryVariant">@color/po_action_primary_default</item>
+        <item name="colorOnSecondary">@color/po_text_onColor</item>
+        <item name="android:colorBackground">@color/po_surface_level1</item>
+        <item name="colorSurface">@color/po_surface_level1</item>
+        <item name="colorOnSurface">@color/po_text_primary</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.ProcessOut.BottomSheetDialog</item>
         <item name="circularProgressIndicatorStyle">@style/Widget.MaterialComponents.CircularProgressIndicator.Small</item>
-        <item name="textAppearanceButton">@style/TextAppearance.ProcessOut.Action.Default.Medium</item>
+        <item name="textAppearanceButton">@style/TextAppearance.ProcessOut.Fixed.Button</item>
         <item name="materialButtonStyle">@style/Widget.ProcessOut.Button.Primary</item>
         <item name="radioButtonStyle">@style/Widget.ProcessOut.RadioButton</item>
     </style>
 
     <style name="Theme.ProcessOut.Default.Input">
-        <item name="colorPrimary">@color/poTextPrimary</item>
-        <item name="colorSecondary">@color/poTextPrimary</item>
+        <item name="colorPrimary">@color/po_text_primary</item>
+        <item name="colorSecondary">@color/po_text_primary</item>
         <item name="editTextStyle">@style/Widget.ProcessOut.EditText</item>
         <item name="poCodeEditTextStyle">@style/Widget.ProcessOut.CodeEditText</item>
     </style>

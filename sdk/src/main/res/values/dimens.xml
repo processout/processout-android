@@ -1,49 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="po_bottomSheet_minHeight">438dp</dimen>
-    <dimen name="po_bottomSheet_marginTop">40dp</dimen>
-    <dimen name="po_bottomSheet_marginHorizontal">24dp</dimen>
-    <dimen name="po_bottomSheet_content_marginBottom">12dp</dimen>
+    <dimen name="po_bottomSheet_margin">24dp</dimen>
+    <dimen name="po_bottomSheet_content_padding">16dp</dimen>
     <dimen name="po_bottomSheet_buttons_marginHorizontal">20dp</dimen>
-    <dimen name="po_bottomSheet_buttons_marginBottom">16dp</dimen>
+    <dimen name="po_bottomSheet_buttons_marginVertical">10dp</dimen>
     <dimen name="po_bottomSheet_cornerRadius">16dp</dimen>
 
     <dimen name="po_cornerRadius">8dp</dimen>
     <dimen name="po_borderWidth">1dp</dimen>
 
     <dimen name="po_input_marginVertical">8dp</dimen>
-    <dimen name="po_input_paddingVertical">14dp</dimen>
-    <dimen name="po_input_paddingHorizontal">12dp</dimen>
+    <dimen name="po_input_padding">12dp</dimen>
 
     <dimen name="po_dropdown_menu_offsetVertical">1dp</dimen>
     <dimen name="po_dropdown_item_paddingVertical">16dp</dimen>
 
-    <dimen name="po_codeEditText_width">48dp</dimen>
-    <dimen name="po_codeEditText_height">48dp</dimen>
+    <dimen name="po_codeEditText_width">44dp</dimen>
+    <dimen name="po_codeEditText_height">44dp</dimen>
     <dimen name="po_codeEditText_space">8dp</dimen>
 
-    <dimen name="po_button_padding">14dp</dimen>
+    <dimen name="po_button_padding">12dp</dimen>
     <dimen name="po_button_marginTop">4dp</dimen>
-    <dimen name="po_button_insetVertical">8dp</dimen>
+    <dimen name="po_button_insetVertical">6dp</dimen>
     <dimen name="po_button_insetHorizontal">4dp</dimen>
     <dimen name="po_button_circularProgressIndicator_size">18dp</dimen>
 
-    <dimen name="po_radioButton_minHeight">40dp</dimen>
+    <dimen name="po_radioButton_minHeight">44dp</dimen>
     <dimen name="po_radioButton_paddingLeft">8dp</dimen>
-    <dimen name="po_radioButton_marginBottom">8dp</dimen>
+    <dimen name="po_radioButton_marginBottom">4dp</dimen>
 
     <dimen name="po_dragHandle_width">32dp</dimen>
     <dimen name="po_dragHandle_height">4dp</dimen>
-    <dimen name="po_dragHandle_marginTop">16dp</dimen>
+    <dimen name="po_dragHandle_marginTop">12dp</dimen>
 
-    <dimen name="po_background_size">1000dp</dimen>
-    <dimen name="po_background_translationY">-150dp</dimen>
-    <dimen name="po_background_layers_offset">100dp</dimen>
-
+    <dimen name="po_capture_content_paddingVertical">28dp</dimen>
+    <dimen name="po_capture_content_margin">16dp</dimen>
     <dimen name="po_capture_logo_height">32dp</dimen>
-    <dimen name="po_capture_logo_marginTop">70dp</dimen>
-    <dimen name="po_capture_message_marginVertical">18dp</dimen>
-    <dimen name="po_capture_image_height">300dp</dimen>
-    <dimen name="po_capture_image_action_width">200dp</dimen>
-    <dimen name="po_capture_image_success_width">220dp</dimen>
+    <dimen name="po_capture_image_width">220dp</dimen>
+    <dimen name="po_capture_image_height">280dp</dimen>
 </resources>

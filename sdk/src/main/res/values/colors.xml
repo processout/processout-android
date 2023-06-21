@@ -1,50 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="poWhite">#FFFFFF</color>
-    <color name="poBlack">#121212</color>
 
-    <color name="poBackgroundPrimary">#FFFFFF</color>
-    <color name="poBackgroundInput">#FFFFFF</color>
-    <color name="poBackgroundGreyLight">#F8F8F8</color>
-    <color name="poBackgroundGreyDark">#F4F4F4</color>
-    <color name="poBackgroundSuccessLight">#F0FEFE</color>
-    <color name="poBackgroundSuccessDark">#D7F8F7</color>
-    <color name="poBackgroundSuccessDarker">#207E7F</color>
+    <!-- Surface -->
 
-    <color name="poTextPrimary">#121212</color>
-    <color name="poTextSecondary">#52535B</color>
-    <color name="poTextLink">#423F86</color>
-    <color name="poTextDisabled">#8D8D95</color>
-    <color name="poTextError">#A32B33</color>
-    <color name="poTextSuccess">#207E7F</color>
+    <color name="po_surface_background">#FFFFFF</color>
+    <color name="po_surface_level1">#FCFCFD</color>
+    <color name="po_surface_neutral">#F7F7F8</color>
+    <color name="po_surface_success">#D8F8E5</color>
+    <color name="po_surface_warning">#FDEBE3</color>
+    <color name="po_surface_error">#FAD1D4</color>
 
-    <color name="poBorderPrimary">#6F7079</color>
-    <color name="poBorderActive">#423F86</color>
-    <color name="poBorderError">#A32B33</color>
+    <!-- Border -->
 
-    <color name="poIconPrimary">#121212</color>
+    <color name="po_border_default">#8D8D95</color>
+    <color name="po_border_divider">#F2F2F3</color>
+    <color name="po_border_subtle">#E5E5E7</color>
 
-    <!-- Button Primary -->
+    <!-- Text -->
 
-    <color name="poButtonPrimary">#31306D</color>
-    <color name="poButtonPrimaryDisabled">#ECECEC</color>
-    <color name="poButtonPrimaryPressed">#423F86</color>
+    <color name="po_text_primary">#121212</color>
+    <color name="po_text_secondary">#313135</color>
+    <color name="po_text_tertiary">#4E4E55</color>
+    <color name="po_text_muted">#67676F</color>
+    <color name="po_text_disabled">#8D8D95</color>
+    <color name="po_text_onColor">#FCFCFC</color>
+    <color name="po_text_success">#014B21</color>
+    <color name="po_text_warning">#742702</color>
+    <color name="po_text_error">#7B0F17</color>
 
-    <color name="poButtonPrimaryText">#FFFFFF</color>
-    <color name="poButtonPrimaryTextDisabled">#8D8D95</color>
-    <color name="poButtonPrimaryTextPressed">#FFFFFF</color>
+    <!-- Action -->
 
-    <!-- Button Secondary -->
+    <color name="po_action_primary_default">#2B2A93</color>
+    <color name="po_action_primary_pressed">#1E1E76</color>
+    <color name="po_action_primary_disabled">#E5E5E7</color>
 
-    <color name="poButtonSecondary">#FFFFFF</color>
-    <color name="poButtonSecondaryDisabled">#FFFFFF</color>
-    <color name="poButtonSecondaryPressed">#E5E5E7</color>
+    <color name="po_action_secondary_default">#FFFFFF</color>
+    <color name="po_action_secondary_pressed">#E5E5E7</color>
 
-    <color name="poButtonSecondaryBorder">#8D8D95</color>
-    <color name="poButtonSecondaryBorderDisabled">#C4C4C8</color>
-    <color name="poButtonSecondaryBorderPressed">#8D8D95</color>
+    <color name="po_action_border_selected">#4E4E55</color>
+    <color name="po_action_border_disabled">#C4C4C8</color>
 
-    <color name="poButtonSecondaryText">#313135</color>
-    <color name="poButtonSecondaryTextDisabled">#8D8D95</color>
-    <color name="poButtonSecondaryTextPressed">#313135</color>
 </resources>

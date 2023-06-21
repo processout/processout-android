@@ -3,6 +3,7 @@ package com.processout.sdk.ui.shared.view.input.code
 import android.content.Context
 import android.text.InputFilter
 import android.util.AttributeSet
+import android.view.Gravity
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -110,12 +111,21 @@ internal class CodeInput(
                     editText.nextFocusForwardId = action.nextFocusForwardId
                 }
             }
+            if (it.centered) {
+                title.gravity = Gravity.CENTER_HORIZONTAL
+                container.gravity = Gravity.CENTER_HORIZONTAL
+                errorMessage.gravity = Gravity.CENTER_HORIZONTAL
+            }
             value = it.value
         }
     }
 
     private fun addEditText(index: Int) {
-        val editText = CodeEditText(context, style = style)
+        val editText = CodeEditText(
+            context,
+            style = style,
+            centered = inputParameter?.centered ?: false
+        )
         editTexts.add(index, editText)
         container.addView(editText)
     }

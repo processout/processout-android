@@ -1,7 +1,6 @@
 package com.processout.sdk.ui.shared.view.extensions
 
 import android.content.Context
-import android.graphics.Color
 import android.graphics.Outline
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
@@ -57,5 +56,5 @@ internal fun defaultOutlineBackground(
     context.resources.getDimensionPixelSize(R.dimen.po_cornerRadius).toFloat(),
     context.resources.getDimensionPixelSize(R.dimen.po_borderWidth),
     ContextCompat.getColor(context, borderColorRes),
-    Color.TRANSPARENT
+    ContextCompat.getColor(context, R.color.po_surface_background)
 )

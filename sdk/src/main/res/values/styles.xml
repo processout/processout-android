@@ -7,35 +7,35 @@
     </style>
 
     <style name="Widget.ProcessOut.Title" parent="Widget.MaterialComponents.TextView">
-        <item name="android:textColor">@color/poTextPrimary</item>
-        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Title.Default</item>
+        <item name="android:textColor">@color/po_text_primary</item>
+        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Medium.Title</item>
     </style>
 
-    <style name="Widget.ProcessOut.Body.Medium" parent="Widget.MaterialComponents.TextView">
-        <item name="android:textColor">@color/poTextPrimary</item>
-        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Body.Default.Medium</item>
+    <style name="Widget.ProcessOut.Subtitle" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textColor">@color/po_text_primary</item>
+        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Medium.Subtitle</item>
     </style>
 
     <style name="Widget.ProcessOut.Input.Title" parent="Widget.MaterialComponents.TextView">
-        <item name="android:textColor">@color/poTextPrimary</item>
-        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Input.Label</item>
+        <item name="android:textColor">@color/po_text_secondary</item>
+        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Fixed.Label.Heading</item>
     </style>
 
     <style name="Widget.ProcessOut.Input.ErrorMessage" parent="Widget.MaterialComponents.TextView">
-        <item name="android:textColor">@color/poTextError</item>
-        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Body.Small.Medium</item>
+        <item name="android:textColor">@color/po_text_error</item>
+        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Fixed.Label</item>
     </style>
 
     <style name="Widget.ProcessOut.EditText" parent="Widget.AppCompat.EditText">
-        <item name="android:textColor">@color/poTextPrimary</item>
-        <item name="android:textColorHint">@color/poTextDisabled</item>
-        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Input.String</item>
-        <item name="android:paddingLeft">@dimen/po_input_paddingHorizontal</item>
-        <item name="android:paddingRight">@dimen/po_input_paddingHorizontal</item>
-        <item name="android:paddingStart">@dimen/po_input_paddingHorizontal</item>
-        <item name="android:paddingEnd">@dimen/po_input_paddingHorizontal</item>
-        <item name="android:paddingTop">@dimen/po_input_paddingVertical</item>
-        <item name="android:paddingBottom">@dimen/po_input_paddingVertical</item>
+        <item name="android:textColor">@color/po_text_primary</item>
+        <item name="android:textColorHint">@color/po_text_muted</item>
+        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Fixed.Label</item>
+        <item name="android:paddingLeft">@dimen/po_input_padding</item>
+        <item name="android:paddingRight">@dimen/po_input_padding</item>
+        <item name="android:paddingStart">@dimen/po_input_padding</item>
+        <item name="android:paddingEnd">@dimen/po_input_padding</item>
+        <item name="android:paddingTop">@dimen/po_input_padding</item>
+        <item name="android:paddingBottom">@dimen/po_input_padding</item>
         <item name="android:textCursorDrawable">@drawable/po_text_cursor</item>
         <item name="android:textSelectHandle">@drawable/po_text_select_handle</item>
         <item name="android:textSelectHandleLeft">@drawable/po_text_select_handle_left</item>
@@ -48,8 +48,8 @@
         <item name="android:gravity">center</item>
         <item name="android:padding">0dp</item>
         <item name="android:maxLength">1</item>
-        <item name="android:textColor">@color/poTextPrimary</item>
-        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Title.Large</item>
+        <item name="android:textColor">@color/po_text_primary</item>
+        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Medium.Title</item>
         <item name="android:textCursorDrawable">@drawable/po_text_cursor</item>
         <item name="android:textSelectHandle">@drawable/po_text_select_handle</item>
         <item name="android:textSelectHandleLeft">@drawable/po_text_select_handle_left</item>
@@ -87,8 +87,8 @@
         <item name="android:minHeight">@dimen/po_radioButton_minHeight</item>
         <item name="android:paddingLeft">@dimen/po_radioButton_paddingLeft</item>
         <item name="buttonTint">@color/po_radio_button_states</item>
-        <item name="android:textColor">@color/poTextPrimary</item>
-        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Input.String</item>
+        <item name="android:textColor">@color/po_text_primary</item>
+        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Fixed.Label</item>
     </style>
 
     <style name="Widget.ProcessOut.ExposedDropdown.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
@@ -101,18 +101,18 @@
         <item name="boxCornerRadiusBottomStart">@dimen/po_cornerRadius</item>
         <item name="boxCornerRadiusBottomEnd">@dimen/po_cornerRadius</item>
         <item name="endIconDrawable">@drawable/po_dropdown_icon_states</item>
-        <item name="endIconTint">@color/poTextPrimary</item>
+        <item name="endIconTint">@color/po_text_primary</item>
     </style>
 
     <style name="Widget.ProcessOut.ExposedDropdown.Item" parent="Widget.MaterialComponents.TextView">
-        <item name="android:textColor">@color/poTextPrimary</item>
-        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Input.String</item>
+        <item name="android:textColor">@color/po_text_primary</item>
+        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Fixed.Label</item>
         <item name="android:maxLines">1</item>
         <item name="android:ellipsize">end</item>
-        <item name="android:paddingLeft">@dimen/po_input_paddingHorizontal</item>
-        <item name="android:paddingRight">@dimen/po_input_paddingHorizontal</item>
-        <item name="android:paddingStart">@dimen/po_input_paddingHorizontal</item>
-        <item name="android:paddingEnd">@dimen/po_input_paddingHorizontal</item>
+        <item name="android:paddingLeft">@dimen/po_input_padding</item>
+        <item name="android:paddingRight">@dimen/po_input_padding</item>
+        <item name="android:paddingStart">@dimen/po_input_padding</item>
+        <item name="android:paddingEnd">@dimen/po_input_padding</item>
         <item name="android:paddingTop">@dimen/po_dropdown_item_paddingVertical</item>
         <item name="android:paddingBottom">@dimen/po_dropdown_item_paddingVertical</item>
     </style>
