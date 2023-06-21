@@ -5,6 +5,8 @@ import com.processout.sdk.api.model.request.POCardTokenizationRequestWithDeviceD
 import com.processout.sdk.api.model.request.POCardUpdateCVCRequest
 import com.processout.sdk.api.model.request.PODeviceData
 import com.processout.sdk.api.model.response.POCard
+import com.processout.sdk.api.model.response.POCardIssuerInformation
+import com.processout.sdk.api.model.response.POCardIssuerInformationResponse
 import com.processout.sdk.api.model.response.POCardResponse
 import com.processout.sdk.api.network.CardsApi
 import com.processout.sdk.core.ProcessOutCallback
@@ -42,6 +44,16 @@ internal class CardsRepositoryImpl(
         request: POCardUpdateCVCRequest,
         callback: ProcessOutCallback<POCard>
     ) = apiCallScoped(callback, POCardResponse::toModel) { api.updateCVC(cardId, request) }
+
+    override suspend fun fetchIssuerInformation(iin: String) =
+        apiCall { api.fetchIssuerInformation(iin) }.map { it.toModel() }
+
+    override fun fetchIssuerInformation(
+        iin: String,
+        callback: ProcessOutCallback<POCardIssuerInformation>
+    ) = apiCallScoped(callback, POCardIssuerInformationResponse::toModel) {
+        api.fetchIssuerInformation(iin)
+    }
 }
 
 private fun POCardTokenizationRequest.toDeviceDataRequest(deviceData: PODeviceData) =
@@ -59,3 +71,5 @@ private fun POCardTokenizationRequest.toDeviceDataRequest(deviceData: PODeviceDa
     )
 
 private fun POCardResponse.toModel() = card
+
+private fun POCardIssuerInformationResponse.toModel() = cardInformation

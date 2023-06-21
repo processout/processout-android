@@ -61,4 +61,14 @@ class CardsRepositoryTests {
             }
         }
     }
+
+    @Test
+    fun fetchIssuerInformation() = runBlocking {
+        cards.fetchIssuerInformation(iin = "40000000").let { result ->
+            result.assertFailure()
+            result.handleSuccess {
+                assert(it.scheme == "visa")
+            }
+        }
+    }
 }
