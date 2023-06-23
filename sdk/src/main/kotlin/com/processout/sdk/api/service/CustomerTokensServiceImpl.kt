@@ -5,9 +5,9 @@ import com.processout.sdk.api.model.request.POCreateCustomerRequest
 import com.processout.sdk.api.model.response.POCustomer
 import com.processout.sdk.api.model.response.POCustomerToken
 import com.processout.sdk.api.repository.CustomerTokensRepository
+import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
-import com.processout.sdk.core.map
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -40,7 +40,9 @@ internal class CustomerTokensServiceImpl(
                             }
                     } ?: run {
                         threeDSService.cleanup()
-                        callback(ProcessOutResult.Success(result.value.token))
+                        result.value.token?.let { token ->
+                            callback(ProcessOutResult.Success(token))
+                        } ?: callback(ProcessOutResult.Failure(POFailure.Code.Internal()))
                     }
                 is ProcessOutResult.Failure -> {
                     threeDSService.cleanup()
@@ -54,7 +56,7 @@ internal class CustomerTokensServiceImpl(
     override suspend fun createCustomerToken(
         customerId: String
     ): ProcessOutResult<POCustomerToken> =
-        repository.createCustomerToken(customerId).map { it.token }
+        repository.createCustomerToken(customerId)
 
     @ProcessOutInternalApi
     override suspend fun createCustomer(
