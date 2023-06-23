@@ -5,9 +5,9 @@ import com.processout.sdk.api.model.request.POAssignCustomerTokenRequest
 import com.processout.sdk.api.model.request.POCardTokenizationRequest
 import com.processout.sdk.api.model.request.POCreateCustomerRequest
 import com.processout.sdk.api.model.request.POCreateInvoiceRequest
-import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.api.repository.CustomerTokensRepository
 import com.processout.sdk.api.repository.InvoicesRepository
+import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.config.SetupRule
 import com.processout.sdk.config.TestApplication
 import com.processout.sdk.config.assertFailure
@@ -67,8 +67,8 @@ class CustomerTokensRepositoryTests {
                                 customerTokens.createCustomerToken(customer.id)
                                     .let { createTokenResult ->
                                         createTokenResult.assertFailure()
-                                        createTokenResult.handleSuccess { createToken ->
-                                            createToken.token.id.let {
+                                        createTokenResult.handleSuccess { token ->
+                                            token.id.let {
                                                 customerTokens.assignCustomerToken(
                                                     request = POAssignCustomerTokenRequest(
                                                         customerId = customer.id,
@@ -80,7 +80,7 @@ class CustomerTokensRepositoryTests {
                                                 ).let { assignTokenResult ->
                                                     assignTokenResult.assertFailure()
                                                     assignTokenResult.handleSuccess { assignToken ->
-                                                        assert(assignToken.token.id.isNotEmpty())
+                                                        assert(assignToken.token?.id.isNullOrBlank().not())
                                                     }
                                                 }
                                             }

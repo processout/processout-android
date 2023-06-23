@@ -2,11 +2,12 @@ package com.processout.sdk.api.model.response
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import java.util.*
+import java.util.Date
 
 @JsonClass(generateAdapter = true)
 internal data class POCustomerTokenResponse(
-    val token: POCustomerToken,
+    val token: POCustomerToken?,
+    @Json(name = "customer_action")
     val customerAction: POCustomerAction?
 )
 
