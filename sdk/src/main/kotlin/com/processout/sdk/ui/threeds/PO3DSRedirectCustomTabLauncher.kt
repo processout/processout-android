@@ -46,6 +46,21 @@ class PO3DSRedirectCustomTabLauncher private constructor() {
             redirect.url.let { Uri.parse(it.toString()) },
             callback
         )
+
+        // TODO: Delete this ad-hoc when backend Chrome redirect issue is fixed.
+        val forceWebView = true
+        if (forceWebView) {
+            webViewFallbackLauncher.launch(
+                WebViewConfiguration(
+                    uri = delegate.uri,
+                    returnUris = listOf(Uri.parse(ApiConstants.CHECKOUT_URL)),
+                    sdkVersion = ProcessOut.VERSION,
+                    timeoutSeconds = redirect.timeoutSeconds
+                ), delegate
+            )
+            return
+        }
+
         if (ProcessOut.instance.browserCapabilities.isCustomTabsSupported()) {
             customTabLauncher.launch(
                 CustomTabConfiguration(

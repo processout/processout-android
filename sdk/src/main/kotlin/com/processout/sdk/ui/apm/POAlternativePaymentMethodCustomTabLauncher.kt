@@ -50,6 +50,21 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor() {
             ProcessOut.instance.alternativePaymentMethods,
             request, callback
         )
+
+        // TODO: Delete this ad-hoc when backend Chrome redirect issue is fixed.
+        val forceWebView = true
+        if (forceWebView) {
+            webViewFallbackLauncher.launch(
+                WebViewConfiguration(
+                    uri = delegate.uri,
+                    returnUris = listOf(Uri.parse(ApiConstants.CHECKOUT_URL)),
+                    sdkVersion = ProcessOut.VERSION,
+                    timeoutSeconds = null
+                ), delegate
+            )
+            return
+        }
+
         if (ProcessOut.instance.browserCapabilities.isCustomTabsSupported()) {
             customTabLauncher.launch(
                 CustomTabConfiguration(
