@@ -41,7 +41,11 @@ class PO3DSRedirectCustomTabLauncher private constructor() {
         }
     }
 
-    fun launch(redirect: PO3DSRedirect, callback: (ProcessOutResult<String>) -> Unit) {
+    fun launch(
+        redirect: PO3DSRedirect,
+        returnUrl: String,
+        callback: (ProcessOutResult<String>) -> Unit
+    ) {
         delegate = ThreeDSRedirectWebAuthorizationDelegate(
             redirect.url.let { Uri.parse(it.toString()) },
             callback
@@ -53,7 +57,10 @@ class PO3DSRedirectCustomTabLauncher private constructor() {
             webViewFallbackLauncher.launch(
                 WebViewConfiguration(
                     uri = delegate.uri,
-                    returnUris = listOf(Uri.parse(ApiConstants.CHECKOUT_URL)),
+                    returnUris = listOf(
+                        Uri.parse(ApiConstants.CHECKOUT_URL),
+                        Uri.parse(returnUrl)
+                    ),
                     sdkVersion = ProcessOut.VERSION,
                     timeoutSeconds = redirect.timeoutSeconds
                 ), delegate
@@ -72,12 +79,23 @@ class PO3DSRedirectCustomTabLauncher private constructor() {
             webViewFallbackLauncher.launch(
                 WebViewConfiguration(
                     uri = delegate.uri,
-                    returnUris = listOf(Uri.parse(ApiConstants.CHECKOUT_URL)),
+                    returnUris = listOf(
+                        Uri.parse(ApiConstants.CHECKOUT_URL),
+                        Uri.parse(returnUrl)
+                    ),
                     sdkVersion = ProcessOut.VERSION,
                     timeoutSeconds = redirect.timeoutSeconds
                 ), delegate
             )
         }
+    }
+
+    @Deprecated(
+        message = "Use function with 'returnUrl'.",
+        replaceWith = ReplaceWith("launch(redirect, returnUrl, callback)")
+    )
+    fun launch(redirect: PO3DSRedirect, callback: (ProcessOutResult<String>) -> Unit) {
+        launch(redirect, returnUrl = String(), callback)
     }
 
     private val activityResultCallback = ActivityResultCallback<ProcessOutActivityResult<Uri>> {

@@ -44,6 +44,7 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor() {
 
     fun launch(
         request: POAlternativePaymentMethodRequest,
+        returnUrl: String,
         callback: (ProcessOutResult<POAlternativePaymentMethodResponse>) -> Unit
     ) {
         delegate = AlternativePaymentMethodWebAuthorizationDelegate(
@@ -57,7 +58,10 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor() {
             webViewFallbackLauncher.launch(
                 WebViewConfiguration(
                     uri = delegate.uri,
-                    returnUris = listOf(Uri.parse(ApiConstants.CHECKOUT_URL)),
+                    returnUris = listOf(
+                        Uri.parse(ApiConstants.CHECKOUT_URL),
+                        Uri.parse(returnUrl)
+                    ),
                     sdkVersion = ProcessOut.VERSION,
                     timeoutSeconds = null
                 ), delegate
@@ -76,12 +80,26 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor() {
             webViewFallbackLauncher.launch(
                 WebViewConfiguration(
                     uri = delegate.uri,
-                    returnUris = listOf(Uri.parse(ApiConstants.CHECKOUT_URL)),
+                    returnUris = listOf(
+                        Uri.parse(ApiConstants.CHECKOUT_URL),
+                        Uri.parse(returnUrl)
+                    ),
                     sdkVersion = ProcessOut.VERSION,
                     timeoutSeconds = null
                 ), delegate
             )
         }
+    }
+
+    @Deprecated(
+        message = "Use function with 'returnUrl'.",
+        replaceWith = ReplaceWith("launch(request, returnUrl, callback)")
+    )
+    fun launch(
+        request: POAlternativePaymentMethodRequest,
+        callback: (ProcessOutResult<POAlternativePaymentMethodResponse>) -> Unit
+    ) {
+        launch(request, returnUrl = String(), callback)
     }
 
     private val activityResultCallback = ActivityResultCallback<ProcessOutActivityResult<Uri>> {
