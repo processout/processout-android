@@ -47,11 +47,13 @@ class POWebViewAuthorizationActivity : AppCompatActivity() {
     }
 
     private fun finishWithActivityResult(result: ProcessOutActivityResult<Uri>) {
-        when (result) {
-            is ProcessOutActivityResult.Success -> setActivityResult(Activity.RESULT_OK, result)
-            is ProcessOutActivityResult.Failure -> setActivityResult(Activity.RESULT_CANCELED, result)
+        if (!isFinishing) {
+            when (result) {
+                is ProcessOutActivityResult.Success -> setActivityResult(Activity.RESULT_OK, result)
+                is ProcessOutActivityResult.Failure -> setActivityResult(Activity.RESULT_CANCELED, result)
+            }
+            finish()
         }
-        finish()
     }
 
     private fun setActivityResult(resultCode: Int, result: ProcessOutActivityResult<Uri>) {

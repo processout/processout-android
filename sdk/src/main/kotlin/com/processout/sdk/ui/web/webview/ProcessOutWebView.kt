@@ -23,7 +23,6 @@ internal class ProcessOutWebView(
 
     private companion object {
         private const val USER_AGENT_PREFIX = "ProcessOut Android-WebView/"
-        private const val RETURN_URL_PATH_PREFIX = "/helpers/mobile-processout-webview-landing"
     }
 
     private val timeoutHandler by lazy { Handler(Looper.getMainLooper()) }
@@ -61,11 +60,9 @@ internal class ProcessOutWebView(
                 super.onPageStarted(view, url, favicon)
                 url?.let {
                     val uri = Uri.parse(it)
-                    if (uri.isHierarchical && uri.path != null &&
-                        uri.path!!.startsWith(RETURN_URL_PATH_PREFIX)
-                    ) {
+                    if (uri.isHierarchical && uri.path != null) {
                         configuration.returnUris.find { returnUri ->
-                            uri.scheme == returnUri.scheme && uri.host == returnUri.host
+                            uri.toString().startsWith(returnUri.toString(), ignoreCase = false)
                         }?.let { complete(uri) }
                     }
                 }

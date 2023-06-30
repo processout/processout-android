@@ -58,7 +58,7 @@ class PO3DSRedirectCustomTabLauncher private constructor() {
                 WebViewConfiguration(
                     uri = delegate.uri,
                     returnUris = listOf(
-                        Uri.parse(ApiConstants.CHECKOUT_URL),
+                        Uri.parse(ApiConstants.CHECKOUT_RETURN_URL),
                         Uri.parse(returnUrl)
                     ),
                     sdkVersion = ProcessOut.VERSION,
@@ -80,7 +80,7 @@ class PO3DSRedirectCustomTabLauncher private constructor() {
                 WebViewConfiguration(
                     uri = delegate.uri,
                     returnUris = listOf(
-                        Uri.parse(ApiConstants.CHECKOUT_URL),
+                        Uri.parse(ApiConstants.CHECKOUT_RETURN_URL),
                         Uri.parse(returnUrl)
                     ),
                     sdkVersion = ProcessOut.VERSION,
