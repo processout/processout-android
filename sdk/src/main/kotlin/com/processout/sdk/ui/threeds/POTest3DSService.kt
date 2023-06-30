@@ -47,7 +47,7 @@ class POTest3DSService(
     }
 
     override fun handle(redirect: PO3DSRedirect, callback: (ProcessOutResult<String>) -> Unit) {
-        customTabLauncher?.launch(redirect) { result ->
+        customTabLauncher?.launch(redirect, returnUrl = String()) { result ->
             callback(result)
         }
     }
