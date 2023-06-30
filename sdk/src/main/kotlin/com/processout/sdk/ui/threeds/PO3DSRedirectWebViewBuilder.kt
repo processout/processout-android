@@ -31,7 +31,7 @@ class PO3DSRedirectWebViewBuilder(
         activity,
         WebViewConfiguration(
             uri = delegate?.uri,
-            returnUris = listOf(Uri.parse(ApiConstants.CHECKOUT_URL)),
+            returnUris = listOf(Uri.parse(ApiConstants.CHECKOUT_RETURN_URL)),
             sdkVersion = ProcessOut.VERSION,
             timeoutSeconds = redirect?.timeoutSeconds
         )
