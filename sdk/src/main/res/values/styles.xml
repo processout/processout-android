@@ -16,6 +16,15 @@
         <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Medium.Subtitle</item>
     </style>
 
+    <style name="Widget.ProcessOut.Body" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textColor">@color/po_text_primary</item>
+        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Fixed.Body</item>
+    </style>
+
+    <style name="Widget.ProcessOut.Body.Compact">
+        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Fixed.Body.Compact</item>
+    </style>
+
     <style name="Widget.ProcessOut.Input.Title" parent="Widget.MaterialComponents.TextView">
         <item name="android:textColor">@color/po_text_secondary</item>
         <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Fixed.Label.Heading</item>

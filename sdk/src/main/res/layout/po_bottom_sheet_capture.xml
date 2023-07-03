@@ -66,7 +66,7 @@
 
             <TextView
                 android:id="@+id/po_message"
-                style="@style/Widget.ProcessOut.Subtitle"
+                style="@style/Widget.ProcessOut.Body.Compact"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/po_capture_content_margin"
