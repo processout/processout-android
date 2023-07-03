@@ -671,6 +671,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         bindingCapture.poCircularProgressIndicator.visibility = View.GONE
         bindingCapture.poMessage.text = uiModel.successMessage
         bindingCapture.poMessage.gravity = Gravity.CENTER_HORIZONTAL
+        bindingCapture.poMessage.setTextIsSelectable(false)
         bindingCapture.poMessage.visibility = View.VISIBLE
         bindingCapture.poLogo.load(uiModel.logoUrl)
         bindingCapture.poLogo.visibility = View.VISIBLE

@@ -6,11 +6,11 @@ import android.content.res.Resources.NotFoundException
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.util.Log
-import android.widget.EditText
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.TypefaceCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.view.ViewCompat
@@ -23,6 +23,7 @@ import com.processout.sdk.databinding.PoBottomSheetNativeApmBinding
 import com.processout.sdk.ui.shared.style.POBorderStyle
 import com.processout.sdk.ui.shared.style.POTextStyle
 import com.processout.sdk.ui.shared.style.POTypography
+import com.processout.sdk.ui.shared.style.StyleConstants
 import com.processout.sdk.ui.shared.style.button.POButtonStateStyle
 import com.processout.sdk.ui.shared.style.button.POButtonStyle
 import com.processout.sdk.ui.shared.style.radio.PORadioButtonStyle
@@ -48,6 +49,12 @@ internal fun PoBottomSheetCaptureBinding.applyStyle(
     style.successImageResId?.let { poSuccessImage.setImageResource(it) }
     style.message?.let { poMessage.applyStyle(it) }
     style.secondaryButton?.let { poSecondaryButton.applyStyle(it) }
+    style.controlsTintColor?.let {
+        poMessage.applyControlsTintColor(it)
+        poMessage.highlightColor = ColorUtils.setAlphaComponent(
+            it, StyleConstants.HIGHLIGHT_COLOR_ALPHA
+        )
+    }
 }
 
 internal fun TextView.applyStyle(style: POTextStyle) {
@@ -157,7 +164,7 @@ internal fun MaterialRadioButton.applyErrorStateStyle(
     } ?: run { buttonTintList = defaultButtonTintList }
 }
 
-internal fun EditText.applyControlsTintColor(@ColorInt tintColor: Int) {
+internal fun TextView.applyControlsTintColor(@ColorInt tintColor: Int) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         textCursorDrawable?.also { textCursorDrawable = it.tinted(tintColor) }
         textSelectHandle?.also { setTextSelectHandle(it.tinted(tintColor)) }
