@@ -11,6 +11,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.method.LinkMovementMethod
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -568,9 +569,8 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     private fun bindCustomerActionMessage(markdown: String) {
         bindingCapture.poMessage.setMarkdown(markdown)
         val isMessageCompact = markdown.length <= MAX_COMPACT_MESSAGE_LENGTH
-        if (isMessageCompact)
-            bindingCapture.poMessage.gravity = Gravity.CENTER_HORIZONTAL
-        else bindingCapture.poMessage.gravity = Gravity.START
+        bindingCapture.poMessage.gravity = if (isMessageCompact) Gravity.CENTER_HORIZONTAL else Gravity.START
+        bindingCapture.poMessage.movementMethod = LinkMovementMethod.getInstance()
         bindingCapture.poMessage.visibility = View.VISIBLE
     }
 

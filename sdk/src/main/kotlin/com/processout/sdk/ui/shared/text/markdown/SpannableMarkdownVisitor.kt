@@ -5,10 +5,12 @@ import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.style.StyleSpan
+import android.text.style.URLSpan
 import com.processout.sdk.ui.shared.text.span.TextLeadingMarginSpan
 import org.commonmark.node.AbstractVisitor
 import org.commonmark.node.Emphasis
 import org.commonmark.node.HardLineBreak
+import org.commonmark.node.Link
 import org.commonmark.node.ListItem
 import org.commonmark.node.OrderedList
 import org.commonmark.node.Paragraph
@@ -48,6 +50,14 @@ internal class SpannableMarkdownVisitor(textSize: Float) : AbstractVisitor() {
         visitChildren(strongEmphasis)
         val end = spannableBuilder.length
         spannableBuilder.setSpan(StyleSpan(Typeface.BOLD), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+    }
+
+    override fun visit(link: Link) {
+        val url = link.destination
+        val start = spannableBuilder.length
+        visitChildren(link)
+        val end = spannableBuilder.length
+        spannableBuilder.setSpan(URLSpan(url), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
     }
 
     override fun visit(paragraph: Paragraph) {
