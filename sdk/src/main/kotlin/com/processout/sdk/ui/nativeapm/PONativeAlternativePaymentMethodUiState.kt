@@ -40,7 +40,7 @@ internal data class PONativeAlternativePaymentMethodUiModel(
     val inputParameters: List<InputParameter>,
     val focusedInputId: Int = View.NO_ID,
     val successMessage: String,
-    val customerActionMessage: String?,
+    val customerActionMessageMarkdown: String?,
     val customerActionImageUrl: String?,
     val primaryActionText: String,
     val secondaryAction: SecondaryActionUiModel?,
@@ -48,7 +48,7 @@ internal data class PONativeAlternativePaymentMethodUiModel(
     val isSubmitting: Boolean
 ) {
     fun isSubmitAllowed() = inputParameters.all { it.state is Input.State.Default }
-    fun showCustomerAction() = customerActionMessage.isNullOrBlank().not()
+    fun showCustomerAction() = customerActionMessageMarkdown.isNullOrBlank().not()
 }
 
 internal inline fun PONativeAlternativePaymentMethodUiState.doWhenUserInput(

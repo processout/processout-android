@@ -20,12 +20,15 @@ import kotlin.math.roundToInt
 internal class SpannableMarkdownVisitor(textSize: Float) : AbstractVisitor() {
 
     companion object {
-        private const val DELIMITER = "."
-        private const val BULLET = "•"
+        private const val NEW_LINE = '\n'
+        private const val PARAGRAPH = "$NEW_LINE$NEW_LINE"
+        private const val LIST_ITEM_DELIMITER = "."
+        private const val LIST_ITEM_BULLET = "•"
     }
 
     private val spannableBuilder = SpannableStringBuilder()
-    val spanned: Spanned = spannableBuilder
+    val spanned: Spanned
+        get() = spannableBuilder.trimEndLines()
 
     private val listItemMargin = (textSize * 2.5).roundToInt()
 
@@ -49,17 +52,17 @@ internal class SpannableMarkdownVisitor(textSize: Float) : AbstractVisitor() {
 
     override fun visit(paragraph: Paragraph) {
         visitChildren(paragraph)
-        spannableBuilder.append("\n\n")
+        spannableBuilder.append(PARAGRAPH)
     }
 
     override fun visit(softLineBreak: SoftLineBreak) {
         visitChildren(softLineBreak)
-        spannableBuilder.appendLine()
+        spannableBuilder.append(NEW_LINE)
     }
 
     override fun visit(hardLineBreak: HardLineBreak) {
         visitChildren(hardLineBreak)
-        spannableBuilder.appendLine()
+        spannableBuilder.append(NEW_LINE)
     }
 
     override fun visit(listItem: ListItem) {
@@ -70,10 +73,10 @@ internal class SpannableMarkdownVisitor(textSize: Float) : AbstractVisitor() {
         val marker = when (val parent = listItem.parent) {
             is OrderedList -> {
                 val startNumber = parent.startNumber
-                parent.startNumber += 9
-                "$startNumber$DELIMITER"
+                parent.startNumber += 1
+                "$startNumber$LIST_ITEM_DELIMITER"
             }
-            else -> BULLET
+            else -> LIST_ITEM_BULLET
         }
 
         spannableBuilder.setSpan(
@@ -95,5 +98,12 @@ internal class SpannableMarkdownVisitor(textSize: Float) : AbstractVisitor() {
             parent = parent.parent
         }
         return level
+    }
+
+    private fun SpannableStringBuilder.trimEndLines(): SpannableStringBuilder {
+        while (endsWith(NEW_LINE)) {
+            delete(lastIndexOf(NEW_LINE), length)
+        }
+        return this
     }
 }
