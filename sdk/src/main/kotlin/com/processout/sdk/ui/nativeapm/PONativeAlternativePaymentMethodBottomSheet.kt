@@ -11,6 +11,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.method.LinkMovementMethod
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -62,6 +64,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         private const val REQUIRED_DISPLAY_HEIGHT_PERCENTAGE = 0.62
         private const val MAX_INPUTS_COUNT_IN_COLLAPSED_STATE = 2
         private const val MAX_INLINE_SINGLE_SELECT_IN_COLLAPSED_STATE = 3
+        private const val MAX_COMPACT_MESSAGE_LENGTH = 150
         private const val SUCCESS_FINISH_DELAY_MS = 3000L
         private const val ANIMATION_DURATION_MS = 350L
     }
@@ -549,8 +552,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         bindPaymentConfirmationSecondaryButton(uiModel)
         if (uiModel.showCustomerAction()) {
             bindingCapture.poCircularProgressIndicator.visibility = View.GONE
-            bindingCapture.poMessage.text = uiModel.customerActionMessage
-            bindingCapture.poMessage.visibility = View.VISIBLE
+            uiModel.customerActionMessageMarkdown?.let { bindCustomerActionMessage(it) }
             bindingCapture.poLogo.load(uiModel.logoUrl)
             bindingCapture.poLogo.visibility = View.VISIBLE
             bindingCapture.poActionImage.load(uiModel.customerActionImageUrl)
@@ -562,6 +564,14 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             bindingCapture.poActionImage.visibility = View.GONE
         }
         bindingCapture.poSuccessImage.visibility = View.GONE
+    }
+
+    private fun bindCustomerActionMessage(markdown: String) {
+        bindingCapture.poMessage.setMarkdown(markdown)
+        val isMessageCompact = markdown.length <= MAX_COMPACT_MESSAGE_LENGTH
+        bindingCapture.poMessage.gravity = if (isMessageCompact) Gravity.CENTER_HORIZONTAL else Gravity.START
+        bindingCapture.poMessage.movementMethod = LinkMovementMethod.getInstance()
+        bindingCapture.poMessage.visibility = View.VISIBLE
     }
 
     private fun bindPaymentConfirmationSecondaryButton(
@@ -633,6 +643,17 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     }
 
     private fun bindSuccess(uiModel: PONativeAlternativePaymentMethodUiModel) {
+        bindSuccessBackground()
+        bindSuccessMessage(uiModel.successMessage)
+        bindingCapture.poCircularProgressIndicator.visibility = View.GONE
+        bindingCapture.poLogo.load(uiModel.logoUrl)
+        bindingCapture.poLogo.visibility = View.VISIBLE
+        bindingCapture.poActionImage.visibility = View.GONE
+        bindingCapture.poSuccessImage.visibility = View.VISIBLE
+        bindingCapture.poFooter.visibility = View.GONE
+    }
+
+    private fun bindSuccessBackground() {
         val backgroundDecorationSuccessColor =
             when (val stateStyle = configuration?.style?.backgroundDecoration?.success) {
                 is POBackgroundDecorationStateStyle.Visible -> stateStyle.primaryColor
@@ -643,7 +664,9 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             ?: ContextCompat.getColor(requireContext(), R.color.po_surface_success)).let {
             bindingCapture.poBackground.setBackgroundColor(it)
         }
+    }
 
+    private fun bindSuccessMessage(message: String) {
         configuration?.style?.successMessage?.let {
             bindingCapture.poMessage.applyStyle(it)
         } ?: bindingCapture.poMessage.setTextColor(
@@ -658,14 +681,10 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             )
         }
 
-        bindingCapture.poCircularProgressIndicator.visibility = View.GONE
-        bindingCapture.poMessage.text = uiModel.successMessage
+        bindingCapture.poMessage.text = message
+        bindingCapture.poMessage.gravity = Gravity.CENTER_HORIZONTAL
+        bindingCapture.poMessage.setTextIsSelectable(false)
         bindingCapture.poMessage.visibility = View.VISIBLE
-        bindingCapture.poLogo.load(uiModel.logoUrl)
-        bindingCapture.poLogo.visibility = View.VISIBLE
-        bindingCapture.poActionImage.visibility = View.GONE
-        bindingCapture.poSuccessImage.visibility = View.VISIBLE
-        bindingCapture.poFooter.visibility = View.GONE
     }
 
     private fun handleFailure(failure: ProcessOutResult.Failure) {

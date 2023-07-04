@@ -35,6 +35,7 @@ import com.processout.sdk.ui.shared.model.InputParameter
 import com.processout.sdk.ui.shared.model.SecondaryActionUiModel
 import com.processout.sdk.ui.shared.view.button.POButton
 import com.processout.sdk.ui.shared.view.input.Input
+import com.processout.sdk.utils.escapedMarkdown
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -323,7 +324,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 handleCustomerInput(parameters, uiModel)
             }
             PONativeAlternativePaymentMethodState.PENDING_CAPTURE ->
-                handlePendingCapture(uiModel)
+                handlePendingCapture(success.value.parameterValues, uiModel)
             PONativeAlternativePaymentMethodState.CAPTURED ->
                 handleCaptured(uiModel)
         }
@@ -352,7 +353,10 @@ internal class PONativeAlternativePaymentMethodViewModel(
         dispatch(DidSubmitParameters(additionalParametersExpected = true))
     }
 
-    private fun handlePendingCapture(uiModel: PONativeAlternativePaymentMethodUiModel) {
+    private fun handlePendingCapture(
+        parameterValues: PONativeAlternativePaymentMethodParameterValues?,
+        uiModel: PONativeAlternativePaymentMethodUiModel
+    ) {
         _uiState.value = PONativeAlternativePaymentMethodUiState.Submitted(
             uiModel.copy(isSubmitting = false)
         )
@@ -365,7 +369,12 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 )
             )
             animateViewTransition = true
-            _uiState.value = PONativeAlternativePaymentMethodUiState.Capture(uiModel.copy())
+            _uiState.value = PONativeAlternativePaymentMethodUiState.Capture(
+                uiModel.copy(
+                    customerActionMessageMarkdown = parameterValues?.customerActionMessage
+                        ?: uiModel.customerActionMessageMarkdown
+                )
+            )
 
             uiModel.paymentConfirmationSecondaryAction?.let {
                 scheduleSecondaryActionEnabling(it) { enablePaymentConfirmationSecondaryAction() }
@@ -534,7 +543,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
             inputParameters = parameters?.toInputParameters() ?: emptyList(),
             successMessage = options.successMessage
                 ?: app.getString(R.string.po_native_apm_success_message),
-            customerActionMessage = gateway.customerActionMessage,
+            customerActionMessageMarkdown = escapedMarkdown(gateway.customerActionMessage),
             customerActionImageUrl = gateway.customerActionImageUrl,
             primaryActionText = options.primaryActionText ?: invoice.formatPrimaryActionText(),
             secondaryAction = options.secondaryAction?.toUiModel(),

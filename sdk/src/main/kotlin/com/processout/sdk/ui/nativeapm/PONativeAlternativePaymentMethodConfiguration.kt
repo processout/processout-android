@@ -64,6 +64,9 @@ data class PONativeAlternativePaymentMethodConfiguration(
         val backPressed: Boolean = true
     ) : Parcelable
 
+    /**
+     * @param controlsTintColor Applies to generic components (e.g. selectable TextView).
+     */
     @Parcelize
     data class Style(
         val title: POTextStyle? = null,
@@ -79,6 +82,8 @@ data class PONativeAlternativePaymentMethodConfiguration(
         val backgroundColor: Int? = null,
         @ColorInt
         val progressIndicatorColor: Int? = null,
+        @ColorInt
+        val controlsTintColor: Int? = null,
         val message: POTextStyle? = null,
         val successMessage: POTextStyle? = null,
         @DrawableRes

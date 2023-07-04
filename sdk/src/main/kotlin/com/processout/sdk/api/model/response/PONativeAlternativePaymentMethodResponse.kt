@@ -18,5 +18,7 @@ data class PONativeAlternativePaymentMethod(
 
 @JsonClass(generateAdapter = true)
 data class PONativeAlternativePaymentMethodParameterValues(
-    val message: String?
+    val message: String?,
+    @Json(name = "customer_action_message")
+    val customerActionMessage: String?
 )

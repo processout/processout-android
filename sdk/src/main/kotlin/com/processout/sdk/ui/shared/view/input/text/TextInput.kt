@@ -19,6 +19,7 @@ import com.processout.sdk.R
 import com.processout.sdk.ui.nativeapm.applyControlsTintColor
 import com.processout.sdk.ui.nativeapm.applyStyle
 import com.processout.sdk.ui.shared.model.InputParameter
+import com.processout.sdk.ui.shared.style.StyleConstants
 import com.processout.sdk.ui.shared.style.input.POInputStateStyle
 import com.processout.sdk.ui.shared.style.input.POInputStyle
 import com.processout.sdk.ui.shared.view.extensions.defaultOutlineBackground
@@ -36,10 +37,6 @@ internal class TextInput(
 
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, null)
-
-    companion object {
-        private const val HIGHLIGHT_COLOR_ALPHA = 95
-    }
 
     private var state: Input.State = inputParameter?.state ?: Input.State.Default()
 
@@ -171,7 +168,7 @@ internal class TextInput(
                 editText.isEnabled = state.editable
                 editText.background = defaultBackground
                 editText.highlightColor = ColorUtils.setAlphaComponent(
-                    defaultControlsTintColor, HIGHLIGHT_COLOR_ALPHA
+                    defaultControlsTintColor, StyleConstants.HIGHLIGHT_COLOR_ALPHA
                 )
                 editText.applyControlsTintColor(defaultControlsTintColor)
                 errorMessage.text = String()
@@ -182,7 +179,7 @@ internal class TextInput(
                 editText.isEnabled = true
                 editText.background = errorBackground
                 editText.highlightColor = ColorUtils.setAlphaComponent(
-                    errorControlsTintColor, HIGHLIGHT_COLOR_ALPHA
+                    errorControlsTintColor, StyleConstants.HIGHLIGHT_COLOR_ALPHA
                 )
                 editText.applyControlsTintColor(errorControlsTintColor)
                 errorMessage.text = state.message

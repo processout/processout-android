@@ -119,6 +119,7 @@ dependencies {
     implementation "com.squareup.okhttp3:logging-interceptor:$okhttpVersion"
     implementation "com.squareup.okio:okio:$okioVersion"
     implementation "io.coil-kt:coil:$coilVersion"
+    implementation "org.commonmark:commonmark:$commonMarkVersion"
 
     ksp "com.squareup.moshi:moshi-kotlin-codegen:$moshiVersion"
 
