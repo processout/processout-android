@@ -643,6 +643,17 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     }
 
     private fun bindSuccess(uiModel: PONativeAlternativePaymentMethodUiModel) {
+        bindSuccessBackground()
+        bindSuccessMessage(uiModel.successMessage)
+        bindingCapture.poCircularProgressIndicator.visibility = View.GONE
+        bindingCapture.poLogo.load(uiModel.logoUrl)
+        bindingCapture.poLogo.visibility = View.VISIBLE
+        bindingCapture.poActionImage.visibility = View.GONE
+        bindingCapture.poSuccessImage.visibility = View.VISIBLE
+        bindingCapture.poFooter.visibility = View.GONE
+    }
+
+    private fun bindSuccessBackground() {
         val backgroundDecorationSuccessColor =
             when (val stateStyle = configuration?.style?.backgroundDecoration?.success) {
                 is POBackgroundDecorationStateStyle.Visible -> stateStyle.primaryColor
@@ -653,7 +664,9 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             ?: ContextCompat.getColor(requireContext(), R.color.po_surface_success)).let {
             bindingCapture.poBackground.setBackgroundColor(it)
         }
+    }
 
+    private fun bindSuccessMessage(message: String) {
         configuration?.style?.successMessage?.let {
             bindingCapture.poMessage.applyStyle(it)
         } ?: bindingCapture.poMessage.setTextColor(
@@ -668,16 +681,10 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             )
         }
 
-        bindingCapture.poCircularProgressIndicator.visibility = View.GONE
-        bindingCapture.poMessage.text = uiModel.successMessage
+        bindingCapture.poMessage.text = message
         bindingCapture.poMessage.gravity = Gravity.CENTER_HORIZONTAL
         bindingCapture.poMessage.setTextIsSelectable(false)
         bindingCapture.poMessage.visibility = View.VISIBLE
-        bindingCapture.poLogo.load(uiModel.logoUrl)
-        bindingCapture.poLogo.visibility = View.VISIBLE
-        bindingCapture.poActionImage.visibility = View.GONE
-        bindingCapture.poSuccessImage.visibility = View.VISIBLE
-        bindingCapture.poFooter.visibility = View.GONE
     }
 
     private fun handleFailure(failure: ProcessOutResult.Failure) {
