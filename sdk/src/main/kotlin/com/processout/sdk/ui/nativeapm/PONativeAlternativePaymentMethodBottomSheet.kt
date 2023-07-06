@@ -587,7 +587,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                 },
                 onError = { _, _ ->
                     bindingCapture.poLogo.visibility = View.GONE
-                    uiModel.paymentConfirmationTitle?.let {
+                    uiModel.title?.let {
                         bindingCapture.poTitle.text = it
                         bindingCapture.poTitle.applyStyle(titleStyle)
                         bindingCapture.poTitle.visibility = View.VISIBLE
