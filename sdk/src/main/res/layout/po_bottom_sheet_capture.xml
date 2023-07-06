@@ -67,8 +67,10 @@
                     android:layout_gravity="center"
                     android:adjustViewBounds="true"
                     android:scaleType="fitCenter"
+                    android:visibility="gone"
                     tools:ignore="ContentDescription"
-                    tools:src="@android:color/black" />
+                    tools:src="@android:color/black"
+                    tools:visibility="visible" />
 
                 <TextView
                     android:id="@+id/po_title"

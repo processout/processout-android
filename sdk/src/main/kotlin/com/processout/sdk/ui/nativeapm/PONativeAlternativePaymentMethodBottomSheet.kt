@@ -552,11 +552,9 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         bindPaymentConfirmationSecondaryButton(uiModel)
         if (uiModel.showCustomerAction()) {
             bindingCapture.poCircularProgressIndicator.visibility = View.GONE
+            bindCaptureHeader(uiModel)
+            bindCustomerActionImage(uiModel)
             uiModel.customerActionMessageMarkdown?.let { bindCustomerActionMessage(it) }
-            bindingCapture.poLogo.load(uiModel.logoUrl)
-            bindingCapture.poHeader.visibility = View.VISIBLE
-            bindingCapture.poActionImage.load(uiModel.customerActionImageUrl)
-            bindingCapture.poActionImage.visibility = View.VISIBLE
         } else {
             bindingCapture.poCircularProgressIndicator.visibility = View.VISIBLE
             bindingCapture.poMessage.visibility = View.GONE
@@ -564,6 +562,33 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             bindingCapture.poActionImage.visibility = View.GONE
         }
         bindingCapture.poSuccessImage.visibility = View.GONE
+    }
+
+    private fun bindCaptureHeader(uiModel: PONativeAlternativePaymentMethodUiModel) {
+        bindingCapture.poHeader.visibility = View.VISIBLE
+        bindingCapture.poLogo.load(uiModel.logoUrl) {
+            listener(
+                onSuccess = { _, _ ->
+                    bindingCapture.poLogo.visibility = View.VISIBLE
+                },
+                onError = { _, _ ->
+                    bindingCapture.poLogo.visibility = View.GONE
+                }
+            )
+        }
+    }
+
+    private fun bindCustomerActionImage(uiModel: PONativeAlternativePaymentMethodUiModel) {
+        bindingCapture.poActionImage.load(uiModel.customerActionImageUrl) {
+            listener(
+                onSuccess = { _, _ ->
+                    bindingCapture.poActionImage.visibility = View.VISIBLE
+                },
+                onError = { _, _ ->
+                    bindingCapture.poActionImage.visibility = View.GONE
+                }
+            )
+        }
     }
 
     private fun bindCustomerActionMessage(markdown: String) {
@@ -643,11 +668,10 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     }
 
     private fun bindSuccess(uiModel: PONativeAlternativePaymentMethodUiModel) {
+        bindingCapture.poCircularProgressIndicator.visibility = View.GONE
         bindSuccessBackground()
         bindSuccessMessage(uiModel.successMessage)
-        bindingCapture.poCircularProgressIndicator.visibility = View.GONE
-        bindingCapture.poLogo.load(uiModel.logoUrl)
-        bindingCapture.poHeader.visibility = View.VISIBLE
+        bindCaptureHeader(uiModel)
         bindingCapture.poActionImage.visibility = View.GONE
         bindingCapture.poSuccessImage.visibility = View.VISIBLE
         bindingCapture.poFooter.visibility = View.GONE
