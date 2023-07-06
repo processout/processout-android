@@ -23,6 +23,6 @@ data class PONativeAlternativePaymentMethodParameterValues(
     val customerActionMessage: String?,
     @Json(name = "provider_name")
     val providerName: String?,
-    @Json(name = "provider_logo")
+    @Json(name = "provider_logo_url")
     val providerLogoUrl: String?
 )
