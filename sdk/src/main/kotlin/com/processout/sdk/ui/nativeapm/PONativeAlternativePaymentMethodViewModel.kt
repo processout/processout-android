@@ -371,6 +371,8 @@ internal class PONativeAlternativePaymentMethodViewModel(
             animateViewTransition = true
             _uiState.value = PONativeAlternativePaymentMethodUiState.Capture(
                 uiModel.copy(
+                    paymentConfirmationTitle = parameterValues?.providerName,
+                    logoUrl = parameterValues?.providerLogoUrl ?: uiModel.logoUrl,
                     customerActionMessageMarkdown = parameterValues?.customerActionMessage
                         ?: uiModel.customerActionMessageMarkdown
                 )

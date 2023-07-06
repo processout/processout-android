@@ -44,6 +44,8 @@ import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityC
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityContract.Companion.EXTRA_RESULT
 import com.processout.sdk.ui.shared.model.InputParameter
 import com.processout.sdk.ui.shared.model.SecondaryActionUiModel
+import com.processout.sdk.ui.shared.style.POTextStyle
+import com.processout.sdk.ui.shared.style.POTypography
 import com.processout.sdk.ui.shared.style.background.POBackgroundDecorationStateStyle
 import com.processout.sdk.ui.shared.style.dropdown.ExposedDropdownStyle
 import com.processout.sdk.ui.shared.view.button.POButton
@@ -552,7 +554,15 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         bindPaymentConfirmationSecondaryButton(uiModel)
         if (uiModel.showCustomerAction()) {
             bindingCapture.poCircularProgressIndicator.visibility = View.GONE
-            bindCaptureHeader(uiModel)
+            bindCaptureHeader(
+                uiModel,
+                titleStyle = POTextStyle(
+                    color = configuration?.style?.message?.color
+                        ?: ContextCompat.getColor(requireContext(), R.color.po_text_primary),
+                    typography = configuration?.style?.title?.typography
+                        ?: POTypography.Medium.title
+                )
+            )
             bindCustomerActionImage(uiModel)
             uiModel.customerActionMessageMarkdown?.let { bindCustomerActionMessage(it) }
         } else {
@@ -564,8 +574,12 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         bindingCapture.poSuccessImage.visibility = View.GONE
     }
 
-    private fun bindCaptureHeader(uiModel: PONativeAlternativePaymentMethodUiModel) {
+    private fun bindCaptureHeader(
+        uiModel: PONativeAlternativePaymentMethodUiModel,
+        titleStyle: POTextStyle
+    ) {
         bindingCapture.poHeader.visibility = View.VISIBLE
+        bindingCapture.poTitle.visibility = View.GONE
         bindingCapture.poLogo.load(uiModel.logoUrl) {
             listener(
                 onSuccess = { _, _ ->
@@ -573,6 +587,11 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                 },
                 onError = { _, _ ->
                     bindingCapture.poLogo.visibility = View.GONE
+                    uiModel.paymentConfirmationTitle?.let {
+                        bindingCapture.poTitle.text = it
+                        bindingCapture.poTitle.applyStyle(titleStyle)
+                        bindingCapture.poTitle.visibility = View.VISIBLE
+                    } ?: run { bindingCapture.poHeader.visibility = View.GONE }
                 }
             )
         }
@@ -671,7 +690,15 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         bindingCapture.poCircularProgressIndicator.visibility = View.GONE
         bindSuccessBackground()
         bindSuccessMessage(uiModel.successMessage)
-        bindCaptureHeader(uiModel)
+        bindCaptureHeader(
+            uiModel,
+            titleStyle = POTextStyle(
+                color = configuration?.style?.successMessage?.color
+                    ?: ContextCompat.getColor(requireContext(), R.color.po_text_success),
+                typography = configuration?.style?.title?.typography
+                    ?: POTypography.Medium.title
+            )
+        )
         bindingCapture.poActionImage.visibility = View.GONE
         bindingCapture.poSuccessImage.visibility = View.VISIBLE
         bindingCapture.poFooter.visibility = View.GONE

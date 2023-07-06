@@ -45,6 +45,7 @@ internal data class PONativeAlternativePaymentMethodUiModel(
     val primaryActionText: String,
     val secondaryAction: SecondaryActionUiModel?,
     val paymentConfirmationSecondaryAction: SecondaryActionUiModel?,
+    val paymentConfirmationTitle: String? = null,
     val isSubmitting: Boolean
 ) {
     fun isSubmitAllowed() = inputParameters.all { it.state is Input.State.Default }
