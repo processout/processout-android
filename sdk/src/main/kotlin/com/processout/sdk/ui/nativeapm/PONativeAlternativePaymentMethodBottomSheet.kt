@@ -554,13 +554,13 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             bindingCapture.poCircularProgressIndicator.visibility = View.GONE
             uiModel.customerActionMessageMarkdown?.let { bindCustomerActionMessage(it) }
             bindingCapture.poLogo.load(uiModel.logoUrl)
-            bindingCapture.poLogo.visibility = View.VISIBLE
+            bindingCapture.poHeader.visibility = View.VISIBLE
             bindingCapture.poActionImage.load(uiModel.customerActionImageUrl)
             bindingCapture.poActionImage.visibility = View.VISIBLE
         } else {
             bindingCapture.poCircularProgressIndicator.visibility = View.VISIBLE
             bindingCapture.poMessage.visibility = View.GONE
-            bindingCapture.poLogo.visibility = View.GONE
+            bindingCapture.poHeader.visibility = View.GONE
             bindingCapture.poActionImage.visibility = View.GONE
         }
         bindingCapture.poSuccessImage.visibility = View.GONE
@@ -630,7 +630,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                                 bindingCapture.poSuccessImage
                             ).also {
                                 if (uiModel.showCustomerAction().not()) {
-                                    it.add(bindingCapture.poLogo)
+                                    it.add(bindingCapture.poHeader)
                                 }
                             },
                             ANIMATION_DURATION_MS
@@ -647,7 +647,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         bindSuccessMessage(uiModel.successMessage)
         bindingCapture.poCircularProgressIndicator.visibility = View.GONE
         bindingCapture.poLogo.load(uiModel.logoUrl)
-        bindingCapture.poLogo.visibility = View.VISIBLE
+        bindingCapture.poHeader.visibility = View.VISIBLE
         bindingCapture.poActionImage.visibility = View.GONE
         bindingCapture.poSuccessImage.visibility = View.VISIBLE
         bindingCapture.poFooter.visibility = View.GONE

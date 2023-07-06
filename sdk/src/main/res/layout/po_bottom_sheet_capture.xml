@@ -26,7 +26,7 @@
         android:defaultFocusHighlightEnabled="false"
         android:fillViewport="true"
         android:isScrollContainer="true"
-        app:layout_constraintBottom_toTopOf="@+id/po_footer"
+        app:layout_constraintBottom_toTopOf="@id/po_footer"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -49,20 +49,37 @@
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <ImageView
-                android:id="@+id/po_logo"
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/po_capture_logo_height"
+            <FrameLayout
+                android:id="@+id/po_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/po_capture_content_margin"
-                android:adjustViewBounds="true"
-                android:scaleType="fitCenter"
                 android:visibility="gone"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="ContentDescription"
-                tools:src="@android:color/black"
-                tools:visibility="visible" />
+                tools:visibility="visible">
+
+                <ImageView
+                    android:id="@+id/po_logo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/po_capture_logo_height"
+                    android:layout_gravity="center"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitCenter"
+                    tools:ignore="ContentDescription"
+                    tools:src="@android:color/black" />
+
+                <TextView
+                    android:id="@+id/po_title"
+                    style="@style/Widget.ProcessOut.Title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:visibility="gone"
+                    tools:text="Provider Title" />
+            </FrameLayout>
 
             <TextView
                 android:id="@+id/po_message"
@@ -81,7 +98,7 @@
                 android:visibility="gone"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/po_logo"
+                app:layout_constraintTop_toBottomOf="@id/po_header"
                 tools:text="Please confirm payment in your banking app. Please confirm payment in your banking app."
                 tools:visibility="visible" />
 
