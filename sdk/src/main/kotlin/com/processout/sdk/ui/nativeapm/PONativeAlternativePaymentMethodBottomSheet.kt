@@ -579,11 +579,11 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         titleStyle: POTextStyle
     ) {
         bindingCapture.poHeader.visibility = View.VISIBLE
-        bindingCapture.poTitle.visibility = View.GONE
         bindingCapture.poLogo.load(uiModel.logoUrl) {
             listener(
                 onSuccess = { _, _ ->
                     bindingCapture.poLogo.visibility = View.VISIBLE
+                    bindingCapture.poTitle.visibility = View.GONE
                 },
                 onError = { _, _ ->
                     bindingCapture.poLogo.visibility = View.GONE
@@ -591,7 +591,10 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                         bindingCapture.poTitle.text = it
                         bindingCapture.poTitle.applyStyle(titleStyle)
                         bindingCapture.poTitle.visibility = View.VISIBLE
-                    } ?: run { bindingCapture.poHeader.visibility = View.GONE }
+                    } ?: run {
+                        bindingCapture.poHeader.visibility = View.GONE
+                        bindingCapture.poTitle.visibility = View.GONE
+                    }
                 }
             )
         }
