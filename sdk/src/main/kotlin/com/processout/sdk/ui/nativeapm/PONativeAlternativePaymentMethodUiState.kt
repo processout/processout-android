@@ -35,7 +35,7 @@ internal sealed class PONativeAlternativePaymentMethodUiState {
 }
 
 internal data class PONativeAlternativePaymentMethodUiModel(
-    val title: String,
+    val title: String?,
     val logoUrl: String,
     val inputParameters: List<InputParameter>,
     val focusedInputId: Int = View.NO_ID,

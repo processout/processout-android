@@ -122,9 +122,6 @@ internal class PONativeAlternativePaymentMethodViewModel(
                     if (handleInvalidInputParameters(parameters)) return@launch
 
                     val uiModel = result.value.toUiModel()
-                    if (options.waitsPaymentConfirmation) {
-                        preloadAllImages(coroutineScope = this, uiModel)
-                    }
                     _uiState.value = PONativeAlternativePaymentMethodUiState.Loaded(uiModel)
 
                     if (eventDispatcher.subscribedForDefaultValuesRequest())
@@ -297,7 +294,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 invoiceId, gatewayConfigurationId, data
             )
             when (val result = invoicesService.initiatePayment(request)) {
-                is ProcessOutResult.Success -> handlePaymentSuccess(result, uiModel)
+                is ProcessOutResult.Success -> handlePaymentSuccess(result, uiModel, coroutineScope = this)
                 is ProcessOutResult.Failure -> handlePaymentFailure(
                     result, uiModel, replaceToLocalMessage = true
                 )
@@ -305,9 +302,10 @@ internal class PONativeAlternativePaymentMethodViewModel(
         }
     }
 
-    private fun handlePaymentSuccess(
+    private suspend fun handlePaymentSuccess(
         success: ProcessOutResult.Success<PONativeAlternativePaymentMethod>,
-        uiModel: PONativeAlternativePaymentMethodUiModel
+        uiModel: PONativeAlternativePaymentMethodUiModel,
+        coroutineScope: CoroutineScope
     ) {
         when (success.value.state) {
             PONativeAlternativePaymentMethodState.CUSTOMER_INPUT -> {
@@ -324,7 +322,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 handleCustomerInput(parameters, uiModel)
             }
             PONativeAlternativePaymentMethodState.PENDING_CAPTURE ->
-                handlePendingCapture(success.value.parameterValues, uiModel)
+                handlePendingCapture(uiModel, coroutineScope, success.value.parameterValues)
             PONativeAlternativePaymentMethodState.CAPTURED ->
                 handleCaptured(uiModel)
         }
@@ -353,9 +351,10 @@ internal class PONativeAlternativePaymentMethodViewModel(
         dispatch(DidSubmitParameters(additionalParametersExpected = true))
     }
 
-    private fun handlePendingCapture(
-        parameterValues: PONativeAlternativePaymentMethodParameterValues?,
-        uiModel: PONativeAlternativePaymentMethodUiModel
+    private suspend fun handlePendingCapture(
+        uiModel: PONativeAlternativePaymentMethodUiModel,
+        coroutineScope: CoroutineScope,
+        parameterValues: PONativeAlternativePaymentMethodParameterValues?
     ) {
         _uiState.value = PONativeAlternativePaymentMethodUiState.Submitted(
             uiModel.copy(isSubmitting = false)
@@ -363,20 +362,23 @@ internal class PONativeAlternativePaymentMethodViewModel(
         dispatch(DidSubmitParameters(additionalParametersExpected = false))
 
         if (options.waitsPaymentConfirmation) {
+            val updatedUiModel = uiModel.copy(
+                title = parameterValues?.providerName,
+                logoUrl = parameterValues?.providerLogoUrl ?: uiModel.logoUrl,
+                customerActionMessageMarkdown = parameterValues?.customerActionMessage
+                    ?: uiModel.customerActionMessageMarkdown
+            )
             dispatch(
                 WillWaitForCaptureConfirmation(
-                    additionalActionExpected = uiModel.showCustomerAction()
+                    additionalActionExpected = updatedUiModel.showCustomerAction()
                 )
             )
-            animateViewTransition = true
-            _uiState.value = PONativeAlternativePaymentMethodUiState.Capture(
-                uiModel.copy(
-                    customerActionMessageMarkdown = parameterValues?.customerActionMessage
-                        ?: uiModel.customerActionMessageMarkdown
-                )
-            )
+            preloadAllImages(coroutineScope, updatedUiModel)
 
-            uiModel.paymentConfirmationSecondaryAction?.let {
+            animateViewTransition = true
+            _uiState.value = PONativeAlternativePaymentMethodUiState.Capture(updatedUiModel)
+
+            updatedUiModel.paymentConfirmationSecondaryAction?.let {
                 scheduleSecondaryActionEnabling(it) { enablePaymentConfirmationSecondaryAction() }
             }
 

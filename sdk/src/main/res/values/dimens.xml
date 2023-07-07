@@ -36,7 +36,7 @@
 
     <dimen name="po_capture_content_paddingVertical">28dp</dimen>
     <dimen name="po_capture_content_margin">16dp</dimen>
-    <dimen name="po_capture_logo_height">32dp</dimen>
+    <dimen name="po_capture_logo_height">34dp</dimen>
     <dimen name="po_capture_image_width">220dp</dimen>
     <dimen name="po_capture_image_height">280dp</dimen>
 </resources>

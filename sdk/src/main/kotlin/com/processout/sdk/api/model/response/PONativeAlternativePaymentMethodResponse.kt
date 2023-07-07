@@ -20,5 +20,9 @@ data class PONativeAlternativePaymentMethod(
 data class PONativeAlternativePaymentMethodParameterValues(
     val message: String?,
     @Json(name = "customer_action_message")
-    val customerActionMessage: String?
+    val customerActionMessage: String?,
+    @Json(name = "provider_name")
+    val providerName: String?,
+    @Json(name = "provider_logo_url")
+    val providerLogoUrl: String?
 )
