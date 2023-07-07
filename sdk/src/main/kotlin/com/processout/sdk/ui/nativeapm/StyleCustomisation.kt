@@ -18,6 +18,7 @@ import androidx.core.view.setPadding
 import androidx.core.widget.TextViewCompat
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.radiobutton.MaterialRadioButton
+import com.processout.sdk.BuildConfig
 import com.processout.sdk.databinding.PoBottomSheetCaptureBinding
 import com.processout.sdk.databinding.PoBottomSheetNativeApmBinding
 import com.processout.sdk.ui.shared.style.POBorderStyle
@@ -209,7 +210,8 @@ private fun TextView.setTextCursorColorCompat(@ColorInt tintColor: Int) {
                 ?.set(editor, arrayOf(tintedCursorDrawable, tintedCursorDrawable))
         }
     } catch (e: Throwable) {
-        Log.w(TextView::class.java.simpleName, "Failed to set text cursor color.", e)
+        if (BuildConfig.DEBUG)
+            Log.w(TextView::class.java.simpleName, "Failed to set text cursor color.", e)
     }
 }
 
@@ -241,7 +243,8 @@ private fun TextView.setTextSelectHandleColorCompat(@ColorInt tintColor: Int) {
             }
         }
     } catch (e: Throwable) {
-        Log.w(TextView::class.java.simpleName, "Failed to set text select handle color.", e)
+        if (BuildConfig.DEBUG)
+            Log.w(TextView::class.java.simpleName, "Failed to set text select handle color.", e)
     }
 }
 

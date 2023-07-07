@@ -2,6 +2,7 @@
 
 package com.processout.sdk.api
 
+import android.util.Log
 import com.processout.processout_sdk.ProcessOutAccessor
 import com.processout.sdk.BuildConfig
 import com.processout.sdk.api.dispatcher.PONativeAlternativePaymentMethodEventDispatcher
@@ -9,12 +10,7 @@ import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.api.network.NetworkConfiguration
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.api.repository.POGatewayConfigurationsRepository
-import com.processout.sdk.api.service.AlternativePaymentMethodsConfiguration
-import com.processout.sdk.api.service.POAlternativePaymentMethodsService
-import com.processout.sdk.api.service.POBrowserCapabilitiesService
-import com.processout.sdk.api.service.POCustomerTokensService
-import com.processout.sdk.api.service.POInvoicesService
-import com.processout.sdk.core.exception.ProcessOutException
+import com.processout.sdk.api.service.*
 import com.processout.sdk.di.*
 
 class ProcessOut private constructor(
@@ -54,16 +50,20 @@ class ProcessOut private constructor(
         lateinit var legacyInstance: com.processout.processout_sdk.ProcessOut
             private set
 
+        val isConfigured: Boolean
+            get() = ::instance.isInitialized
+
         /**
-         * Entry point to ProcessOut SDK.
+         * Entry point to ProcessOut Android SDK.
          * Configures singleton instances accessible by [ProcessOut.instance] and [ProcessOut.legacyInstance].
-         * Method must be called only once and will throw [ProcessOutException] on subsequent calls.
-         *
-         * @throws ProcessOutException Thrown on subsequent calls indicating that ProcessOut SDK is already configured.
+         * Configuration applies only on first invocation and all subsequent calls are ignored.
          */
         fun configure(configuration: ProcessOutConfiguration) {
-            if (::instance.isInitialized)
-                throw ProcessOutException("Already configured.")
+            if (isConfigured) {
+                if (BuildConfig.DEBUG)
+                    Log.i(ProcessOut::class.simpleName, "Already configured.")
+                return
+            }
 
             val contextGraph = ContextGraphImpl(
                 application = configuration.application
