@@ -45,6 +45,21 @@ android {
         }
     }
 
+    variantFilter { variant ->
+        if (variant.getName() == "stagingRelease") {
+            setIgnore(true)
+        }
+    }
+
+    libraryVariants.all { variant ->
+        if (variant.getName() == "productionDebug") {
+            def projectId = rootProject.ext["production.project.id"]
+            def projectKey = rootProject.ext["production.project.key"]
+            variant.buildConfigField("String", "PROJECT_ID", "\"$projectId\"")
+            variant.buildConfigField("String", "PROJECT_KEY", "\"$projectKey\"")
+        }
+    }
+
     buildFeatures {
         viewBinding true
     }

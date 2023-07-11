@@ -33,10 +33,18 @@ android {
     productFlavors {
         production {
             dimension 'environment'
+            setBuildConfig(it, rootProject.ext["production.project.id"], rootProject.ext["production.project.key"])
         }
         staging {
             dimension 'environment'
             applicationIdSuffix ".staging"
+            setBuildConfig(it, rootProject.ext["staging.project.id"], rootProject.ext["staging.project.key"])
+        }
+    }
+
+    variantFilter { variant ->
+        if (variant.getName() == "stagingRelease") {
+            setIgnore(true)
         }
     }
 
@@ -65,6 +73,13 @@ static def generateVersionCode() {
     def commitsCount = "git rev-list --first-parent --count HEAD".execute().text.trim()
     if (commitsCount.empty) throw new RuntimeException("Could not generate version code.")
     return commitsCount.toInteger()
+}
+
+
+@SuppressWarnings('GrMethodMayBeStatic')
+def setBuildConfig(buildType, String projectId, String projectKey) {
+    buildType.buildConfigField("String", "PROJECT_ID", "\"$projectId\"")
+    buildType.buildConfigField("String", "PROJECT_KEY", "\"$projectKey\"")
 }
 
 dependencies {

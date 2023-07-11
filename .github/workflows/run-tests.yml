@@ -17,5 +17,11 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
+      - name: Build
+        run: ./gradlew :sdk:assembleProductionDebug
+        env:
+          TEST_PROJECT_ID: ${{ secrets.TEST_PROJECT_ID }}
+          TEST_PROJECT_KEY: ${{ secrets.TEST_PROJECT_KEY }}
+
       - name: Run Tests
-        run: ./gradlew :sdk:testStagingDebugUnitTest
+        run: ./gradlew :sdk:testProductionDebugUnitTest

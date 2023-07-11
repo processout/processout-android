@@ -1,5 +1,6 @@
 package com.processout.sdk.config
 
+import com.processout.sdk.BuildConfig
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.ProcessOutConfiguration
 
@@ -10,9 +11,8 @@ class TestConfiguration {
             ProcessOut.configure(
                 ProcessOutConfiguration(
                     application,
-                    "test-proj_2hO7lwt5vf3FjBFB37glPzMG3Y8Lq8O8",
-                    "key_test_R56fdFWMpcAzt5Cenn3oK4emCowFe4l4"
-                )
+                    projectId = BuildConfig.PROJECT_ID
+                ).apply { privateKey = BuildConfig.PROJECT_KEY }
             )
         }
     }

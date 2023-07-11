@@ -1,3 +1,7 @@
+ext["staging.project.id"] = ''
+ext["staging.project.key"] = ''
+ext["production.project.id"] = ''
+ext["production.project.key"] = ''
 ext["ossrhUsername"] = ''
 ext["ossrhPassword"] = ''
 ext["sonatypeStagingProfileId"] = ''
@@ -14,6 +18,8 @@ if (localProperties.exists()) {
     new FileInputStream(localProperties).withCloseable { is -> p.load(is) }
     p.each { name, value -> ext[name] = value }
 } else {
+    ext["production.project.id"] = System.getenv('TEST_PROJECT_ID')
+    ext["production.project.key"] = System.getenv('TEST_PROJECT_KEY')
     ext["ossrhUsername"] = System.getenv('OSSRH_USERNAME')
     ext["ossrhPassword"] = System.getenv('OSSRH_PASSWORD')
     ext["sonatypeStagingProfileId"] = System.getenv('SONATYPE_STAGING_PROFILE_ID')
