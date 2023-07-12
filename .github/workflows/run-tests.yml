@@ -19,9 +19,6 @@ jobs:
 
       - name: Build
         run: ./gradlew :sdk:assembleProductionDebug
-        env:
-          TEST_PROJECT_ID: ${{ secrets.TEST_PROJECT_ID }}
-          TEST_PROJECT_KEY: ${{ secrets.TEST_PROJECT_KEY }}
 
       - name: Run Tests
         run: ./gradlew :sdk:testProductionDebugUnitTest
