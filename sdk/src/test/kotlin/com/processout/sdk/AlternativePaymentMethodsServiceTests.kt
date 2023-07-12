@@ -78,7 +78,7 @@ class AlternativePaymentMethodsServiceTests {
         apmService.alternativePaymentMethodResponse(Uri.parse(returnUrl)).let { result ->
             result.assertFailure()
             result.handleSuccess { response ->
-                assert(response.gatewayToken != null)
+                assert(response.gatewayToken.isNotBlank())
                 assert(response.returnType == POAlternativePaymentMethodResponse.APMReturnType.AUTHORIZATION)
             }
         }
@@ -92,7 +92,7 @@ class AlternativePaymentMethodsServiceTests {
         apmService.alternativePaymentMethodResponse(Uri.parse(returnUrl)).let { result ->
             result.assertFailure()
             result.handleSuccess { response ->
-                assert(response.gatewayToken != null)
+                assert(response.gatewayToken.isNotBlank())
                 assert(response.customerId != null)
                 assert(response.tokenId != null)
                 assert(response.returnType == POAlternativePaymentMethodResponse.APMReturnType.CREATE_TOKEN)
