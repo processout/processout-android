@@ -25,3 +25,6 @@ jobs:
 
       - name: Run Tests
         run: ./gradlew :sdk:testProductionDebugUnitTest
+        env:
+          TEST_PROJECT_ID: ${{ secrets.TEST_PROJECT_ID }}
+          TEST_PROJECT_KEY: ${{ secrets.TEST_PROJECT_KEY }}
