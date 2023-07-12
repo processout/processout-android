@@ -4,6 +4,7 @@ import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POAllGatewayConfigurationsRequest
 import com.processout.sdk.api.model.request.POGatewayConfigurationRequest
 import com.processout.sdk.api.repository.POGatewayConfigurationsRepository
+import com.processout.sdk.config.PROCESSOUT_GATEWAY_CONFIGURATION_ID
 import com.processout.sdk.config.SetupRule
 import com.processout.sdk.config.TestApplication
 import com.processout.sdk.config.assertFailure
@@ -41,7 +42,7 @@ class GatewayConfigurationsRepositoryTests {
     @Test
     fun find() = runBlocking {
         val request = POGatewayConfigurationRequest(
-            "gway_conf_ux3ye8vh2c78c89s8ozp1f1ujixkl11k.adyenblik",
+            PROCESSOUT_GATEWAY_CONFIGURATION_ID,
             withGateway = true
         )
         gatewayConfigurations.find(request).assertFailure()
