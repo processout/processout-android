@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.processout.sdk.checkout.threeds
 
 import android.app.Activity
@@ -22,6 +24,7 @@ import com.processout.sdk.api.service.PO3DSService
 import com.processout.sdk.checkout.threeds.Checkout3DSServiceState.*
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.copy
 
 class POCheckout3DSService private constructor(
     private val activity: Activity,
@@ -46,12 +49,13 @@ class POCheckout3DSService private constructor(
         configuration: PO3DS2Configuration,
         callback: (ProcessOutResult<PO3DS2AuthenticationRequest>) -> Unit
     ) {
+        delegate.willCreateAuthenticationRequest(configuration)
         if (state !is Idle) {
-            callback(
+            completeAuthenticationRequest(
                 ProcessOutResult.Failure(
                     POFailure.Code.Generic(),
                     "3DS2 service is already running."
-                )
+                ), callback
             )
             return
         }
@@ -59,7 +63,10 @@ class POCheckout3DSService private constructor(
         Standalone3DSService(environment).let {
             when (val result = it.initialize(serviceConfiguration)) {
                 is StandaloneResult.Success -> fingerprint(result.value, callback)
-                is StandaloneResult.Failure -> callback(result.error.toFailure())
+                is StandaloneResult.Failure -> completeAuthenticationRequest(
+                    result.error.toFailure(),
+                    callback
+                )
             }
         }
     }
@@ -78,29 +85,44 @@ class POCheckout3DSService private constructor(
         delegate.shouldContinue(warnings) { shouldContinue ->
             if (shouldContinue.not()) {
                 setIdleState(serviceContext)
-                callback(ProcessOutResult.Failure(POFailure.Code.Cancelled))
+                completeAuthenticationRequest(
+                    ProcessOutResult.Failure(POFailure.Code.Cancelled),
+                    callback
+                )
                 return@shouldContinue
             }
             when (val result = serviceContext.transaction.getAuthenticationRequestParameters()) {
                 is StandaloneResult.Success -> {
                     state = Fingerprinted(serviceContext)
-                    callback(ProcessOutResult.Success(result.value.toAuthenticationRequest()))
+                    completeAuthenticationRequest(
+                        ProcessOutResult.Success(result.value.toAuthenticationRequest()),
+                        callback
+                    )
                 }
                 is StandaloneResult.Failure -> {
                     setIdleState(serviceContext)
-                    callback(result.error.toFailure())
+                    completeAuthenticationRequest(result.error.toFailure(), callback)
                 }
             }
         }
     }
 
+    private fun completeAuthenticationRequest(
+        result: ProcessOutResult<PO3DS2AuthenticationRequest>,
+        callback: (ProcessOutResult<PO3DS2AuthenticationRequest>) -> Unit
+    ) {
+        delegate.didCreateAuthenticationRequest(result.copy())
+        callback(result.copy())
+    }
+
     override fun handle(challenge: PO3DS2Challenge, callback: (ProcessOutResult<Boolean>) -> Unit) {
+        delegate.willHandle(challenge)
         if (state !is Fingerprinted) {
-            callback(
+            failChallenge(
                 ProcessOutResult.Failure(
                     POFailure.Code.Generic(),
                     "Unable to handle 3DS2 challenge: not fingerprinted."
-                )
+                ), callback
             )
             return
         }
@@ -113,23 +135,36 @@ class POCheckout3DSService private constructor(
                 when (result.resultType) {
                     Successful -> when (result) {
                         is AuthenticationSuccess -> completeChallenge(result.transactionStatus, callback)
-                        else -> callback(ProcessOutResult.Failure(POFailure.Code.Generic()))
+                        else -> failChallenge(ProcessOutResult.Failure(POFailure.Code.Generic()), callback)
                     }
                     Failed -> when (result) {
                         is AuthenticationFailed -> completeChallenge(result.transactionStatus, callback)
-                        else -> callback(ProcessOutResult.Failure(POFailure.Code.Generic()))
+                        else -> failChallenge(ProcessOutResult.Failure(POFailure.Code.Generic()), callback)
                     }
                     Error -> when (result) {
-                        is AuthenticationError -> callback(result.toFailure())
-                        else -> callback(ProcessOutResult.Failure(POFailure.Code.Generic()))
+                        is AuthenticationError -> failChallenge(result.toFailure(), callback)
+                        else -> failChallenge(ProcessOutResult.Failure(POFailure.Code.Generic()), callback)
                     }
                 }
             }
         }
     }
 
-    private fun completeChallenge(transactionStatus: String, callback: (ProcessOutResult<Boolean>) -> Unit) {
-        callback(ProcessOutResult.Success(transactionStatus.uppercase() == "Y"))
+    private fun completeChallenge(
+        transactionStatus: String,
+        callback: (ProcessOutResult<Boolean>) -> Unit
+    ) {
+        val success = ProcessOutResult.Success(transactionStatus.uppercase() == "Y")
+        delegate.didHandle3DS2Challenge(success)
+        callback(success.copy())
+    }
+
+    private fun failChallenge(
+        failure: ProcessOutResult.Failure,
+        callback: (ProcessOutResult<Boolean>) -> Unit
+    ) {
+        delegate.didHandle3DS2Challenge(failure.copy())
+        callback(failure.copy())
     }
 
     override fun handle(redirect: PO3DSRedirect, callback: (ProcessOutResult<String>) -> Unit) {

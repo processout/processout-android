@@ -33,6 +33,12 @@ inline fun <T : Any> ProcessOutResult<T>.handleFailure(
     }
 }
 
+fun <T : Any> ProcessOutResult<T>.copy(): ProcessOutResult<T> =
+    when (this) {
+        is ProcessOutResult.Success -> this.copy()
+        is ProcessOutResult.Failure -> this.copy()
+    }
+
 inline fun <T : Any, R : Any> ProcessOutResult<T>.map(
     transform: (T) -> R
 ): ProcessOutResult<R> = when (this) {
