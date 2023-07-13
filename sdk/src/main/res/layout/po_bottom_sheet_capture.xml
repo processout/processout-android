@@ -22,7 +22,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginHorizontal="@dimen/po_bottomSheet_margin"
-        android:layout_marginTop="@dimen/po_capture_content_paddingVertical"
+        android:layout_marginTop="@dimen/po_bottomSheet_scrollableContent_paddingVertical"
         android:defaultFocusHighlightEnabled="false"
         android:fillViewport="true"
         android:isScrollContainer="true"
@@ -36,7 +36,7 @@
             android:id="@+id/po_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="@dimen/po_capture_content_paddingVertical">
+            android:paddingBottom="@dimen/po_bottomSheet_scrollableContent_paddingVertical">
 
             <com.google.android.material.progressindicator.CircularProgressIndicator
                 android:id="@+id/po_circular_progress_indicator"
