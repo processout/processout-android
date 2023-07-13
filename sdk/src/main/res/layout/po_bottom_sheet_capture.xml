@@ -147,7 +147,7 @@
         tools:visibility="visible">
 
         <View
-            android:id="@+id/po_divider_footer"
+            android:id="@+id/po_footer_divider"
             android:layout_width="match_parent"
             android:layout_height="@dimen/po_borderWidth"
             android:background="@color/po_border_subtle" />
