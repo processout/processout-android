@@ -8,12 +8,12 @@ Framework wraps Checkout SDK to make it easy to use with ProcessOut when making 
 
 SDK handles [deep link](https://developer.android.com/training/app-links#deep-links) to return back to your app after authorization
 in the following format: `your.application.id://processout/return`\
-It is required to provide this deep link as `return_url` when creating invoice.
+It is required to provide this deep link on the backend as `return_url` when creating invoice and as `invoice_return_url` when creating token.
 
 ### Implement 3DS service delegate
 
 ```kotlin
-// 1) Initialize PO3DSRedirectCustomTabLauncher in onCreate() method of Activity or Fragment.
+// 1) It is required to initialize PO3DSRedirectCustomTabLauncher in onCreate() method of Activity or Fragment.
 
 private lateinit var customTabLauncher: PO3DSRedirectCustomTabLauncher
 
@@ -49,10 +49,23 @@ class Checkout3DSServiceDelegate(
     }
 
     override fun handle(redirect: PO3DSRedirect, callback: (ProcessOutResult<String>) -> Unit) {
-        customTabLauncher.launch(redirect) { result ->
+        customTabLauncher.launch(
+            redirect = redirect,
+            returnUrl = "your.application.id://processout/return"
+        ) { result ->
             callback(result)
         }
     }
+    
+    // 3) Optionally implement service lifecycle callbacks for logs or custom logic.
+
+    override fun willCreateAuthenticationRequest(configuration: PO3DS2Configuration) {}
+
+    override fun didCreateAuthenticationRequest(result: ProcessOutResult<PO3DS2AuthenticationRequest>) {}
+
+    override fun willHandle(challenge: PO3DS2Challenge) {}
+
+    override fun didHandle3DS2Challenge(result: ProcessOutResult<Boolean>) {}
 }
 ```
 

@@ -50,11 +50,11 @@ otherwise it will automatically fallback to the WebView.
 
 SDK handles [deep link](https://developer.android.com/training/app-links#deep-links) to return back to your app after authorization
 in the following format: `your.application.id://processout/return`\
-It is required to provide this deep link as `return_url` when creating invoice.
+It is required to provide this deep link on the backend as `return_url` when creating invoice and as `invoice_return_url` when creating token.
 
 Integration steps:
 ```kotlin
-// 1) Initialize launcher in onCreate() method of Activity or Fragment.
+// 1) It is required to initialize PO3DSRedirectCustomTabLauncher in onCreate() method of Activity or Fragment.
 
 private lateinit var customTabLauncher: PO3DSRedirectCustomTabLauncher
 
@@ -66,7 +66,10 @@ override fun onCreate(savedInstanceState: Bundle?) {
 // 2) Pass launcher to your implementation of PO3DSService or POTest3DSService and handle redirect.
 
 override fun handle(redirect: PO3DSRedirect, callback: (ProcessOutResult<String>) -> Unit) {
-    customTabLauncher.launch(redirect) { result ->
+    customTabLauncher.launch(
+        redirect = redirect,
+        returnUrl = "your.application.id://processout/return"
+    ) { result ->
         callback(result)
     }
 }
