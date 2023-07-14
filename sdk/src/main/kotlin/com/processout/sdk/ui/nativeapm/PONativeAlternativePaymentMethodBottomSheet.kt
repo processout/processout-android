@@ -306,10 +306,10 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
 
     private fun bindLoading() {
         binding.poCircularProgressIndicator.visibility = View.VISIBLE
+        binding.poHeader.visibility = View.GONE
         binding.poTitle.visibility = View.GONE
-        binding.poDividerTitle.visibility = View.GONE
         binding.poScrollableContent.visibility = View.GONE
-        binding.poDividerButtonsContainer.visibility = View.GONE
+        binding.poFooter.visibility = View.GONE
         binding.poPrimaryButton.visibility = View.GONE
         binding.poSecondaryButton.visibility = View.GONE
     }
@@ -324,10 +324,10 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             crossfade(
                 viewsToHide = listOf(binding.poCircularProgressIndicator),
                 viewsToShow = mutableListOf(
+                    binding.poHeader,
                     binding.poTitle,
-                    binding.poDividerTitle,
                     binding.poScrollableContent,
-                    binding.poDividerButtonsContainer,
+                    binding.poFooter,
                     binding.poPrimaryButton
                 ).also { list ->
                     uiModel.secondaryAction?.let {
@@ -338,10 +338,10 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             )
         } else {
             binding.poCircularProgressIndicator.visibility = View.GONE
+            binding.poHeader.visibility = View.VISIBLE
             binding.poTitle.visibility = View.VISIBLE
-            binding.poDividerTitle.visibility = View.VISIBLE
             binding.poScrollableContent.visibility = View.VISIBLE
-            binding.poDividerButtonsContainer.visibility = View.VISIBLE
+            binding.poFooter.visibility = View.VISIBLE
             binding.poPrimaryButton.visibility = View.VISIBLE
             uiModel.secondaryAction?.let {
                 binding.poSecondaryButton.visibility = View.VISIBLE
