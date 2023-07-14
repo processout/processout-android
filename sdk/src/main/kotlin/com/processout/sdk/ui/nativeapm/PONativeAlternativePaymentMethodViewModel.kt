@@ -364,7 +364,8 @@ internal class PONativeAlternativePaymentMethodViewModel(
         if (options.waitsPaymentConfirmation) {
             val updatedUiModel = uiModel.copy(
                 title = parameterValues?.providerName,
-                logoUrl = parameterValues?.providerLogoUrl ?: uiModel.logoUrl,
+                logoUrl = if (parameterValues?.providerName != null)
+                    parameterValues.providerLogoUrl else uiModel.logoUrl,
                 customerActionMessageMarkdown = parameterValues?.customerActionMessage
                     ?: uiModel.customerActionMessageMarkdown
             )
@@ -499,7 +500,10 @@ internal class PONativeAlternativePaymentMethodViewModel(
         coroutineScope: CoroutineScope,
         uiModel: PONativeAlternativePaymentMethodUiModel
     ) {
-        val deferreds = mutableListOf(coroutineScope.async { preloadImage(uiModel.logoUrl) })
+        val deferreds = mutableListOf<Deferred<ImageResult>>()
+        uiModel.logoUrl?.let {
+            deferreds.add(coroutineScope.async { preloadImage(it) })
+        }
         uiModel.customerActionImageUrl?.let {
             deferreds.add(coroutineScope.async { preloadImage(it) })
         }
