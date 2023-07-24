@@ -1,8 +1,8 @@
 package com.processout.sdk.ui.shared.view.input.text
 
 import android.content.Context
+import android.telephony.PhoneNumberFormattingTextWatcher
 import android.text.InputFilter
-import android.text.InputType
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import androidx.core.widget.doAfterTextChanged
 import com.processout.sdk.R
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType
 import com.processout.sdk.ui.nativeapm.applyControlsTintColor
 import com.processout.sdk.ui.nativeapm.applyStyle
 import com.processout.sdk.ui.shared.model.InputParameter
@@ -113,16 +114,12 @@ internal class TextInput(
             }
         }
 
-        editText.filters = arrayOf(InputFilter { source, _, _, destination, _, destinationEnd ->
-            when (editText.inputType) {
-                InputType.TYPE_CLASS_PHONE -> {
-                    return@InputFilter filterPhoneNumber(
-                        source, destination.toString(), destinationEnd
-                    )
-                }
-                else -> return@InputFilter source
-            }
-        })
+        if (inputParameter?.type() == ParameterType.PHONE) {
+            editText.filters = arrayOf(InputFilter { source, _, _, destination, _, destinationEnd ->
+                filterPhoneNumber(source, destination.toString(), destinationEnd)
+            })
+            editText.addTextChangedListener(PhoneNumberFormattingTextWatcher())
+        }
 
         editText.doAfterTextChanged {
             afterValueChanged?.invoke(value)
