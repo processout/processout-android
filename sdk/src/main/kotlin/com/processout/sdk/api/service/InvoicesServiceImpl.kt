@@ -12,6 +12,8 @@ import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
 internal class InvoicesServiceImpl(
@@ -20,6 +22,50 @@ internal class InvoicesServiceImpl(
     private val threeDSService: ThreeDSService
 ) : POInvoicesService {
 
+    private val _authorizeInvoiceResult = MutableSharedFlow<ProcessOutResult<String>>()
+    override val authorizeInvoiceResult = _authorizeInvoiceResult.asSharedFlow()
+
+    override fun authorizeInvoice(
+        request: POInvoiceAuthorizationRequest,
+        threeDSService: PO3DSService
+    ) {
+        scope.launch {
+            when (val result = repository.authorizeInvoice(request)) {
+                is ProcessOutResult.Success ->
+                    result.value.customerAction?.let { action ->
+                        this@InvoicesServiceImpl.threeDSService
+                            .handle(action, threeDSService) { serviceResult ->
+                                when (serviceResult) {
+                                    is ProcessOutResult.Success ->
+                                        authorizeInvoice(
+                                            request.copy(source = serviceResult.value),
+                                            threeDSService
+                                        )
+                                    is ProcessOutResult.Failure -> scope.launch {
+                                        _authorizeInvoiceResult.emit(serviceResult.copy())
+                                    }
+                                }
+                            }
+                    } ?: run {
+                        threeDSService.cleanup()
+                        scope.launch {
+                            _authorizeInvoiceResult.emit(
+                                ProcessOutResult.Success(request.invoiceId)
+                            )
+                        }
+                    }
+                is ProcessOutResult.Failure -> {
+                    threeDSService.cleanup()
+                    scope.launch { _authorizeInvoiceResult.emit(result.copy()) }
+                }
+            }
+        }
+    }
+
+    @Deprecated(
+        message = "Use function authorizeInvoice(request, threeDSService)",
+        replaceWith = ReplaceWith("authorizeInvoice(request, threeDSService)")
+    )
     override fun authorizeInvoice(
         request: POInvoiceAuthorizationRequest,
         threeDSService: PO3DSService,
@@ -31,6 +77,7 @@ internal class InvoicesServiceImpl(
                     result.value.customerAction?.let { action ->
                         this@InvoicesServiceImpl.threeDSService
                             .handle(action, threeDSService) { serviceResult ->
+                                @Suppress("DEPRECATION")
                                 when (serviceResult) {
                                     is ProcessOutResult.Success ->
                                         authorizeInvoice(

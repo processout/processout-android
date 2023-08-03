@@ -10,9 +10,25 @@ import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTra
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
+import kotlinx.coroutines.flow.SharedFlow
 
 interface POInvoicesService {
 
+    val authorizeInvoiceResult: SharedFlow<ProcessOutResult<String>>
+
+    /**
+     * Authorize invoice with the given request and 3DS service implementation.
+     * Collect result by subscribing to [authorizeInvoiceResult] flow before invoking invoice authorization.
+     */
+    fun authorizeInvoice(
+        request: POInvoiceAuthorizationRequest,
+        threeDSService: PO3DSService
+    )
+
+    @Deprecated(
+        message = "Use function authorizeInvoice(request, threeDSService)",
+        replaceWith = ReplaceWith("authorizeInvoice(request, threeDSService)")
+    )
     fun authorizeInvoice(
         request: POInvoiceAuthorizationRequest,
         threeDSService: PO3DSService,

@@ -13,6 +13,7 @@
 
         <activity
             android:name=".ui.web.customtab.POCustomTabAuthorizationActivity"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|keyboard|keyboardHidden|uiMode|colorMode|density|fontScale|fontWeightAdjustment|layoutDirection|locale"
             android:exported="false"
             android:launchMode="singleTask"
             android:theme="@style/Theme.ProcessOut.Base.Transparent" />
@@ -38,6 +39,7 @@
 
         <activity
             android:name=".ui.web.webview.POWebViewAuthorizationActivity"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|keyboard|keyboardHidden|uiMode|colorMode|density|fontScale|fontWeightAdjustment|layoutDirection|locale"
             android:exported="false"
             android:launchMode="singleTop"
             android:theme="@style/Theme.ProcessOut.Base.Transparent" />
