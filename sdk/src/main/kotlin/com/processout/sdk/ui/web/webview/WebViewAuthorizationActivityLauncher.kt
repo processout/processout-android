@@ -10,34 +10,34 @@ import androidx.fragment.app.Fragment
 import com.processout.sdk.R
 import com.processout.sdk.core.ProcessOutActivityResult
 
-internal class WebViewAuthorizationActivityLauncher private constructor() {
-
-    private lateinit var launcher: ActivityResultLauncher<WebViewConfiguration>
-    private var activityOptions: ActivityOptionsCompat? = null
+internal class WebViewAuthorizationActivityLauncher private constructor(
+    private val launcher: ActivityResultLauncher<WebViewConfiguration>,
+    private val activityOptions: ActivityOptionsCompat?
+) {
 
     companion object {
         fun create(
             from: Fragment,
             activityResultCallback: ActivityResultCallback<ProcessOutActivityResult<Uri>>
-        ) = WebViewAuthorizationActivityLauncher().apply {
+        ) = WebViewAuthorizationActivityLauncher(
             launcher = from.registerForActivityResult(
                 WebViewAuthorizationActivityContract(),
                 activityResultCallback
-            )
+            ),
             activityOptions = from.context?.let { createActivityOptions(it) }
-        }
+        )
 
         fun create(
             from: ComponentActivity,
             activityResultCallback: ActivityResultCallback<ProcessOutActivityResult<Uri>>
-        ) = WebViewAuthorizationActivityLauncher().apply {
+        ) = WebViewAuthorizationActivityLauncher(
             launcher = from.registerForActivityResult(
                 WebViewAuthorizationActivityContract(),
                 from.activityResultRegistry,
                 activityResultCallback
-            )
+            ),
             activityOptions = createActivityOptions(from)
-        }
+        )
 
         private fun createActivityOptions(context: Context): ActivityOptionsCompat =
             ActivityOptionsCompat.makeCustomAnimation(
