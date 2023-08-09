@@ -82,7 +82,7 @@ To handle web based redirects service must implement method:\
 `PO3DSRedirectWebViewBuilder` allows to create WebView that will automatically redirect user to provided url and collect
 the result. WebView must be visible and added to the screen layout.\
 Example implementation:
-```
+```kotlin
 private val rootLayout: FrameLayout = activity.findViewById(android.R.id.content)
 private val webViewBuilder = PO3DSRedirectWebViewBuilder(activity)
 private var webView: WebView? = null
