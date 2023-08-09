@@ -1,3 +1,5 @@
+@file:Suppress("MoveVariableDeclarationIntoWhen")
+
 package com.processout.sdk.ui.apm
 
 import android.net.Uri
@@ -9,6 +11,7 @@ import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.network.ApiConstants
+import com.processout.sdk.api.service.POAlternativePaymentMethodsService
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.ProcessOutResult
@@ -21,6 +24,7 @@ import com.processout.sdk.ui.web.webview.WebViewAuthorizationActivityLauncher
 import com.processout.sdk.ui.web.webview.WebViewConfiguration
 
 class POAlternativePaymentMethodCustomTabLauncher private constructor(
+    private val alternativePaymentMethods: POAlternativePaymentMethodsService,
     private val delegateCache: WebAuthorizationDelegateCache
 ) {
 
@@ -28,7 +32,53 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
     private lateinit var webViewFallbackLauncher: WebViewAuthorizationActivityLauncher
 
     companion object {
+        /**
+         * When launcher created with this method use __launch(request, returnUrl)__.
+         */
+        fun create(
+            from: Fragment,
+            callback: (ProcessOutResult<POAlternativePaymentMethodResponse>) -> Unit
+        ) = POAlternativePaymentMethodCustomTabLauncher(
+            ProcessOut.instance.alternativePaymentMethods,
+            DefaultWebAuthorizationDelegateCache
+        ).apply {
+            val activityResultHandler = ActivityResultHandler(alternativePaymentMethods, callback)
+            customTabLauncher = from.registerForActivityResult(
+                CustomTabAuthorizationActivityContract(),
+                activityResultHandler
+            )
+            webViewFallbackLauncher = WebViewAuthorizationActivityLauncher.create(
+                from, activityResultHandler
+            )
+        }
+
+        /**
+         * When launcher created with this method use __launch(request, returnUrl)__.
+         */
+        fun create(
+            from: ComponentActivity,
+            callback: (ProcessOutResult<POAlternativePaymentMethodResponse>) -> Unit
+        ) = POAlternativePaymentMethodCustomTabLauncher(
+            ProcessOut.instance.alternativePaymentMethods,
+            DefaultWebAuthorizationDelegateCache
+        ).apply {
+            val activityResultHandler = ActivityResultHandler(alternativePaymentMethods, callback)
+            customTabLauncher = from.registerForActivityResult(
+                CustomTabAuthorizationActivityContract(),
+                from.activityResultRegistry,
+                activityResultHandler
+            )
+            webViewFallbackLauncher = WebViewAuthorizationActivityLauncher.create(
+                from, activityResultHandler
+            )
+        }
+
+        @Deprecated(
+            message = "Use function create(from, callback)",
+            replaceWith = ReplaceWith("create(from, callback)")
+        )
         fun create(from: Fragment) = POAlternativePaymentMethodCustomTabLauncher(
+            ProcessOut.instance.alternativePaymentMethods,
             DefaultWebAuthorizationDelegateCache
         ).apply {
             customTabLauncher = from.registerForActivityResult(
@@ -40,7 +90,12 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
             )
         }
 
+        @Deprecated(
+            message = "Use function create(from, callback)",
+            replaceWith = ReplaceWith("create(from, callback)")
+        )
         fun create(from: ComponentActivity) = POAlternativePaymentMethodCustomTabLauncher(
+            ProcessOut.instance.alternativePaymentMethods,
             DefaultWebAuthorizationDelegateCache
         ).apply {
             customTabLauncher = from.registerForActivityResult(
@@ -54,6 +109,44 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
         }
     }
 
+    /**
+     * Use when launcher created with method __create(from, callback)__.
+     */
+    fun launch(
+        request: POAlternativePaymentMethodRequest,
+        returnUrl: String
+    ) {
+        val uri = when (val result = alternativePaymentMethods.alternativePaymentMethodUri(request)) {
+            is ProcessOutResult.Success -> result.value
+            is ProcessOutResult.Failure -> Uri.EMPTY
+        }
+
+        if (ProcessOut.instance.browserCapabilities.isCustomTabsSupported()) {
+            customTabLauncher.launch(
+                CustomTabConfiguration(
+                    uri = uri,
+                    timeoutSeconds = null
+                )
+            )
+        } else {
+            webViewFallbackLauncher.launch(
+                WebViewConfiguration(
+                    uri = uri,
+                    returnUris = listOf(
+                        Uri.parse(ApiConstants.CHECKOUT_RETURN_URL),
+                        Uri.parse(returnUrl)
+                    ),
+                    sdkVersion = ProcessOut.VERSION,
+                    timeoutSeconds = null
+                )
+            )
+        }
+    }
+
+    @Deprecated(
+        message = "Use function launch(request, returnUrl)",
+        replaceWith = ReplaceWith("launch(request, returnUrl)")
+    )
     fun launch(
         request: POAlternativePaymentMethodRequest,
         returnUrl: String,
@@ -98,8 +191,8 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
     }
 
     @Deprecated(
-        message = "Use function with 'returnUrl'.",
-        replaceWith = ReplaceWith("launch(request, returnUrl, callback)")
+        message = "Use function launch(request, returnUrl)",
+        replaceWith = ReplaceWith("launch(request, returnUrl)")
     )
     fun launch(
         request: POAlternativePaymentMethodRequest,
@@ -108,12 +201,34 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
         launch(request, returnUrl = String(), callback)
     }
 
+    @Deprecated("Used in other deprecated methods.")
     private val activityResultCallback = ActivityResultCallback<ProcessOutActivityResult<Uri>> {
         when (it) {
             is ProcessOutActivityResult.Success -> delegateCache.remove()?.complete(uri = it.value)
             is ProcessOutActivityResult.Failure -> delegateCache.remove()?.complete(
                 ProcessOutResult.Failure(it.code, it.message)
             )
+        }
+    }
+
+    private class ActivityResultHandler(
+        private val alternativePaymentMethods: POAlternativePaymentMethodsService,
+        private val callback: (ProcessOutResult<POAlternativePaymentMethodResponse>) -> Unit
+    ) : ActivityResultCallback<ProcessOutActivityResult<Uri>> {
+
+        override fun onActivityResult(result: ProcessOutActivityResult<Uri>) {
+            when (result) {
+                is ProcessOutActivityResult.Success -> {
+                    val serviceResult = alternativePaymentMethods.alternativePaymentMethodResponse(uri = result.value)
+                    when (serviceResult) {
+                        is ProcessOutResult.Success -> callback(serviceResult.copy())
+                        is ProcessOutResult.Failure -> callback(serviceResult.copy())
+                    }
+                }
+                is ProcessOutActivityResult.Failure -> callback(
+                    ProcessOutResult.Failure(result.code, result.message)
+                )
+            }
         }
     }
 }

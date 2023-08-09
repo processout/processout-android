@@ -97,7 +97,7 @@ class PO3DSRedirectCustomTabLauncher private constructor(
     }
 
     @Deprecated(
-        message = "Use function with 'returnUrl'.",
+        message = "Use function launch(redirect, returnUrl, callback)",
         replaceWith = ReplaceWith("launch(redirect, returnUrl, callback)")
     )
     fun launch(redirect: PO3DSRedirect, callback: (ProcessOutResult<String>) -> Unit) {
