@@ -4,10 +4,9 @@ package com.processout.sdk.checkout.threeds
 
 import android.app.Activity
 import com.checkout.threeds.Environment
+import com.checkout.threeds.domain.model.AuthenticationCompleted
 import com.checkout.threeds.domain.model.AuthenticationError
 import com.checkout.threeds.domain.model.AuthenticationErrorType.*
-import com.checkout.threeds.domain.model.AuthenticationFailed
-import com.checkout.threeds.domain.model.AuthenticationSuccess
 import com.checkout.threeds.domain.model.ResultType.*
 import com.checkout.threeds.standalone.Standalone3DSService
 import com.checkout.threeds.standalone.api.ThreeDS2Service
@@ -133,12 +132,8 @@ class POCheckout3DSService private constructor(
             ) { result ->
                 setIdleState(serviceContext)
                 when (result.resultType) {
-                    Successful -> when (result) {
-                        is AuthenticationSuccess -> completeChallenge(result.transactionStatus, callback)
-                        else -> failChallenge(ProcessOutResult.Failure(POFailure.Code.Generic()), callback)
-                    }
-                    Failed -> when (result) {
-                        is AuthenticationFailed -> completeChallenge(result.transactionStatus, callback)
+                    Completed -> when (result) {
+                        is AuthenticationCompleted -> completeChallenge(result.transactionStatus, callback)
                         else -> failChallenge(ProcessOutResult.Failure(POFailure.Code.Generic()), callback)
                     }
                     Error -> when (result) {
