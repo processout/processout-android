@@ -33,7 +33,8 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
 
     companion object {
         /**
-         * When launcher created with this method use __launch(request, returnUrl)__.
+         * When launcher created with this method use
+         * __launch(request, returnUrl)__ or __launch(uri, returnUrl)__.
          */
         fun create(
             from: Fragment,
@@ -53,7 +54,8 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
         }
 
         /**
-         * When launcher created with this method use __launch(request, returnUrl)__.
+         * When launcher created with this method use
+         * __launch(request, returnUrl)__ or __launch(uri, returnUrl)__.
          */
         fun create(
             from: ComponentActivity,
@@ -120,7 +122,13 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
             is ProcessOutResult.Success -> result.value
             is ProcessOutResult.Failure -> Uri.EMPTY
         }
+        launch(uri, returnUrl)
+    }
 
+    /**
+     * Use when launcher created with method __create(from, callback)__.
+     */
+    fun launch(uri: Uri, returnUrl: String) {
         if (ProcessOut.instance.browserCapabilities.isCustomTabsSupported()) {
             customTabLauncher.launch(
                 CustomTabConfiguration(
@@ -167,27 +175,7 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
             request, callback
         )
         delegateCache.delegate = delegate
-
-        if (ProcessOut.instance.browserCapabilities.isCustomTabsSupported()) {
-            customTabLauncher.launch(
-                CustomTabConfiguration(
-                    uri = delegate.uri,
-                    timeoutSeconds = null
-                )
-            )
-        } else {
-            webViewFallbackLauncher.launch(
-                WebViewConfiguration(
-                    uri = delegate.uri,
-                    returnUris = listOf(
-                        Uri.parse(ApiConstants.CHECKOUT_RETURN_URL),
-                        Uri.parse(returnUrl)
-                    ),
-                    sdkVersion = ProcessOut.VERSION,
-                    timeoutSeconds = null
-                )
-            )
-        }
+        launch(delegate.uri, returnUrl)
     }
 
     @Deprecated(
