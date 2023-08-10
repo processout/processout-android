@@ -9,32 +9,35 @@ import androidx.core.app.ActivityOptionsCompat
 import androidx.fragment.app.Fragment
 import com.processout.sdk.R
 import com.processout.sdk.core.ProcessOutActivityResult
-import com.processout.sdk.core.ProcessOutResult
-import com.processout.sdk.ui.web.WebAuthorizationDelegate
 
-internal class WebViewAuthorizationActivityLauncher private constructor() {
-
-    private lateinit var launcher: ActivityResultLauncher<WebViewConfiguration>
-    private lateinit var delegate: WebAuthorizationDelegate
-    private var activityOptions: ActivityOptionsCompat? = null
+internal class WebViewAuthorizationActivityLauncher private constructor(
+    private val launcher: ActivityResultLauncher<WebViewConfiguration>,
+    private val activityOptions: ActivityOptionsCompat?
+) {
 
     companion object {
-        fun create(from: Fragment) = WebViewAuthorizationActivityLauncher().apply {
+        fun create(
+            from: Fragment,
+            activityResultCallback: ActivityResultCallback<ProcessOutActivityResult<Uri>>
+        ) = WebViewAuthorizationActivityLauncher(
             launcher = from.registerForActivityResult(
                 WebViewAuthorizationActivityContract(),
                 activityResultCallback
-            )
+            ),
             activityOptions = from.context?.let { createActivityOptions(it) }
-        }
+        )
 
-        fun create(from: ComponentActivity) = WebViewAuthorizationActivityLauncher().apply {
+        fun create(
+            from: ComponentActivity,
+            activityResultCallback: ActivityResultCallback<ProcessOutActivityResult<Uri>>
+        ) = WebViewAuthorizationActivityLauncher(
             launcher = from.registerForActivityResult(
                 WebViewAuthorizationActivityContract(),
                 from.activityResultRegistry,
                 activityResultCallback
-            )
+            ),
             activityOptions = createActivityOptions(from)
-        }
+        )
 
         private fun createActivityOptions(context: Context): ActivityOptionsCompat =
             ActivityOptionsCompat.makeCustomAnimation(
@@ -42,17 +45,7 @@ internal class WebViewAuthorizationActivityLauncher private constructor() {
             )
     }
 
-    fun launch(configuration: WebViewConfiguration, delegate: WebAuthorizationDelegate) {
-        this.delegate = delegate
+    fun launch(configuration: WebViewConfiguration) {
         launcher.launch(configuration, activityOptions)
-    }
-
-    private val activityResultCallback = ActivityResultCallback<ProcessOutActivityResult<Uri>> {
-        when (it) {
-            is ProcessOutActivityResult.Success -> delegate.complete(uri = it.value)
-            is ProcessOutActivityResult.Failure -> delegate.complete(
-                ProcessOutResult.Failure(it.code, it.message)
-            )
-        }
     }
 }

@@ -8,11 +8,13 @@ import com.processout.sdk.api.model.threeds.PO3DS2Challenge
 import com.processout.sdk.api.model.threeds.PO3DS2Configuration
 import com.processout.sdk.api.model.threeds.PO3DSRedirect
 import com.processout.sdk.api.service.PO3DSService
+import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
 
 class POTest3DSService(
     activity: Activity,
-    private val customTabLauncher: PO3DSRedirectCustomTabLauncher? = null
+    private val customTabLauncher: PO3DSRedirectCustomTabLauncher? = null,
+    private val returnUrl: String = String()
 ) : PO3DSService {
 
     private val dialogBuilder = AlertDialog.Builder(activity)
@@ -47,8 +49,12 @@ class POTest3DSService(
     }
 
     override fun handle(redirect: PO3DSRedirect, callback: (ProcessOutResult<String>) -> Unit) {
-        customTabLauncher?.launch(redirect, returnUrl = String()) { result ->
-            callback(result)
-        }
+        customTabLauncher?.launch(redirect, returnUrl, callback)
+            ?: callback(
+                ProcessOutResult.Failure(
+                    POFailure.Code.Cancelled,
+                    "PO3DSRedirectCustomTabLauncher is not provided."
+                )
+            )
     }
 }

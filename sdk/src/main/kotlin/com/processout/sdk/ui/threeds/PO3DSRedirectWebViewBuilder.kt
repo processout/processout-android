@@ -22,7 +22,7 @@ class PO3DSRedirectWebViewBuilder(
         apply {
             this.redirect = redirect
             this.delegate = ThreeDSRedirectWebAuthorizationDelegate(
-                redirect.url.let { Uri.parse(it.toString()) },
+                Uri.parse(redirect.url.toString()),
                 callback
             )
         }

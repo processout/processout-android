@@ -51,10 +51,9 @@ class Checkout3DSServiceDelegate(
     override fun handle(redirect: PO3DSRedirect, callback: (ProcessOutResult<String>) -> Unit) {
         customTabLauncher.launch(
             redirect = redirect,
-            returnUrl = "your.application.id://processout/return"
-        ) { result ->
-            callback(result)
-        }
+            returnUrl = "your.application.id://processout/return",
+            callback = callback
+        )
     }
     
     // 3) Optionally implement service lifecycle callbacks for logs or custom logic.

@@ -7,8 +7,7 @@ parameter `threeDSService: PO3DSService`. For example:
 ```
 ProcessOut.instance.invoices.authorizeInvoice(
     request: POInvoiceAuthorizationRequest,
-    threeDSService: PO3DSService,
-    callback: (ProcessOutResult<Unit>) -> Unit
+    threeDSService: PO3DSService
 )
 ```
 
@@ -21,7 +20,7 @@ We have our own implementation `POTest3DSService` that emulates the normal 3DS a
 but does not actually make any calls to a real Access Control Server (ACS).
 It is mainly useful during development in our sandbox testing environment.
 Usage example:
-```
+```kotlin
 fun authorizeInvoice(invoiceId: String, cardId: String) {
     ProcessOut.instance.invoices.authorizeInvoice(
         request = POInvoiceAuthorizationRequest(
@@ -29,16 +28,17 @@ fun authorizeInvoice(invoiceId: String, cardId: String) {
             source = cardId
         ),
         threeDSService = POTest3DSService(activity = this, customTabLauncher = null)
-    ) { result ->
-        when (result) {
-            is ProcessOutResult.Success -> TODO()
-            is ProcessOutResult.Failure -> TODO()
-        }
-    }
+    )
 }
+
+// Subscribe to collect result in coroutines scope before calling method.
+ProcessOut.instance.invoices.authorizeInvoiceResult
+    .collect { result ->
+        // handle result
+    }
 ```
 
-### 3DS Redirect with Custom Chrome Tabs
+### 3DS Redirect with Custom Chrome Tabs (since 4.7.0)
 
 To handle web based redirects service must implement method:\
 `PO3DSService.handle(redirect: PO3DSRedirect, callback: (ProcessOutResult<String>) -> Unit)`
@@ -63,15 +63,14 @@ override fun onCreate(savedInstanceState: Bundle?) {
     customTabLauncher = PO3DSRedirectCustomTabLauncher.create(from = this)
 }
 
-// 2) Pass launcher to your implementation of PO3DSService or POTest3DSService and handle redirect.
+// 2) Pass launcher to implementation of PO3DSService or POTest3DSService and handle redirect.
 
 override fun handle(redirect: PO3DSRedirect, callback: (ProcessOutResult<String>) -> Unit) {
     customTabLauncher.launch(
         redirect = redirect,
-        returnUrl = "your.application.id://processout/return"
-    ) { result ->
-        callback(result)
-    }
+        returnUrl = "your.application.id://processout/return",
+        callback = callback
+    )
 }
 ```
 
@@ -83,7 +82,7 @@ To handle web based redirects service must implement method:\
 `PO3DSRedirectWebViewBuilder` allows to create WebView that will automatically redirect user to provided url and collect
 the result. WebView must be visible and added to the screen layout.\
 Example implementation:
-```
+```kotlin
 private val rootLayout: FrameLayout = activity.findViewById(android.R.id.content)
 private val webViewBuilder = PO3DSRedirectWebViewBuilder(activity)
 private var webView: WebView? = null

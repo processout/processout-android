@@ -7,6 +7,7 @@ import com.processout.sdk.api.service.POAlternativePaymentMethodsService
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.web.WebAuthorizationDelegate
 
+@Deprecated("Used in other deprecated classes and methods.")
 internal class AlternativePaymentMethodWebAuthorizationDelegate(
     private val service: POAlternativePaymentMethodsService,
     private val request: POAlternativePaymentMethodRequest,
@@ -21,7 +22,7 @@ internal class AlternativePaymentMethodWebAuthorizationDelegate(
 
     override fun complete(uri: Uri) {
         when (val result = service.alternativePaymentMethodResponse(uri)) {
-            is ProcessOutResult.Success -> callback(ProcessOutResult.Success(result.value))
+            is ProcessOutResult.Success -> callback(result.copy())
             is ProcessOutResult.Failure -> callback(result.copy())
         }
     }
