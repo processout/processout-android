@@ -21,6 +21,7 @@ import com.processout.sdk.api.model.threeds.PO3DS2Configuration
 import com.processout.sdk.api.model.threeds.PO3DSRedirect
 import com.processout.sdk.api.service.PO3DSService
 import com.processout.sdk.checkout.threeds.Checkout3DSServiceState.*
+import com.processout.sdk.checkout.threeds.CheckoutConstants.*
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.copy
@@ -224,8 +225,16 @@ private fun PO3DS2Challenge.toChallengeParameters() =
 
 private fun AuthenticationError.toFailure(): ProcessOutResult.Failure {
     val code = when (errorType) {
-        ConnectivityError -> POFailure.Code.NetworkUnreachable
-        AuthenticationProcessError,
+        AuthenticationProcessError -> when (errorCode) {
+            AuthenticationProcessErrorCodes.E1002_Challenge_cancelled -> POFailure.Code.Cancelled
+            AuthenticationProcessErrorCodes.E1003_Challenge_timeout -> POFailure.Code.Timeout()
+            else -> POFailure.Code.Generic()
+        }
+        ConnectivityError -> when (errorCode) {
+            ConnectivityErrorCode.E2001_connection_failed -> POFailure.Code.NetworkUnreachable
+            ConnectivityErrorCode.E2002_connection_timeout -> POFailure.Code.Timeout()
+            else -> POFailure.Code.Generic()
+        }
         ThreeDS1ProtocolError,
         ThreeDS2ProtocolError,
         InternalError -> POFailure.Code.Generic()
