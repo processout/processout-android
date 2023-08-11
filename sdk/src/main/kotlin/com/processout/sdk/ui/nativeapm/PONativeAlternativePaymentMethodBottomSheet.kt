@@ -162,45 +162,45 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         if (getDialog() == null) return
         allowExpandToFullScreen()
         adjustPeekHeight(animate = false)
+    }
 
-        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    binding.poContainer.updateLayoutParams {
-                        height = ViewGroup.LayoutParams.MATCH_PARENT
-                    }
+    private val bottomSheetBehaviorCallback = object : BottomSheetBehavior.BottomSheetCallback() {
+        override fun onStateChanged(bottomSheet: View, newState: Int) {
+            if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                _binding?.poContainer?.updateLayoutParams {
+                    height = ViewGroup.LayoutParams.MATCH_PARENT
                 }
             }
+        }
 
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                if (bottomSheetBehavior.state != BottomSheetBehavior.STATE_EXPANDED) {
-                    with(binding.poContainer) {
-                        updateLayoutParams {
-                            val containerCoordinateY = IntArray(2)
-                                .also { getLocationOnScreen(it) }.let { it[1] }
+        override fun onSlide(bottomSheet: View, slideOffset: Float) {
+            if (bottomSheetBehavior.state != BottomSheetBehavior.STATE_EXPANDED) {
+                _binding?.poContainer?.run {
+                    updateLayoutParams {
+                        val containerCoordinateY = IntArray(2)
+                            .also { getLocationOnScreen(it) }.let { it[1] }
 
-                            val windowInsets = ViewCompat.getRootWindowInsets(bottomSheet)
-                            val systemBarsHeight = windowInsets?.getInsetsIgnoringVisibility(
-                                WindowInsetsCompat.Type.systemBars()
-                            )?.bottom ?: 0
+                        val windowInsets = ViewCompat.getRootWindowInsets(bottomSheet)
+                        val systemBarsHeight = windowInsets?.getInsetsIgnoringVisibility(
+                            WindowInsetsCompat.Type.systemBars()
+                        )?.bottom ?: 0
 
-                            var keyboardHeight = windowInsets?.getInsets(
-                                WindowInsetsCompat.Type.ime()
-                            )?.bottom ?: 0
-                            if (keyboardHeight != 0) {
-                                keyboardHeight -= systemBarsHeight
-                            }
-
-                            var updatedHeight = displayHeight - keyboardHeight - containerCoordinateY
-                            if (updatedHeight < bottomSheetBehavior.peekHeight) {
-                                updatedHeight = bottomSheetBehavior.peekHeight
-                            }
-                            height = updatedHeight
+                        var keyboardHeight = windowInsets?.getInsets(
+                            WindowInsetsCompat.Type.ime()
+                        )?.bottom ?: 0
+                        if (keyboardHeight != 0) {
+                            keyboardHeight -= systemBarsHeight
                         }
+
+                        var updatedHeight = displayHeight - keyboardHeight - containerCoordinateY
+                        if (updatedHeight < bottomSheetBehavior.peekHeight) {
+                            updatedHeight = bottomSheetBehavior.peekHeight
+                        }
+                        height = updatedHeight
                     }
                 }
             }
-        })
+        }
     }
 
     private fun allowExpandToFullScreen() {
@@ -751,10 +751,16 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        bottomSheetBehavior.addBottomSheetCallback(bottomSheetBehaviorCallback)
+    }
+
     override fun onPause() {
         super.onPause()
         clearAnimationListeners()
         handler.removeCallbacksAndMessages(null)
+        bottomSheetBehavior.removeBottomSheetCallback(bottomSheetBehaviorCallback)
         finishWithSuccess()
     }
 
