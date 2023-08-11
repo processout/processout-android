@@ -4,10 +4,9 @@ package com.processout.sdk.checkout.threeds
 
 import android.app.Activity
 import com.checkout.threeds.Environment
+import com.checkout.threeds.domain.model.AuthenticationCompleted
 import com.checkout.threeds.domain.model.AuthenticationError
 import com.checkout.threeds.domain.model.AuthenticationErrorType.*
-import com.checkout.threeds.domain.model.AuthenticationFailed
-import com.checkout.threeds.domain.model.AuthenticationSuccess
 import com.checkout.threeds.domain.model.ResultType.*
 import com.checkout.threeds.standalone.Standalone3DSService
 import com.checkout.threeds.standalone.api.ThreeDS2Service
@@ -22,6 +21,7 @@ import com.processout.sdk.api.model.threeds.PO3DS2Configuration
 import com.processout.sdk.api.model.threeds.PO3DSRedirect
 import com.processout.sdk.api.service.PO3DSService
 import com.processout.sdk.checkout.threeds.Checkout3DSServiceState.*
+import com.processout.sdk.checkout.threeds.CheckoutConstants.*
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.copy
@@ -133,12 +133,8 @@ class POCheckout3DSService private constructor(
             ) { result ->
                 setIdleState(serviceContext)
                 when (result.resultType) {
-                    Successful -> when (result) {
-                        is AuthenticationSuccess -> completeChallenge(result.transactionStatus, callback)
-                        else -> failChallenge(ProcessOutResult.Failure(POFailure.Code.Generic()), callback)
-                    }
-                    Failed -> when (result) {
-                        is AuthenticationFailed -> completeChallenge(result.transactionStatus, callback)
+                    Completed -> when (result) {
+                        is AuthenticationCompleted -> completeChallenge(result.transactionStatus, callback)
                         else -> failChallenge(ProcessOutResult.Failure(POFailure.Code.Generic()), callback)
                     }
                     Error -> when (result) {
@@ -229,8 +225,16 @@ private fun PO3DS2Challenge.toChallengeParameters() =
 
 private fun AuthenticationError.toFailure(): ProcessOutResult.Failure {
     val code = when (errorType) {
-        ConnectivityError -> POFailure.Code.NetworkUnreachable
-        AuthenticationProcessError,
+        AuthenticationProcessError -> when (errorCode) {
+            AuthenticationProcessErrorCodes.E1002_Challenge_cancelled -> POFailure.Code.Cancelled
+            AuthenticationProcessErrorCodes.E1003_Challenge_timeout -> POFailure.Code.Timeout()
+            else -> POFailure.Code.Generic()
+        }
+        ConnectivityError -> when (errorCode) {
+            ConnectivityErrorCode.E2001_connection_failed -> POFailure.Code.NetworkUnreachable
+            ConnectivityErrorCode.E2002_connection_timeout -> POFailure.Code.Timeout()
+            else -> POFailure.Code.Generic()
+        }
         ThreeDS1ProtocolError,
         ThreeDS2ProtocolError,
         InternalError -> POFailure.Code.Generic()
