@@ -5,7 +5,6 @@ import android.content.res.ColorStateList
 import android.content.res.Resources.NotFoundException
 import android.graphics.drawable.Drawable
 import android.os.Build
-import android.util.Log
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
@@ -18,7 +17,7 @@ import androidx.core.view.setPadding
 import androidx.core.widget.TextViewCompat
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.radiobutton.MaterialRadioButton
-import com.processout.sdk.BuildConfig
+import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.databinding.PoBottomSheetCaptureBinding
 import com.processout.sdk.databinding.PoBottomSheetNativeApmBinding
 import com.processout.sdk.ui.shared.style.POBorderStyle
@@ -210,8 +209,7 @@ private fun TextView.setTextCursorColorCompat(@ColorInt tintColor: Int) {
                 ?.set(editor, arrayOf(tintedCursorDrawable, tintedCursorDrawable))
         }
     } catch (e: Throwable) {
-        if (BuildConfig.DEBUG)
-            Log.w(TextView::class.java.simpleName, "Failed to set text cursor color.", e)
+        POLogger.info("Failed to set text cursor color. %s", e.message)
     }
 }
 
@@ -243,8 +241,7 @@ private fun TextView.setTextSelectHandleColorCompat(@ColorInt tintColor: Int) {
             }
         }
     } catch (e: Throwable) {
-        if (BuildConfig.DEBUG)
-            Log.w(TextView::class.java.simpleName, "Failed to set text select handle color.", e)
+        POLogger.info("Failed to set text select handle color. %s", e.message)
     }
 }
 

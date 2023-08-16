@@ -10,6 +10,7 @@ internal abstract class LoggerDestination(
 
     companion object {
         private const val MAX_TAG_LENGTH_BEFORE_API_26 = 23
+        private const val ATTRIBUTE_LINE = "Line"
     }
 
     private val loggerPackageName = LoggerDestination::class.java.`package`?.name
@@ -33,7 +34,7 @@ internal abstract class LoggerDestination(
             } ?: false
         }
         val additionalAttributes = mutableMapOf(
-            "LineNumber" to stackTraceElement?.lineNumber.toString()
+            ATTRIBUTE_LINE to stackTraceElement?.lineNumber.toString()
         )
         attributes?.let { additionalAttributes.putAll(it) }
 
