@@ -14,6 +14,7 @@ data class POCardTokenizationRequest(
     val cvc: String? = "",
     val name: String = "",
     val contact: POContact? = POContact(),
+    val preferredScheme: String? = null,
 
     // Network Token specific fields
     val tokenType: TokenType? = null,
@@ -35,6 +36,8 @@ internal data class POCardTokenizationRequestWithDeviceData(
     val cvc: String?,
     val name: String,
     val contact: POContact?,
+    @Json(name = "preferred_scheme")
+    val preferredScheme: String?,
     @Json(name = "token_type")
     val tokenType: String?,
     @Json(name = "payment_token")
