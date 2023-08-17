@@ -65,6 +65,7 @@ private fun POCardTokenizationRequest.toDeviceDataRequest(deviceData: PODeviceDa
         cvc,
         name,
         contact,
+        preferredScheme,
         tokenType?.value ?: String(),
         paymentToken,
         deviceData
