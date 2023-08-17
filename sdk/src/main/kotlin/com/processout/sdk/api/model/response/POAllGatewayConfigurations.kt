@@ -53,6 +53,7 @@ data class POGateway(
     val canPullTransactions: Boolean,
     @Json(name = "can_refund")
     val canRefund: Boolean,
+    @Deprecated("Use POInvoicesService.fetchNativeAlternativePaymentMethodTransactionDetails().")
     @Json(name = "native_apm_config")
     val nativeApmConfig: PONativeAlternativePaymentMethodConfig?
 )
