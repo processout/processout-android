@@ -2,7 +2,6 @@
 
 package com.processout.sdk.api
 
-import android.util.Log
 import com.processout.processout_sdk.ProcessOutAccessor
 import com.processout.sdk.BuildConfig
 import com.processout.sdk.api.dispatcher.PONativeAlternativePaymentMethodEventDispatcher
@@ -11,6 +10,7 @@ import com.processout.sdk.api.network.NetworkConfiguration
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.api.repository.POGatewayConfigurationsRepository
 import com.processout.sdk.api.service.*
+import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.di.*
 
 class ProcessOut private constructor(
@@ -60,8 +60,7 @@ class ProcessOut private constructor(
          */
         fun configure(configuration: ProcessOutConfiguration) {
             if (isConfigured) {
-                if (BuildConfig.DEBUG)
-                    Log.i(ProcessOut::class.simpleName, "Already configured.")
+                POLogger.info("Already configured.")
                 return
             }
 
@@ -97,6 +96,10 @@ class ProcessOut private constructor(
                 ),
                 dispatcherGraph = DispatcherGraphImpl()
             )
+
+            if (configuration.debug) {
+                POLogger.add(apiGraph.serviceGraph.systemLoggerService)
+            }
 
             instance = lazy { ProcessOut(apiGraph) }.value
 
