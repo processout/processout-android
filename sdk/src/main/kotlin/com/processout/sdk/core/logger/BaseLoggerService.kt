@@ -4,18 +4,18 @@ import android.os.Build
 import com.processout.sdk.BuildConfig
 import java.util.Calendar
 
-internal abstract class LoggerDestination(
+internal abstract class BaseLoggerService(
     private val minimumLevel: LogLevel
-) {
+) : LoggerService {
 
     companion object {
         private const val MAX_TAG_LENGTH_BEFORE_API_26 = 23
         private const val ATTRIBUTE_LINE = "Line"
     }
 
-    private val loggerPackageName = LoggerDestination::class.java.`package`?.name
+    private val loggerPackageName = LoggerService::class.java.`package`?.name
 
-    fun log(
+    override fun log(
         level: LogLevel,
         message: String,
         vararg args: Any?,

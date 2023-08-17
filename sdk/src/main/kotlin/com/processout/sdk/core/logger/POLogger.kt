@@ -4,13 +4,13 @@ internal class POLogger private constructor() {
 
     companion object {
         @Volatile
-        private var destinations = emptyArray<LoggerDestination>()
-        private val destinationsLock = mutableListOf<LoggerDestination>()
+        private var services = emptyArray<LoggerService>()
+        private val servicesLock = mutableListOf<LoggerService>()
 
-        fun add(destination: LoggerDestination) {
-            synchronized(destinationsLock) {
-                destinationsLock.add(destination)
-                destinations = destinationsLock.toTypedArray()
+        fun add(service: LoggerService) {
+            synchronized(servicesLock) {
+                servicesLock.add(service)
+                services = servicesLock.toTypedArray()
             }
         }
 
@@ -19,7 +19,7 @@ internal class POLogger private constructor() {
             vararg args: Any?,
             attributes: Map<String, String>? = null
         ) {
-            destinations.forEach { it.log(LogLevel.DEBUG, message, *args, attributes = attributes) }
+            services.forEach { it.log(LogLevel.DEBUG, message, *args, attributes = attributes) }
         }
 
         fun info(
@@ -27,7 +27,7 @@ internal class POLogger private constructor() {
             vararg args: Any?,
             attributes: Map<String, String>? = null
         ) {
-            destinations.forEach { it.log(LogLevel.INFO, message, *args, attributes = attributes) }
+            services.forEach { it.log(LogLevel.INFO, message, *args, attributes = attributes) }
         }
 
         fun warn(
@@ -35,7 +35,7 @@ internal class POLogger private constructor() {
             vararg args: Any?,
             attributes: Map<String, String>? = null
         ) {
-            destinations.forEach { it.log(LogLevel.WARN, message, *args, attributes = attributes) }
+            services.forEach { it.log(LogLevel.WARN, message, *args, attributes = attributes) }
         }
 
         fun error(
@@ -43,7 +43,7 @@ internal class POLogger private constructor() {
             vararg args: Any?,
             attributes: Map<String, String>? = null
         ) {
-            destinations.forEach { it.log(LogLevel.ERROR, message, *args, attributes = attributes) }
+            services.forEach { it.log(LogLevel.ERROR, message, *args, attributes = attributes) }
         }
     }
 }

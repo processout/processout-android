@@ -7,6 +7,7 @@ internal interface RepositoryGraph {
     val invoicesRepository: InvoicesRepository
     val cardsRepository: POCardsRepository
     val customerTokensRepository: CustomerTokensRepository
+    val logsRepository: LogsRepository
 }
 
 internal class RepositoryGraphImpl(
@@ -25,4 +26,7 @@ internal class RepositoryGraphImpl(
 
     override val customerTokensRepository: CustomerTokensRepository =
         CustomerTokensRepositoryImpl(networkGraph.moshi, networkGraph.customerTokensApi, contextGraph)
+
+    override val logsRepository: LogsRepository =
+        LogsRepositoryImpl(networkGraph.moshi, networkGraph.logsApi)
 }

@@ -10,7 +10,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import java.util.*
+import java.util.Date
 import java.util.concurrent.TimeUnit
 
 internal interface NetworkGraph {
@@ -19,6 +19,7 @@ internal interface NetworkGraph {
     val invoicesApi: InvoicesApi
     val cardsApi: CardsApi
     val customerTokensApi: CustomerTokensApi
+    val logsApi: LogsApi
 }
 
 internal class NetworkGraphImpl(configuration: NetworkConfiguration) : NetworkGraph {
@@ -58,4 +59,6 @@ internal class NetworkGraphImpl(configuration: NetworkConfiguration) : NetworkGr
     override val cardsApi: CardsApi = retrofit.create(CardsApi::class.java)
 
     override val customerTokensApi: CustomerTokensApi = retrofit.create(CustomerTokensApi::class.java)
+
+    override val logsApi: LogsApi = retrofit.create(LogsApi::class.java)
 }

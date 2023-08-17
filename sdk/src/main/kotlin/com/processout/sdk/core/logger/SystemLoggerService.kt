@@ -2,9 +2,9 @@ package com.processout.sdk.core.logger
 
 import android.util.Log
 
-internal class SystemLoggerDestination(
+internal class SystemLoggerService(
     minimumLevel: LogLevel
-) : LoggerDestination(minimumLevel) {
+) : BaseLoggerService(minimumLevel) {
 
     companion object {
         private const val MAX_LOG_LENGTH = 4000

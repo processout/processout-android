@@ -10,9 +10,7 @@ import com.processout.sdk.api.network.NetworkConfiguration
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.api.repository.POGatewayConfigurationsRepository
 import com.processout.sdk.api.service.*
-import com.processout.sdk.core.logger.LogLevel
 import com.processout.sdk.core.logger.POLogger
-import com.processout.sdk.core.logger.SystemLoggerDestination
 import com.processout.sdk.di.*
 
 class ProcessOut private constructor(
@@ -66,10 +64,6 @@ class ProcessOut private constructor(
                 return
             }
 
-            if (configuration.debug) {
-                POLogger.add(SystemLoggerDestination(LogLevel.DEBUG))
-            }
-
             val contextGraph = ContextGraphImpl(
                 application = configuration.application
             )
@@ -102,6 +96,10 @@ class ProcessOut private constructor(
                 ),
                 dispatcherGraph = DispatcherGraphImpl()
             )
+
+            if (configuration.debug) {
+                POLogger.add(apiGraph.serviceGraph.systemLoggerService)
+            }
 
             instance = lazy { ProcessOut(apiGraph) }.value
 
