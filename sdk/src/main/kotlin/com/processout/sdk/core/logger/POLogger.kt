@@ -3,6 +3,9 @@ package com.processout.sdk.core.logger
 internal class POLogger private constructor() {
 
     companion object {
+        const val ATTRIBUTE_INVOICE_ID = "InvoiceId"
+        const val ATTRIBUTE_GATEWAY_CONFIGURATION_ID = "GatewayConfigurationId"
+
         @Volatile
         private var services = emptyArray<LoggerService>()
         private val servicesLock = mutableListOf<LoggerService>()

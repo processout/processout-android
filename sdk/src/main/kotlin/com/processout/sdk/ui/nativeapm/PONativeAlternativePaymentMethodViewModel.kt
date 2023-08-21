@@ -30,6 +30,7 @@ import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodPar
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options.Companion.MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
 import com.processout.sdk.ui.shared.model.InputParameter
 import com.processout.sdk.ui.shared.model.SecondaryActionUiModel
@@ -47,9 +48,10 @@ internal class PONativeAlternativePaymentMethodViewModel(
     private val app: Application,
     private val gatewayConfigurationId: String,
     private val invoiceId: String,
-    val options: PONativeAlternativePaymentMethodConfiguration.Options,
     private val invoicesService: POInvoicesService,
-    private val eventDispatcher: PONativeAlternativePaymentMethodEventDispatcher
+    private val eventDispatcher: PONativeAlternativePaymentMethodEventDispatcher,
+    val options: PONativeAlternativePaymentMethodConfiguration.Options,
+    val logAttributes: Map<String, String>
 ) : AndroidViewModel(app) {
 
     internal class Factory(
@@ -65,9 +67,13 @@ internal class PONativeAlternativePaymentMethodViewModel(
                     app,
                     gatewayConfigurationId,
                     invoiceId,
-                    options.validate(),
                     invoices,
-                    nativeAlternativePaymentMethodEventDispatcher
+                    nativeAlternativePaymentMethodEventDispatcher,
+                    options.validate(),
+                    logAttributes = mapOf(
+                        POLogger.ATTRIBUTE_INVOICE_ID to invoiceId,
+                        POLogger.ATTRIBUTE_GATEWAY_CONFIGURATION_ID to gatewayConfigurationId
+                    )
                 )
             } as T
 
