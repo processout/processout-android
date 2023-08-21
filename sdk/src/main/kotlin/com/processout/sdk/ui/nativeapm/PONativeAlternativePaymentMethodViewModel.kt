@@ -544,6 +544,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
     fun onViewFailure(failure: PONativeAlternativePaymentMethodResult.Failure) {
         with(failure) {
             dispatch(DidFail(ProcessOutResult.Failure(code, message, invalidFields)))
+            POLogger.info("%s", failure, attributes = logAttributes)
         }
     }
 
