@@ -102,6 +102,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
     private val defaultValuesRequests = mutableSetOf<PONativeAlternativePaymentMethodDefaultValuesRequest>()
 
     init {
+        POLogger.info("Starting native alternative payment.", attributes = logAttributes)
         dispatch(WillStart)
         dispatchFailure()
         collectDefaultValues()
@@ -121,7 +122,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                             ProcessOutResult.Failure(
                                 POFailure.Code.Internal(),
                                 "Input field parameters is missing in response."
-                            ).also { POLogger.info("%s", it, attributes = logAttributes) }
+                            ).also { POLogger.info("%s", it) }
                         )
                         return@launch
                     }
@@ -137,9 +138,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 is ProcessOutResult.Failure ->
                     _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
                         result.copy()
-                            .also {
-                                POLogger.info("Failed to fetch transaction details. %s", it, attributes = logAttributes)
-                            }
+                            .also { POLogger.info("Failed to fetch transaction details. %s", it) }
                     )
             }
         }
@@ -151,6 +150,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
             scheduleSecondaryActionEnabling(it) { enableSecondaryAction() }
         }
         dispatch(DidStart)
+        POLogger.info("Started. Waiting for payment parameters.")
     }
 
     private fun handleInvalidInputParameters(
@@ -173,7 +173,10 @@ internal class PONativeAlternativePaymentMethodViewModel(
             eventDispatcher.send(
                 PONativeAlternativePaymentMethodDefaultValuesRequest(
                     gatewayConfigurationId, invoiceId, parameters
-                ).also { defaultValuesRequests.add(it) }
+                ).also {
+                    defaultValuesRequests.add(it)
+                    POLogger.debug("Waiting for default values for payment parameters. %s", it)
+                }
             )
         }
     }
@@ -182,6 +185,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
         viewModelScope.launch {
             eventDispatcher.defaultValuesResponse.collect { response ->
                 if (defaultValuesRequests.removeAll { it.uuid == response.uuid }) {
+                    POLogger.debug("Collected default values for payment parameters. %s", response)
                     when (val uiState = _uiState.value) {
                         is PONativeAlternativePaymentMethodUiState.Loaded ->
                             startUserInput(
@@ -227,6 +231,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 )
             )
             dispatch(ParametersChanged)
+            POLogger.debug("Payment parameters updated. %s", updatedInputParameters)
         }
     }
 
@@ -242,6 +247,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
 
     fun submitPayment() {
         _uiState.value.doWhenUserInput { uiModel ->
+            POLogger.info("Will submit payment parameters.")
             dispatch(WillSubmitParameters)
 
             val invalidFields = uiModel.inputParameters.mapNotNull { it.validate() }
@@ -326,7 +332,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                         ProcessOutResult.Failure(
                             POFailure.Code.Internal(),
                             "Input field parameters is missing in response."
-                        ).also { POLogger.info("%s", it, attributes = logAttributes) }
+                        ).also { POLogger.info("%s", it) }
                     )
                     return
                 }
@@ -360,6 +366,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
             uiModel.copy(isSubmitting = false)
         )
         dispatch(DidSubmitParameters(additionalParametersExpected = true))
+        POLogger.info("Submitted. Waiting for additional payment parameters.")
     }
 
     private suspend fun handlePendingCapture(
@@ -371,6 +378,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
             uiModel.copy(isSubmitting = false)
         )
         dispatch(DidSubmitParameters(additionalParametersExpected = false))
+        POLogger.info("All payment parameters has been submitted.")
 
         if (options.waitsPaymentConfirmation) {
             val updatedUiModel = uiModel.copy(
@@ -380,6 +388,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 customerActionMessageMarkdown = parameterValues?.customerActionMessage
                     ?: uiModel.customerActionMessageMarkdown
             )
+            POLogger.info("Waiting for capture confirmation.")
             dispatch(
                 WillWaitForCaptureConfirmation(
                     additionalActionExpected = updatedUiModel.showCustomerAction()
@@ -398,11 +407,13 @@ internal class PONativeAlternativePaymentMethodViewModel(
             return
         }
         _uiState.value = PONativeAlternativePaymentMethodUiState.Success(uiModel.copy())
+        POLogger.info("Finished. Did not wait for capture confirmation.")
     }
 
     private fun handleCaptured(uiModel: PONativeAlternativePaymentMethodUiModel) {
         if (options.waitsPaymentConfirmation) {
             dispatch(DidCompletePayment)
+            POLogger.info("Success. Invoice is captured.")
         }
         animateViewTransition = true
         _uiState.value = PONativeAlternativePaymentMethodUiState.Success(uiModel.copy())
@@ -416,7 +427,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
         if (failure.invalidFields.isNullOrEmpty()) {
             _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
                 failure.copy()
-                    .also { POLogger.info("Unrecoverable payment failure. %s", failure, attributes = logAttributes) }
+                    .also { POLogger.info("Unrecoverable payment failure. %s", failure) }
             )
             return
         }
@@ -437,7 +448,9 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 isSubmitting = false
             )
         )
-        dispatch(DidFailToSubmitParameters(failure))
+        dispatch(DidFailToSubmitParameters(
+            failure.also { POLogger.debug("Invalid payment parameters. %s", it.invalidFields) }
+        ))
     }
 
     // TODO: Delete this when backend localisation is done.
@@ -477,6 +490,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
             }
 
             val result = invoicesService.captureNativeAlternativePayment(invoiceId, gatewayConfigurationId)
+            POLogger.debug("Attempted to capture invoice.")
             if (isCaptureRetryable(result)) {
                 delay(CAPTURE_POLLING_DELAY_MS)
                 capture()
@@ -541,6 +555,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
     private fun dispatch(event: PONativeAlternativePaymentMethodEvent) {
         viewModelScope.launch {
             eventDispatcher.send(event)
+            POLogger.debug("Event has been sent: %s", event)
         }
     }
 
@@ -548,7 +563,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
         viewModelScope.launch {
             _uiState.collect {
                 if (it is PONativeAlternativePaymentMethodUiState.Failure) {
-                    eventDispatcher.send(DidFail(it.failure))
+                    dispatch(DidFail(it.failure))
                 }
             }
         }
@@ -556,8 +571,10 @@ internal class PONativeAlternativePaymentMethodViewModel(
 
     fun onViewFailure(failure: PONativeAlternativePaymentMethodResult.Failure) {
         with(failure) {
-            dispatch(DidFail(ProcessOutResult.Failure(code, message, invalidFields)))
-            POLogger.info("%s", failure, attributes = logAttributes)
+            dispatch(
+                DidFail(ProcessOutResult.Failure(code, message, invalidFields)
+                    .also { POLogger.info("%s", it) })
+            )
         }
     }
 
