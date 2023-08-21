@@ -121,7 +121,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                             ProcessOutResult.Failure(
                                 POFailure.Code.Internal(),
                                 "Input field parameters is missing in response."
-                            )
+                            ).also { POLogger.info("%s", it, attributes = logAttributes) }
                         )
                         return@launch
                     }
@@ -135,7 +135,12 @@ internal class PONativeAlternativePaymentMethodViewModel(
                     else startUserInput(uiModel)
                 }
                 is ProcessOutResult.Failure ->
-                    _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(result.copy())
+                    _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
+                        result.copy()
+                            .also {
+                                POLogger.info("Failed to fetch transaction details. %s", it, attributes = logAttributes)
+                            }
+                    )
             }
         }
     }
@@ -156,7 +161,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 ProcessOutResult.Failure(
                     POFailure.Code.Internal(),
                     "Unknown input field type: ${it.rawType}"
-                )
+                ).also { failure -> POLogger.warn("%s", failure, attributes = logAttributes) }
             )
             return true
         }
@@ -321,7 +326,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                         ProcessOutResult.Failure(
                             POFailure.Code.Internal(),
                             "Input field parameters is missing in response."
-                        )
+                        ).also { POLogger.info("%s", it, attributes = logAttributes) }
                     )
                     return
                 }
@@ -409,7 +414,10 @@ internal class PONativeAlternativePaymentMethodViewModel(
         replaceToLocalMessage: Boolean // TODO: Delete this when backend localisation is done.
     ) {
         if (failure.invalidFields.isNullOrEmpty()) {
-            _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(failure.copy())
+            _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
+                failure.copy()
+                    .also { POLogger.info("Unrecoverable payment failure. %s", failure, attributes = logAttributes) }
+            )
             return
         }
         val updatedInputParameters = uiModel.inputParameters.map { inputParameter ->
