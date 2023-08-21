@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContract
 import com.processout.sdk.BuildConfig
 import com.processout.sdk.core.POFailure
+import com.processout.sdk.core.logger.POLogger
 
 class PONativeAlternativePaymentMethodActivityContract : ActivityResultContract
 <PONativeAlternativePaymentMethodConfiguration, PONativeAlternativePaymentMethodResult>() {
@@ -29,5 +30,5 @@ class PONativeAlternativePaymentMethodActivityContract : ActivityResultContract
             ?: PONativeAlternativePaymentMethodResult.Failure(
                 POFailure.Code.Internal(),
                 "Activity result was not provided."
-            )
+            ).also { POLogger.error("%s", it) }
 }
