@@ -463,7 +463,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                     ProcessOutResult.Failure(
                         POFailure.Code.Timeout(),
                         "Payment confirmation timed out."
-                    )
+                    ).also { POLogger.warn("%s", it, attributes = logAttributes) }
                 )
                 return@launch
             }
@@ -482,7 +482,12 @@ internal class PONativeAlternativePaymentMethodViewModel(
                         handleCaptured(uiModel)
                     }
                 is ProcessOutResult.Failure ->
-                    _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(result.copy())
+                    _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
+                        result.copy()
+                            .also {
+                                POLogger.error("Failed to capture invoice. %s", it, attributes = logAttributes)
+                            }
+                    )
             }
         }
     }
