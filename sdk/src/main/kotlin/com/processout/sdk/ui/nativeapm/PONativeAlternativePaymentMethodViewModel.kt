@@ -161,7 +161,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 ProcessOutResult.Failure(
                     POFailure.Code.Internal(),
                     "Unknown input field type: ${it.rawType}"
-                ).also { failure -> POLogger.warn("%s", failure, attributes = logAttributes) }
+                ).also { failure -> POLogger.error("%s", failure, attributes = logAttributes) }
             )
             return true
         }
