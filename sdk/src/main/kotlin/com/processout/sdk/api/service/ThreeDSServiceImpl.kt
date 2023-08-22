@@ -14,6 +14,7 @@ import com.processout.sdk.api.model.threeds.PO3DS2Configuration
 import com.processout.sdk.api.model.threeds.PO3DSRedirect
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.logger.POLogger
 import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
 import java.net.MalformedURLException
@@ -34,6 +35,7 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
         delegate: PO3DSService,
         callback: (ProcessOutResult<String>) -> Unit
     ) {
+        POLogger.info("Handling customer action type: %s", action.rawType)
         when (action.type()) {
             FINGERPRINT_MOBILE -> fingerprintMobile(
                 encodedConfiguration = action.value, delegate, callback
@@ -47,7 +49,7 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
                 ProcessOutResult.Failure(
                     POFailure.Code.Internal(),
                     "Unsupported 3DS customer action type: ${action.rawType}"
-                )
+                ).also { POLogger.error("%s", it) }
             )
         }
     }
@@ -66,7 +68,9 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
                             is ProcessOutResult.Success -> callback(
                                 ChallengeResponse(body = encode(result.value)), callback
                             )
-                            is ProcessOutResult.Failure -> callback(result.copy())
+                            is ProcessOutResult.Failure -> callback(result.copy()
+                                .also { POLogger.info("Failed to create authentication request: %s", it) }
+                            )
                         }
                     }
                 }
@@ -75,7 +79,7 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
                 ProcessOutResult.Failure(
                     POFailure.Code.Internal(),
                     "Failed to decode configuration: ${e.message}", cause = e
-                )
+                ).also { POLogger.error("%s", it) }
             )
         }
     }
@@ -97,7 +101,9 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
                                 else CHALLENGE_FAILURE_RESPONSE_BODY
                                 callback(ChallengeResponse(body = body), callback)
                             }
-                            is ProcessOutResult.Failure -> callback(result.copy())
+                            is ProcessOutResult.Failure -> callback(result.copy()
+                                .also { POLogger.info("Failed to handle challenge: %s", it) }
+                            )
                         }
                     }
                 }
@@ -106,7 +112,7 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
                 ProcessOutResult.Failure(
                     POFailure.Code.Internal(),
                     "Failed to decode challenge: ${e.message}", cause = e
-                )
+                ).also { POLogger.error("%s", it) }
             )
         }
     }
@@ -133,7 +139,9 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
                                     url = url
                                 ), callback
                             )
-                            false -> callback(result.copy())
+                            false -> callback(result.copy()
+                                .also { POLogger.info("Failed to handle URL fingerprint: %s", it) }
+                            )
                         }
                 }
             }
@@ -143,13 +151,13 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
                     ProcessOutResult.Failure(
                         POFailure.Code.Internal(),
                         "Failed to parse fingerprint URL from raw value: $url", cause = e
-                    )
+                    ).also { POLogger.error("%s", it) }
                 )
                 else -> callback(
                     ProcessOutResult.Failure(
                         POFailure.Code.Internal(),
                         "Failed to handle fingerprint for URL: $url", cause = e
-                    )
+                    ).also { POLogger.error("%s", it) }
                 )
             }
         }
@@ -167,7 +175,7 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
                 ProcessOutResult.Failure(
                     POFailure.Code.Internal(),
                     "Failed to parse redirect URL from raw value: $url", cause = e
-                )
+                ).also { POLogger.error("%s", it) }
             )
         }
     }
