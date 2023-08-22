@@ -5,18 +5,18 @@ import com.processout.sdk.BuildConfig
 import java.util.Calendar
 
 internal abstract class BaseLoggerService(
-    private val minimumLevel: LogLevel
-) : LoggerService {
+    private val minimumLevel: POLogLevel
+) : POLoggerService {
 
     companion object {
         private const val MAX_TAG_LENGTH_BEFORE_API_26 = 23
         private const val ATTRIBUTE_LINE = "Line"
     }
 
-    private val loggerPackageName = LoggerService::class.java.`package`?.name
+    private val loggerPackageName = POLoggerService::class.java.`package`?.name
 
     override fun log(
-        level: LogLevel,
+        level: POLogLevel,
         message: String,
         vararg args: Any?,
         attributes: Map<String, String>?

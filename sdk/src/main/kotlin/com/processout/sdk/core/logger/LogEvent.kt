@@ -3,7 +3,7 @@ package com.processout.sdk.core.logger
 import java.util.Date
 
 internal data class LogEvent(
-    val level: LogLevel,
+    val level: POLogLevel,
     val tag: String,
     val message: String,
     val timestamp: Date,

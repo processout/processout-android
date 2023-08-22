@@ -1,8 +1,8 @@
 package com.processout.sdk.di
 
 import com.processout.sdk.api.service.*
-import com.processout.sdk.core.logger.LogLevel
-import com.processout.sdk.core.logger.LoggerService
+import com.processout.sdk.core.logger.POLogLevel
+import com.processout.sdk.core.logger.POLoggerService
 import com.processout.sdk.core.logger.SystemLoggerService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -13,8 +13,8 @@ internal interface ServiceGraph {
     val customerTokensService: POCustomerTokensService
     val alternativePaymentMethodsService: POAlternativePaymentMethodsService
     val browserCapabilitiesService: POBrowserCapabilitiesService
-    val systemLoggerService: LoggerService
-    val remoteLoggerService: LoggerService
+    val systemLoggerService: POLoggerService
+    val remoteLoggerService: POLoggerService
 }
 
 internal class ServiceGraphImpl(
@@ -49,9 +49,9 @@ internal class ServiceGraphImpl(
     override val browserCapabilitiesService: POBrowserCapabilitiesService =
         BrowserCapabilitiesServiceImpl(contextGraph.application)
 
-    override val systemLoggerService: LoggerService =
-        SystemLoggerService(minimumLevel = LogLevel.DEBUG)
+    override val systemLoggerService: POLoggerService =
+        SystemLoggerService(minimumLevel = POLogLevel.DEBUG)
 
-    override val remoteLoggerService: LoggerService =
-        RemoteLoggerService(minimumLevel = LogLevel.WARN, repositoryGraph.logsRepository)
+    override val remoteLoggerService: POLoggerService =
+        RemoteLoggerService(minimumLevel = POLogLevel.WARN, repositoryGraph.logsRepository)
 }

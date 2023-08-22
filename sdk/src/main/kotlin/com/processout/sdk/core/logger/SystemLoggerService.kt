@@ -3,7 +3,7 @@ package com.processout.sdk.core.logger
 import android.util.Log
 
 internal class SystemLoggerService(
-    minimumLevel: LogLevel
+    minimumLevel: POLogLevel
 ) : BaseLoggerService(minimumLevel) {
 
     companion object {

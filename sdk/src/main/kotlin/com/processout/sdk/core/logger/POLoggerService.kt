@@ -1,9 +1,12 @@
 package com.processout.sdk.core.logger
 
-internal interface LoggerService {
+import com.processout.sdk.core.annotation.ProcessOutInternalApi
+
+@ProcessOutInternalApi
+interface POLoggerService {
 
     fun log(
-        level: LogLevel,
+        level: POLogLevel,
         message: String,
         vararg args: Any?,
         attributes: Map<String, String>?
