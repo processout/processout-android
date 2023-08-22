@@ -3,6 +3,7 @@ package com.processout.sdk.api.repository
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.map
 import com.squareup.moshi.Moshi
 import kotlinx.coroutines.*
@@ -26,7 +27,7 @@ internal abstract class BaseRepository(
                     ?: ProcessOutResult.Failure(
                         POFailure.Code.Internal(),
                         "Response body is empty."
-                    )
+                    ).also { POLogger.error("%s", it) }
                 false -> response.toFailure(moshi)
             }
         } catch (e: Exception) {
@@ -34,15 +35,15 @@ internal abstract class BaseRepository(
                 is SocketTimeoutException -> ProcessOutResult.Failure(
                     POFailure.Code.Timeout(),
                     e.message ?: "Request timed out.", cause = e
-                )
+                ).also { POLogger.info("%s", it) }
                 is IOException -> ProcessOutResult.Failure(
                     POFailure.Code.NetworkUnreachable,
                     e.message ?: "Network is unreachable.", cause = e
-                )
+                ).also { POLogger.info("%s", it) }
                 else -> ProcessOutResult.Failure(
                     POFailure.Code.Internal(),
                     "Unexpected exception during API call.", cause = e
-                )
+                ).also { POLogger.error("%s", it) }
             }
         }
     }

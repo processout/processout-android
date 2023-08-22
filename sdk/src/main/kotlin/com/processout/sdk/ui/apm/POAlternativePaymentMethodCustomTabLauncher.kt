@@ -138,7 +138,7 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
                 )
             )
         } else {
-            POLogger.debug("Custom Chrome Tabs is not supported on device. Will use WebView.")
+            POLogger.info("Custom Chrome Tabs is not supported on device. Will use WebView.")
             webViewFallbackLauncher.launch(
                 WebViewConfiguration(
                     uri = uri,
