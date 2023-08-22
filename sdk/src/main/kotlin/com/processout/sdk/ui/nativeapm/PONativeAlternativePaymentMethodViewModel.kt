@@ -122,7 +122,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                             ProcessOutResult.Failure(
                                 POFailure.Code.Internal(),
                                 "Input field parameters is missing in response."
-                            ).also { POLogger.info("%s", it) }
+                            ).also { POLogger.warn("%s", it, attributes = logAttributes) }
                         )
                         return@launch
                     }
@@ -138,7 +138,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 is ProcessOutResult.Failure ->
                     _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
                         result.copy()
-                            .also { POLogger.info("Failed to fetch transaction details. %s", it) }
+                            .also { POLogger.info("Failed to fetch transaction details: %s", it) }
                     )
             }
         }
@@ -175,7 +175,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                     gatewayConfigurationId, invoiceId, parameters
                 ).also {
                     defaultValuesRequests.add(it)
-                    POLogger.debug("Waiting for default values for payment parameters. %s", it)
+                    POLogger.debug("Waiting for default values for payment parameters: %s", it)
                 }
             )
         }
@@ -185,7 +185,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
         viewModelScope.launch {
             eventDispatcher.defaultValuesResponse.collect { response ->
                 if (defaultValuesRequests.removeAll { it.uuid == response.uuid }) {
-                    POLogger.debug("Collected default values for payment parameters. %s", response)
+                    POLogger.debug("Collected default values for payment parameters: %s", response)
                     when (val uiState = _uiState.value) {
                         is PONativeAlternativePaymentMethodUiState.Loaded ->
                             startUserInput(
@@ -231,7 +231,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                 )
             )
             dispatch(ParametersChanged)
-            POLogger.debug("Payment parameters updated. %s", updatedInputParameters)
+            POLogger.debug("Payment parameters updated: %s", updatedInputParameters)
         }
     }
 
@@ -332,7 +332,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                         ProcessOutResult.Failure(
                             POFailure.Code.Internal(),
                             "Input field parameters is missing in response."
-                        ).also { POLogger.info("%s", it) }
+                        ).also { POLogger.warn("%s", it, attributes = logAttributes) }
                     )
                     return
                 }
@@ -427,7 +427,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
         if (failure.invalidFields.isNullOrEmpty()) {
             _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
                 failure.copy()
-                    .also { POLogger.info("Unrecoverable payment failure. %s", failure) }
+                    .also { POLogger.info("Unrecoverable payment failure: %s", it) }
             )
             return
         }
@@ -449,7 +449,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
             )
         )
         dispatch(DidFailToSubmitParameters(
-            failure.also { POLogger.debug("Invalid payment parameters. %s", it.invalidFields) }
+            failure.also { POLogger.debug("Invalid payment parameters: %s", it.invalidFields) }
         ))
     }
 
@@ -507,7 +507,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                     _uiState.value = PONativeAlternativePaymentMethodUiState.Failure(
                         result.copy()
                             .also {
-                                POLogger.error("Failed to capture invoice. %s", it, attributes = logAttributes)
+                                POLogger.error("Failed to capture invoice: %s", it, attributes = logAttributes)
                             }
                     )
             }
