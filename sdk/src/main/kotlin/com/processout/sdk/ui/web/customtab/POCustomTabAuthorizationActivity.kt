@@ -16,6 +16,7 @@ import com.processout.sdk.R
 import com.processout.sdk.api.service.POBrowserCapabilitiesService.Companion.CHROME_PACKAGE
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutActivityResult
+import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationActivityContract.Companion.EXTRA_CONFIGURATION
 import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationActivityContract.Companion.EXTRA_RESULT
 import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationActivityContract.Companion.EXTRA_TIMEOUT_FINISH
@@ -104,6 +105,7 @@ class POCustomTabAuthorizationActivity : AppCompatActivity() {
     }
 
     private fun finishWithActivityResult(result: ProcessOutActivityResult<Uri>) {
+        POLogger.debug("Custom Chrome Tabs result: %s", result)
         when (result) {
             is ProcessOutActivityResult.Success -> setActivityResult(Activity.RESULT_OK, result)
             is ProcessOutActivityResult.Failure -> setActivityResult(Activity.RESULT_CANCELED, result)
