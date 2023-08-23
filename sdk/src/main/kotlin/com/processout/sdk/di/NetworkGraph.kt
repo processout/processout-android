@@ -1,5 +1,7 @@
 package com.processout.sdk.di
 
+import android.util.Log
+import com.processout.sdk.BuildConfig
 import com.processout.sdk.api.network.*
 import com.processout.sdk.api.network.interceptor.BasicAuthInterceptor
 import com.processout.sdk.api.network.interceptor.UserAgentInterceptor
@@ -32,9 +34,9 @@ internal class NetworkGraphImpl(configuration: NetworkConfiguration) : NetworkGr
             .addInterceptor(UserAgentInterceptor(configuration.application, configuration.sdkVersion))
             .apply {
                 if (configuration.debug) {
-                    addInterceptor(HttpLoggingInterceptor().apply {
-                        level = HttpLoggingInterceptor.Level.BODY
-                    })
+                    addInterceptor(HttpLoggingInterceptor { message ->
+                        Log.println(Log.DEBUG, BuildConfig.LIBRARY_PACKAGE_NAME, message)
+                    }.apply { level = HttpLoggingInterceptor.Level.BODY })
                 }
             }.build()
 
