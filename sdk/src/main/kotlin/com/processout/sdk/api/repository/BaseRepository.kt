@@ -24,10 +24,7 @@ internal abstract class BaseRepository(
             val response = apiMethod()
             when (response.isSuccessful) {
                 true -> response.body()?.let { ProcessOutResult.Success(it) }
-                    ?: ProcessOutResult.Failure(
-                        POFailure.Code.Internal(),
-                        "Response body is empty."
-                    ).also { POLogger.error("%s", it) }
+                    ?: response.handleEmptyBody()
                 false -> response.toFailure(moshi)
             }
         } catch (e: Exception) {
@@ -47,6 +44,14 @@ internal abstract class BaseRepository(
                 ).also { POLogger.error("%s", it) }
             }
         }
+    }
+
+    private fun <T : Any> Response<T>.handleEmptyBody(): ProcessOutResult.Failure {
+        val request = raw().request
+        return ProcessOutResult.Failure(
+            POFailure.Code.Internal(),
+            "Response body is empty: ${code()} ${request.method} ${request.url}"
+        ).also { POLogger.error("%s", it) }
     }
 
     protected fun <T : Any> apiCallScoped(
