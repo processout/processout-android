@@ -150,13 +150,13 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
                 is MalformedURLException -> callback(
                     ProcessOutResult.Failure(
                         POFailure.Code.Internal(),
-                        "Failed to parse fingerprint URL from raw value: $url", cause = e
+                        "Failed to parse fingerprint URL: $url", cause = e
                     ).also { POLogger.error("%s", it) }
                 )
                 else -> callback(
                     ProcessOutResult.Failure(
                         POFailure.Code.Internal(),
-                        "Failed to handle fingerprint for URL: $url", cause = e
+                        "Failed to handle fingerprint with URL: $url", cause = e
                     ).also { POLogger.error("%s", it) }
                 )
             }
@@ -174,7 +174,7 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
             callback(
                 ProcessOutResult.Failure(
                     POFailure.Code.Internal(),
-                    "Failed to parse redirect URL from raw value: $url", cause = e
+                    "Failed to parse redirect URL: $url", cause = e
                 ).also { POLogger.error("%s", it) }
             )
         }
