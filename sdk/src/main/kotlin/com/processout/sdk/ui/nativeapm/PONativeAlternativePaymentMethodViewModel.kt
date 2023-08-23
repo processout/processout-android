@@ -122,7 +122,9 @@ internal class PONativeAlternativePaymentMethodViewModel(
                             ProcessOutResult.Failure(
                                 POFailure.Code.Internal(),
                                 "Input field parameters is missing in response."
-                            ).also { POLogger.warn("%s", it, attributes = logAttributes) }
+                            ).also {
+                                POLogger.warn("Invalid transaction details: %s", it, attributes = logAttributes)
+                            }
                         )
                         return@launch
                     }
@@ -332,7 +334,9 @@ internal class PONativeAlternativePaymentMethodViewModel(
                         ProcessOutResult.Failure(
                             POFailure.Code.Internal(),
                             "Input field parameters is missing in response."
-                        ).also { POLogger.warn("%s", it, attributes = logAttributes) }
+                        ).also {
+                            POLogger.warn("Invalid customer input parameters: %s", it, attributes = logAttributes)
+                        }
                     )
                     return
                 }
@@ -484,7 +488,9 @@ internal class PONativeAlternativePaymentMethodViewModel(
                     ProcessOutResult.Failure(
                         POFailure.Code.Timeout(),
                         "Payment confirmation timed out."
-                    ).also { POLogger.warn("%s", it, attributes = logAttributes) }
+                    ).also {
+                        POLogger.warn("Failed to capture invoice: %s", it, attributes = logAttributes)
+                    }
                 )
                 return@launch
             }
@@ -573,7 +579,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
         with(failure) {
             dispatch(
                 DidFail(ProcessOutResult.Failure(code, message, invalidFields)
-                    .also { POLogger.info("%s", it) })
+                    .also { POLogger.info("View failed: %s", it) })
             )
         }
     }
