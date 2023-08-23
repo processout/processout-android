@@ -5,6 +5,7 @@ import com.processout.sdk.api.repository.LogsRepository
 import com.processout.sdk.core.logger.BaseLoggerService
 import com.processout.sdk.core.logger.LogEvent
 import com.processout.sdk.core.logger.POLogLevel
+import com.processout.sdk.core.logger.POLogger
 
 internal class RemoteLoggerService(
     minimumLevel: POLogLevel,
@@ -19,8 +20,10 @@ internal class RemoteLoggerService(
 
 private fun LogEvent.toRequest() = LogRequest(
     level = level.name.lowercase(),
-    tag = tag,
+    tag = simpleClassName,
     message = message,
     timestamp = timestamp,
-    attributes = attributes
+    attributes = mutableMapOf(
+        POLogger.ATTRIBUTE_LINE to lineNumber.toString()
+    ).apply { attributes?.let { putAll(it) } }
 )

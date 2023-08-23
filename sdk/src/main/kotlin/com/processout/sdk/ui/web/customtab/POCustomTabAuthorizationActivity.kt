@@ -105,7 +105,7 @@ class POCustomTabAuthorizationActivity : AppCompatActivity() {
     }
 
     private fun finishWithActivityResult(result: ProcessOutActivityResult<Uri>) {
-        POLogger.debug("Custom Chrome Tabs result: %s", result)
+        POLogger.debug("Custom Chrome Tabs activity result: %s", result)
         when (result) {
             is ProcessOutActivityResult.Success -> setActivityResult(Activity.RESULT_OK, result)
             is ProcessOutActivityResult.Failure -> setActivityResult(Activity.RESULT_CANCELED, result)

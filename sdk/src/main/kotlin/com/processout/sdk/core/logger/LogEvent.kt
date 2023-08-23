@@ -4,8 +4,9 @@ import java.util.Date
 
 internal data class LogEvent(
     val level: POLogLevel,
-    val tag: String,
+    val simpleClassName: String,
+    val lineNumber: Int,
     val message: String,
     val timestamp: Date,
-    val attributes: Map<String, String>
+    val attributes: Map<String, String>?
 )

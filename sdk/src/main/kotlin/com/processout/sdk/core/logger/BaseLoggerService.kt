@@ -1,17 +1,10 @@
 package com.processout.sdk.core.logger
 
-import android.os.Build
-import com.processout.sdk.BuildConfig
 import java.util.Calendar
 
 internal abstract class BaseLoggerService(
     private val minimumLevel: POLogLevel
 ) : POLoggerService {
-
-    companion object {
-        private const val MAX_TAG_LENGTH_BEFORE_API_26 = 23
-        private const val ATTRIBUTE_LINE = "Line"
-    }
 
     private val loggerPackageName = POLoggerService::class.java.`package`?.name
 
@@ -33,31 +26,21 @@ internal abstract class BaseLoggerService(
                 element.className.startsWith(it).not()
             } ?: false
         }
-        val additionalAttributes = mutableMapOf(
-            ATTRIBUTE_LINE to stackTraceElement?.lineNumber.toString()
-        )
-        attributes?.let { additionalAttributes.putAll(it) }
 
         log(
             LogEvent(
                 level = level,
-                tag = createTag(stackTraceElement),
+                simpleClassName = stackTraceElement?.simpleClassName ?: String(),
+                lineNumber = stackTraceElement?.lineNumber ?: 0,
                 message = formattedMessage,
                 timestamp = Calendar.getInstance().time,
-                attributes = additionalAttributes
+                attributes = attributes
             )
         )
     }
 
-    private fun createTag(element: StackTraceElement?): String {
-        val tag = element?.className
-            ?.substringAfterLast(".")
-            ?.substringBefore("$")
-            ?: BuildConfig.LIBRARY_NAME
-        // Tag length limit was removed in Android 8.0 (API 26).
-        return if (tag.length <= MAX_TAG_LENGTH_BEFORE_API_26 || Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-            tag else tag.take(MAX_TAG_LENGTH_BEFORE_API_26)
-    }
+    private val StackTraceElement.simpleClassName: String
+        get() = className.substringAfterLast(".").substringBefore("$")
 
     protected abstract fun log(event: LogEvent)
 }

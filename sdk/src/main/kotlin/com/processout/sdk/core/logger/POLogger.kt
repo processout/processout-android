@@ -6,13 +6,15 @@ import com.processout.sdk.core.annotation.ProcessOutInternalApi
 class POLogger private constructor() {
 
     companion object {
-        const val ATTRIBUTE_INVOICE_ID = "InvoiceId"
-        const val ATTRIBUTE_GATEWAY_CONFIGURATION_ID = "GatewayConfigurationId"
+        internal const val ATTRIBUTE_LINE = "Line"
+        internal const val ATTRIBUTE_INVOICE_ID = "InvoiceId"
+        internal const val ATTRIBUTE_GATEWAY_CONFIGURATION_ID = "GatewayConfigurationId"
 
         @Volatile
         private var services = emptyArray<POLoggerService>()
         private val servicesLock = mutableListOf<POLoggerService>()
 
+        @ProcessOutInternalApi
         fun add(service: POLoggerService) {
             synchronized(servicesLock) {
                 servicesLock.add(service)
@@ -20,6 +22,7 @@ class POLogger private constructor() {
             }
         }
 
+        @ProcessOutInternalApi
         fun debug(
             message: String,
             vararg args: Any?,
@@ -28,6 +31,7 @@ class POLogger private constructor() {
             services.forEach { it.log(POLogLevel.DEBUG, message, *args, attributes = attributes) }
         }
 
+        @ProcessOutInternalApi
         fun info(
             message: String,
             vararg args: Any?,
@@ -36,6 +40,7 @@ class POLogger private constructor() {
             services.forEach { it.log(POLogLevel.INFO, message, *args, attributes = attributes) }
         }
 
+        @ProcessOutInternalApi
         fun warn(
             message: String,
             vararg args: Any?,
@@ -44,6 +49,7 @@ class POLogger private constructor() {
             services.forEach { it.log(POLogLevel.WARN, message, *args, attributes = attributes) }
         }
 
+        @ProcessOutInternalApi
         fun error(
             message: String,
             vararg args: Any?,
