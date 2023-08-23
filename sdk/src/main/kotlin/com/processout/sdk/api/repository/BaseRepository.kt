@@ -31,18 +31,19 @@ internal abstract class BaseRepository(
                 false -> response.toFailure(moshi)
             }
         } catch (e: Exception) {
+            val repositoryMethodName = apiMethod.javaClass.name
             when (e) {
                 is SocketTimeoutException -> ProcessOutResult.Failure(
                     POFailure.Code.Timeout(),
-                    e.message ?: "Request timed out.", cause = e
+                    "Request timed out: $repositoryMethodName", cause = e
                 ).also { POLogger.info("%s", it) }
                 is IOException -> ProcessOutResult.Failure(
                     POFailure.Code.NetworkUnreachable,
-                    e.message ?: "Network is unreachable.", cause = e
+                    "Network is unreachable: $repositoryMethodName", cause = e
                 ).also { POLogger.info("%s", it) }
                 else -> ProcessOutResult.Failure(
                     POFailure.Code.Internal(),
-                    "Unexpected exception during API call.", cause = e
+                    "Unexpected exception during API call: $repositoryMethodName", cause = e
                 ).also { POLogger.error("%s", it) }
             }
         }
