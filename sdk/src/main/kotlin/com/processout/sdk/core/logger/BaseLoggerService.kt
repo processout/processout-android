@@ -30,7 +30,7 @@ internal abstract class BaseLoggerService(
         log(
             LogEvent(
                 level = level,
-                simpleClassName = stackTraceElement?.simpleClassName ?: String(),
+                simpleClassName = stackTraceElement?.simpleClassName ?: "<Undefined>",
                 lineNumber = stackTraceElement?.lineNumber ?: 0,
                 message = formattedMessage,
                 timestamp = Calendar.getInstance().time,
