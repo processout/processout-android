@@ -42,7 +42,7 @@ class POWebViewAuthorizationActivity : AppCompatActivity() {
                 ProcessOutActivityResult.Failure(
                     POFailure.Code.Cancelled,
                     "Cancelled by user with back press or gesture."
-                ).also { POLogger.debug("%s", it) }
+                ).also { POLogger.info("%s", it) }
             )
         }
     }

@@ -149,7 +149,7 @@ internal class ProcessOutWebView(
     }
 
     private fun complete(failure: ProcessOutResult.Failure) {
-        POLogger.debug("WebView failure: %s", failure)
+        POLogger.info("WebView failure: %s", failure)
         timeoutHandler.removeCallbacksAndMessages(null)
         callback(failure)
     }
