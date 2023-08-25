@@ -5,7 +5,6 @@ import com.processout.sdk.core.annotation.ProcessOutInternalApi
 @ProcessOutInternalApi
 interface POLoggerService {
 
-    @ProcessOutInternalApi
     fun log(
         level: POLogLevel,
         message: String,
