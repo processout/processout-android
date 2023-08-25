@@ -6,17 +6,17 @@
     <string name="po_native_apm_submit_button_text_format">Pagar %s</string>
     <string name="po_native_apm_submit_button_default_text">Pagar</string>
     <string name="po_native_apm_cancel_button_default_text">Cancelar</string>
-    <string name="po_native_apm_success_message">Successo!\nPagamento aprovado</string>
+    <string name="po_native_apm_success_message">Successo!\nPagamento aprovado.</string>
     <string name="po_native_apm_input_hint_phone">Insira o seu número de telemóvel</string>
     <string name="po_native_apm_input_hint_email">nome@exemplo.pt</string>
 
-    <string name="po_native_apm_error_required_parameter">Campo obrigatório</string>
-    <string name="po_native_apm_error_invalid_number">Número inválido</string>
-    <string name="po_native_apm_error_invalid_text">Texto inválido</string>
-    <string name="po_native_apm_error_invalid_email">Endereço de e-mail inválido</string>
-    <string name="po_native_apm_error_invalid_phone">Número de telemóvel inválido</string>
+    <string name="po_native_apm_error_required_parameter">Campo obrigatório.</string>
+    <string name="po_native_apm_error_invalid_number">Número inválido.</string>
+    <string name="po_native_apm_error_invalid_text">Texto inválido.</string>
+    <string name="po_native_apm_error_invalid_email">Endereço de e-mail inválido.</string>
+    <string name="po_native_apm_error_invalid_phone">Número de telemóvel inválido.</string>
     <plurals name="po_native_apm_error_invalid_length">
-        <item quantity="one">Quantidade de caracteres incorreta, espera-se %d caractere</item>
-        <item quantity="other">Quantidade de caracteres incorreta, espera-se %d caracteres</item>
+        <item quantity="one">Quantidade de caracteres incorreta, espera-se %d caractere.</item>
+        <item quantity="other">Quantidade de caracteres incorreta, espera-se %d caracteres.</item>
     </plurals>
 </resources>
