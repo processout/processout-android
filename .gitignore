@@ -23,6 +23,9 @@ build/
 # Local configuration file (sdk path, etc)
 local.properties
 
+# Documentation
+dokka/
+
 # Eclipse project files
 .classpath
 .project

@@ -99,23 +99,6 @@ def setBuildConfig(buildType) {
     buildType.buildConfigField("String", "LIBRARY_VERSION", "\"$publishVersion\"")
 }
 
-dokkaHtml {
-    dokkaSourceSets {
-        named("main") {
-            outputDirectory.set(file("dokka/ProcessOut_Android_SDK_${publishVersion}_Documentation"))
-            moduleName.set("ProcessOut Android SDK")
-            moduleVersion.set(publishVersion)
-            includes.from(
-                    "dokka/Initialization.md",
-                    "dokka/ApiExamples.md",
-                    "dokka/3DS.md",
-                    "dokka/NativeAlternativePaymentMethods.md",
-                    "dokka/MigrationFrom3To4.md"
-            )
-        }
-    }
-}
-
 dependencies {
     implementation "androidx.core:core-ktx:$androidxCoreVersion"
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
