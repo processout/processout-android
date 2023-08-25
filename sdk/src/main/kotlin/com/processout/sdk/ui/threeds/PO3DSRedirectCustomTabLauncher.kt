@@ -11,6 +11,7 @@ import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.web.DefaultWebAuthorizationDelegateCache
 import com.processout.sdk.ui.web.WebAuthorizationDelegate
 import com.processout.sdk.ui.web.WebAuthorizationDelegateCache
@@ -63,7 +64,7 @@ class PO3DSRedirectCustomTabLauncher private constructor(
                 ProcessOutResult.Failure(
                     POFailure.Code.Generic(),
                     "Launcher is already running."
-                )
+                ).also { POLogger.debug("%s", it) }
             )
             return
         }
@@ -82,6 +83,7 @@ class PO3DSRedirectCustomTabLauncher private constructor(
                 )
             )
         } else {
+            POLogger.info("Custom Chrome Tabs is not supported on device. Will use WebView.")
             webViewFallbackLauncher.launch(
                 WebViewConfiguration(
                     uri = delegate.uri,
@@ -105,6 +107,9 @@ class PO3DSRedirectCustomTabLauncher private constructor(
     }
 
     private val activityResultCallback = ActivityResultCallback<ProcessOutActivityResult<Uri>> {
+        if (delegateCache.isCached().not()) {
+            POLogger.error("Cannot provide 3DS result. Delegate is not cached.")
+        }
         when (it) {
             is ProcessOutActivityResult.Success -> delegateCache.remove()?.complete(uri = it.value)
             is ProcessOutActivityResult.Failure -> delegateCache.remove()?.complete(

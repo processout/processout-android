@@ -1,9 +1,9 @@
 package com.processout.sdk.di
 
-import com.processout.sdk.BuildConfig
 import com.processout.sdk.api.network.*
 import com.processout.sdk.api.network.interceptor.BasicAuthInterceptor
 import com.processout.sdk.api.network.interceptor.UserAgentInterceptor
+import com.processout.sdk.core.logger.POLogger
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
 import okhttp3.OkHttpClient
@@ -32,10 +32,10 @@ internal class NetworkGraphImpl(configuration: NetworkConfiguration) : NetworkGr
             .addInterceptor(BasicAuthInterceptor(configuration.projectId, configuration.privateKey))
             .addInterceptor(UserAgentInterceptor(configuration.application, configuration.sdkVersion))
             .apply {
-                if (BuildConfig.DEBUG) {
-                    addInterceptor(HttpLoggingInterceptor().apply {
-                        level = HttpLoggingInterceptor.Level.BODY
-                    })
+                if (configuration.debug) {
+                    addInterceptor(HttpLoggingInterceptor { message ->
+                        POLogger.debug(message)
+                    }.apply { level = HttpLoggingInterceptor.Level.BODY })
                 }
             }.build()
 

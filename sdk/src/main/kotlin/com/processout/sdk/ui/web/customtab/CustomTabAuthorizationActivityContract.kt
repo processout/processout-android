@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContract
 import com.processout.sdk.BuildConfig
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutActivityResult
+import com.processout.sdk.core.logger.POLogger
 
 internal class CustomTabAuthorizationActivityContract : ActivityResultContract
 <CustomTabConfiguration, ProcessOutActivityResult<Uri>>() {
@@ -32,5 +33,5 @@ internal class CustomTabAuthorizationActivityContract : ActivityResultContract
             ?: ProcessOutActivityResult.Failure(
                 POFailure.Code.Internal(),
                 "Activity result was not provided."
-            )
+            ).also { POLogger.error("%s", it) }
 }

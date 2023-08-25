@@ -1,8 +1,10 @@
 package com.processout.sdk.core.logger
 
 import android.util.Log
+import com.processout.sdk.core.annotation.ProcessOutInternalApi
 
-internal enum class LogLevel(val priority: Int) {
+@ProcessOutInternalApi
+enum class POLogLevel(val priority: Int) {
     DEBUG(Log.DEBUG),
     INFO(Log.INFO),
     WARN(Log.WARN),

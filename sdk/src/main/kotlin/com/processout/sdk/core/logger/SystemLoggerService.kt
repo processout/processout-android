@@ -1,9 +1,10 @@
 package com.processout.sdk.core.logger
 
 import android.util.Log
+import com.processout.sdk.BuildConfig
 
 internal class SystemLoggerService(
-    minimumLevel: LogLevel
+    minimumLevel: POLogLevel
 ) : BaseLoggerService(minimumLevel) {
 
     companion object {
@@ -11,9 +12,23 @@ internal class SystemLoggerService(
     }
 
     override fun log(event: LogEvent) {
-        val message = "${event.message} ${event.attributes}"
+        val message = buildString {
+            append("[")
+            append(event.simpleClassName)
+            append(":")
+            append(event.lineNumber)
+            append("]")
+            append(" ")
+            append(event.message)
+            event.attributes?.let {
+                if (it.isNotEmpty()) {
+                    append(" ")
+                    append(it)
+                }
+            }
+        }
         message.chunked(MAX_LOG_LENGTH).forEach {
-            Log.println(event.level.priority, event.tag, it)
+            Log.println(event.level.priority, BuildConfig.LIBRARY_PACKAGE_NAME, it)
         }
     }
 }

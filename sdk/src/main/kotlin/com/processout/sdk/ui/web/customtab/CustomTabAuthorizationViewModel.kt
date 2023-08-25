@@ -5,6 +5,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationActivityContract.Companion.EXTRA_TIMEOUT_FINISH
 import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationUiState.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,6 +50,7 @@ internal class CustomTabAuthorizationViewModel(
         }
         val returnUri = intent.data
         if (returnUri != null) {
+            POLogger.info("Custom Chrome Tabs has been redirected to return URL: %s", returnUri)
             _uiState.value = Success(returnUri)
             return
         }
@@ -60,6 +62,7 @@ internal class CustomTabAuthorizationViewModel(
 
     fun onLaunched() {
         _uiState.value = Launched
+        POLogger.info("Custom Chrome Tabs has launched URL: %s", configuration.uri)
     }
 
     override fun onCleared() {

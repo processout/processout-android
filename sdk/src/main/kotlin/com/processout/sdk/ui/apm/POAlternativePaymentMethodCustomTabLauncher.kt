@@ -15,6 +15,7 @@ import com.processout.sdk.api.service.POAlternativePaymentMethodsService
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.web.DefaultWebAuthorizationDelegateCache
 import com.processout.sdk.ui.web.WebAuthorizationDelegate
 import com.processout.sdk.ui.web.WebAuthorizationDelegateCache
@@ -137,6 +138,7 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
                 )
             )
         } else {
+            POLogger.info("Custom Chrome Tabs is not supported on device. Will use WebView.")
             webViewFallbackLauncher.launch(
                 WebViewConfiguration(
                     uri = uri,
@@ -165,7 +167,7 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
                 ProcessOutResult.Failure(
                     POFailure.Code.Generic(),
                     "Launcher is already running."
-                )
+                ).also { POLogger.debug("%s", it) }
             )
             return
         }
@@ -191,6 +193,9 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
 
     @Deprecated("Used in other deprecated methods.")
     private val activityResultCallback = ActivityResultCallback<ProcessOutActivityResult<Uri>> {
+        if (delegateCache.isCached().not()) {
+            POLogger.error("Cannot provide APM result. Delegate is not cached.")
+        }
         when (it) {
             is ProcessOutActivityResult.Success -> delegateCache.remove()?.complete(uri = it.value)
             is ProcessOutActivityResult.Failure -> delegateCache.remove()?.complete(

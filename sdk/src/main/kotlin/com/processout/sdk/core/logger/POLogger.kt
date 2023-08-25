@@ -1,13 +1,16 @@
 package com.processout.sdk.core.logger
 
-internal class POLogger private constructor() {
+import com.processout.sdk.core.annotation.ProcessOutInternalApi
+
+@ProcessOutInternalApi
+class POLogger private constructor() {
 
     companion object {
         @Volatile
-        private var services = emptyArray<LoggerService>()
-        private val servicesLock = mutableListOf<LoggerService>()
+        private var services = emptyArray<POLoggerService>()
+        private val servicesLock = mutableListOf<POLoggerService>()
 
-        fun add(service: LoggerService) {
+        fun add(service: POLoggerService) {
             synchronized(servicesLock) {
                 servicesLock.add(service)
                 services = servicesLock.toTypedArray()
@@ -19,7 +22,7 @@ internal class POLogger private constructor() {
             vararg args: Any?,
             attributes: Map<String, String>? = null
         ) {
-            services.forEach { it.log(LogLevel.DEBUG, message, *args, attributes = attributes) }
+            services.forEach { it.log(POLogLevel.DEBUG, message, *args, attributes = attributes) }
         }
 
         fun info(
@@ -27,7 +30,7 @@ internal class POLogger private constructor() {
             vararg args: Any?,
             attributes: Map<String, String>? = null
         ) {
-            services.forEach { it.log(LogLevel.INFO, message, *args, attributes = attributes) }
+            services.forEach { it.log(POLogLevel.INFO, message, *args, attributes = attributes) }
         }
 
         fun warn(
@@ -35,7 +38,7 @@ internal class POLogger private constructor() {
             vararg args: Any?,
             attributes: Map<String, String>? = null
         ) {
-            services.forEach { it.log(LogLevel.WARN, message, *args, attributes = attributes) }
+            services.forEach { it.log(POLogLevel.WARN, message, *args, attributes = attributes) }
         }
 
         fun error(
@@ -43,7 +46,7 @@ internal class POLogger private constructor() {
             vararg args: Any?,
             attributes: Map<String, String>? = null
         ) {
-            services.forEach { it.log(LogLevel.ERROR, message, *args, attributes = attributes) }
+            services.forEach { it.log(POLogLevel.ERROR, message, *args, attributes = attributes) }
         }
     }
 }

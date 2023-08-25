@@ -3,6 +3,7 @@ package com.processout.sdk.api.repository
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.map
 import com.squareup.moshi.Moshi
 import kotlinx.coroutines.*
@@ -23,28 +24,34 @@ internal abstract class BaseRepository(
             val response = apiMethod()
             when (response.isSuccessful) {
                 true -> response.body()?.let { ProcessOutResult.Success(it) }
-                    ?: ProcessOutResult.Failure(
-                        POFailure.Code.Internal(),
-                        "Response body is empty."
-                    )
+                    ?: response.handleEmptyBody()
                 false -> response.toFailure(moshi)
             }
         } catch (e: Exception) {
+            val repositoryMethodName = apiMethod.javaClass.name
             when (e) {
                 is SocketTimeoutException -> ProcessOutResult.Failure(
                     POFailure.Code.Timeout(),
-                    e.message ?: "Request timed out.", cause = e
-                )
+                    "Request timed out: $repositoryMethodName", cause = e
+                ).also { POLogger.info("%s", it) }
                 is IOException -> ProcessOutResult.Failure(
                     POFailure.Code.NetworkUnreachable,
-                    e.message ?: "Network is unreachable.", cause = e
-                )
+                    "Network is unreachable: $repositoryMethodName", cause = e
+                ).also { POLogger.info("%s", it) }
                 else -> ProcessOutResult.Failure(
                     POFailure.Code.Internal(),
-                    "Unexpected exception during API call.", cause = e
-                )
+                    "Unexpected exception during API call: $repositoryMethodName", cause = e
+                ).also { POLogger.error("%s", it) }
             }
         }
+    }
+
+    private fun <T : Any> Response<T>.handleEmptyBody(): ProcessOutResult.Failure {
+        val request = raw().request
+        return ProcessOutResult.Failure(
+            POFailure.Code.Internal(),
+            "Response body is empty: ${code()} ${request.method} ${request.url}"
+        ).also { POLogger.error("%s", it) }
     }
 
     protected fun <T : Any> apiCallScoped(

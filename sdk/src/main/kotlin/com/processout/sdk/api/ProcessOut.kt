@@ -74,7 +74,8 @@ class ProcessOut private constructor(
                     sdkVersion = VERSION,
                     baseUrl = ApiConstants.BASE_URL,
                     projectId = configuration.projectId,
-                    privateKey = configuration.privateKey
+                    privateKey = configuration.privateKey,
+                    debug = configuration.debug
                 )
             )
 

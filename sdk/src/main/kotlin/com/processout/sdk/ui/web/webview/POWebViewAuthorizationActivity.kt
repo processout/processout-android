@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.processout.sdk.R
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutActivityResult
+import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.toActivityResult
 import com.processout.sdk.ui.web.webview.WebViewAuthorizationActivityContract.Companion.EXTRA_CONFIGURATION
 import com.processout.sdk.ui.web.webview.WebViewAuthorizationActivityContract.Companion.EXTRA_RESULT
@@ -41,7 +42,7 @@ class POWebViewAuthorizationActivity : AppCompatActivity() {
                 ProcessOutActivityResult.Failure(
                     POFailure.Code.Cancelled,
                     "Cancelled by user with back press or gesture."
-                )
+                ).also { POLogger.info("%s", it) }
             )
         }
     }

@@ -12,6 +12,7 @@ import android.webkit.*
 import androidx.annotation.RequiresApi
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.logger.POLogger
 import java.util.concurrent.TimeUnit
 
 @SuppressLint("ViewConstructor", "SetJavaScriptEnabled")
@@ -44,7 +45,10 @@ internal class ProcessOutWebView(
 
     private fun load() {
         with(configuration) {
-            uri?.let { loadUrl(it.toString()) }
+            uri?.let {
+                loadUrl(it.toString())
+                POLogger.info("WebView has loaded URL: %s", it)
+            }
             timeoutSeconds?.let {
                 timeoutHandler.postDelayed(
                     { complete(ProcessOutResult.Failure(POFailure.Code.Timeout())) },
@@ -139,11 +143,13 @@ internal class ProcessOutWebView(
     }
 
     private fun complete(uri: Uri) {
+        POLogger.info("WebView has been redirected to return URL: %s", uri)
         timeoutHandler.removeCallbacksAndMessages(null)
         callback(ProcessOutResult.Success(uri))
     }
 
     private fun complete(failure: ProcessOutResult.Failure) {
+        POLogger.info("WebView failure: %s", failure)
         timeoutHandler.removeCallbacksAndMessages(null)
         callback(failure)
     }

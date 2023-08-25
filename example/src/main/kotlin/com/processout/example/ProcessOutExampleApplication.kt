@@ -13,7 +13,8 @@ class ProcessOutExampleApplication : Application() {
         ProcessOut.configure(
             ProcessOutConfiguration(
                 application = this,
-                projectId = BuildConfig.PROJECT_ID
+                projectId = BuildConfig.PROJECT_ID,
+                debug = true
             ).apply { privateKey = BuildConfig.PROJECT_KEY }
         )
     }

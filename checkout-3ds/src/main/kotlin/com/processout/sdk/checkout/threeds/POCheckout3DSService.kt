@@ -25,6 +25,7 @@ import com.processout.sdk.checkout.threeds.CheckoutConstants.*
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.copy
+import com.processout.sdk.core.logger.POLogger
 
 class POCheckout3DSService private constructor(
     private val activity: Activity,
@@ -49,6 +50,7 @@ class POCheckout3DSService private constructor(
         configuration: PO3DS2Configuration,
         callback: (ProcessOutResult<PO3DS2AuthenticationRequest>) -> Unit
     ) {
+        POLogger.info("Will create authentication request.")
         delegate.willCreateAuthenticationRequest(configuration)
         if (state !is Idle) {
             completeAuthenticationRequest(
@@ -84,6 +86,7 @@ class POCheckout3DSService private constructor(
         val warnings = serviceContext.threeDS2Service.getWarnings().toSet()
         delegate.shouldContinue(warnings) { shouldContinue ->
             if (shouldContinue.not()) {
+                POLogger.info("Cancelling with the given warnings: %s", warnings)
                 setIdleState(serviceContext)
                 completeAuthenticationRequest(
                     ProcessOutResult.Failure(POFailure.Code.Cancelled),
@@ -111,11 +114,16 @@ class POCheckout3DSService private constructor(
         result: ProcessOutResult<PO3DS2AuthenticationRequest>,
         callback: (ProcessOutResult<PO3DS2AuthenticationRequest>) -> Unit
     ) {
+        when (result) {
+            is ProcessOutResult.Success -> POLogger.info("Authentication request successfully created.")
+            is ProcessOutResult.Failure -> POLogger.info("Failed to create authentication request: %s", result)
+        }
         delegate.didCreateAuthenticationRequest(result.copy())
         callback(result.copy())
     }
 
     override fun handle(challenge: PO3DS2Challenge, callback: (ProcessOutResult<Boolean>) -> Unit) {
+        POLogger.info("Will handle challenge.")
         delegate.willHandle(challenge)
         if (state !is Fingerprinted) {
             failChallenge(
@@ -150,6 +158,7 @@ class POCheckout3DSService private constructor(
         transactionStatus: String,
         callback: (ProcessOutResult<Boolean>) -> Unit
     ) {
+        POLogger.info("Challenge successfully completed. Transaction status: %s", transactionStatus)
         val success = ProcessOutResult.Success(transactionStatus.uppercase() == "Y")
         delegate.didHandle3DS2Challenge(success)
         callback(success.copy())
@@ -159,18 +168,22 @@ class POCheckout3DSService private constructor(
         failure: ProcessOutResult.Failure,
         callback: (ProcessOutResult<Boolean>) -> Unit
     ) {
+        POLogger.info("Failed to handle challenge: %s", failure)
         delegate.didHandle3DS2Challenge(failure.copy())
         callback(failure.copy())
     }
 
     override fun handle(redirect: PO3DSRedirect, callback: (ProcessOutResult<String>) -> Unit) {
+        POLogger.info("Delegating handling of 3DS redirect.")
         delegate.handle(redirect, callback)
     }
 
     override fun cleanup() {
         when (val currentState = state) {
             is Fingerprinted -> setIdleState(currentState.serviceContext)
-            else -> {} // Ignore as service is idle or processing and will be cleaned after that.
+            else -> {
+                POLogger.debug("Cleanup is ignored as service is idle or processing and will be cleaned after that.")
+            }
         }
     }
 
@@ -180,6 +193,7 @@ class POCheckout3DSService private constructor(
             threeDS2Service.cleanup()
         }
         state = Idle
+        POLogger.info("Service is cleaned and idle.")
     }
 }
 
@@ -224,6 +238,7 @@ private fun PO3DS2Challenge.toChallengeParameters() =
     )
 
 private fun AuthenticationError.toFailure(): ProcessOutResult.Failure {
+    POLogger.debug("Raw authentication error: %s", this)
     val code = when (errorType) {
         AuthenticationProcessError -> when (errorCode) {
             AuthenticationProcessErrorCodes.E1002_Challenge_cancelled -> POFailure.Code.Cancelled
