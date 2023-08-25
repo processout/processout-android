@@ -71,8 +71,8 @@ internal class PONativeAlternativePaymentMethodViewModel(
                     nativeAlternativePaymentMethodEventDispatcher,
                     options.validate(),
                     logAttributes = mapOf(
-                        POLogger.ATTRIBUTE_INVOICE_ID to invoiceId,
-                        POLogger.ATTRIBUTE_GATEWAY_CONFIGURATION_ID to gatewayConfigurationId
+                        LOG_ATTRIBUTE_INVOICE_ID to invoiceId,
+                        LOG_ATTRIBUTE_GATEWAY_CONFIGURATION_ID to gatewayConfigurationId
                     )
                 )
             } as T
@@ -86,6 +86,8 @@ internal class PONativeAlternativePaymentMethodViewModel(
 
     companion object {
         private const val CAPTURE_POLLING_DELAY_MS = 3000L
+        private const val LOG_ATTRIBUTE_INVOICE_ID = "InvoiceId"
+        private const val LOG_ATTRIBUTE_GATEWAY_CONFIGURATION_ID = "GatewayConfigurationId"
     }
 
     private var capturePollingStartTimestamp = 0L

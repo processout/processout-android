@@ -6,10 +6,6 @@ import com.processout.sdk.core.annotation.ProcessOutInternalApi
 class POLogger private constructor() {
 
     companion object {
-        internal const val ATTRIBUTE_LINE = "Line"
-        internal const val ATTRIBUTE_INVOICE_ID = "InvoiceId"
-        internal const val ATTRIBUTE_GATEWAY_CONFIGURATION_ID = "GatewayConfigurationId"
-
         @Volatile
         private var services = emptyArray<POLoggerService>()
         private val servicesLock = mutableListOf<POLoggerService>()
