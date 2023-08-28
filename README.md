@@ -20,7 +20,9 @@ Older versions up to `4.0.0` (including) only [available on the JitPack](https:/
 
 Check the documentation:\
 [ProcessOut Android SDK](sdk/documentation/ProcessOut.md)\
-[ProcessOut Android SDK - Checkout 3DS](checkout-3ds/documentation/ProcessOutCheckout3DS.md)
+[ProcessOut Android SDK - Checkout 3DS](checkout-3ds/documentation/ProcessOutCheckout3DS.md)\
+\
+[API Reference](https://processout.github.io/processout-android/)
 
 ## License
 
