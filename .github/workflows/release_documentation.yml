@@ -3,9 +3,6 @@ on:
   release:
     types: [ published ]
   workflow_dispatch:
-  push:
-    branches:
-      - 'feat/POM-10/api-dokka-gen'
 permissions:
   contents: read
   pages: write
@@ -40,4 +37,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
-
