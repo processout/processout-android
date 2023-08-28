@@ -7,7 +7,7 @@ import com.processout.sdk.ui.shared.model.SecondaryActionUiModel
 import com.processout.sdk.ui.shared.view.input.Input
 
 internal sealed class PONativeAlternativePaymentMethodUiState {
-    object Loading : PONativeAlternativePaymentMethodUiState()
+    data object Loading : PONativeAlternativePaymentMethodUiState()
 
     data class Loaded(
         val uiModel: PONativeAlternativePaymentMethodUiModel

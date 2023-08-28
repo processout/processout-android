@@ -14,5 +14,5 @@ sealed class POBackgroundDecorationStateStyle : Parcelable {
     ) : POBackgroundDecorationStateStyle()
 
     @Parcelize
-    object Hidden : POBackgroundDecorationStateStyle()
+    data object Hidden : POBackgroundDecorationStateStyle()
 }

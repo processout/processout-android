@@ -6,7 +6,7 @@ import kotlinx.parcelize.Parcelize
 
 sealed class PONativeAlternativePaymentMethodResult : Parcelable {
     @Parcelize
-    object Success : PONativeAlternativePaymentMethodResult()
+    data object Success : PONativeAlternativePaymentMethodResult()
 
     @Parcelize
     data class Failure(
