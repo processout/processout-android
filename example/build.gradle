@@ -7,12 +7,12 @@ plugins {
 android {
     namespace 'com.processout.example'
     compileSdk rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
         applicationId "com.processout.example"
         minSdk rootProject.ext.minSdkVersion
         targetSdk rootProject.ext.targetSdkVersion
+
         versionCode generateVersionCode()
         versionName rootProject.ext.publishVersion
 

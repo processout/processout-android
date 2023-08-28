@@ -14,7 +14,6 @@ apply from: "${rootProject.projectDir}/scripts/publish-module.gradle"
 android {
     namespace 'com.processout.sdk.checkout.threeds'
     compileSdk rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
         minSdk rootProject.ext.minSdkVersion
