@@ -34,7 +34,7 @@ android {
         }
     }
 
-    flavorDimensions 'environment'
+    flavorDimensions = ['environment']
     productFlavors {
         production {
             dimension 'environment'

@@ -29,7 +29,7 @@ android {
         }
     }
 
-    flavorDimensions 'environment'
+    flavorDimensions = ['environment']
     productFlavors {
         production {
             dimension 'environment'
@@ -74,7 +74,6 @@ static def generateVersionCode() {
     if (commitsCount.empty) throw new RuntimeException("Could not generate version code.")
     return commitsCount.toInteger()
 }
-
 
 @SuppressWarnings('GrMethodMayBeStatic')
 def setBuildConfig(buildType, String projectId, String projectKey) {
