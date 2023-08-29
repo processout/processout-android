@@ -10,24 +10,24 @@ sealed class PONativeAlternativePaymentMethodEvent {
     /**
      * Initial event that is sent prior any other event.
      */
-    object WillStart : PONativeAlternativePaymentMethodEvent()
+    data object WillStart : PONativeAlternativePaymentMethodEvent()
 
     /**
      * Event indicates that initial data has been loaded successfully.
      * Currently waiting for user input.
      */
-    object DidStart : PONativeAlternativePaymentMethodEvent()
+    data object DidStart : PONativeAlternativePaymentMethodEvent()
 
     /**
      * Event is sent when the user changes any editable value.
      */
-    object ParametersChanged : PONativeAlternativePaymentMethodEvent()
+    data object ParametersChanged : PONativeAlternativePaymentMethodEvent()
 
     /**
      * Event is sent just before submitting user input.
      * This is usually a result of a user action, e.g. button press.
      */
-    object WillSubmitParameters : PONativeAlternativePaymentMethodEvent()
+    data object WillSubmitParameters : PONativeAlternativePaymentMethodEvent()
 
     /**
      * Event is sent when parameters were submitted successfully.
@@ -57,7 +57,7 @@ sealed class PONativeAlternativePaymentMethodEvent {
     /**
      * Event is sent after payment was confirmed to be captured. This is a final event.
      */
-    object DidCompletePayment : PONativeAlternativePaymentMethodEvent()
+    data object DidCompletePayment : PONativeAlternativePaymentMethodEvent()
 
     /**
      * Event is sent when unretryable error occurs. This is a final event.

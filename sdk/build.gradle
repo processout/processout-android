@@ -16,7 +16,6 @@ apply from: "${rootProject.projectDir}/scripts/publish-module.gradle"
 android {
     namespace 'com.processout.sdk'
     compileSdk rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
         minSdk rootProject.ext.minSdkVersion
@@ -35,7 +34,7 @@ android {
         }
     }
 
-    flavorDimensions 'environment'
+    flavorDimensions = ['environment']
     productFlavors {
         production {
             dimension 'environment'
@@ -97,23 +96,6 @@ android {
 def setBuildConfig(buildType) {
     buildType.buildConfigField("String", "LIBRARY_NAME", "\"ProcessOut Android SDK\"")
     buildType.buildConfigField("String", "LIBRARY_VERSION", "\"$publishVersion\"")
-}
-
-dokkaHtml {
-    dokkaSourceSets {
-        named("main") {
-            outputDirectory.set(file("dokka/ProcessOut_Android_SDK_${publishVersion}_Documentation"))
-            moduleName.set("ProcessOut Android SDK")
-            moduleVersion.set(publishVersion)
-            includes.from(
-                    "dokka/Initialization.md",
-                    "dokka/ApiExamples.md",
-                    "dokka/3DS.md",
-                    "dokka/NativeAlternativePaymentMethods.md",
-                    "dokka/MigrationFrom3To4.md"
-            )
-        }
-    }
 }
 
 dependencies {

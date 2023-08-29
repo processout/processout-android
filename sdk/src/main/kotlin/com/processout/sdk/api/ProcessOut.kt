@@ -1,4 +1,4 @@
-@file:Suppress("MemberVisibilityCanBePrivate", "unused", "RestrictedApi")
+@file:Suppress("MemberVisibilityCanBePrivate", "unused", "RestrictedApi", "removal")
 
 package com.processout.sdk.api
 

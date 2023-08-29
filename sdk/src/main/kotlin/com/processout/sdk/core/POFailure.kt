@@ -39,10 +39,10 @@ class POFailure private constructor() {
         data class Generic(val genericCode: GenericCode = GenericCode.mobile) : Code()
 
         @Parcelize
-        object Cancelled : Code()
+        data object Cancelled : Code()
 
         @Parcelize
-        object NetworkUnreachable : Code()
+        data object NetworkUnreachable : Code()
 
         @Parcelize
         data class Timeout(val timeoutCode: TimeoutCode = TimeoutCode.mobile) : Code()

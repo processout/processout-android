@@ -14,7 +14,6 @@ apply from: "${rootProject.projectDir}/scripts/publish-module.gradle"
 android {
     namespace 'com.processout.sdk.checkout.threeds'
     compileSdk rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
         minSdk rootProject.ext.minSdkVersion
@@ -33,7 +32,7 @@ android {
         }
     }
 
-    flavorDimensions 'environment'
+    flavorDimensions = ['environment']
     productFlavors {
         production {
             dimension 'environment'
@@ -61,7 +60,9 @@ android {
     publishing {
         singleVariant("productionRelease") {
             withSourcesJar()
-//            withJavadocJar() // FIXME: this fails build with error "PermittedSubclasses requires ASM9"
+            // FIXME: This fails build with error "PermittedSubclasses requires ASM9" while publishing to Maven Central.
+            //        Test by running: ./gradlew :checkout-3ds:publishProductionReleasePublicationToMavenLocal
+//            withJavadocJar()
         }
     }
 }

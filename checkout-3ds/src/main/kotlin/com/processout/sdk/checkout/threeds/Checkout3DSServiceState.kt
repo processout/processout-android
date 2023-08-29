@@ -4,7 +4,7 @@ import com.checkout.threeds.standalone.api.ThreeDS2Service
 import com.checkout.threeds.standalone.api.Transaction
 
 internal sealed class Checkout3DSServiceState {
-    object Idle : Checkout3DSServiceState()
+    data object Idle : Checkout3DSServiceState()
 
     data class Fingerprinting(
         val serviceContext: Checkout3DSServiceContext
