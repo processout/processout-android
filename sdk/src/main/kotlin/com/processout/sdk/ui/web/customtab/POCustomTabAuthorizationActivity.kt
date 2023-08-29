@@ -28,7 +28,7 @@ class POCustomTabAuthorizationActivity : AppCompatActivity() {
     private lateinit var configuration: CustomTabConfiguration
 
     private val viewModel: CustomTabAuthorizationViewModel by viewModels {
-        CustomTabAuthorizationViewModel.Factory(configuration)
+        CustomTabAuthorizationViewModel.Factory(this, configuration)
     }
 
     @Suppress("DEPRECATION")
@@ -69,7 +69,7 @@ class POCustomTabAuthorizationActivity : AppCompatActivity() {
             Cancelled -> finishWithActivityResult(
                 ProcessOutActivityResult.Failure(
                     POFailure.Code.Cancelled,
-                    "Cancelled by user with back press or gesture."
+                    "Cancelled by user with back press, gesture or cancel button."
                 )
             )
             is Timeout -> handleTimeout(uiState.clearBackStack)

@@ -104,6 +104,7 @@ dependencies {
     implementation "androidx.constraintlayout:constraintlayout:$androidxConstraintLayoutVersion"
     implementation "androidx.activity:activity-ktx:$androidxActivityKtxVersion"
     implementation "androidx.fragment:fragment-ktx:$androidxFragmentKtxVersion"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:$androidxLifecycleVersion"
     implementation "androidx.browser:browser:$androidxBrowserVersion"
 
     implementation "com.google.android.material:material:$materialVersion"
