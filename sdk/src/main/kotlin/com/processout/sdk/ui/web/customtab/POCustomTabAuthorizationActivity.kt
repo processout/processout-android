@@ -6,6 +6,7 @@ import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
@@ -39,6 +40,11 @@ class POCustomTabAuthorizationActivity : AppCompatActivity() {
         // https://stackoverflow.com/questions/48072438/java-lang-illegalstateexception-only-fullscreen-opaque-activities-can-request-o
         requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O)
             ActivityInfo.SCREEN_ORIENTATION_BEHIND else ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
+        onBackPressedDispatcher.addCallback(this) {
+            // Consume back pressed to avoid finishing activity without result.
+            // Cancelled result will be provided from onResume() when going back from Custom Tab.
+        }
 
         intent.getParcelableExtra<CustomTabConfiguration>(EXTRA_CONFIGURATION)
             ?.let { configuration = it }
