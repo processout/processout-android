@@ -33,7 +33,7 @@ internal class CustomTabAuthorizationViewModel(
 
     companion object {
         private const val KEY_SAVED_STATE = "CustomTabAuthorizationUiState"
-        private const val CANCEL_DELAY_MS = 500L
+        private const val CANCEL_DELAY_MS = 700L
     }
 
     val uiState = savedState.getStateFlow<CustomTabAuthorizationUiState>(KEY_SAVED_STATE, Initial)
