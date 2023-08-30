@@ -6,6 +6,7 @@ import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
@@ -28,7 +29,7 @@ class POCustomTabAuthorizationActivity : AppCompatActivity() {
     private lateinit var configuration: CustomTabConfiguration
 
     private val viewModel: CustomTabAuthorizationViewModel by viewModels {
-        CustomTabAuthorizationViewModel.Factory(configuration)
+        CustomTabAuthorizationViewModel.Factory(this, configuration)
     }
 
     @Suppress("DEPRECATION")
@@ -40,8 +41,23 @@ class POCustomTabAuthorizationActivity : AppCompatActivity() {
         requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O)
             ActivityInfo.SCREEN_ORIENTATION_BEHIND else ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
+        onBackPressedDispatcher.addCallback(this) {
+            // Ignore back press to avoid finishing activity without a result.
+            // Cancelled result will be provided from onResume() when going back from the Custom Tab.
+        }
+
         intent.getParcelableExtra<CustomTabConfiguration>(EXTRA_CONFIGURATION)
             ?.let { configuration = it }
+
+        if (::configuration.isInitialized.not()) {
+            finishWithActivityResult(
+                ProcessOutActivityResult.Failure(
+                    POFailure.Code.Internal(),
+                    "Configuration is not provided. Possibly started from redirect activity by a deep link when flow is already finished."
+                )
+            )
+            return
+        }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
@@ -69,7 +85,7 @@ class POCustomTabAuthorizationActivity : AppCompatActivity() {
             Cancelled -> finishWithActivityResult(
                 ProcessOutActivityResult.Failure(
                     POFailure.Code.Cancelled,
-                    "Cancelled by user with back press or gesture."
+                    "Cancelled by user with back press, gesture or cancel button."
                 )
             )
             is Timeout -> handleTimeout(uiState.clearBackStack)
