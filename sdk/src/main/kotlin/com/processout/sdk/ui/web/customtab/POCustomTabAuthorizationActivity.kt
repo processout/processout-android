@@ -42,12 +42,22 @@ class POCustomTabAuthorizationActivity : AppCompatActivity() {
             ActivityInfo.SCREEN_ORIENTATION_BEHIND else ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         onBackPressedDispatcher.addCallback(this) {
-            // Consume back pressed to avoid finishing activity without result.
-            // Cancelled result will be provided from onResume() when going back from Custom Tab.
+            // Ignore back press to avoid finishing activity without a result.
+            // Cancelled result will be provided from onResume() when going back from the Custom Tab.
         }
 
         intent.getParcelableExtra<CustomTabConfiguration>(EXTRA_CONFIGURATION)
             ?.let { configuration = it }
+
+        if (::configuration.isInitialized.not()) {
+            finishWithActivityResult(
+                ProcessOutActivityResult.Failure(
+                    POFailure.Code.Internal(),
+                    "Configuration is not provided. Possibly started from redirect activity by a deep link when flow is already finished."
+                )
+            )
+            return
+        }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
