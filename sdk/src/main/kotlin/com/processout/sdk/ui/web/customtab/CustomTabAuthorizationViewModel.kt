@@ -33,14 +33,14 @@ internal class CustomTabAuthorizationViewModel(
 
     companion object {
         private const val KEY_SAVED_STATE = "CustomTabAuthorizationUiState"
-        private const val CANCEL_DELAY_MS = 700L
+        private const val CANCELLATION_DELAY_MS = 700L
     }
 
     val uiState = savedState.getStateFlow<CustomTabAuthorizationUiState>(KEY_SAVED_STATE, Initial)
 
     private val timeoutHandler by lazy { Handler(Looper.getMainLooper()) }
 
-    private val cancelRunnable = Runnable { savedState[KEY_SAVED_STATE] = Cancelled }
+    private val cancellationRunnable = Runnable { savedState[KEY_SAVED_STATE] = Cancelled }
 
     init {
         configuration.timeoutSeconds?.let {
@@ -63,22 +63,22 @@ internal class CustomTabAuthorizationViewModel(
         }
         val returnUri = intent.data
         if (returnUri != null) {
-            timeoutHandler.removeCallbacks(cancelRunnable)
+            timeoutHandler.removeCallbacks(cancellationRunnable)
             POLogger.info("Custom Chrome Tabs has been redirected to return URL: %s", returnUri)
             savedState[KEY_SAVED_STATE] = Success(returnUri)
             return
         }
         when (uiState) {
             is Launching, Launched ->
-                // Delay cancelling as return URI can be received shortly in the following scenario:
+                // Delay cancellation as return URI still can be received by a deep link shortly in the following scenario:
                 // 1) Activity and ViewModel has been destroyed while user is on the Custom Tab.
                 // 2) User has left Custom Tab immediately after passing the challenge (phone call, other app, home screen, etc...)
                 // and then goes back after redirect occurred. In this case the deep link will not be sent automatically and
-                // on some Chrome versions it will show a default dialog to confirm redirection to the app.
+                // with some Chrome versions it will show a default dialog to confirm redirection to the app.
                 // 3) When user confirms redirect through this dialog first it will re-create Activity and ViewModel,
-                // which is in the Launched state. Normally it would trigger cancelling as user goes back from Custom Tab,
+                // which is in the Launched state. Normally it would trigger cancellation as user goes back from the Custom Tab,
                 // but in this case we will also receive a deep link shortly after that.
-                timeoutHandler.postDelayed(cancelRunnable, CANCEL_DELAY_MS)
+                timeoutHandler.postDelayed(cancellationRunnable, CANCELLATION_DELAY_MS)
             else -> {}
         }
     }
