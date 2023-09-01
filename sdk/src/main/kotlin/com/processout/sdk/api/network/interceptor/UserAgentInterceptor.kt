@@ -1,7 +1,7 @@
 package com.processout.sdk.api.network.interceptor
 
 import android.app.Application
-import com.processout.sdk.utils.currentSdkLocale
+import com.processout.sdk.core.locale.currentSdkLocale
 import okhttp3.Interceptor
 import okhttp3.Response
 import okhttp3.internal.userAgent

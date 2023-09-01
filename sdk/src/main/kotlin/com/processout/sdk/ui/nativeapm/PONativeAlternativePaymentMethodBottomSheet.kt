@@ -49,7 +49,7 @@ import com.processout.sdk.ui.shared.style.POTypography
 import com.processout.sdk.ui.shared.style.background.POBackgroundDecorationStateStyle
 import com.processout.sdk.ui.shared.style.dropdown.ExposedDropdownStyle
 import com.processout.sdk.ui.shared.view.button.POButton
-import com.processout.sdk.ui.shared.view.extensions.*
+import com.processout.sdk.ui.shared.view.extension.*
 import com.processout.sdk.ui.shared.view.input.Input
 import com.processout.sdk.ui.shared.view.input.InputComponent
 import com.processout.sdk.ui.shared.view.input.code.CodeInput

@@ -27,8 +27,8 @@ import com.processout.sdk.ui.shared.style.StyleConstants
 import com.processout.sdk.ui.shared.style.button.POButtonStateStyle
 import com.processout.sdk.ui.shared.style.button.POButtonStyle
 import com.processout.sdk.ui.shared.style.radio.PORadioButtonStyle
-import com.processout.sdk.ui.shared.view.extensions.dpToPx
-import com.processout.sdk.ui.shared.view.extensions.spToPx
+import com.processout.sdk.ui.shared.view.extension.dpToPx
+import com.processout.sdk.ui.shared.view.extension.spToPx
 
 internal fun PoBottomSheetNativeApmBinding.applyStyle(
     style: PONativeAlternativePaymentMethodConfiguration.Style

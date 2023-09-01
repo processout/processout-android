@@ -7,7 +7,7 @@ import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse.
 import com.processout.sdk.core.POFailure.*
 import com.processout.sdk.core.POFailure.Code.*
 import com.processout.sdk.core.ProcessOutResult
-import com.processout.sdk.utils.findBy
+import com.processout.sdk.core.util.findBy
 
 internal class AlternativePaymentMethodsServiceImpl(
     private val configuration: AlternativePaymentMethodsConfiguration

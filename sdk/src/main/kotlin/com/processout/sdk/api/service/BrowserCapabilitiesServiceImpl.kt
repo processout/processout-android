@@ -15,11 +15,11 @@ internal class BrowserCapabilitiesServiceImpl(
             CustomTabsClient.bindCustomTabsService(
                 application,
                 CHROME_PACKAGE,
-                DefaultCustomTabsServiceConnection()
+                NoOpCustomTabsServiceConnection()
             )
         }.getOrDefault(false)
 
-    private class DefaultCustomTabsServiceConnection : CustomTabsServiceConnection() {
+    private class NoOpCustomTabsServiceConnection : CustomTabsServiceConnection() {
         override fun onCustomTabsServiceConnected(
             name: ComponentName,
             client: CustomTabsClient

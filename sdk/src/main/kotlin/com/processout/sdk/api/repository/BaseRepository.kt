@@ -5,6 +5,8 @@ import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.map
+import com.processout.sdk.core.retry.RetryStrategy
+import com.processout.sdk.core.retry.RetryStrategy.Exponential
 import com.squareup.moshi.Moshi
 import kotlinx.coroutines.*
 import retrofit2.Response
@@ -14,14 +16,15 @@ import java.net.SocketTimeoutException
 internal abstract class BaseRepository(
     protected val moshi: Moshi,
     protected val repositoryScope: CoroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob()),
-    protected val workDispatcher: CoroutineDispatcher = Dispatchers.IO
+    protected val workDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val retryStrategy: RetryStrategy = Exponential(maxRetries = 4, initialDelay = 100, maxDelay = 1000, factor = 3.0)
 ) {
 
     protected suspend fun <T : Any> apiCall(
         apiMethod: suspend () -> Response<T>
     ): ProcessOutResult<T> = withContext(workDispatcher) {
         try {
-            val response = apiMethod()
+            val response = retry(retryStrategy, apiMethod)
             when (response.isSuccessful) {
                 true -> response.body()?.let { ProcessOutResult.Success(it) }
                     ?: response.handleEmptyBody()
@@ -30,6 +33,12 @@ internal abstract class BaseRepository(
         } catch (e: Exception) {
             val repositoryMethodName = apiMethod.javaClass.name
             when (e) {
+                is CancellationException -> {
+                    val message = "Coroutine job is cancelled: $repositoryMethodName"
+                    POLogger.info("$message | %s", e)
+                    ensureActive()
+                    ProcessOutResult.Failure(POFailure.Code.Cancelled, message, cause = e)
+                }
                 is SocketTimeoutException -> ProcessOutResult.Failure(
                     POFailure.Code.Timeout(),
                     "Request timed out: $repositoryMethodName", cause = e
@@ -44,6 +53,25 @@ internal abstract class BaseRepository(
                 ).also { POLogger.error("%s", it) }
             }
         }
+    }
+
+    private suspend fun <T : Any> retry(
+        strategy: RetryStrategy,
+        apiMethod: suspend () -> Response<T>
+    ): Response<T> {
+        val iterator = strategy.iterator
+        repeat(strategy.maxRetries - 1) {
+            try {
+                val response = apiMethod()
+                if (response.code() !in 500..599) {
+                    return response
+                }
+            } catch (_: IOException) {
+                // network issue, retry
+            }
+            delay(iterator.next())
+        }
+        return apiMethod()
     }
 
     private fun <T : Any> Response<T>.handleEmptyBody(): ProcessOutResult.Failure {

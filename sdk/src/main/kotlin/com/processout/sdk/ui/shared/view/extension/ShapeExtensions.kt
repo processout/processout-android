@@ -1,4 +1,4 @@
-package com.processout.sdk.ui.shared.view.extensions
+package com.processout.sdk.ui.shared.view.extension
 
 import android.content.Context
 import android.graphics.Outline
