@@ -1,4 +1,4 @@
-package com.processout.sdk.utils
+package com.processout.sdk.core.util
 
 private const val escapeChar = '\\'
 private const val markdownSpecialChars = "\\`*_{}[]()#+-.!"

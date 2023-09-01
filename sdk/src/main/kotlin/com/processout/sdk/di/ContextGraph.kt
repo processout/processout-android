@@ -2,7 +2,7 @@ package com.processout.sdk.di
 
 import android.app.Application
 import com.processout.sdk.api.model.request.PODeviceData
-import com.processout.sdk.utils.currentAppLocale
+import com.processout.sdk.core.locale.currentAppLocale
 import java.util.Calendar
 
 internal interface ContextGraph {

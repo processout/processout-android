@@ -1,4 +1,4 @@
-package com.processout.sdk.utils
+package com.processout.sdk.core.locale
 
 import android.app.Application
 import androidx.core.os.ConfigurationCompat

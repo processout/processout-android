@@ -1,6 +1,6 @@
 package com.processout.sdk.api.model.threeds
 
-import com.processout.sdk.utils.findBy
+import com.processout.sdk.core.util.findBy
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 

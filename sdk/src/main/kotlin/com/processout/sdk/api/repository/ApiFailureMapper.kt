@@ -2,7 +2,7 @@ package com.processout.sdk.api.repository
 
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
-import com.processout.sdk.utils.findBy
+import com.processout.sdk.core.util.findBy
 import com.squareup.moshi.Moshi
 import retrofit2.Response
 
