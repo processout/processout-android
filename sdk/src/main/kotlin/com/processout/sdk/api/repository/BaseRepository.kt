@@ -17,7 +17,7 @@ internal abstract class BaseRepository(
     protected val moshi: Moshi,
     protected val repositoryScope: CoroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob()),
     protected val workDispatcher: CoroutineDispatcher = Dispatchers.IO,
-    private val retryStrategy: RetryStrategy = Exponential(maxRetries = 3, initialDelay = 100, maxDelay = 1000, factor = 3.0)
+    private val retryStrategy: RetryStrategy = Exponential(maxRetries = 4, initialDelay = 100, maxDelay = 1000, factor = 3.0)
 ) {
 
     protected suspend fun <T : Any> apiCall(
@@ -33,6 +33,12 @@ internal abstract class BaseRepository(
         } catch (e: Exception) {
             val repositoryMethodName = apiMethod.javaClass.name
             when (e) {
+                is CancellationException -> {
+                    val message = "Coroutine job is cancelled: $repositoryMethodName"
+                    POLogger.info("$message | %s", e)
+                    ensureActive()
+                    ProcessOutResult.Failure(POFailure.Code.Cancelled, message, cause = e)
+                }
                 is SocketTimeoutException -> ProcessOutResult.Failure(
                     POFailure.Code.Timeout(),
                     "Request timed out: $repositoryMethodName", cause = e
