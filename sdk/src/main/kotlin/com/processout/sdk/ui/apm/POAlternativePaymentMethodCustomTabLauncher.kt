@@ -16,7 +16,7 @@ import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
-import com.processout.sdk.ui.web.DefaultWebAuthorizationDelegateCache
+import com.processout.sdk.ui.web.WebAuthorizationDelegateMemoryCache
 import com.processout.sdk.ui.web.WebAuthorizationDelegate
 import com.processout.sdk.ui.web.WebAuthorizationDelegateCache
 import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationActivityContract
@@ -42,7 +42,7 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
             callback: (ProcessOutResult<POAlternativePaymentMethodResponse>) -> Unit
         ) = POAlternativePaymentMethodCustomTabLauncher(
             ProcessOut.instance.alternativePaymentMethods,
-            DefaultWebAuthorizationDelegateCache
+            WebAuthorizationDelegateMemoryCache
         ).apply {
             val activityResultHandler = ActivityResultHandler(alternativePaymentMethods, callback)
             customTabLauncher = from.registerForActivityResult(
@@ -63,7 +63,7 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
             callback: (ProcessOutResult<POAlternativePaymentMethodResponse>) -> Unit
         ) = POAlternativePaymentMethodCustomTabLauncher(
             ProcessOut.instance.alternativePaymentMethods,
-            DefaultWebAuthorizationDelegateCache
+            WebAuthorizationDelegateMemoryCache
         ).apply {
             val activityResultHandler = ActivityResultHandler(alternativePaymentMethods, callback)
             customTabLauncher = from.registerForActivityResult(
@@ -82,7 +82,7 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
         )
         fun create(from: Fragment) = POAlternativePaymentMethodCustomTabLauncher(
             ProcessOut.instance.alternativePaymentMethods,
-            DefaultWebAuthorizationDelegateCache
+            WebAuthorizationDelegateMemoryCache
         ).apply {
             customTabLauncher = from.registerForActivityResult(
                 CustomTabAuthorizationActivityContract(),
@@ -99,7 +99,7 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
         )
         fun create(from: ComponentActivity) = POAlternativePaymentMethodCustomTabLauncher(
             ProcessOut.instance.alternativePaymentMethods,
-            DefaultWebAuthorizationDelegateCache
+            WebAuthorizationDelegateMemoryCache
         ).apply {
             customTabLauncher = from.registerForActivityResult(
                 CustomTabAuthorizationActivityContract(),

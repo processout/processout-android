@@ -1,6 +1,6 @@
 package com.processout.sdk.ui.web
 
-internal object DefaultWebAuthorizationDelegateCache : WebAuthorizationDelegateCache {
+internal object WebAuthorizationDelegateMemoryCache : WebAuthorizationDelegateCache {
 
     override var delegate: WebAuthorizationDelegate? = null
 
