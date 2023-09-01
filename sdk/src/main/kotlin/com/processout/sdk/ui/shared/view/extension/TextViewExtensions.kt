@@ -1,4 +1,4 @@
-package com.processout.sdk.ui.shared.view.extensions
+package com.processout.sdk.ui.shared.view.extension
 
 import android.widget.TextView
 import com.processout.sdk.ui.shared.text.markdown.SpannableMarkdownVisitor

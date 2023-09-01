@@ -8,8 +8,8 @@ import com.processout.sdk.R
 import com.processout.sdk.ui.nativeapm.applyButtonStatesStyle
 import com.processout.sdk.ui.nativeapm.applyStyle
 import com.processout.sdk.ui.shared.style.button.POButtonStyle
-import com.processout.sdk.ui.shared.view.extensions.buttonCircularProgressDrawable
-import com.processout.sdk.ui.shared.view.extensions.dpToPx
+import com.processout.sdk.ui.shared.view.extension.buttonCircularProgressDrawable
+import com.processout.sdk.ui.shared.view.extension.dpToPx
 
 internal class POButton(
     context: Context,

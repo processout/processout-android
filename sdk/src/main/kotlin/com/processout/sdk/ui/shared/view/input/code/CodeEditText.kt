@@ -19,8 +19,8 @@ import com.processout.sdk.R
 import com.processout.sdk.ui.nativeapm.applyControlsTintColor
 import com.processout.sdk.ui.nativeapm.applyStyle
 import com.processout.sdk.ui.shared.style.input.POInputStyle
-import com.processout.sdk.ui.shared.view.extensions.defaultOutlineBackground
-import com.processout.sdk.ui.shared.view.extensions.outlineBackground
+import com.processout.sdk.ui.shared.view.extension.defaultOutlineBackground
+import com.processout.sdk.ui.shared.view.extension.outlineBackground
 import com.processout.sdk.ui.shared.view.input.Input
 
 internal class CodeEditText(

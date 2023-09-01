@@ -23,9 +23,9 @@ import com.processout.sdk.ui.shared.model.InputParameter
 import com.processout.sdk.ui.shared.style.StyleConstants
 import com.processout.sdk.ui.shared.style.input.POInputStateStyle
 import com.processout.sdk.ui.shared.style.input.POInputStyle
-import com.processout.sdk.ui.shared.view.extensions.defaultOutlineBackground
-import com.processout.sdk.ui.shared.view.extensions.outlineBackground
-import com.processout.sdk.ui.shared.view.extensions.requestFocusAndShowKeyboard
+import com.processout.sdk.ui.shared.view.extension.defaultOutlineBackground
+import com.processout.sdk.ui.shared.view.extension.outlineBackground
+import com.processout.sdk.ui.shared.view.extension.requestFocusAndShowKeyboard
 import com.processout.sdk.ui.shared.view.input.Input
 import com.processout.sdk.ui.shared.view.input.InputComponent
 

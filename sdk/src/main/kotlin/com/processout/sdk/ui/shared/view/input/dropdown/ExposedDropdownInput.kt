@@ -20,10 +20,10 @@ import com.processout.sdk.ui.shared.model.InputParameter
 import com.processout.sdk.ui.shared.style.POBorderStyle
 import com.processout.sdk.ui.shared.style.dropdown.ExposedDropdownStyle
 import com.processout.sdk.ui.shared.style.input.POInputStateStyle
-import com.processout.sdk.ui.shared.view.extensions.defaultOutlineBackground
-import com.processout.sdk.ui.shared.view.extensions.dpToPx
-import com.processout.sdk.ui.shared.view.extensions.hideKeyboard
-import com.processout.sdk.ui.shared.view.extensions.outlineBackground
+import com.processout.sdk.ui.shared.view.extension.defaultOutlineBackground
+import com.processout.sdk.ui.shared.view.extension.dpToPx
+import com.processout.sdk.ui.shared.view.extension.hideKeyboard
+import com.processout.sdk.ui.shared.view.extension.outlineBackground
 import com.processout.sdk.ui.shared.view.input.Input
 import com.processout.sdk.ui.shared.view.input.InputComponent
 
