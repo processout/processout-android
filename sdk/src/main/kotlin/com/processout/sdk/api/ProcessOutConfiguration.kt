@@ -19,6 +19,7 @@ data class ProcessOutConfiguration(
     /**
      * __Warning:__ Intended to be used only for testing purposes.
      * Storing private key inside application is extremely dangerous and is highly discouraged.
+     * @suppress
      */
     @ProcessOutInternalApi
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)

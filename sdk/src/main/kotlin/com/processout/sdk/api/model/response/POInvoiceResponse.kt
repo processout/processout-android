@@ -8,6 +8,7 @@ internal data class POInvoiceResponse(
     val invoice: POInvoice
 )
 
+/** @suppress */
 @ProcessOutInternalApi
 @JsonClass(generateAdapter = true)
 data class POInvoice(

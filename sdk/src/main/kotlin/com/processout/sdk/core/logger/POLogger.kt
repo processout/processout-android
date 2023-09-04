@@ -2,6 +2,7 @@ package com.processout.sdk.core.logger
 
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 
+/** @suppress */
 @ProcessOutInternalApi
 class POLogger private constructor() {
 
