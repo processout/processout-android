@@ -2,8 +2,18 @@ package com.processout.sdk.core
 
 import android.os.Parcelable
 
+/**
+ * Provides [Success] or [Failure] as a result of operation.
+ */
 sealed class ProcessOutResult<out T : Any> {
+    /**
+     * Provides successful result with a value.
+     */
     data class Success<out T : Any>(val value: T) : ProcessOutResult<T>()
+
+    /**
+     * Provides detailed information about an error that occurred.
+     */
     data class Failure(
         val code: POFailure.Code,
         val message: String? = null,

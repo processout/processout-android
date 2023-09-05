@@ -7,6 +7,9 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Defines error codes structure.
+ */
 class POFailure private constructor() {
 
     @JsonClass(generateAdapter = true)
@@ -18,6 +21,9 @@ class POFailure private constructor() {
         val invalidFields: List<InvalidField>?
     )
 
+    /**
+     * Defines invalid field details.
+     */
     @Parcelize
     @JsonClass(generateAdapter = true)
     data class InvalidField(
@@ -25,35 +31,68 @@ class POFailure private constructor() {
         val message: String?
     ) : Parcelable
 
+    /**
+     * Base code type.
+     */
     sealed class Code : Parcelable {
+        /**
+         * API credentials could not be verified.
+         */
         @Parcelize
         data class Authentication(val authenticationCode: AuthenticationCode) : Code()
 
+        /**
+         * Request data is not valid or cannot be validated.
+         */
         @Parcelize
         data class Validation(val validationCode: ValidationCode) : Code()
 
+        /**
+         * The requested resource could not be found.
+         */
         @Parcelize
         data class NotFound(val notFoundCode: NotFoundCode) : Code()
 
+        /**
+         * Generic error that can’t be classified as specific.
+         */
         @Parcelize
         data class Generic(val genericCode: GenericCode = GenericCode.mobile) : Code()
 
+        /**
+         * Operation is cancelled.
+         */
         @Parcelize
         data object Cancelled : Code()
 
+        /**
+         * No network connection.
+         */
         @Parcelize
         data object NetworkUnreachable : Code()
 
+        /**
+         * Operation is timed out.
+         */
         @Parcelize
         data class Timeout(val timeoutCode: TimeoutCode = TimeoutCode.mobile) : Code()
 
+        /**
+         * Something went wrong on the ProcessOut side. This is extremely rare.
+         */
         @Parcelize
         data class Internal(val internalCode: InternalCode = InternalCode.mobile) : Code()
 
+        /**
+         * Unknown error that can’t be interpreted. Inspect associated [rawValue] for additional details.
+         */
         @Parcelize
         data class Unknown(val rawValue: String) : Code()
     }
 
+    /**
+     * API credentials could not be verified.
+     */
     @Parcelize
     @Suppress("EnumEntryName")
     enum class AuthenticationCode(val rawValue: String) : Parcelable {
@@ -61,6 +100,9 @@ class POFailure private constructor() {
         invalidProjectId ("request.authentication.invalid-project-id")
     }
 
+    /**
+     * Request data is not valid or cannot be validated.
+     */
     @Parcelize
     @Suppress("EnumEntryName")
     enum class ValidationCode(val rawValue: String) : Parcelable {
@@ -115,6 +157,9 @@ class POFailure private constructor() {
         missingType               ("request.validation.missing-type")
     }
 
+    /**
+     * The requested resource could not be found.
+     */
     @Parcelize
     @Suppress("EnumEntryName")
     enum class NotFoundCode(val rawValue: String) : Parcelable {
@@ -155,6 +200,9 @@ class POFailure private constructor() {
         webhookEndpoint           ("resource.webhook-endpoint.not-found")
     }
 
+    /**
+     * Generic error that can’t be classified as specific.
+     */
     @Parcelize
     @Suppress("EnumEntryName")
     enum class GenericCode(val rawValue: String) : Parcelable {
@@ -239,6 +287,9 @@ class POFailure private constructor() {
         serviceNotSupported("service.not-supported")
     }
 
+    /**
+     * Operation is timed out.
+     */
     @Parcelize
     @Suppress("EnumEntryName")
     enum class TimeoutCode(val rawValue: String) : Parcelable {
@@ -246,6 +297,9 @@ class POFailure private constructor() {
         gateway ("gateway.timeout")
     }
 
+    /**
+     * Something went wrong on the ProcessOut side. This is extremely rare.
+     */
     @Parcelize
     @Suppress("EnumEntryName")
     enum class InternalCode(val rawValue: String) : Parcelable {
@@ -254,6 +308,9 @@ class POFailure private constructor() {
     }
 }
 
+/**
+ * Raw error code. Consistent with iOS SDK.
+ */
 val POFailure.Code.rawValue: String
     get() = when (this) {
         is POFailure.Code.Authentication -> authenticationCode.rawValue
