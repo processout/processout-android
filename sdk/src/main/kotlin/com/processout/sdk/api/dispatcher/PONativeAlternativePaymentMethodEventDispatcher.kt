@@ -5,8 +5,14 @@ import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodDefa
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodDefaultValuesResponse
 import kotlinx.coroutines.flow.SharedFlow
 
+/**
+ * Dispatcher that allows to handle events during native alternative payments.
+ */
 abstract class PONativeAlternativePaymentMethodEventDispatcher {
 
+    /**
+     * Allows to subscribe for native alternative payment lifecycle events.
+     */
     abstract val events: SharedFlow<PONativeAlternativePaymentMethodEvent>
 
     /**
@@ -21,6 +27,9 @@ abstract class PONativeAlternativePaymentMethodEventDispatcher {
     internal abstract suspend fun send(request: PONativeAlternativePaymentMethodDefaultValuesRequest)
 
     /**
+     * Allows to provide default values response which must be constructed from request
+     * that has been collected by subscribing to [defaultValuesRequest].
+     *
      * ```
      * viewModelScope.launch {
      *     with(ProcessOutApi.instance.nativeAlternativePaymentMethodEventDispatcher) {
