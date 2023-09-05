@@ -12,6 +12,7 @@ internal data class POCustomerAction(
 ) {
     fun type() = Type::rawType.findBy(rawType) ?: Type.UNSUPPORTED
 
+    @JsonClass(generateAdapter = false)
     enum class Type(val rawType: String) {
         FINGERPRINT_MOBILE("fingerprint-mobile"),
         CHALLENGE_MOBILE("challenge-mobile"),

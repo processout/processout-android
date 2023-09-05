@@ -67,6 +67,7 @@ data class POCustomerToken(
     /**
      * Customer token verification status.
      */
+    @JsonClass(generateAdapter = false)
     enum class VerificationStatus(value: String) {
         SUCCESS("success"),
         PENDING("pending"),

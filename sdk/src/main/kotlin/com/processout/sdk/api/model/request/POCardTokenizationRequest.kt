@@ -20,6 +20,7 @@ data class POCardTokenizationRequest(
     val tokenType: TokenType? = null,
     val paymentToken: String? = ""
 ) {
+    @JsonClass(generateAdapter = false)
     enum class TokenType(val value: String) {
         GOOGLE_PAY("googlepay")
     }

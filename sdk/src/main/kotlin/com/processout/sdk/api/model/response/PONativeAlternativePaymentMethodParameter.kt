@@ -19,6 +19,7 @@ data class PONativeAlternativePaymentMethodParameter(
 
     fun type() = ParameterType::rawType.findBy(rawType) ?: ParameterType.UNKNOWN
 
+    @JsonClass(generateAdapter = false)
     enum class ParameterType(val rawType: String) {
         NUMERIC("numeric"),
         TEXT("text"),
