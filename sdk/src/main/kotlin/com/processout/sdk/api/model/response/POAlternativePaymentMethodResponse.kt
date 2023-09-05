@@ -1,5 +1,7 @@
 package com.processout.sdk.api.model.response
 
+import com.squareup.moshi.JsonClass
+
 /**
  * Response of the alternative payment.
  *
@@ -14,6 +16,7 @@ data class POAlternativePaymentMethodResponse(
     val tokenId: String?,
     val returnType: APMReturnType
 ) {
+    @JsonClass(generateAdapter = false)
     enum class APMReturnType {
         AUTHORIZATION,
         CREATE_TOKEN

@@ -31,6 +31,7 @@ data class PO3DS2Configuration(
     /**
      * Supported card schemes.
      */
+    @JsonClass(generateAdapter = false)
     enum class CardScheme(val rawType: String) {
         VISA("visa"),
         MASTERCARD("mastercard"),
