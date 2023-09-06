@@ -42,14 +42,14 @@ interface POInvoicesService {
     )
 
     /**
-     * Initiates native alternative payment with a given request.
+     * Initiates native alternative payment with the given request.
      */
     suspend fun initiatePayment(
         request: PONativeAlternativePaymentMethodRequest
     ): ProcessOutResult<PONativeAlternativePaymentMethod>
 
     /**
-     * Initiates native alternative payment with a given request.
+     * Initiates native alternative payment with the given request.
      */
     fun initiatePayment(
         request: PONativeAlternativePaymentMethodRequest,

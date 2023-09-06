@@ -9,6 +9,13 @@ internal data class PONativeAlternativePaymentMethodResponse(
     val nativeApm: PONativeAlternativePaymentMethod
 )
 
+/**
+ * Details of native alternative payment method.
+ *
+ * @param[state] Current state of payment.
+ * @param[parameterDefinitions] Contains details about the additional information you need to collect from customer before creating the payment request.
+ * @param[parameterValues] Additional information about the payment step.
+ */
 @JsonClass(generateAdapter = true)
 data class PONativeAlternativePaymentMethod(
     val state: PONativeAlternativePaymentMethodState,
@@ -16,6 +23,15 @@ data class PONativeAlternativePaymentMethod(
     val parameterValues: PONativeAlternativePaymentMethodParameterValues?
 )
 
+/**
+ * Native alternative payment parameter values.
+ *
+ * @param[message] Message.
+ * @param[customerActionMessage] Customer action message markdown that should be used to explain user how to proceed with payment.
+ * Currently it will be set only when payment state is PENDING_CAPTURE.
+ * @param[providerName] Payment provider name.
+ * @param[providerLogoUrl] Payment provider logo URL if available.
+ */
 @JsonClass(generateAdapter = true)
 data class PONativeAlternativePaymentMethodParameterValues(
     val message: String?,
