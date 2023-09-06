@@ -3,6 +3,13 @@ package com.processout.sdk.api.model.request
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
+/**
+ * Request parameters used to initiate payment.
+ *
+ * @param[invoiceId] Invoice identifier.
+ * @param[gatewayConfigurationId] Gateway configuration identifier.
+ * @param[parameters] Payment request parameters.
+ */
 data class PONativeAlternativePaymentMethodRequest(
     val invoiceId: String,
     val gatewayConfigurationId: String,

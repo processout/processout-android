@@ -2,9 +2,11 @@ package com.processout.sdk.api.model.request
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import java.util.*
+import java.util.Date
 
 /**
+ * Request parameters used for invoice authorization.
+ *
  * @param invoiceId Invoice identifier to authorize.
  * @param source Payment source to use for authorization.
  * @param incremental Boolean value indicating if authorization is incremental. Default value is _false_.

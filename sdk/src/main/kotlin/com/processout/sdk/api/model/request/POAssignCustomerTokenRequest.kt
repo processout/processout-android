@@ -4,6 +4,8 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
+ * Request parameters used to assign new source to existing customer token and potentially verify it.
+ *
  * @param customerId ID of the customer who token belongs to.
  * @param tokenId Token ID that belong to the customer.
  * @param source Payment source to associate with token. The source can be a card, an APM or a gateway request.
