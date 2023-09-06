@@ -8,8 +8,14 @@ import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import kotlinx.coroutines.flow.SharedFlow
 
+/**
+ * Provides functionality related to customer tokens.
+ */
 interface POCustomerTokensService {
 
+    /**
+     * Subscribe to this flow to collect result from [assignCustomerToken] invocation.
+     */
     val assignCustomerTokenResult: SharedFlow<ProcessOutResult<POCustomerToken>>
 
     /**
