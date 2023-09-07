@@ -24,6 +24,11 @@ import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationActivityContrac
 import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationUiState.*
 import kotlinx.coroutines.launch
 
+/**
+ * Activity that handles 3DS and APM authorization in the Custom Chrome Tabs.
+ * Start activity with [PO3DSRedirectCustomTabLauncher][com.processout.sdk.ui.threeds.PO3DSRedirectCustomTabLauncher]
+ * or [POAlternativePaymentMethodCustomTabLauncher][com.processout.sdk.ui.apm.POAlternativePaymentMethodCustomTabLauncher].
+ */
 class POCustomTabAuthorizationActivity : AppCompatActivity() {
 
     private lateinit var configuration: CustomTabConfiguration
