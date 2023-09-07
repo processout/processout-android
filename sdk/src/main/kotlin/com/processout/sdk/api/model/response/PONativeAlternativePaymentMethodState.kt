@@ -3,7 +3,7 @@ package com.processout.sdk.api.model.response
 import com.squareup.moshi.JsonClass
 
 /**
- * Defines the current state of native alternative payment.
+ * Defines the state of native alternative payment.
  */
 @JsonClass(generateAdapter = false)
 enum class PONativeAlternativePaymentMethodState {
