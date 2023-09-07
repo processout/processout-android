@@ -12,6 +12,14 @@ import com.processout.sdk.ui.shared.style.input.POInputStyle
 import com.processout.sdk.ui.shared.style.radio.PORadioButtonStyle
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Defines native alternative payment method configuration.
+ *
+ * @param[gatewayConfigurationId] Gateway configuration ID.
+ * @param[invoiceId] Invoice ID.
+ * @param[options] Allows to customize behaviour and pre-define the values.
+ * @param[style] Allows to customize the look and feel.
+ */
 @Parcelize
 data class PONativeAlternativePaymentMethodConfiguration(
     val gatewayConfigurationId: String,
@@ -21,10 +29,23 @@ data class PONativeAlternativePaymentMethodConfiguration(
 ) : Parcelable {
 
     /**
-     * @param inlineSingleSelectValuesLimit Defines maximum number of options that will be
+     * Allows to customize behaviour and pre-define the values.
+     *
+     * @param[title] Custom title.
+     * @param[primaryActionText] Custom primary action text (e.g. "Pay").
+     * @param[secondaryAction] Secondary action. To hide secondary action use _null_, this is a default behaviour.
+     * @param[inlineSingleSelectValuesLimit] Defines maximum number of options that will be
      * displayed inline for parameters where user should select single option (e.g. radio buttons).
      * Default value is _5_.
-     * @param skipSuccessScreen Only applies when [waitsPaymentConfirmation] is _true_.
+     * @param[cancellation] Specifies cancellation behaviour.
+     * @param[successMessage] Custom success message when payment is completed.
+     * @param[skipSuccessScreen] Only applies when [waitsPaymentConfirmation] is _true_.
+     * @param[waitsPaymentConfirmation] Specifies whether flow should wait for payment confirmation from PSP
+     * or will complete right after all user’s input is submitted. Default value is _true_.
+     * @param[paymentConfirmationTimeoutSeconds] Amount of time (in seconds) to wait for final payment confirmation.
+     * Maximum value is 180 seconds, this is a default.
+     * @param[paymentConfirmationSecondaryAction] Action that could be optionally presented to user during payment confirmation stage.
+     * To hide action use _null_, this is a default behaviour.
      */
     @Parcelize
     data class Options(
@@ -44,10 +65,15 @@ data class PONativeAlternativePaymentMethodConfiguration(
         }
     }
 
+    /**
+     * Supported secondary actions.
+     */
     sealed class SecondaryAction : Parcelable {
         /**
-         * @param text Action text. Pass _null_ to use default text.
-         * @param disabledForSeconds Initially disables action for the given amount of time in seconds.
+         * Action for cancellation.
+         *
+         * @param[text] Action text. Pass _null_ to use default text.
+         * @param[disabledForSeconds] Initially disables action for the given amount of time in seconds.
          * By default user can interact with action immediately when it's visible.
          */
         @Parcelize
@@ -57,6 +83,13 @@ data class PONativeAlternativePaymentMethodConfiguration(
         ) : SecondaryAction()
     }
 
+    /**
+     * Specifies cancellation behaviour.
+     *
+     * @param[dragDown] Cancel when bottom sheet is dragged down out of the screen. Default value is _true_.
+     * @param[touchOutside] Cancel on touch of the outside dimmed area of the bottom sheet. Default value is _true_.
+     * @param[backPressed] Cancel on back button press or back gesture. Default value is _true_.
+     */
     @Parcelize
     data class Cancellation(
         val dragDown: Boolean = true,
@@ -65,7 +98,23 @@ data class PONativeAlternativePaymentMethodConfiguration(
     ) : Parcelable
 
     /**
-     * @param controlsTintColor Applies to generic components (e.g. selectable TextView).
+     * Allows to customize the look and feel.
+     *
+     * @param[title] Title style.
+     * @param[input] Input style.
+     * @param[codeInput] Code input style.
+     * @param[dropdownMenu] Dropdown menu style.
+     * @param[radioButton] Radio button style.
+     * @param[primaryButton] Primary button style.
+     * @param[secondaryButton] Secondary button style.
+     * @param[background] Background style.
+     * @param[backgroundColor] __Deprecated.__ Background color.
+     * @param[progressIndicatorColor] Color of progress indicator.
+     * @param[controlsTintColor] Tint color that applies to generic components (e.g. selectable TextView).
+     * @param[message] Message style.
+     * @param[successMessage] Success message style.
+     * @param[successImageResId] Success image drawable resource ID.
+     * @param[backgroundDecoration] __Deprecated.__ Background decoration style.
      */
     @Parcelize
     data class Style(
