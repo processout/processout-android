@@ -12,7 +12,7 @@ import com.squareup.moshi.JsonClass
  * @param[cvc] Card Verification Code of the card.
  * @param[name] Name of the cardholder.
  * @param[contact] Information of cardholder.
- * @param[preferredScheme] Preferred scheme defined by the customer.
+ * @param[preferredScheme] Preferred scheme defined by the Customer.
  * @param[tokenType] Type of the token (e.g. Google Pay).
  * @param[paymentToken] Payment token.
  * @param[metadata] Metadata related to the card.

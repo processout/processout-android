@@ -9,6 +9,17 @@ internal data class POCardIssuerInformationResponse(
     val cardInformation: POCardIssuerInformation
 )
 
+/**
+ * Holds information about card issuing institution that issued the card to the card holder.
+ *
+ * @param[scheme] Scheme of the card.
+ * @param[coScheme] Co-scheme of the card, such as Carte Bancaire.
+ * @param[type] Card type.
+ * @param[bankName] Name of the card’s issuing bank.
+ * @param[brand] Brand of the card.
+ * @param[category] Card category.
+ * @param[country] Country of origin.
+ */
 @JsonClass(generateAdapter = true)
 data class POCardIssuerInformation(
     val scheme: String,

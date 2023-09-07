@@ -10,109 +10,88 @@ internal data class POCardResponse(
     val card: POCard
 )
 
+/**
+ * A card object represents a credit or debit card.
+ * It contains many useful pieces of information about the card
+ * but it does not contain the full card number and CVC
+ * which are kept securely in the ProcessOut Vault.
+ *
+ * @param[id] Value that uniquely identifies the card.
+ * @param[projectId] Project that the card belongs to.
+ * @param[scheme] Scheme of the card.
+ * @param[coScheme] Co-scheme of the card, such as Carte Bancaire.
+ * @param[preferredScheme] Preferred scheme defined by the Customer.
+ * @param[type] Card type.
+ * @param[bankName] Name of the card’s issuing bank.
+ * @param[brand] Brand of the card.
+ * @param[category] Card category.
+ * @param[iin] Issuer Identification Number. Corresponds to the first 6 or 8 digits of the main card number.
+ * @param[last4Digits] Last 4 digits of the card.
+ * @param[fingerprint] Hash value that remains the same for this card even if it is tokenized several times.
+ * @param[expMonth] Month of the expiration date.
+ * @param[expYear] Year of the expiration date.
+ * @param[cvcCheck] CVC check status.
+ * @param[avsCheck] AVS check status.
+ * @param[tokenType] Contains the name of a third party tokenization method.
+ * @param[name] Cardholder’s name.
+ * @param[address1] First line of cardholder’s address.
+ * @param[address2] Second line of cardholder’s address.
+ * @param[city] City of cardholder’s address.
+ * @param[state] State or county of cardholder’s address.
+ * @param[countryCode] Country code of cardholder’s address.
+ * @param[zip] ZIP code of cardholder’s address.
+ * @param[expiresSoon] Set to true if the card will expire soon, otherwise false.
+ * @param[metadata] Metadata related to the card, in the form of key-value pairs.
+ * @param[sandbox] Denotes whether or not this card was created in the sandbox testing environment.
+ * @param[createdAt] Date and time when this card was created.
+ * @param[updatedAt] Date and time when this card was updated.
+ * @param[updateType] Type of card update.
+ */
 @JsonClass(generateAdapter = true)
-data class POCard (
-    // Value that uniquely identifies the card
+data class POCard(
     val id: String,
-
-    // Project that the card belongs to
     @Json(name = "project_id")
     val projectId: String,
-
-    // Scheme of the card
     val scheme: String?,
-
-    // Co-scheme of the card, such as Carte Bancaire
     @Json(name = "co_scheme")
     val coScheme: String?,
-
-    // Preferred scheme defined by the Customer
     @Json(name = "preferred_scheme")
     val preferredScheme: String?,
-
-    // Card type
     val type: String?,
-
-    // Name of the card’s issuing bank
     @Json(name = "bank_name")
     val bankName: String?,
-
-    // Brand of the card
     val brand: String?,
-
-    // Card category
     val category: String?,
-
-    // Issuer identification number. Corresponds to the first 6 or 8 digits of the main card number.
     val iin: String?,
-
-    // Last 4 digits of the card
     @Json(name = "last_4_digits")
     val last4Digits: String?,
-
-    // Hash value that remains the same for this card even if it is tokenized several times
     val fingerprint: String?,
-
-    // Month of the expiration date
     @Json(name = "exp_month")
     val expMonth: Int?,
-
-    // Year of the expiration date
     @Json(name = "exp_year")
     val expYear: Int?,
-
-    // CVC check status
     @Json(name = "cvc_check")
     val cvcCheck: String?,
-
-    // AVS check status
     @Json(name = "avs_check")
     val avsCheck: String?,
-
-    // Contains the name of a third party tokenization method
     @Json(name = "token_type")
     val tokenType: String?,
-
-    // Cardholder’s name
     val name: String?,
-
-    // First line of cardholder’s address
     val address1: String?,
-
-    // Second line of cardholder’s address
     val address2: String?,
-
-    // City of cardholder’s address
     val city: String?,
-
-    // State or county of cardholder’s address
     val state: String?,
-
-    // Country code of cardholder’s address
     @Json(name = "country_code")
     val countryCode: String?,
-
-    // ZIP code of cardholder’s address
     val zip: String?,
-
-    // Set to true if the card will expire soon, otherwise false
     @Json(name = "expires_soon")
     val expiresSoon: Boolean,
-
-    // Metadata related to the card, in the form of key-value pairs
-    val metadata: Map<String,String>?,
-
-    // Denotes whether or not this card was created in the sandbox testing environment
+    val metadata: Map<String, String>?,
     val sandbox: Boolean,
-
-    // Date and time when this card was created
     @Json(name = "created_at")
     val createdAt: Date,
-
     @Json(name = "updated_at")
     val updatedAt: Date,
-
-    // Type of card update
     @Json(name = "update_type")
-    val updateType: String?,
+    val updateType: String?
 )
