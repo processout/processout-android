@@ -16,14 +16,19 @@ import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
-import com.processout.sdk.ui.web.WebAuthorizationDelegateMemoryCache
 import com.processout.sdk.ui.web.WebAuthorizationDelegate
 import com.processout.sdk.ui.web.WebAuthorizationDelegateCache
+import com.processout.sdk.ui.web.WebAuthorizationDelegateMemoryCache
 import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationActivityContract
 import com.processout.sdk.ui.web.customtab.CustomTabConfiguration
 import com.processout.sdk.ui.web.webview.WebViewAuthorizationActivityLauncher
 import com.processout.sdk.ui.web.webview.WebViewConfiguration
 
+/**
+ * Launcher that starts [POCustomTabAuthorizationActivity][com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivity]
+ * to handle APM and provide the result. If Custom Chrome Tabs is not available on the device it will fallback to the
+ * [POWebViewAuthorizationActivity][com.processout.sdk.ui.web.webview.POWebViewAuthorizationActivity].
+ */
 class POAlternativePaymentMethodCustomTabLauncher private constructor(
     private val alternativePaymentMethods: POAlternativePaymentMethodsService,
     private val delegateCache: WebAuthorizationDelegateCache
@@ -34,8 +39,9 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
 
     companion object {
         /**
-         * When launcher created with this method use
-         * __launch(request, returnUrl)__ or __launch(uri, returnUrl)__.
+         * Creates the launcher from Fragment.
+         * When launcher created with this function use __launch(request, returnUrl)__ or __launch(uri, returnUrl)__.
+         * __Note:__ Required to call in _onCreate()_ to register for activity result.
          */
         fun create(
             from: Fragment,
@@ -55,8 +61,9 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
         }
 
         /**
-         * When launcher created with this method use
-         * __launch(request, returnUrl)__ or __launch(uri, returnUrl)__.
+         * Creates the launcher from Activity.
+         * When launcher created with this function use __launch(request, returnUrl)__ or __launch(uri, returnUrl)__.
+         * __Note:__ Required to call in _onCreate()_ to register for activity result.
          */
         fun create(
             from: ComponentActivity,
@@ -76,6 +83,10 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
             )
         }
 
+        /**
+         * Creates the launcher from Fragment.
+         * __Note:__ Required to call in _onCreate()_ to register for activity result.
+         */
         @Deprecated(
             message = "Use function create(from, callback)",
             replaceWith = ReplaceWith("create(from, callback)")
@@ -93,6 +104,10 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
             )
         }
 
+        /**
+         * Creates the launcher from Activity.
+         * __Note:__ Required to call in _onCreate()_ to register for activity result.
+         */
         @Deprecated(
             message = "Use function create(from, callback)",
             replaceWith = ReplaceWith("create(from, callback)")
@@ -113,7 +128,8 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
     }
 
     /**
-     * Use when launcher created with method __create(from, callback)__.
+     * Launches the activity.
+     * Use when launcher created with function __create(from, callback)__.
      */
     fun launch(
         request: POAlternativePaymentMethodRequest,
@@ -127,7 +143,8 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
     }
 
     /**
-     * Use when launcher created with method __create(from, callback)__.
+     * Launches the activity.
+     * Use when launcher created with function __create(from, callback)__.
      */
     fun launch(uri: Uri, returnUrl: String) {
         if (ProcessOut.instance.browserCapabilities.isCustomTabsSupported()) {
@@ -153,6 +170,9 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
         }
     }
 
+    /**
+     * Launches the activity.
+     */
     @Deprecated(
         message = "Use function launch(request, returnUrl)",
         replaceWith = ReplaceWith("launch(request, returnUrl)")
@@ -180,6 +200,9 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
         launch(delegate.uri, returnUrl)
     }
 
+    /**
+     * Launches the activity.
+     */
     @Deprecated(
         message = "Use function launch(request, returnUrl)",
         replaceWith = ReplaceWith("launch(request, returnUrl)")
@@ -191,7 +214,7 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
         launch(request, returnUrl = String(), callback)
     }
 
-    @Deprecated("Used in other deprecated methods.")
+    @Deprecated("Used in other deprecated functions.")
     private val activityResultCallback = ActivityResultCallback<ProcessOutActivityResult<Uri>> {
         if (delegateCache.isCached().not()) {
             POLogger.error("Cannot provide APM result. Delegate is not cached.")

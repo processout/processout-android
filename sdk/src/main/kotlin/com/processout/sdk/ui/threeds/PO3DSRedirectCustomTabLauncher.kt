@@ -12,14 +12,19 @@ import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
-import com.processout.sdk.ui.web.WebAuthorizationDelegateMemoryCache
 import com.processout.sdk.ui.web.WebAuthorizationDelegate
 import com.processout.sdk.ui.web.WebAuthorizationDelegateCache
+import com.processout.sdk.ui.web.WebAuthorizationDelegateMemoryCache
 import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationActivityContract
 import com.processout.sdk.ui.web.customtab.CustomTabConfiguration
 import com.processout.sdk.ui.web.webview.WebViewAuthorizationActivityLauncher
 import com.processout.sdk.ui.web.webview.WebViewConfiguration
 
+/**
+ * Launcher that starts [POCustomTabAuthorizationActivity][com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivity]
+ * to handle 3DS and provide the result. If Custom Chrome Tabs is not available on the device it will fallback to the
+ * [POWebViewAuthorizationActivity][com.processout.sdk.ui.web.webview.POWebViewAuthorizationActivity].
+ */
 class PO3DSRedirectCustomTabLauncher private constructor(
     private val delegateCache: WebAuthorizationDelegateCache
 ) {
@@ -28,6 +33,10 @@ class PO3DSRedirectCustomTabLauncher private constructor(
     private lateinit var webViewFallbackLauncher: WebViewAuthorizationActivityLauncher
 
     companion object {
+        /**
+         * Creates the launcher from Fragment.
+         * __Note:__ Required to call in _onCreate()_ to register for activity result.
+         */
         fun create(from: Fragment) = PO3DSRedirectCustomTabLauncher(
             WebAuthorizationDelegateMemoryCache
         ).apply {
@@ -40,6 +49,10 @@ class PO3DSRedirectCustomTabLauncher private constructor(
             )
         }
 
+        /**
+         * Creates the launcher from Activity.
+         * __Note:__ Required to call in _onCreate()_ to register for activity result.
+         */
         fun create(from: ComponentActivity) = PO3DSRedirectCustomTabLauncher(
             WebAuthorizationDelegateMemoryCache
         ).apply {
@@ -54,6 +67,9 @@ class PO3DSRedirectCustomTabLauncher private constructor(
         }
     }
 
+    /**
+     * Launches the activity.
+     */
     fun launch(
         redirect: PO3DSRedirect,
         returnUrl: String,
@@ -98,6 +114,9 @@ class PO3DSRedirectCustomTabLauncher private constructor(
         }
     }
 
+    /**
+     * Launches the activity.
+     */
     @Deprecated(
         message = "Use function launch(redirect, returnUrl, callback)",
         replaceWith = ReplaceWith("launch(redirect, returnUrl, callback)")
