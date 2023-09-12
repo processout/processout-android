@@ -3,7 +3,8 @@
 ## Native Alternative Payment Methods
 
 ### Launch native APM payment sheet
-```
+
+```kotlin
 private lateinit var launcher: PONativeAlternativePaymentMethodLauncher
 
 override fun onCreate(savedInstanceState: Bundle?) {
@@ -17,7 +18,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
     }
 }
 
-...
+// Launch the activity.
 
 launcher.launch(
     PONativeAlternativePaymentMethodConfiguration(
@@ -28,7 +29,8 @@ launcher.launch(
 ```
 
 ### Customization of the payment sheet
-```
+
+```kotlin
 val payButtonStyle = POButtonStyle(
     normal = POButtonStateStyle(
         text = POTextStyle(Color.WHITE, POTypography.actionDefaultMedium),
@@ -82,7 +84,8 @@ launcher.launch(
 ```
 
 ### Payment sheet error handling
-```
+
+```kotlin
 when (result) {
     PONativeAlternativePaymentMethodResult.Success -> TODO()
     is PONativeAlternativePaymentMethodResult.Failure -> {
@@ -94,19 +97,20 @@ when (result) {
             is POFailure.Code.Authentication -> code.authenticationCode // TODO()
             is POFailure.Code.Validation -> code.validationCode // TODO()
             is POFailure.Code.NotFound -> code.notFoundCode // TODO()
-            is POFailure.Code.Generic -> code.genericCode // TODO()
             is POFailure.Code.Timeout -> code.timeoutCode // TODO()
-            is POFailure.Code.Internal -> code.internalCode // TODO()
-            is POFailure.Code.Unknown -> code.rawValue // TODO()
             POFailure.Code.NetworkUnreachable -> TODO()
             POFailure.Code.Cancelled -> TODO()
+            is POFailure.Code.Generic -> code.genericCode // TODO()
+            is POFailure.Code.Internal -> code.internalCode // TODO()
+            is POFailure.Code.Unknown -> code.rawValue // TODO()
         }
     }
 }
 ```
 
 ### Subscribe to payment sheet lifecycle events
-```
+
+```kotlin
 viewModelScope.launch {
     ProcessOut.instance
         .nativeAlternativePaymentMethodEventDispatcher
@@ -128,7 +132,8 @@ viewModelScope.launch {
 ```
 
 ### Provide default values for payment sheet input fields
-```
+
+```kotlin
 viewModelScope.launch {
     with(ProcessOut.instance.nativeAlternativePaymentMethodEventDispatcher) {
         // Subscribe for request to provide default values.

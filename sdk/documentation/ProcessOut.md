@@ -6,6 +6,8 @@
 
 ### [API Usage Examples](ApiExamples.md)
 
+### [Error Handling](ErrorHandling.md)
+
 ### [Getting Started With 3DS](3DS.md)
 
 ### [Native Alternative Payment Methods](NativeAlternativePaymentMethods.md)

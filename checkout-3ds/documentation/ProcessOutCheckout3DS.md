@@ -6,9 +6,10 @@ Framework wraps Checkout SDK to make it easy to use with ProcessOut when making 
 
 ## Integration
 
-SDK handles [deep link](https://developer.android.com/training/app-links#deep-links) to return back to your app after authorization
-in the following format: `your.application.id://processout/return`\
-It is required to provide this deep link on the backend as `return_url` when creating invoice and as `invoice_return_url` when creating token.
+SDK handles [deep link](https://developer.android.com/training/app-links#deep-links) to return back to your app after
+authorization in the following format: `your.application.id://processout/return`\
+It is required to provide this deep link on the backend as `return_url` when creating invoice and as `invoice_return_url`
+when creating token.
 
 ### Implement 3DS service delegate
 
@@ -55,7 +56,7 @@ class Checkout3DSServiceDelegate(
             callback = callback
         )
     }
-    
+
     // 3) Optionally implement service lifecycle callbacks for logs or custom logic.
 
     override fun willCreateAuthenticationRequest(configuration: PO3DS2Configuration) {}
