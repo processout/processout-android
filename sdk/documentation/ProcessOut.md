@@ -2,6 +2,8 @@
 
 ### [Initialization](Initialization.md)
 
+### [Services & Launchers](Services.md)
+
 ### [API Usage Examples](ApiExamples.md)
 
 ### [Getting Started With 3DS](3DS.md)
