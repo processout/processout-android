@@ -45,7 +45,7 @@ ProcessOut.instance.invoices.authorizeInvoiceResult
 To handle web based redirects service must implement method:\
 `PO3DSService.handle(redirect: PO3DSRedirect, callback: (ProcessOutResult<String>) -> Unit)`
 
-`PO3DSRedirectCustomTabLauncher` allows to automatically redirect user to provided url and collect the result.
+`PO3DSRedirectCustomTabLauncher` allows to automatically redirect user to provided URL and collect the result.
 Launcher will open Custom Tab ([overview](https://developer.chrome.com/docs/android/custom-tabs/)) when Chrome
 is installed and enabled on the device even if it's not a default browser,
 otherwise it will automatically fallback to the WebView.

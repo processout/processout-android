@@ -5,11 +5,12 @@
 ### Launch native APM payment sheet
 
 ```kotlin
+// 1) It is required to initialize launcher in onCreate() method of Activity or Fragment.
+
 private lateinit var launcher: PONativeAlternativePaymentMethodLauncher
 
 override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    // It is required to initialize launcher in onCreate() method of Activity or Fragment.
     launcher = PONativeAlternativePaymentMethodLauncher.create(from = this) { result ->
         when (result) {
             PONativeAlternativePaymentMethodResult.Success -> TODO()
@@ -18,12 +19,12 @@ override fun onCreate(savedInstanceState: Bundle?) {
     }
 }
 
-// Launch the activity.
+// 2) Launch the activity.
 
 launcher.launch(
     PONativeAlternativePaymentMethodConfiguration(
-        gatewayConfigurationId = "gateway_configuration_id",
-        invoiceId = "invoice_id"
+        gatewayConfigurationId = "gway_conf_",
+        invoiceId = "iv_"
     )
 )
 ```
@@ -56,8 +57,8 @@ val payButtonStyle = POButtonStyle(
 
 launcher.launch(
     PONativeAlternativePaymentMethodConfiguration(
-        gatewayConfigurationId = "gateway_configuration_id",
-        invoiceId = "invoice_id",
+        gatewayConfigurationId = "gway_conf_",
+        invoiceId = "iv_",
         style = Style(
             primaryButton = payButtonStyle
         ),
