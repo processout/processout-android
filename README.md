@@ -1,4 +1,4 @@
-# ProcessOut
+# ProcessOut Android SDK
 
 ## Requirements
 
@@ -18,7 +18,6 @@ Older versions up to `4.0.0` (including) only [available on the JitPack](https:/
 
 ## Documentation
 
-Check the documentation:\
 [ProcessOut Android SDK](sdk/documentation/ProcessOut.md)\
 [ProcessOut Android SDK - Checkout 3DS](checkout-3ds/documentation/ProcessOutCheckout3DS.md)\
 \
