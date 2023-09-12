@@ -9,6 +9,11 @@ internal data class POCaptureResponse(
     val nativeApm: PONativeAlternativePaymentMethodCapture
 )
 
+/**
+ * Defines capture state.
+ *
+ * @param[state] State of native alternative payment.
+ */
 @JsonClass(generateAdapter = true)
 data class PONativeAlternativePaymentMethodCapture(
     val state: PONativeAlternativePaymentMethodState

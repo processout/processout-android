@@ -131,6 +131,7 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidTestEspressoVersion"
 
     // Legacy
+    dokkaPlugin "org.jetbrains.dokka:android-documentation-plugin:$dokkaVersion"
     implementation "com.android.volley:volley:$volleyVersion"
     implementation "com.google.code.gson:gson:$gsonVersion"
 }

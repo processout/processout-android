@@ -7,7 +7,6 @@ import com.processout.sdk.api.model.response.POCustomerToken
 import com.processout.sdk.api.repository.CustomerTokensRepository
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
-import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -114,13 +113,11 @@ internal class CustomerTokensServiceImpl(
         }
     }
 
-    @ProcessOutInternalApi
     override suspend fun createCustomerToken(
         customerId: String
     ): ProcessOutResult<POCustomerToken> =
         repository.createCustomerToken(customerId)
 
-    @ProcessOutInternalApi
     override suspend fun createCustomer(
         request: POCreateCustomerRequest
     ): ProcessOutResult<POCustomer> =

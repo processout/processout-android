@@ -3,7 +3,8 @@
 ## API Usage Examples
 
 ### List available native APMs
-```
+
+```kotlin
 // Coroutine function
 
 val request = POAllGatewayConfigurationsRequest(

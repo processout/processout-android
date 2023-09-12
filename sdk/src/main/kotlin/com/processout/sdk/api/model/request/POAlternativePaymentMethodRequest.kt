@@ -1,7 +1,7 @@
 package com.processout.sdk.api.model.request
 
 /**
- * Request parameters that are used to create a redirect URL to initiate alternative payment.
+ * Request parameters used to create a redirect URL to initiate alternative payment.
  * __Note:__ make sure to supply proper [additionalData] specific for particular payment method.
  *
  * @param invoiceId Invoice identifier for the APM payment.

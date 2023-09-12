@@ -59,6 +59,9 @@ import com.processout.sdk.ui.shared.view.input.text.TextInput
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
+/**
+ * Bottom sheet that handles native alternative payment method.
+ */
 class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(), OnShowListener {
 
     companion object {

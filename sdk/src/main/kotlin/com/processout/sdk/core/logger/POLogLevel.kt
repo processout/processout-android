@@ -3,6 +3,7 @@ package com.processout.sdk.core.logger
 import android.util.Log
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 
+/** @suppress */
 @ProcessOutInternalApi
 enum class POLogLevel(val priority: Int) {
     DEBUG(Log.DEBUG),

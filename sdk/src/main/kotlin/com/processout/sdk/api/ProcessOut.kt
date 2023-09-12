@@ -13,16 +13,35 @@ import com.processout.sdk.api.service.*
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.di.*
 
+/**
+ * Entry point to ProcessOut Android SDK.
+ * Provides configuration and access to services.
+ * Use function [ProcessOut.configure] to initialize the SDK.
+ * Access services with [ProcessOut.instance] and [ProcessOut.legacyInstance].
+ */
 class ProcessOut private constructor(
     internal val apiGraph: ApiGraph
 ) {
 
+    /** Gateway configurations repository. */
     val gatewayConfigurations: POGatewayConfigurationsRepository
+
+    /** Cards repository. */
     val cards: POCardsRepository
+
+    /** Invoices service. */
     val invoices: POInvoicesService
+
+    /** Customer tokens service. */
     val customerTokens: POCustomerTokensService
+
+    /** Alternative payment methods service. */
     val alternativePaymentMethods: POAlternativePaymentMethodsService
+
+    /** Browser capabilities service. */
     val browserCapabilities: POBrowserCapabilitiesService
+
+    /** Dispatcher that allows to handle events during native alternative payments. */
     val nativeAlternativePaymentMethodEventDispatcher: PONativeAlternativePaymentMethodEventDispatcher
 
     init {
@@ -40,21 +59,32 @@ class ProcessOut private constructor(
             apiGraph.dispatcherGraph.nativeAlternativePaymentMethodEventDispatcher
     }
 
+    /**
+     * Entry point to ProcessOut Android SDK.
+     * Provides configuration and access to services.
+     * Use function [ProcessOut.configure] to initialize the SDK.
+     * Access services with [ProcessOut.instance] and [ProcessOut.legacyInstance].
+     */
     companion object {
-        const val NAME = BuildConfig.LIBRARY_NAME
-        const val VERSION = BuildConfig.LIBRARY_VERSION
+        /** SDK name. */
+        const val NAME: String = BuildConfig.LIBRARY_NAME
 
+        /** SDK version. */
+        const val VERSION: String = BuildConfig.LIBRARY_VERSION
+
+        /** Singleton instance of ProcessOut. */
         lateinit var instance: ProcessOut
             private set
 
+        /** Singleton instance of legacy ProcessOut. __Note:__ it will be removed in a future major release. */
         lateinit var legacyInstance: com.processout.processout_sdk.ProcessOut
             private set
 
+        /** Returns _true_ if ProcessOut has been configured. */
         val isConfigured: Boolean
             get() = ::instance.isInitialized
 
         /**
-         * Entry point to ProcessOut Android SDK.
          * Configures singleton instances accessible by [ProcessOut.instance] and [ProcessOut.legacyInstance].
          * Configuration applies only on first invocation and all subsequent calls are ignored.
          */

@@ -9,6 +9,7 @@ internal data class POCustomerResponse(
     val customer: POCustomer
 )
 
+/** @suppress */
 @ProcessOutInternalApi
 @JsonClass(generateAdapter = true)
 data class POCustomer(

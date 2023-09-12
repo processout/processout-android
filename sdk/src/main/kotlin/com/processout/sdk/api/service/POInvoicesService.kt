@@ -12,8 +12,14 @@ import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import kotlinx.coroutines.flow.SharedFlow
 
+/**
+ * Provides functionality related to invoices.
+ */
 interface POInvoicesService {
 
+    /**
+     * Subscribe to this flow to collect result from [authorizeInvoice] invocation.
+     */
     val authorizeInvoiceResult: SharedFlow<ProcessOutResult<String>>
 
     /**
@@ -35,37 +41,56 @@ interface POInvoicesService {
         callback: (ProcessOutResult<Unit>) -> Unit
     )
 
+    /**
+     * Initiates native alternative payment with the given request.
+     */
     suspend fun initiatePayment(
         request: PONativeAlternativePaymentMethodRequest
     ): ProcessOutResult<PONativeAlternativePaymentMethod>
 
+    /**
+     * Initiates native alternative payment with the given request.
+     */
     fun initiatePayment(
         request: PONativeAlternativePaymentMethodRequest,
         callback: ProcessOutCallback<PONativeAlternativePaymentMethod>
     )
 
+    /**
+     * Fetch information to start or continue payment.
+     */
     suspend fun fetchNativeAlternativePaymentMethodTransactionDetails(
         invoiceId: String,
         gatewayConfigurationId: String
     ): ProcessOutResult<PONativeAlternativePaymentMethodTransactionDetails>
 
+    /**
+     * Fetch information to start or continue payment.
+     */
     fun fetchNativeAlternativePaymentMethodTransactionDetails(
         invoiceId: String,
         gatewayConfigurationId: String,
         callback: ProcessOutCallback<PONativeAlternativePaymentMethodTransactionDetails>
     )
 
+    /**
+     * Captures native alternative payment.
+     */
     suspend fun captureNativeAlternativePayment(
         invoiceId: String,
         gatewayConfigurationId: String
     ): ProcessOutResult<PONativeAlternativePaymentMethodCapture>
 
+    /**
+     * Captures native alternative payment.
+     */
     fun captureNativeAlternativePayment(
         invoiceId: String,
         gatewayConfigurationId: String,
         callback: ProcessOutCallback<PONativeAlternativePaymentMethodCapture>
     )
 
+    /** @suppress */
     @ProcessOutInternalApi
     suspend fun createInvoice(request: POCreateInvoiceRequest): ProcessOutResult<POInvoice>
 }

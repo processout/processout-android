@@ -10,7 +10,6 @@ import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTra
 import com.processout.sdk.api.repository.InvoicesRepository
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.ProcessOutResult
-import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -144,7 +143,6 @@ internal class InvoicesServiceImpl(
         repository.captureNativeAlternativePayment(invoiceId, gatewayConfigurationId, callback)
     }
 
-    @ProcessOutInternalApi
     override suspend fun createInvoice(
         request: POCreateInvoiceRequest
     ): ProcessOutResult<POInvoice> =

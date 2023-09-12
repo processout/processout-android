@@ -5,6 +5,10 @@ import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 
+/**
+ * Activity that handles native alternative payment method in the bottom sheet.
+ * Start activity with [PONativeAlternativePaymentMethodLauncher].
+ */
 class PONativeAlternativePaymentMethodActivity : AppCompatActivity(), BottomSheetCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -4,6 +4,7 @@ import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
+/** @suppress */
 @ProcessOutInternalApi
 @JsonClass(generateAdapter = true)
 data class POCreateInvoiceRequest(

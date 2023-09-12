@@ -35,7 +35,7 @@ internal abstract class BaseRepository(
             when (e) {
                 is CancellationException -> {
                     val message = "Coroutine job is cancelled: $repositoryMethodName"
-                    POLogger.info("$message | %s", e)
+                    POLogger.info("%s | %s", message, e)
                     ensureActive()
                     ProcessOutResult.Failure(POFailure.Code.Cancelled, message, cause = e)
                 }

@@ -14,11 +14,13 @@ internal interface CustomerTokensRepository {
         request: POAssignCustomerTokenRequest
     ): ProcessOutResult<POCustomerTokenResponse>
 
+    /** @suppress */
     @ProcessOutInternalApi
     suspend fun createCustomerToken(
         customerId: String,
     ): ProcessOutResult<POCustomerToken>
 
+    /** @suppress */
     @ProcessOutInternalApi
     suspend fun createCustomer(request: POCreateCustomerRequest): ProcessOutResult<POCustomer>
 }

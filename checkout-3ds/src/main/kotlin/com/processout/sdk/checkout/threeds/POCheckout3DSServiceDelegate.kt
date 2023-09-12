@@ -9,6 +9,9 @@ import com.processout.sdk.api.model.threeds.PO3DS2Configuration
 import com.processout.sdk.api.model.threeds.PO3DSRedirect
 import com.processout.sdk.core.ProcessOutResult
 
+/**
+ * Delegate interface for [POCheckout3DSService].
+ */
 interface POCheckout3DSServiceDelegate {
 
     /**

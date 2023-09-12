@@ -16,6 +16,10 @@ import com.processout.sdk.core.toActivityResult
 import com.processout.sdk.ui.web.webview.WebViewAuthorizationActivityContract.Companion.EXTRA_CONFIGURATION
 import com.processout.sdk.ui.web.webview.WebViewAuthorizationActivityContract.Companion.EXTRA_RESULT
 
+/**
+ * Activity that handles 3DS and APM authorization in the WebView.
+ * Used internally as a fallback option when Custom Chrome Tabs is not available on the device.
+ */
 class POWebViewAuthorizationActivity : AppCompatActivity() {
 
     @Suppress("DEPRECATION")

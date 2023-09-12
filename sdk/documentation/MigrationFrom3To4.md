@@ -13,8 +13,9 @@
   `AlternativePaymentMethodProvider` -> `POAlternativePaymentMethodsService`\
   `NativeAlternativePaymentMethodEventDispatcher` -> `PONativeAlternativePaymentMethodEventDispatcher`
 - `PONativeAlternativePaymentMethodParameter.ParameterType` enum values has been renamed and extended.
-```
-// Access type:
+
+```kotlin
+// Native APM parameter type:
 val parameter: PONativeAlternativePaymentMethodParameter
 val type = parameter.type()
 val rawType = parameter.rawType
