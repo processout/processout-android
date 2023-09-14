@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="padding_layout">24dp</dimen>
+    <dimen name="padding_layout">20dp</dimen>
+    <dimen name="padding_inputs">4dp</dimen>
+    <dimen name="margin_input_vertical">10dp</dimen>
     <dimen name="margin_button_vertical">8dp</dimen>
+    <dimen name="margin_content_vertical">16dp</dimen>
 </resources>
