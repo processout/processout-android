@@ -2,14 +2,16 @@
 <resources>
 
     <style name="Theme.ProcessOut.Example" parent="Theme.MaterialComponents.Light.DarkActionBar">
-        <item name="colorPrimary">@color/color_primary</item>
-        <item name="colorPrimaryVariant">@color/color_primary_variant</item>
+        <item name="colorPrimary">@color/po_action_primary_default</item>
+        <item name="colorPrimaryVariant">@color/po_action_primary_pressed</item>
         <item name="colorOnPrimary">@android:color/white</item>
-        <item name="colorSecondary">@color/color_primary</item>
-        <item name="colorSecondaryVariant">@color/color_primary_variant</item>
+        <item name="colorSecondary">@color/po_action_primary_default</item>
+        <item name="colorSecondaryVariant">@color/po_action_primary_pressed</item>
         <item name="colorOnSecondary">@android:color/white</item>
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
-        <item name="android:colorBackground">@color/color_background</item>
+        <item name="android:colorBackground">@color/po_surface_level1</item>
+        <item name="textAppearanceButton">@style/TextAppearance.ProcessOut.Fixed.Button.Example</item>
+        <item name="materialButtonStyle">@style/Widget.ProcessOut.Button.Primary</item>
     </style>
 
 </resources>
