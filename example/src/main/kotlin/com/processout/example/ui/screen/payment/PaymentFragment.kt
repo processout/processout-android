@@ -49,7 +49,6 @@ class PaymentFragment : BaseFragment<FragmentPaymentBinding>(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        requireActivity().title = args.title
 
         binding.createInvoiceButton.setOnClickListener {
             binding.resultTextView.text = String()

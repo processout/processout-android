@@ -26,7 +26,6 @@ class AlternativePaymentMethodsFragment : BaseFragment<FragmentAlternativePaymen
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        requireActivity().title = args.title
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {

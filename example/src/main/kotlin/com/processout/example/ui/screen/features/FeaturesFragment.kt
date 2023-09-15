@@ -14,7 +14,6 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        requireActivity().setTitle(R.string.app_name)
         binding.nativeApmButton.setOnClickListener {
             findNavController().navigate(
                 FeaturesFragmentDirections.actionFeaturesFragmentToAlternativePaymentMethodsFragment(
