@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <style name="Widget.ProcessOut.Example.Toolbar" parent="Widget.MaterialComponents.Toolbar.Primary">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.ProcessOut.Example.Toolbar</item>
+        <item name="contentInsetStart">@dimen/padding_toolbar_title</item>
+        <item name="contentInsetStartWithNavigation">0dp</item>
+        <item name="titleMarginStart">0dp</item>
+    </style>
+
     <style name="Widget.ProcessOut.EditText.Example" parent="Widget.ProcessOut.EditText">
         <item name="android:textAppearance">@style/TextAppearance.ProcessOut</item>
     </style>
