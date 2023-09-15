@@ -11,7 +11,7 @@
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <item name="android:colorBackground">@color/po_surface_level1</item>
         <item name="toolbarStyle">@style/Widget.ProcessOut.Example.Toolbar</item>
-        <item name="textAppearanceButton">@style/TextAppearance.ProcessOut.Fixed.Button.Example</item>
+        <item name="textAppearanceButton">@style/TextAppearance.ProcessOut.Example.Fixed.Button</item>
         <item name="materialButtonStyle">@style/Widget.ProcessOut.Button.Primary</item>
     </style>
 

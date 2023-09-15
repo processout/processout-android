@@ -6,9 +6,10 @@
         <item name="contentInsetStart">@dimen/padding_toolbar_title</item>
         <item name="contentInsetStartWithNavigation">0dp</item>
         <item name="titleMarginStart">0dp</item>
+        <item name="titleTextAppearance">@style/TextAppearance.ProcessOut.Medium.Title</item>
     </style>
 
-    <style name="Widget.ProcessOut.EditText.Example" parent="Widget.ProcessOut.EditText">
+    <style name="Widget.ProcessOut.Example.EditText" parent="Widget.ProcessOut.EditText">
         <item name="android:textAppearance">@style/TextAppearance.ProcessOut</item>
     </style>
 

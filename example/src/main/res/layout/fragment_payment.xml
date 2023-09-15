@@ -28,7 +28,7 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/amount_input"
-                style="@style/Widget.ProcessOut.EditText.Example"
+                style="@style/Widget.ProcessOut.Example.EditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:importantForAutofill="no"
@@ -44,7 +44,7 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/currency_input"
-                style="@style/Widget.ProcessOut.EditText.Example"
+                style="@style/Widget.ProcessOut.Example.EditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:importantForAutofill="no"
