@@ -4,7 +4,7 @@
     <dimen name="content_padding">20dp</dimen>
     <dimen name="content_marginVertical">16dp</dimen>
     <dimen name="input_paddingHorizontal">4dp</dimen>
-    <dimen name="input_marginVertical">10dp</dimen>
+    <dimen name="input_marginVertical">12dp</dimen>
     <dimen name="button_marginVertical">8dp</dimen>
     <dimen name="listItem_paddingVertical">14dp</dimen>
 </resources>

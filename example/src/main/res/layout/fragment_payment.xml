@@ -11,7 +11,7 @@
     <LinearLayout
         android:id="@+id/inputs_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingHorizontal="@dimen/input_paddingHorizontal"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -20,10 +20,9 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/amount_input_layout"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            style="@style/Widget.ProcessOut.Example.TextInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/input_marginVertical"
             android:hint="@string/amount">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -37,9 +36,10 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/currency_input_layout"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            style="@style/Widget.ProcessOut.Example.TextInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/input_marginVertical"
             android:hint="@string/currency">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -56,7 +56,7 @@
         android:id="@+id/create_invoice_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/content_marginVertical"
+        android:layout_marginTop="@dimen/input_marginVertical"
         android:text="@string/create_invoice"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
