@@ -8,10 +8,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
-import com.processout.example.R
 import com.processout.example.databinding.FragmentPaymentBinding
+import com.processout.example.shared.toMessage
 import com.processout.example.ui.screen.base.BaseFragment
-import com.processout.sdk.core.POFailure
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodLauncher
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodResult
@@ -40,14 +39,9 @@ class PaymentFragment : BaseFragment<FragmentPaymentBinding>(
         viewModel.reset()
         when (result) {
             PONativeAlternativePaymentMethodResult.Success ->
-                binding.resultMessage.text = getString(R.string.result_success)
-            is PONativeAlternativePaymentMethodResult.Failure -> {
-                when (result.code) {
-                    POFailure.Code.Cancelled ->
-                        binding.resultMessage.text = getString(R.string.result_canceled)
-                    else -> binding.resultMessage.text = getString(R.string.result_failure)
-                }
-            }
+                binding.resultMessage.text = result.javaClass.simpleName
+            is PONativeAlternativePaymentMethodResult.Failure ->
+                binding.resultMessage.text = result.toMessage()
         }
     }
 
@@ -64,7 +58,7 @@ class PaymentFragment : BaseFragment<FragmentPaymentBinding>(
     private fun handle(uiState: PaymentUiState) {
         when (uiState) {
             is PaymentUiState.Submitted -> startNativeAPM(uiState.uiModel)
-            is PaymentUiState.Failure -> binding.resultMessage.text = uiState.failure.toString()
+            is PaymentUiState.Failure -> binding.resultMessage.text = uiState.failure.toMessage()
             else -> {}
         }
     }

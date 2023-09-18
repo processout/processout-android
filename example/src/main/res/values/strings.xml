@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">ProcessOut SDK Example</string>
-    <string name="native_apm">Native Alternative Payment</string>
-    <string name="create_invoice">Create Invoice</string>
-    <string name="amount">Amount</string>
-    <string name="currency">Currency</string>
-    <string name="result_success">Success</string>
-    <string name="result_failure">Failure</string>
-    <string name="result_canceled">Canceled</string>
+    <string name="app_name" translatable="false">ProcessOut SDK Example</string>
+    <string name="native_apm" translatable="false">Native Alternative Payment</string>
+    <string name="create_invoice" translatable="false">Create Invoice</string>
+    <string name="amount" translatable="false">Amount</string>
+    <string name="currency" translatable="false">Currency</string>
 </resources>
