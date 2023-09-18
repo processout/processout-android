@@ -4,8 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="@dimen/content_padding"
+    android:layout_height="match_parent"
     tools:context=".ui.screen.payment.PaymentFragment">
 
     <LinearLayout
@@ -13,7 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingHorizontal="@dimen/input_paddingHorizontal"
+        android:paddingHorizontal="@dimen/layout_padding"
+        android:paddingTop="@dimen/content_padding"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -39,7 +39,7 @@
             style="@style/Widget.ProcessOut.Example.TextInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/input_marginVertical"
+            android:layout_marginTop="@dimen/input_space_vertical"
             android:hint="@string/currency">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -52,16 +52,6 @@
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 
-    <Button
-        android:id="@+id/create_invoice_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/input_marginVertical"
-        android:text="@string/create_invoice"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/inputs_container" />
-
     <TextView
         android:id="@+id/result_text_view"
         android:layout_width="wrap_content"
@@ -71,7 +61,29 @@
         android:textStyle="bold"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/create_invoice_button"
+        app:layout_constraintTop_toBottomOf="@+id/inputs_container"
         tools:text="Status" />
+
+    <View
+        android:id="@+id/po_footer_divider"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/po_borderWidth"
+        android:layout_marginBottom="@dimen/button_marginVertical"
+        android:background="@color/po_border_subtle"
+        app:layout_constraintBottom_toTopOf="@+id/create_invoice_button"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <Button
+        android:id="@+id/create_invoice_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/content_padding"
+        android:layout_marginEnd="@dimen/content_padding"
+        android:layout_marginBottom="@dimen/button_marginVertical"
+        android:text="@string/create_invoice"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
