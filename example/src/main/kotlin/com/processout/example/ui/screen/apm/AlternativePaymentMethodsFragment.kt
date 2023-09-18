@@ -8,6 +8,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.DividerItemDecoration
 import com.processout.example.databinding.FragmentAlternativePaymentMethodsBinding
 import com.processout.example.databinding.ItemApmBinding
 import com.processout.example.ui.screen.apm.AlternativePaymentMethodsUiState.Initial
@@ -46,20 +47,23 @@ class AlternativePaymentMethodsFragment : BaseFragment<FragmentAlternativePaymen
     }
 
     private fun bind(uiModel: AlternativePaymentMethodsUiModel) {
-        binding.recyclerView.setup(
-            uiModel.gatewayConfigurations,
-            ItemApmBinding::inflate,
-            { holder, data ->
-                holder?.item?.text = data.name
-                holder?.item?.setOnClickListener {
-                    findNavController().navigate(
-                        AlternativePaymentMethodsFragmentDirections
-                            .actionAlternativePaymentMethodsFragmentToPaymentFragment(
-                                data.name, data.id
-                            )
-                    )
+        with(binding.recyclerView) {
+            setup(
+                uiModel.gatewayConfigurations,
+                ItemApmBinding::inflate,
+                { holder, data ->
+                    holder?.item?.text = data.name
+                    holder?.item?.setOnClickListener {
+                        findNavController().navigate(
+                            AlternativePaymentMethodsFragmentDirections
+                                .actionAlternativePaymentMethodsFragmentToPaymentFragment(
+                                    data.name, data.id
+                                )
+                        )
+                    }
                 }
-            }
-        )
+            )
+            addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+        }
     }
 }

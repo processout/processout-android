@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="@dimen/padding_layout"
+    android:padding="@dimen/content_padding"
     tools:context=".ui.screen.payment.PaymentFragment">
 
     <LinearLayout
@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:paddingHorizontal="@dimen/padding_inputs"
+        android:paddingHorizontal="@dimen/input_paddingHorizontal"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -23,7 +23,7 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/margin_input_vertical"
+            android:layout_marginBottom="@dimen/input_marginVertical"
             android:hint="@string/amount">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -56,7 +56,7 @@
         android:id="@+id/create_invoice_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/margin_content_vertical"
+        android:layout_marginTop="@dimen/content_marginVertical"
         android:text="@string/create_invoice"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -66,7 +66,7 @@
         android:id="@+id/result_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/margin_content_vertical"
+        android:layout_marginTop="@dimen/content_marginVertical"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintLeft_toLeftOf="parent"

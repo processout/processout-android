@@ -3,7 +3,7 @@
 
     <style name="Widget.ProcessOut.Example.Toolbar" parent="Widget.MaterialComponents.Toolbar.Primary">
         <item name="materialThemeOverlay">@style/ThemeOverlay.ProcessOut.Example.Toolbar</item>
-        <item name="contentInsetStart">@dimen/padding_toolbar_title</item>
+        <item name="contentInsetStart">@dimen/layout_padding</item>
         <item name="contentInsetStartWithNavigation">0dp</item>
         <item name="titleMarginStart">0dp</item>
         <item name="titleTextAppearance">@style/TextAppearance.ProcessOut.Medium.Title</item>
