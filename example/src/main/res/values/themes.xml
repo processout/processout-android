@@ -11,6 +11,7 @@
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <item name="android:colorBackground">@color/po_surface_level1</item>
         <item name="toolbarStyle">@style/Widget.ProcessOut.Example.Toolbar</item>
+        <item name="circularProgressIndicatorStyle">@style/Widget.MaterialComponents.CircularProgressIndicator.Small</item>
         <item name="textAppearanceButton">@style/TextAppearance.ProcessOut.Example.Fixed.Button</item>
         <item name="materialButtonStyle">@style/Widget.ProcessOut.Button.Primary</item>
     </style>

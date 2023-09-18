@@ -10,6 +10,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.processout.example.databinding.FragmentAlternativePaymentMethodsBinding
 import com.processout.example.databinding.ItemApmBinding
+import com.processout.example.ui.screen.apm.AlternativePaymentMethodsUiState.Initial
+import com.processout.example.ui.screen.apm.AlternativePaymentMethodsUiState.Started
 import com.processout.example.ui.screen.base.BaseFragment
 import com.processout.example.ui.shared.setup
 import kotlinx.coroutines.launch
@@ -26,19 +28,26 @@ class AlternativePaymentMethodsFragment : BaseFragment<FragmentAlternativePaymen
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect {
-                    bind(it.gatewayConfigurations)
-                }
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                viewModel.uiState.collect { handle(it) }
             }
         }
     }
 
-    private fun bind(gatewayConfigurations: List<GatewayConfiguration>) {
+    private fun handle(uiState: AlternativePaymentMethodsUiState) {
+        when (uiState) {
+            Initial -> binding.circularProgressIndicator.visibility = View.VISIBLE
+            is Started -> {
+                binding.circularProgressIndicator.visibility = View.GONE
+                bind(uiState.uiModel)
+            }
+        }
+    }
+
+    private fun bind(uiModel: AlternativePaymentMethodsUiModel) {
         binding.recyclerView.setup(
-            gatewayConfigurations,
+            uiModel.gatewayConfigurations,
             ItemApmBinding::inflate,
             { holder, data ->
                 holder?.item?.text = data.name
