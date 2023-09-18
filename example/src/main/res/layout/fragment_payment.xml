@@ -7,66 +7,77 @@
     android:layout_height="match_parent"
     tools:context=".ui.screen.payment.PaymentFragment">
 
-    <LinearLayout
-        android:id="@+id/inputs_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingHorizontal="@dimen/layout_padding"
-        android:paddingTop="@dimen/content_padding"
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollable_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:defaultFocusHighlightEnabled="false"
+        android:fillViewport="true"
+        android:isScrollContainer="true"
+        app:layout_constraintBottom_toTopOf="@id/footer_divider"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        tools:targetApi="O">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/amount_input_layout"
-            style="@style/Widget.ProcessOut.Example.TextInputLayout"
+        <LinearLayout
+            android:id="@+id/inputs_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/amount">
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/layout_padding"
+            android:paddingTop="@dimen/content_padding"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/amount_input"
-                style="@style/Widget.ProcessOut.Example.EditText"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/amount_input_layout"
+                style="@style/Widget.ProcessOut.Example.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:importantForAutofill="no"
-                android:inputType="numberDecimal" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:hint="@string/amount">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/currency_input_layout"
-            style="@style/Widget.ProcessOut.Example.TextInputLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/input_space_vertical"
-            android:hint="@string/currency">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/amount_input"
+                    style="@style/Widget.ProcessOut.Example.EditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:importantForAutofill="no"
+                    android:inputType="numberDecimal" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/currency_input"
-                style="@style/Widget.ProcessOut.Example.EditText"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/currency_input_layout"
+                style="@style/Widget.ProcessOut.Example.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:imeOptions="actionDone"
-                android:importantForAutofill="no"
-                android:inputType="text|textCapCharacters" />
-        </com.google.android.material.textfield.TextInputLayout>
-    </LinearLayout>
+                android:layout_marginTop="@dimen/input_space_vertical"
+                android:hint="@string/currency">
 
-    <TextView
-        android:id="@+id/result_text_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/content_marginVertical"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/inputs_container"
-        tools:text="Status" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/currency_input"
+                    style="@style/Widget.ProcessOut.Example.EditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionDone"
+                    android:importantForAutofill="no"
+                    android:inputType="text|textCapCharacters" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/result_message"
+                style="@style/Widget.ProcessOut.Body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/content_marginVertical"
+                android:gravity="start"
+                tools:text="Result message" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
     <View
-        android:id="@+id/po_footer_divider"
+        android:id="@+id/footer_divider"
         android:layout_width="match_parent"
         android:layout_height="@dimen/po_borderWidth"
         android:layout_marginBottom="@dimen/button_marginVertical"

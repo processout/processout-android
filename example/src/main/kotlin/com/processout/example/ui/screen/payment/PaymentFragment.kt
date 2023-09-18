@@ -40,12 +40,12 @@ class PaymentFragment : BaseFragment<FragmentPaymentBinding>(
         viewModel.reset()
         when (result) {
             PONativeAlternativePaymentMethodResult.Success ->
-                binding.resultTextView.text = getString(R.string.result_success)
+                binding.resultMessage.text = getString(R.string.result_success)
             is PONativeAlternativePaymentMethodResult.Failure -> {
                 when (result.code) {
                     POFailure.Code.Cancelled ->
-                        binding.resultTextView.text = getString(R.string.result_canceled)
-                    else -> binding.resultTextView.text = getString(R.string.result_failure)
+                        binding.resultMessage.text = getString(R.string.result_canceled)
+                    else -> binding.resultMessage.text = getString(R.string.result_failure)
                 }
             }
         }
@@ -64,7 +64,7 @@ class PaymentFragment : BaseFragment<FragmentPaymentBinding>(
     private fun handle(uiState: PaymentUiState) {
         when (uiState) {
             is PaymentUiState.Submitted -> startNativeAPM(uiState.uiModel)
-            is PaymentUiState.Failure -> binding.resultTextView.text = uiState.failure.toString()
+            is PaymentUiState.Failure -> binding.resultMessage.text = uiState.failure.toString()
             else -> {}
         }
     }
@@ -82,7 +82,7 @@ class PaymentFragment : BaseFragment<FragmentPaymentBinding>(
     }
 
     private fun onSubmitClick() {
-        binding.resultTextView.text = String()
+        binding.resultMessage.text = String()
         val amount = binding.amountInput.text.toString()
         val currency = binding.currencyInput.text.toString()
         viewModel.createInvoice(amount, currency)
