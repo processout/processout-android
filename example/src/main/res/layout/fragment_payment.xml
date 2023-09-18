@@ -47,6 +47,7 @@
                 style="@style/Widget.ProcessOut.Example.EditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:imeOptions="actionDone"
                 android:importantForAutofill="no"
                 android:inputType="text|textCapCharacters" />
         </com.google.android.material.textfield.TextInputLayout>
