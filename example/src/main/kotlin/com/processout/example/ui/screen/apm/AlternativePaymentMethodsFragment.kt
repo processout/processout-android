@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import com.processout.example.databinding.FragmentAlternativePaymentMethodsBinding
 import com.processout.example.databinding.ItemApmBinding
 import com.processout.example.ui.screen.apm.AlternativePaymentMethodsUiState.Initial
-import com.processout.example.ui.screen.apm.AlternativePaymentMethodsUiState.Started
+import com.processout.example.ui.screen.apm.AlternativePaymentMethodsUiState.Loaded
 import com.processout.example.ui.screen.base.BaseFragment
 import com.processout.example.ui.shared.setup
 import kotlinx.coroutines.launch
@@ -34,15 +34,20 @@ class AlternativePaymentMethodsFragment : BaseFragment<FragmentAlternativePaymen
                 viewModel.uiState.collect { handle(it) }
             }
         }
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            viewModel.onRefresh()
+        }
     }
 
     private fun handle(uiState: AlternativePaymentMethodsUiState) {
         when (uiState) {
             Initial -> binding.circularProgressIndicator.visibility = View.VISIBLE
-            is Started -> {
+            is Loaded -> {
                 binding.circularProgressIndicator.visibility = View.GONE
+                binding.swipeRefreshLayout.isRefreshing = false
                 bind(uiState.uiModel)
             }
+            else -> {}
         }
     }
 

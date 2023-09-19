@@ -33,10 +33,19 @@ class AlternativePaymentMethodsViewModel(
     val uiState = _uiState.asStateFlow()
 
     init {
+        fetch()
+    }
+
+    fun onRefresh() {
+        _uiState.value = Refreshing
+        fetch()
+    }
+
+    private fun fetch() {
         viewModelScope.launch {
             val request = POAllGatewayConfigurationsRequest(filter)
             gatewayConfigurations.fetch(request).handleSuccess { result ->
-                _uiState.value = Started(result.toUiModel())
+                _uiState.value = Loaded(result.toUiModel())
             }
         }
     }

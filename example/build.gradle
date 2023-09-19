@@ -93,6 +93,7 @@ dependencies {
     implementation "androidx.navigation:navigation-fragment-ktx:$androidxNavigationVersion"
     implementation "androidx.navigation:navigation-ui-ktx:$androidxNavigationVersion"
     implementation "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:$androidxSwipeRefreshLayoutVersion"
 
     implementation "com.google.android.material:material:$materialVersion"
 

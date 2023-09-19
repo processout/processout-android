@@ -2,7 +2,8 @@ package com.processout.example.ui.screen.apm
 
 sealed class AlternativePaymentMethodsUiState {
     data object Initial : AlternativePaymentMethodsUiState()
-    data class Started(val uiModel: AlternativePaymentMethodsUiModel) : AlternativePaymentMethodsUiState()
+    data object Refreshing : AlternativePaymentMethodsUiState()
+    data class Loaded(val uiModel: AlternativePaymentMethodsUiModel) : AlternativePaymentMethodsUiState()
 }
 
 data class AlternativePaymentMethodsUiModel(
