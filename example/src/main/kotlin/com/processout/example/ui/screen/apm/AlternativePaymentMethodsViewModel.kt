@@ -44,7 +44,6 @@ class AlternativePaymentMethodsViewModel(
 
 private fun POAllGatewayConfigurations.toUiModel() =
     AlternativePaymentMethodsUiModel(
-        gatewayConfigurations.map {
-            GatewayConfiguration(it.id, it.gateway?.displayName ?: it.id)
-        }
+        gatewayConfigurations.filter { it.enabled }
+            .map { GatewayConfiguration(it.id, it.gateway?.displayName ?: it.id) }
     )
