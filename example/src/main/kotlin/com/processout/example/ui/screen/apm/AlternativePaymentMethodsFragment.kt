@@ -15,6 +15,7 @@ import com.processout.example.ui.screen.apm.AlternativePaymentMethodsUiState.Ini
 import com.processout.example.ui.screen.apm.AlternativePaymentMethodsUiState.Loaded
 import com.processout.example.ui.screen.base.BaseFragment
 import com.processout.example.ui.shared.setup
+import com.processout.sdk.R
 import kotlinx.coroutines.launch
 
 class AlternativePaymentMethodsFragment : BaseFragment<FragmentAlternativePaymentMethodsBinding>(
@@ -34,9 +35,13 @@ class AlternativePaymentMethodsFragment : BaseFragment<FragmentAlternativePaymen
                 viewModel.uiState.collect { handle(it) }
             }
         }
-        binding.swipeRefreshLayout.setOnRefreshListener {
-            viewModel.onRefresh()
+        with(binding.swipeRefreshLayout) {
+            setColorSchemeResources(R.color.po_action_primary_default)
+            setOnRefreshListener { viewModel.onRefresh() }
         }
+        binding.recyclerView.addItemDecoration(
+            DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
+        )
     }
 
     private fun handle(uiState: AlternativePaymentMethodsUiState) {
@@ -52,23 +57,20 @@ class AlternativePaymentMethodsFragment : BaseFragment<FragmentAlternativePaymen
     }
 
     private fun bind(uiModel: AlternativePaymentMethodsUiModel) {
-        with(binding.recyclerView) {
-            setup(
-                uiModel.gatewayConfigurations,
-                ItemApmBinding::inflate,
-                { holder, data ->
-                    holder?.item?.text = data.name
-                    holder?.item?.setOnClickListener {
-                        findNavController().navigate(
-                            AlternativePaymentMethodsFragmentDirections
-                                .actionAlternativePaymentMethodsFragmentToPaymentFragment(
-                                    data.name, data.id
-                                )
-                        )
-                    }
+        binding.recyclerView.setup(
+            uiModel.gatewayConfigurations,
+            ItemApmBinding::inflate,
+            { holder, data ->
+                holder?.item?.text = data.name
+                holder?.item?.setOnClickListener {
+                    findNavController().navigate(
+                        AlternativePaymentMethodsFragmentDirections
+                            .actionAlternativePaymentMethodsFragmentToPaymentFragment(
+                                data.name, data.id
+                            )
+                    )
                 }
-            )
-            addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
-        }
+            }
+        )
     }
 }
