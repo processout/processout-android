@@ -3,13 +3,18 @@ package com.processout.example.ui.screen.payment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.processout.example.shared.getOrNull
+import com.processout.example.shared.onFailure
+import com.processout.example.shared.onSuccess
 import com.processout.example.ui.screen.payment.PaymentUiState.Failure
 import com.processout.example.ui.screen.payment.PaymentUiState.Initial
 import com.processout.example.ui.screen.payment.PaymentUiState.Submitted
 import com.processout.sdk.api.ProcessOut
+import com.processout.sdk.api.model.request.POCreateCustomerRequest
 import com.processout.sdk.api.model.request.POCreateInvoiceRequest
+import com.processout.sdk.api.model.response.POCustomer
+import com.processout.sdk.api.service.POCustomerTokensService
 import com.processout.sdk.api.service.POInvoicesService
-import com.processout.sdk.core.ProcessOutResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -17,7 +22,8 @@ import java.util.*
 
 class PaymentViewModel(
     private val gatewayConfigurationId: String,
-    private val invoices: POInvoicesService
+    private val invoices: POInvoicesService,
+    private val customerTokens: POCustomerTokensService
 ) : ViewModel() {
 
     class Factory(
@@ -25,10 +31,13 @@ class PaymentViewModel(
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            PaymentViewModel(
-                gatewayConfigurationId,
-                ProcessOut.instance.invoices
-            ) as T
+            with(ProcessOut.instance) {
+                PaymentViewModel(
+                    gatewayConfigurationId,
+                    invoices,
+                    customerTokens
+                ) as T
+            }
     }
 
     private val _uiState = MutableStateFlow<PaymentUiState>(Initial)
@@ -37,17 +46,28 @@ class PaymentViewModel(
     fun createInvoice(amount: String, currency: String) {
         _uiState.value = PaymentUiState.Submitting
         viewModelScope.launch {
-            val request = POCreateInvoiceRequest(UUID.randomUUID().toString(), amount, currency)
-            invoices.createInvoice(request).let { result ->
-                when (result) {
-                    is ProcessOutResult.Success -> _uiState.value = Submitted(
-                        PaymentUiModel(gatewayConfigurationId, result.value.id)
-                    )
-                    is ProcessOutResult.Failure -> _uiState.value = Failure(result.copy())
+            val request = POCreateInvoiceRequest(
+                name = UUID.randomUUID().toString(),
+                amount = amount,
+                currency = currency,
+                customerId = createCustomer()?.id
+            )
+            invoices.createInvoice(request)
+                .onSuccess {
+                    _uiState.value = Submitted(PaymentUiModel(gatewayConfigurationId, it.id))
                 }
-            }
+                .onFailure { _uiState.value = Failure(it) }
         }
     }
+
+    private suspend fun createCustomer(): POCustomer? =
+        customerTokens.createCustomer(
+            POCreateCustomerRequest(
+                firstName = "John",
+                lastName = "Doe",
+                email = "test@email.com"
+            )
+        ).getOrNull()
 
     fun reset() {
         _uiState.value = Initial
