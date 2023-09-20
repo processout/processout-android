@@ -1,4 +1,4 @@
-package com.processout.example.ui.screen.payment
+package com.processout.example.ui.screen.nativeapm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -6,9 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.processout.example.shared.getOrNull
 import com.processout.example.shared.onFailure
 import com.processout.example.shared.onSuccess
-import com.processout.example.ui.screen.payment.PaymentUiState.Failure
-import com.processout.example.ui.screen.payment.PaymentUiState.Initial
-import com.processout.example.ui.screen.payment.PaymentUiState.Submitted
+import com.processout.example.ui.screen.nativeapm.PaymentUiState.Failure
+import com.processout.example.ui.screen.nativeapm.PaymentUiState.Initial
+import com.processout.example.ui.screen.nativeapm.PaymentUiState.Submitted
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POCreateCustomerRequest
 import com.processout.sdk.api.model.request.POCreateInvoiceRequest

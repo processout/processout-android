@@ -1,4 +1,4 @@
-package com.processout.example.ui.screen.payment
+package com.processout.example.ui.screen.nativeapm
 
 import com.processout.sdk.core.ProcessOutResult
 

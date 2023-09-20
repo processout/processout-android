@@ -33,7 +33,7 @@
 
     <fragment
         android:id="@+id/paymentFragment"
-        android:name="com.processout.example.ui.screen.payment.PaymentFragment"
+        android:name="com.processout.example.ui.screen.nativeapm.PaymentFragment"
         android:label="{title}"
         tools:layout="@layout/fragment_payment">
         <argument
