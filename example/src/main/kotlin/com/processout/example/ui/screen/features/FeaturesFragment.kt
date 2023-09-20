@@ -14,13 +14,21 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.nativeApmButton.setOnClickListener {
-            findNavController().navigate(
-                FeaturesFragmentDirections.actionFeaturesFragmentToAlternativePaymentMethodsFragment(
-                    getString(R.string.native_apm),
-                    POAllGatewayConfigurationsRequest.Filter.NATIVE_ALTERNATIVE_PAYMENT_METHODS
+        val navController = findNavController()
+        with(binding) {
+            cardPaymentButton.setOnClickListener {
+                navController.navigate(
+                    FeaturesFragmentDirections.actionFeaturesFragmentToCardPaymentFragment()
                 )
-            )
+            }
+            nativeApmButton.setOnClickListener {
+                navController.navigate(
+                    FeaturesFragmentDirections.actionFeaturesFragmentToAlternativePaymentMethodsFragment(
+                        getString(R.string.native_apm),
+                        POAllGatewayConfigurationsRequest.Filter.NATIVE_ALTERNATIVE_PAYMENT_METHODS
+                    )
+                )
+            }
         }
     }
 }

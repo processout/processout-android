@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_featuresFragment_to_alternativePaymentMethodsFragment"
             app:destination="@id/alternativePaymentMethodsFragment" />
+        <action
+            android:id="@+id/action_featuresFragment_to_cardPaymentFragment"
+            app:destination="@id/cardPaymentFragment" />
     </fragment>
 
     <fragment
@@ -43,5 +46,11 @@
             android:name="gatewayConfigurationId"
             app:argType="string" />
     </fragment>
+
+    <fragment
+        android:id="@+id/cardPaymentFragment"
+        android:name="com.processout.example.ui.screen.card.CardPaymentFragment"
+        android:label="@string/card_payment"
+        tools:layout="@layout/fragment_card_payment" />
 
 </navigation>
