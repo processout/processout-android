@@ -56,10 +56,26 @@ class PaymentFragment : BaseFragment<FragmentPaymentBinding>(
     }
 
     private fun handle(uiState: PaymentUiState) {
+        handleControls(uiState)
         when (uiState) {
             is PaymentUiState.Submitted -> startNativeAPM(uiState.uiModel)
             is PaymentUiState.Failure -> binding.resultMessage.text = uiState.failure.toMessage()
             else -> {}
+        }
+    }
+
+    private fun handleControls(uiState: PaymentUiState) {
+        when (uiState) {
+            PaymentUiState.Submitting -> enableControls(false)
+            else -> enableControls(true)
+        }
+    }
+
+    private fun enableControls(isEnabled: Boolean) {
+        with(binding) {
+            amountInput.isEnabled = isEnabled
+            currencyInput.isEnabled = isEnabled
+            createInvoiceButton.isClickable = isEnabled
         }
     }
 
