@@ -65,7 +65,7 @@ class AlternativePaymentMethodsFragment : BaseFragment<FragmentAlternativePaymen
                 holder?.item?.setOnClickListener {
                     findNavController().navigate(
                         AlternativePaymentMethodsFragmentDirections
-                            .actionAlternativePaymentMethodsFragmentToPaymentFragment(
+                            .actionAlternativePaymentMethodsFragmentToNativeApmFragment(
                                 data.name, data.id
                             )
                     )

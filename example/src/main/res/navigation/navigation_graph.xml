@@ -21,8 +21,8 @@
         android:label="{title}"
         tools:layout="@layout/fragment_alternative_payment_methods">
         <action
-            android:id="@+id/action_alternativePaymentMethodsFragment_to_paymentFragment"
-            app:destination="@id/paymentFragment" />
+            android:id="@+id/action_alternativePaymentMethodsFragment_to_nativeApmFragment"
+            app:destination="@id/nativeApmFragment" />
         <argument
             android:name="title"
             app:argType="string" />
@@ -32,10 +32,10 @@
     </fragment>
 
     <fragment
-        android:id="@+id/paymentFragment"
-        android:name="com.processout.example.ui.screen.nativeapm.PaymentFragment"
+        android:id="@+id/nativeApmFragment"
+        android:name="com.processout.example.ui.screen.nativeapm.NativeApmFragment"
         android:label="{title}"
-        tools:layout="@layout/fragment_payment">
+        tools:layout="@layout/fragment_native_apm">
         <argument
             android:name="title"
             app:argType="string" />

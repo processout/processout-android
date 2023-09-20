@@ -6,9 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.processout.example.shared.getOrNull
 import com.processout.example.shared.onFailure
 import com.processout.example.shared.onSuccess
-import com.processout.example.ui.screen.nativeapm.PaymentUiState.Failure
-import com.processout.example.ui.screen.nativeapm.PaymentUiState.Initial
-import com.processout.example.ui.screen.nativeapm.PaymentUiState.Submitted
+import com.processout.example.ui.screen.nativeapm.NativeApmUiState.Failure
+import com.processout.example.ui.screen.nativeapm.NativeApmUiState.Initial
+import com.processout.example.ui.screen.nativeapm.NativeApmUiState.Submitted
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POCreateCustomerRequest
 import com.processout.sdk.api.model.request.POCreateInvoiceRequest
@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.*
 
-class PaymentViewModel(
+class NativeApmViewModel(
     private val gatewayConfigurationId: String,
     private val invoices: POInvoicesService,
     private val customerTokens: POCustomerTokensService
@@ -32,7 +32,7 @@ class PaymentViewModel(
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
             with(ProcessOut.instance) {
-                PaymentViewModel(
+                NativeApmViewModel(
                     gatewayConfigurationId,
                     invoices,
                     customerTokens
@@ -40,11 +40,11 @@ class PaymentViewModel(
             }
     }
 
-    private val _uiState = MutableStateFlow<PaymentUiState>(Initial)
+    private val _uiState = MutableStateFlow<NativeApmUiState>(Initial)
     val uiState = _uiState.asStateFlow()
 
     fun createInvoice(amount: String, currency: String) {
-        _uiState.value = PaymentUiState.Submitting
+        _uiState.value = NativeApmUiState.Submitting
         viewModelScope.launch {
             val request = POCreateInvoiceRequest(
                 name = UUID.randomUUID().toString(),
@@ -54,7 +54,7 @@ class PaymentViewModel(
             )
             invoices.createInvoice(request)
                 .onSuccess {
-                    _uiState.value = Submitted(PaymentUiModel(gatewayConfigurationId, it.id))
+                    _uiState.value = Submitted(NativeApmUiModel(gatewayConfigurationId, it.id))
                 }
                 .onFailure { _uiState.value = Failure(it) }
         }

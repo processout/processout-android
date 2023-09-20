@@ -8,7 +8,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
-import com.processout.example.databinding.FragmentPaymentBinding
+import com.processout.example.databinding.FragmentNativeApmBinding
 import com.processout.example.shared.toMessage
 import com.processout.example.ui.screen.base.BaseFragment
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration
@@ -16,14 +16,14 @@ import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodLauncher
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodResult
 import kotlinx.coroutines.launch
 
-class PaymentFragment : BaseFragment<FragmentPaymentBinding>(
-    FragmentPaymentBinding::inflate
+class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
+    FragmentNativeApmBinding::inflate
 ) {
 
-    private val args: PaymentFragmentArgs by navArgs()
+    private val args: NativeApmFragmentArgs by navArgs()
 
-    private val viewModel: PaymentViewModel by viewModels {
-        PaymentViewModel.Factory(args.gatewayConfigurationId)
+    private val viewModel: NativeApmViewModel by viewModels {
+        NativeApmViewModel.Factory(args.gatewayConfigurationId)
     }
 
     private lateinit var launcher: PONativeAlternativePaymentMethodLauncher
@@ -55,18 +55,18 @@ class PaymentFragment : BaseFragment<FragmentPaymentBinding>(
         }
     }
 
-    private fun handle(uiState: PaymentUiState) {
+    private fun handle(uiState: NativeApmUiState) {
         handleControls(uiState)
         when (uiState) {
-            is PaymentUiState.Submitted -> startNativeAPM(uiState.uiModel)
-            is PaymentUiState.Failure -> binding.resultMessage.text = uiState.failure.toMessage()
+            is NativeApmUiState.Submitted -> launch(uiState.uiModel)
+            is NativeApmUiState.Failure -> binding.resultMessage.text = uiState.failure.toMessage()
             else -> {}
         }
     }
 
-    private fun handleControls(uiState: PaymentUiState) {
+    private fun handleControls(uiState: NativeApmUiState) {
         when (uiState) {
-            PaymentUiState.Submitting -> enableControls(false)
+            NativeApmUiState.Submitting -> enableControls(false)
             else -> enableControls(true)
         }
     }
@@ -98,7 +98,7 @@ class PaymentFragment : BaseFragment<FragmentPaymentBinding>(
         viewModel.createInvoice(amount, currency)
     }
 
-    private fun startNativeAPM(uiModel: PaymentUiModel) {
+    private fun launch(uiModel: NativeApmUiModel) {
         launcher.launch(
             PONativeAlternativePaymentMethodConfiguration(
                 gatewayConfigurationId = uiModel.gatewayConfigurationId,
