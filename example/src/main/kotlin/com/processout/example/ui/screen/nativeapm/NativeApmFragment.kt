@@ -56,30 +56,6 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
         }
     }
 
-    private fun handle(uiState: NativeApmUiState) {
-        handleControls(uiState)
-        when (uiState) {
-            is NativeApmUiState.Submitted -> launch(uiState.uiModel)
-            is NativeApmUiState.Failure -> binding.resultMessage.text = uiState.failure.toMessage()
-            else -> {}
-        }
-    }
-
-    private fun handleControls(uiState: NativeApmUiState) {
-        when (uiState) {
-            NativeApmUiState.Submitting -> enableControls(false)
-            else -> enableControls(true)
-        }
-    }
-
-    private fun enableControls(isEnabled: Boolean) {
-        with(binding) {
-            amountInput.isEnabled = isEnabled
-            currencyInput.isEnabled = isEnabled
-            createInvoiceButton.isClickable = isEnabled
-        }
-    }
-
     private fun setOnClickListeners() {
         binding.createInvoiceButton.setOnClickListener { onSubmitClick() }
         binding.currencyInput.setOnEditorActionListener { _, actionId, _ ->
@@ -99,6 +75,15 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
         viewModel.createInvoice(amount, currency)
     }
 
+    private fun handle(uiState: NativeApmUiState) {
+        handleControls(uiState)
+        when (uiState) {
+            is NativeApmUiState.Submitted -> launch(uiState.uiModel)
+            is NativeApmUiState.Failure -> binding.resultMessage.text = uiState.failure.toMessage()
+            else -> {}
+        }
+    }
+
     private fun launch(uiModel: NativeApmUiModel) {
         launcher.launch(
             PONativeAlternativePaymentMethodConfiguration(
@@ -106,5 +91,21 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
                 invoiceId = uiModel.invoiceId
             )
         )
+        viewModel.onLaunched()
+    }
+
+    private fun handleControls(uiState: NativeApmUiState) {
+        when (uiState) {
+            NativeApmUiState.Submitting -> enableControls(false)
+            else -> enableControls(true)
+        }
+    }
+
+    private fun enableControls(isEnabled: Boolean) {
+        with(binding) {
+            amountInput.isEnabled = isEnabled
+            currencyInput.isEnabled = isEnabled
+            createInvoiceButton.isClickable = isEnabled
+        }
     }
 }

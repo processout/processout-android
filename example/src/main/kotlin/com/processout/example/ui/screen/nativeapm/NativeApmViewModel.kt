@@ -67,6 +67,10 @@ class NativeApmViewModel(
             )
         ).getOrNull()
 
+    fun onLaunched() {
+        _uiState.value = Launched
+    }
+
     fun reset() {
         _uiState.value = Initial
     }

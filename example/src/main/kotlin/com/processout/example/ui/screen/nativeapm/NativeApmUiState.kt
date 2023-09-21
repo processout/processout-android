@@ -6,6 +6,7 @@ sealed class NativeApmUiState {
     data object Initial : NativeApmUiState()
     data object Submitting : NativeApmUiState()
     data class Submitted(val uiModel: NativeApmUiModel) : NativeApmUiState()
+    data object Launched : NativeApmUiState()
     data class Failure(val failure: ProcessOutResult.Failure) : NativeApmUiState()
 }
 
