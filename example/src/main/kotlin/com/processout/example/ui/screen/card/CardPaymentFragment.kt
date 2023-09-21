@@ -3,14 +3,15 @@ package com.processout.example.ui.screen.card
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.widget.RadioButton
 import androidx.core.text.isDigitsOnly
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.processout.example.BuildConfig
 import com.processout.example.R
 import com.processout.example.databinding.FragmentCardPaymentBinding
+import com.processout.example.shared.Constants
 import com.processout.example.shared.onFailure
 import com.processout.example.shared.onSuccess
 import com.processout.example.shared.toMessage
@@ -19,9 +20,11 @@ import com.processout.example.ui.screen.card.CardPaymentUiState.Authorizing
 import com.processout.example.ui.screen.card.CardPaymentUiState.Failure
 import com.processout.example.ui.screen.card.CardPaymentUiState.Submitted
 import com.processout.example.ui.screen.card.CardPaymentUiState.Submitting
+import com.processout.example.ui.shared.Checkout3DSServiceDelegate
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
 import com.processout.sdk.api.service.PO3DSService
+import com.processout.sdk.checkout.threeds.POCheckout3DSService
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.threeds.PO3DSRedirectCustomTabLauncher
 import com.processout.sdk.ui.threeds.POTest3DSService
@@ -30,10 +33,6 @@ import kotlinx.coroutines.launch
 class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
     FragmentCardPaymentBinding::inflate
 ) {
-
-    companion object {
-        private const val RETURN_URL = "${BuildConfig.APPLICATION_ID}://processout/return"
-    }
 
     private val viewModel: CardPaymentViewModel by viewModels {
         CardPaymentViewModel.Factory()
@@ -68,7 +67,7 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
                 invoiceId = invoiceId,
                 source = cardId
             ),
-            threeDSService = createTest3DSService()
+            threeDSService = create3DSService()
         )
         viewModel.onAuthorizing()
     }
@@ -83,10 +82,32 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
         }
     }
 
-    private fun createTest3DSService(): PO3DSService =
-        POTest3DSService(requireActivity(), customTabLauncher, RETURN_URL)
+    private fun create3DSService(): PO3DSService {
+        val selected3DSService = with(binding.threedsServiceRadioGroup) {
+            findViewById<RadioButton>(checkedRadioButtonId).text.toString()
+        }
+        return when (selected3DSService) {
+            getString(R.string.threeds_service_checkout) -> createCheckout3DSService()
+            else -> createTest3DSService()
+        }
+    }
 
-    private fun createCheckout3DSService(): PO3DSService = TODO()
+    private fun createTest3DSService(): PO3DSService =
+        POTest3DSService(
+            activity = requireActivity(),
+            customTabLauncher = customTabLauncher,
+            returnUrl = Constants.RETURN_URL
+        )
+
+    private fun createCheckout3DSService(): PO3DSService =
+        POCheckout3DSService.Builder(
+            activity = requireActivity(),
+            delegate = Checkout3DSServiceDelegate(
+                activity = requireActivity(),
+                customTabLauncher = customTabLauncher,
+                returnUrl = Constants.RETURN_URL
+            )
+        ).build()
 
     private fun setOnClickListeners() {
         binding.authorizeInvoiceButton.setOnClickListener { onSubmitClick() }
@@ -119,7 +140,7 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
                     currency = currencyInput.text.toString()
                 )
             )
-            viewModel.submit(details, RETURN_URL)
+            viewModel.submit(details)
         }
     }
 

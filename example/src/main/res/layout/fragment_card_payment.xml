@@ -151,6 +151,33 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
+                android:id="@+id/threeds_service_subtitle"
+                style="@style/Widget.ProcessOut.Subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/layout_padding"
+                android:text="@string/threeds_service" />
+
+            <RadioGroup
+                android:id="@+id/threeds_service_radio_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checkedButton="@id/threeds_service_test">
+
+                <RadioButton
+                    android:id="@+id/threeds_service_test"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/threeds_service_test" />
+
+                <RadioButton
+                    android:id="@+id/threeds_service_checkout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/threeds_service_checkout" />
+            </RadioGroup>
+
+            <TextView
                 android:id="@+id/result_message"
                 style="@style/Widget.ProcessOut.Body"
                 android:layout_width="match_parent"

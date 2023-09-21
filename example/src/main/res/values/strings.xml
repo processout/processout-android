@@ -16,6 +16,10 @@
     <string name="card_expiration_year" translatable="false">Expiration Year</string>
     <string name="card_cvc" translatable="false">CVC</string>
 
+    <string name="threeds_service" translatable="false">3DS Service</string>
+    <string name="threeds_service_test" translatable="false">POTest3DSService</string>
+    <string name="threeds_service_checkout" translatable="false">POCheckout3DSService</string>
+
     <string name="success" translatable="false">Success</string>
     <string name="authorize_invoice_success_format" translatable="false">Success: authorized invoice [%s] with card [%s].</string>
 </resources>

@@ -3,6 +3,7 @@ package com.processout.example.ui.screen.card
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.processout.example.shared.Constants
 import com.processout.example.shared.getOrNull
 import com.processout.example.shared.onFailure
 import com.processout.example.ui.screen.card.CardPaymentUiState.*
@@ -36,11 +37,11 @@ class CardPaymentViewModel(
     private val _uiState = MutableStateFlow<CardPaymentUiState>(Initial)
     val uiState = _uiState.asStateFlow()
 
-    fun submit(details: CardPaymentDetails, returnUrl: String) {
+    fun submit(details: CardPaymentDetails) {
         _uiState.value = Submitting
         viewModelScope.launch {
             val cardDeferred = async { tokenize(details.card) }
-            val invoiceDeferred = async { createInvoice(details.invoice, returnUrl) }
+            val invoiceDeferred = async { createInvoice(details.invoice) }
             val cardResult = cardDeferred.await()
             val invoiceResult = invoiceDeferred.await()
 
@@ -72,13 +73,13 @@ class CardPaymentViewModel(
             )
         )
 
-    private suspend fun createInvoice(details: InvoiceDetails, returnUrl: String) =
+    private suspend fun createInvoice(details: InvoiceDetails) =
         invoices.createInvoice(
             POCreateInvoiceRequest(
                 name = UUID.randomUUID().toString(),
                 amount = details.amount,
                 currency = details.currency,
-                returnUrl = returnUrl
+                returnUrl = Constants.RETURN_URL
             )
         )
 
