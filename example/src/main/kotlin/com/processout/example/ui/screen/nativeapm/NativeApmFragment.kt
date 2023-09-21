@@ -8,6 +8,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.processout.example.R
 import com.processout.example.databinding.FragmentNativeApmBinding
 import com.processout.example.shared.toMessage
@@ -40,9 +41,9 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
         viewModel.reset()
         when (result) {
             PONativeAlternativePaymentMethodResult.Success ->
-                binding.resultMessage.text = getString(R.string.success)
+                showAlert(getString(R.string.success))
             is PONativeAlternativePaymentMethodResult.Failure ->
-                binding.resultMessage.text = result.toMessage()
+                showAlert(result.toMessage())
         }
     }
 
@@ -69,7 +70,6 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
     }
 
     private fun onSubmitClick() {
-        binding.resultMessage.text = String()
         val amount = binding.amountInput.text.toString()
         val currency = binding.currencyInput.text.toString()
         viewModel.createInvoice(amount, currency)
@@ -79,7 +79,7 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
         handleControls(uiState)
         when (uiState) {
             is NativeApmUiState.Submitted -> launch(uiState.uiModel)
-            is NativeApmUiState.Failure -> binding.resultMessage.text = uiState.failure.toMessage()
+            is NativeApmUiState.Failure -> showAlert(uiState.failure.toMessage())
             else -> {}
         }
     }
@@ -107,5 +107,13 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
             currencyInput.isEnabled = isEnabled
             createInvoiceButton.isClickable = isEnabled
         }
+    }
+
+    private fun showAlert(message: String) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setMessage(message)
+            .setPositiveButton(R.string.ok) { dialog, _ ->
+                dialog.dismiss()
+            }.show()
     }
 }

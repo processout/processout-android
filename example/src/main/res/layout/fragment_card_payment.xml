@@ -176,15 +176,6 @@
                     android:layout_height="wrap_content"
                     android:text="@string/threeds_service_checkout" />
             </RadioGroup>
-
-            <TextView
-                android:id="@+id/result_message"
-                style="@style/Widget.ProcessOut.Body"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/content_marginVertical"
-                android:gravity="start"
-                tools:text="Result message" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

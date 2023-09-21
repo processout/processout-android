@@ -9,6 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.processout.example.R
 import com.processout.example.databinding.FragmentCardPaymentBinding
 import com.processout.example.shared.Constants
@@ -76,10 +77,8 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
         val uiState = viewModel.uiState.value
         val cardId = if (uiState is Authorizing) uiState.uiModel.cardId else null
         viewModel.reset()
-        with(binding.resultMessage) {
-            result.onSuccess { text = getString(R.string.authorize_invoice_success_format, it, cardId) }
-                .onFailure { text = it.toMessage() }
-        }
+        result.onSuccess { showAlert(getString(R.string.authorize_invoice_success_format, it, cardId)) }
+            .onFailure { showAlert(it.toMessage()) }
     }
 
     private fun create3DSService(): PO3DSService {
@@ -123,7 +122,6 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
 
     private fun onSubmitClick() {
         with(binding) {
-            resultMessage.text = String()
             val details = CardPaymentDetails(
                 card = CardDetails(
                     number = numberInput.text.toString(),
@@ -150,7 +148,7 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
             is Submitted -> with(uiState.uiModel) {
                 authorizeInvoice(invoiceId, cardId)
             }
-            is Failure -> binding.resultMessage.text = uiState.failure.toMessage()
+            is Failure -> showAlert(uiState.failure.toMessage())
             else -> {}
         }
     }
@@ -172,5 +170,13 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
             currencyInput.isEnabled = isEnabled
             authorizeInvoiceButton.isClickable = isEnabled
         }
+    }
+
+    private fun showAlert(message: String) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setMessage(message)
+            .setPositiveButton(R.string.ok) { dialog, _ ->
+                dialog.dismiss()
+            }.show()
     }
 }

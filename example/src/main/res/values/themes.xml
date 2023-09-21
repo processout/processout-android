@@ -15,10 +15,17 @@
         <item name="circularProgressIndicatorStyle">@style/Widget.MaterialComponents.CircularProgressIndicator.Small</item>
         <item name="textAppearanceButton">@style/TextAppearance.ProcessOut.Example.Fixed.Button</item>
         <item name="materialButtonStyle">@style/Widget.ProcessOut.Button.Primary</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.ProcessOut.Example.MaterialAlertDialog</item>
     </style>
 
     <style name="ThemeOverlay.ProcessOut.Example.Toolbar" parent="">
         <item name="colorControlNormal">@android:color/white</item>
+    </style>
+
+    <style name="ThemeOverlay.ProcessOut.Example.MaterialAlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.ProcessOut.Example.MaterialAlertDialog.Button</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.ProcessOut.Example.MaterialAlertDialog.Button</item>
+        <item name="buttonBarNeutralButtonStyle">@style/Widget.ProcessOut.Example.MaterialAlertDialog.Button</item>
     </style>
 
 </resources>

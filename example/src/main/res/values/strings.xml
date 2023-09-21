@@ -20,6 +20,7 @@
     <string name="threeds_service_test" translatable="false">POTest3DSService</string>
     <string name="threeds_service_checkout" translatable="false">POCheckout3DSService</string>
 
+    <string name="ok" translatable="false">OK</string>
     <string name="success" translatable="false">Success</string>
     <string name="authorize_invoice_success_format" translatable="false">Success: authorized invoice [%s] with card [%s].</string>
 </resources>
