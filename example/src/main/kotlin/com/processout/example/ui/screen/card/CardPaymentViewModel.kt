@@ -83,7 +83,10 @@ class CardPaymentViewModel(
         )
 
     fun onAuthorizing() {
-        _uiState.value = Authorizing
+        val uiState = _uiState.value
+        if (uiState is Submitted) {
+            _uiState.value = Authorizing(uiState.uiModel)
+        }
     }
 
     fun reset() {

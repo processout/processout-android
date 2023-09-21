@@ -17,5 +17,5 @@
     <string name="card_cvc" translatable="false">CVC</string>
 
     <string name="success" translatable="false">Success</string>
-    <string name="success_format" translatable="false">Success: %s</string>
+    <string name="authorize_invoice_success_format" translatable="false">Success: authorized invoice [%s] with card [%s].</string>
 </resources>

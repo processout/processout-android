@@ -14,6 +14,7 @@ import com.processout.example.shared.onFailure
 import com.processout.example.shared.onSuccess
 import com.processout.example.shared.toMessage
 import com.processout.example.ui.screen.base.BaseFragment
+import com.processout.example.ui.screen.card.CardPaymentUiState.Authorizing
 import com.processout.example.ui.screen.card.CardPaymentUiState.Failure
 import com.processout.example.ui.screen.card.CardPaymentUiState.Submitted
 import com.processout.example.ui.screen.card.CardPaymentUiState.Submitting
@@ -72,9 +73,11 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
     }
 
     private fun onAuthorizeInvoiceResult(result: ProcessOutResult<String>) {
+        val uiState = viewModel.uiState.value
+        val cardId = if (uiState is Authorizing) uiState.uiModel.cardId else null
         viewModel.reset()
         with(binding.resultMessage) {
-            result.onSuccess { text = getString(R.string.success_format, it) }
+            result.onSuccess { text = getString(R.string.authorize_invoice_success_format, it, cardId) }
                 .onFailure { text = it.toMessage() }
         }
     }
