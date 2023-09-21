@@ -9,6 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.checkout.threeds.Environment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.processout.example.R
 import com.processout.example.databinding.FragmentCardPaymentBinding
@@ -106,7 +107,9 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
                 customTabLauncher = customTabLauncher,
                 returnUrl = Constants.RETURN_URL
             )
-        ).build()
+        )   // Optional parameter, by default Environment.PRODUCTION
+            .with(environment = Environment.PRODUCTION)
+            .build()
 
     private fun setOnClickListeners() {
         binding.authorizeInvoiceButton.setOnClickListener { onSubmitClick() }
