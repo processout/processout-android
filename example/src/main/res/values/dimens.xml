@@ -7,5 +7,5 @@
     <dimen name="button_space_vertical">8dp</dimen>
     <dimen name="input_space_vertical">12dp</dimen>
     <dimen name="subtitle_paddingVertical">8dp</dimen>
-    <dimen name="listItem_paddingVertical">14dp</dimen>
+    <dimen name="listItem_paddingVertical">16dp</dimen>
 </resources>
