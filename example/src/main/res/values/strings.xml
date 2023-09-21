@@ -15,4 +15,7 @@
     <string name="card_expiration_month" translatable="false">Expiration Month</string>
     <string name="card_expiration_year" translatable="false">Expiration Year</string>
     <string name="card_cvc" translatable="false">CVC</string>
+
+    <string name="success" translatable="false">Success</string>
+    <string name="success_format" translatable="false">Success: %s</string>
 </resources>

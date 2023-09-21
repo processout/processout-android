@@ -6,9 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.processout.example.shared.getOrNull
 import com.processout.example.shared.onFailure
 import com.processout.example.shared.onSuccess
-import com.processout.example.ui.screen.nativeapm.NativeApmUiState.Failure
-import com.processout.example.ui.screen.nativeapm.NativeApmUiState.Initial
-import com.processout.example.ui.screen.nativeapm.NativeApmUiState.Submitted
+import com.processout.example.ui.screen.nativeapm.NativeApmUiState.*
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POCreateCustomerRequest
 import com.processout.sdk.api.model.request.POCreateInvoiceRequest
@@ -44,7 +42,7 @@ class NativeApmViewModel(
     val uiState = _uiState.asStateFlow()
 
     fun createInvoice(amount: String, currency: String) {
-        _uiState.value = NativeApmUiState.Submitting
+        _uiState.value = Submitting
         viewModelScope.launch {
             val request = POCreateInvoiceRequest(
                 name = UUID.randomUUID().toString(),

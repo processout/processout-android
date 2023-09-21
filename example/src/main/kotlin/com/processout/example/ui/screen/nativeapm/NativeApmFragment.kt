@@ -8,6 +8,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
+import com.processout.example.R
 import com.processout.example.databinding.FragmentNativeApmBinding
 import com.processout.example.shared.toMessage
 import com.processout.example.ui.screen.base.BaseFragment
@@ -39,7 +40,7 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
         viewModel.reset()
         when (result) {
             PONativeAlternativePaymentMethodResult.Success ->
-                binding.resultMessage.text = result.javaClass.simpleName
+                binding.resultMessage.text = getString(R.string.success)
             is PONativeAlternativePaymentMethodResult.Failure ->
                 binding.resultMessage.text = result.toMessage()
         }
