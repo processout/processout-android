@@ -3,6 +3,7 @@ package com.processout.example.ui.screen.card
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import androidx.core.text.isDigitsOnly
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -105,8 +106,12 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
             val details = CardPaymentDetails(
                 card = CardDetails(
                     number = numberInput.text.toString(),
-                    expMonth = expMonthInput.text.toString(),
-                    expYear = expYearInput.text.toString(),
+                    expMonth = expMonthInput.text.toString().let {
+                        if (it.isNotBlank() && it.isDigitsOnly()) it else "0"
+                    },
+                    expYear = expYearInput.text.toString().let {
+                        if (it.isNotBlank() && it.isDigitsOnly()) it else "0"
+                    },
                     cvc = cvcInput.text.toString()
                 ),
                 invoice = InvoiceDetails(
