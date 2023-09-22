@@ -2,6 +2,7 @@ package com.processout.sdk.api.service
 
 import com.processout.sdk.api.model.request.POAssignCustomerTokenRequest
 import com.processout.sdk.api.model.request.POCreateCustomerRequest
+import com.processout.sdk.api.model.request.POCreateCustomerTokenRequest
 import com.processout.sdk.api.model.response.POCustomer
 import com.processout.sdk.api.model.response.POCustomerToken
 import com.processout.sdk.api.repository.CustomerTokensRepository
@@ -114,9 +115,9 @@ internal class CustomerTokensServiceImpl(
     }
 
     override suspend fun createCustomerToken(
-        customerId: String
+        request: POCreateCustomerTokenRequest
     ): ProcessOutResult<POCustomerToken> =
-        repository.createCustomerToken(customerId)
+        repository.createCustomerToken(request)
 
     override suspend fun createCustomer(
         request: POCreateCustomerRequest

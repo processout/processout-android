@@ -1,11 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">ProcessOut SDK Example</string>
-    <string name="native_apm">Native Alternative Payment</string>
-    <string name="create_invoice">Create Invoice</string>
-    <string name="amount">Amount</string>
-    <string name="currency">Currency</string>
-    <string name="result_success">Success</string>
-    <string name="result_failure">Failure</string>
-    <string name="result_canceled">Canceled</string>
+    <string name="app_name" translatable="false">ProcessOut SDK Example</string>
+
+    <string name="native_apm" translatable="false">Native Alternative Payment</string>
+    <string name="create_invoice" translatable="false">Create Invoice</string>
+    <string name="authorize_invoice" translatable="false">Authorize Invoice</string>
+    <string name="invoice_details" translatable="false">Invoice Details</string>
+    <string name="amount" translatable="false">Amount</string>
+    <string name="currency" translatable="false">Currency Code</string>
+
+    <string name="card_payment" translatable="false">Card Payment</string>
+    <string name="card_details" translatable="false">Card Details</string>
+    <string name="card_number" translatable="false">Number</string>
+    <string name="card_expiration_month" translatable="false">Expiration Month</string>
+    <string name="card_expiration_year" translatable="false">Expiration Year</string>
+    <string name="card_cvc" translatable="false">CVC</string>
+
+    <string name="threeds_service" translatable="false">3DS Service</string>
+    <string name="threeds_service_test" translatable="false">POTest3DSService</string>
+    <string name="threeds_service_checkout" translatable="false">POCheckout3DSService</string>
+
+    <string name="ok" translatable="false">OK</string>
+    <string name="success" translatable="false">Success</string>
+    <string name="authorize_invoice_success_format" translatable="false">Success: authorized invoice [%s] with card [%s].</string>
 </resources>

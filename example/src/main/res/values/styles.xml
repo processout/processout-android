@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Widget.ProcessOut.Example.Toolbar" parent="Widget.MaterialComponents.Toolbar.Primary">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.ProcessOut.Example.Toolbar</item>
+        <item name="contentInsetStart">@dimen/layout_padding</item>
+        <item name="contentInsetStartWithNavigation">0dp</item>
+        <item name="titleMarginStart">0dp</item>
+        <item name="titleTextAppearance">@style/TextAppearance.ProcessOut.Medium.Title</item>
+    </style>
+
+    <style name="Widget.ProcessOut.Example.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxStrokeWidthFocused">1dp</item>
+    </style>
+
+    <style name="Widget.ProcessOut.Example.EditText" parent="Widget.AppCompat.EditText">
+        <item name="android:textColor">@color/po_text_primary</item>
+        <item name="android:textColorHint">@color/po_text_muted</item>
+        <item name="android:textAppearance">@style/TextAppearance.ProcessOut</item>
+        <item name="android:paddingLeft">@dimen/po_input_padding</item>
+        <item name="android:paddingRight">@dimen/po_input_padding</item>
+        <item name="android:paddingStart">@dimen/po_input_padding</item>
+        <item name="android:paddingEnd">@dimen/po_input_padding</item>
+        <item name="android:paddingTop">@dimen/po_input_padding</item>
+        <item name="android:paddingBottom">@dimen/po_input_padding</item>
+    </style>
+
+    <style name="Widget.ProcessOut.Example.MaterialAlertDialog.Button" parent="Widget.ProcessOut.Button.Secondary">
+        <item name="android:padding">0dp</item>
+        <item name="android:layout_marginBottom">2dp</item>
+    </style>
+
+</resources>

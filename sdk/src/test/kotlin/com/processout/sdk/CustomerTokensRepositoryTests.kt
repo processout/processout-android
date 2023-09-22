@@ -1,10 +1,7 @@
 package com.processout.sdk
 
 import com.processout.sdk.api.ProcessOut
-import com.processout.sdk.api.model.request.POAssignCustomerTokenRequest
-import com.processout.sdk.api.model.request.POCardTokenizationRequest
-import com.processout.sdk.api.model.request.POCreateCustomerRequest
-import com.processout.sdk.api.model.request.POCreateInvoiceRequest
+import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.repository.CustomerTokensRepository
 import com.processout.sdk.api.repository.InvoicesRepository
 import com.processout.sdk.api.repository.POCardsRepository
@@ -64,7 +61,12 @@ class CustomerTokensRepositoryTests {
                         cards.tokenize(request).let { cardResult ->
                             cardResult.assertFailure()
                             cardResult.handleSuccess { card ->
-                                customerTokens.createCustomerToken(customer.id)
+                                customerTokens.createCustomerToken(
+                                    POCreateCustomerTokenRequest(
+                                        customerId = customer.id,
+                                        body = POCreateCustomerTokenRequestBody()
+                                    )
+                                )
                                     .let { createTokenResult ->
                                         createTokenResult.assertFailure()
                                         createTokenResult.handleSuccess { token ->

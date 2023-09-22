@@ -8,10 +8,14 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.DividerItemDecoration
 import com.processout.example.databinding.FragmentAlternativePaymentMethodsBinding
 import com.processout.example.databinding.ItemApmBinding
+import com.processout.example.ui.screen.apm.AlternativePaymentMethodsUiState.Initial
+import com.processout.example.ui.screen.apm.AlternativePaymentMethodsUiState.Loaded
 import com.processout.example.ui.screen.base.BaseFragment
 import com.processout.example.ui.shared.setup
+import com.processout.sdk.R
 import kotlinx.coroutines.launch
 
 class AlternativePaymentMethodsFragment : BaseFragment<FragmentAlternativePaymentMethodsBinding>(
@@ -26,27 +30,42 @@ class AlternativePaymentMethodsFragment : BaseFragment<FragmentAlternativePaymen
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        requireActivity().title = args.title
-
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect {
-                    bind(it.gatewayConfigurations)
-                }
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                viewModel.uiState.collect { handle(it) }
             }
+        }
+        with(binding.swipeRefreshLayout) {
+            setColorSchemeResources(R.color.po_action_primary_default)
+            setOnRefreshListener { viewModel.onRefresh() }
+        }
+        binding.recyclerView.addItemDecoration(
+            DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
+        )
+    }
+
+    private fun handle(uiState: AlternativePaymentMethodsUiState) {
+        when (uiState) {
+            Initial -> binding.circularProgressIndicator.visibility = View.VISIBLE
+            is Loaded -> {
+                binding.circularProgressIndicator.visibility = View.GONE
+                binding.swipeRefreshLayout.isRefreshing = false
+                bind(uiState.uiModel)
+            }
+            else -> {}
         }
     }
 
-    private fun bind(gatewayConfigurations: List<GatewayConfiguration>) {
+    private fun bind(uiModel: AlternativePaymentMethodsUiModel) {
         binding.recyclerView.setup(
-            gatewayConfigurations,
+            uiModel.gatewayConfigurations,
             ItemApmBinding::inflate,
             { holder, data ->
                 holder?.item?.text = data.name
                 holder?.item?.setOnClickListener {
                     findNavController().navigate(
                         AlternativePaymentMethodsFragmentDirections
-                            .actionAlternativePaymentMethodsFragmentToPaymentFragment(
+                            .actionAlternativePaymentMethodsFragmentToNativeApmFragment(
                                 data.name, data.id
                             )
                     )

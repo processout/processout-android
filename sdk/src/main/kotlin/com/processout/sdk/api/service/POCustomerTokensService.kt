@@ -2,6 +2,7 @@ package com.processout.sdk.api.service
 
 import com.processout.sdk.api.model.request.POAssignCustomerTokenRequest
 import com.processout.sdk.api.model.request.POCreateCustomerRequest
+import com.processout.sdk.api.model.request.POCreateCustomerTokenRequest
 import com.processout.sdk.api.model.response.POCustomer
 import com.processout.sdk.api.model.response.POCustomerToken
 import com.processout.sdk.core.ProcessOutResult
@@ -41,7 +42,7 @@ interface POCustomerTokensService {
     /** @suppress */
     @ProcessOutInternalApi
     suspend fun createCustomerToken(
-        customerId: String,
+        request: POCreateCustomerTokenRequest
     ): ProcessOutResult<POCustomerToken>
 
     /** @suppress */

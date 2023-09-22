@@ -1,15 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.ProcessOut.Example" parent="Theme.MaterialComponents.Light.DarkActionBar">
-        <item name="colorPrimary">@color/color_primary</item>
-        <item name="colorPrimaryVariant">@color/color_primary_variant</item>
+    <style name="Theme.ProcessOut.Example" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/po_action_primary_default</item>
+        <item name="colorPrimaryVariant">@color/po_action_primary_pressed</item>
         <item name="colorOnPrimary">@android:color/white</item>
-        <item name="colorSecondary">@color/color_primary</item>
-        <item name="colorSecondaryVariant">@color/color_primary_variant</item>
+        <item name="colorSecondary">@color/po_action_primary_default</item>
+        <item name="colorSecondaryVariant">@color/po_action_primary_pressed</item>
         <item name="colorOnSecondary">@android:color/white</item>
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
-        <item name="android:colorBackground">@color/color_background</item>
+        <item name="android:colorBackground">@color/po_surface_level1</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+        <item name="toolbarStyle">@style/Widget.ProcessOut.Example.Toolbar</item>
+        <item name="circularProgressIndicatorStyle">@style/Widget.MaterialComponents.CircularProgressIndicator.Small</item>
+        <item name="textAppearanceButton">@style/TextAppearance.ProcessOut.Example.Fixed.Button</item>
+        <item name="materialButtonStyle">@style/Widget.ProcessOut.Button.Primary</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.ProcessOut.Example.MaterialAlertDialog</item>
+    </style>
+
+    <style name="ThemeOverlay.ProcessOut.Example.Toolbar" parent="">
+        <item name="colorControlNormal">@android:color/white</item>
+    </style>
+
+    <style name="ThemeOverlay.ProcessOut.Example.MaterialAlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.ProcessOut.Example.MaterialAlertDialog.Button</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.ProcessOut.Example.MaterialAlertDialog.Button</item>
+        <item name="buttonBarNeutralButtonStyle">@style/Widget.ProcessOut.Example.MaterialAlertDialog.Button</item>
     </style>
 
 </resources>

@@ -18,6 +18,7 @@ internal interface CustomerTokensApi {
     @POST("/customers/{customer_id}/tokens")
     suspend fun createCustomerToken(
         @Path("customer_id") customerId: String,
+        @Body request: POCreateCustomerTokenRequestBody
     ): Response<POCustomerTokenResponse>
 
     @POST("/customers")

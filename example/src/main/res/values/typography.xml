@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="TextAppearance.ProcessOut.Example.Fixed.Button" parent="TextAppearance.ProcessOut.Fixed.Button">
+        <item name="android:textSize">16sp</item>
+        <item name="lineHeight">16sp</item>
+    </style>
+
+</resources>
