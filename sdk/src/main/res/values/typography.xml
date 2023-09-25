@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="TextAppearance.ProcessOut" parent="TextAppearance.MaterialComponents.Body1">
+    <style name="TextAppearance.ProcessOut" parent="TextAppearance.Material3.BodyLarge">
         <item name="fontFamily">@font/work_sans_regular</item>
         <item name="android:fontFamily">@font/work_sans_regular</item>
         <item name="android:textStyle">normal</item>

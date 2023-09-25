@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.ProcessOut.Example" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="Theme.ProcessOut.Example" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/po_action_primary_default</item>
         <item name="colorPrimaryVariant">@color/po_action_primary_pressed</item>
         <item name="colorOnPrimary">@android:color/white</item>
@@ -12,7 +12,7 @@
         <item name="android:colorBackground">@color/po_surface_level1</item>
         <item name="android:windowSoftInputMode">adjustResize</item>
         <item name="toolbarStyle">@style/Widget.ProcessOut.Example.Toolbar</item>
-        <item name="circularProgressIndicatorStyle">@style/Widget.MaterialComponents.CircularProgressIndicator.Small</item>
+        <item name="circularProgressIndicatorStyle">@style/Widget.Material3.CircularProgressIndicator.Small</item>
         <item name="textAppearanceButton">@style/TextAppearance.ProcessOut.Example.Fixed.Button</item>
         <item name="materialButtonStyle">@style/Widget.ProcessOut.Button.Primary</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.ProcessOut.Example.MaterialAlertDialog</item>
@@ -22,7 +22,7 @@
         <item name="colorControlNormal">@android:color/white</item>
     </style>
 
-    <style name="ThemeOverlay.ProcessOut.Example.MaterialAlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+    <style name="ThemeOverlay.ProcessOut.Example.MaterialAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="buttonBarPositiveButtonStyle">@style/Widget.ProcessOut.Example.MaterialAlertDialog.Button</item>
         <item name="buttonBarNegativeButtonStyle">@style/Widget.ProcessOut.Example.MaterialAlertDialog.Button</item>
         <item name="buttonBarNeutralButtonStyle">@style/Widget.ProcessOut.Example.MaterialAlertDialog.Button</item>

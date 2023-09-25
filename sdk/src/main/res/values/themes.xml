@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.ProcessOut.Base.Transparent" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.ProcessOut.Base.Transparent" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowBackground">@android:color/transparent</item>
@@ -27,7 +27,7 @@
         <item name="colorSurface">@color/po_surface_level1</item>
         <item name="colorOnSurface">@color/po_text_primary</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.ProcessOut.BottomSheetDialog</item>
-        <item name="circularProgressIndicatorStyle">@style/Widget.MaterialComponents.CircularProgressIndicator.Small</item>
+        <item name="circularProgressIndicatorStyle">@style/Widget.Material3.CircularProgressIndicator.Small</item>
         <item name="textAppearanceButton">@style/TextAppearance.ProcessOut.Fixed.Button</item>
         <item name="materialButtonStyle">@style/Widget.ProcessOut.Button.Primary</item>
         <item name="radioButtonStyle">@style/Widget.ProcessOut.RadioButton</item>
@@ -40,7 +40,7 @@
         <item name="poCodeEditTextStyle">@style/Widget.ProcessOut.CodeEditText</item>
     </style>
 
-    <style name="ThemeOverlay.ProcessOut.BottomSheetDialog" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
+    <style name="ThemeOverlay.ProcessOut.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
         <item name="android:windowSoftInputMode">adjustResize</item>
         <item name="colorSurface">@android:color/transparent</item>
         <item name="bottomSheetStyle">@style/Widget.ProcessOut.BottomSheet.Modal</item>
