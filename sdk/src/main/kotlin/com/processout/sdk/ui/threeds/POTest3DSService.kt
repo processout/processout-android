@@ -51,6 +51,7 @@ class POTest3DSService(
                 dialog.dismiss()
                 callback(ProcessOutResult.Success(false))
             }
+            setCancelable(false)
         }.also { it.show() }
     }
 
