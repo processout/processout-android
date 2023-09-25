@@ -3,12 +3,10 @@
 
     <style name="Theme.ProcessOut.Example" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/po_action_primary_default</item>
-        <item name="colorPrimaryVariant">@color/po_action_primary_pressed</item>
-        <item name="colorOnPrimary">@android:color/white</item>
+        <item name="colorOnPrimary">@color/po_text_onColor</item>
         <item name="colorSecondary">@color/po_action_primary_default</item>
-        <item name="colorSecondaryVariant">@color/po_action_primary_pressed</item>
-        <item name="colorOnSecondary">@android:color/white</item>
-        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <item name="colorOnSecondary">@color/po_text_onColor</item>
+        <item name="colorSurface">@color/po_surface_level1</item>
         <item name="android:colorBackground">@color/po_surface_level1</item>
         <item name="android:windowSoftInputMode">adjustResize</item>
         <item name="toolbarStyle">@style/Widget.ProcessOut.Example.Toolbar</item>
@@ -19,7 +17,8 @@
     </style>
 
     <style name="ThemeOverlay.ProcessOut.Example.Toolbar" parent="">
-        <item name="colorControlNormal">@android:color/white</item>
+        <item name="colorSurface">@color/po_action_primary_default</item>
+        <item name="colorControlNormal">@color/po_text_onColor</item>
     </style>
 
 </resources>
