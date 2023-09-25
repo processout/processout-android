@@ -46,4 +46,13 @@
         <item name="bottomSheetStyle">@style/Widget.ProcessOut.BottomSheet.Modal</item>
     </style>
 
+    <style name="ThemeOverlay.ProcessOut.MaterialAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="colorSurface">@color/po_surface_level1</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/Widget.ProcessOut.MaterialAlertDialog.Title</item>
+        <item name="materialAlertDialogBodyTextStyle">@style/Widget.ProcessOut.Body</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.ProcessOut.MaterialAlertDialog.Button</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.ProcessOut.MaterialAlertDialog.Button</item>
+        <item name="buttonBarNeutralButtonStyle">@style/Widget.ProcessOut.MaterialAlertDialog.Button</item>
+    </style>
+
 </resources>
