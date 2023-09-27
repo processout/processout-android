@@ -1,7 +1,8 @@
 package com.processout.sdk.ui.threeds
 
 import android.app.Activity
-import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.threeds.PO3DS2AuthenticationRequest
 import com.processout.sdk.api.model.threeds.PO3DS2Challenge
@@ -22,7 +23,7 @@ class POTest3DSService(
     private val returnUrl: String = String()
 ) : PO3DSService {
 
-    private val dialogBuilder = AlertDialog.Builder(activity)
+    private val dialogBuilder = MaterialAlertDialogBuilder(activity, R.style.ThemeOverlay_ProcessOut_MaterialAlertDialog)
 
     override fun authenticationRequest(
         configuration: PO3DS2Configuration,
@@ -50,6 +51,7 @@ class POTest3DSService(
                 dialog.dismiss()
                 callback(ProcessOutResult.Success(false))
             }
+            setCancelable(false)
         }.also { it.show() }
     }
 

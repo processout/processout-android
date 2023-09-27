@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Widget.ProcessOut.Example.Toolbar" parent="Widget.MaterialComponents.Toolbar.Primary">
+    <style name="Widget.ProcessOut.Example.Toolbar" parent="Widget.Material3.Toolbar.Surface">
         <item name="materialThemeOverlay">@style/ThemeOverlay.ProcessOut.Example.Toolbar</item>
         <item name="contentInsetStart">@dimen/layout_padding</item>
         <item name="contentInsetStartWithNavigation">0dp</item>
         <item name="titleMarginStart">0dp</item>
+        <item name="titleMarginBottom">19dp</item>
+        <item name="titleTextColor">@color/po_text_onColor</item>
         <item name="titleTextAppearance">@style/TextAppearance.ProcessOut.Medium.Title</item>
     </style>
 
-    <style name="Widget.ProcessOut.Example.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+    <style name="Widget.ProcessOut.Example.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
         <item name="boxStrokeWidth">1dp</item>
         <item name="boxStrokeWidthFocused">1dp</item>
     </style>
@@ -24,11 +26,6 @@
         <item name="android:paddingEnd">@dimen/po_input_padding</item>
         <item name="android:paddingTop">@dimen/po_input_padding</item>
         <item name="android:paddingBottom">@dimen/po_input_padding</item>
-    </style>
-
-    <style name="Widget.ProcessOut.Example.MaterialAlertDialog.Button" parent="Widget.ProcessOut.Button.Secondary">
-        <item name="android:padding">0dp</item>
-        <item name="android:layout_marginBottom">2dp</item>
     </style>
 
 </resources>

@@ -12,10 +12,18 @@
         tools:layout="@layout/fragment_features">
         <action
             android:id="@+id/action_featuresFragment_to_alternativePaymentMethodsFragment"
-            app:destination="@id/alternativePaymentMethodsFragment" />
+            app:destination="@id/alternativePaymentMethodsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
         <action
             android:id="@+id/action_featuresFragment_to_cardPaymentFragment"
-            app:destination="@id/cardPaymentFragment" />
+            app:destination="@id/cardPaymentFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
     <fragment
@@ -25,7 +33,11 @@
         tools:layout="@layout/fragment_alternative_payment_methods">
         <action
             android:id="@+id/action_alternativePaymentMethodsFragment_to_nativeApmFragment"
-            app:destination="@id/nativeApmFragment" />
+            app:destination="@id/nativeApmFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
         <argument
             android:name="title"
             app:argType="string" />
