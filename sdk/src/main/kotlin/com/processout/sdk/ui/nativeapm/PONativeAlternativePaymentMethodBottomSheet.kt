@@ -541,6 +541,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                     .setDuration(ANIMATION_DURATION_MS)
                     .setListener(object : AnimatorListenerAdapter() {
                         override fun onAnimationEnd(animation: Animator) {
+                            if (_binding == null) return
                             bindCapture(uiModel)
                             adjustPeekHeight(animate = true)
                             fadeIn(listOf(this@with), ANIMATION_DURATION_MS)
@@ -671,6 +672,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                 .setDuration(ANIMATION_DURATION_MS)
                 .setListener(object : AnimatorListenerAdapter() {
                     override fun onAnimationEnd(animation: Animator) {
+                        if (_binding == null) return
                         bindSuccess(uiModel)
                         adjustPeekHeight(animate = true)
                         fadeIn(
@@ -761,18 +763,24 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
 
     override fun onPause() {
         super.onPause()
-        clearAnimationListeners()
+        cancelAnimations()
         handler.removeCallbacksAndMessages(null)
         bottomSheetBehavior.removeBottomSheetCallback(bottomSheetBehaviorCallback)
         finishWithSuccess()
     }
 
-    private fun clearAnimationListeners() {
+    private fun cancelAnimations() {
         if (_binding != null) {
-            binding.poContainer.animate().setListener(null)
+            with(binding.poContainer.animate()) {
+                setListener(null)
+                cancel()
+            }
         }
         if (_bindingCapture != null) {
-            bindingCapture.poBackground.animate().setListener(null)
+            with(bindingCapture.poBackground.animate()) {
+                setListener(null)
+                cancel()
+            }
         }
     }
 
@@ -840,7 +848,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
 
     private fun finish() {
         if (isAdded) {
-            dismiss()
+            dismissAllowingStateLoss()
             activityCallback.onBottomSheetFinished()
         }
     }
