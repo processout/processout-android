@@ -1,18 +1,10 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
-    id 'org.jetbrains.dokka'
 }
-
-ext {
-    publishArtifactId = 'processout-android-checkout-3ds'
-    publishDescription = 'ProcessOut Android SDK - Checkout 3DS'
-}
-
-apply from: "${rootProject.projectDir}/scripts/publish-module.gradle"
 
 android {
-    namespace 'com.processout.sdk.checkout.threeds'
+    namespace 'com.processout.sdk.ui.core'
     compileSdk rootProject.ext.compileSdkVersion
 
     defaultConfig {
@@ -51,26 +43,25 @@ android {
     }
     kotlinOptions {
         jvmTarget = '17'
-        freeCompilerArgs += '-opt-in=com.processout.sdk.core.annotation.ProcessOutInternalApi'
     }
 
-    publishing {
-        singleVariant("productionRelease") {
-            withSourcesJar()
-            // FIXME: This fails build with error "PermittedSubclasses requires ASM9" while publishing to Maven Central.
-            //        Test by running: ./gradlew :checkout-3ds:publishProductionReleasePublicationToMavenLocal
-//            withJavadocJar()
-        }
+    buildFeatures {
+        compose true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = rootProject.ext.androidxComposeCompilerVersion
     }
 }
 
 @SuppressWarnings('GrMethodMayBeStatic')
 def setBuildConfig(buildType) {
-    buildType.buildConfigField("String", "LIBRARY_NAME", "\"ProcessOut Android SDK - Checkout 3DS\"")
+    buildType.buildConfigField("String", "LIBRARY_NAME", "\"ProcessOut Android SDK - UI Core\"")
     buildType.buildConfigField("String", "LIBRARY_VERSION", "\"$publishVersion\"")
 }
 
 dependencies {
-    implementation project(path: ':sdk')
-    api "com.checkout:checkout-sdk-3ds-android:$checkout3dsSdkVersion"
+    implementation platform("androidx.compose:compose-bom:$androidxComposeBOMVersion")
+    implementation "androidx.compose.material3:material3"
+    implementation "androidx.compose.ui:ui-tooling-preview"
+    debugImplementation "androidx.compose.ui:ui-tooling"
 }

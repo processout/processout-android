@@ -16,3 +16,4 @@ rootProject.name = "processout-android"
 include ':example'
 include ':sdk'
 include ':checkout-3ds'
+include ':ui-core'
