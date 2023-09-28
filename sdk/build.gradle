@@ -102,8 +102,8 @@ dependencies {
     implementation "androidx.core:core-ktx:$androidxCoreVersion"
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
     implementation "androidx.constraintlayout:constraintlayout:$androidxConstraintLayoutVersion"
-    implementation "androidx.activity:activity-ktx:$androidxActivityKtxVersion"
-    implementation "androidx.fragment:fragment-ktx:$androidxFragmentKtxVersion"
+    implementation "androidx.activity:activity-ktx:$androidxActivityVersion"
+    implementation "androidx.fragment:fragment-ktx:$androidxFragmentVersion"
     implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:$androidxLifecycleVersion"
     implementation "androidx.browser:browser:$androidxBrowserVersion"
 
@@ -126,7 +126,7 @@ dependencies {
     testImplementation "org.mockito:mockito-inline:$mockitoInlineVersion"
     testImplementation "org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion"
     testImplementation "org.robolectric:robolectric:$robolectricVersion"
-    testImplementation "androidx.test:core-ktx:$androidTestCoreKtxVersion"
+    testImplementation "androidx.test:core-ktx:$androidTestCoreVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidTestJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidTestEspressoVersion"
 

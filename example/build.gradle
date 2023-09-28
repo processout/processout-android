@@ -84,16 +84,20 @@ def setBuildConfig(buildType, String projectId, String projectKey) {
 dependencies {
     implementation project(path: ':sdk')
     implementation project(path: ':checkout-3ds')
+    implementation project(path: ':ui-core')
 
     implementation "androidx.core:core-ktx:$androidxCoreVersion"
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
     implementation "androidx.constraintlayout:constraintlayout:$androidxConstraintLayoutVersion"
-    implementation "androidx.activity:activity-ktx:$androidxActivityKtxVersion"
-    implementation "androidx.fragment:fragment-ktx:$androidxFragmentKtxVersion"
+    implementation "androidx.activity:activity-ktx:$androidxActivityVersion"
+    implementation "androidx.fragment:fragment-ktx:$androidxFragmentVersion"
     implementation "androidx.navigation:navigation-fragment-ktx:$androidxNavigationVersion"
     implementation "androidx.navigation:navigation-ui-ktx:$androidxNavigationVersion"
     implementation "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:$androidxSwipeRefreshLayoutVersion"
+
+    implementation "androidx.activity:activity-compose:$androidxActivityVersion"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$androidxLifecycleVersion"
 
     implementation "com.google.android.material:material:$materialVersion"
 
@@ -102,11 +106,11 @@ dependencies {
     testImplementation "org.mockito:mockito-inline:$mockitoInlineVersion"
     testImplementation "org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion"
     testImplementation "org.robolectric:robolectric:$robolectricVersion"
-    testImplementation "androidx.test:core-ktx:$androidTestCoreKtxVersion"
+    testImplementation "androidx.test:core-ktx:$androidTestCoreVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidTestJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidTestEspressoVersion"
     androidTestImplementation "androidx.test.espresso:espresso-web:$androidTestEspressoVersion"
-    androidTestImplementation "androidx.test:rules:$androidTestRulesVersion"
+    androidTestImplementation "androidx.test:rules:$androidTestCoreVersion"
 
     // Legacy
     androidTestImplementation "com.android.volley:volley:$volleyVersion"
