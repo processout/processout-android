@@ -109,10 +109,4 @@ dependencies {
     testImplementation "androidx.test:core-ktx:$androidTestCoreVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidTestJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidTestEspressoVersion"
-    androidTestImplementation "androidx.test.espresso:espresso-web:$androidTestEspressoVersion"
-    androidTestImplementation "androidx.test:rules:$androidTestCoreVersion"
-
-    // Legacy
-    androidTestImplementation "com.android.volley:volley:$volleyVersion"
-    androidTestImplementation "com.google.code.gson:gson:$gsonVersion"
 }
