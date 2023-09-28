@@ -18,10 +18,7 @@ android {
     defaultConfig {
         minSdk rootProject.ext.minSdkVersion
         targetSdk rootProject.ext.targetSdkVersion
-
         setBuildConfig(it)
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
 
@@ -76,8 +73,4 @@ def setBuildConfig(buildType) {
 dependencies {
     implementation project(path: ':sdk')
     api "com.checkout:checkout-sdk-3ds-android:$checkout3dsSdkVersion"
-
-    testImplementation "junit:junit:$junitVersion"
-    androidTestImplementation "androidx.test.ext:junit:$androidTestJunitVersion"
-    androidTestImplementation "androidx.test.espresso:espresso-core:$androidTestEspressoVersion"
 }

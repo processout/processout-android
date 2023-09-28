@@ -20,10 +20,7 @@ android {
     defaultConfig {
         minSdk rootProject.ext.minSdkVersion
         targetSdk rootProject.ext.targetSdkVersion
-
         setBuildConfig(it)
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
 
@@ -126,9 +123,7 @@ dependencies {
     testImplementation "org.mockito:mockito-inline:$mockitoInlineVersion"
     testImplementation "org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion"
     testImplementation "org.robolectric:robolectric:$robolectricVersion"
-    testImplementation "androidx.test:core-ktx:$androidTestCoreVersion"
-    androidTestImplementation "androidx.test.ext:junit:$androidTestJunitVersion"
-    androidTestImplementation "androidx.test.espresso:espresso-core:$androidTestEspressoVersion"
+    testImplementation "androidx.test:core-ktx:$androidxTestCoreVersion"
 
     // Legacy
     dokkaPlugin "org.jetbrains.dokka:android-documentation-plugin:$dokkaVersion"

@@ -12,11 +12,8 @@ android {
         applicationId "com.processout.example"
         minSdk rootProject.ext.minSdkVersion
         targetSdk rootProject.ext.targetSdkVersion
-
         versionCode generateVersionCode()
         versionName rootProject.ext.publishVersion
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -60,13 +57,6 @@ android {
         jvmTarget = '17'
         freeCompilerArgs += '-opt-in=com.processout.sdk.core.annotation.ProcessOutInternalApi'
     }
-
-    testOptions {
-        unitTests {
-            returnDefaultValues = true
-            includeAndroidResources = true
-        }
-    }
 }
 
 static def generateVersionCode() {
@@ -100,13 +90,4 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$androidxLifecycleVersion"
 
     implementation "com.google.android.material:material:$materialVersion"
-
-    testImplementation "junit:junit:$junitVersion"
-    testImplementation "org.mockito:mockito-core:$mockitoVersion"
-    testImplementation "org.mockito:mockito-inline:$mockitoInlineVersion"
-    testImplementation "org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion"
-    testImplementation "org.robolectric:robolectric:$robolectricVersion"
-    testImplementation "androidx.test:core-ktx:$androidTestCoreVersion"
-    androidTestImplementation "androidx.test.ext:junit:$androidTestJunitVersion"
-    androidTestImplementation "androidx.test.espresso:espresso-core:$androidTestEspressoVersion"
 }
