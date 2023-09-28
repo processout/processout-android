@@ -19,6 +19,7 @@ interface POInvoicesService {
 
     /**
      * Subscribe to this flow to collect result from [authorizeInvoice] invocation.
+     * Result contains _invoiceId_ that was used for authorization.
      */
     val authorizeInvoiceResult: SharedFlow<ProcessOutResult<String>>
 
