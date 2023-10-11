@@ -88,6 +88,7 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
         }
         return when (selected3DSService) {
             getString(R.string.threeds_service_checkout) -> createCheckout3DSService()
+            getString(R.string.threeds_service_adyen) -> createAdyen3DSService()
             else -> createTest3DSService()
         }
     }
@@ -110,6 +111,8 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
         )   // Optional parameter, by default Environment.PRODUCTION
             .with(environment = Environment.PRODUCTION)
             .build()
+
+    private fun createAdyen3DSService(): PO3DSService = TODO()
 
     private fun setOnClickListeners() {
         binding.authorizeInvoiceButton.setOnClickListener { onSubmitClick() }
