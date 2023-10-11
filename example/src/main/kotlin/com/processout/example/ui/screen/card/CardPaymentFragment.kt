@@ -13,6 +13,7 @@ import com.checkout.threeds.Environment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.processout.example.R
 import com.processout.example.databinding.FragmentCardPaymentBinding
+import com.processout.example.service.Checkout3DSServiceDelegate
 import com.processout.example.shared.Constants
 import com.processout.example.shared.onFailure
 import com.processout.example.shared.onSuccess
@@ -22,7 +23,6 @@ import com.processout.example.ui.screen.card.CardPaymentUiState.Authorizing
 import com.processout.example.ui.screen.card.CardPaymentUiState.Failure
 import com.processout.example.ui.screen.card.CardPaymentUiState.Submitted
 import com.processout.example.ui.screen.card.CardPaymentUiState.Submitting
-import com.processout.example.ui.shared.Checkout3DSServiceDelegate
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
 import com.processout.sdk.api.service.PO3DSService
