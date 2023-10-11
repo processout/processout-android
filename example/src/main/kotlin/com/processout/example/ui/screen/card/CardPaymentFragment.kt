@@ -14,6 +14,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.processout.example.R
 import com.processout.example.databinding.FragmentCardPaymentBinding
 import com.processout.example.service.Checkout3DSServiceDelegate
+import com.processout.example.service.POAdyen3DSService
 import com.processout.example.shared.Constants
 import com.processout.example.shared.onFailure
 import com.processout.example.shared.onSuccess
@@ -57,7 +58,7 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.CREATED) {
                 invoices.authorizeInvoiceResult.collect { onAuthorizeInvoiceResult(it) }
             }
         }
@@ -112,7 +113,12 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
             .with(environment = Environment.PRODUCTION)
             .build()
 
-    private fun createAdyen3DSService(): PO3DSService = TODO()
+    private fun createAdyen3DSService(): PO3DSService =
+        POAdyen3DSService(
+            activity = requireActivity(),
+            customTabLauncher = customTabLauncher,
+            returnUrl = Constants.RETURN_URL
+        )
 
     private fun setOnClickListeners() {
         binding.authorizeInvoiceButton.setOnClickListener { onSubmitClick() }
