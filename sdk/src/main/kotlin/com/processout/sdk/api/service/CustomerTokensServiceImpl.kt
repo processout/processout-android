@@ -38,8 +38,11 @@ internal class CustomerTokensServiceImpl(
                                             request.copy(source = serviceResult.value),
                                             threeDSService
                                         )
-                                    is ProcessOutResult.Failure -> scope.launch {
-                                        _assignCustomerTokenResult.emit(serviceResult.copy())
+                                    is ProcessOutResult.Failure -> {
+                                        threeDSService.cleanup()
+                                        scope.launch {
+                                            _assignCustomerTokenResult.emit(serviceResult.copy())
+                                        }
                                     }
                                 }
                             }
@@ -92,7 +95,10 @@ internal class CustomerTokensServiceImpl(
                                             threeDSService,
                                             callback
                                         )
-                                    is ProcessOutResult.Failure -> callback(serviceResult.copy())
+                                    is ProcessOutResult.Failure -> {
+                                        threeDSService.cleanup()
+                                        callback(serviceResult.copy())
+                                    }
                                 }
                             }
                     } ?: run {
