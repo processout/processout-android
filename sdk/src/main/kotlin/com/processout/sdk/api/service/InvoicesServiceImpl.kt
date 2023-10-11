@@ -40,8 +40,11 @@ internal class InvoicesServiceImpl(
                                             request.copy(source = serviceResult.value),
                                             threeDSService
                                         )
-                                    is ProcessOutResult.Failure -> scope.launch {
-                                        _authorizeInvoiceResult.emit(serviceResult.copy())
+                                    is ProcessOutResult.Failure -> {
+                                        threeDSService.cleanup()
+                                        scope.launch {
+                                            _authorizeInvoiceResult.emit(serviceResult.copy())
+                                        }
                                     }
                                 }
                             }
@@ -84,7 +87,10 @@ internal class InvoicesServiceImpl(
                                             threeDSService,
                                             callback
                                         )
-                                    is ProcessOutResult.Failure -> callback(serviceResult.copy())
+                                    is ProcessOutResult.Failure -> {
+                                        threeDSService.cleanup()
+                                        callback(serviceResult.copy())
+                                    }
                                 }
                             }
                     } ?: run {
