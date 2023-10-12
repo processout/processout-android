@@ -24,7 +24,7 @@ fun ProcessOutTheme(
     ) {
         ProvideTextStyle(
             value = typography.fixed.body
-                .copy(color = colors.textPrimary),
+                .copy(color = colors.text.primary),
             content = content
         )
     }
