@@ -22,7 +22,11 @@ fun ProcessOutTheme(
         LocalPOShapes provides ProcessOutTheme.shapes,
         LocalPODimensions provides ProcessOutTheme.dimensions
     ) {
-        ProvideTextStyle(value = typography.fixed.body, content = content)
+        ProvideTextStyle(
+            value = typography.fixed.body
+                .copy(color = colors.textPrimary),
+            content = content
+        )
     }
 }
 
