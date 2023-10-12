@@ -34,6 +34,7 @@ data class POTypography(
     val fixed: Fixed = Fixed(),
     val medium: Medium = Medium()
 ) {
+    @Immutable
     data class Fixed(
         val body: TextStyle = TextStyle(
             fontFamily = WorkSans,
@@ -73,6 +74,7 @@ data class POTypography(
         )
     )
 
+    @Immutable
     data class Medium(
         val title: TextStyle = TextStyle(
             fontFamily = WorkSans,
