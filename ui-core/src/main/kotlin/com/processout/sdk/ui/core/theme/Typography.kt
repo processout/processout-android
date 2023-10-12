@@ -93,7 +93,7 @@ internal val LocalPOTypography = staticCompositionLocalOf { POTypography() }
 
 @Preview
 @Composable
-fun TypographyPreview() {
+internal fun TypographyPreview() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
