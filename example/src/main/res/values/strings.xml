@@ -19,6 +19,7 @@
     <string name="threeds_service" translatable="false">3DS Service</string>
     <string name="threeds_service_test" translatable="false">POTest3DSService</string>
     <string name="threeds_service_checkout" translatable="false">POCheckout3DSService</string>
+    <string name="threeds_service_adyen" translatable="false">POAdyen3DSService</string>
 
     <string name="ok" translatable="false">OK</string>
     <string name="success" translatable="false">Success</string>

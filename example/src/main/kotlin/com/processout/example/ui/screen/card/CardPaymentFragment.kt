@@ -13,6 +13,8 @@ import com.checkout.threeds.Environment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.processout.example.R
 import com.processout.example.databinding.FragmentCardPaymentBinding
+import com.processout.example.service.Checkout3DSServiceDelegate
+import com.processout.example.service.POAdyen3DSService
 import com.processout.example.shared.Constants
 import com.processout.example.shared.onFailure
 import com.processout.example.shared.onSuccess
@@ -22,7 +24,6 @@ import com.processout.example.ui.screen.card.CardPaymentUiState.Authorizing
 import com.processout.example.ui.screen.card.CardPaymentUiState.Failure
 import com.processout.example.ui.screen.card.CardPaymentUiState.Submitted
 import com.processout.example.ui.screen.card.CardPaymentUiState.Submitting
-import com.processout.example.ui.shared.Checkout3DSServiceDelegate
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
 import com.processout.sdk.api.service.PO3DSService
@@ -57,7 +58,7 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.CREATED) {
                 invoices.authorizeInvoiceResult.collect { onAuthorizeInvoiceResult(it) }
             }
         }
@@ -88,6 +89,7 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
         }
         return when (selected3DSService) {
             getString(R.string.threeds_service_checkout) -> createCheckout3DSService()
+            getString(R.string.threeds_service_adyen) -> createAdyen3DSService()
             else -> createTest3DSService()
         }
     }
@@ -110,6 +112,13 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
         )   // Optional parameter, by default Environment.PRODUCTION
             .with(environment = Environment.PRODUCTION)
             .build()
+
+    private fun createAdyen3DSService(): PO3DSService =
+        POAdyen3DSService(
+            activity = requireActivity(),
+            customTabLauncher = customTabLauncher,
+            returnUrl = Constants.RETURN_URL
+        )
 
     private fun setOnClickListeners() {
         binding.authorizeInvoiceButton.setOnClickListener { onSubmitClick() }

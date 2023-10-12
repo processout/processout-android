@@ -1,4 +1,4 @@
-package com.processout.example.ui.shared
+package com.processout.example.service
 
 import android.app.Activity
 import android.net.Uri

@@ -58,6 +58,7 @@ ext {
     commonMarkVersion = '0.21.0'
 
     checkout3dsSdkVersion = '3.1.1'
+    adyen3dsSdkVersion = '2.2.15'
 
     junitVersion = '4.13.2'
     mockitoVersion = '5.5.0'

@@ -177,6 +177,13 @@
                     android:layout_height="wrap_content"
                     android:text="@string/threeds_service_checkout"
                     android:textAppearance="@style/TextAppearance.ProcessOut.Fixed.Body" />
+
+                <RadioButton
+                    android:id="@+id/threeds_service_adyen"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/threeds_service_adyen"
+                    android:textAppearance="@style/TextAppearance.ProcessOut.Fixed.Body" />
             </RadioGroup>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

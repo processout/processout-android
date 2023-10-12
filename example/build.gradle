@@ -84,6 +84,8 @@ dependencies {
     implementation project(path: ':checkout-3ds')
     implementation project(path: ':ui-core')
 
+    implementation "com.adyen.threeds:adyen-3ds2:$adyen3dsSdkVersion"
+
     implementation "androidx.core:core-ktx:$androidxCoreVersion"
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
     implementation "androidx.constraintlayout:constraintlayout:$androidxConstraintLayoutVersion"
