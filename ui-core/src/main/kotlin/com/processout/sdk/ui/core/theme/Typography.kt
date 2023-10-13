@@ -2,7 +2,6 @@
 
 package com.processout.sdk.ui.core.theme
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -11,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -93,54 +91,45 @@ data class POTypography(
 
 internal val LocalPOTypography = staticCompositionLocalOf { POTypography() }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
-internal fun TypographyPreview() {
+internal fun POTypographyPreview() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White)
             .padding(16.dp)
     ) {
         Text(
             text = "Typography Medium Title",
-            style = LocalPOTypography.current.medium.title,
-            color = Color.Black
+            style = LocalPOTypography.current.medium.title
         )
         Text(
             text = "Typography Medium Subtitle",
-            style = LocalPOTypography.current.medium.subtitle,
-            color = Color.Black
+            style = LocalPOTypography.current.medium.subtitle
         )
         Text(
             text = "Typography Fixed Body",
-            style = LocalPOTypography.current.fixed.body,
-            color = Color.Black
+            style = LocalPOTypography.current.fixed.body
         )
         Text(
             text = "Typography Fixed Body Compact",
-            style = LocalPOTypography.current.fixed.bodyCompact,
-            color = Color.Black
+            style = LocalPOTypography.current.fixed.bodyCompact
         )
         Text(
             text = "Typography Fixed Label",
-            style = LocalPOTypography.current.fixed.label,
-            color = Color.Black
+            style = LocalPOTypography.current.fixed.label
         )
         Text(
             text = "Typography Fixed Label Heading",
-            style = LocalPOTypography.current.fixed.labelHeading,
-            color = Color.Black
+            style = LocalPOTypography.current.fixed.labelHeading
         )
         Text(
             text = "Typography Fixed Button",
-            style = LocalPOTypography.current.fixed.button,
-            color = Color.Black
+            style = LocalPOTypography.current.fixed.button
         )
         Text(
             text = "Typography Fixed Caption",
-            style = LocalPOTypography.current.fixed.caption,
-            color = Color.Black
+            style = LocalPOTypography.current.fixed.caption
         )
     }
 }
