@@ -8,5 +8,5 @@ import kotlinx.parcelize.Parcelize
 data class POTextStyle(
     @ColorRes
     val colorResId: Int,
-    val typography: POTypography
+    val type: POType
 ) : Parcelable
