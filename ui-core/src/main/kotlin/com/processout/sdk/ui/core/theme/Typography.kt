@@ -13,12 +13,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.processout.sdk.ui.core.R
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.core.style.POType
+import com.processout.sdk.ui.core.style.POType.Weight.*
 
 private val WorkSans = FontFamily(
     Font(R.font.work_sans_regular, FontWeight.Normal),
@@ -90,6 +93,27 @@ data class POTypography(
 }
 
 internal val LocalPOTypography = staticCompositionLocalOf { POTypography() }
+
+internal fun POType.toTextStyle() = TextStyle(
+    fontFamily = fontResId?.let { FontFamily(Font(it)) } ?: WorkSans,
+    fontWeight = weight.toFontWeight(),
+    fontStyle = if (italic) FontStyle.Italic else FontStyle.Normal,
+    fontSize = textSizeSp.sp,
+    lineHeight = lineHeightSp.sp
+)
+
+private fun POType.Weight.toFontWeight(): FontWeight =
+    when (this) {
+        THIN -> FontWeight.Thin
+        EXTRA_LIGHT -> FontWeight.ExtraLight
+        LIGHT -> FontWeight.Light
+        NORMAL -> FontWeight.Normal
+        MEDIUM -> FontWeight.Medium
+        SEMI_BOLD -> FontWeight.SemiBold
+        BOLD -> FontWeight.Bold
+        EXTRA_BOLD -> FontWeight.ExtraBold
+        BLACK -> FontWeight.Black
+    }
 
 @Preview(showBackground = true)
 @Composable

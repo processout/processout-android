@@ -7,10 +7,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.core.style.POTextStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.core.theme.toTextStyle
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -41,6 +44,12 @@ object POText {
             color = ProcessOutTheme.colors.text.primary,
             textStyle = ProcessOutTheme.typography.fixed.body
         )
+
+    @Composable
+    fun custom(style: POTextStyle) = Style(
+        color = colorResource(id = style.colorResId),
+        textStyle = style.type.toTextStyle()
+    )
 }
 
 @Preview(showBackground = true)
