@@ -1,3 +1,5 @@
+@file:Suppress("MemberVisibilityCanBePrivate")
+
 package com.processout.sdk.ui.core.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -9,30 +11,28 @@ import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 
 /** @suppress */
 @ProcessOutInternalApi
-@Composable
-fun ProcessOutTheme(
-    isDarkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit
-) {
-    val colors = if (isDarkTheme) DarkColorPalette else LightColorPalette
-    val typography = ProcessOutTheme.typography
-    CompositionLocalProvider(
-        LocalPOColors provides colors,
-        LocalPOTypography provides typography,
-        LocalPOShapes provides ProcessOutTheme.shapes,
-        LocalPODimensions provides ProcessOutTheme.dimensions
-    ) {
-        ProvideTextStyle(
-            value = typography.fixed.body
-                .copy(color = colors.text.primary),
-            content = content
-        )
-    }
-}
-
-/** @suppress */
-@ProcessOutInternalApi
 object ProcessOutTheme {
+
+    @Composable
+    operator fun invoke(
+        isDarkTheme: Boolean = isSystemInDarkTheme(),
+        content: @Composable () -> Unit
+    ) {
+        val colors = if (isDarkTheme) DarkColorPalette else LightColorPalette
+        CompositionLocalProvider(
+            LocalPOColors provides colors,
+            LocalPOTypography provides typography,
+            LocalPOShapes provides shapes,
+            LocalPODimensions provides dimensions
+        ) {
+            ProvideTextStyle(
+                value = typography.fixed.body
+                    .copy(color = colors.text.primary),
+                content = content
+            )
+        }
+    }
+
     val colors: POColors
         @Composable
         @ReadOnlyComposable
