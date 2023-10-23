@@ -8,7 +8,11 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.style.POTextStyle
@@ -23,15 +27,27 @@ object POText {
     operator fun invoke(
         text: String,
         modifier: Modifier = Modifier,
-        style: Style = body
-    ) {
-        Text(
-            text = text,
-            modifier = modifier,
-            color = style.color,
-            style = style.textStyle
-        )
-    }
+        style: Style = body,
+        fontStyle: FontStyle? = null,
+        textAlign: TextAlign? = null,
+        onTextLayout: (TextLayoutResult) -> Unit = {},
+        overflow: TextOverflow = TextOverflow.Clip,
+        softWrap: Boolean = true,
+        maxLines: Int = Int.MAX_VALUE,
+        minLines: Int = 1
+    ) = Text(
+        text = text,
+        modifier = modifier,
+        color = style.color,
+        style = style.textStyle,
+        fontStyle = fontStyle,
+        textAlign = textAlign,
+        onTextLayout = onTextLayout,
+        overflow = overflow,
+        softWrap = softWrap,
+        maxLines = maxLines,
+        minLines = minLines
+    )
 
     @Immutable
     data class Style(
