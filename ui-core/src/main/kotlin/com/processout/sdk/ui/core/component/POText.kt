@@ -45,6 +45,48 @@ object POText {
             textStyle = ProcessOutTheme.typography.fixed.body
         )
 
+    val bodyCompact: Style
+        @Composable get() = Style(
+            color = ProcessOutTheme.colors.text.primary,
+            textStyle = ProcessOutTheme.typography.fixed.bodyCompact
+        )
+
+    val label: Style
+        @Composable get() = Style(
+            color = ProcessOutTheme.colors.text.primary,
+            textStyle = ProcessOutTheme.typography.fixed.label
+        )
+
+    val labelHeading: Style
+        @Composable get() = Style(
+            color = ProcessOutTheme.colors.text.primary,
+            textStyle = ProcessOutTheme.typography.fixed.labelHeading
+        )
+
+    val button: Style
+        @Composable get() = Style(
+            color = ProcessOutTheme.colors.text.primary,
+            textStyle = ProcessOutTheme.typography.fixed.button
+        )
+
+    val caption: Style
+        @Composable get() = Style(
+            color = ProcessOutTheme.colors.text.primary,
+            textStyle = ProcessOutTheme.typography.fixed.caption
+        )
+
+    val title: Style
+        @Composable get() = Style(
+            color = ProcessOutTheme.colors.text.primary,
+            textStyle = ProcessOutTheme.typography.medium.title
+        )
+
+    val subtitle: Style
+        @Composable get() = Style(
+            color = ProcessOutTheme.colors.text.primary,
+            textStyle = ProcessOutTheme.typography.medium.subtitle
+        )
+
     @Composable
     fun custom(style: POTextStyle) = Style(
         color = colorResource(id = style.colorResId),
