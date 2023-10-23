@@ -81,7 +81,7 @@ object POText {
 
     val button: Style
         @Composable get() = Style(
-            color = ProcessOutTheme.colors.text.primary,
+            color = Color.Unspecified,
             textStyle = ProcessOutTheme.typography.fixed.button
         )
 

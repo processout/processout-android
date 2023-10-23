@@ -26,8 +26,7 @@ object ProcessOutTheme {
             LocalPODimensions provides dimensions
         ) {
             ProvideTextStyle(
-                value = typography.fixed.body
-                    .copy(color = colors.text.primary),
+                value = typography.fixed.body,
                 content = content
             )
         }
