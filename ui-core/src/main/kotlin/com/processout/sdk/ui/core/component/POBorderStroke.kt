@@ -14,7 +14,7 @@ data class POBorderStroke(
     val color: Color
 )
 
-internal fun POBorderStroke.toSolidBorderStroke() = BorderStroke(
-    width = width,
-    color = color
-)
+internal fun POBorderStroke.solid(
+    width: Dp = this.width,
+    color: Color = this.color
+) = BorderStroke(width = width, color = color)

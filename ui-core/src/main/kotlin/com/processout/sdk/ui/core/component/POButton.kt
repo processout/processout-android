@@ -112,17 +112,9 @@ object POButton {
         pressed: Boolean,
         style: Style
     ): BorderStroke {
-        val normalBorderColor = if (pressed)
-            style.highlighted.borderColor
-        else style.normal.border.color
-
-        return if (enabled) BorderStroke(
-            width = style.normal.border.width,
-            color = normalBorderColor
-        ) else BorderStroke(
-            width = style.disabled.border.width,
-            color = style.disabled.border.color
-        )
+        val normalBorderColor = if (pressed) style.highlighted.borderColor else style.normal.border.color
+        return if (enabled) style.normal.border.solid(color = normalBorderColor)
+        else style.disabled.border.solid()
     }
 
     @Composable
