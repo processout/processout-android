@@ -1,5 +1,3 @@
-@file:Suppress("MemberVisibilityCanBePrivate")
-
 package com.processout.sdk.ui.core.component
 
 import androidx.compose.material3.Text
@@ -27,7 +25,8 @@ object POText {
     operator fun invoke(
         text: String,
         modifier: Modifier = Modifier,
-        style: Style = body,
+        color: Color = Color.Unspecified,
+        style: TextStyle = ProcessOutTheme.typography.fixed.body,
         fontStyle: FontStyle? = null,
         textAlign: TextAlign? = null,
         onTextLayout: (TextLayoutResult) -> Unit = {},
@@ -38,8 +37,8 @@ object POText {
     ) = Text(
         text = text,
         modifier = modifier,
-        color = style.color,
-        style = style.textStyle,
+        color = color,
+        style = style,
         fontStyle = fontStyle,
         textAlign = textAlign,
         onTextLayout = onTextLayout,
@@ -54,54 +53,6 @@ object POText {
         val color: Color,
         val textStyle: TextStyle
     )
-
-    val body: Style
-        @Composable get() = Style(
-            color = ProcessOutTheme.colors.text.primary,
-            textStyle = ProcessOutTheme.typography.fixed.body
-        )
-
-    val bodyCompact: Style
-        @Composable get() = Style(
-            color = ProcessOutTheme.colors.text.primary,
-            textStyle = ProcessOutTheme.typography.fixed.bodyCompact
-        )
-
-    val label: Style
-        @Composable get() = Style(
-            color = ProcessOutTheme.colors.text.primary,
-            textStyle = ProcessOutTheme.typography.fixed.label
-        )
-
-    val labelHeading: Style
-        @Composable get() = Style(
-            color = ProcessOutTheme.colors.text.primary,
-            textStyle = ProcessOutTheme.typography.fixed.labelHeading
-        )
-
-    val button: Style
-        @Composable get() = Style(
-            color = Color.Unspecified,
-            textStyle = ProcessOutTheme.typography.fixed.button
-        )
-
-    val caption: Style
-        @Composable get() = Style(
-            color = ProcessOutTheme.colors.text.primary,
-            textStyle = ProcessOutTheme.typography.fixed.caption
-        )
-
-    val title: Style
-        @Composable get() = Style(
-            color = ProcessOutTheme.colors.text.primary,
-            textStyle = ProcessOutTheme.typography.medium.title
-        )
-
-    val subtitle: Style
-        @Composable get() = Style(
-            color = ProcessOutTheme.colors.text.primary,
-            textStyle = ProcessOutTheme.typography.medium.subtitle
-        )
 
     @Composable
     fun custom(style: POTextStyle) = Style(

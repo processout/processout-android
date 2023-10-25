@@ -62,9 +62,7 @@ object POButton {
             } else {
                 POText(
                     text = text,
-                    style = if (enabled)
-                        style.normal.text.copy(color = Color.Unspecified)
-                    else style.disabled.text.copy(color = Color.Unspecified),
+                    style = if (enabled) style.normal.text.textStyle else style.disabled.text.textStyle,
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1
                 )
