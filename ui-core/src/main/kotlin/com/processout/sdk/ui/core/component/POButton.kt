@@ -48,7 +48,7 @@ object POButton {
         val pressed by interactionSource.collectIsPressedAsState()
         Button(
             onClick = onClick,
-            modifier = modifier.defaultMinSize(minHeight = 44.dp),
+            modifier = modifier.defaultMinSize(minHeight = ProcessOutTheme.dimensions.formComponentHeight),
             enabled = enabled && !loading,
             colors = colors(enabled = enabled, loading = loading, pressed = pressed, style = style),
             shape = if (enabled) style.normal.shape else style.disabled.shape,
