@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ButtonElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
@@ -41,73 +43,14 @@ object POButton {
         interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
     ) {
         val pressed by interactionSource.collectIsPressedAsState()
-
-        val normalTextColor: Color
-        val normalBorderColor: Color
-        val normalBackgroundColor: Color
-        if (pressed) {
-            with(style.highlighted) {
-                normalTextColor = this.textColor
-                normalBorderColor = this.borderColor
-                normalBackgroundColor = this.backgroundColor
-            }
-        } else {
-            with(style.normal) {
-                normalTextColor = this.text.color
-                normalBorderColor = this.border.color
-                normalBackgroundColor = this.backgroundColor
-            }
-        }
-
-        val disabledTextColor: Color
-        val disabledBorderColor: Color
-        val disabledBackgroundColor: Color
-        val disabledElevation: Dp
-        if (enabled && loading) {
-            with(style.normal) {
-                disabledTextColor = this.text.color
-                disabledBorderColor = this.border.color
-                disabledBackgroundColor = this.backgroundColor
-                disabledElevation = this.elevation
-            }
-        } else {
-            with(style.disabled) {
-                disabledTextColor = this.text.color
-                disabledBorderColor = this.border.color
-                disabledBackgroundColor = this.backgroundColor
-                disabledElevation = this.elevation
-            }
-        }
-
-        val colors = ButtonDefaults.buttonColors(
-            containerColor = normalBackgroundColor,
-            contentColor = normalTextColor,
-            disabledContainerColor = disabledBackgroundColor,
-            disabledContentColor = disabledTextColor
-        )
-
-        val elevation = ButtonDefaults.buttonElevation(
-            defaultElevation = style.normal.elevation,
-            pressedElevation = style.normal.elevation,
-            focusedElevation = style.normal.elevation,
-            hoveredElevation = style.normal.elevation,
-            disabledElevation = disabledElevation
-        )
-
         Button(
             onClick = onClick,
             modifier = modifier.defaultMinSize(minHeight = 44.dp),
             enabled = enabled && !loading,
-            colors = colors,
             shape = if (enabled) style.normal.shape else style.disabled.shape,
-            border = if (enabled) BorderStroke(
-                width = style.normal.border.width,
-                color = normalBorderColor
-            ) else BorderStroke(
-                width = style.disabled.border.width,
-                color = disabledBorderColor
-            ),
-            elevation = elevation,
+            colors = colors(enabled = enabled, loading = loading, pressed = pressed, style = style),
+            border = border(enabled = enabled, pressed = pressed, style = style),
+            elevation = elevation(enabled = enabled, loading = loading, style = style),
             interactionSource = interactionSource
         ) {
             if (enabled && loading) {
@@ -123,6 +66,74 @@ object POButton {
             }
         }
     }
+
+    @Composable
+    private fun colors(
+        enabled: Boolean,
+        loading: Boolean,
+        pressed: Boolean,
+        style: Style
+    ): ButtonColors {
+        val normalTextColor: Color
+        val normalBackgroundColor: Color
+        if (pressed) with(style.highlighted) {
+            normalTextColor = textColor
+            normalBackgroundColor = backgroundColor
+        } else with(style.normal) {
+            normalTextColor = text.color
+            normalBackgroundColor = backgroundColor
+        }
+
+        val disabledTextColor: Color
+        val disabledBackgroundColor: Color
+        if (enabled && loading) with(style.normal) {
+            disabledTextColor = text.color
+            disabledBackgroundColor = backgroundColor
+        } else with(style.disabled) {
+            disabledTextColor = text.color
+            disabledBackgroundColor = backgroundColor
+        }
+
+        return ButtonDefaults.buttonColors(
+            containerColor = normalBackgroundColor,
+            contentColor = normalTextColor,
+            disabledContainerColor = disabledBackgroundColor,
+            disabledContentColor = disabledTextColor
+        )
+    }
+
+    @Composable
+    private fun border(
+        enabled: Boolean,
+        pressed: Boolean,
+        style: Style
+    ): BorderStroke {
+        val normalBorderColor = if (pressed)
+            style.highlighted.borderColor
+        else style.normal.border.color
+
+        return if (enabled) BorderStroke(
+            width = style.normal.border.width,
+            color = normalBorderColor
+        ) else BorderStroke(
+            width = style.disabled.border.width,
+            color = style.disabled.border.color
+        )
+    }
+
+    @Composable
+    private fun elevation(
+        enabled: Boolean,
+        loading: Boolean,
+        style: Style
+    ): ButtonElevation = ButtonDefaults.buttonElevation(
+        defaultElevation = style.normal.elevation,
+        pressedElevation = style.normal.elevation,
+        focusedElevation = style.normal.elevation,
+        hoveredElevation = style.normal.elevation,
+        disabledElevation = if (enabled && loading)
+            style.normal.elevation else style.disabled.elevation
+    )
 
     @Immutable
     data class Style(
