@@ -5,6 +5,7 @@ package com.processout.sdk.ui.core.component
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,10 +21,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.core.style.button.POButtonDefaults
 import com.processout.sdk.ui.core.style.button.POButtonStateStyle
 import com.processout.sdk.ui.core.style.button.POButtonStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
@@ -47,10 +50,11 @@ object POButton {
             onClick = onClick,
             modifier = modifier.defaultMinSize(minHeight = 44.dp),
             enabled = enabled && !loading,
-            shape = if (enabled) style.normal.shape else style.disabled.shape,
             colors = colors(enabled = enabled, loading = loading, pressed = pressed, style = style),
+            shape = if (enabled) style.normal.shape else style.disabled.shape,
             border = border(enabled = enabled, pressed = pressed, style = style),
             elevation = elevation(enabled = enabled, loading = loading, style = style),
+            contentPadding = contentPadding(enabled = enabled, style = style),
             interactionSource = interactionSource
         ) {
             if (enabled && loading) {
@@ -61,6 +65,7 @@ object POButton {
                     style = if (enabled)
                         style.normal.text.copy(color = Color.Unspecified)
                     else style.disabled.text.copy(color = Color.Unspecified),
+                    overflow = TextOverflow.Ellipsis,
                     maxLines = 1
                 )
             }
@@ -102,7 +107,6 @@ object POButton {
         )
     }
 
-    @Composable
     private fun border(
         enabled: Boolean,
         pressed: Boolean,
@@ -135,6 +139,17 @@ object POButton {
             style.normal.elevation else style.disabled.elevation
     )
 
+    private fun contentPadding(
+        enabled: Boolean,
+        style: Style
+    ): PaddingValues = if (enabled) PaddingValues(
+        horizontal = style.normal.paddingHorizontal,
+        vertical = style.normal.paddingVertical
+    ) else PaddingValues(
+        horizontal = style.disabled.paddingHorizontal,
+        vertical = style.disabled.paddingVertical
+    )
+
     @Immutable
     data class Style(
         val normal: StateStyle,
@@ -149,7 +164,9 @@ object POButton {
         val shape: Shape,
         val border: POBorderStroke,
         val backgroundColor: Color,
-        val elevation: Dp
+        val elevation: Dp,
+        val paddingHorizontal: Dp = POButtonDefaults.PADDING_HORIZONTAL_DP.dp,
+        val paddingVertical: Dp = POButtonDefaults.PADDING_VERTICAL_DP.dp
     )
 
     @Immutable
@@ -243,7 +260,9 @@ object POButton {
         shape = RoundedCornerShape(size = border.radiusDp.dp),
         border = POBorderStroke(width = border.widthDp.dp, color = colorResource(id = border.colorResId)),
         backgroundColor = colorResource(id = backgroundColorResId),
-        elevation = elevationDp.dp
+        elevation = elevationDp.dp,
+        paddingHorizontal = paddingHorizontalDp.dp,
+        paddingVertical = paddingVerticalDp.dp
     )
 }
 

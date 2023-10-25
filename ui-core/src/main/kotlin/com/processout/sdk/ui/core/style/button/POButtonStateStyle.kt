@@ -13,9 +13,6 @@ data class POButtonStateStyle(
     @ColorRes
     val backgroundColorResId: Int,
     val elevationDp: Int,
-    val paddingDp: Int = DEFAULT_PADDING
-) : Parcelable {
-    companion object {
-        const val DEFAULT_PADDING = 22
-    }
-}
+    val paddingHorizontalDp: Int = POButtonDefaults.PADDING_HORIZONTAL_DP,
+    val paddingVerticalDp: Int = POButtonDefaults.PADDING_VERTICAL_DP
+) : Parcelable
