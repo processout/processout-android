@@ -2,7 +2,6 @@
 
 package com.processout.sdk.ui.core.theme
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -11,16 +10,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.processout.sdk.ui.core.R
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.core.style.POType
+import com.processout.sdk.ui.core.style.POType.Weight.*
 
 private val WorkSans = FontFamily(
     Font(R.font.work_sans_regular, FontWeight.Normal),
@@ -34,6 +35,7 @@ data class POTypography(
     val fixed: Fixed = Fixed(),
     val medium: Medium = Medium()
 ) {
+    @Immutable
     data class Fixed(
         val body: TextStyle = TextStyle(
             fontFamily = WorkSans,
@@ -73,6 +75,7 @@ data class POTypography(
         )
     )
 
+    @Immutable
     data class Medium(
         val title: TextStyle = TextStyle(
             fontFamily = WorkSans,
@@ -91,54 +94,66 @@ data class POTypography(
 
 internal val LocalPOTypography = staticCompositionLocalOf { POTypography() }
 
-@Preview
+internal fun POType.toTextStyle() = TextStyle(
+    fontFamily = fontResId?.let { FontFamily(Font(it)) } ?: WorkSans,
+    fontWeight = weight.toFontWeight(),
+    fontStyle = if (italic) FontStyle.Italic else FontStyle.Normal,
+    fontSize = textSizeSp.sp,
+    lineHeight = lineHeightSp.sp
+)
+
+private fun POType.Weight.toFontWeight(): FontWeight =
+    when (this) {
+        THIN -> FontWeight.Thin
+        EXTRA_LIGHT -> FontWeight.ExtraLight
+        LIGHT -> FontWeight.Light
+        NORMAL -> FontWeight.Normal
+        MEDIUM -> FontWeight.Medium
+        SEMI_BOLD -> FontWeight.SemiBold
+        BOLD -> FontWeight.Bold
+        EXTRA_BOLD -> FontWeight.ExtraBold
+        BLACK -> FontWeight.Black
+    }
+
+@Preview(showBackground = true)
 @Composable
-fun TypographyPreview() {
+internal fun POTypographyPreview() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White)
             .padding(16.dp)
     ) {
         Text(
             text = "Typography Medium Title",
-            style = LocalPOTypography.current.medium.title,
-            color = Color.Black
+            style = LocalPOTypography.current.medium.title
         )
         Text(
             text = "Typography Medium Subtitle",
-            style = LocalPOTypography.current.medium.subtitle,
-            color = Color.Black
+            style = LocalPOTypography.current.medium.subtitle
         )
         Text(
             text = "Typography Fixed Body",
-            style = LocalPOTypography.current.fixed.body,
-            color = Color.Black
+            style = LocalPOTypography.current.fixed.body
         )
         Text(
             text = "Typography Fixed Body Compact",
-            style = LocalPOTypography.current.fixed.bodyCompact,
-            color = Color.Black
+            style = LocalPOTypography.current.fixed.bodyCompact
         )
         Text(
             text = "Typography Fixed Label",
-            style = LocalPOTypography.current.fixed.label,
-            color = Color.Black
+            style = LocalPOTypography.current.fixed.label
         )
         Text(
             text = "Typography Fixed Label Heading",
-            style = LocalPOTypography.current.fixed.labelHeading,
-            color = Color.Black
+            style = LocalPOTypography.current.fixed.labelHeading
         )
         Text(
             text = "Typography Fixed Button",
-            style = LocalPOTypography.current.fixed.button,
-            color = Color.Black
+            style = LocalPOTypography.current.fixed.button
         )
         Text(
             text = "Typography Fixed Caption",
-            style = LocalPOTypography.current.fixed.caption,
-            color = Color.Black
+            style = LocalPOTypography.current.fixed.caption
         )
     }
 }

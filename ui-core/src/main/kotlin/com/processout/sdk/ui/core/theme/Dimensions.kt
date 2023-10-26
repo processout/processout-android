@@ -12,7 +12,8 @@ import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 data class PODimensions(
     val paddingSmall: Dp = 8.dp,
     val paddingMedium: Dp = 16.dp,
-    val paddingLarge: Dp = 24.dp
+    val paddingLarge: Dp = 24.dp,
+    val formComponentHeight: Dp = 44.dp
 )
 
 internal val LocalPODimensions = staticCompositionLocalOf { PODimensions() }
