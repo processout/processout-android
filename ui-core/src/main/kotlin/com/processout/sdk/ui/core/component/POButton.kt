@@ -9,14 +9,12 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonElevation
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -29,6 +27,7 @@ import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.style.button.POButtonDefaults
 import com.processout.sdk.ui.core.style.button.POButtonStateStyle
 import com.processout.sdk.ui.core.style.button.POButtonStyle
+import com.processout.sdk.ui.core.theme.NoRippleTheme
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 
 /** @suppress */
@@ -46,26 +45,28 @@ object POButton {
         interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
     ) {
         val pressed by interactionSource.collectIsPressedAsState()
-        Button(
-            onClick = onClick,
-            modifier = modifier.defaultMinSize(minHeight = ProcessOutTheme.dimensions.formComponentHeight),
-            enabled = enabled && !loading,
-            colors = colors(enabled = enabled, loading = loading, pressed = pressed, style = style),
-            shape = if (enabled) style.normal.shape else style.disabled.shape,
-            border = border(enabled = enabled, pressed = pressed, style = style),
-            elevation = elevation(enabled = enabled, loading = loading, style = style),
-            contentPadding = contentPadding(enabled = enabled, style = style),
-            interactionSource = interactionSource
-        ) {
-            if (enabled && loading) {
-                POCircularProgressIndicator.Small(color = style.progressIndicatorColor)
-            } else {
-                POText(
-                    text = text,
-                    style = if (enabled) style.normal.text.textStyle else style.disabled.text.textStyle,
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 1
-                )
+        CompositionLocalProvider(LocalRippleTheme provides NoRippleTheme) {
+            Button(
+                onClick = onClick,
+                modifier = modifier.defaultMinSize(minHeight = ProcessOutTheme.dimensions.formComponentHeight),
+                enabled = enabled && !loading,
+                colors = colors(enabled = enabled, loading = loading, pressed = pressed, style = style),
+                shape = if (enabled) style.normal.shape else style.disabled.shape,
+                border = border(enabled = enabled, pressed = pressed, style = style),
+                elevation = elevation(enabled = enabled, loading = loading, style = style),
+                contentPadding = contentPadding(enabled = enabled, style = style),
+                interactionSource = interactionSource
+            ) {
+                if (enabled && loading) {
+                    POCircularProgressIndicator.Small(color = style.progressIndicatorColor)
+                } else {
+                    POText(
+                        text = text,
+                        style = if (enabled) style.normal.text.textStyle else style.disabled.text.textStyle,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1
+                    )
+                }
             }
         }
     }
