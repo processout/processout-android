@@ -9,7 +9,7 @@ import androidx.compose.ui.graphics.Color
 @Immutable
 internal object NoRippleTheme : RippleTheme {
     @Composable
-    override fun defaultColor() = Color.Unspecified
+    override fun defaultColor() = Color.Transparent
 
     @Composable
     override fun rippleAlpha() = RippleAlpha(0f, 0f, 0f, 0f)
