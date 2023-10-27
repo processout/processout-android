@@ -23,6 +23,7 @@ object ProcessOutTheme {
             LocalPOColors provides colors,
             LocalPOTypography provides typography,
             LocalPOShapes provides shapes,
+            LocalPOSpacing provides spacing,
             LocalPODimensions provides dimensions
         ) {
             ProvideTextStyle(
@@ -46,6 +47,11 @@ object ProcessOutTheme {
         @Composable
         @ReadOnlyComposable
         get() = LocalPOShapes.current
+
+    val spacing: POSpacing
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalPOSpacing.current
 
     val dimensions: PODimensions
         @Composable
