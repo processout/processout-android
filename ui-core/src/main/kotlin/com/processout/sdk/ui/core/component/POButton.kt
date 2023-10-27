@@ -218,7 +218,7 @@ object POButton {
                         textStyle = typography.fixed.button
                     ),
                     shape = shapes.roundedCornersSmall,
-                    border = POBorderStroke(width = 1.dp, color = colors.action.borderDisabled),
+                    border = POBorderStroke(width = 1.dp, color = colors.border.disabled),
                     backgroundColor = colors.action.secondaryDefault,
                     elevation = 0.dp
                 ),
