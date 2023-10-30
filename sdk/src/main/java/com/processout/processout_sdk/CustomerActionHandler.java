@@ -2,6 +2,7 @@ package com.processout.processout_sdk;
 
 import android.app.Activity;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Handler;
 import android.util.Base64;
 import android.view.ViewGroup;
@@ -114,11 +115,14 @@ class CustomerActionHandler {
                 FingerprintWebView.setWebViewClient(new WebViewClient() {
                     @Override
                     public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                        // Check if the current Android version is supporte
+                        // Check if the current Android version is supported
                         String token = null;
 
                         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                            token = request.getUrl().getQueryParameter("token");
+                            Uri uri = request.getUrl();
+                            if (uri.isHierarchical()) {
+                                token = uri.getQueryParameter("token");
+                            }
                         }
                         if (token == null) {
                             // Android version not supported for fingerprinting
