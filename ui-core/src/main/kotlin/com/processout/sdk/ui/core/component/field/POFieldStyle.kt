@@ -12,8 +12,7 @@ import com.processout.sdk.ui.core.component.POText
 @Immutable
 data class POFieldStyle(
     val normal: POFieldStateStyle,
-    val error: POFieldStateStyle,
-    val baseField: POBaseField.Style
+    val error: POFieldStateStyle
 )
 
 /** @suppress */

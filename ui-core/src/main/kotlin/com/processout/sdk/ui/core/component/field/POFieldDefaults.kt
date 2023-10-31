@@ -1,10 +1,9 @@
 package com.processout.sdk.ui.core.component.field
 
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
@@ -19,11 +18,8 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme
 object POFieldDefaults {
 
     @Composable
-    fun colors(): TextFieldColors = OutlinedTextFieldDefaults.colors(
-        focusedBorderColor = Color.Transparent,
-        unfocusedBorderColor = Color.Transparent,
-        disabledBorderColor = Color.Transparent,
-        errorBorderColor = Color.Transparent,
+    fun colors(): TextFieldColors = TextFieldDefaults.colors(
+        // TODO
     )
 
     val default: POFieldStyle
@@ -50,16 +46,14 @@ object POFieldDefaults {
                     controlsTintColor = colors.text.error,
                     shape = shapes.roundedCornersSmall,
                     border = POBorderStroke(width = 1.dp, color = colors.text.error)
-                ),
-                baseField = POBaseField.default
+                )
             )
         }
 
     @Composable
     fun custom(style: POInputStyle) = POFieldStyle(
         normal = style.normal.toStateStyle(),
-        error = style.error.toStateStyle(),
-        baseField = POBaseField.custom(style = style)
+        error = style.error.toStateStyle()
     )
 
     @Composable
