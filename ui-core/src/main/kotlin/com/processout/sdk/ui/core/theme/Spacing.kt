@@ -12,8 +12,9 @@ import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 data class POSpacing(
     val extraSmall: Dp = 4.dp,
     val small: Dp = 8.dp,
-    val medium: Dp = 16.dp,
-    val large: Dp = 24.dp
+    val medium: Dp = 12.dp,
+    val large: Dp = 16.dp,
+    val extraLarge: Dp = 24.dp
 )
 
 internal val LocalPOSpacing = staticCompositionLocalOf { POSpacing() }
