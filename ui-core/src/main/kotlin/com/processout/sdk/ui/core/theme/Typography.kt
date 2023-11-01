@@ -115,9 +115,9 @@ private fun POType.Weight.toFontWeight(): FontWeight =
         BLACK -> FontWeight.Black
     }
 
-@Preview(showBackground = true)
 @Composable
-internal fun POTypographyPreview() {
+@Preview(showBackground = true)
+private fun POTypographyPreview() {
     Column(
         modifier = Modifier
             .fillMaxWidth()

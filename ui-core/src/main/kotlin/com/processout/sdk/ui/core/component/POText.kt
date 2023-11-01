@@ -61,8 +61,8 @@ object POText {
     )
 }
 
-@Preview(showBackground = true)
 @Composable
-internal fun POTextPreview() {
+@Preview(showBackground = true)
+private fun POTextPreview() {
     POText(text = "ProcessOut Payment")
 }

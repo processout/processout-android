@@ -5,9 +5,7 @@ package com.processout.sdk.ui.core.component
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.material3.Button
@@ -257,12 +255,14 @@ object POButton {
     )
 }
 
-@Preview(showBackground = true)
 @Composable
-internal fun POButtonPreview() {
-    POButton(
-        text = "Button",
-        onClick = {},
-        modifier = Modifier.fillMaxWidth()
-    )
+@Preview(showBackground = true)
+private fun POButtonPreview() {
+    Column(modifier = Modifier.padding(16.dp)) {
+        POButton(
+            text = "Button",
+            onClick = {},
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
 }

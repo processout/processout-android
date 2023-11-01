@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.style.input.POInputStateStyle
@@ -92,20 +91,4 @@ object POBaseField {
         title = POText.custom(style = title),
         description = POText.custom(style = description)
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-internal fun POBaseFieldPreview() {
-    Column {
-        POBaseField(
-            title = "Title",
-            description = "This is description."
-        ) {}
-        POBaseField(
-            title = "Title",
-            description = "This is error.",
-            isError = true
-        ) {}
-    }
 }
