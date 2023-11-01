@@ -1,10 +1,16 @@
 package com.processout.sdk.ui.core.component.field
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.TextFieldColors
-import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.POBorderStroke
@@ -17,10 +23,63 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme
 @ProcessOutInternalApi
 object POFieldDefaults {
 
+    val ContentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp)
+
+    fun textStyle(
+        isError: Boolean,
+        style: POFieldStyle
+    ): TextStyle =
+        if (isError) with(style.error.text) { textStyle.copy(color = color) }
+        else with(style.normal.text) { textStyle.copy(color = color) }
+
+    fun textSelectionColors(
+        isError: Boolean,
+        style: POFieldStyle
+    ): TextSelectionColors {
+        val color = if (isError) style.error.controlsTintColor else style.normal.controlsTintColor
+        return TextSelectionColors(
+            handleColor = color,
+            backgroundColor = color.copy(alpha = 0.4f)
+        )
+    }
+
+    fun cursorBrush(
+        isError: Boolean,
+        style: POFieldStyle
+    ) = SolidColor(value = if (isError) style.error.controlsTintColor else style.normal.controlsTintColor)
+
     @Composable
-    fun colors(): TextFieldColors = TextFieldDefaults.colors(
-        // TODO
-    )
+    fun ContainerBox(
+        isError: Boolean,
+        style: POFieldStyle
+    ) {
+        val shape = if (isError) style.error.shape else style.normal.shape
+        Box(
+            Modifier
+                .border(
+                    width = if (isError) style.error.border.width else style.normal.border.width,
+                    color = if (isError) style.error.border.color else style.normal.border.color,
+                    shape = shape
+                )
+                .background(
+                    color = if (isError) style.error.backgroundColor else style.normal.backgroundColor,
+                    shape = shape
+                )
+        )
+    }
+
+    @Composable
+    fun Placeholder(
+        text: String,
+        isError: Boolean,
+        style: POFieldStyle
+    ) {
+        POText(
+            text = text,
+            color = if (isError) style.error.hintTextColor else style.normal.hintTextColor,
+            style = if (isError) style.error.text.textStyle else style.normal.text.textStyle
+        )
+    }
 
     val default: POFieldStyle
         @Composable get() = with(ProcessOutTheme) {
