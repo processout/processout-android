@@ -76,7 +76,7 @@ object POFieldDefaults {
     ) {
         POText(
             text = text,
-            color = if (isError) style.error.hintTextColor else style.normal.hintTextColor,
+            color = if (isError) style.error.placeholderTextColor else style.normal.placeholderTextColor,
             style = if (isError) style.error.text.textStyle else style.normal.text.textStyle
         )
     }
@@ -89,7 +89,7 @@ object POFieldDefaults {
                         color = colors.text.primary,
                         textStyle = typography.fixed.label
                     ),
-                    hintTextColor = colors.text.muted,
+                    placeholderTextColor = colors.text.muted,
                     backgroundColor = colors.surface.background,
                     controlsTintColor = colors.text.primary,
                     shape = shapes.roundedCornersSmall,
@@ -100,7 +100,7 @@ object POFieldDefaults {
                         color = colors.text.primary,
                         textStyle = typography.fixed.label
                     ),
-                    hintTextColor = colors.text.muted,
+                    placeholderTextColor = colors.text.muted,
                     backgroundColor = colors.surface.background,
                     controlsTintColor = colors.text.error,
                     shape = shapes.roundedCornersSmall,
@@ -119,7 +119,7 @@ object POFieldDefaults {
     private fun POInputStateStyle.toStateStyle() = with(field) {
         POFieldStateStyle(
             text = POText.custom(style = text),
-            hintTextColor = colorResource(id = hintTextColorResId),
+            placeholderTextColor = colorResource(id = placeholderTextColorResId),
             backgroundColor = colorResource(id = backgroundColorResId),
             controlsTintColor = colorResource(id = controlsTintColorResId),
             shape = RoundedCornerShape(size = border.radiusDp.dp),

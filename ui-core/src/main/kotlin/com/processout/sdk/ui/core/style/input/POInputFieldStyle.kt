@@ -10,7 +10,7 @@ import kotlinx.parcelize.Parcelize
 data class POInputFieldStyle(
     val text: POTextStyle,
     @ColorRes
-    val hintTextColorResId: Int,
+    val placeholderTextColorResId: Int,
     @ColorRes
     val backgroundColorResId: Int,
     @ColorRes

@@ -20,7 +20,7 @@ data class POFieldStyle(
 @Immutable
 data class POFieldStateStyle(
     val text: POText.Style,
-    val hintTextColor: Color,
+    val placeholderTextColor: Color,
     val backgroundColor: Color,
     val controlsTintColor: Color,
     val shape: Shape,
