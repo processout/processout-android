@@ -81,8 +81,8 @@ def setBuildConfig(buildType, String projectId, String projectKey) {
 
 dependencies {
     implementation project(path: ':sdk')
+    implementation project(path: ':ui')
     implementation project(path: ':checkout-3ds')
-    implementation project(path: ':ui-core')
 
     implementation "com.adyen.threeds:adyen-3ds2:$adyen3dsSdkVersion"
 
@@ -95,14 +95,6 @@ dependencies {
     implementation "androidx.navigation:navigation-ui-ktx:$androidxNavigationVersion"
     implementation "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:$androidxSwipeRefreshLayoutVersion"
-
-    implementation platform("androidx.compose:compose-bom:$androidxComposeBOMVersion")
-    implementation "androidx.compose.material3:material3"
-    implementation "androidx.compose.ui:ui-tooling-preview"
-    debugImplementation "androidx.compose.ui:ui-tooling"
-
-    implementation "androidx.activity:activity-compose:$androidxActivityVersion"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$androidxLifecycleVersion"
 
     implementation "com.google.android.material:material:$materialVersion"
 }

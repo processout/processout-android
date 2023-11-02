@@ -71,6 +71,6 @@ def setBuildConfig(buildType) {
 }
 
 dependencies {
-    implementation project(path: ':sdk')
+    api project(path: ':sdk')
     api "com.checkout:checkout-sdk-3ds-android:$checkout3dsSdkVersion"
 }
