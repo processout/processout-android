@@ -33,9 +33,7 @@ data class POColors(
         val primaryPressed: Color,
         val primaryDisabled: Color,
         val secondaryDefault: Color,
-        val secondaryPressed: Color,
-        val borderSelected: Color,
-        val borderDisabled: Color
+        val secondaryPressed: Color
     )
 
     @Immutable
@@ -51,8 +49,10 @@ data class POColors(
     @Immutable
     data class Border(
         val default: Color,
-        val divider: Color,
-        val subtle: Color
+        val disabled: Color,
+        val selected: Color,
+        val subtle: Color,
+        val divider: Color
     )
 }
 
@@ -73,9 +73,7 @@ internal val LightColorPalette = POColors(
         primaryPressed = Color(0xFF1E1E76),
         primaryDisabled = Color(0xFFE5E5E7),
         secondaryDefault = Color(0xFFFFFFFF),
-        secondaryPressed = Color(0xFFE5E5E7),
-        borderSelected = Color(0xFF4E4E55),
-        borderDisabled = Color(0xFFC4C4C8)
+        secondaryPressed = Color(0xFFE5E5E7)
     ),
     surface = POColors.Surface(
         background = Color(0xFFFFFFFF),
@@ -87,8 +85,10 @@ internal val LightColorPalette = POColors(
     ),
     border = POColors.Border(
         default = Color(0xFF8D8D95),
-        divider = Color(0xFFF2F2F3),
-        subtle = Color(0xFFE5E5E7)
+        disabled = Color(0xFFC4C4C8),
+        selected = Color(0xFF4E4E55),
+        subtle = Color(0xFFE5E5E7),
+        divider = Color(0xFFF2F2F3)
     )
 )
 
@@ -109,9 +109,7 @@ internal val DarkColorPalette = POColors(
         primaryPressed = Color(0xFF4D49C5),
         primaryDisabled = Color(0xFF2B2D3A),
         secondaryDefault = Color(0xFF121421),
-        secondaryPressed = Color(0xFF181A2A),
-        borderSelected = Color(0xFFBABAC5),
-        borderDisabled = Color(0xFF363945)
+        secondaryPressed = Color(0xFF181A2A)
     ),
     surface = POColors.Surface(
         background = Color(0xFF121421),
@@ -123,8 +121,10 @@ internal val DarkColorPalette = POColors(
     ),
     border = POColors.Border(
         default = Color(0xFF93949F),
-        divider = Color(0xFF212431),
-        subtle = Color(0xFF2B2D3A)
+        disabled = Color(0xFF363945),
+        selected = Color(0xFFBABAC5),
+        subtle = Color(0xFF2B2D3A),
+        divider = Color(0xFF212431)
     )
 )
 
