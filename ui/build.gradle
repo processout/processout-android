@@ -65,4 +65,7 @@ def setBuildConfig(buildType) {
 dependencies {
     api project(path: ':sdk')
     api project(path: ':ui-core')
+
+    api "androidx.activity:activity-compose:$androidxActivityVersion"
+    api "androidx.lifecycle:lifecycle-viewmodel-compose:$androidxLifecycleVersion"
 }
