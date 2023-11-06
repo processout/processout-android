@@ -66,7 +66,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
 
     companion object {
         const val TAG = "PONativeAlternativePaymentMethodBottomSheet"
-        private const val REQUIRED_DISPLAY_HEIGHT_PERCENTAGE = 0.62
+        private const val REQUIRED_SCREEN_HEIGHT_PERCENTAGE = 0.62
         private const val MAX_INPUTS_COUNT_IN_COLLAPSED_STATE = 2
         private const val MAX_INLINE_SINGLE_SELECT_IN_COLLAPSED_STATE = 3
         private const val MAX_COMPACT_MESSAGE_LENGTH = 150
@@ -93,8 +93,8 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
 
     private val bottomSheetDialog by lazy { requireDialog() as BottomSheetDialog }
     private val bottomSheetBehavior by lazy { bottomSheetDialog.behavior }
-    private val displayHeight by lazy { resources.displayMetrics.heightPixels }
-    private val maxPeekHeight by lazy { (displayHeight * 0.75).roundToInt() }
+    private val screenHeight by lazy { requireContext().screenSize().height }
+    private val maxPeekHeight by lazy { (screenHeight * 0.75).roundToInt() }
     private val minPeekHeight by lazy { resources.getDimensionPixelSize(R.dimen.po_bottomSheet_minHeight) }
     private val handler by lazy { Handler(Looper.getMainLooper()) }
 
@@ -184,18 +184,18 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                             .also { getLocationOnScreen(it) }.let { it[1] }
 
                         val windowInsets = ViewCompat.getRootWindowInsets(bottomSheet)
-                        val systemBarsHeight = windowInsets?.getInsetsIgnoringVisibility(
-                            WindowInsetsCompat.Type.systemBars()
+                        val navigationBarHeight = windowInsets?.getInsets(
+                            WindowInsetsCompat.Type.navigationBars()
                         )?.bottom ?: 0
 
                         var keyboardHeight = windowInsets?.getInsets(
                             WindowInsetsCompat.Type.ime()
                         )?.bottom ?: 0
                         if (keyboardHeight != 0) {
-                            keyboardHeight -= systemBarsHeight
+                            keyboardHeight -= navigationBarHeight
                         }
 
-                        var updatedHeight = displayHeight - keyboardHeight - containerCoordinateY
+                        var updatedHeight = screenHeight - keyboardHeight - containerCoordinateY
                         if (updatedHeight < bottomSheetBehavior.peekHeight) {
                             updatedHeight = bottomSheetBehavior.peekHeight
                         }
@@ -262,7 +262,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     private fun adjustBottomSheetState(
         uiModel: PONativeAlternativePaymentMethodUiModel
     ) {
-        val forceExpand = displayHeight * REQUIRED_DISPLAY_HEIGHT_PERCENTAGE < minPeekHeight
+        val forceExpand = screenHeight * REQUIRED_SCREEN_HEIGHT_PERCENTAGE < minPeekHeight
         if (forceExpand) {
             bottomSheetBehavior.skipCollapsed = true
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
