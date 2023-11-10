@@ -3,20 +3,16 @@
 
     <style name="Theme.ProcessOut.Transparent" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowIsFloating">false</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:colorBackgroundCacheHint">@null</item>
         <item name="android:backgroundDimEnabled">false</item>
-        <item name="android:windowIsFloating">false</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowAnimationStyle">@null</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="windowNoTitle">true</item>
     </style>
 
     <style name="Theme.ProcessOut.Default" parent="Theme.ProcessOut.Transparent">
-        <item name="android:backgroundDimEnabled">true</item>
-        <item name="android:windowIsFloating">true</item>
         <item name="colorPrimary">@color/po_action_primary_default</item>
         <item name="colorOnPrimary">@color/po_text_onColor</item>
         <item name="colorSecondary">@color/po_action_primary_default</item>
@@ -36,11 +32,13 @@
     <style name="Theme.ProcessOut.Default.Input">
         <item name="colorPrimary">@color/po_text_primary</item>
         <item name="colorSecondary">@color/po_text_primary</item>
+        <item name="colorTertiary">@color/po_text_primary</item>
         <item name="editTextStyle">@style/Widget.ProcessOut.EditText</item>
         <item name="poCodeEditTextStyle">@style/Widget.ProcessOut.CodeEditText</item>
     </style>
 
     <style name="ThemeOverlay.ProcessOut.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="android:backgroundDimEnabled">true</item>
         <item name="android:windowSoftInputMode">adjustResize</item>
         <item name="colorSurface">@android:color/transparent</item>
         <item name="bottomSheetStyle">@style/Widget.ProcessOut.BottomSheet.Modal</item>
