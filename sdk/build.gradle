@@ -96,12 +96,12 @@ def setBuildConfig(buildType) {
 }
 
 dependencies {
-    implementation "androidx.core:core-ktx:$androidxCoreVersion"
-    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    api "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    api "androidx.core:core-ktx:$androidxCoreVersion"
+    api "androidx.activity:activity-ktx:$androidxActivityVersion"
+    api "androidx.fragment:fragment-ktx:$androidxFragmentVersion"
+    api "androidx.lifecycle:lifecycle-viewmodel-savedstate:$androidxLifecycleVersion"
     implementation "androidx.constraintlayout:constraintlayout:$androidxConstraintLayoutVersion"
-    implementation "androidx.activity:activity-ktx:$androidxActivityVersion"
-    implementation "androidx.fragment:fragment-ktx:$androidxFragmentVersion"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:$androidxLifecycleVersion"
     implementation "androidx.browser:browser:$androidxBrowserVersion"
 
     implementation "com.google.android.material:material:$materialVersion"
