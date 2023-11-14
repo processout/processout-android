@@ -11,7 +11,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
-import com.processout.sdk.ui.shared.configuration.BottomSheetCancellationConfiguration
+import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 
 internal abstract class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
@@ -29,11 +29,11 @@ internal abstract class BaseBottomSheetDialogFragment : BottomSheetDialogFragmen
             field = value
         }
 
-    private var cancellationConfiguration = BottomSheetCancellationConfiguration()
+    private var cancellationConfiguration = POCancellationConfiguration()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        applyCancellationConfiguration(cancellationConfiguration)
+        apply(cancellationConfiguration)
         dispatchBackPressed()
     }
 
@@ -41,9 +41,7 @@ internal abstract class BaseBottomSheetDialogFragment : BottomSheetDialogFragmen
         containerHeight = ViewGroup.LayoutParams.MATCH_PARENT
     }
 
-    protected fun applyCancellationConfiguration(
-        configuration: BottomSheetCancellationConfiguration
-    ) {
+    protected fun apply(configuration: POCancellationConfiguration) {
         with(bottomSheetDialog) {
             with(configuration) {
                 isCancelable = dragDown
