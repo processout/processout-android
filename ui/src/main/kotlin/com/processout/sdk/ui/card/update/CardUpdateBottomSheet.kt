@@ -42,23 +42,26 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POUnit>() {
         setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
         setContent {
             ProcessOutTheme {
-                when (val completionState = viewModel.completionState.collectAsStateWithLifecycle().value) {
-                    is Success -> finishWithActivityResult(
-                        resultCode = Activity.RESULT_OK,
-                        result = ProcessOutActivityResult.Success(POUnit)
-                    )
-                    is Failure -> finishWithActivityResult(
-                        resultCode = Activity.RESULT_CANCELED,
-                        result = completionState.failure.toActivityResult()
-                    )
-                    else -> {}
-                }
-
+                handle(viewModel.completionState.collectAsStateWithLifecycle().value)
                 CardUpdateScreen(
                     state = viewModel.state.collectAsStateWithLifecycle().value,
                     onEvent = viewModel::onEvent
                 )
             }
+        }
+    }
+
+    private fun handle(state: CardUpdateCompletionState) {
+        when (state) {
+            is Success -> finishWithActivityResult(
+                resultCode = Activity.RESULT_OK,
+                result = ProcessOutActivityResult.Success(POUnit)
+            )
+            is Failure -> finishWithActivityResult(
+                resultCode = Activity.RESULT_CANCELED,
+                result = state.failure.toActivityResult()
+            )
+            else -> {}
         }
     }
 
