@@ -58,13 +58,6 @@ android {
         freeCompilerArgs += '-opt-in=com.processout.sdk.core.annotation.ProcessOutInternalApi'
         freeCompilerArgs += '-opt-in=com.processout.sdk.ui.core.annotation.ProcessOutInternalApi'
     }
-
-    buildFeatures {
-        compose true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = rootProject.ext.androidxComposeCompilerVersion
-    }
 }
 
 static def generateVersionCode() {
