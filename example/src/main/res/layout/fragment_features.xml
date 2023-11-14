@@ -20,7 +20,9 @@
         style="@style/Widget.ProcessOut.Button.Secondary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/card_update" />
+        android:layout_marginTop="@dimen/button_space_vertical"
+        android:text="@string/card_update"
+        android:visibility="visible" />
 
     <Button
         android:id="@+id/native_apm_button"
