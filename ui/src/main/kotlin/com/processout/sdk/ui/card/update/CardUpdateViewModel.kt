@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.POFailure.Code.*
-import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.card.update.CardUpdateCompletionState.*
 import com.processout.sdk.ui.card.update.CardUpdateEvent.*
 import com.processout.sdk.ui.shared.state.FieldState
@@ -52,8 +51,5 @@ internal class CardUpdateViewModel(
 
     fun onEvent(event: CardUpdateEvent) = when (event) {
         Submit -> {}
-        Dismiss -> _completionState.update {
-            Failure(ProcessOutResult.Failure(Cancelled))
-        }
     }
 }

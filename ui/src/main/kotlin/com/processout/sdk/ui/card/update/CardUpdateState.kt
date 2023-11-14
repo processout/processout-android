@@ -20,5 +20,4 @@ internal sealed interface CardUpdateCompletionState {
 
 internal sealed interface CardUpdateEvent {
     data object Submit : CardUpdateEvent
-    data object Dismiss : CardUpdateEvent
 }
