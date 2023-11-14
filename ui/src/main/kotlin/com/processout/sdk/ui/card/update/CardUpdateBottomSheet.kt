@@ -67,7 +67,7 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POUnit>() {
         }
     }
 
-    private fun handle(state: CardUpdateCompletionState) {
+    private fun handle(state: CardUpdateCompletionState) =
         when (state) {
             is Success -> finishWithActivityResult(
                 resultCode = Activity.RESULT_OK,
@@ -79,7 +79,6 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POUnit>() {
             )
             else -> {}
         }
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -92,12 +91,11 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POUnit>() {
         bottomSheetBehavior.peekHeight = height
     }
 
-    override fun onCancellation(failure: ProcessOutResult.Failure) {
+    override fun onCancellation(failure: ProcessOutResult.Failure) =
         finishWithActivityResult(
             resultCode = Activity.RESULT_CANCELED,
             result = failure.toActivityResult()
         )
-    }
 
     private fun finishWithActivityResult(
         resultCode: Int,

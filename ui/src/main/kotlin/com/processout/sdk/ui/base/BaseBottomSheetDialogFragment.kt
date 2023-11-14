@@ -69,14 +69,13 @@ internal abstract class BaseBottomSheetDialogFragment<T : Parcelable> : BottomSh
         }
     }
 
-    override fun onCancel(dialog: DialogInterface) {
+    override fun onCancel(dialog: DialogInterface) =
         onCancellation(
             ProcessOutResult.Failure(
                 code = POFailure.Code.Cancelled,
                 message = "Cancelled by user with swipe or outside touch."
             )
         )
-    }
 
     protected abstract fun onCancellation(failure: ProcessOutResult.Failure)
 
