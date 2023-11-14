@@ -1,6 +1,8 @@
 package com.processout.sdk.core
 
 import android.os.Parcelable
+import com.processout.sdk.core.ProcessOutResult.Failure
+import com.processout.sdk.core.ProcessOutResult.Success
 
 /**
  * Provides [Success] or [Failure] as a result of operation.
@@ -25,7 +27,7 @@ sealed class ProcessOutResult<out T : Any> {
 inline fun <T : Any> ProcessOutResult<T>.handleSuccess(
     block: (value: T) -> Unit
 ) {
-    if (this is ProcessOutResult.Success) {
+    if (this is Success) {
         block(value)
     }
 }
@@ -38,26 +40,26 @@ inline fun <T : Any> ProcessOutResult<T>.handleFailure(
         cause: Exception?
     ) -> Unit
 ) {
-    if (this is ProcessOutResult.Failure) {
+    if (this is Failure) {
         block(code, message, invalidFields, cause)
     }
 }
 
 fun <T : Any> ProcessOutResult<T>.copy(): ProcessOutResult<T> =
     when (this) {
-        is ProcessOutResult.Success -> this.copy()
-        is ProcessOutResult.Failure -> this.copy()
+        is Success -> this.copy()
+        is Failure -> this.copy()
     }
 
 inline fun <T : Any, R : Any> ProcessOutResult<T>.map(
     transform: (T) -> R
 ): ProcessOutResult<R> = when (this) {
-    is ProcessOutResult.Success -> ProcessOutResult.Success(transform(value))
-    is ProcessOutResult.Failure -> this.copy()
+    is Success -> Success(transform(value))
+    is Failure -> this.copy()
 }
 
-internal fun <T : Parcelable> ProcessOutResult<T>.toActivityResult(): ProcessOutActivityResult<T> =
+fun <T : Parcelable> ProcessOutResult<T>.toActivityResult(): ProcessOutActivityResult<T> =
     when (this) {
-        is ProcessOutResult.Success -> ProcessOutActivityResult.Success(value)
-        is ProcessOutResult.Failure -> ProcessOutActivityResult.Failure(code, message)
+        is Success -> ProcessOutActivityResult.Success(value)
+        is Failure -> ProcessOutActivityResult.Failure(code, message)
     }

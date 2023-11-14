@@ -8,6 +8,7 @@ import com.processout.example.R
 import com.processout.example.databinding.FragmentFeaturesBinding
 import com.processout.example.ui.screen.base.BaseFragment
 import com.processout.sdk.api.model.request.POAllGatewayConfigurationsRequest
+import com.processout.sdk.core.POUnit
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.ui.card.update.POCardUpdateConfiguration
 import com.processout.sdk.ui.card.update.POCardUpdateLauncher
@@ -54,7 +55,7 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
         }
     }
 
-    private fun handleCardUpdateResult(result: ProcessOutActivityResult<Nothing>) {
+    private fun handleCardUpdateResult(result: ProcessOutActivityResult<POUnit>) {
         when (result) {
             is ProcessOutActivityResult.Success ->
                 Toast.makeText(requireContext(), "Success", Toast.LENGTH_SHORT).show()

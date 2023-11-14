@@ -13,3 +13,6 @@ sealed class ProcessOutActivityResult<out T : Parcelable> : Parcelable {
         val message: String? = null
     ) : ProcessOutActivityResult<Nothing>()
 }
+
+@Parcelize
+data object POUnit : Parcelable
