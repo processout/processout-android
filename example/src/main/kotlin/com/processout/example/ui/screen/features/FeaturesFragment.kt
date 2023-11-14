@@ -12,6 +12,7 @@ import com.processout.sdk.core.POUnit
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.ui.card.update.POCardUpdateConfiguration
 import com.processout.sdk.ui.card.update.POCardUpdateLauncher
+import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import java.util.UUID
 
 class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
@@ -40,7 +41,14 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
             cardUpdateButton.setOnClickListener {
                 cardUpdateLauncher.launch(
                     POCardUpdateConfiguration(
-                        cardId = UUID.randomUUID().toString()
+                        cardId = UUID.randomUUID().toString(),
+                        options = POCardUpdateConfiguration.Options(
+                            cancellation = POCancellationConfiguration(
+                                dragDown = true,
+                                touchOutside = false,
+                                backPressed = true
+                            )
+                        )
                     )
                 )
             }
