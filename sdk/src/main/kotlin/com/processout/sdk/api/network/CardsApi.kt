@@ -1,15 +1,12 @@
 package com.processout.sdk.api.network
 
+import com.processout.sdk.api.model.request.CardUpdateRequestBody
 import com.processout.sdk.api.model.request.POCardTokenizationRequestWithDeviceData
 import com.processout.sdk.api.model.request.POCardUpdateCVCRequest
 import com.processout.sdk.api.model.response.POCardIssuerInformationResponse
 import com.processout.sdk.api.model.response.POCardResponse
 import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.PUT
-import retrofit2.http.Path
+import retrofit2.http.*
 
 internal interface CardsApi {
 
@@ -18,6 +15,16 @@ internal interface CardsApi {
         @Body request: POCardTokenizationRequestWithDeviceData
     ): Response<POCardResponse>
 
+    @PUT("/cards/{id}")
+    suspend fun updateCard(
+        @Path("id") cardId: String,
+        @Body request: CardUpdateRequestBody
+    ): Response<POCardResponse>
+
+    @Deprecated(
+        message = "Use replacement function.",
+        replaceWith = ReplaceWith("updateCard(cardId, request)")
+    )
     @PUT("/cards/{id}")
     suspend fun updateCVC(
         @Path("id") cardId: String,
