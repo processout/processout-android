@@ -8,7 +8,7 @@ import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.config.SetupRule
 import com.processout.sdk.config.TestApplication
 import com.processout.sdk.config.assertFailure
-import com.processout.sdk.core.handleSuccess
+import com.processout.sdk.core.onSuccess
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
@@ -33,7 +33,7 @@ class CardsRepositoryTests {
     }
 
     @Test
-    fun tokenize() = runBlocking {
+    fun tokenize(): Unit = runBlocking {
         val request = POCardTokenizationRequest(
             name = "John Doe",
             number = "4242424242424242",
@@ -45,7 +45,7 @@ class CardsRepositoryTests {
     }
 
     @Test
-    fun updateCard() = runBlocking {
+    fun updateCard(): Unit = runBlocking {
         val tokenizationRequest = POCardTokenizationRequest(
             name = "John Doe",
             number = "4242424242424242",
@@ -55,7 +55,7 @@ class CardsRepositoryTests {
         )
         cards.tokenize(tokenizationRequest).let { result ->
             result.assertFailure()
-            result.handleSuccess { card ->
+            result.onSuccess { card ->
                 val cardUpdateRequest = POCardUpdateRequest(
                     cardId = card.id,
                     cvc = "321"
@@ -66,7 +66,7 @@ class CardsRepositoryTests {
     }
 
     @Test
-    fun updateCVC() = runBlocking {
+    fun updateCVC(): Unit = runBlocking {
         val tokenizationRequest = POCardTokenizationRequest(
             name = "John Doe",
             number = "4242424242424242",
@@ -76,7 +76,7 @@ class CardsRepositoryTests {
         )
         cards.tokenize(tokenizationRequest).let { result ->
             result.assertFailure()
-            result.handleSuccess { card ->
+            result.onSuccess { card ->
                 val cvcUpdateRequest = POCardUpdateCVCRequest(cvc = "321")
                 cards.updateCVC(card.id, cvcUpdateRequest).assertFailure()
             }
@@ -84,10 +84,10 @@ class CardsRepositoryTests {
     }
 
     @Test
-    fun fetchIssuerInformation() = runBlocking {
+    fun fetchIssuerInformation(): Unit = runBlocking {
         cards.fetchIssuerInformation(iin = "40000000").let { result ->
             result.assertFailure()
-            result.handleSuccess {
+            result.onSuccess {
                 assert(it.scheme == "visa")
             }
         }

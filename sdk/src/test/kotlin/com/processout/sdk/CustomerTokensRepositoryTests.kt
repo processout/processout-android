@@ -8,7 +8,7 @@ import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.config.SetupRule
 import com.processout.sdk.config.TestApplication
 import com.processout.sdk.config.assertFailure
-import com.processout.sdk.core.handleSuccess
+import com.processout.sdk.core.onSuccess
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
@@ -37,7 +37,7 @@ class CustomerTokensRepositoryTests {
     }
 
     @Test
-    fun assignCustomerToken() = runBlocking {
+    fun assignCustomerToken(): Unit = runBlocking {
         val request = POCardTokenizationRequest(
             name = "John Doe",
             number = "4242424242424242",
@@ -52,15 +52,15 @@ class CustomerTokensRepositoryTests {
             )
         ).let { createCustomerResult ->
             createCustomerResult.assertFailure()
-            createCustomerResult.handleSuccess { customer ->
+            createCustomerResult.onSuccess { customer ->
                 invoices.createInvoice(
                     POCreateInvoiceRequest("sandbox", "1", "USD")
                 ).let { invoiceResult ->
                     invoiceResult.assertFailure()
-                    invoiceResult.handleSuccess {
+                    invoiceResult.onSuccess {
                         cards.tokenize(request).let { cardResult ->
                             cardResult.assertFailure()
-                            cardResult.handleSuccess { card ->
+                            cardResult.onSuccess { card ->
                                 customerTokens.createCustomerToken(
                                     POCreateCustomerTokenRequest(
                                         customerId = customer.id,
@@ -69,7 +69,7 @@ class CustomerTokensRepositoryTests {
                                 )
                                     .let { createTokenResult ->
                                         createTokenResult.assertFailure()
-                                        createTokenResult.handleSuccess { token ->
+                                        createTokenResult.onSuccess { token ->
                                             token.id.let {
                                                 customerTokens.assignCustomerToken(
                                                     request = POAssignCustomerTokenRequest(
@@ -81,7 +81,7 @@ class CustomerTokensRepositoryTests {
                                                     )
                                                 ).let { assignTokenResult ->
                                                     assignTokenResult.assertFailure()
-                                                    assignTokenResult.handleSuccess { assignToken ->
+                                                    assignTokenResult.onSuccess { assignToken ->
                                                         assert(assignToken.token?.id.isNullOrBlank().not())
                                                     }
                                                 }

@@ -9,7 +9,7 @@ import com.processout.sdk.api.service.POAlternativePaymentMethodsService
 import com.processout.sdk.config.SetupRule
 import com.processout.sdk.config.TestApplication
 import com.processout.sdk.config.assertFailure
-import com.processout.sdk.core.handleSuccess
+import com.processout.sdk.core.onSuccess
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -45,7 +45,7 @@ class AlternativePaymentMethodsServiceTests {
 
         apmService.alternativePaymentMethodUri(request).let { result ->
             result.assertFailure()
-            result.handleSuccess { response ->
+            result.onSuccess { response ->
                 assert(response.toString() == expectedUrl)
             }
         }
@@ -65,7 +65,7 @@ class AlternativePaymentMethodsServiceTests {
 
         apmService.alternativePaymentMethodUri(request).let { result ->
             result.assertFailure()
-            result.handleSuccess { response ->
+            result.onSuccess { response ->
                 assert(response.toString() == expectedUrl)
             }
         }
@@ -77,7 +77,7 @@ class AlternativePaymentMethodsServiceTests {
 
         apmService.alternativePaymentMethodResponse(Uri.parse(returnUrl)).let { result ->
             result.assertFailure()
-            result.handleSuccess { response ->
+            result.onSuccess { response ->
                 assert(response.gatewayToken.isNotBlank())
                 assert(response.returnType == POAlternativePaymentMethodResponse.APMReturnType.AUTHORIZATION)
             }
@@ -91,7 +91,7 @@ class AlternativePaymentMethodsServiceTests {
 
         apmService.alternativePaymentMethodResponse(Uri.parse(returnUrl)).let { result ->
             result.assertFailure()
-            result.handleSuccess { response ->
+            result.onSuccess { response ->
                 assert(response.gatewayToken.isNotBlank())
                 assert(response.customerId != null)
                 assert(response.tokenId != null)
