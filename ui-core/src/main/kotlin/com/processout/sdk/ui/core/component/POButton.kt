@@ -30,114 +30,46 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme
 
 /** @suppress */
 @ProcessOutInternalApi
-object POButton {
-
-    @Composable
-    operator fun invoke(
-        text: String,
-        onClick: () -> Unit,
-        modifier: Modifier = Modifier,
-        style: Style = primary,
-        enabled: Boolean = true,
-        loading: Boolean = false,
-        interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
-    ) {
-        val pressed by interactionSource.collectIsPressedAsState()
-        CompositionLocalProvider(LocalRippleTheme provides NoRippleTheme) {
-            Button(
-                onClick = onClick,
-                modifier = modifier.defaultMinSize(minHeight = ProcessOutTheme.dimensions.formComponentHeight),
-                enabled = enabled && !loading,
-                colors = colors(enabled = enabled, loading = loading, pressed = pressed, style = style),
-                shape = if (enabled) style.normal.shape else style.disabled.shape,
-                border = border(enabled = enabled, pressed = pressed, style = style),
-                elevation = elevation(enabled = enabled, loading = loading, style = style),
-                contentPadding = contentPadding(enabled = enabled, style = style),
-                interactionSource = interactionSource
-            ) {
-                if (enabled && loading) {
-                    POCircularProgressIndicator.Small(color = style.progressIndicatorColor)
-                } else {
-                    POText(
-                        text = text,
-                        style = if (enabled) style.normal.text.textStyle else style.disabled.text.textStyle,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1
-                    )
-                }
+@Composable
+fun POButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    style: POButton.Style = POButton.primary,
+    enabled: Boolean = true,
+    loading: Boolean = false,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+) {
+    val pressed by interactionSource.collectIsPressedAsState()
+    CompositionLocalProvider(LocalRippleTheme provides NoRippleTheme) {
+        Button(
+            onClick = onClick,
+            modifier = modifier.defaultMinSize(minHeight = ProcessOutTheme.dimensions.formComponentHeight),
+            enabled = enabled && !loading,
+            colors = POButton.colors(enabled = enabled, loading = loading, pressed = pressed, style = style),
+            shape = if (enabled) style.normal.shape else style.disabled.shape,
+            border = POButton.border(enabled = enabled, pressed = pressed, style = style),
+            elevation = POButton.elevation(enabled = enabled, loading = loading, style = style),
+            contentPadding = POButton.contentPadding(enabled = enabled, style = style),
+            interactionSource = interactionSource
+        ) {
+            if (enabled && loading) {
+                POCircularProgressIndicator.Small(color = style.progressIndicatorColor)
+            } else {
+                POText(
+                    text = text,
+                    style = if (enabled) style.normal.text.textStyle else style.disabled.text.textStyle,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1
+                )
             }
         }
     }
+}
 
-    @Composable
-    private fun colors(
-        enabled: Boolean,
-        loading: Boolean,
-        pressed: Boolean,
-        style: Style
-    ): ButtonColors {
-        val normalTextColor: Color
-        val normalBackgroundColor: Color
-        if (pressed) with(style.highlighted) {
-            normalTextColor = textColor
-            normalBackgroundColor = backgroundColor
-        } else with(style.normal) {
-            normalTextColor = text.color
-            normalBackgroundColor = backgroundColor
-        }
-
-        val disabledTextColor: Color
-        val disabledBackgroundColor: Color
-        if (enabled && loading) with(style.normal) {
-            disabledTextColor = text.color
-            disabledBackgroundColor = backgroundColor
-        } else with(style.disabled) {
-            disabledTextColor = text.color
-            disabledBackgroundColor = backgroundColor
-        }
-
-        return ButtonDefaults.buttonColors(
-            containerColor = normalBackgroundColor,
-            contentColor = normalTextColor,
-            disabledContainerColor = disabledBackgroundColor,
-            disabledContentColor = disabledTextColor
-        )
-    }
-
-    private fun border(
-        enabled: Boolean,
-        pressed: Boolean,
-        style: Style
-    ): BorderStroke {
-        val normalBorderColor = if (pressed) style.highlighted.borderColor else style.normal.border.color
-        return if (enabled) style.normal.border.solid(color = normalBorderColor)
-        else style.disabled.border.solid()
-    }
-
-    @Composable
-    private fun elevation(
-        enabled: Boolean,
-        loading: Boolean,
-        style: Style
-    ): ButtonElevation = ButtonDefaults.buttonElevation(
-        defaultElevation = style.normal.elevation,
-        pressedElevation = style.normal.elevation,
-        focusedElevation = style.normal.elevation,
-        hoveredElevation = style.normal.elevation,
-        disabledElevation = if (enabled && loading)
-            style.normal.elevation else style.disabled.elevation
-    )
-
-    private fun contentPadding(
-        enabled: Boolean,
-        style: Style
-    ): PaddingValues = if (enabled) PaddingValues(
-        horizontal = style.normal.paddingHorizontal,
-        vertical = style.normal.paddingVertical
-    ) else PaddingValues(
-        horizontal = style.disabled.paddingHorizontal,
-        vertical = style.disabled.paddingVertical
-    )
+/** @suppress */
+@ProcessOutInternalApi
+object POButton {
 
     @Immutable
     data class Style(
@@ -252,6 +184,76 @@ object POButton {
         elevation = elevationDp.dp,
         paddingHorizontal = paddingHorizontalDp.dp,
         paddingVertical = paddingVerticalDp.dp
+    )
+
+    @Composable
+    internal fun colors(
+        enabled: Boolean,
+        loading: Boolean,
+        pressed: Boolean,
+        style: Style
+    ): ButtonColors {
+        val normalTextColor: Color
+        val normalBackgroundColor: Color
+        if (pressed) with(style.highlighted) {
+            normalTextColor = textColor
+            normalBackgroundColor = backgroundColor
+        } else with(style.normal) {
+            normalTextColor = text.color
+            normalBackgroundColor = backgroundColor
+        }
+
+        val disabledTextColor: Color
+        val disabledBackgroundColor: Color
+        if (enabled && loading) with(style.normal) {
+            disabledTextColor = text.color
+            disabledBackgroundColor = backgroundColor
+        } else with(style.disabled) {
+            disabledTextColor = text.color
+            disabledBackgroundColor = backgroundColor
+        }
+
+        return ButtonDefaults.buttonColors(
+            containerColor = normalBackgroundColor,
+            contentColor = normalTextColor,
+            disabledContainerColor = disabledBackgroundColor,
+            disabledContentColor = disabledTextColor
+        )
+    }
+
+    internal fun border(
+        enabled: Boolean,
+        pressed: Boolean,
+        style: Style
+    ): BorderStroke {
+        val normalBorderColor = if (pressed) style.highlighted.borderColor else style.normal.border.color
+        return if (enabled) style.normal.border.solid(color = normalBorderColor)
+        else style.disabled.border.solid()
+    }
+
+    @Composable
+    internal fun elevation(
+        enabled: Boolean,
+        loading: Boolean,
+        style: Style
+    ): ButtonElevation = ButtonDefaults.buttonElevation(
+        defaultElevation = style.normal.elevation,
+        pressedElevation = style.normal.elevation,
+        focusedElevation = style.normal.elevation,
+        hoveredElevation = style.normal.elevation,
+        disabledElevation = if (enabled && loading)
+            style.normal.elevation else style.disabled.elevation
+    )
+
+    internal fun contentPadding(
+        enabled: Boolean,
+        style: Style
+    ): PaddingValues = if (enabled) PaddingValues(
+        horizontal = style.normal.paddingHorizontal,
+        vertical = style.normal.paddingVertical
+    ) else PaddingValues(
+        horizontal = style.disabled.paddingHorizontal,
+        vertical = style.disabled.paddingVertical
     )
 }
 
