@@ -16,12 +16,12 @@
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|keyboard|keyboardHidden|uiMode|colorMode|density|fontScale|fontWeightAdjustment|layoutDirection|locale"
             android:exported="false"
             android:launchMode="singleTask"
-            android:theme="@style/Theme.ProcessOut.Base.Transparent" />
+            android:theme="@style/Theme.ProcessOut.Transparent" />
 
         <activity
             android:name=".ui.web.customtab.POCustomTabRedirectActivity"
             android:exported="true"
-            android:theme="@style/Theme.ProcessOut.Base.Transparent">
+            android:theme="@style/Theme.ProcessOut.Transparent">
             <intent-filter
                 android:autoVerify="true"
                 tools:targetApi="m">
@@ -42,7 +42,7 @@
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|keyboard|keyboardHidden|uiMode|colorMode|density|fontScale|fontWeightAdjustment|layoutDirection|locale"
             android:exported="false"
             android:launchMode="singleTop"
-            android:theme="@style/Theme.ProcessOut.Base.Transparent" />
+            android:theme="@style/Theme.ProcessOut.Transparent" />
     </application>
 
     <queries>
