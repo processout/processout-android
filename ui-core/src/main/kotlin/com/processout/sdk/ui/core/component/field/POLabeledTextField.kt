@@ -2,6 +2,7 @@ package com.processout.sdk.ui.core.component.field
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -9,6 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
@@ -21,8 +24,8 @@ fun POLabeledTextField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    fieldStyle: POFieldStyle = POFieldDefaults.default,
-    labelsStyle: POFieldLabelsStyle = POFieldLabelsDefaults.default,
+    fieldStyle: POField.Style = POField.default,
+    labelsStyle: POFieldLabels.Style = POFieldLabels.default,
     enabled: Boolean = true,
     isError: Boolean = false,
     description: String = String(),
@@ -67,6 +70,21 @@ fun POLabeledTextField(
             modifier = Modifier.padding(top = ProcessOutTheme.spacing.small),
             color = if (isError) labelsStyle.error.description.color else labelsStyle.normal.description.color,
             style = if (isError) labelsStyle.error.description.textStyle else labelsStyle.normal.description.textStyle
+        )
+    }
+}
+
+@Composable
+@Preview(showBackground = true)
+private fun POLabeledTextFieldPreview() {
+    Column(modifier = Modifier.padding(16.dp)) {
+        POLabeledTextField(
+            title = "Title",
+            value = "test@gmail.com",
+            onValueChange = {},
+            modifier = Modifier.fillMaxWidth(),
+            isError = true,
+            description = "This is error message."
         )
     }
 }

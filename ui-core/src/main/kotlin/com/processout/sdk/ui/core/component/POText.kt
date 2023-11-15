@@ -19,34 +19,36 @@ import com.processout.sdk.ui.core.theme.toTextStyle
 
 /** @suppress */
 @ProcessOutInternalApi
-object POText {
+@Composable
+fun POText(
+    text: String,
+    modifier: Modifier = Modifier,
+    color: Color = Color.Unspecified,
+    style: TextStyle = ProcessOutTheme.typography.fixed.body,
+    fontStyle: FontStyle? = null,
+    textAlign: TextAlign? = null,
+    onTextLayout: (TextLayoutResult) -> Unit = {},
+    overflow: TextOverflow = TextOverflow.Clip,
+    softWrap: Boolean = true,
+    maxLines: Int = Int.MAX_VALUE,
+    minLines: Int = 1
+) = Text(
+    text = text,
+    modifier = modifier,
+    color = color,
+    style = style,
+    fontStyle = fontStyle,
+    textAlign = textAlign,
+    onTextLayout = onTextLayout,
+    overflow = overflow,
+    softWrap = softWrap,
+    maxLines = maxLines,
+    minLines = minLines
+)
 
-    @Composable
-    operator fun invoke(
-        text: String,
-        modifier: Modifier = Modifier,
-        color: Color = Color.Unspecified,
-        style: TextStyle = ProcessOutTheme.typography.fixed.body,
-        fontStyle: FontStyle? = null,
-        textAlign: TextAlign? = null,
-        onTextLayout: (TextLayoutResult) -> Unit = {},
-        overflow: TextOverflow = TextOverflow.Clip,
-        softWrap: Boolean = true,
-        maxLines: Int = Int.MAX_VALUE,
-        minLines: Int = 1
-    ) = Text(
-        text = text,
-        modifier = modifier,
-        color = color,
-        style = style,
-        fontStyle = fontStyle,
-        textAlign = textAlign,
-        onTextLayout = onTextLayout,
-        overflow = overflow,
-        softWrap = softWrap,
-        maxLines = maxLines,
-        minLines = minLines
-    )
+/** @suppress */
+@ProcessOutInternalApi
+object POText {
 
     @Immutable
     data class Style(
