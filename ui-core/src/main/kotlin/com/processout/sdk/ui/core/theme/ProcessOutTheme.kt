@@ -11,27 +11,29 @@ import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 
 /** @suppress */
 @ProcessOutInternalApi
-object ProcessOutTheme {
-
-    @Composable
-    operator fun invoke(
-        isDarkTheme: Boolean = isSystemInDarkTheme(),
-        content: @Composable () -> Unit
+@Composable
+fun ProcessOutTheme(
+    isDarkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit
+) {
+    val colors = if (isDarkTheme) DarkColorPalette else LightColorPalette
+    CompositionLocalProvider(
+        LocalPOColors provides colors,
+        LocalPOTypography provides ProcessOutTheme.typography,
+        LocalPOShapes provides ProcessOutTheme.shapes,
+        LocalPOSpacing provides ProcessOutTheme.spacing,
+        LocalPODimensions provides ProcessOutTheme.dimensions
     ) {
-        val colors = if (isDarkTheme) DarkColorPalette else LightColorPalette
-        CompositionLocalProvider(
-            LocalPOColors provides colors,
-            LocalPOTypography provides typography,
-            LocalPOShapes provides shapes,
-            LocalPOSpacing provides spacing,
-            LocalPODimensions provides dimensions
-        ) {
-            ProvideTextStyle(
-                value = typography.fixed.body,
-                content = content
-            )
-        }
+        ProvideTextStyle(
+            value = ProcessOutTheme.typography.fixed.body,
+            content = content
+        )
     }
+}
+
+/** @suppress */
+@ProcessOutInternalApi
+object ProcessOutTheme {
 
     val colors: POColors
         @Composable
