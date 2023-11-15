@@ -29,7 +29,7 @@ fun POTextField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    style: POFieldStyle = POFieldDefaults.default,
+    style: POField.Style = POField.default,
     enabled: Boolean = true,
     isError: Boolean = false,
     placeholderText: String? = null,
@@ -44,15 +44,15 @@ fun POTextField(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
     CompositionLocalProvider(
-        LocalTextSelectionColors provides POFieldDefaults.textSelectionColors(isError = isError, style = style)
+        LocalTextSelectionColors provides POField.textSelectionColors(isError = isError, style = style)
     ) {
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
             modifier = modifier.defaultMinSize(minHeight = ProcessOutTheme.dimensions.formComponentHeight),
             enabled = enabled,
-            textStyle = POFieldDefaults.textStyle(isError = isError, style = style),
-            cursorBrush = POFieldDefaults.cursorBrush(isError = isError, style = style),
+            textStyle = POField.textStyle(isError = isError, style = style),
+            cursorBrush = POField.cursorBrush(isError = isError, style = style),
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
             singleLine = singleLine,
@@ -67,7 +67,7 @@ fun POTextField(
                     enabled = enabled,
                     isError = isError,
                     placeholder = {
-                        if (!placeholderText.isNullOrBlank()) POFieldDefaults.Placeholder(
+                        if (!placeholderText.isNullOrBlank()) POField.Placeholder(
                             text = placeholderText,
                             isError = isError,
                             style = style
@@ -78,9 +78,9 @@ fun POTextField(
                     singleLine = singleLine,
                     visualTransformation = visualTransformation,
                     interactionSource = interactionSource,
-                    contentPadding = POFieldDefaults.ContentPadding,
+                    contentPadding = POField.ContentPadding,
                     container = {
-                        POFieldDefaults.ContainerBox(
+                        POField.ContainerBox(
                             isError = isError,
                             style = style
                         )
