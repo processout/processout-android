@@ -5,10 +5,19 @@ import com.processout.sdk.core.ProcessOutActivityResult.Failure
 import com.processout.sdk.core.ProcessOutActivityResult.Success
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Provides [Success] or [Failure] as a result of operation received from Activity.
+ */
 sealed class ProcessOutActivityResult<out T : Parcelable> : Parcelable {
+    /**
+     * Provides successful result with a value.
+     */
     @Parcelize
     data class Success<out T : Parcelable>(val value: T) : ProcessOutActivityResult<T>()
 
+    /**
+     * Provides detailed information about an error that occurred.
+     */
     @Parcelize
     data class Failure(
         val code: POFailure.Code,
@@ -16,6 +25,9 @@ sealed class ProcessOutActivityResult<out T : Parcelable> : Parcelable {
     ) : ProcessOutActivityResult<Nothing>()
 }
 
+/**
+ * Maps [ProcessOutResult] to parcelable [ProcessOutActivityResult].
+ */
 fun <T : Parcelable> ProcessOutResult<T>.toActivityResult(): ProcessOutActivityResult<T> =
     when (this) {
         is ProcessOutResult.Success -> Success(value)
@@ -68,6 +80,3 @@ fun <T : Parcelable> ProcessOutActivityResult<T>.getOrNull(): T? =
         is Success -> value
         is Failure -> null
     }
-
-@Parcelize
-data object POUnit : Parcelable
