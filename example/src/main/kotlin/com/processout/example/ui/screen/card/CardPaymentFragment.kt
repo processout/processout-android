@@ -16,8 +16,6 @@ import com.processout.example.databinding.FragmentCardPaymentBinding
 import com.processout.example.service.Checkout3DSServiceDelegate
 import com.processout.example.service.POAdyen3DSService
 import com.processout.example.shared.Constants
-import com.processout.example.shared.onFailure
-import com.processout.example.shared.onSuccess
 import com.processout.example.shared.toMessage
 import com.processout.example.ui.screen.base.BaseFragment
 import com.processout.example.ui.screen.card.CardPaymentUiState.Authorizing
@@ -29,6 +27,8 @@ import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
 import com.processout.sdk.api.service.PO3DSService
 import com.processout.sdk.checkout.threeds.POCheckout3DSService
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.onFailure
+import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.threeds.PO3DSRedirectCustomTabLauncher
 import com.processout.sdk.ui.threeds.POTest3DSService
 import kotlinx.coroutines.launch
