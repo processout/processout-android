@@ -1,6 +1,5 @@
 package com.processout.sdk.core
 
-import android.os.Parcelable
 import com.processout.sdk.core.ProcessOutResult.Failure
 import com.processout.sdk.core.ProcessOutResult.Success
 
@@ -57,9 +56,3 @@ inline fun <T : Any, R : Any> ProcessOutResult<T>.map(
     is Success -> Success(transform(value))
     is Failure -> this.copy()
 }
-
-fun <T : Parcelable> ProcessOutResult<T>.toActivityResult(): ProcessOutActivityResult<T> =
-    when (this) {
-        is Success -> ProcessOutActivityResult.Success(value)
-        is Failure -> ProcessOutActivityResult.Failure(code, message)
-    }
