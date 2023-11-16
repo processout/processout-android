@@ -8,7 +8,7 @@ import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POAllGatewayConfigurationsRequest
 import com.processout.sdk.api.model.response.POAllGatewayConfigurations
 import com.processout.sdk.api.repository.POGatewayConfigurationsRepository
-import com.processout.sdk.core.handleSuccess
+import com.processout.sdk.core.onSuccess
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -44,7 +44,7 @@ class AlternativePaymentMethodsViewModel(
     private fun fetch() {
         viewModelScope.launch {
             val request = POAllGatewayConfigurationsRequest(filter)
-            gatewayConfigurations.fetch(request).handleSuccess { result ->
+            gatewayConfigurations.fetch(request).onSuccess { result ->
                 _uiState.value = Loaded(result.toUiModel())
             }
         }

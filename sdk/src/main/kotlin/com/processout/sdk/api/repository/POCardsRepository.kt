@@ -2,6 +2,7 @@ package com.processout.sdk.api.repository
 
 import com.processout.sdk.api.model.request.POCardTokenizationRequest
 import com.processout.sdk.api.model.request.POCardUpdateCVCRequest
+import com.processout.sdk.api.model.request.POCardUpdateRequest
 import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.api.model.response.POCardIssuerInformation
 import com.processout.sdk.core.ProcessOutCallback
@@ -34,11 +35,32 @@ interface POCardsRepository {
     /**
      * Updates card information.
      */
-    suspend fun updateCVC(cardId: String, request: POCardUpdateCVCRequest): ProcessOutResult<POCard>
+    suspend fun updateCard(request: POCardUpdateRequest): ProcessOutResult<POCard>
 
     /**
      * Updates card information.
      */
+    fun updateCard(
+        request: POCardUpdateRequest,
+        callback: ProcessOutCallback<POCard>
+    )
+
+    /**
+     * Updates card CVC.
+     */
+    @Deprecated(
+        message = "Use replacement function.",
+        replaceWith = ReplaceWith("updateCard(request)")
+    )
+    suspend fun updateCVC(cardId: String, request: POCardUpdateCVCRequest): ProcessOutResult<POCard>
+
+    /**
+     * Updates card CVC.
+     */
+    @Deprecated(
+        message = "Use replacement function.",
+        replaceWith = ReplaceWith("updateCard(request, callback)")
+    )
     fun updateCVC(
         cardId: String,
         request: POCardUpdateCVCRequest,

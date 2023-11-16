@@ -3,9 +3,6 @@ package com.processout.example.ui.screen.nativeapm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.processout.example.shared.getOrNull
-import com.processout.example.shared.onFailure
-import com.processout.example.shared.onSuccess
 import com.processout.example.ui.screen.nativeapm.NativeApmUiState.*
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POCreateCustomerRequest
@@ -13,6 +10,9 @@ import com.processout.sdk.api.model.request.POCreateInvoiceRequest
 import com.processout.sdk.api.model.response.POCustomer
 import com.processout.sdk.api.service.POCustomerTokensService
 import com.processout.sdk.api.service.POInvoicesService
+import com.processout.sdk.core.getOrNull
+import com.processout.sdk.core.onFailure
+import com.processout.sdk.core.onSuccess
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch

@@ -10,8 +10,8 @@ import com.processout.sdk.config.SetupRule
 import com.processout.sdk.config.TestApplication
 import com.processout.sdk.config.assertFailure
 import com.processout.sdk.core.POFailure
-import com.processout.sdk.core.handleFailure
-import com.processout.sdk.core.handleSuccess
+import com.processout.sdk.core.onFailure
+import com.processout.sdk.core.onSuccess
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Ignore
@@ -40,12 +40,12 @@ class InvoicesRepositoryTests {
 
     @Test
     @Ignore("Investigate why fails.")
-    fun initiatePayment() = runBlocking {
+    fun initiatePayment(): Unit = runBlocking {
         invoices.createInvoice(
             POCreateInvoiceRequest("sandbox", "100", "USD")
         ).let { result ->
             result.assertFailure()
-            result.handleSuccess { invoice ->
+            result.onSuccess { invoice ->
                 val request = PONativeAlternativePaymentMethodRequest(
                     invoice.id,
                     "$PROCESSOUT_GATEWAY_CONFIGURATION_ID.sandbox",
@@ -57,7 +57,7 @@ class InvoicesRepositoryTests {
     }
 
     @Test
-    fun authorize() = runBlocking {
+    fun authorize(): Unit = runBlocking {
         val request = POCardTokenizationRequest(
             name = "John Doe",
             number = "4242424242424242",
@@ -70,14 +70,14 @@ class InvoicesRepositoryTests {
             POCreateInvoiceRequest("sandbox", "1", "USD")
         ).let { result ->
             result.assertFailure()
-            result.handleSuccess { invoice ->
+            result.onSuccess { invoice ->
                 cards.tokenize(request).let {
-                    it.handleSuccess { card ->
+                    it.onSuccess { card ->
                         invoices.authorizeInvoice(
                             POInvoiceAuthorizationRequest(invoice.id, card.id)
                         ).let { authResult ->
                             authResult.assertFailure()
-                            authResult.handleSuccess { authSuccess ->
+                            authResult.onSuccess { authSuccess ->
                                 assert(authSuccess.customerAction != null)
                             }
                         }
@@ -88,7 +88,7 @@ class InvoicesRepositoryTests {
     }
 
     @Test
-    fun authorizeWith3DS() = runBlocking {
+    fun authorizeWith3DS(): Unit = runBlocking {
         val request = POCardTokenizationRequest(
             name = "John Doe",
             number = "4242424242424242",
@@ -101,14 +101,14 @@ class InvoicesRepositoryTests {
             POCreateInvoiceRequest("sandbox", "26", "USD")
         ).let { result ->
             result.assertFailure()
-            result.handleSuccess { invoice ->
+            result.onSuccess { invoice ->
                 cards.tokenize(request).let {
-                    it.handleSuccess { card ->
+                    it.onSuccess { card ->
                         invoices.authorizeInvoice(
                             POInvoiceAuthorizationRequest(invoice.id, card.id)
                         ).let { authResult ->
                             authResult.assertFailure()
-                            authResult.handleSuccess { authSuccess ->
+                            authResult.onSuccess { authSuccess ->
                                 assert(authSuccess.customerAction?.type() == POCustomerAction.Type.URL)
                             }
                         }
@@ -120,12 +120,12 @@ class InvoicesRepositoryTests {
 
     @Test
     @Ignore("Investigate why fails.")
-    fun fetchNativeAlternativePaymentMethodTransactionDetails() = runBlocking {
+    fun fetchNativeAlternativePaymentMethodTransactionDetails(): Unit = runBlocking {
         invoices.createInvoice(
             POCreateInvoiceRequest("sandbox", "199", "USD")
         ).let { invoiceResult ->
             invoiceResult.assertFailure()
-            invoiceResult.handleSuccess { invoice ->
+            invoiceResult.onSuccess { invoice ->
                 invoices.fetchNativeAlternativePaymentMethodTransactionDetails(
                     invoice.id,
                     "$PROCESSOUT_GATEWAY_CONFIGURATION_ID.sandbox"
@@ -135,17 +135,17 @@ class InvoicesRepositoryTests {
     }
 
     @Test
-    fun captureWithGenericFailure() = runBlocking {
+    fun captureWithGenericFailure(): Unit = runBlocking {
         invoices.createInvoice(
             POCreateInvoiceRequest("sandbox", "95", "PLN")
         ).let { invoiceResult ->
             invoiceResult.assertFailure()
-            invoiceResult.handleSuccess { invoice ->
+            invoiceResult.onSuccess { invoice ->
                 invoices.captureNativeAlternativePayment(
                     invoice.id,
                     "$PROCESSOUT_GATEWAY_CONFIGURATION_ID.sandbox"
-                ).handleFailure { code, _, _, _ ->
-                    assert(code is POFailure.Code.Generic)
+                ).onFailure {
+                    assert(it.code is POFailure.Code.Generic)
                 }
             }
         }

@@ -32,7 +32,7 @@ class GatewayConfigurationsRepositoryTests {
     }
 
     @Test
-    fun fetch() = runBlocking {
+    fun fetch(): Unit = runBlocking {
         val request = POAllGatewayConfigurationsRequest(
             POAllGatewayConfigurationsRequest.Filter.NATIVE_ALTERNATIVE_PAYMENT_METHODS
         )
@@ -40,7 +40,7 @@ class GatewayConfigurationsRepositoryTests {
     }
 
     @Test
-    fun find() = runBlocking {
+    fun find(): Unit = runBlocking {
         val request = POGatewayConfigurationRequest(
             PROCESSOUT_GATEWAY_CONFIGURATION_ID,
             withGateway = true

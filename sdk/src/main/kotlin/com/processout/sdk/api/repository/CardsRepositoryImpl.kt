@@ -1,9 +1,6 @@
 package com.processout.sdk.api.repository
 
-import com.processout.sdk.api.model.request.POCardTokenizationRequest
-import com.processout.sdk.api.model.request.POCardTokenizationRequestWithDeviceData
-import com.processout.sdk.api.model.request.POCardUpdateCVCRequest
-import com.processout.sdk.api.model.request.PODeviceData
+import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.api.model.response.POCardIssuerInformation
 import com.processout.sdk.api.model.response.POCardIssuerInformationResponse
@@ -22,9 +19,7 @@ internal class CardsRepositoryImpl(
 
     override suspend fun tokenize(request: POCardTokenizationRequest) =
         apiCall {
-            api.tokenize(
-                request.toDeviceDataRequest(contextGraph.deviceData)
-            )
+            api.tokenize(request.toDeviceDataRequest(contextGraph.deviceData))
         }.map { it.toModel() }
 
     override fun tokenize(
@@ -34,16 +29,38 @@ internal class CardsRepositoryImpl(
         api.tokenize(request.toDeviceDataRequest(contextGraph.deviceData))
     }
 
+    override suspend fun updateCard(
+        request: POCardUpdateRequest
+    ) = apiCall { api.updateCard(request.cardId, request.toBody()) }
+        .map { it.toModel() }
+
+    override fun updateCard(
+        request: POCardUpdateRequest,
+        callback: ProcessOutCallback<POCard>
+    ) = apiCallScoped(callback, POCardResponse::toModel) {
+        api.updateCard(request.cardId, request.toBody())
+    }
+
+    @Deprecated(
+        message = "Use replacement function.",
+        replaceWith = ReplaceWith("updateCard(request)")
+    )
     override suspend fun updateCVC(
         cardId: String,
         request: POCardUpdateCVCRequest
     ) = apiCall { api.updateCVC(cardId, request) }.map { it.toModel() }
 
+    @Deprecated(
+        message = "Use replacement function.",
+        replaceWith = ReplaceWith("updateCard(request, callback)")
+    )
     override fun updateCVC(
         cardId: String,
         request: POCardUpdateCVCRequest,
         callback: ProcessOutCallback<POCard>
-    ) = apiCallScoped(callback, POCardResponse::toModel) { api.updateCVC(cardId, request) }
+    ) = apiCallScoped(callback, POCardResponse::toModel) {
+        api.updateCVC(cardId, request)
+    }
 
     override suspend fun fetchIssuerInformation(iin: String) =
         apiCall { api.fetchIssuerInformation(iin) }.map { it.toModel() }
@@ -70,6 +87,8 @@ private fun POCardTokenizationRequest.toDeviceDataRequest(deviceData: PODeviceDa
         paymentToken,
         deviceData
     )
+
+private fun POCardUpdateRequest.toBody() = CardUpdateRequestBody(cvc)
 
 private fun POCardResponse.toModel() = card
 
