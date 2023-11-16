@@ -36,7 +36,7 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POUnit>() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         @Suppress("DEPRECATION")
-        configuration = arguments?.getParcelable(POCardUpdateActivityContract.EXTRA_CONFIGURATION)
+        configuration = arguments?.getParcelable(CardUpdateActivityContract.EXTRA_CONFIGURATION)
         configuration?.run {
             if (cardId.isBlank()) {
                 finishWithActivityResult(
@@ -103,7 +103,7 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POUnit>() {
     ) {
         setActivityResult(
             resultCode = resultCode,
-            extraName = POCardUpdateActivityContract.EXTRA_RESULT,
+            extraName = CardUpdateActivityContract.EXTRA_RESULT,
             result = result
         )
         finish()

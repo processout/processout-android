@@ -23,7 +23,7 @@ class POCardUpdateLauncher private constructor() {
             callback: (ProcessOutActivityResult<POUnit>) -> Unit
         ) = POCardUpdateLauncher().apply {
             launcher = from.registerForActivityResult(
-                POCardUpdateActivityContract(),
+                CardUpdateActivityContract(),
                 callback
             )
         }
@@ -37,7 +37,7 @@ class POCardUpdateLauncher private constructor() {
             callback: (ProcessOutActivityResult<POUnit>) -> Unit
         ) = POCardUpdateLauncher().apply {
             launcher = from.registerForActivityResult(
-                POCardUpdateActivityContract(),
+                CardUpdateActivityContract(),
                 from.activityResultRegistry,
                 callback
             )

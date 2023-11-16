@@ -9,7 +9,8 @@ import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.BuildConfig
 
-class POCardUpdateActivityContract : ActivityResultContract<POCardUpdateConfiguration, ProcessOutActivityResult<POUnit>>() {
+internal class CardUpdateActivityContract : ActivityResultContract
+<POCardUpdateConfiguration, ProcessOutActivityResult<POUnit>>() {
 
     companion object {
         const val EXTRA_CONFIGURATION = "${BuildConfig.LIBRARY_PACKAGE_NAME}.EXTRA_CONFIGURATION"
