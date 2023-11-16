@@ -7,7 +7,7 @@ import com.processout.sdk.core.POUnit
 import com.processout.sdk.core.ProcessOutActivityResult
 
 /**
- * Launcher that starts [POCardUpdateActivity] and provides the result.
+ * Launcher that starts [CardUpdateActivity] and provides the result.
  */
 class POCardUpdateLauncher private constructor() {
 

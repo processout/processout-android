@@ -5,7 +5,7 @@ import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 
-abstract class POBaseTransparentPortraitActivity : AppCompatActivity() {
+internal abstract class BaseTransparentPortraitActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

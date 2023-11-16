@@ -20,7 +20,7 @@ internal class CardUpdateActivityContract : ActivityResultContract
     override fun createIntent(
         context: Context,
         input: POCardUpdateConfiguration
-    ) = Intent(context, POCardUpdateActivity::class.java)
+    ) = Intent(context, CardUpdateActivity::class.java)
         .putExtra(EXTRA_CONFIGURATION, input)
 
     @Suppress("DEPRECATION")
