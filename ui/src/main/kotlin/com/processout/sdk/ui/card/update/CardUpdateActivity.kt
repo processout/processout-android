@@ -1,9 +1,9 @@
 package com.processout.sdk.ui.card.update
 
 import android.os.Bundle
-import com.processout.sdk.ui.base.POBaseTransparentPortraitActivity
+import com.processout.sdk.ui.base.BaseTransparentPortraitActivity
 
-class POCardUpdateActivity : POBaseTransparentPortraitActivity() {
+internal class CardUpdateActivity : BaseTransparentPortraitActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

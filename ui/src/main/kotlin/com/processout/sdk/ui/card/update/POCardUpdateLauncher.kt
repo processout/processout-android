@@ -7,7 +7,7 @@ import com.processout.sdk.core.POUnit
 import com.processout.sdk.core.ProcessOutActivityResult
 
 /**
- * Launcher that starts [POCardUpdateActivity] and provides the result.
+ * Launcher that starts [CardUpdateActivity] and provides the result.
  */
 class POCardUpdateLauncher private constructor() {
 
@@ -23,7 +23,7 @@ class POCardUpdateLauncher private constructor() {
             callback: (ProcessOutActivityResult<POUnit>) -> Unit
         ) = POCardUpdateLauncher().apply {
             launcher = from.registerForActivityResult(
-                POCardUpdateActivityContract(),
+                CardUpdateActivityContract(),
                 callback
             )
         }
@@ -37,7 +37,7 @@ class POCardUpdateLauncher private constructor() {
             callback: (ProcessOutActivityResult<POUnit>) -> Unit
         ) = POCardUpdateLauncher().apply {
             launcher = from.registerForActivityResult(
-                POCardUpdateActivityContract(),
+                CardUpdateActivityContract(),
                 from.activityResultRegistry,
                 callback
             )

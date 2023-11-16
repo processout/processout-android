@@ -3,7 +3,7 @@
 
     <application>
         <activity
-            android:name=".card.update.POCardUpdateActivity"
+            android:name=".card.update.CardUpdateActivity"
             android:exported="false"
             android:launchMode="singleInstance"
             android:theme="@style/Theme.ProcessOut.BottomSheet" />

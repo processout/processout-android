@@ -9,7 +9,8 @@ import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.BuildConfig
 
-class POCardUpdateActivityContract : ActivityResultContract<POCardUpdateConfiguration, ProcessOutActivityResult<POUnit>>() {
+internal class CardUpdateActivityContract : ActivityResultContract
+<POCardUpdateConfiguration, ProcessOutActivityResult<POUnit>>() {
 
     companion object {
         const val EXTRA_CONFIGURATION = "${BuildConfig.LIBRARY_PACKAGE_NAME}.EXTRA_CONFIGURATION"
@@ -19,7 +20,7 @@ class POCardUpdateActivityContract : ActivityResultContract<POCardUpdateConfigur
     override fun createIntent(
         context: Context,
         input: POCardUpdateConfiguration
-    ) = Intent(context, POCardUpdateActivity::class.java)
+    ) = Intent(context, CardUpdateActivity::class.java)
         .putExtra(EXTRA_CONFIGURATION, input)
 
     @Suppress("DEPRECATION")
