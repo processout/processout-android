@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <!-- Card Update -->
+    <string name="po_card_update_title">Payment Details</string>
+    <string name="po_card_update_cvc">CVC</string>
+    <string name="po_card_update_button_submit">Submit</string>
+    <string name="po_card_update_button_cancel">Cancel</string>
+    <string name="po_card_update_error_cvc">Your card CVC is invalid.</string>
+    <string name="po_card_update_error_generic">Something went wrong, please try again.</string>
+</resources>
