@@ -7,11 +7,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.state.POActionStateExtended
 import com.processout.sdk.ui.core.state.POImmutableCollection
+import com.processout.sdk.ui.core.style.POActionsContainerStyle
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 
@@ -102,6 +104,17 @@ object POActionsContainer {
                 backgroundColor = colors.surface.level1
             )
         }
+
+    @Composable
+    fun custom(style: POActionsContainerStyle) = with(style) {
+        Style(
+            primary = POButton.custom(style = primary),
+            secondary = POButton.custom(style = secondary),
+            axis = axis,
+            dividerColor = colorResource(id = dividerColorResId),
+            backgroundColor = colorResource(id = backgroundColorResId)
+        )
+    }
 
     internal val ContainerPadding: PaddingValues
         @Composable get() = PaddingValues(
