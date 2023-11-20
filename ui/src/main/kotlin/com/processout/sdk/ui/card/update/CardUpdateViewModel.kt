@@ -17,18 +17,21 @@ import kotlinx.coroutines.flow.*
 internal class CardUpdateViewModel(
     private val app: Application,
     private val cardId: String,
+    private val options: POCardUpdateConfiguration.Options,
     private val cardsRepository: POCardsRepository
 ) : ViewModel() {
 
     class Factory(
         private val app: Application,
-        private val cardId: String
+        private val cardId: String,
+        private val options: POCardUpdateConfiguration.Options
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
             CardUpdateViewModel(
                 app = app,
                 cardId = cardId,
+                options = options,
                 cardsRepository = ProcessOut.instance.cards
             ) as T
     }
@@ -40,23 +43,25 @@ internal class CardUpdateViewModel(
     val completionState = _completionState.asStateFlow()
 
     // TODO: init proper defaults
-    private fun initState() = CardUpdateState(
-        title = "Title",
-        cardField = POFieldState(
-            title = "Field 1"
-        ),
-        cvcField = POFieldState(
-            title = "Field 2"
-        ),
-        primaryAction = POActionState(
-            text = app.getString(R.string.po_card_update_button_submit),
-            primary = true
-        ),
-        secondaryAction = POActionState(
-            text = app.getString(R.string.po_card_update_button_cancel),
-            primary = false
+    private fun initState() = with(options) {
+        CardUpdateState(
+            title = title ?: app.getString(R.string.po_card_update_title),
+            cardField = POFieldState(
+                title = "Field 1"
+            ),
+            cvcField = POFieldState(
+                title = "Field 2"
+            ),
+            primaryAction = POActionState(
+                text = primaryActionText ?: app.getString(R.string.po_card_update_button_submit),
+                primary = true
+            ),
+            secondaryAction = POActionState(
+                text = cancelActionText ?: app.getString(R.string.po_card_update_button_cancel),
+                primary = false
+            )
         )
-    )
+    }
 
     fun onEvent(event: CardUpdateEvent) = when (event) {
         Submit -> submit()

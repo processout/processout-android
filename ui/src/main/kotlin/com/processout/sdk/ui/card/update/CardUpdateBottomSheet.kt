@@ -29,7 +29,8 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POUnit>() {
     private val viewModel: CardUpdateViewModel by viewModels {
         CardUpdateViewModel.Factory(
             app = requireActivity().application,
-            cardId = configuration?.cardId ?: String()
+            cardId = configuration?.cardId ?: String(),
+            options = configuration?.options ?: POCardUpdateConfiguration.Options()
         )
     }
 
