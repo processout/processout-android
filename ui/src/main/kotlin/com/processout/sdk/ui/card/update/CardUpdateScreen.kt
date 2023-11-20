@@ -11,6 +11,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
+import com.processout.sdk.ui.card.update.CardUpdateEvent.Cancel
+import com.processout.sdk.ui.card.update.CardUpdateEvent.Submit
+import com.processout.sdk.ui.core.component.POActionsContainer
+import com.processout.sdk.ui.core.state.POActionState
+import com.processout.sdk.ui.core.state.POActionStateExtended
+import com.processout.sdk.ui.core.state.POImmutableCollection
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 
 @Composable
@@ -25,7 +31,11 @@ internal fun CardUpdateScreen(
         Scaffold(
             containerColor = ProcessOutTheme.colors.surface.level1,
             bottomBar = {
-                // TODO: buttons
+                Actions(
+                    primary = state.primaryAction,
+                    secondary = state.secondaryAction,
+                    onEvent = onEvent
+                )
             }
         ) { scaffoldPadding ->
             Column(
@@ -39,3 +49,23 @@ internal fun CardUpdateScreen(
         }
     }
 }
+
+@Composable
+private fun Actions(
+    primary: POActionState,
+    secondary: POActionState,
+    onEvent: (CardUpdateEvent) -> Unit
+) = POActionsContainer(
+    actions = POImmutableCollection(
+        listOf(
+            POActionStateExtended(
+                state = secondary,
+                onClick = { onEvent(Cancel) }
+            ),
+            POActionStateExtended(
+                state = primary,
+                onClick = { onEvent(Submit) }
+            )
+        )
+    )
+)

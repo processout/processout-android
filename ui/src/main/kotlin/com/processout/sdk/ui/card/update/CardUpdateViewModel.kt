@@ -6,9 +6,12 @@ import androidx.lifecycle.ViewModelProvider
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.POFailure.Code.*
+import com.processout.sdk.core.logger.POLogger
+import com.processout.sdk.ui.R
 import com.processout.sdk.ui.card.update.CardUpdateCompletionState.*
 import com.processout.sdk.ui.card.update.CardUpdateEvent.*
-import com.processout.sdk.ui.shared.state.FieldState
+import com.processout.sdk.ui.core.state.POActionState
+import com.processout.sdk.ui.core.state.POFieldState
 import kotlinx.coroutines.flow.*
 
 internal class CardUpdateViewModel(
@@ -39,17 +42,35 @@ internal class CardUpdateViewModel(
     // TODO: init proper defaults
     private fun initState() = CardUpdateState(
         title = "Title",
-        cardField = FieldState(
+        cardField = POFieldState(
             title = "Field 1"
         ),
-        cvcField = FieldState(
+        cvcField = POFieldState(
             title = "Field 2"
         ),
-        primaryActionText = "Submit",
-        secondaryActionText = "Cancel"
+        primaryAction = POActionState(
+            text = app.getString(R.string.po_card_update_button_submit),
+            primary = true
+        ),
+        secondaryAction = POActionState(
+            text = app.getString(R.string.po_card_update_button_cancel),
+            primary = false
+        )
     )
 
     fun onEvent(event: CardUpdateEvent) = when (event) {
-        Submit -> {}
+        Submit -> submit()
+        Cancel -> POLogger.info("Cancel")
+    }
+
+    private fun submit() {
+        POLogger.info("Submit")
+        _state.update {
+            it.copy(
+                primaryAction = it.primaryAction.copy(
+                    loading = true
+                )
+            )
+        }
     }
 }
