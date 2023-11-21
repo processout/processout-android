@@ -23,6 +23,7 @@ import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POActionStateExtended
 import com.processout.sdk.ui.core.state.POImmutableCollection
+import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 
 @Composable
@@ -74,24 +75,29 @@ private fun Fields() {
 @Composable
 private fun Actions(
     primary: POActionState,
-    secondary: POActionState,
+    secondary: POActionState?,
     onEvent: (CardUpdateEvent) -> Unit,
     style: POActionsContainer.Style = POActionsContainer.default
-) = POActionsContainer(
-    actions = POImmutableCollection(
-        listOf(
+) {
+    val actions = mutableListOf(
+        POActionStateExtended(
+            state = primary,
+            onClick = { onEvent(Submit) }
+        ))
+    secondary?.let {
+        actions.add(
             POActionStateExtended(
-                state = secondary,
+                state = it,
                 onClick = { onEvent(Cancel) }
-            ),
-            POActionStateExtended(
-                state = primary,
-                onClick = { onEvent(Submit) }
-            )
-        )
-    ),
-    style = style
-)
+            ))
+    }
+    POActionsContainer(
+        actions = POImmutableCollection(
+            if (style.axis == POAxis.Horizontal) actions.reversed() else actions
+        ),
+        style = style
+    )
+}
 
 internal object CardUpdateScreen {
 

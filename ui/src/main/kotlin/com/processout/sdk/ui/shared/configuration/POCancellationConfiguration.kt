@@ -5,7 +5,8 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class POCancellationConfiguration(
+    val secondaryAction: Boolean = true,
+    val backPressed: Boolean = true,
     val dragDown: Boolean = true,
-    val touchOutside: Boolean = true,
-    val backPressed: Boolean = true
+    val touchOutside: Boolean = true
 ) : Parcelable

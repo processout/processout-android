@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.POFailure.Code.*
-import com.processout.sdk.core.logger.POLogger
+import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.R
 import com.processout.sdk.ui.card.update.CardUpdateCompletionState.*
 import com.processout.sdk.ui.card.update.CardUpdateEvent.*
@@ -56,27 +56,36 @@ internal class CardUpdateViewModel(
                 text = primaryActionText ?: app.getString(R.string.po_card_update_button_submit),
                 primary = true
             ),
-            secondaryAction = POActionState(
-                text = cancelActionText ?: app.getString(R.string.po_card_update_button_cancel),
+            secondaryAction = if (cancellation.secondaryAction) POActionState(
+                text = secondaryActionText ?: app.getString(R.string.po_card_update_button_cancel),
                 primary = false
-            ),
+            ) else null,
             draggable = cancellation.dragDown
         )
     }
 
-    // TODO
     fun onEvent(event: CardUpdateEvent) = when (event) {
         Submit -> submit()
-        Cancel -> POLogger.info("Cancel")
+        Cancel -> cancel()
     }
 
     // TODO
     private fun submit() {
-        POLogger.info("Submit")
         _state.update {
             it.copy(
                 primaryAction = it.primaryAction.copy(
                     loading = true
+                )
+            )
+        }
+    }
+
+    private fun cancel() {
+        _completionState.update {
+            Failure(
+                ProcessOutResult.Failure(
+                    code = Cancelled,
+                    message = "Cancelled by user with secondary cancel action."
                 )
             )
         }

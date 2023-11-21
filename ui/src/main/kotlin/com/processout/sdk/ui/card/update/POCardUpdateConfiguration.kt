@@ -20,7 +20,7 @@ data class POCardUpdateConfiguration(
         val cardInformation: CardInformation? = null,
         val title: String? = null,
         val primaryActionText: String? = null,
-        val cancelActionText: String? = null,
+        val secondaryActionText: String? = null,
         val cancellation: POCancellationConfiguration = POCancellationConfiguration()
     ) : Parcelable
 

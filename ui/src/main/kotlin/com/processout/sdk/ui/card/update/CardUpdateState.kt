@@ -9,7 +9,7 @@ internal data class CardUpdateState(
     val cardField: POFieldState,
     val cvcField: POFieldState,
     val primaryAction: POActionState,
-    val secondaryAction: POActionState,
+    val secondaryAction: POActionState?,
     val draggable: Boolean
 )
 
