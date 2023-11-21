@@ -20,7 +20,7 @@ internal sealed interface CardUpdateCompletionState {
 }
 
 internal sealed interface CardUpdateEvent {
-    data class ValueChanged(val key: String, val value: String) : CardUpdateEvent
+    data class FieldValueChanged(val key: String, val value: String) : CardUpdateEvent
     data object Submit : CardUpdateEvent
     data object Cancel : CardUpdateEvent
 }

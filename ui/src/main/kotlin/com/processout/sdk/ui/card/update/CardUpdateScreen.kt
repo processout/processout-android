@@ -14,8 +14,8 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
 import com.processout.sdk.ui.card.update.CardUpdateEvent.Cancel
+import com.processout.sdk.ui.card.update.CardUpdateEvent.FieldValueChanged
 import com.processout.sdk.ui.card.update.CardUpdateEvent.Submit
-import com.processout.sdk.ui.card.update.CardUpdateEvent.ValueChanged
 import com.processout.sdk.ui.core.component.POActionsContainer
 import com.processout.sdk.ui.core.component.POHeader
 import com.processout.sdk.ui.core.component.POText
@@ -83,7 +83,7 @@ private fun Fields(
             value = text,
             onValueChange = {
                 text = it
-                onEvent(ValueChanged(key = state.key, value = it))
+                onEvent(FieldValueChanged(key = state.key, value = it))
             }
         )
     }

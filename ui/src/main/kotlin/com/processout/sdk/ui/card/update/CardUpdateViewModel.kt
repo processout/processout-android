@@ -7,7 +7,6 @@ import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.POFailure.Code.*
 import com.processout.sdk.core.ProcessOutResult
-import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.R
 import com.processout.sdk.ui.card.update.CardUpdateCompletionState.*
 import com.processout.sdk.ui.card.update.CardUpdateEvent.*
@@ -77,9 +76,21 @@ internal class CardUpdateViewModel(
     )
 
     fun onEvent(event: CardUpdateEvent) = when (event) {
-        is ValueChanged -> POLogger.info("${event.key} = ${event.value}")
+        is FieldValueChanged -> updateFieldValue(event.key, event.value)
         Submit -> submit()
         Cancel -> cancel()
+    }
+
+    private fun updateFieldValue(key: String, value: String) {
+        _state.update { state ->
+            state.copy(
+                fields = POImmutableCollection(
+                    state.fields.elements.map {
+                        if (it.key == key) it.copy(value = value) else it.copy()
+                    }
+                )
+            )
+        }
     }
 
     // TODO
