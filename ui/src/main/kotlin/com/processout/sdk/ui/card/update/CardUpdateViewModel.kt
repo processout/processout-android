@@ -7,11 +7,13 @@ import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.POFailure.Code.*
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.R
 import com.processout.sdk.ui.card.update.CardUpdateCompletionState.*
 import com.processout.sdk.ui.card.update.CardUpdateEvent.*
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POFieldState
+import com.processout.sdk.ui.core.state.POImmutableCollection
 import kotlinx.coroutines.flow.*
 
 internal class CardUpdateViewModel(
@@ -36,22 +38,21 @@ internal class CardUpdateViewModel(
             ) as T
     }
 
-    private val _state = MutableStateFlow(initState())
-    val state = _state.asStateFlow()
+    private enum class Field(val key: String) {
+        Number("card-number"),
+        CVC("card-cvc")
+    }
 
     private val _completionState = MutableStateFlow<CardUpdateCompletionState>(Awaiting)
     val completionState = _completionState.asStateFlow()
 
-    // TODO: init proper defaults
+    private val _state = MutableStateFlow(initState())
+    val state = _state.asStateFlow()
+
     private fun initState() = with(options) {
         CardUpdateState(
             title = title ?: app.getString(R.string.po_card_update_title),
-            cardField = POFieldState(
-                title = "Field 1"
-            ),
-            cvcField = POFieldState(
-                title = "Field 2"
-            ),
+            fields = initFields(),
             primaryAction = POActionState(
                 text = primaryActionText ?: app.getString(R.string.po_card_update_button_submit),
                 primary = true
@@ -64,7 +65,19 @@ internal class CardUpdateViewModel(
         )
     }
 
+    private fun initFields() = POImmutableCollection(
+        listOf(
+            POFieldState(
+                key = Field.Number.key
+            ),
+            POFieldState(
+                key = Field.CVC.key
+            )
+        )
+    )
+
     fun onEvent(event: CardUpdateEvent) = when (event) {
+        is ValueChanged -> POLogger.info("${event.key} = ${event.value}")
         Submit -> submit()
         Cancel -> cancel()
     }

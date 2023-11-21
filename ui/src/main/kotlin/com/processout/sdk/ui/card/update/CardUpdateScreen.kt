@@ -7,8 +7,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -16,12 +15,15 @@ import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
 import com.processout.sdk.ui.card.update.CardUpdateEvent.Cancel
 import com.processout.sdk.ui.card.update.CardUpdateEvent.Submit
+import com.processout.sdk.ui.card.update.CardUpdateEvent.ValueChanged
 import com.processout.sdk.ui.core.component.POActionsContainer
 import com.processout.sdk.ui.core.component.POHeader
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
+import com.processout.sdk.ui.core.component.field.POTextField
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POActionStateExtended
+import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableCollection
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
@@ -61,15 +63,30 @@ internal fun CardUpdateScreen(
                     dragHandleColor = style.dragHandleColor,
                     withDragHandle = state.draggable
                 )
-                Fields()
+                Fields(
+                    fields = state.fields,
+                    onEvent = onEvent
+                )
             }
         }
     }
 }
 
 @Composable
-private fun Fields() {
-    // TODO
+private fun Fields(
+    fields: POImmutableCollection<POFieldState>,
+    onEvent: (CardUpdateEvent) -> Unit
+) {
+    fields.elements.forEach { state ->
+        var text by remember { mutableStateOf(state.value) }
+        POTextField(
+            value = text,
+            onValueChange = {
+                text = it
+                onEvent(ValueChanged(key = state.key, value = it))
+            }
+        )
+    }
 }
 
 @Composable
