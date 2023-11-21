@@ -7,7 +7,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class POBackgroundStyle(
     @ColorRes
-    val normal: Int,
+    val normalColorResId: Int,
     @ColorRes
-    val success: Int
+    val successColorResId: Int
 ) : Parcelable

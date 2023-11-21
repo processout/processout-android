@@ -44,9 +44,10 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
                         cardId = UUID.randomUUID().toString(),
                         options = POCardUpdateConfiguration.Options(
                             cancellation = POCancellationConfiguration(
+                                secondaryAction = true,
+                                backPressed = true,
                                 dragDown = true,
-                                touchOutside = false,
-                                backPressed = true
+                                touchOutside = false
                             )
                         )
                     )

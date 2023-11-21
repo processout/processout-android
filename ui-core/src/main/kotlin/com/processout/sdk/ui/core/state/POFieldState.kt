@@ -1,6 +1,10 @@
-package com.processout.sdk.ui.shared.state
+package com.processout.sdk.ui.core.state
 
-internal data class FieldState(
+import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+
+/** @suppress */
+@ProcessOutInternalApi
+data class POFieldState(
     val value: String = String(),
     val title: String,
     val description: String = String(),

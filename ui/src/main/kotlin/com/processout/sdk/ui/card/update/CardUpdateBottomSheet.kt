@@ -29,7 +29,8 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POUnit>() {
     private val viewModel: CardUpdateViewModel by viewModels {
         CardUpdateViewModel.Factory(
             app = requireActivity().application,
-            cardId = configuration?.cardId ?: String()
+            cardId = configuration?.cardId ?: String(),
+            options = configuration?.options ?: POCardUpdateConfiguration.Options()
         )
     }
 
@@ -61,7 +62,8 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POUnit>() {
                 handle(viewModel.completionState.collectAsStateWithLifecycle().value)
                 CardUpdateScreen(
                     state = viewModel.state.collectAsStateWithLifecycle().value,
-                    onEvent = viewModel::onEvent
+                    onEvent = viewModel::onEvent,
+                    style = CardUpdateScreen.style(custom = configuration?.style)
                 )
             }
         }
