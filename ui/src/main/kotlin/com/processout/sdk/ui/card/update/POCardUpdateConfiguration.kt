@@ -41,8 +41,8 @@ data class POCardUpdateConfiguration(
         @ColorRes
         val backgroundColorResId: Int? = null,
         @ColorRes
-        val progressIndicatorColorResId: Int? = null,
+        val dividerColorResId: Int? = null,
         @ColorRes
-        val dividerColorResId: Int? = null
+        val dragHandleColorResId: Int? = null
     ) : Parcelable
 }

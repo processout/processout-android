@@ -59,15 +59,18 @@ internal class CardUpdateViewModel(
             secondaryAction = POActionState(
                 text = cancelActionText ?: app.getString(R.string.po_card_update_button_cancel),
                 primary = false
-            )
+            ),
+            draggable = cancellation.dragDown
         )
     }
 
+    // TODO
     fun onEvent(event: CardUpdateEvent) = when (event) {
         Submit -> submit()
         Cancel -> POLogger.info("Cancel")
     }
 
+    // TODO
     private fun submit() {
         POLogger.info("Submit")
         _state.update {

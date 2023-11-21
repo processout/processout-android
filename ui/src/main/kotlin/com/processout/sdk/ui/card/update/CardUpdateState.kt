@@ -10,7 +10,7 @@ internal data class CardUpdateState(
     val cvcField: POFieldState,
     val primaryAction: POActionState,
     val secondaryAction: POActionState,
-    val submitting: Boolean = false
+    val draggable: Boolean
 )
 
 internal sealed interface CardUpdateCompletionState {

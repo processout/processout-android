@@ -17,6 +17,7 @@ import androidx.compose.ui.res.colorResource
 import com.processout.sdk.ui.card.update.CardUpdateEvent.Cancel
 import com.processout.sdk.ui.card.update.CardUpdateEvent.Submit
 import com.processout.sdk.ui.core.component.POActionsContainer
+import com.processout.sdk.ui.core.component.POHeader
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.state.POActionState
@@ -32,10 +33,11 @@ internal fun CardUpdateScreen(
 ) {
     Surface(
         modifier = Modifier.nestedScroll(rememberNestedScrollInteropConnection()),
-        shape = ProcessOutTheme.shapes.topRoundedCornersLarge
+        shape = ProcessOutTheme.shapes.topRoundedCornersLarge,
+        color = style.backgroundColor
     ) {
         Scaffold(
-            containerColor = style.backgroundColor,
+            containerColor = Color.Transparent,
             bottomBar = {
                 Actions(
                     primary = state.primaryAction,
@@ -51,10 +53,22 @@ internal fun CardUpdateScreen(
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
-                // TODO: content
+                POHeader(
+                    title = state.title,
+                    style = style.title,
+                    dividerColor = style.dividerColor,
+                    dragHandleColor = style.dragHandleColor,
+                    withDragHandle = state.draggable
+                )
+                Fields()
             }
         }
     }
+}
+
+@Composable
+private fun Fields() {
+    // TODO
 }
 
 @Composable
@@ -88,8 +102,8 @@ internal object CardUpdateScreen {
         val errorDescription: POText.Style,
         val actionsContainer: POActionsContainer.Style,
         val backgroundColor: Color,
-        val progressIndicatorColor: Color,
-        val dividerColor: Color
+        val dividerColor: Color,
+        val dragHandleColor: Color
     )
 
     @Composable
@@ -109,11 +123,11 @@ internal object CardUpdateScreen {
         backgroundColor = custom?.backgroundColorResId?.let {
             colorResource(id = it)
         } ?: ProcessOutTheme.colors.surface.level1,
-        progressIndicatorColor = custom?.progressIndicatorColorResId?.let {
-            colorResource(id = it)
-        } ?: Color.Black,
         dividerColor = custom?.dividerColorResId?.let {
             colorResource(id = it)
-        } ?: ProcessOutTheme.colors.surface.error
+        } ?: ProcessOutTheme.colors.border.subtle,
+        dragHandleColor = custom?.dragHandleColorResId?.let {
+            colorResource(id = it)
+        } ?: ProcessOutTheme.colors.border.disabled
     )
 }
