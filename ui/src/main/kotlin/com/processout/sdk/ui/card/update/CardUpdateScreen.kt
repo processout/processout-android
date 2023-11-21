@@ -116,7 +116,9 @@ internal object CardUpdateScreen {
     fun style(custom: POCardUpdateConfiguration.Style? = null) = Style(
         title = custom?.title?.let { POText.custom(style = it) } ?: POText.title,
         field = custom?.input?.let { POField.custom(style = it) } ?: POField.default,
-        errorDescription = custom?.errorDescription?.let { POText.custom(style = it) } ?: POText.errorLabel,
+        errorDescription = custom?.errorDescription?.let {
+            POText.custom(style = it)
+        } ?: POText.errorLabel,
         actionsContainer = custom?.actionsContainer?.let {
             POActionsContainer.custom(style = it)
         } ?: POActionsContainer.default,
