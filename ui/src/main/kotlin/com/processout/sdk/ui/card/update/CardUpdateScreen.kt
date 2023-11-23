@@ -1,8 +1,6 @@
 package com.processout.sdk.ui.card.update
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
@@ -63,6 +61,11 @@ internal fun CardUpdateScreen(
                 .fillMaxSize()
                 .padding(scaffoldPadding)
                 .verticalScroll(rememberScrollState())
+                .padding(
+                    horizontal = ProcessOutTheme.spacing.extraLarge,
+                    vertical = ProcessOutTheme.spacing.large
+                ),
+            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.large)
         ) {
             Fields(
                 fields = state.fields,
@@ -84,7 +87,8 @@ private fun Fields(
             onValueChange = {
                 text = it
                 onEvent(FieldValueChanged(key = state.key, value = it))
-            }
+            },
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }
