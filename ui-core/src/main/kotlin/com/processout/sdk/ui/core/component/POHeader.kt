@@ -17,12 +17,13 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme
 @Composable
 fun POHeader(
     title: String,
+    modifier: Modifier = Modifier,
     style: POText.Style = POText.title,
     dividerColor: Color = ProcessOutTheme.colors.border.subtle,
     dragHandleColor: Color = ProcessOutTheme.colors.border.disabled,
     withDragHandle: Boolean = true
 ) {
-    Column {
+    Column(modifier = modifier) {
         if (withDragHandle) {
             PODragHandle(
                 modifier = Modifier.align(alignment = Alignment.CenterHorizontally),

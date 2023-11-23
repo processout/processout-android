@@ -39,6 +39,16 @@ internal fun CardUpdateScreen(
             .nestedScroll(rememberNestedScrollInteropConnection())
             .clip(shape = ProcessOutTheme.shapes.topRoundedCornersLarge),
         containerColor = style.backgroundColor,
+        topBar = {
+            POHeader(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                title = state.title,
+                style = style.title,
+                dividerColor = style.dividerColor,
+                dragHandleColor = style.dragHandleColor,
+                withDragHandle = state.draggable
+            )
+        },
         bottomBar = {
             Actions(
                 primary = state.primaryAction,
@@ -54,13 +64,6 @@ internal fun CardUpdateScreen(
                 .padding(scaffoldPadding)
                 .verticalScroll(rememberScrollState())
         ) {
-            POHeader(
-                title = state.title,
-                style = style.title,
-                dividerColor = style.dividerColor,
-                dragHandleColor = style.dragHandleColor,
-                withDragHandle = state.draggable
-            )
             Fields(
                 fields = state.fields,
                 onEvent = onEvent
