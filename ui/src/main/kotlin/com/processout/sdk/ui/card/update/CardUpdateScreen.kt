@@ -6,9 +6,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
@@ -34,40 +34,37 @@ internal fun CardUpdateScreen(
     onEvent: (CardUpdateEvent) -> Unit,
     style: CardUpdateScreen.Style = CardUpdateScreen.style()
 ) {
-    Surface(
-        modifier = Modifier.nestedScroll(rememberNestedScrollInteropConnection()),
-        shape = ProcessOutTheme.shapes.topRoundedCornersLarge,
-        color = style.backgroundColor
-    ) {
-        Scaffold(
-            containerColor = Color.Transparent,
-            bottomBar = {
-                Actions(
-                    primary = state.primaryAction,
-                    secondary = state.secondaryAction,
-                    onEvent = onEvent,
-                    style = style.actionsContainer
-                )
-            }
-        ) { scaffoldPadding ->
-            Column(
-                modifier = Modifier
-                    .padding(scaffoldPadding)
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-            ) {
-                POHeader(
-                    title = state.title,
-                    style = style.title,
-                    dividerColor = style.dividerColor,
-                    dragHandleColor = style.dragHandleColor,
-                    withDragHandle = state.draggable
-                )
-                Fields(
-                    fields = state.fields,
-                    onEvent = onEvent
-                )
-            }
+    Scaffold(
+        modifier = Modifier
+            .nestedScroll(rememberNestedScrollInteropConnection())
+            .clip(shape = ProcessOutTheme.shapes.topRoundedCornersLarge),
+        containerColor = style.backgroundColor,
+        bottomBar = {
+            Actions(
+                primary = state.primaryAction,
+                secondary = state.secondaryAction,
+                onEvent = onEvent,
+                style = style.actionsContainer
+            )
+        }
+    ) { scaffoldPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(scaffoldPadding)
+                .verticalScroll(rememberScrollState())
+        ) {
+            POHeader(
+                title = state.title,
+                style = style.title,
+                dividerColor = style.dividerColor,
+                dragHandleColor = style.dragHandleColor,
+                withDragHandle = state.draggable
+            )
+            Fields(
+                fields = state.fields,
+                onEvent = onEvent
+            )
         }
     }
 }
