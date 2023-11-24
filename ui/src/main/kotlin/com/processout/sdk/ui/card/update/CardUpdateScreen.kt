@@ -3,6 +3,7 @@ package com.processout.sdk.ui.card.update
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
@@ -83,7 +84,7 @@ private fun Fields(
     fields: POImmutableCollection<POFieldState>,
     onEvent: (CardUpdateEvent) -> Unit
 ) {
-    fields.elements.forEach { state ->
+    fields.elements.forEachIndexed { index, state ->
         var text by remember { mutableStateOf(state.value) }
         POTextField(
             value = text,
@@ -106,7 +107,10 @@ private fun Fields(
                     )
                 }
             },
-            keyboardOptions = state.keyboardOptions
+            keyboardOptions = state.keyboardOptions,
+            keyboardActions = if (index == fields.elements.size - 1)
+                KeyboardActions(onDone = { onEvent(Submit) })
+            else KeyboardActions.Default
         )
     }
 }
