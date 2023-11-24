@@ -1,6 +1,7 @@
 package com.processout.sdk.ui.core.state
 
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.text.KeyboardOptions
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 
 /** @suppress */
@@ -13,6 +14,7 @@ data class POFieldState(
     val placeholder: String? = null,
     val enabled: Boolean = true,
     val isError: Boolean = false,
+    val keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     @DrawableRes
     val iconResId: Int? = null
 )

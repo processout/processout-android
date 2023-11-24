@@ -105,7 +105,8 @@ private fun Fields(
                         contentScale = ContentScale.FillHeight
                     )
                 }
-            }
+            },
+            keyboardOptions = state.keyboardOptions
         )
     }
 }

@@ -1,6 +1,9 @@
 package com.processout.sdk.ui.card.update
 
 import android.app.Application
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.processout.sdk.api.ProcessOut
@@ -83,6 +86,10 @@ internal class CardUpdateViewModel(
                 POFieldState(
                     key = Field.CVC.key,
                     placeholder = app.getString(R.string.po_card_update_cvc),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.NumberPassword,
+                        imeAction = ImeAction.Done
+                    ),
                     iconResId = R.drawable.po_card_back
                 )
             )
