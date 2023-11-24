@@ -2,7 +2,7 @@
 
 buildscript {
     ext {
-        androidGradlePluginVersion = '8.1.2'
+        androidGradlePluginVersion = '8.1.4'
         kotlinVersion = '1.9.10'
         kspVersion = '1.9.10-1.0.13'
         dokkaVersion = '1.9.0'
