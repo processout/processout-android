@@ -92,6 +92,7 @@ private fun Fields(
                 onEvent(FieldValueChanged(key = state.key, value = it))
             },
             modifier = Modifier.fillMaxWidth(),
+            enabled = state.enabled,
             placeholderText = state.placeholder,
             trailingIcon = {
                 state.iconResId?.let {

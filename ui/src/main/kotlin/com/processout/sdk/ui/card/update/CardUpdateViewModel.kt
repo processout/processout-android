@@ -64,19 +64,33 @@ internal class CardUpdateViewModel(
         )
     }
 
-    private fun initFields() = POImmutableCollection(
-        listOf(
-            POFieldState(
-                key = Field.Number.key,
-                iconResId = R.drawable.po_scheme_mastercard
-            ),
-            POFieldState(
-                key = Field.CVC.key,
-                placeholder = app.getString(R.string.po_card_update_cvc),
-                iconResId = R.drawable.po_card_back
+    private fun initFields(): POImmutableCollection<POFieldState> =
+        with(options.cardInformation) {
+            val fields = mutableListOf<POFieldState>()
+            this?.maskedNumber?.let {
+                if (it.isNotBlank()) {
+                    fields.add(
+                        POFieldState(
+                            key = Field.Number.key,
+                            value = format(cardNumber = it),
+                            enabled = false,
+                            iconResId = R.drawable.po_scheme_mastercard
+                        )
+                    )
+                }
+            }
+            fields.add(
+                POFieldState(
+                    key = Field.CVC.key,
+                    placeholder = app.getString(R.string.po_card_update_cvc),
+                    iconResId = R.drawable.po_card_back
+                )
             )
-        )
-    )
+            POImmutableCollection(fields)
+        }
+
+    private fun format(cardNumber: String) =
+        cardNumber.replace(".{4}(?!$)".toRegex(), "$0 ")
 
     fun onEvent(event: CardUpdateEvent) = when (event) {
         is FieldValueChanged -> updateFieldValue(event.key, event.value)
