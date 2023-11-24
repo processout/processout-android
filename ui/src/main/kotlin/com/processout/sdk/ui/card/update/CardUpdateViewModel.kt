@@ -16,6 +16,7 @@ import com.processout.sdk.ui.card.update.CardUpdateEvent.*
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableCollection
+import com.processout.sdk.ui.shared.mapper.cardSchemeDrawableResId
 import kotlinx.coroutines.flow.*
 
 internal class CardUpdateViewModel(
@@ -77,7 +78,9 @@ internal class CardUpdateViewModel(
                             key = Field.Number.key,
                             value = format(cardNumber = it),
                             enabled = false,
-                            iconResId = R.drawable.po_scheme_mastercard
+                            iconResId = cardSchemeDrawableResId(
+                                scheme = preferredScheme ?: scheme ?: String()
+                            )
                         )
                     )
                 }
