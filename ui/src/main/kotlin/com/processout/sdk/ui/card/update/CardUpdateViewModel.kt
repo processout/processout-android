@@ -67,10 +67,13 @@ internal class CardUpdateViewModel(
     private fun initFields() = POImmutableCollection(
         listOf(
             POFieldState(
-                key = Field.Number.key
+                key = Field.Number.key,
+                iconResId = R.drawable.po_scheme_mastercard
             ),
             POFieldState(
-                key = Field.CVC.key
+                key = Field.CVC.key,
+                placeholder = app.getString(R.string.po_card_update_cvc),
+                iconResId = R.drawable.po_card_back
             )
         )
     )

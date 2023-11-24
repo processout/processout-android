@@ -1,5 +1,6 @@
 package com.processout.sdk.ui.card.update
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -9,8 +10,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import com.processout.sdk.ui.card.update.CardUpdateEvent.Cancel
 import com.processout.sdk.ui.card.update.CardUpdateEvent.FieldValueChanged
 import com.processout.sdk.ui.card.update.CardUpdateEvent.Submit
@@ -88,7 +91,20 @@ private fun Fields(
                 text = it
                 onEvent(FieldValueChanged(key = state.key, value = it))
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            placeholderText = state.placeholder,
+            trailingIcon = {
+                state.iconResId?.let {
+                    Image(
+                        painter = painterResource(id = it),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .height(ProcessOutTheme.dimensions.formComponentHeight)
+                            .padding(POField.ContentPadding),
+                        contentScale = ContentScale.FillHeight
+                    )
+                }
+            }
         )
     }
 }
