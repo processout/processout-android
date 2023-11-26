@@ -1,5 +1,11 @@
 package com.processout.sdk.ui.card.update
 
+import androidx.annotation.DrawableRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -95,22 +101,35 @@ private fun Fields(
             modifier = Modifier.fillMaxWidth(),
             enabled = state.enabled,
             placeholderText = state.placeholder,
-            trailingIcon = {
-                state.iconResId?.let {
-                    Image(
-                        painter = painterResource(id = it),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .height(ProcessOutTheme.dimensions.formComponentHeight)
-                            .padding(POField.ContentPadding),
-                        contentScale = ContentScale.FillHeight
-                    )
-                }
-            },
+            trailingIcon = { state.iconResId?.let { AnimatedIcon(id = it) } },
             keyboardOptions = state.keyboardOptions,
             keyboardActions = if (index == fields.elements.size - 1)
                 KeyboardActions(onDone = { onEvent(Submit) })
             else KeyboardActions.Default
+        )
+    }
+}
+
+@Composable
+private fun AnimatedIcon(
+    @DrawableRes id: Int,
+    visibleState: MutableTransitionState<Boolean> = remember {
+        MutableTransitionState(initialState = false)
+            .apply { targetState = true }
+    }
+) {
+    AnimatedVisibility(
+        visibleState = visibleState,
+        enter = fadeIn(animationSpec = tween()),
+        exit = fadeOut(animationSpec = tween())
+    ) {
+        Image(
+            painter = painterResource(id = id),
+            contentDescription = null,
+            modifier = Modifier
+                .height(ProcessOutTheme.dimensions.formComponentHeight)
+                .padding(POField.ContentPadding),
+            contentScale = ContentScale.FillHeight
         )
     }
 }
