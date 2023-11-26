@@ -6,10 +6,14 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.POFailure.Code.*
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.logger.POLogger
+import com.processout.sdk.core.onFailure
+import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.R
 import com.processout.sdk.ui.card.update.CardUpdateCompletionState.*
 import com.processout.sdk.ui.card.update.CardUpdateEvent.*
@@ -18,6 +22,7 @@ import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableCollection
 import com.processout.sdk.ui.shared.mapper.cardSchemeDrawableResId
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
 internal class CardUpdateViewModel(
     private val app: Application,
@@ -51,6 +56,10 @@ internal class CardUpdateViewModel(
 
     private val _state = MutableStateFlow(initState())
     val state = _state.asStateFlow()
+
+    init {
+        resolveScheme()
+    }
 
     private fun initState() = with(options) {
         CardUpdateState(
@@ -101,6 +110,45 @@ internal class CardUpdateViewModel(
 
     private fun format(cardNumber: String) =
         cardNumber.replace(".{4}(?!$)".toRegex(), "$0 ")
+
+    private fun resolveScheme() {
+        with(options.cardInformation) {
+            if (this?.scheme == null) {
+                val iin = this?.iin
+                    ?: if (this?.maskedNumber != null) iin(maskedNumber)
+                    else null
+                iin?.let {
+                    viewModelScope.launch {
+                        cardsRepository.fetchIssuerInformation(it)
+                            .onSuccess { updateScheme(it.scheme) }
+                            .onFailure {
+                                POLogger.info(
+                                    "Failed to fetch card issuer information on attempt to resolve the scheme. %s", it
+                                )
+                            }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun iin(maskedNumber: String): String? =
+        "^([0-9]{8})".toRegex().find(maskedNumber)?.value
+            ?: "^([0-9]{6})".toRegex().find(maskedNumber)?.value
+
+    private fun updateScheme(scheme: String) {
+        _state.update { state ->
+            state.copy(
+                fields = POImmutableCollection(
+                    state.fields.elements.map {
+                        if (it.key == Field.Number.key) it.copy(
+                            iconResId = cardSchemeDrawableResId(scheme)
+                        ) else it.copy()
+                    }
+                )
+            )
+        }
+    }
 
     fun onEvent(event: CardUpdateEvent) = when (event) {
         is FieldValueChanged -> updateFieldValue(event.key, event.value)
