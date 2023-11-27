@@ -77,36 +77,37 @@ internal class CardUpdateViewModel(
         )
     }
 
-    private fun initFields(): POImmutableCollection<POFieldState> =
+    private fun initFields(): POImmutableCollection<POFieldState> {
+        val fields = mutableListOf<POFieldState>()
+        initCardNumberField()?.let { fields.add(it) }
+        fields.add(initCvcField())
+        return POImmutableCollection(fields)
+    }
+
+    private fun initCardNumberField(): POFieldState? =
         with(options.cardInformation) {
-            val fields = mutableListOf<POFieldState>()
             this?.maskedNumber?.let {
-                if (it.isNotBlank()) {
-                    fields.add(
-                        POFieldState(
-                            key = Field.Number.key,
-                            value = format(cardNumber = it),
-                            iconResId = cardSchemeDrawableResId(
-                                scheme = preferredScheme ?: scheme ?: String()
-                            ),
-                            enabled = false
-                        )
-                    )
-                }
-            }
-            fields.add(
+                if (it.isBlank()) return@with null
                 POFieldState(
-                    key = Field.CVC.key,
-                    placeholder = app.getString(R.string.po_card_update_cvc),
-                    iconResId = R.drawable.po_card_back,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.NumberPassword,
-                        imeAction = ImeAction.Done
-                    )
+                    key = Field.Number.key,
+                    value = format(cardNumber = it),
+                    iconResId = cardSchemeDrawableResId(
+                        scheme = preferredScheme ?: scheme ?: String()
+                    ),
+                    enabled = false
                 )
-            )
-            POImmutableCollection(fields)
+            }
         }
+
+    private fun initCvcField() = POFieldState(
+        key = Field.CVC.key,
+        placeholder = app.getString(R.string.po_card_update_cvc),
+        iconResId = R.drawable.po_card_back,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.NumberPassword,
+            imeAction = ImeAction.Done
+        )
+    )
 
     private fun format(cardNumber: String) =
         cardNumber.replace(".{4}(?!$)".toRegex(), "$0 ")
