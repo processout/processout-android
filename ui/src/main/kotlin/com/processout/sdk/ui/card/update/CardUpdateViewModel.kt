@@ -86,10 +86,10 @@ internal class CardUpdateViewModel(
                         POFieldState(
                             key = Field.Number.key,
                             value = format(cardNumber = it),
-                            enabled = false,
                             iconResId = cardSchemeDrawableResId(
                                 scheme = preferredScheme ?: scheme ?: String()
-                            )
+                            ),
+                            enabled = false
                         )
                     )
                 }
@@ -98,11 +98,11 @@ internal class CardUpdateViewModel(
                 POFieldState(
                     key = Field.CVC.key,
                     placeholder = app.getString(R.string.po_card_update_cvc),
+                    iconResId = R.drawable.po_card_back,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.NumberPassword,
                         imeAction = ImeAction.Done
-                    ),
-                    iconResId = R.drawable.po_card_back
+                    )
                 )
             )
             POImmutableCollection(fields)
