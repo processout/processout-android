@@ -20,6 +20,7 @@ import com.processout.sdk.ui.card.update.CardUpdateEvent.*
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableCollection
+import com.processout.sdk.ui.shared.formatter.CardSecurityCodeFormatter
 import com.processout.sdk.ui.shared.mapper.cardSchemeDrawableResId
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -103,6 +104,7 @@ internal class CardUpdateViewModel(
         key = Field.CVC.key,
         placeholder = app.getString(R.string.po_card_update_cvc),
         iconResId = R.drawable.po_card_back,
+        formatter = CardSecurityCodeFormatter(scheme = options.cardInformation?.scheme),
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.NumberPassword,
             imeAction = ImeAction.Done
@@ -140,9 +142,19 @@ internal class CardUpdateViewModel(
             state.copy(
                 fields = POImmutableCollection(
                     state.fields.elements.map {
-                        if (it.key == Field.Number.key) it.copy(
-                            iconResId = cardSchemeDrawableResId(scheme)
-                        ) else it.copy()
+                        when (it.key) {
+                            Field.Number.key -> it.copy(
+                                iconResId = cardSchemeDrawableResId(scheme)
+                            )
+                            Field.CVC.key -> {
+                                val formatter = CardSecurityCodeFormatter(scheme = scheme)
+                                it.copy(
+                                    value = formatter.format(it.value),
+                                    formatter = formatter
+                                )
+                            }
+                            else -> it.copy()
+                        }
                     }
                 )
             )

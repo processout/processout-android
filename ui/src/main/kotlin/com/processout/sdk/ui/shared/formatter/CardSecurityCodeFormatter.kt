@@ -9,9 +9,10 @@ internal class CardSecurityCodeFormatter(
     override fun format(string: String): String {
         var length = 4
         scheme?.let {
-            if (it != "american express")
+            if (it != "american express") {
                 length = 3
+            }
         }
-        return string.take(length)
+        return string.filter { it.isDigit() }.take(length)
     }
 }

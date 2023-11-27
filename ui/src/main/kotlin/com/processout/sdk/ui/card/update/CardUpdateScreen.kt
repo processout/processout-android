@@ -91,12 +91,14 @@ private fun Fields(
     onEvent: (CardUpdateEvent) -> Unit
 ) {
     fields.elements.forEachIndexed { index, state ->
-        var text by remember { mutableStateOf(state.value) }
+        var text by remember { mutableStateOf(String()) }
+        text = state.value
         POTextField(
             value = text,
             onValueChange = {
-                text = it
-                onEvent(FieldValueChanged(key = state.key, value = it))
+                val formatted = state.formatter?.format(it) ?: it
+                text = formatted
+                onEvent(FieldValueChanged(key = state.key, value = formatted))
             },
             modifier = Modifier.fillMaxWidth(),
             enabled = state.enabled,
