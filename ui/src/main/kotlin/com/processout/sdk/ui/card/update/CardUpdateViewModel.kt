@@ -114,9 +114,7 @@ internal class CardUpdateViewModel(
     private fun resolveScheme() {
         with(options.cardInformation) {
             if (this?.scheme == null) {
-                val iin = this?.iin
-                    ?: if (this?.maskedNumber != null) iin(maskedNumber)
-                    else null
+                val iin = this?.iin ?: this?.maskedNumber?.let { iin(it) }
                 iin?.let {
                     viewModelScope.launch {
                         cardsRepository.fetchIssuerInformation(it)
