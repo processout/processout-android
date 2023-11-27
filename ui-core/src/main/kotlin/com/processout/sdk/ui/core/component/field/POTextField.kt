@@ -78,7 +78,7 @@ fun POTextField(
                     singleLine = singleLine,
                     visualTransformation = visualTransformation,
                     interactionSource = interactionSource,
-                    contentPadding = POField.ContentPadding,
+                    contentPadding = POField.contentPadding,
                     container = {
                         POField.ContainerBox(
                             isError = isError,

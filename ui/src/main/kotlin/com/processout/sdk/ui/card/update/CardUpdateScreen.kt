@@ -128,7 +128,7 @@ private fun AnimatedIcon(
             contentDescription = null,
             modifier = Modifier
                 .height(ProcessOutTheme.dimensions.formComponentHeight)
-                .padding(POField.ContentPadding),
+                .padding(POField.contentPadding),
             contentScale = ContentScale.FillHeight
         )
     }
