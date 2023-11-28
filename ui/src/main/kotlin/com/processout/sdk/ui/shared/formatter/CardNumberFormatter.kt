@@ -52,10 +52,12 @@ internal class CardNumberFormatter : POFormatter {
         format.leading.forEach { leading ->
             // First and last values of the range are expected to be of the same length.
             val leadingLength = leading.first.toString().length
-            if (leading.contains(cardNumber.take(leadingLength).toInt())) {
-                format.patterns.forEach { pattern ->
-                    format(cardNumber = cardNumber, pattern = pattern)
-                        ?.let { return it }
+            cardNumber.take(leadingLength).let { cardNumberLeading ->
+                if (cardNumberLeading.isNotEmpty() && leading.contains(cardNumberLeading.toInt())) {
+                    format.patterns.forEach { pattern ->
+                        format(cardNumber = cardNumber, pattern = pattern)
+                            ?.let { return it }
+                    }
                 }
             }
         }
