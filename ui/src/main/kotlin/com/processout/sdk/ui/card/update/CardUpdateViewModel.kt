@@ -172,7 +172,10 @@ internal class CardUpdateViewModel(
             state.copy(
                 fields = POImmutableCollection(
                     state.fields.elements.map {
-                        if (it.key == key) it.copy(value = value) else it.copy()
+                        when (it.key) {
+                            key -> it.copy(value = value)
+                            else -> it.copy()
+                        }
                     }
                 )
             )
