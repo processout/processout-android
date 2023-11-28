@@ -11,6 +11,7 @@ internal data class CardUpdateState(
     val fields: POImmutableCollection<POFieldState>,
     val primaryAction: POActionState,
     val secondaryAction: POActionState?,
+    val errorMessage: String? = null,
     val draggable: Boolean
 )
 

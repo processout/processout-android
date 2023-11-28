@@ -11,6 +11,7 @@ import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POCardUpdateRequest
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.POFailure.Code.*
+import com.processout.sdk.core.POFailure.GenericCode.*
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
@@ -181,20 +182,8 @@ internal class CardUpdateViewModel(
     }
 
     private fun submit() {
-        _state.updateAndGet { state ->
-            state.copy(
-                fields = POImmutableCollection(
-                    state.fields.elements.map {
-                        it.copy(enabled = false)
-                    }
-                ),
-                primaryAction = state.primaryAction.copy(
-                    loading = true
-                ),
-                secondaryAction = state.secondaryAction?.copy(
-                    enabled = false
-                )
-            )
+        _state.updateAndGet {
+            resolve(state = it, submitting = true)
         }.also { state ->
             state.fields.elements.find { it.key == Field.CVC.key }?.let { cvcField ->
                 updateCard(cvcField.value)
@@ -202,16 +191,60 @@ internal class CardUpdateViewModel(
         }
     }
 
+    private fun resolve(
+        state: CardUpdateState,
+        submitting: Boolean,
+        errorMessage: String? = null
+    ) = state.copy(
+        fields = POImmutableCollection(
+            state.fields.elements.map {
+                when (it.key) {
+                    Field.CVC.key -> it.copy(
+                        enabled = !submitting,
+                        isError = errorMessage != null
+                    )
+                    else -> it.copy()
+                }
+            }
+        ),
+        primaryAction = state.primaryAction.copy(
+            loading = submitting
+        ),
+        secondaryAction = state.secondaryAction?.copy(
+            enabled = !submitting
+        ),
+        errorMessage = errorMessage
+    )
+
     private fun updateCard(cvc: String) {
         viewModelScope.launch {
             cardsRepository.updateCard(
                 request = POCardUpdateRequest(cardId = cardId, cvc = cvc)
             ).onSuccess { card ->
                 _completionState.update { Success(card) }
-            }.onFailure {
-                // TODO
-            }
+            }.onFailure { handle(failure = it) }
         }
+    }
+
+    private fun handle(failure: ProcessOutResult.Failure) {
+        val genericErrorMessage = app.getString(R.string.po_card_update_error_generic)
+        when (val code = failure.code) {
+            is Generic -> when (code.genericCode) {
+                requestInvalidCard,
+                cardInvalid,
+                cardBadTrackData,
+                cardMissingCvc,
+                cardInvalidCvc,
+                cardFailedCvc,
+                cardFailedCvcAndAvs -> recover(app.getString(R.string.po_card_update_error_cvc))
+                else -> recover(genericErrorMessage)
+            }
+            else -> recover(genericErrorMessage)
+        }
+    }
+
+    private fun recover(errorMessage: String) = _state.update {
+        resolve(state = it, submitting = false, errorMessage = errorMessage)
     }
 
     private fun cancel() {

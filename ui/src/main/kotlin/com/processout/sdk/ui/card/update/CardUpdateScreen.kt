@@ -84,6 +84,15 @@ internal fun CardUpdateScreen(
                 fields = state.fields,
                 onEvent = onEvent
             )
+            state.errorMessage?.let {
+                with(style.errorDescription) {
+                    POText(
+                        text = it,
+                        color = color,
+                        style = textStyle
+                    )
+                }
+            }
         }
     }
 }
@@ -114,6 +123,7 @@ private fun Fields(
                 .fillMaxWidth()
                 .focusRequester(focusRequester),
             enabled = state.enabled,
+            isError = state.isError,
             placeholderText = state.placeholder,
             trailingIcon = { state.iconResId?.let { AnimatedIcon(id = it) } },
             keyboardOptions = state.keyboardOptions,

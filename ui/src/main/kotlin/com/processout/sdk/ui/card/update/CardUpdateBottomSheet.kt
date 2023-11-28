@@ -22,7 +22,7 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
 
     companion object {
         val tag: String = CardUpdateBottomSheet::class.java.simpleName
-        private const val DEFAULT_HEIGHT_DP = 400
+        private const val DEFAULT_HEIGHT_DP = 420
     }
 
     private var configuration: POCardUpdateConfiguration? = null
