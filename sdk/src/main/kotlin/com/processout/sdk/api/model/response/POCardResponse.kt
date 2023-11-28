@@ -1,7 +1,9 @@
 package com.processout.sdk.api.model.response
 
+import android.os.Parcelable
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import kotlinx.parcelize.Parcelize
 import java.util.Date
 
 @JsonClass(generateAdapter = true)
@@ -47,6 +49,7 @@ internal data class POCardResponse(
  * @param[updatedAt] Date and time when this card was updated.
  * @param[updateType] Type of card update.
  */
+@Parcelize
 @JsonClass(generateAdapter = true)
 data class POCard(
     val id: String,
@@ -94,4 +97,4 @@ data class POCard(
     val updatedAt: Date,
     @Json(name = "update_type")
     val updateType: String?
-)
+) : Parcelable

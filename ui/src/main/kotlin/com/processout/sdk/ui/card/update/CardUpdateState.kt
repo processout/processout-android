@@ -1,5 +1,6 @@
 package com.processout.sdk.ui.card.update
 
+import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POFieldState
@@ -15,7 +16,7 @@ internal data class CardUpdateState(
 
 internal sealed interface CardUpdateCompletionState {
     data object Awaiting : CardUpdateCompletionState
-    data object Success : CardUpdateCompletionState
+    data class Success(val card: POCard) : CardUpdateCompletionState
     data class Failure(val failure: ProcessOutResult.Failure) : CardUpdateCompletionState
 }
 

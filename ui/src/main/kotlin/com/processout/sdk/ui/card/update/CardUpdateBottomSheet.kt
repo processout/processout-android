@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.core.*
 import com.processout.sdk.ui.base.BaseBottomSheetDialogFragment
 import com.processout.sdk.ui.card.update.CardUpdateCompletionState.Failure
@@ -17,7 +18,7 @@ import com.processout.sdk.ui.card.update.CardUpdateCompletionState.Success
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.extension.dpToPx
 
-internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POUnit>() {
+internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
 
     companion object {
         val tag: String = CardUpdateBottomSheet::class.java.simpleName
@@ -73,7 +74,7 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POUnit>() {
         when (state) {
             is Success -> finishWithActivityResult(
                 resultCode = Activity.RESULT_OK,
-                result = ProcessOutActivityResult.Success(POUnit)
+                result = ProcessOutActivityResult.Success(state.card)
             )
             is Failure -> finishWithActivityResult(
                 resultCode = Activity.RESULT_CANCELED,
@@ -101,7 +102,7 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POUnit>() {
 
     private fun finishWithActivityResult(
         resultCode: Int,
-        result: ProcessOutActivityResult<POUnit>
+        result: ProcessOutActivityResult<POCard>
     ) {
         setActivityResult(
             resultCode = resultCode,

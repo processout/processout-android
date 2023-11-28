@@ -3,7 +3,7 @@ package com.processout.sdk.ui.card.update
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.Fragment
-import com.processout.sdk.core.POUnit
+import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.core.ProcessOutActivityResult
 
 /**
@@ -20,7 +20,7 @@ class POCardUpdateLauncher private constructor() {
          */
         fun create(
             from: Fragment,
-            callback: (ProcessOutActivityResult<POUnit>) -> Unit
+            callback: (ProcessOutActivityResult<POCard>) -> Unit
         ) = POCardUpdateLauncher().apply {
             launcher = from.registerForActivityResult(
                 CardUpdateActivityContract(),
@@ -34,7 +34,7 @@ class POCardUpdateLauncher private constructor() {
          */
         fun create(
             from: ComponentActivity,
-            callback: (ProcessOutActivityResult<POUnit>) -> Unit
+            callback: (ProcessOutActivityResult<POCard>) -> Unit
         ) = POCardUpdateLauncher().apply {
             launcher = from.registerForActivityResult(
                 CardUpdateActivityContract(),

@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.processout.sdk.api.ProcessOut
+import com.processout.sdk.api.model.request.POCardUpdateRequest
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.POFailure.Code.*
 import com.processout.sdk.core.ProcessOutResult
@@ -179,14 +180,37 @@ internal class CardUpdateViewModel(
         }
     }
 
-    // TODO
     private fun submit() {
-        _state.update {
-            it.copy(
-                primaryAction = it.primaryAction.copy(
+        _state.updateAndGet { state ->
+            state.copy(
+                fields = POImmutableCollection(
+                    state.fields.elements.map {
+                        it.copy(enabled = false)
+                    }
+                ),
+                primaryAction = state.primaryAction.copy(
                     loading = true
+                ),
+                secondaryAction = state.secondaryAction?.copy(
+                    enabled = false
                 )
             )
+        }.also { state ->
+            state.fields.elements.find { it.key == Field.CVC.key }?.let { cvcField ->
+                updateCard(cvcField.value)
+            }
+        }
+    }
+
+    private fun updateCard(cvc: String) {
+        viewModelScope.launch {
+            cardsRepository.updateCard(
+                request = POCardUpdateRequest(cardId = cardId, cvc = cvc)
+            ).onSuccess { card ->
+                _completionState.update { Success(card) }
+            }.onFailure {
+                // TODO
+            }
         }
     }
 

@@ -12,7 +12,6 @@ import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POAllGatewayConfigurationsRequest
 import com.processout.sdk.api.model.request.POCardTokenizationRequest
 import com.processout.sdk.api.model.response.POCard
-import com.processout.sdk.core.POUnit
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.getOrNull
 import com.processout.sdk.ui.card.update.POCardUpdateConfiguration
@@ -99,7 +98,7 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
         return cardsRepository.tokenize(request).getOrNull()
     }
 
-    private fun handleCardUpdateResult(result: ProcessOutActivityResult<POUnit>) {
+    private fun handleCardUpdateResult(result: ProcessOutActivityResult<POCard>) {
         when (result) {
             is ProcessOutActivityResult.Success ->
                 Toast.makeText(requireContext(), "Success", Toast.LENGTH_SHORT).show()
