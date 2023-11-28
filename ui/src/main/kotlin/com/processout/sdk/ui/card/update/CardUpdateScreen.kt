@@ -82,7 +82,8 @@ internal fun CardUpdateScreen(
         ) {
             Fields(
                 fields = state.fields,
-                onEvent = onEvent
+                onEvent = onEvent,
+                isError = state.errorMessage != null
             )
             state.errorMessage?.let {
                 with(style.errorDescription) {
@@ -100,14 +101,12 @@ internal fun CardUpdateScreen(
 @Composable
 private fun Fields(
     fields: POImmutableCollection<POFieldState>,
-    onEvent: (CardUpdateEvent) -> Unit
+    onEvent: (CardUpdateEvent) -> Unit,
+    isError: Boolean = false
 ) {
     val focusRequester = remember { FocusRequester() }
-    LaunchedEffect(Unit) {
-        coroutineContext.job.invokeOnCompletion {
-            focusRequester.requestFocus()
-        }
-    }
+    RequestFocus(focusRequester)
+    if (isError) RequestFocus(focusRequester)
 
     fields.elements.forEachIndexed { index, state ->
         var text by remember { mutableStateOf(String()) }
@@ -131,6 +130,15 @@ private fun Fields(
                 KeyboardActions(onDone = { onEvent(Submit) })
             else KeyboardActions.Default
         )
+    }
+}
+
+@Composable
+private fun RequestFocus(
+    focusRequester: FocusRequester
+) = LaunchedEffect(Unit) {
+    coroutineContext.job.invokeOnCompletion {
+        focusRequester.requestFocus()
     }
 }
 
