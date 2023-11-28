@@ -63,7 +63,7 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
                 val maskedNumber = number.replaceRange(
                     startIndex = 4,
                     endIndex = 14,
-                    replacement = "**********"
+                    replacement = " **** **** **"
                 )
                 val card = tokenizeCard(number)
                 cardUpdateLauncher.launch(

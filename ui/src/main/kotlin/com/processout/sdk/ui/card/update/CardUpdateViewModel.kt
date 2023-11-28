@@ -87,11 +87,11 @@ internal class CardUpdateViewModel(
 
     private fun initCardNumberField(): POFieldState? =
         with(options.cardInformation) {
-            this?.maskedNumber?.let {
-                if (it.isBlank()) return@with null
+            this?.maskedNumber?.let { maskedNumber ->
+                if (maskedNumber.isBlank()) return null
                 POFieldState(
                     key = Field.Number.key,
-                    value = format(cardNumber = it),
+                    value = maskedNumber,
                     iconResId = cardSchemeDrawableResId(
                         scheme = preferredScheme ?: scheme ?: String()
                     ),
@@ -110,9 +110,6 @@ internal class CardUpdateViewModel(
             imeAction = ImeAction.Done
         )
     )
-
-    private fun format(cardNumber: String) =
-        cardNumber.replace(".{4}(?!$)".toRegex(), "$0 ")
 
     private fun resolveScheme() {
         with(options.cardInformation) {
