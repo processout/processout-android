@@ -15,6 +15,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
@@ -35,6 +37,7 @@ import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableCollection
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import kotlinx.coroutines.job
 
 @Composable
 internal fun CardUpdateScreen(
@@ -90,6 +93,13 @@ private fun Fields(
     fields: POImmutableCollection<POFieldState>,
     onEvent: (CardUpdateEvent) -> Unit
 ) {
+    val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(Unit) {
+        coroutineContext.job.invokeOnCompletion {
+            focusRequester.requestFocus()
+        }
+    }
+
     fields.elements.forEachIndexed { index, state ->
         var text by remember { mutableStateOf(String()) }
         text = state.value
@@ -100,7 +110,9 @@ private fun Fields(
                 text = formatted
                 onEvent(FieldValueChanged(key = state.key, value = formatted))
             },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(focusRequester),
             enabled = state.enabled,
             placeholderText = state.placeholder,
             trailingIcon = { state.iconResId?.let { AnimatedIcon(id = it) } },
