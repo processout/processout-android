@@ -13,7 +13,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
-import com.processout.sdk.ui.core.style.text.POTextStyle
+import com.processout.sdk.ui.core.style.POTextStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.core.theme.toTextStyle
 

@@ -20,8 +20,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.processout.sdk.ui.core.R
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
-import com.processout.sdk.ui.core.style.text.POTextType
-import com.processout.sdk.ui.core.style.text.POTextType.Weight.*
+import com.processout.sdk.ui.core.style.POTextType
+import com.processout.sdk.ui.core.style.POTextType.Weight.*
 
 private val WorkSans = FontFamily(
     Font(R.font.work_sans_regular, FontWeight.Normal),

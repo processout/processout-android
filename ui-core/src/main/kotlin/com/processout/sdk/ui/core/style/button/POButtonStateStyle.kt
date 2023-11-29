@@ -3,7 +3,7 @@ package com.processout.sdk.ui.core.style.button
 import android.os.Parcelable
 import androidx.annotation.ColorRes
 import com.processout.sdk.ui.core.style.POBorderStyle
-import com.processout.sdk.ui.core.style.text.POTextStyle
+import com.processout.sdk.ui.core.style.POTextStyle
 import kotlinx.parcelize.Parcelize
 
 @Parcelize

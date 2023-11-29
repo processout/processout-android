@@ -3,8 +3,8 @@ package com.processout.sdk.ui.card.update
 import android.os.Parcelable
 import androidx.annotation.ColorRes
 import com.processout.sdk.ui.core.style.POActionsContainerStyle
+import com.processout.sdk.ui.core.style.POTextStyle
 import com.processout.sdk.ui.core.style.field.POFieldStyle
-import com.processout.sdk.ui.core.style.text.POTextStyle
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import kotlinx.parcelize.Parcelize
 

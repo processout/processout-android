@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.POText
-import com.processout.sdk.ui.core.style.text.POTextStyle
+import com.processout.sdk.ui.core.style.POTextStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 
 /** @suppress */
