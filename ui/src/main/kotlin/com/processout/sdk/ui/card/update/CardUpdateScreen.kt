@@ -82,7 +82,8 @@ internal fun CardUpdateScreen(
         ) {
             Fields(
                 fields = state.fields,
-                onEvent = onEvent
+                onEvent = onEvent,
+                style = style.field
             )
             state.errorMessage?.let {
                 with(style.errorMessage) {
@@ -100,7 +101,8 @@ internal fun CardUpdateScreen(
 @Composable
 private fun Fields(
     fields: POImmutableCollection<POFieldState>,
-    onEvent: (CardUpdateEvent) -> Unit
+    onEvent: (CardUpdateEvent) -> Unit,
+    style: POField.Style = POField.default
 ) {
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) {
@@ -122,6 +124,7 @@ private fun Fields(
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(focusRequester),
+            style = style,
             enabled = state.enabled,
             isError = state.isError,
             placeholderText = state.placeholder,
