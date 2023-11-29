@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Card Update -->
+    <string name="po_card_update_title">Informations de Paiement</string>
+    <string name="po_card_update_cvc">CVV</string>
+    <string name="po_card_update_button_submit">Envoyer</string>
+    <string name="po_card_update_button_cancel">Annuler</string>
+    <string name="po_card_update_error_cvc">Le code CVV de votre carte est incorrect.</string>
+    <string name="po_card_update_error_generic">Une erreur s’est produite, veuillez réessayer.</string>
+</resources>
