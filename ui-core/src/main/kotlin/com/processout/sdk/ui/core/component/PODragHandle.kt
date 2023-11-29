@@ -14,17 +14,19 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme
 @ProcessOutInternalApi
 @Composable
 fun PODragHandle(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     color: Color = ProcessOutTheme.colors.border.disabled
-) = Box(
-    modifier = modifier
-        .padding(top = ProcessOutTheme.spacing.medium)
-        .size(
-            width = ProcessOutTheme.dimensions.dragHandleWidth,
-            height = ProcessOutTheme.dimensions.dragHandleHeight
-        )
-        .background(
-            color = color,
-            shape = ProcessOutTheme.shapes.roundedCornersSmall
-        )
-)
+) = with(ProcessOutTheme) {
+    Box(
+        modifier = modifier
+            .padding(top = spacing.medium)
+            .size(
+                width = dimensions.dragHandleWidth,
+                height = dimensions.dragHandleHeight
+            )
+            .background(
+                color = color,
+                shape = shapes.roundedCornersSmall
+            )
+    )
+}

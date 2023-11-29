@@ -27,8 +27,8 @@ fun POActionsContainer(
     Column {
         Divider(thickness = 1.dp, color = style.dividerColor)
 
-        val padding = POActionsContainer.ContainerPadding
-        val spacing = POActionsContainer.ActionSpacing
+        val padding = POActionsContainer.containerPadding
+        val spacing = POActionsContainer.actionSpacing
 
         when (style.axis) {
             POAxis.Vertical -> Column(
@@ -116,12 +116,12 @@ object POActionsContainer {
         )
     }
 
-    internal val ContainerPadding: PaddingValues
+    internal val containerPadding: PaddingValues
         @Composable get() = PaddingValues(
             horizontal = ProcessOutTheme.spacing.extraLarge,
             vertical = ProcessOutTheme.spacing.large
         )
 
-    internal val ActionSpacing: Dp
+    internal val actionSpacing: Dp
         @Composable get() = ProcessOutTheme.spacing.large
 }

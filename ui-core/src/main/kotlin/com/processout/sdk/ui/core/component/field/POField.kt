@@ -88,7 +88,11 @@ object POField {
         )
     }
 
-    internal val ContentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp)
+    val contentPadding: PaddingValues
+        @Composable get() = PaddingValues(
+            horizontal = ProcessOutTheme.spacing.medium,
+            vertical = ProcessOutTheme.spacing.small
+        )
 
     internal fun textStyle(
         isError: Boolean,

@@ -3,14 +3,14 @@ package com.processout.sdk.ui.card.update
 import android.content.Context
 import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContract
+import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.core.POFailure
-import com.processout.sdk.core.POUnit
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.BuildConfig
 
 internal class CardUpdateActivityContract : ActivityResultContract
-<POCardUpdateConfiguration, ProcessOutActivityResult<POUnit>>() {
+<POCardUpdateConfiguration, ProcessOutActivityResult<POCard>>() {
 
     companion object {
         const val EXTRA_CONFIGURATION = "${BuildConfig.LIBRARY_PACKAGE_NAME}.EXTRA_CONFIGURATION"
@@ -27,7 +27,7 @@ internal class CardUpdateActivityContract : ActivityResultContract
     override fun parseResult(
         resultCode: Int,
         intent: Intent?
-    ): ProcessOutActivityResult<POUnit> =
+    ): ProcessOutActivityResult<POCard> =
         intent?.getParcelableExtra(EXTRA_RESULT)
             ?: ProcessOutActivityResult.Failure(
                 code = POFailure.Code.Internal(),

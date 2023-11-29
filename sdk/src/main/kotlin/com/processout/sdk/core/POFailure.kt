@@ -209,6 +209,7 @@ class POFailure private constructor() {
         mobile("processout-mobile.generic.error"),
         cardExceededLimits("card.exceeded-limits"),
         cardFailedCvc("card.failed-cvc"),
+        cardInvalidCvc("card.invalid-cvc"),
         cardIssuerDown("card.issuer-down"),
         cardIssuerFailed("card.issuer-failed"),
         cardNoMoney("card.no-money"),
