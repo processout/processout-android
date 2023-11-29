@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+
     <string name="po_locale_language_code">en</string>
 
+    <!-- Native Alternative Payment Method -->
     <string name="po_native_apm_title_format">Pay with %s</string>
     <string name="po_native_apm_submit_button_text_format">Pay %s</string>
     <string name="po_native_apm_submit_button_default_text">Pay</string>
@@ -9,7 +11,6 @@
     <string name="po_native_apm_success_message">Success!\nPayment approved.</string>
     <string name="po_native_apm_input_hint_phone">Enter phone number</string>
     <string name="po_native_apm_input_hint_email">name@example.com</string>
-
     <string name="po_native_apm_error_required_parameter">Parameter is required.</string>
     <string name="po_native_apm_error_invalid_number">Number is not valid.</string>
     <string name="po_native_apm_error_invalid_text">Value is not valid.</string>
@@ -19,4 +20,13 @@
         <item quantity="one">Invalid length, expected %d character.</item>
         <item quantity="other">Invalid length, expected %d characters.</item>
     </plurals>
+
+    <!-- Card Update -->
+    <string name="po_card_update_title">Payment Details</string>
+    <string name="po_card_update_cvc">CVC</string>
+    <string name="po_card_update_button_submit">Submit</string>
+    <string name="po_card_update_button_cancel">Cancel</string>
+    <string name="po_card_update_error_cvc">Your card CVC is invalid.</string>
+    <string name="po_card_update_error_generic">Something went wrong, please try again.</string>
+
 </resources>

@@ -7,6 +7,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POCardUpdateRequest
 import com.processout.sdk.api.repository.POCardsRepository
@@ -16,7 +17,6 @@ import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
-import com.processout.sdk.ui.R
 import com.processout.sdk.ui.card.update.CardUpdateCompletionState.*
 import com.processout.sdk.ui.card.update.CardUpdateEvent.*
 import com.processout.sdk.ui.core.state.POActionState
@@ -105,7 +105,7 @@ internal class CardUpdateViewModel(
     private fun initCvcField() = POFieldState(
         key = Field.CVC.key,
         placeholder = app.getString(R.string.po_card_update_cvc),
-        iconResId = R.drawable.po_card_back,
+        iconResId = com.processout.sdk.ui.R.drawable.po_card_back,
         formatter = CardSecurityCodeFormatter(scheme = options.cardInformation?.scheme),
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.NumberPassword,

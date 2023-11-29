@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <string name="po_locale_language_code">ar</string>
+
     <!-- Card Update -->
     <string name="po_card_update_title">تفاصيل الدفع</string>
     <string name="po_card_update_cvc">كود التحقق CVV</string>
@@ -7,4 +10,5 @@
     <string name="po_card_update_button_cancel">إلغاء</string>
     <string name="po_card_update_error_cvc">رقم كود التحقق CVV غير صالح</string>
     <string name="po_card_update_error_generic">حدث خطأ ما، يرجى المحاولة مرة أخرى</string>
+
 </resources>

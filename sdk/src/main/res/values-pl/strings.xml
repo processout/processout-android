@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="po_locale_language_code">pl</string>
 
+    <!-- Native Alternative Payment Method -->
     <string name="po_native_apm_title_format">Zapłać przy pomocy %s</string>
     <string name="po_native_apm_submit_button_text_format">Zapłać %s</string>
     <string name="po_native_apm_submit_button_default_text">Zapłać</string>
@@ -9,7 +11,6 @@
     <string name="po_native_apm_success_message">Sukces!\nPłatność przyjęta.</string>
     <string name="po_native_apm_input_hint_phone">Twój numer telefonu</string>
     <string name="po_native_apm_input_hint_email">imię@przykład.pl</string>
-
     <string name="po_native_apm_error_required_parameter">Parametr jest wmagany.</string>
     <string name="po_native_apm_error_invalid_number">Niepoprawny numer.</string>
     <string name="po_native_apm_error_invalid_text">Niepoprawna wartość.</string>
@@ -21,4 +22,5 @@
         <item quantity="many">Nieprawidłowa długość. Oczekiwano %d znaków.</item>
         <item quantity="other">Nieprawidłowa długość. Oczekiwano %d znaków.</item>
     </plurals>
+
 </resources>

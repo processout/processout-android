@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="po_locale_language_code">pt</string>
 
+    <!-- Native Alternative Payment Method -->
     <string name="po_native_apm_title_format">Pagar com %s</string>
     <string name="po_native_apm_submit_button_text_format">Pagar %s</string>
     <string name="po_native_apm_submit_button_default_text">Pagar</string>
@@ -9,7 +11,6 @@
     <string name="po_native_apm_success_message">Successo!\nPagamento aprovado.</string>
     <string name="po_native_apm_input_hint_phone">Insira o seu número de telemóvel</string>
     <string name="po_native_apm_input_hint_email">nome@exemplo.pt</string>
-
     <string name="po_native_apm_error_required_parameter">Campo obrigatório.</string>
     <string name="po_native_apm_error_invalid_number">Número inválido.</string>
     <string name="po_native_apm_error_invalid_text">Texto inválido.</string>
@@ -19,4 +20,13 @@
         <item quantity="one">Quantidade de caracteres incorreta, espera-se %d caractere.</item>
         <item quantity="other">Quantidade de caracteres incorreta, espera-se %d caracteres.</item>
     </plurals>
+
+    <!-- Card Update -->
+    <string name="po_card_update_title">Detalhes do pagamento</string>
+    <string name="po_card_update_cvc">CVC</string>
+    <string name="po_card_update_button_submit">Enviar</string>
+    <string name="po_card_update_button_cancel">Cancelar</string>
+    <string name="po_card_update_error_cvc">O código de segurança do seu cartão é inválido.</string>
+    <string name="po_card_update_error_generic">Ocorreu um erro ao processar o seu cartão, por favor tente novamente.</string>
+
 </resources>
