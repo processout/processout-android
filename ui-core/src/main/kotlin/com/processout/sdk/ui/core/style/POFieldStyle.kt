@@ -1,10 +1,14 @@
-package com.processout.sdk.ui.core.style.field
+package com.processout.sdk.ui.core.style
 
 import android.os.Parcelable
 import androidx.annotation.ColorRes
-import com.processout.sdk.ui.core.style.POBorderStyle
-import com.processout.sdk.ui.core.style.POTextStyle
 import kotlinx.parcelize.Parcelize
+
+@Parcelize
+data class POFieldStyle(
+    val normal: POFieldStateStyle,
+    val error: POFieldStateStyle
+) : Parcelable
 
 @Parcelize
 data class POFieldStateStyle(

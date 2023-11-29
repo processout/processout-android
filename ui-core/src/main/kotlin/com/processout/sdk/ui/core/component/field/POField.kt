@@ -18,8 +18,8 @@ import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.POBorderStroke
 import com.processout.sdk.ui.core.component.POText
-import com.processout.sdk.ui.core.style.field.POFieldStateStyle
-import com.processout.sdk.ui.core.style.field.POFieldStyle
+import com.processout.sdk.ui.core.style.POFieldStateStyle
+import com.processout.sdk.ui.core.style.POFieldStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 
 /** @suppress */
