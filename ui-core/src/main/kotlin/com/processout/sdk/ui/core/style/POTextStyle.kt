@@ -14,12 +14,12 @@ data class POTextStyle(
 
 @Parcelize
 data class POTextType(
+    val textSizeSp: Int,
+    val lineHeightSp: Int,
     @FontRes
     val fontResId: Int? = null,
-    val weight: Weight,
-    val italic: Boolean = false,
-    val textSizeSp: Int,
-    val lineHeightSp: Int
+    val weight: Weight = Weight.NORMAL,
+    val italic: Boolean = false
 ) : Parcelable {
 
     @Parcelize
