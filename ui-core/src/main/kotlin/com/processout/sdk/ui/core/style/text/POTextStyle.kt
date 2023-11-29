@@ -1,4 +1,4 @@
-package com.processout.sdk.ui.core.style
+package com.processout.sdk.ui.core.style.text
 
 import android.os.Parcelable
 import androidx.annotation.ColorRes

@@ -2,7 +2,7 @@ package com.processout.sdk.ui.core.style.radio
 
 import android.os.Parcelable
 import androidx.annotation.DrawableRes
-import com.processout.sdk.ui.core.style.POTextStyle
+import com.processout.sdk.ui.core.style.text.POTextStyle
 import kotlinx.parcelize.Parcelize
 
 @Parcelize

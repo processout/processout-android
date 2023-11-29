@@ -1,7 +1,7 @@
 package com.processout.sdk.ui.core.style.input
 
 import android.os.Parcelable
-import com.processout.sdk.ui.core.style.POTextStyle
+import com.processout.sdk.ui.core.style.text.POTextStyle
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
