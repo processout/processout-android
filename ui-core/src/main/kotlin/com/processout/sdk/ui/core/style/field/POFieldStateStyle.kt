@@ -1,4 +1,4 @@
-package com.processout.sdk.ui.core.style.input
+package com.processout.sdk.ui.core.style.field
 
 import android.os.Parcelable
 import androidx.annotation.ColorRes
@@ -7,7 +7,7 @@ import com.processout.sdk.ui.core.style.text.POTextStyle
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class POInputFieldStyle(
+data class POFieldStateStyle(
     val text: POTextStyle,
     @ColorRes
     val placeholderTextColorResId: Int,
