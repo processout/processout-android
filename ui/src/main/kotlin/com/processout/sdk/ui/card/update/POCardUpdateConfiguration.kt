@@ -17,8 +17,8 @@ data class POCardUpdateConfiguration(
 
     @Parcelize
     data class Options(
-        val cardInformation: CardInformation? = null,
         val title: String? = null,
+        val cardInformation: CardInformation? = null,
         val primaryActionText: String? = null,
         val secondaryActionText: String? = null,
         val cancellation: POCancellationConfiguration = POCancellationConfiguration()

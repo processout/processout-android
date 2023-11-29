@@ -121,11 +121,7 @@ internal class CardUpdateViewModel(
                     viewModelScope.launch {
                         cardsRepository.fetchIssuerInformation(it)
                             .onSuccess { updateScheme(it.scheme) }
-                            .onFailure {
-                                POLogger.info(
-                                    "Failed to fetch card issuer information on attempt to resolve the scheme. %s", it
-                                )
-                            }
+                            .onFailure { POLogger.info("Failed to resolve the scheme: %s", it) }
                     }
                 }
             }
@@ -247,8 +243,14 @@ internal class CardUpdateViewModel(
         }
     }
 
-    private fun recover(errorMessage: String) = _state.update {
-        resolve(state = it, submitting = false, errorMessage = errorMessage)
+    private fun recover(errorMessage: String) {
+        _state.update {
+            resolve(
+                state = it,
+                submitting = false,
+                errorMessage = errorMessage
+            )
+        }
     }
 
     private fun cancel() {
