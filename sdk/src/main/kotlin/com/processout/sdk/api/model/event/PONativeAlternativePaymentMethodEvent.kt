@@ -19,7 +19,7 @@ sealed class PONativeAlternativePaymentMethodEvent {
     data object DidStart : PONativeAlternativePaymentMethodEvent()
 
     /**
-     * Event is sent when the user changes any editable value.
+     * Event is sent when user changes any editable value.
      */
     data object ParametersChanged : PONativeAlternativePaymentMethodEvent()
 
