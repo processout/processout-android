@@ -44,8 +44,8 @@ fun POLabeledTextField(
         POText(
             text = title,
             modifier = Modifier.padding(bottom = ProcessOutTheme.spacing.small),
-            color = if (isError) labelsStyle.error.title.color else labelsStyle.normal.title.color,
-            style = if (isError) labelsStyle.error.title.textStyle else labelsStyle.normal.title.textStyle
+            color = labelsStyle.title.color,
+            style = labelsStyle.title.textStyle
         )
         POTextField(
             value = value,
@@ -68,8 +68,8 @@ fun POLabeledTextField(
         POText(
             text = description,
             modifier = Modifier.padding(top = ProcessOutTheme.spacing.small),
-            color = if (isError) labelsStyle.error.description.color else labelsStyle.normal.description.color,
-            style = if (isError) labelsStyle.error.description.textStyle else labelsStyle.normal.description.textStyle
+            color = labelsStyle.description.color,
+            style = labelsStyle.description.textStyle
         )
     }
 }
