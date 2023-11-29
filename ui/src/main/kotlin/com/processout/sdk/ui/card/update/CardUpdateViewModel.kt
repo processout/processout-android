@@ -176,6 +176,9 @@ internal class CardUpdateViewModel(
                         }
                     }
                 ),
+                primaryAction = state.primaryAction.copy(
+                    enabled = true
+                ),
                 errorMessage = null
             )
         }
@@ -205,6 +208,7 @@ internal class CardUpdateViewModel(
             }
         ),
         primaryAction = state.primaryAction.copy(
+            enabled = errorMessage == null,
             loading = submitting
         ),
         secondaryAction = state.secondaryAction?.copy(
