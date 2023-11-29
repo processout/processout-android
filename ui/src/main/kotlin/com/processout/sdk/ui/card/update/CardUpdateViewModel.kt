@@ -199,10 +199,7 @@ internal class CardUpdateViewModel(
         fields = POImmutableCollection(
             state.fields.elements.map {
                 when (it.key) {
-                    Field.CVC.key -> it.copy(
-                        enabled = !submitting,
-                        isError = errorMessage != null
-                    )
+                    Field.CVC.key -> it.copy(isError = errorMessage != null)
                     else -> it.copy()
                 }
             }
