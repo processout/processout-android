@@ -9,6 +9,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
+import com.processout.sdk.api.dispatcher.card.update.PODefaultCardUpdateEventDispatcher
+import com.processout.sdk.api.model.event.POCardUpdateEvent
 import com.processout.sdk.api.model.request.POCardUpdateRequest
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.POFailure.Code.*
@@ -31,7 +33,8 @@ internal class CardUpdateViewModel(
     private val app: Application,
     private val cardId: String,
     private val options: POCardUpdateConfiguration.Options,
-    private val cardsRepository: POCardsRepository
+    private val cardsRepository: POCardsRepository,
+    private val eventDispatcher: PODefaultCardUpdateEventDispatcher
 ) : ViewModel() {
 
     class Factory(
@@ -45,7 +48,8 @@ internal class CardUpdateViewModel(
                 app = app,
                 cardId = cardId,
                 options = options,
-                cardsRepository = ProcessOut.instance.cards
+                cardsRepository = ProcessOut.instance.cards,
+                eventDispatcher = PODefaultCardUpdateEventDispatcher
             ) as T
     }
 
@@ -264,6 +268,12 @@ internal class CardUpdateViewModel(
                     message = "Cancelled by user with secondary cancel action."
                 )
             )
+        }
+    }
+
+    private fun dispatch(event: POCardUpdateEvent) {
+        viewModelScope.launch {
+            eventDispatcher.send(event)
         }
     }
 }
