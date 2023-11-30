@@ -113,10 +113,8 @@ when (result) {
 
 ```kotlin
 viewModelScope.launch {
-    ProcessOut.instance
-        .nativeAlternativePaymentMethodEventDispatcher
-        .events
-        .collect { event ->
+    ProcessOut.instance.dispatchers.nativeAlternativePaymentMethod
+        .events.collect { event ->
             when (event) {
                 PONativeAlternativePaymentMethodEvent.WillStart -> TODO()
                 PONativeAlternativePaymentMethodEvent.DidStart -> TODO()
@@ -136,7 +134,7 @@ viewModelScope.launch {
 
 ```kotlin
 viewModelScope.launch {
-    with(ProcessOut.instance.nativeAlternativePaymentMethodEventDispatcher) {
+    with(ProcessOut.instance.dispatchers.nativeAlternativePaymentMethod) {
         // Subscribe for request to provide default values.
         defaultValuesRequest.collect { request ->
             // Default values should be provided as Map<String, String>

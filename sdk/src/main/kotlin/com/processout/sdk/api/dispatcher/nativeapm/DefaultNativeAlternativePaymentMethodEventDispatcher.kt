@@ -1,14 +1,13 @@
-@file:Suppress("ObjectPropertyName")
+package com.processout.sdk.api.dispatcher.nativeapm
 
-package com.processout.sdk.api.dispatcher
-
+import com.processout.sdk.api.dispatcher.PONativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodDefaultValuesRequest
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodDefaultValuesResponse
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
-internal object NativeAlternativePaymentMethodEventDispatcherImpl
+internal object DefaultNativeAlternativePaymentMethodEventDispatcher
     : PONativeAlternativePaymentMethodEventDispatcher() {
 
     private val _events = MutableSharedFlow<PONativeAlternativePaymentMethodEvent>()
