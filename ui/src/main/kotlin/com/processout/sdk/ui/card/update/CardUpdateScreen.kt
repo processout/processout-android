@@ -127,6 +127,7 @@ private fun Fields(
             style = style,
             enabled = state.enabled,
             isError = state.isError,
+            forceTextDirectionLtr = state.forceTextDirectionLtr,
             placeholderText = state.placeholder,
             trailingIcon = { state.iconResId?.let { AnimatedIcon(id = it) } },
             keyboardOptions = state.keyboardOptions,

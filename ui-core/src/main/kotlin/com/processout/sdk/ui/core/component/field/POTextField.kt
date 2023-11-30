@@ -32,6 +32,7 @@ fun POTextField(
     style: POField.Style = POField.default,
     enabled: Boolean = true,
     isError: Boolean = false,
+    forceTextDirectionLtr: Boolean = false,
     placeholderText: String? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
@@ -51,7 +52,11 @@ fun POTextField(
             onValueChange = onValueChange,
             modifier = modifier.defaultMinSize(minHeight = ProcessOutTheme.dimensions.formComponentHeight),
             enabled = enabled,
-            textStyle = POField.textStyle(isError = isError, style = style),
+            textStyle = POField.textStyle(
+                isError = isError,
+                forceTextDirectionLtr = forceTextDirectionLtr,
+                style = style
+            ),
             cursorBrush = POField.cursorBrush(isError = isError, style = style),
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,

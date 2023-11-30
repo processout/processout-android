@@ -18,5 +18,6 @@ data class POFieldState(
     val formatter: POFormatter? = null,
     val keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     val enabled: Boolean = true,
-    val isError: Boolean = false
+    val isError: Boolean = false,
+    val forceTextDirectionLtr: Boolean = false
 )

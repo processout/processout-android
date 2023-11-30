@@ -97,7 +97,8 @@ internal class CardUpdateViewModel(
                     iconResId = cardSchemeDrawableResId(
                         scheme = preferredScheme ?: scheme ?: String()
                     ),
-                    enabled = false
+                    enabled = false,
+                    forceTextDirectionLtr = true
                 )
             }
         }
@@ -110,7 +111,8 @@ internal class CardUpdateViewModel(
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.NumberPassword,
             imeAction = ImeAction.Done
-        )
+        ),
+        forceTextDirectionLtr = true
     )
 
     private fun resolveScheme() {
