@@ -6,11 +6,6 @@ package com.processout.sdk.api.model.event
 sealed interface POCardUpdateEvent {
 
     /**
-     * Initial event that is sent prior any other event.
-     */
-    data object WillStart : POCardUpdateEvent
-
-    /**
      * Event indicates that initial data has been loaded successfully.
      * Currently waiting for user input.
      */
