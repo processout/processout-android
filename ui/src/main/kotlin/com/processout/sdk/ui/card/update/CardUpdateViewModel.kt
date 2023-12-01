@@ -180,7 +180,7 @@ internal class CardUpdateViewModel(
         Submit -> submit()
         Cancel -> cancel()
         is Dismiss -> POLogger.info(
-            message = "View has been dismissed: %s", event.failure,
+            message = "Dismissed: %s", event.failure,
             attributes = logAttributes
         )
     }
@@ -247,6 +247,10 @@ internal class CardUpdateViewModel(
             cardsRepository.updateCard(
                 request = POCardUpdateRequest(cardId = cardId, cvc = cvc)
             ).onSuccess { card ->
+                POLogger.info(
+                    message = "Card updated successfully.",
+                    attributes = logAttributes
+                )
                 dispatch(DidComplete)
                 _completion.update { Success(card) }
             }.onFailure { handle(failure = it) }
@@ -286,7 +290,12 @@ internal class CardUpdateViewModel(
                 ProcessOutResult.Failure(
                     code = Cancelled,
                     message = "Cancelled by user with secondary cancel action."
-                )
+                ).also {
+                    POLogger.info(
+                        message = "Cancelled: %s", it,
+                        attributes = logAttributes
+                    )
+                }
             )
         }
     }
