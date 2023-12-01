@@ -8,8 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.core.*
 import com.processout.sdk.ui.base.BaseBottomSheetDialogFragment
@@ -27,14 +27,6 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
 
     private var configuration: POCardUpdateConfiguration? = null
 
-    private val viewModel: CardUpdateViewModel by viewModels {
-        CardUpdateViewModel.Factory(
-            app = requireActivity().application,
-            cardId = configuration?.cardId ?: String(),
-            options = configuration?.options ?: POCardUpdateConfiguration.Options()
-        )
-    }
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         @Suppress("DEPRECATION")
@@ -45,7 +37,7 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
                     resultCode = Activity.RESULT_CANCELED,
                     result = ProcessOutActivityResult.Failure(
                         code = POFailure.Code.Generic(),
-                        message = "Invalid configuration."
+                        message = "Card ID is blank."
                     )
                 )
             }
@@ -60,6 +52,13 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
         setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
         setContent {
             ProcessOutTheme {
+                val viewModel: CardUpdateViewModel = viewModel(
+                    factory = CardUpdateViewModel.Factory(
+                        app = requireActivity().application,
+                        cardId = configuration?.cardId ?: String(),
+                        options = configuration?.options ?: POCardUpdateConfiguration.Options()
+                    )
+                )
                 handle(viewModel.completion.collectAsStateWithLifecycle().value)
                 CardUpdateScreen(
                     state = viewModel.state.collectAsStateWithLifecycle().value,
