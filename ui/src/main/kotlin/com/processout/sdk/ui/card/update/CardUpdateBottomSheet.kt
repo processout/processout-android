@@ -15,6 +15,7 @@ import com.processout.sdk.core.*
 import com.processout.sdk.ui.base.BaseBottomSheetDialogFragment
 import com.processout.sdk.ui.card.update.CardUpdateCompletion.Failure
 import com.processout.sdk.ui.card.update.CardUpdateCompletion.Success
+import com.processout.sdk.ui.card.update.CardUpdateEvent.Dismiss
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.extension.dpToPx
 
@@ -41,9 +42,8 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
         configuration = arguments?.getParcelable(CardUpdateActivityContract.EXTRA_CONFIGURATION)
         configuration?.run {
             if (cardId.isBlank()) {
-                finishWithActivityResult(
-                    resultCode = Activity.RESULT_CANCELED,
-                    result = ProcessOutActivityResult.Failure(
+                dismiss(
+                    ProcessOutResult.Failure(
                         code = POFailure.Code.Generic(),
                         message = "Card ID is blank."
                     )
@@ -94,11 +94,15 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
         bottomSheetBehavior.peekHeight = height
     }
 
-    override fun onCancellation(failure: ProcessOutResult.Failure) =
+    override fun onCancellation(failure: ProcessOutResult.Failure) = dismiss(failure)
+
+    private fun dismiss(failure: ProcessOutResult.Failure) {
+        viewModel.onEvent(Dismiss(failure))
         finishWithActivityResult(
             resultCode = Activity.RESULT_CANCELED,
             result = failure.toActivityResult()
         )
+    }
 
     private fun finishWithActivityResult(
         resultCode: Int,

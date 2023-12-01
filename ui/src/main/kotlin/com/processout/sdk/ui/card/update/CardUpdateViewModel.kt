@@ -179,6 +179,10 @@ internal class CardUpdateViewModel(
         is FieldValueChanged -> updateFieldValue(event.key, event.value)
         Submit -> submit()
         Cancel -> cancel()
+        is Dismiss -> POLogger.info(
+            message = "View has been dismissed: %s", event.failure,
+            attributes = logAttributes
+        )
     }
 
     private fun updateFieldValue(key: String, value: String) {
