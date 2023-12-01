@@ -25,6 +25,7 @@ import com.processout.sdk.ui.card.update.CardUpdateEvent.*
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableCollection
+import com.processout.sdk.ui.shared.extension.orElse
 import com.processout.sdk.ui.shared.formatter.CardSecurityCodeFormatter
 import com.processout.sdk.ui.shared.mapper.cardSchemeDrawableResId
 import kotlinx.coroutines.flow.*
@@ -130,18 +131,33 @@ internal class CardUpdateViewModel(
     private fun resolveScheme() {
         with(options.cardInformation) {
             if (this?.scheme == null) {
+                POLogger.info(
+                    message = "Attempt to resolve card scheme.",
+                    attributes = logAttributes
+                )
                 val iin = this?.iin ?: this?.maskedNumber?.let { iin(it) }
                 iin?.let {
                     viewModelScope.launch {
                         cardsRepository.fetchIssuerInformation(it)
-                            .onSuccess { updateScheme(it.scheme) }
+                            .onSuccess {
+                                updateScheme(it.scheme)
+                                POLogger.info(
+                                    message = "Card scheme resolved: %s", it.scheme,
+                                    attributes = logAttributes
+                                )
+                            }
                             .onFailure {
                                 POLogger.info(
-                                    message = "Failed to resolve the scheme: %s", it,
+                                    message = "Failed to resolve card scheme: %s", it,
                                     attributes = logAttributes
                                 )
                             }
                     }
+                }.orElse {
+                    POLogger.info(
+                        message = "Failed to resolve card scheme: IIN is not available.",
+                        attributes = logAttributes
+                    )
                 }
             }
         }
