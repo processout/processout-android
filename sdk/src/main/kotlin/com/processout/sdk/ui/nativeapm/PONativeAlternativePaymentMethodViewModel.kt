@@ -68,7 +68,7 @@ internal class PONativeAlternativePaymentMethodViewModel(
                     gatewayConfigurationId,
                     invoiceId,
                     invoices,
-                    nativeAlternativePaymentMethodEventDispatcher,
+                    dispatchers.nativeAlternativePaymentMethod,
                     options.validate(),
                     logAttributes = mapOf(
                         LOG_ATTRIBUTE_INVOICE_ID to invoiceId,

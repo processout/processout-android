@@ -13,8 +13,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.core.*
 import com.processout.sdk.ui.base.BaseBottomSheetDialogFragment
-import com.processout.sdk.ui.card.update.CardUpdateCompletionState.Failure
-import com.processout.sdk.ui.card.update.CardUpdateCompletionState.Success
+import com.processout.sdk.ui.card.update.CardUpdateCompletion.Failure
+import com.processout.sdk.ui.card.update.CardUpdateCompletion.Success
+import com.processout.sdk.ui.card.update.CardUpdateEvent.Dismiss
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.extension.dpToPx
 
@@ -41,11 +42,10 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
         configuration = arguments?.getParcelable(CardUpdateActivityContract.EXTRA_CONFIGURATION)
         configuration?.run {
             if (cardId.isBlank()) {
-                finishWithActivityResult(
-                    resultCode = Activity.RESULT_CANCELED,
-                    result = ProcessOutActivityResult.Failure(
+                dismiss(
+                    ProcessOutResult.Failure(
                         code = POFailure.Code.Generic(),
-                        message = "Invalid configuration."
+                        message = "Card ID is blank."
                     )
                 )
             }
@@ -60,7 +60,7 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
         setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
         setContent {
             ProcessOutTheme {
-                handle(viewModel.completionState.collectAsStateWithLifecycle().value)
+                handle(viewModel.completion.collectAsStateWithLifecycle().value)
                 CardUpdateScreen(
                     state = viewModel.state.collectAsStateWithLifecycle().value,
                     onEvent = viewModel::onEvent,
@@ -69,19 +69,6 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
             }
         }
     }
-
-    private fun handle(state: CardUpdateCompletionState) =
-        when (state) {
-            is Success -> finishWithActivityResult(
-                resultCode = Activity.RESULT_OK,
-                result = ProcessOutActivityResult.Success(state.card)
-            )
-            is Failure -> finishWithActivityResult(
-                resultCode = Activity.RESULT_CANCELED,
-                result = state.failure.toActivityResult()
-            )
-            else -> {}
-        }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -94,11 +81,28 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
         bottomSheetBehavior.peekHeight = height
     }
 
-    override fun onCancellation(failure: ProcessOutResult.Failure) =
+    private fun handle(completion: CardUpdateCompletion) =
+        when (completion) {
+            is Success -> finishWithActivityResult(
+                resultCode = Activity.RESULT_OK,
+                result = ProcessOutActivityResult.Success(completion.card)
+            )
+            is Failure -> finishWithActivityResult(
+                resultCode = Activity.RESULT_CANCELED,
+                result = completion.failure.toActivityResult()
+            )
+            else -> {}
+        }
+
+    override fun onCancellation(failure: ProcessOutResult.Failure) = dismiss(failure)
+
+    private fun dismiss(failure: ProcessOutResult.Failure) {
+        viewModel.onEvent(Dismiss(failure))
         finishWithActivityResult(
             resultCode = Activity.RESULT_CANCELED,
             result = failure.toActivityResult()
         )
+    }
 
     private fun finishWithActivityResult(
         resultCode: Int,

@@ -2,7 +2,6 @@ package com.processout.sdk.ui.core.style
 
 import android.os.Parcelable
 import androidx.annotation.ColorRes
-import com.processout.sdk.ui.core.style.button.POButtonStyle
 import kotlinx.parcelize.Parcelize
 
 @Parcelize

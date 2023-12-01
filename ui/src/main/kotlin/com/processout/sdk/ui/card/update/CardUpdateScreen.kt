@@ -82,10 +82,11 @@ internal fun CardUpdateScreen(
         ) {
             Fields(
                 fields = state.fields,
-                onEvent = onEvent
+                onEvent = onEvent,
+                style = style.field
             )
             state.errorMessage?.let {
-                with(style.errorDescription) {
+                with(style.errorMessage) {
                     POText(
                         text = it,
                         color = color,
@@ -100,7 +101,8 @@ internal fun CardUpdateScreen(
 @Composable
 private fun Fields(
     fields: POImmutableCollection<POFieldState>,
-    onEvent: (CardUpdateEvent) -> Unit
+    onEvent: (CardUpdateEvent) -> Unit,
+    style: POField.Style = POField.default
 ) {
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) {
@@ -122,8 +124,10 @@ private fun Fields(
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(focusRequester),
+            style = style,
             enabled = state.enabled,
             isError = state.isError,
+            forceTextDirectionLtr = state.forceTextDirectionLtr,
             placeholderText = state.placeholder,
             trailingIcon = { state.iconResId?.let { AnimatedIcon(id = it) } },
             keyboardOptions = state.keyboardOptions,
@@ -191,7 +195,7 @@ internal object CardUpdateScreen {
     data class Style(
         val title: POText.Style,
         val field: POField.Style,
-        val errorDescription: POText.Style,
+        val errorMessage: POText.Style,
         val actionsContainer: POActionsContainer.Style,
         val backgroundColor: Color,
         val dividerColor: Color,
@@ -203,10 +207,10 @@ internal object CardUpdateScreen {
         title = custom?.title?.let {
             POText.custom(style = it)
         } ?: POText.title,
-        field = custom?.input?.let {
+        field = custom?.field?.let {
             POField.custom(style = it)
         } ?: POField.default,
-        errorDescription = custom?.errorDescription?.let {
+        errorMessage = custom?.errorMessage?.let {
             POText.custom(style = it)
         } ?: POText.errorLabel,
         actionsContainer = custom?.actionsContainer?.let {

@@ -3,8 +3,8 @@ package com.processout.sdk.ui.card.update
 import android.os.Parcelable
 import androidx.annotation.ColorRes
 import com.processout.sdk.ui.core.style.POActionsContainerStyle
+import com.processout.sdk.ui.core.style.POFieldStyle
 import com.processout.sdk.ui.core.style.POTextStyle
-import com.processout.sdk.ui.core.style.input.POInputStyle
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import kotlinx.parcelize.Parcelize
 
@@ -35,8 +35,8 @@ data class POCardUpdateConfiguration(
     @Parcelize
     data class Style(
         val title: POTextStyle? = null,
-        val input: POInputStyle? = null,
-        val errorDescription: POTextStyle? = null,
+        val field: POFieldStyle? = null,
+        val errorMessage: POTextStyle? = null,
         val actionsContainer: POActionsContainerStyle? = null,
         @ColorRes
         val backgroundColorResId: Int? = null,

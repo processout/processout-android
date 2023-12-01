@@ -1,14 +1,14 @@
 package com.processout.sdk.core.util
 
-private const val escapeChar = '\\'
-private const val markdownSpecialChars = "\\`*_{}[]()#+-.!"
+private const val ESCAPE_CHAR = '\\'
+private const val MARKDOWN_SPECIAL_CHARS = "\\`*_{}[]()#+-.!"
 
 internal fun escapedMarkdown(text: String?): String? =
     text?.let {
         StringBuilder().let {
             text.forEach { char ->
-                if (markdownSpecialChars.contains(char)) {
-                    it.append(escapeChar)
+                if (MARKDOWN_SPECIAL_CHARS.contains(char)) {
+                    it.append(ESCAPE_CHAR)
                 }
                 it.append(char)
             }

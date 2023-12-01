@@ -20,8 +20,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.processout.sdk.ui.core.R
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
-import com.processout.sdk.ui.core.style.POType
-import com.processout.sdk.ui.core.style.POType.Weight.*
+import com.processout.sdk.ui.core.style.POTextType
+import com.processout.sdk.ui.core.style.POTextType.Weight.*
 
 private val WorkSans = FontFamily(
     Font(R.font.work_sans_regular, FontWeight.Normal),
@@ -94,7 +94,7 @@ data class POTypography(
 
 internal val LocalPOTypography = staticCompositionLocalOf { POTypography() }
 
-internal fun POType.toTextStyle() = TextStyle(
+internal fun POTextType.toTextStyle() = TextStyle(
     fontFamily = fontResId?.let { FontFamily(Font(it)) } ?: WorkSans,
     fontWeight = weight.toFontWeight(),
     fontStyle = if (italic) FontStyle.Italic else FontStyle.Normal,
@@ -102,7 +102,7 @@ internal fun POType.toTextStyle() = TextStyle(
     lineHeight = lineHeightSp.sp
 )
 
-private fun POType.Weight.toFontWeight(): FontWeight =
+private fun POTextType.Weight.toFontWeight(): FontWeight =
     when (this) {
         THIN -> FontWeight.Thin
         EXTRA_LIGHT -> FontWeight.ExtraLight

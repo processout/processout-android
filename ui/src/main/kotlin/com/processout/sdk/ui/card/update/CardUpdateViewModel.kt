@@ -7,7 +7,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
+import com.processout.sdk.api.dispatcher.card.update.PODefaultCardUpdateEventDispatcher
+import com.processout.sdk.api.model.event.POCardUpdateEvent
+import com.processout.sdk.api.model.event.POCardUpdateEvent.*
 import com.processout.sdk.api.model.request.POCardUpdateRequest
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.POFailure.Code.*
@@ -16,12 +20,12 @@ import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
-import com.processout.sdk.ui.R
-import com.processout.sdk.ui.card.update.CardUpdateCompletionState.*
+import com.processout.sdk.ui.card.update.CardUpdateCompletion.*
 import com.processout.sdk.ui.card.update.CardUpdateEvent.*
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableCollection
+import com.processout.sdk.ui.shared.extension.orElse
 import com.processout.sdk.ui.shared.formatter.CardSecurityCodeFormatter
 import com.processout.sdk.ui.shared.mapper.cardSchemeDrawableResId
 import kotlinx.coroutines.flow.*
@@ -31,7 +35,9 @@ internal class CardUpdateViewModel(
     private val app: Application,
     private val cardId: String,
     private val options: POCardUpdateConfiguration.Options,
-    private val cardsRepository: POCardsRepository
+    private val cardsRepository: POCardsRepository,
+    private val eventDispatcher: PODefaultCardUpdateEventDispatcher,
+    private val logAttributes: Map<String, String>
 ) : ViewModel() {
 
     class Factory(
@@ -45,8 +51,14 @@ internal class CardUpdateViewModel(
                 app = app,
                 cardId = cardId,
                 options = options,
-                cardsRepository = ProcessOut.instance.cards
+                cardsRepository = ProcessOut.instance.cards,
+                eventDispatcher = PODefaultCardUpdateEventDispatcher,
+                logAttributes = mapOf(LOG_ATTRIBUTE_CARD_ID to cardId)
             ) as T
+    }
+
+    private companion object {
+        const val LOG_ATTRIBUTE_CARD_ID = "CardId"
     }
 
     private enum class Field(val key: String) {
@@ -54,13 +66,18 @@ internal class CardUpdateViewModel(
         CVC("card-cvc")
     }
 
-    private val _completionState = MutableStateFlow<CardUpdateCompletionState>(Awaiting)
-    val completionState = _completionState.asStateFlow()
+    private val _completion = MutableStateFlow<CardUpdateCompletion>(Awaiting)
+    val completion = _completion.asStateFlow()
 
     private val _state = MutableStateFlow(initState())
     val state = _state.asStateFlow()
 
     init {
+        POLogger.info(
+            message = "Card update is started: waiting for user input.",
+            attributes = logAttributes
+        )
+        dispatch(DidStart)
         resolveScheme()
     }
 
@@ -97,7 +114,8 @@ internal class CardUpdateViewModel(
                     iconResId = cardSchemeDrawableResId(
                         scheme = preferredScheme ?: scheme ?: String()
                     ),
-                    enabled = false
+                    enabled = false,
+                    forceTextDirectionLtr = true
                 )
             }
         }
@@ -105,24 +123,39 @@ internal class CardUpdateViewModel(
     private fun initCvcField() = POFieldState(
         key = Field.CVC.key,
         placeholder = app.getString(R.string.po_card_update_cvc),
-        iconResId = R.drawable.po_card_back,
+        iconResId = com.processout.sdk.ui.R.drawable.po_card_back,
         formatter = CardSecurityCodeFormatter(scheme = options.cardInformation?.scheme),
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.NumberPassword,
             imeAction = ImeAction.Done
-        )
+        ),
+        forceTextDirectionLtr = true
     )
 
     private fun resolveScheme() {
         with(options.cardInformation) {
             if (this?.scheme == null) {
+                POLogger.info(
+                    message = "Attempt to resolve card scheme.",
+                    attributes = logAttributes
+                )
                 val iin = this?.iin ?: this?.maskedNumber?.let { iin(it) }
                 iin?.let {
                     viewModelScope.launch {
                         cardsRepository.fetchIssuerInformation(it)
                             .onSuccess { updateScheme(it.scheme) }
-                            .onFailure { POLogger.info("Failed to resolve the scheme: %s", it) }
+                            .onFailure {
+                                POLogger.info(
+                                    message = "Failed to resolve card scheme: %s", it,
+                                    attributes = logAttributes
+                                )
+                            }
                     }
+                }.orElse {
+                    POLogger.info(
+                        message = "Failed to resolve card scheme: IIN is not available.",
+                        attributes = logAttributes
+                    )
                 }
             }
         }
@@ -154,12 +187,20 @@ internal class CardUpdateViewModel(
                 )
             )
         }
+        POLogger.info(
+            message = "Card scheme is resolved: %s", scheme,
+            attributes = logAttributes
+        )
     }
 
     fun onEvent(event: CardUpdateEvent) = when (event) {
         is FieldValueChanged -> updateFieldValue(event.key, event.value)
         Submit -> submit()
         Cancel -> cancel()
+        is Dismiss -> POLogger.info(
+            message = "Dismissed: %s", event.failure,
+            attributes = logAttributes
+        )
     }
 
     private fun updateFieldValue(key: String, value: String) {
@@ -176,9 +217,17 @@ internal class CardUpdateViewModel(
                         }
                     }
                 ),
+                primaryAction = state.primaryAction.copy(
+                    enabled = true
+                ),
                 errorMessage = null
             )
         }
+        POLogger.debug(
+            message = "Field is edited by the user: %s", key,
+            attributes = logAttributes
+        )
+        dispatch(ParametersChanged)
     }
 
     private fun submit() {
@@ -205,6 +254,7 @@ internal class CardUpdateViewModel(
             }
         ),
         primaryAction = state.primaryAction.copy(
+            enabled = errorMessage == null,
             loading = submitting
         ),
         secondaryAction = state.secondaryAction?.copy(
@@ -214,11 +264,21 @@ internal class CardUpdateViewModel(
     )
 
     private fun updateCard(cvc: String) {
+        POLogger.info(
+            message = "Submitting card information.",
+            attributes = logAttributes
+        )
+        dispatch(WillUpdateCard)
         viewModelScope.launch {
             cardsRepository.updateCard(
                 request = POCardUpdateRequest(cardId = cardId, cvc = cvc)
             ).onSuccess { card ->
-                _completionState.update { Success(card) }
+                POLogger.info(
+                    message = "Card updated successfully.",
+                    attributes = logAttributes
+                )
+                dispatch(DidComplete)
+                _completion.update { Success(card) }
             }.onFailure { handle(failure = it) }
         }
     }
@@ -238,6 +298,10 @@ internal class CardUpdateViewModel(
             }
             else -> recover(genericErrorMessage)
         }
+        POLogger.info(
+            message = "Recovered after the failure: %s", failure,
+            attributes = logAttributes
+        )
     }
 
     private fun recover(errorMessage: String) {
@@ -251,13 +315,24 @@ internal class CardUpdateViewModel(
     }
 
     private fun cancel() {
-        _completionState.update {
+        _completion.update {
             Failure(
                 ProcessOutResult.Failure(
                     code = Cancelled,
-                    message = "Cancelled by user with secondary cancel action."
-                )
+                    message = "Cancelled by the user with secondary cancel action."
+                ).also {
+                    POLogger.info(
+                        message = "Cancelled: %s", it,
+                        attributes = logAttributes
+                    )
+                }
             )
+        }
+    }
+
+    private fun dispatch(event: POCardUpdateEvent) {
+        viewModelScope.launch {
+            eventDispatcher.send(event)
         }
     }
 }

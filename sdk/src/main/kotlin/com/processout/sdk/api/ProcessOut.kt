@@ -4,7 +4,10 @@ package com.processout.sdk.api
 
 import com.processout.processout_sdk.ProcessOutAccessor
 import com.processout.sdk.BuildConfig
+import com.processout.sdk.api.dispatcher.DefaultEventDispatchers
+import com.processout.sdk.api.dispatcher.POEventDispatchers
 import com.processout.sdk.api.dispatcher.PONativeAlternativePaymentMethodEventDispatcher
+import com.processout.sdk.api.dispatcher.nativeapm.DefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.api.network.NetworkConfiguration
 import com.processout.sdk.api.repository.POCardsRepository
@@ -42,7 +45,15 @@ class ProcessOut private constructor(
     val browserCapabilities: POBrowserCapabilitiesService
 
     /** Dispatcher that allows to handle events during native alternative payments. */
-    val nativeAlternativePaymentMethodEventDispatcher: PONativeAlternativePaymentMethodEventDispatcher
+    @Deprecated(
+        message = "Use replacement property.",
+        replaceWith = ReplaceWith("dispatchers.nativeAlternativePaymentMethod")
+    )
+    val nativeAlternativePaymentMethodEventDispatcher: PONativeAlternativePaymentMethodEventDispatcher =
+        DefaultNativeAlternativePaymentMethodEventDispatcher
+
+    /** Dispatchers that allows to handle events during various payment flows. */
+    val dispatchers: POEventDispatchers = DefaultEventDispatchers
 
     init {
         with(apiGraph.repositoryGraph) {
@@ -55,8 +66,6 @@ class ProcessOut private constructor(
             alternativePaymentMethods = alternativePaymentMethodsService
             browserCapabilities = browserCapabilitiesService
         }
-        nativeAlternativePaymentMethodEventDispatcher =
-            apiGraph.dispatcherGraph.nativeAlternativePaymentMethodEventDispatcher
     }
 
     /**
@@ -124,8 +133,7 @@ class ProcessOut private constructor(
                         baseUrl = ApiConstants.CHECKOUT_URL,
                         projectId = configuration.projectId
                     )
-                ),
-                dispatcherGraph = DispatcherGraphImpl()
+                )
             )
 
             if (configuration.debug) {

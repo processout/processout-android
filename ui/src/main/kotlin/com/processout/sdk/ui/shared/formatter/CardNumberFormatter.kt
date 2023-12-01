@@ -5,9 +5,9 @@ import com.processout.sdk.ui.core.formatter.POFormatter
 internal class CardNumberFormatter : POFormatter {
 
     private companion object {
-        const val maxLength = 19 // Maximum PAN length based on ISO/IEC 7812
-        const val placeholderChar = '#'
-        const val defaultPattern = "#### #### #### #### ###"
+        const val MAX_LENGTH = 19 // Maximum PAN length based on ISO/IEC 7812
+        const val PLACEHOLDER_CHAR = '#'
+        const val DEFAULT_PATTERN = "#### #### #### #### ###"
     }
 
     private data class CardNumberFormat(
@@ -40,12 +40,12 @@ internal class CardNumberFormatter : POFormatter {
     )
 
     override fun format(string: String): String {
-        val cardNumber = string.filter { it.isDigit() }.take(maxLength)
+        val cardNumber = string.filter { it.isDigit() }.take(MAX_LENGTH)
         formats.forEach { format ->
             format(cardNumber = cardNumber, format = format)
                 ?.let { return it }
         }
-        return format(cardNumber = cardNumber, pattern = defaultPattern) ?: string
+        return format(cardNumber = cardNumber, pattern = DEFAULT_PATTERN) ?: string
     }
 
     private fun format(cardNumber: String, format: CardNumberFormat): String? {
@@ -70,7 +70,7 @@ internal class CardNumberFormatter : POFormatter {
             for (index in pattern.indices) {
                 if (cardNumberIndex > cardNumber.lastIndex)
                     break
-                if (pattern[index] == placeholderChar) {
+                if (pattern[index] == PLACEHOLDER_CHAR) {
                     append(cardNumber[cardNumberIndex])
                     cardNumberIndex += 1
                 } else {

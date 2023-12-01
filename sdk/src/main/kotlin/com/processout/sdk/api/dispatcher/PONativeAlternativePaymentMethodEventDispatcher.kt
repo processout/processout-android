@@ -5,6 +5,8 @@ import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodDefa
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodDefaultValuesResponse
 import kotlinx.coroutines.flow.SharedFlow
 
+// TODO: Move it to '.dispatcher.nativeapm' package before next major release.
+
 /**
  * Dispatcher that allows to handle events during native alternative payments.
  */
@@ -32,7 +34,7 @@ abstract class PONativeAlternativePaymentMethodEventDispatcher {
      *
      * ```
      * viewModelScope.launch {
-     *     with(ProcessOutApi.instance.nativeAlternativePaymentMethodEventDispatcher) {
+     *     with(ProcessOutApi.instance.dispatchers.nativeAlternativePaymentMethod) {
      *         // Subscribe for request to provide default values.
      *         defaultValuesRequest.collect { request ->
      *             // Default values should be provided as Map<String, String>

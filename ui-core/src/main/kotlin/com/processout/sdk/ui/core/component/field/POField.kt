@@ -12,14 +12,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.POBorderStroke
 import com.processout.sdk.ui.core.component.POText
-import com.processout.sdk.ui.core.style.input.POInputStateStyle
-import com.processout.sdk.ui.core.style.input.POInputStyle
+import com.processout.sdk.ui.core.style.POFieldStateStyle
+import com.processout.sdk.ui.core.style.POFieldStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 
 /** @suppress */
@@ -71,22 +75,23 @@ object POField {
         }
 
     @Composable
-    fun custom(style: POInputStyle) = Style(
+    fun custom(style: POFieldStyle) = Style(
         normal = style.normal.toStateStyle(),
         error = style.error.toStateStyle()
     )
 
     @Composable
-    private fun POInputStateStyle.toStateStyle() = with(field) {
-        StateStyle(
-            text = POText.custom(style = text),
-            placeholderTextColor = colorResource(id = placeholderTextColorResId),
-            backgroundColor = colorResource(id = backgroundColorResId),
-            controlsTintColor = colorResource(id = controlsTintColorResId),
-            shape = RoundedCornerShape(size = border.radiusDp.dp),
-            border = POBorderStroke(width = border.widthDp.dp, color = colorResource(id = border.colorResId))
+    private fun POFieldStateStyle.toStateStyle() = StateStyle(
+        text = POText.custom(style = text),
+        placeholderTextColor = colorResource(id = placeholderTextColorResId),
+        backgroundColor = colorResource(id = backgroundColorResId),
+        controlsTintColor = colorResource(id = controlsTintColorResId),
+        shape = RoundedCornerShape(size = border.radiusDp.dp),
+        border = POBorderStroke(
+            width = border.widthDp.dp,
+            color = colorResource(id = border.colorResId)
         )
-    }
+    )
 
     val contentPadding: PaddingValues
         @Composable get() = PaddingValues(
@@ -94,12 +99,24 @@ object POField {
             vertical = ProcessOutTheme.spacing.small
         )
 
+    @Composable
     internal fun textStyle(
         isError: Boolean,
+        forceTextDirectionLtr: Boolean,
         style: Style
-    ): TextStyle =
-        if (isError) with(style.error.text) { textStyle.copy(color = color) }
-        else with(style.normal.text) { textStyle.copy(color = color) }
+    ): TextStyle {
+        val textStyle = when (isError) {
+            true -> with(style.error.text) { textStyle.copy(color = color) }
+            false -> with(style.normal.text) { textStyle.copy(color = color) }
+        }
+        if (forceTextDirectionLtr && LocalLayoutDirection.current == LayoutDirection.Rtl) {
+            return textStyle.copy(
+                textDirection = TextDirection.Ltr,
+                textAlign = TextAlign.Right
+            )
+        }
+        return textStyle
+    }
 
     internal fun textSelectionColors(
         isError: Boolean,

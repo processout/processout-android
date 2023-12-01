@@ -15,14 +15,15 @@ internal data class CardUpdateState(
     val draggable: Boolean
 )
 
-internal sealed interface CardUpdateCompletionState {
-    data object Awaiting : CardUpdateCompletionState
-    data class Success(val card: POCard) : CardUpdateCompletionState
-    data class Failure(val failure: ProcessOutResult.Failure) : CardUpdateCompletionState
-}
-
 internal sealed interface CardUpdateEvent {
     data class FieldValueChanged(val key: String, val value: String) : CardUpdateEvent
     data object Submit : CardUpdateEvent
     data object Cancel : CardUpdateEvent
+    data class Dismiss(val failure: ProcessOutResult.Failure) : CardUpdateEvent
+}
+
+internal sealed interface CardUpdateCompletion {
+    data object Awaiting : CardUpdateCompletion
+    data class Success(val card: POCard) : CardUpdateCompletion
+    data class Failure(val failure: ProcessOutResult.Failure) : CardUpdateCompletion
 }

@@ -22,9 +22,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
-import com.processout.sdk.ui.core.style.button.POButtonDefaults
-import com.processout.sdk.ui.core.style.button.POButtonStateStyle
-import com.processout.sdk.ui.core.style.button.POButtonStyle
+import com.processout.sdk.ui.core.style.POButtonDefaults
+import com.processout.sdk.ui.core.style.POButtonStateStyle
+import com.processout.sdk.ui.core.style.POButtonStyle
 import com.processout.sdk.ui.core.theme.NoRippleTheme
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 
