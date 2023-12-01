@@ -21,8 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/button_space_vertical"
-        android:text="@string/card_update"
-        android:visibility="gone" />
+        android:text="@string/card_update" />
 
     <Button
         android:id="@+id/native_apm_button"

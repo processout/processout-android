@@ -10,7 +10,7 @@
     <string name="currency" translatable="false">Currency Code</string>
 
     <string name="card_payment" translatable="false">Card Payment</string>
-    <string name="card_update" translatable="false">Card Update (WIP)</string>
+    <string name="card_update" translatable="false">Card Update</string>
     <string name="card_details" translatable="false">Card Details</string>
     <string name="card_number" translatable="false">Number</string>
     <string name="card_expiration_month" translatable="false">Expiration Month</string>
@@ -25,4 +25,5 @@
     <string name="ok" translatable="false">OK</string>
     <string name="success" translatable="false">Success</string>
     <string name="authorize_invoice_success_format" translatable="false">Success: authorized invoice [%s] with card [%s].</string>
+    <string name="card_update_success_format" translatable="false">Success: card updated [%s].</string>
 </resources>

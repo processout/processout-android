@@ -2,11 +2,12 @@ package com.processout.example.ui.screen.features
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.processout.example.R
 import com.processout.example.databinding.FragmentFeaturesBinding
+import com.processout.example.shared.toMessage
 import com.processout.example.ui.screen.base.BaseFragment
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POAllGatewayConfigurationsRequest
@@ -100,10 +101,18 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
 
     private fun handleCardUpdateResult(result: ProcessOutActivityResult<POCard>) {
         when (result) {
-            is ProcessOutActivityResult.Success ->
-                Toast.makeText(requireContext(), "Success", Toast.LENGTH_SHORT).show()
-            is ProcessOutActivityResult.Failure ->
-                Toast.makeText(requireContext(), "Failure: ${result.code} ${result.message}", Toast.LENGTH_SHORT).show()
+            is ProcessOutActivityResult.Success -> showAlert(
+                getString(R.string.card_update_success_format, result.value.id)
+            )
+            is ProcessOutActivityResult.Failure -> showAlert(result.toMessage())
         }
+    }
+
+    private fun showAlert(message: String) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setMessage(message)
+            .setPositiveButton(R.string.ok) { dialog, _ ->
+                dialog.dismiss()
+            }.show()
     }
 }
