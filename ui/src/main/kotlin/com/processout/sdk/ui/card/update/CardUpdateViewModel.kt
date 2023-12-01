@@ -35,7 +35,8 @@ internal class CardUpdateViewModel(
     private val cardId: String,
     private val options: POCardUpdateConfiguration.Options,
     private val cardsRepository: POCardsRepository,
-    private val eventDispatcher: PODefaultCardUpdateEventDispatcher
+    private val eventDispatcher: PODefaultCardUpdateEventDispatcher,
+    private val logAttributes: Map<String, String>
 ) : ViewModel() {
 
     class Factory(
@@ -50,8 +51,13 @@ internal class CardUpdateViewModel(
                 cardId = cardId,
                 options = options,
                 cardsRepository = ProcessOut.instance.cards,
-                eventDispatcher = PODefaultCardUpdateEventDispatcher
+                eventDispatcher = PODefaultCardUpdateEventDispatcher,
+                logAttributes = mapOf(LOG_ATTRIBUTE_CARD_ID to cardId)
             ) as T
+    }
+
+    private companion object {
+        const val LOG_ATTRIBUTE_CARD_ID = "CardId"
     }
 
     private enum class Field(val key: String) {
@@ -129,7 +135,12 @@ internal class CardUpdateViewModel(
                     viewModelScope.launch {
                         cardsRepository.fetchIssuerInformation(it)
                             .onSuccess { updateScheme(it.scheme) }
-                            .onFailure { POLogger.info("Failed to resolve the scheme: %s", it) }
+                            .onFailure {
+                                POLogger.info(
+                                    message = "Failed to resolve the scheme: %s", it,
+                                    attributes = logAttributes
+                                )
+                            }
                     }
                 }
             }
