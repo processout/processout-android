@@ -70,6 +70,17 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
         }
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setHeight(DEFAULT_HEIGHT_DP.dpToPx(requireContext()))
+        configuration?.let { apply(it.options.cancellation) }
+    }
+
+    private fun setHeight(height: Int) {
+        containerHeight = height
+        bottomSheetBehavior.peekHeight = height
+    }
+
     private fun handle(completion: CardUpdateCompletion) =
         when (completion) {
             is Success -> finishWithActivityResult(
@@ -82,17 +93,6 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
             )
             else -> {}
         }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        setHeight(DEFAULT_HEIGHT_DP.dpToPx(requireContext()))
-        configuration?.let { apply(it.options.cancellation) }
-    }
-
-    private fun setHeight(height: Int) {
-        containerHeight = height
-        bottomSheetBehavior.peekHeight = height
-    }
 
     override fun onCancellation(failure: ProcessOutResult.Failure) = dismiss(failure)
 
