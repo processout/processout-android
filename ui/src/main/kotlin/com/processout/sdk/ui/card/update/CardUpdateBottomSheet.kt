@@ -13,8 +13,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.core.*
 import com.processout.sdk.ui.base.BaseBottomSheetDialogFragment
-import com.processout.sdk.ui.card.update.CardUpdateCompletionState.Failure
-import com.processout.sdk.ui.card.update.CardUpdateCompletionState.Success
+import com.processout.sdk.ui.card.update.CardUpdateCompletion.Failure
+import com.processout.sdk.ui.card.update.CardUpdateCompletion.Success
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.extension.dpToPx
 
@@ -60,7 +60,7 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
         setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
         setContent {
             ProcessOutTheme {
-                handle(viewModel.completionState.collectAsStateWithLifecycle().value)
+                handle(viewModel.completion.collectAsStateWithLifecycle().value)
                 CardUpdateScreen(
                     state = viewModel.state.collectAsStateWithLifecycle().value,
                     onEvent = viewModel::onEvent,
@@ -70,15 +70,15 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
         }
     }
 
-    private fun handle(state: CardUpdateCompletionState) =
-        when (state) {
+    private fun handle(completion: CardUpdateCompletion) =
+        when (completion) {
             is Success -> finishWithActivityResult(
                 resultCode = Activity.RESULT_OK,
-                result = ProcessOutActivityResult.Success(state.card)
+                result = ProcessOutActivityResult.Success(completion.card)
             )
             is Failure -> finishWithActivityResult(
                 resultCode = Activity.RESULT_CANCELED,
-                result = state.failure.toActivityResult()
+                result = completion.failure.toActivityResult()
             )
             else -> {}
         }

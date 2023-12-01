@@ -20,7 +20,7 @@ import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
-import com.processout.sdk.ui.card.update.CardUpdateCompletionState.*
+import com.processout.sdk.ui.card.update.CardUpdateCompletion.*
 import com.processout.sdk.ui.card.update.CardUpdateEvent.*
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POFieldState
@@ -59,8 +59,8 @@ internal class CardUpdateViewModel(
         CVC("card-cvc")
     }
 
-    private val _completionState = MutableStateFlow<CardUpdateCompletionState>(Awaiting)
-    val completionState = _completionState.asStateFlow()
+    private val _completion = MutableStateFlow<CardUpdateCompletion>(Awaiting)
+    val completion = _completion.asStateFlow()
 
     private val _state = MutableStateFlow(initState())
     val state = _state.asStateFlow()
@@ -233,7 +233,7 @@ internal class CardUpdateViewModel(
                 request = POCardUpdateRequest(cardId = cardId, cvc = cvc)
             ).onSuccess { card ->
                 dispatch(DidComplete)
-                _completionState.update { Success(card) }
+                _completion.update { Success(card) }
             }.onFailure { handle(failure = it) }
         }
     }
@@ -266,7 +266,7 @@ internal class CardUpdateViewModel(
     }
 
     private fun cancel() {
-        _completionState.update {
+        _completion.update {
             Failure(
                 ProcessOutResult.Failure(
                     code = Cancelled,
