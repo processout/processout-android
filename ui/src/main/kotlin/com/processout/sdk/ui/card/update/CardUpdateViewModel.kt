@@ -11,6 +11,7 @@ import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.dispatcher.card.update.PODefaultCardUpdateEventDispatcher
 import com.processout.sdk.api.model.event.POCardUpdateEvent
+import com.processout.sdk.api.model.event.POCardUpdateEvent.*
 import com.processout.sdk.api.model.request.POCardUpdateRequest
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.POFailure.Code.*
@@ -65,6 +66,7 @@ internal class CardUpdateViewModel(
     val state = _state.asStateFlow()
 
     init {
+        dispatch(DidStart)
         resolveScheme()
     }
 
@@ -188,6 +190,7 @@ internal class CardUpdateViewModel(
                 errorMessage = null
             )
         }
+        dispatch(ParametersChanged)
     }
 
     private fun submit() {
@@ -224,10 +227,12 @@ internal class CardUpdateViewModel(
     )
 
     private fun updateCard(cvc: String) {
+        dispatch(WillUpdateCard)
         viewModelScope.launch {
             cardsRepository.updateCard(
                 request = POCardUpdateRequest(cardId = cardId, cvc = cvc)
             ).onSuccess { card ->
+                dispatch(DidComplete)
                 _completionState.update { Success(card) }
             }.onFailure { handle(failure = it) }
         }
