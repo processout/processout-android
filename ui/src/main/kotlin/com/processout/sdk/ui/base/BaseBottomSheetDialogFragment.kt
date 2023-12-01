@@ -62,7 +62,7 @@ internal abstract class BaseBottomSheetDialogFragment<T : Parcelable> : BottomSh
                 onCancellation(
                     ProcessOutResult.Failure(
                         code = POFailure.Code.Cancelled,
-                        message = "Cancelled by user with back press or gesture."
+                        message = "Cancelled by the user with back press or gesture."
                     )
                 )
             }
@@ -73,7 +73,7 @@ internal abstract class BaseBottomSheetDialogFragment<T : Parcelable> : BottomSh
         onCancellation(
             ProcessOutResult.Failure(
                 code = POFailure.Code.Cancelled,
-                message = "Cancelled by user with swipe or outside touch."
+                message = "Cancelled by the user with swipe or outside touch."
             )
         )
 

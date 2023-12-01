@@ -73,6 +73,10 @@ internal class CardUpdateViewModel(
     val state = _state.asStateFlow()
 
     init {
+        POLogger.info(
+            message = "Card update is started: waiting for user input.",
+            attributes = logAttributes
+        )
         dispatch(DidStart)
         resolveScheme()
     }
@@ -139,13 +143,7 @@ internal class CardUpdateViewModel(
                 iin?.let {
                     viewModelScope.launch {
                         cardsRepository.fetchIssuerInformation(it)
-                            .onSuccess {
-                                updateScheme(it.scheme)
-                                POLogger.info(
-                                    message = "Card scheme resolved: %s", it.scheme,
-                                    attributes = logAttributes
-                                )
-                            }
+                            .onSuccess { updateScheme(it.scheme) }
                             .onFailure {
                                 POLogger.info(
                                     message = "Failed to resolve card scheme: %s", it,
@@ -189,6 +187,10 @@ internal class CardUpdateViewModel(
                 )
             )
         }
+        POLogger.info(
+            message = "Card scheme is resolved: %s", scheme,
+            attributes = logAttributes
+        )
     }
 
     fun onEvent(event: CardUpdateEvent) = when (event) {
@@ -221,6 +223,10 @@ internal class CardUpdateViewModel(
                 errorMessage = null
             )
         }
+        POLogger.debug(
+            message = "Field is edited by the user: %s", key,
+            attributes = logAttributes
+        )
         dispatch(ParametersChanged)
     }
 
@@ -258,6 +264,10 @@ internal class CardUpdateViewModel(
     )
 
     private fun updateCard(cvc: String) {
+        POLogger.info(
+            message = "Submitting card information.",
+            attributes = logAttributes
+        )
         dispatch(WillUpdateCard)
         viewModelScope.launch {
             cardsRepository.updateCard(
@@ -288,6 +298,10 @@ internal class CardUpdateViewModel(
             }
             else -> recover(genericErrorMessage)
         }
+        POLogger.info(
+            message = "Recovered after the failure: %s", failure,
+            attributes = logAttributes
+        )
     }
 
     private fun recover(errorMessage: String) {
@@ -305,7 +319,7 @@ internal class CardUpdateViewModel(
             Failure(
                 ProcessOutResult.Failure(
                     code = Cancelled,
-                    message = "Cancelled by user with secondary cancel action."
+                    message = "Cancelled by the user with secondary cancel action."
                 ).also {
                     POLogger.info(
                         message = "Cancelled: %s", it,
