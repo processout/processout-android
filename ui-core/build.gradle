@@ -4,6 +4,13 @@ plugins {
     id 'kotlin-parcelize'
 }
 
+ext {
+    publishArtifactId = 'processout-android-ui-core'
+    publishDescription = 'ProcessOut Android SDK - UI Core'
+}
+
+apply from: "${rootProject.projectDir}/scripts/publish-module.gradle"
+
 android {
     namespace 'com.processout.sdk.ui.core'
     compileSdk rootProject.ext.compileSdkVersion
@@ -52,6 +59,13 @@ android {
     }
     composeOptions {
         kotlinCompilerExtensionVersion = rootProject.ext.androidxComposeCompilerVersion
+    }
+
+    publishing {
+        singleVariant("productionRelease") {
+            withSourcesJar()
+            withJavadocJar()
+        }
     }
 }
 
