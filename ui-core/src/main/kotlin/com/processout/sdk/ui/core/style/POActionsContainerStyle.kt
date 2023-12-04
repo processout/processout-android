@@ -8,9 +8,9 @@ import kotlinx.parcelize.Parcelize
 data class POActionsContainerStyle(
     val primary: POButtonStyle,
     val secondary: POButtonStyle,
-    val axis: POAxis,
     @ColorRes
     val dividerColorResId: Int,
     @ColorRes
-    val backgroundColorResId: Int
+    val backgroundColorResId: Int,
+    val axis: POAxis = POAxis.Vertical
 ) : Parcelable

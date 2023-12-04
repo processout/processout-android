@@ -89,9 +89,9 @@ object POActionsContainer {
     data class Style(
         val primary: POButton.Style,
         val secondary: POButton.Style,
-        val axis: POAxis,
         val dividerColor: Color,
-        val backgroundColor: Color
+        val backgroundColor: Color,
+        val axis: POAxis
     )
 
     val default: Style
@@ -99,9 +99,9 @@ object POActionsContainer {
             Style(
                 primary = POButton.primary,
                 secondary = POButton.secondary,
-                axis = POAxis.Vertical,
                 dividerColor = colors.border.subtle,
-                backgroundColor = colors.surface.level1
+                backgroundColor = colors.surface.level1,
+                axis = POAxis.Vertical
             )
         }
 
@@ -110,9 +110,9 @@ object POActionsContainer {
         Style(
             primary = POButton.custom(style = primary),
             secondary = POButton.custom(style = secondary),
-            axis = axis,
             dividerColor = colorResource(id = dividerColorResId),
-            backgroundColor = colorResource(id = backgroundColorResId)
+            backgroundColor = colorResource(id = backgroundColorResId),
+            axis = axis
         )
     }
 

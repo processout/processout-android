@@ -1,8 +1,16 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'org.jetbrains.dokka'
     id 'kotlin-parcelize'
 }
+
+ext {
+    publishArtifactId = 'processout-android-ui'
+    publishDescription = 'ProcessOut Android SDK - UI'
+}
+
+apply from: "${rootProject.projectDir}/scripts/publish-module.gradle"
 
 android {
     namespace 'com.processout.sdk.ui'
@@ -53,6 +61,15 @@ android {
     }
     composeOptions {
         kotlinCompilerExtensionVersion = rootProject.ext.androidxComposeCompilerVersion
+    }
+
+    publishing {
+        singleVariant("productionRelease") {
+            withSourcesJar()
+            // FIXME: This fails build with error "PermittedSubclasses requires ASM9" while publishing to Maven Central.
+            //        Test by running: ./gradlew :ui:publishProductionReleasePublicationToMavenLocal
+//            withJavadocJar()
+        }
     }
 }
 
