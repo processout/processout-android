@@ -14,12 +14,16 @@ Download the latest version from Maven Central.
 [ProcessOut Android SDK - Checkout 3DS](https://central.sonatype.com/artifact/com.processout/processout-android-checkout-3ds)\
 `implementation 'com.processout:processout-android-checkout-3ds:<version>'`
 
+[ProcessOut Android SDK - UI](https://central.sonatype.com/artifact/com.processout/processout-android-ui)\
+`implementation 'com.processout:processout-android-ui:<version>'`
+
 Older versions up to `4.0.0` (including) only [available on the JitPack](https://jitpack.io/#processout/processout-android).
 
 ## Documentation
 
 [ProcessOut Android SDK](sdk/documentation/ProcessOut.md)\
 [ProcessOut Android SDK - Checkout 3DS](checkout-3ds/documentation/ProcessOutCheckout3DS.md)\
+[ProcessOut Android SDK - UI](ui/documentation/ProcessOutUI.md)\
 \
 [API Reference](https://processout.github.io/processout-android/)
 
