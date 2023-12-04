@@ -27,11 +27,15 @@ jobs:
         run: |
           ./gradlew :sdk:assembleProductionRelease
           ./gradlew :checkout-3ds:assembleProductionRelease
+          ./gradlew :ui-core:assembleProductionRelease
+          ./gradlew :ui:assembleProductionRelease
 
       - name: Publish To Maven Central
         run: |
           ./gradlew :sdk:publishProductionReleasePublicationToSonatypeRepository closeAndReleaseSonatypeStagingRepository --max-workers=1
           ./gradlew :checkout-3ds:publishProductionReleasePublicationToSonatypeRepository closeAndReleaseSonatypeStagingRepository --max-workers=1
+          ./gradlew :ui-core:publishProductionReleasePublicationToSonatypeRepository closeAndReleaseSonatypeStagingRepository --max-workers=1
+          ./gradlew :ui:publishProductionReleasePublicationToSonatypeRepository closeAndReleaseSonatypeStagingRepository --max-workers=1
         env:
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
