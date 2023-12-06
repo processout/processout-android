@@ -6,8 +6,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.processout.sdk.api.model.response.POCard
@@ -17,7 +19,7 @@ import com.processout.sdk.ui.card.update.CardUpdateCompletion.Failure
 import com.processout.sdk.ui.card.update.CardUpdateCompletion.Success
 import com.processout.sdk.ui.card.update.CardUpdateEvent.Dismiss
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
-import com.processout.sdk.ui.shared.extension.dpToPx
+import com.processout.sdk.ui.shared.composable.*
 
 internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
 
@@ -60,6 +62,7 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
         setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
         setContent {
             ProcessOutTheme {
+                AdjustHeight(imeVisibleAsState().value)
                 handle(viewModel.completion.collectAsStateWithLifecycle().value)
                 CardUpdateScreen(
                     state = viewModel.state.collectAsStateWithLifecycle().value,
@@ -72,8 +75,21 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setHeight(DEFAULT_HEIGHT_DP.dpToPx(requireContext()))
         configuration?.let { apply(it.options.cancellation) }
+    }
+
+    @Composable
+    private fun AdjustHeight(imeVisible: Boolean) {
+        val defaultHeight = DEFAULT_HEIGHT_DP.dp.dpToPx()
+        if (imeVisible) {
+            val screenSizeHeight = screenSize().height
+            if (screenSizeHeight - imeHeight() < defaultHeight) {
+                allowExpandToFullScreen()
+                bottomSheetBehavior.peekHeight = screenSizeHeight
+            }
+        } else {
+            setHeight(defaultHeight)
+        }
     }
 
     private fun setHeight(height: Int) {
