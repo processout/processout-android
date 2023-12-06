@@ -80,12 +80,14 @@ internal fun CardUpdateScreen(
                 onEvent = onEvent,
                 style = style.field
             )
-            with(style.errorMessage) {
-                POText(
-                    text = state.errorMessage ?: String(),
-                    color = color,
-                    style = textStyle
-                )
+            state.errorMessage?.let {
+                with(style.errorMessage) {
+                    POText(
+                        text = it,
+                        color = color,
+                        style = textStyle
+                    )
+                }
             }
         }
     }
