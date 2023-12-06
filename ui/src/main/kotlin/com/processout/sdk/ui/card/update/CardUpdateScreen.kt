@@ -23,18 +23,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import com.processout.sdk.ui.card.update.CardUpdateEvent.Cancel
-import com.processout.sdk.ui.card.update.CardUpdateEvent.FieldValueChanged
-import com.processout.sdk.ui.card.update.CardUpdateEvent.Submit
+import com.processout.sdk.ui.card.update.CardUpdateEvent.*
 import com.processout.sdk.ui.core.component.POActionsContainer
 import com.processout.sdk.ui.core.component.POHeader
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.POTextField
-import com.processout.sdk.ui.core.state.POActionState
-import com.processout.sdk.ui.core.state.POActionStateExtended
-import com.processout.sdk.ui.core.state.POFieldState
-import com.processout.sdk.ui.core.state.POImmutableCollection
+import com.processout.sdk.ui.core.state.*
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import kotlinx.coroutines.job
@@ -85,14 +80,12 @@ internal fun CardUpdateScreen(
                 onEvent = onEvent,
                 style = style.field
             )
-            state.errorMessage?.let {
-                with(style.errorMessage) {
-                    POText(
-                        text = it,
-                        color = color,
-                        style = textStyle
-                    )
-                }
+            with(style.errorMessage) {
+                POText(
+                    text = state.errorMessage ?: String(),
+                    color = color,
+                    style = textStyle
+                )
             }
         }
     }
