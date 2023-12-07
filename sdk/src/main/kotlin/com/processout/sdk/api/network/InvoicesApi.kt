@@ -14,26 +14,26 @@ internal interface InvoicesApi {
     suspend fun authorizeInvoice(
         @Path("id") invoiceId: String,
         @Body request: InvoiceAuthorizationRequestWithDeviceData
-    ): Response<POInvoiceAuthorizationResponse>
+    ): Response<InvoiceAuthorizationResponse>
 
     @POST("/invoices/{id}/native-payment")
     suspend fun initiatePayment(
         @Path("id") invoiceId: String,
         @Body request: NativeAPMRequestBody
-    ): Response<PONativeAlternativePaymentMethodResponse>
+    ): Response<NativeAlternativePaymentMethodResponse>
 
     @GET("/invoices/{invoiceId}/native-payment/{gatewayConfigurationId}")
     suspend fun fetchNativeAlternativePaymentMethodTransactionDetails(
         @Path("invoiceId") invoiceId: String,
         @Path("gatewayConfigurationId") gatewayConfigurationId: String
-    ): Response<PONativeAlternativePaymentMethodTransactionDetailsResponse>
+    ): Response<NativeAlternativePaymentMethodTransactionDetailsResponse>
 
     @POST("/invoices/{id}/capture")
     suspend fun captureNativeAlternativePayment(
         @Path("id") invoiceId: String,
         @Body request: NativeAlternativePaymentCaptureRequest
-    ): Response<POCaptureResponse>
+    ): Response<CaptureResponse>
 
     @POST("/invoices")
-    suspend fun createInvoice(@Body request: POCreateInvoiceRequest): Response<POInvoiceResponse>
+    suspend fun createInvoice(@Body request: POCreateInvoiceRequest): Response<InvoiceResponse>
 }

@@ -1,7 +1,7 @@
 package com.processout.sdk.api.network
 
 import com.processout.sdk.api.model.response.POAllGatewayConfigurations
-import com.processout.sdk.api.model.response.POGatewayConfigurationResponse
+import com.processout.sdk.api.model.response.GatewayConfigurationResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -16,5 +16,5 @@ internal interface GatewayConfigurationsApi {
     suspend fun find(
         @Path("id") gatewayConfigurationId: String,
         @QueryMap options: Map<String, String>
-    ): Response<POGatewayConfigurationResponse>
+    ): Response<GatewayConfigurationResponse>
 }

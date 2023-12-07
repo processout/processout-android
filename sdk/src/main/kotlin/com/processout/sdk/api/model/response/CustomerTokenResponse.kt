@@ -5,10 +5,10 @@ import com.squareup.moshi.JsonClass
 import java.util.Date
 
 @JsonClass(generateAdapter = true)
-internal data class POCustomerTokenResponse(
+internal data class CustomerTokenResponse(
     val token: POCustomerToken?,
     @Json(name = "customer_action")
-    val customerAction: POCustomerAction?
+    val customerAction: CustomerAction?
 )
 
 /**

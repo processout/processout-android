@@ -3,8 +3,8 @@ package com.processout.sdk.api.repository
 import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.api.model.response.POCardIssuerInformation
-import com.processout.sdk.api.model.response.POCardIssuerInformationResponse
-import com.processout.sdk.api.model.response.POCardResponse
+import com.processout.sdk.api.model.response.CardIssuerInformationResponse
+import com.processout.sdk.api.model.response.CardResponse
 import com.processout.sdk.api.network.CardsApi
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.map
@@ -25,7 +25,7 @@ internal class CardsRepositoryImpl(
     override fun tokenize(
         request: POCardTokenizationRequest,
         callback: ProcessOutCallback<POCard>
-    ) = apiCallScoped(callback, POCardResponse::toModel) {
+    ) = apiCallScoped(callback, CardResponse::toModel) {
         api.tokenize(request.toDeviceDataRequest(contextGraph.deviceData))
     }
 
@@ -37,7 +37,7 @@ internal class CardsRepositoryImpl(
     override fun updateCard(
         request: POCardUpdateRequest,
         callback: ProcessOutCallback<POCard>
-    ) = apiCallScoped(callback, POCardResponse::toModel) {
+    ) = apiCallScoped(callback, CardResponse::toModel) {
         api.updateCard(request.cardId, request.toBody())
     }
 
@@ -58,7 +58,7 @@ internal class CardsRepositoryImpl(
         cardId: String,
         request: POCardUpdateCVCRequest,
         callback: ProcessOutCallback<POCard>
-    ) = apiCallScoped(callback, POCardResponse::toModel) {
+    ) = apiCallScoped(callback, CardResponse::toModel) {
         api.updateCVC(cardId, request)
     }
 
@@ -68,7 +68,7 @@ internal class CardsRepositoryImpl(
     override fun fetchIssuerInformation(
         iin: String,
         callback: ProcessOutCallback<POCardIssuerInformation>
-    ) = apiCallScoped(callback, POCardIssuerInformationResponse::toModel) {
+    ) = apiCallScoped(callback, CardIssuerInformationResponse::toModel) {
         api.fetchIssuerInformation(iin)
     }
 }
@@ -90,6 +90,6 @@ private fun POCardTokenizationRequest.toDeviceDataRequest(deviceData: DeviceData
 
 private fun POCardUpdateRequest.toBody() = CardUpdateRequestBody(cvc)
 
-private fun POCardResponse.toModel() = card
+private fun CardResponse.toModel() = card
 
-private fun POCardIssuerInformationResponse.toModel() = cardInformation
+private fun CardIssuerInformationResponse.toModel() = cardInformation

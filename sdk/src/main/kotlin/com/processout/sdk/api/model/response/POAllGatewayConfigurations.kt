@@ -2,7 +2,7 @@ package com.processout.sdk.api.model.response
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import java.util.*
+import java.util.Date
 
 /**
  * Defines gateway configurations.
@@ -22,7 +22,7 @@ data class POAllGatewayConfigurations(
 )
 
 @JsonClass(generateAdapter = true)
-internal data class POGatewayConfigurationResponse(
+internal data class GatewayConfigurationResponse(
     @Json(name = "gateway_configuration")
     val gatewayConfiguration: POGatewayConfiguration
 )

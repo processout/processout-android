@@ -4,7 +4,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-internal data class POCaptureResponse(
+internal data class CaptureResponse(
     @Json(name = "native_apm")
     val nativeApm: PONativeAlternativePaymentMethodCapture
 )

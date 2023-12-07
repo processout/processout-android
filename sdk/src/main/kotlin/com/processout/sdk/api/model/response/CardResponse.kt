@@ -7,7 +7,7 @@ import kotlinx.parcelize.Parcelize
 import java.util.Date
 
 @JsonClass(generateAdapter = true)
-internal data class POCardResponse(
+internal data class CardResponse(
     @Json(name = "card")
     val card: POCard
 )

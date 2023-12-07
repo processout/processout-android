@@ -5,7 +5,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-internal data class POCustomerAction(
+internal data class CustomerAction(
     @Json(name = "type")
     val rawType: String,
     val value: String

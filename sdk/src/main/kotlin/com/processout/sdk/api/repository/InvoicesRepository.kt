@@ -12,7 +12,7 @@ internal interface InvoicesRepository {
 
     suspend fun authorizeInvoice(
         request: POInvoiceAuthorizationRequest
-    ): ProcessOutResult<POInvoiceAuthorizationResponse>
+    ): ProcessOutResult<InvoiceAuthorizationResponse>
 
     suspend fun initiatePayment(
         request: PONativeAlternativePaymentMethodRequest

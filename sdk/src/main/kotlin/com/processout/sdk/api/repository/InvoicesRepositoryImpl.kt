@@ -29,7 +29,7 @@ internal class InvoicesRepositoryImpl(
     override fun initiatePayment(
         request: PONativeAlternativePaymentMethodRequest,
         callback: ProcessOutCallback<PONativeAlternativePaymentMethod>
-    ) = apiCallScoped(callback, PONativeAlternativePaymentMethodResponse::toModel) {
+    ) = apiCallScoped(callback, NativeAlternativePaymentMethodResponse::toModel) {
         api.initiatePayment(request.invoiceId, request.toBody())
     }
 
@@ -46,7 +46,7 @@ internal class InvoicesRepositoryImpl(
         invoiceId: String,
         gatewayConfigurationId: String,
         callback: ProcessOutCallback<PONativeAlternativePaymentMethodTransactionDetails>
-    ) = apiCallScoped(callback, PONativeAlternativePaymentMethodTransactionDetailsResponse::toModel) {
+    ) = apiCallScoped(callback, NativeAlternativePaymentMethodTransactionDetailsResponse::toModel) {
         api.fetchNativeAlternativePaymentMethodTransactionDetails(
             invoiceId, gatewayConfigurationId
         )
@@ -66,7 +66,7 @@ internal class InvoicesRepositoryImpl(
         invoiceId: String,
         gatewayConfigurationId: String,
         callback: ProcessOutCallback<PONativeAlternativePaymentMethodCapture>
-    ) = apiCallScoped(callback, POCaptureResponse::toModel) {
+    ) = apiCallScoped(callback, CaptureResponse::toModel) {
         api.captureNativeAlternativePayment(
             invoiceId,
             NativeAlternativePaymentCaptureRequest(gatewayConfigurationId)
@@ -101,8 +101,8 @@ internal class InvoicesRepositoryImpl(
         )
 }
 
-private fun PONativeAlternativePaymentMethodResponse.toModel() = nativeApm
+private fun NativeAlternativePaymentMethodResponse.toModel() = nativeApm
 
-private fun PONativeAlternativePaymentMethodTransactionDetailsResponse.toModel() = nativeApm
+private fun NativeAlternativePaymentMethodTransactionDetailsResponse.toModel() = nativeApm
 
-private fun POCaptureResponse.toModel() = nativeApm
+private fun CaptureResponse.toModel() = nativeApm
