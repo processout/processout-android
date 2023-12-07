@@ -3,7 +3,10 @@ package com.processout.sdk.api.service
 import android.util.Base64
 import com.processout.sdk.api.model.response.CustomerAction
 import com.processout.sdk.api.model.response.CustomerAction.Type.*
-import com.processout.sdk.api.model.threeds.*
+import com.processout.sdk.api.model.threeds.PO3DS2AuthenticationRequest
+import com.processout.sdk.api.model.threeds.PO3DS2Challenge
+import com.processout.sdk.api.model.threeds.PO3DS2Configuration
+import com.processout.sdk.api.model.threeds.PO3DSRedirect
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger

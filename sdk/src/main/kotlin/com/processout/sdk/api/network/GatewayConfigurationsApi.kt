@@ -1,7 +1,7 @@
 package com.processout.sdk.api.network
 
-import com.processout.sdk.api.model.response.POAllGatewayConfigurations
 import com.processout.sdk.api.model.response.GatewayConfigurationResponse
+import com.processout.sdk.api.model.response.POAllGatewayConfigurations
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path

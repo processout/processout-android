@@ -1,7 +1,7 @@
 package com.processout.sdk.api.network
 
-import com.processout.sdk.api.model.request.CardUpdateRequestBody
 import com.processout.sdk.api.model.request.CardTokenizationRequestWithDeviceData
+import com.processout.sdk.api.model.request.CardUpdateRequestBody
 import com.processout.sdk.api.model.request.POCardUpdateCVCRequest
 import com.processout.sdk.api.model.response.CardIssuerInformationResponse
 import com.processout.sdk.api.model.response.CardResponse

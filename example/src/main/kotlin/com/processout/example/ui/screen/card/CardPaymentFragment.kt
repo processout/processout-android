@@ -18,10 +18,7 @@ import com.processout.example.service.POAdyen3DSService
 import com.processout.example.shared.Constants
 import com.processout.example.shared.toMessage
 import com.processout.example.ui.screen.base.BaseFragment
-import com.processout.example.ui.screen.card.CardPaymentUiState.Authorizing
-import com.processout.example.ui.screen.card.CardPaymentUiState.Failure
-import com.processout.example.ui.screen.card.CardPaymentUiState.Submitted
-import com.processout.example.ui.screen.card.CardPaymentUiState.Submitting
+import com.processout.example.ui.screen.card.CardPaymentUiState.*
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
 import com.processout.sdk.api.service.PO3DSService

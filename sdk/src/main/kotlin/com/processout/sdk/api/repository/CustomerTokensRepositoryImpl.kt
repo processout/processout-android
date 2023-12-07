@@ -1,7 +1,7 @@
 package com.processout.sdk.api.repository
 
-import com.processout.sdk.api.model.request.POAssignCustomerTokenRequest
 import com.processout.sdk.api.model.request.AssignCustomerTokenRequestWithDeviceData
+import com.processout.sdk.api.model.request.POAssignCustomerTokenRequest
 import com.processout.sdk.api.model.request.POCreateCustomerRequest
 import com.processout.sdk.api.model.request.POCreateCustomerTokenRequest
 import com.processout.sdk.api.network.CustomerTokensApi

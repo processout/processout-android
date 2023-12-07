@@ -9,12 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.savedstate.SavedStateRegistryOwner
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationActivityContract.Companion.EXTRA_TIMEOUT_FINISH
-import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationUiState.Cancelled
-import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationUiState.Initial
-import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationUiState.Launched
-import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationUiState.Launching
-import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationUiState.Success
-import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationUiState.Timeout
+import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationUiState.*
 import java.util.concurrent.TimeUnit
 
 internal class CustomTabAuthorizationViewModel(

@@ -41,7 +41,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.text.NumberFormat
-import java.util.*
+import java.util.Currency
 import java.util.concurrent.TimeUnit
 
 internal class PONativeAlternativePaymentMethodViewModel(

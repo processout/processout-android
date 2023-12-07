@@ -30,7 +30,10 @@ import com.processout.sdk.ui.core.state.POImmutableCollection
 import com.processout.sdk.ui.shared.extension.orElse
 import com.processout.sdk.ui.shared.formatter.CardSecurityCodeFormatter
 import com.processout.sdk.ui.shared.mapper.cardSchemeDrawableResId
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.launch
 
 internal class CardUpdateViewModel(

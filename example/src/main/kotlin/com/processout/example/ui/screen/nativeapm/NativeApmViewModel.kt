@@ -16,7 +16,7 @@ import com.processout.sdk.core.onSuccess
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.util.*
+import java.util.UUID
 
 class NativeApmViewModel(
     private val gatewayConfigurationId: String,

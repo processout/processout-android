@@ -1,10 +1,10 @@
 package com.processout.sdk.api.repository
 
 import com.processout.sdk.api.model.request.*
-import com.processout.sdk.api.model.response.POCard
-import com.processout.sdk.api.model.response.POCardIssuerInformation
 import com.processout.sdk.api.model.response.CardIssuerInformationResponse
 import com.processout.sdk.api.model.response.CardResponse
+import com.processout.sdk.api.model.response.POCard
+import com.processout.sdk.api.model.response.POCardIssuerInformation
 import com.processout.sdk.api.network.CardsApi
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.map

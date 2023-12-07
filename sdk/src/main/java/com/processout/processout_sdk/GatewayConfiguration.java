@@ -1,7 +1,5 @@
 package com.processout.processout_sdk;
 
-import androidx.annotation.NonNull;
-
 import com.google.gson.annotations.SerializedName;
 
 public class GatewayConfiguration {
