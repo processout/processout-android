@@ -17,15 +17,15 @@ data class PONativeAlternativePaymentMethodRequest(
 )
 
 @JsonClass(generateAdapter = true)
-internal data class PONativeAPMRequestBody(
+internal data class NativeAPMRequestBody(
     @Json(name = "gateway_configuration_id")
     val gatewayConfigurationId: String,
     @Json(name = "native_apm")
-    val nativeApm: PONativeAPMRequestParameters
+    val nativeApm: NativeAPMRequestParameters
 )
 
 @JsonClass(generateAdapter = true)
-internal data class PONativeAPMRequestParameters(
+internal data class NativeAPMRequestParameters(
     @Json(name = "parameter_values")
     val parameterValues: Map<String, String>
 )

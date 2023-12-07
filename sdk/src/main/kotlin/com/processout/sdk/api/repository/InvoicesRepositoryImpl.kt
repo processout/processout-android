@@ -58,7 +58,7 @@ internal class InvoicesRepositoryImpl(
     ) = apiCall {
         api.captureNativeAlternativePayment(
             invoiceId,
-            PONativeAlternativePaymentCaptureRequest(gatewayConfigurationId)
+            NativeAlternativePaymentCaptureRequest(gatewayConfigurationId)
         )
     }.map { it.toModel() }
 
@@ -69,7 +69,7 @@ internal class InvoicesRepositoryImpl(
     ) = apiCallScoped(callback, POCaptureResponse::toModel) {
         api.captureNativeAlternativePayment(
             invoiceId,
-            PONativeAlternativePaymentCaptureRequest(gatewayConfigurationId)
+            NativeAlternativePaymentCaptureRequest(gatewayConfigurationId)
         )
     }
 
@@ -77,7 +77,7 @@ internal class InvoicesRepositoryImpl(
         apiCall { api.createInvoice(request) }.map { it.invoice }
 
     private fun POInvoiceAuthorizationRequest.toDeviceDataRequest() =
-        POInvoiceAuthorizationRequestWithDeviceData(
+        InvoiceAuthorizationRequestWithDeviceData(
             source,
             incremental,
             enableThreeDS2,
@@ -95,9 +95,9 @@ internal class InvoicesRepositoryImpl(
         )
 
     private fun PONativeAlternativePaymentMethodRequest.toBody() =
-        PONativeAPMRequestBody(
+        NativeAPMRequestBody(
             gatewayConfigurationId,
-            PONativeAPMRequestParameters(parameters)
+            NativeAPMRequestParameters(parameters)
         )
 }
 

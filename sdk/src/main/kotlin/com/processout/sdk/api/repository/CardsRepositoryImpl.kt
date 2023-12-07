@@ -73,8 +73,8 @@ internal class CardsRepositoryImpl(
     }
 }
 
-private fun POCardTokenizationRequest.toDeviceDataRequest(deviceData: PODeviceData) =
-    POCardTokenizationRequestWithDeviceData(
+private fun POCardTokenizationRequest.toDeviceDataRequest(deviceData: DeviceData) =
+    CardTokenizationRequestWithDeviceData(
         metadata,
         number,
         expMonth,

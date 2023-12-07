@@ -40,7 +40,7 @@ data class POInvoiceAuthorizationRequest(
 )
 
 @JsonClass(generateAdapter = true)
-internal data class POInvoiceAuthorizationRequestWithDeviceData(
+internal data class InvoiceAuthorizationRequestWithDeviceData(
     val source: String,
     val incremental: Boolean,
     @Json(name = "enable_three_d_s_2")
@@ -65,5 +65,5 @@ internal data class POInvoiceAuthorizationRequestWithDeviceData(
     val allowFallbackToSale: Boolean,
     val metadata: Map<String, String>?,
     @Json(name = "device")
-    val deviceData: PODeviceData
+    val deviceData: DeviceData
 )

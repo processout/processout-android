@@ -1,7 +1,7 @@
 package com.processout.sdk.api.network
 
 import com.processout.sdk.api.model.request.CardUpdateRequestBody
-import com.processout.sdk.api.model.request.POCardTokenizationRequestWithDeviceData
+import com.processout.sdk.api.model.request.CardTokenizationRequestWithDeviceData
 import com.processout.sdk.api.model.request.POCardUpdateCVCRequest
 import com.processout.sdk.api.model.response.POCardIssuerInformationResponse
 import com.processout.sdk.api.model.response.POCardResponse
@@ -12,7 +12,7 @@ internal interface CardsApi {
 
     @POST("/cards")
     suspend fun tokenize(
-        @Body request: POCardTokenizationRequestWithDeviceData
+        @Body request: CardTokenizationRequestWithDeviceData
     ): Response<POCardResponse>
 
     @PUT("/cards/{id}")

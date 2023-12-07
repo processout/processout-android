@@ -13,13 +13,13 @@ internal interface InvoicesApi {
     @POST("/invoices/{id}/authorize")
     suspend fun authorizeInvoice(
         @Path("id") invoiceId: String,
-        @Body request: POInvoiceAuthorizationRequestWithDeviceData
+        @Body request: InvoiceAuthorizationRequestWithDeviceData
     ): Response<POInvoiceAuthorizationResponse>
 
     @POST("/invoices/{id}/native-payment")
     suspend fun initiatePayment(
         @Path("id") invoiceId: String,
-        @Body request: PONativeAPMRequestBody
+        @Body request: NativeAPMRequestBody
     ): Response<PONativeAlternativePaymentMethodResponse>
 
     @GET("/invoices/{invoiceId}/native-payment/{gatewayConfigurationId}")
@@ -31,7 +31,7 @@ internal interface InvoicesApi {
     @POST("/invoices/{id}/capture")
     suspend fun captureNativeAlternativePayment(
         @Path("id") invoiceId: String,
-        @Body request: PONativeAlternativePaymentCaptureRequest
+        @Body request: NativeAlternativePaymentCaptureRequest
     ): Response<POCaptureResponse>
 
     @POST("/invoices")

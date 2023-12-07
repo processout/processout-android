@@ -12,7 +12,7 @@ internal interface CustomerTokensApi {
     suspend fun assignCustomerToken(
         @Path("customer_id") customerId: String,
         @Path("token_id") tokenId: String,
-        @Body request: POAssignCustomerTokenRequestWithDeviceData
+        @Body request: AssignCustomerTokenRequestWithDeviceData
     ): Response<POCustomerTokenResponse>
 
     @POST("/customers/{customer_id}/tokens")
