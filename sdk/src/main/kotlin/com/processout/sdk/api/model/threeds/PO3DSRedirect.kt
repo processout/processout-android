@@ -3,6 +3,8 @@ package com.processout.sdk.api.model.threeds
 import java.net.URL
 
 /**
+ * 3DS redirect configuration.
+ *
  * @param url Redirect URL.
  * @param timeoutSeconds Optional timeout interval in seconds.
  * @param isHeadlessModeAllowed Boolean value that indicates whether a given URL can be handled in headless mode, meaning without showing any UI for the user.
