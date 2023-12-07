@@ -108,14 +108,13 @@ private fun Fields(
     }
 
     fields.elements.forEachIndexed { index, state ->
-        var text by remember { mutableStateOf(String()) }
-        text = state.value
+        var value by remember { mutableStateOf(state.value) }
         POTextField(
-            value = text,
+            value = value,
             onValueChange = {
-                val formatted = state.formatter?.format(it) ?: it
-                text = formatted
-                onEvent(FieldValueChanged(key = state.key, value = formatted))
+                val formatted = state.formatter?.format(it.text) ?: it.text
+                value = it.copy(text = formatted)
+                onEvent(FieldValueChanged(key = state.key, value = value))
             },
             modifier = Modifier
                 .fillMaxWidth()

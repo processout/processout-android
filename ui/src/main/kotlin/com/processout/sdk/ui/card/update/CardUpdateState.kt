@@ -1,5 +1,6 @@
 package com.processout.sdk.ui.card.update
 
+import androidx.compose.ui.text.input.TextFieldValue
 import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.core.state.POActionState
@@ -16,7 +17,7 @@ internal data class CardUpdateState(
 )
 
 internal sealed interface CardUpdateEvent {
-    data class FieldValueChanged(val key: String, val value: String) : CardUpdateEvent
+    data class FieldValueChanged(val key: String, val value: TextFieldValue) : CardUpdateEvent
     data object Submit : CardUpdateEvent
     data object Cancel : CardUpdateEvent
     data class Dismiss(val failure: ProcessOutResult.Failure) : CardUpdateEvent

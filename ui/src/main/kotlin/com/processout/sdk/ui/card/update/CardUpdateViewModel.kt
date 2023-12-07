@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -14,7 +15,8 @@ import com.processout.sdk.api.model.event.POCardUpdateEvent
 import com.processout.sdk.api.model.event.POCardUpdateEvent.*
 import com.processout.sdk.api.model.request.POCardUpdateRequest
 import com.processout.sdk.api.repository.POCardsRepository
-import com.processout.sdk.core.POFailure.Code.*
+import com.processout.sdk.core.POFailure.Code.Cancelled
+import com.processout.sdk.core.POFailure.Code.Generic
 import com.processout.sdk.core.POFailure.GenericCode.*
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
@@ -110,7 +112,7 @@ internal class CardUpdateViewModel(
                 if (maskedNumber.isBlank()) return null
                 POFieldState(
                     key = Field.Number.key,
-                    value = maskedNumber,
+                    value = TextFieldValue(text = maskedNumber),
                     iconResId = cardSchemeDrawableResId(
                         scheme = preferredScheme ?: scheme ?: String()
                     ),
@@ -177,7 +179,9 @@ internal class CardUpdateViewModel(
                             Field.CVC.key -> {
                                 val formatter = CardSecurityCodeFormatter(scheme = scheme)
                                 it.copy(
-                                    value = formatter.format(it.value),
+                                    value = it.value.copy(
+                                        text = formatter.format(it.value.text)
+                                    ),
                                     formatter = formatter
                                 )
                             }
@@ -203,14 +207,14 @@ internal class CardUpdateViewModel(
         )
     }
 
-    private fun updateFieldValue(key: String, value: String) {
+    private fun updateFieldValue(key: String, value: TextFieldValue) {
         _state.update { state ->
             state.copy(
                 fields = POImmutableCollection(
                     state.fields.elements.map {
                         when (it.key) {
                             key -> it.copy(
-                                value = value,
+                                value = value.copy(),
                                 isError = false
                             )
                             else -> it.copy()
@@ -235,7 +239,7 @@ internal class CardUpdateViewModel(
             resolve(state = it, submitting = true)
         }.also { state ->
             state.fields.elements.find { it.key == Field.CVC.key }?.let { cvcField ->
-                updateCard(cvcField.value)
+                updateCard(cvcField.value.text)
             }
         }
     }

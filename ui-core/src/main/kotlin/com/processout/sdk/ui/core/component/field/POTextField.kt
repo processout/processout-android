@@ -3,10 +3,7 @@
 package com.processout.sdk.ui.core.component.field
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -17,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -27,8 +25,8 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme
 @ProcessOutInternalApi
 @Composable
 fun POTextField(
-    value: String,
-    onValueChange: (String) -> Unit,
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
     style: POField.Style = POField.default,
     enabled: Boolean = true,
@@ -68,7 +66,7 @@ fun POTextField(
             interactionSource = interactionSource,
             decorationBox = @Composable { innerTextField ->
                 OutlinedTextFieldDefaults.DecorationBox(
-                    value = value,
+                    value = value.text,
                     innerTextField = innerTextField,
                     enabled = enabled,
                     isError = isError,
@@ -102,7 +100,7 @@ fun POTextField(
 private fun POTextFieldPreview() {
     Column(modifier = Modifier.padding(16.dp)) {
         POTextField(
-            value = "test@gmail.com",
+            value = TextFieldValue(text = "test@gmail.com"),
             onValueChange = {},
             modifier = Modifier.fillMaxWidth()
         )
