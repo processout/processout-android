@@ -9,6 +9,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -21,8 +22,8 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme
 @Composable
 fun POLabeledTextField(
     title: String,
-    value: String,
-    onValueChange: (String) -> Unit,
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
     fieldStyle: POField.Style = POField.default,
     labelsStyle: POFieldLabels.Style = POFieldLabels.default,
@@ -80,7 +81,7 @@ private fun POLabeledTextFieldPreview() {
     Column(modifier = Modifier.padding(16.dp)) {
         POLabeledTextField(
             title = "Title",
-            value = "test@gmail.com",
+            value = TextFieldValue(text = "test@gmail.com"),
             onValueChange = {},
             modifier = Modifier.fillMaxWidth(),
             isError = true,

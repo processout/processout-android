@@ -23,6 +23,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.card.update.CardUpdateEvent.*
 import com.processout.sdk.ui.core.component.POActionsContainer
 import com.processout.sdk.ui.core.component.POHeader
@@ -32,7 +33,8 @@ import com.processout.sdk.ui.core.component.field.POTextField
 import com.processout.sdk.ui.core.state.*
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
-import kotlinx.coroutines.job
+import com.processout.sdk.ui.shared.composable.RequestFocus
+import com.processout.sdk.ui.shared.composable.rememberLifecycleEvent
 
 @Composable
 internal fun CardUpdateScreen(
@@ -100,21 +102,19 @@ private fun Fields(
     style: POField.Style = POField.default
 ) {
     val focusRequester = remember { FocusRequester() }
-    LaunchedEffect(Unit) {
-        coroutineContext.job.invokeOnCompletion {
-            focusRequester.requestFocus()
-        }
+    val lifecycleEvent = rememberLifecycleEvent()
+    if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
+        RequestFocus(focusRequester, lifecycleEvent)
     }
 
     fields.elements.forEachIndexed { index, state ->
-        var text by remember { mutableStateOf(String()) }
-        text = state.value
+        var value by remember { mutableStateOf(state.value) }
         POTextField(
-            value = text,
+            value = value,
             onValueChange = {
-                val formatted = state.formatter?.format(it) ?: it
-                text = formatted
-                onEvent(FieldValueChanged(key = state.key, value = formatted))
+                val formatted = state.formatter?.format(it.text) ?: it.text
+                value = it.copy(text = formatted)
+                onEvent(FieldValueChanged(key = state.key, value = value))
             },
             modifier = Modifier
                 .fillMaxWidth()
