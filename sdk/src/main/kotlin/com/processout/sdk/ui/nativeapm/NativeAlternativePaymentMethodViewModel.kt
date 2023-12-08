@@ -29,10 +29,14 @@ import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodPar
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType.*
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.POFailure
+import com.processout.sdk.core.POFailure.Code.*
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.util.escapedMarkdown
+import com.processout.sdk.ui.nativeapm.NativeAlternativePaymentMethodUiState.*
+import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options.Companion.MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
+import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.SecondaryAction
 import com.processout.sdk.ui.shared.model.InputParameter
 import com.processout.sdk.ui.shared.model.SecondaryActionUiModel
 import com.processout.sdk.ui.shared.view.button.POButton
@@ -50,7 +54,7 @@ internal class NativeAlternativePaymentMethodViewModel(
     private val invoiceId: String,
     private val invoicesService: POInvoicesService,
     private val eventDispatcher: PONativeAlternativePaymentMethodEventDispatcher,
-    val options: PONativeAlternativePaymentMethodConfiguration.Options,
+    val options: Options,
     val logAttributes: Map<String, String>
 ) : AndroidViewModel(app) {
 
@@ -58,7 +62,7 @@ internal class NativeAlternativePaymentMethodViewModel(
         private val app: Application,
         private val gatewayConfigurationId: String,
         private val invoiceId: String,
-        private val options: PONativeAlternativePaymentMethodConfiguration.Options
+        private val options: Options
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
@@ -77,7 +81,7 @@ internal class NativeAlternativePaymentMethodViewModel(
                 )
             } as T
 
-        private fun PONativeAlternativePaymentMethodConfiguration.Options.validate() = copy(
+        private fun Options.validate() = copy(
             paymentConfirmationTimeoutSeconds =
             if (paymentConfirmationTimeoutSeconds in 0..MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS)
                 paymentConfirmationTimeoutSeconds else MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
@@ -92,9 +96,7 @@ internal class NativeAlternativePaymentMethodViewModel(
 
     private var capturePollingStartTimestamp = 0L
 
-    private val _uiState = MutableStateFlow<NativeAlternativePaymentMethodUiState>(
-        NativeAlternativePaymentMethodUiState.Loading
-    )
+    private val _uiState = MutableStateFlow<NativeAlternativePaymentMethodUiState>(Loading)
     val uiState = _uiState.asStateFlow()
 
     var animateViewTransition = true
@@ -120,10 +122,9 @@ internal class NativeAlternativePaymentMethodViewModel(
                 is ProcessOutResult.Success -> {
                     val parameters = result.value.parameters
                     if (parameters.isNullOrEmpty()) {
-                        _uiState.value = NativeAlternativePaymentMethodUiState.Failure(
+                        _uiState.value = Failure(
                             ProcessOutResult.Failure(
-                                POFailure.Code.Internal(),
-                                "Input field parameters is missing in response."
+                                Internal(), "Input field parameters is missing in response."
                             ).also {
                                 POLogger.warn("Invalid transaction details: %s", it, attributes = logAttributes)
                             }
@@ -133,23 +134,21 @@ internal class NativeAlternativePaymentMethodViewModel(
                     if (handleInvalidInputParameters(parameters)) return@launch
 
                     val uiModel = result.value.toUiModel()
-                    _uiState.value = NativeAlternativePaymentMethodUiState.Loaded(uiModel)
+                    _uiState.value = Loaded(uiModel)
 
                     if (eventDispatcher.subscribedForDefaultValuesRequest())
                         requestDefaultValues(parameters)
                     else startUserInput(uiModel)
                 }
-                is ProcessOutResult.Failure ->
-                    _uiState.value = NativeAlternativePaymentMethodUiState.Failure(
-                        result.copy()
-                            .also { POLogger.info("Failed to fetch transaction details: %s", it) }
-                    )
+                is ProcessOutResult.Failure -> _uiState.value = Failure(
+                    result.copy().also { POLogger.info("Failed to fetch transaction details: %s", it) }
+                )
             }
         }
     }
 
     private fun startUserInput(uiModel: NativeAlternativePaymentMethodUiModel) {
-        _uiState.value = NativeAlternativePaymentMethodUiState.UserInput(uiModel.copy())
+        _uiState.value = UserInput(uiModel.copy())
         uiModel.secondaryAction?.let {
             scheduleSecondaryActionEnabling(it) { enableSecondaryAction() }
         }
@@ -161,10 +160,9 @@ internal class NativeAlternativePaymentMethodViewModel(
         parameters: List<PONativeAlternativePaymentMethodParameter>
     ): Boolean {
         parameters.find { it.type() == UNKNOWN }?.let {
-            _uiState.value = NativeAlternativePaymentMethodUiState.Failure(
+            _uiState.value = Failure(
                 ProcessOutResult.Failure(
-                    POFailure.Code.Internal(),
-                    "Unknown input field type: ${it.rawType}"
+                    Internal(), "Unknown input field type: ${it.rawType}"
                 ).also { failure -> POLogger.error("%s", failure, attributes = logAttributes) }
             )
             return true
@@ -191,14 +189,12 @@ internal class NativeAlternativePaymentMethodViewModel(
                 if (defaultValuesRequests.removeAll { it.uuid == response.uuid }) {
                     POLogger.debug("Collected default values for payment parameters: %s", response)
                     when (val uiState = _uiState.value) {
-                        is NativeAlternativePaymentMethodUiState.Loaded ->
-                            startUserInput(
-                                uiState.uiModel.withDefaultValues(response.defaultValues)
-                            )
-                        is NativeAlternativePaymentMethodUiState.Submitted ->
-                            continueUserInput(
-                                uiState.uiModel.withDefaultValues(response.defaultValues)
-                            )
+                        is Loaded -> startUserInput(
+                            uiState.uiModel.withDefaultValues(response.defaultValues)
+                        )
+                        is Submitted -> continueUserInput(
+                            uiState.uiModel.withDefaultValues(response.defaultValues)
+                        )
                         else -> {}
                     }
                 }
@@ -229,7 +225,7 @@ internal class NativeAlternativePaymentMethodViewModel(
                     it.copy(value = newValue, state = Input.State.Default())
                 else it.copy()
             }
-            _uiState.value = NativeAlternativePaymentMethodUiState.UserInput(
+            _uiState.value = UserInput(
                 uiModel.copy(
                     inputParameters = updatedInputParameters
                 )
@@ -242,7 +238,7 @@ internal class NativeAlternativePaymentMethodViewModel(
     fun updateFocusedInputId(id: Int) {
         _uiState.value.doWhenUserInput { uiModel ->
             if (uiModel.focusedInputId != id) {
-                _uiState.value = NativeAlternativePaymentMethodUiState.UserInput(
+                _uiState.value = UserInput(
                     uiModel.copy(focusedInputId = id)
                 )
             }
@@ -257,7 +253,7 @@ internal class NativeAlternativePaymentMethodViewModel(
             val invalidFields = uiModel.inputParameters.mapNotNull { it.validate() }
             if (invalidFields.isNotEmpty()) {
                 val failure = ProcessOutResult.Failure(
-                    POFailure.Code.Validation(POFailure.ValidationCode.general),
+                    Validation(POFailure.ValidationCode.general),
                     "Invalid fields.",
                     invalidFields
                 )
@@ -266,7 +262,7 @@ internal class NativeAlternativePaymentMethodViewModel(
             }
 
             val updatedUiModel = uiModel.copy(isSubmitting = true)
-            _uiState.value = NativeAlternativePaymentMethodUiState.UserInput(updatedUiModel)
+            _uiState.value = UserInput(updatedUiModel)
             initiatePayment(updatedUiModel)
         }
     }
@@ -332,10 +328,9 @@ internal class NativeAlternativePaymentMethodViewModel(
             PONativeAlternativePaymentMethodState.CUSTOMER_INPUT -> {
                 val parameters = success.value.parameterDefinitions
                 if (parameters.isNullOrEmpty()) {
-                    _uiState.value = NativeAlternativePaymentMethodUiState.Failure(
+                    _uiState.value = Failure(
                         ProcessOutResult.Failure(
-                            POFailure.Code.Internal(),
-                            "Input field parameters is missing in response."
+                            Internal(), "Input field parameters is missing in response."
                         ).also {
                             POLogger.warn("Invalid customer input parameters: %s", it, attributes = logAttributes)
                         }
@@ -360,7 +355,7 @@ internal class NativeAlternativePaymentMethodViewModel(
             inputParameters = parameters.toInputParameters(),
             focusedInputId = View.NO_ID
         )
-        _uiState.value = NativeAlternativePaymentMethodUiState.Submitted(updatedUiModel)
+        _uiState.value = Submitted(updatedUiModel)
 
         if (eventDispatcher.subscribedForDefaultValuesRequest())
             requestDefaultValues(parameters)
@@ -368,7 +363,7 @@ internal class NativeAlternativePaymentMethodViewModel(
     }
 
     private fun continueUserInput(uiModel: NativeAlternativePaymentMethodUiModel) {
-        _uiState.value = NativeAlternativePaymentMethodUiState.UserInput(
+        _uiState.value = UserInput(
             uiModel.copy(isSubmitting = false)
         )
         dispatch(DidSubmitParameters(additionalParametersExpected = true))
@@ -380,9 +375,7 @@ internal class NativeAlternativePaymentMethodViewModel(
         coroutineScope: CoroutineScope,
         parameterValues: PONativeAlternativePaymentMethodParameterValues?
     ) {
-        _uiState.value = NativeAlternativePaymentMethodUiState.Submitted(
-            uiModel.copy(isSubmitting = false)
-        )
+        _uiState.value = Submitted(uiModel.copy(isSubmitting = false))
         dispatch(DidSubmitParameters(additionalParametersExpected = false))
         POLogger.info("All payment parameters has been submitted.")
 
@@ -403,7 +396,7 @@ internal class NativeAlternativePaymentMethodViewModel(
             preloadAllImages(coroutineScope, updatedUiModel)
 
             animateViewTransition = true
-            _uiState.value = NativeAlternativePaymentMethodUiState.Capture(updatedUiModel)
+            _uiState.value = Capture(updatedUiModel)
 
             updatedUiModel.paymentConfirmationSecondaryAction?.let {
                 scheduleSecondaryActionEnabling(it) { enablePaymentConfirmationSecondaryAction() }
@@ -412,7 +405,7 @@ internal class NativeAlternativePaymentMethodViewModel(
             startCapturePolling()
             return
         }
-        _uiState.value = NativeAlternativePaymentMethodUiState.Success(uiModel.copy())
+        _uiState.value = Success(uiModel.copy())
         POLogger.info("Finished. Did not wait for capture confirmation.")
     }
 
@@ -422,7 +415,7 @@ internal class NativeAlternativePaymentMethodViewModel(
             POLogger.info("Success. Invoice is captured.")
         }
         animateViewTransition = true
-        _uiState.value = NativeAlternativePaymentMethodUiState.Success(uiModel.copy())
+        _uiState.value = Success(uiModel.copy())
     }
 
     private fun handlePaymentFailure(
@@ -431,9 +424,8 @@ internal class NativeAlternativePaymentMethodViewModel(
         replaceToLocalMessage: Boolean // TODO: Delete this when backend localisation is done.
     ) {
         if (failure.invalidFields.isNullOrEmpty()) {
-            _uiState.value = NativeAlternativePaymentMethodUiState.Failure(
-                failure.copy()
-                    .also { POLogger.info("Unrecoverable payment failure: %s", it) }
+            _uiState.value = Failure(
+                failure.copy().also { POLogger.info("Unrecoverable payment failure: %s", it) }
             )
             return
         }
@@ -448,7 +440,7 @@ internal class NativeAlternativePaymentMethodViewModel(
                 )
             } ?: inputParameter.copy()
         }
-        _uiState.value = NativeAlternativePaymentMethodUiState.UserInput(
+        _uiState.value = UserInput(
             uiModel.copy(
                 inputParameters = updatedInputParameters,
                 isSubmitting = false
@@ -486,10 +478,9 @@ internal class NativeAlternativePaymentMethodViewModel(
             val timePassed = System.currentTimeMillis() - capturePollingStartTimestamp
             if (timePassed >= options.paymentConfirmationTimeoutSeconds * 1000) {
                 capturePollingStartTimestamp = 0L
-                _uiState.value = NativeAlternativePaymentMethodUiState.Failure(
+                _uiState.value = Failure(
                     ProcessOutResult.Failure(
-                        POFailure.Code.Timeout(),
-                        "Payment confirmation timed out."
+                        Timeout(), "Payment confirmation timed out."
                     ).also {
                         POLogger.warn("Failed to capture invoice: %s", it, attributes = logAttributes)
                     }
@@ -512,7 +503,7 @@ internal class NativeAlternativePaymentMethodViewModel(
                         handleCaptured(uiModel)
                     }
                 is ProcessOutResult.Failure ->
-                    _uiState.value = NativeAlternativePaymentMethodUiState.Failure(
+                    _uiState.value = Failure(
                         result.copy()
                             .also {
                                 POLogger.error("Failed to capture invoice: %s", it, attributes = logAttributes)
@@ -529,9 +520,9 @@ internal class NativeAlternativePaymentMethodViewModel(
             result.value.state != PONativeAlternativePaymentMethodState.CAPTURED
         is ProcessOutResult.Failure -> {
             val retryableCodes = listOf(
-                POFailure.Code.NetworkUnreachable,
-                POFailure.Code.Timeout(),
-                POFailure.Code.Internal()
+                NetworkUnreachable,
+                Timeout(),
+                Internal()
             )
             retryableCodes.contains(result.code)
         }
@@ -570,7 +561,7 @@ internal class NativeAlternativePaymentMethodViewModel(
     private fun dispatchFailure() {
         viewModelScope.launch {
             _uiState.collect {
-                if (it is NativeAlternativePaymentMethodUiState.Failure) {
+                if (it is Failure) {
                     dispatch(DidFail(it.failure))
                 }
             }
@@ -663,17 +654,19 @@ internal class NativeAlternativePaymentMethodViewModel(
             app.getString(R.string.po_native_apm_submit_button_default_text)
         }
 
-    private fun PONativeAlternativePaymentMethodConfiguration.SecondaryAction.toUiModel() =
-        when (this) {
-            is PONativeAlternativePaymentMethodConfiguration.SecondaryAction.Cancel ->
-                SecondaryActionUiModel.Cancel(
-                    text = text ?: app.getString(R.string.po_native_apm_cancel_button_default_text),
-                    state = if (disabledForSeconds == 0) POButton.State.ENABLED else POButton.State.DISABLED,
-                    disabledForMillis = TimeUnit.SECONDS.toMillis(disabledForSeconds.toLong())
-                )
-        }
+    private fun SecondaryAction.toUiModel() = when (this) {
+        is SecondaryAction.Cancel ->
+            SecondaryActionUiModel.Cancel(
+                text = text ?: app.getString(R.string.po_native_apm_cancel_button_default_text),
+                state = if (disabledForSeconds == 0) POButton.State.ENABLED else POButton.State.DISABLED,
+                disabledForMillis = TimeUnit.SECONDS.toMillis(disabledForSeconds.toLong())
+            )
+    }
 
-    private fun scheduleSecondaryActionEnabling(action: SecondaryActionUiModel, enable: () -> Unit) {
+    private fun scheduleSecondaryActionEnabling(
+        action: SecondaryActionUiModel,
+        enable: () -> Unit
+    ) {
         when (action) {
             is SecondaryActionUiModel.Cancel -> if (action.state == POButton.State.DISABLED) {
                 handler.postDelayed(delayInMillis = action.disabledForMillis) { enable() }
@@ -683,7 +676,7 @@ internal class NativeAlternativePaymentMethodViewModel(
 
     private fun enableSecondaryAction() {
         _uiState.value.doWhenUserInput { uiModel ->
-            _uiState.value = NativeAlternativePaymentMethodUiState.UserInput(
+            _uiState.value = UserInput(
                 uiModel.copy(
                     secondaryAction = uiModel.secondaryAction?.copyWith(
                         state = POButton.State.ENABLED
@@ -695,7 +688,7 @@ internal class NativeAlternativePaymentMethodViewModel(
 
     private fun enablePaymentConfirmationSecondaryAction() {
         _uiState.value.doWhenCapture { uiModel ->
-            _uiState.value = NativeAlternativePaymentMethodUiState.Capture(
+            _uiState.value = Capture(
                 uiModel.copy(
                     paymentConfirmationSecondaryAction = uiModel.paymentConfirmationSecondaryAction?.copyWith(
                         state = POButton.State.ENABLED
