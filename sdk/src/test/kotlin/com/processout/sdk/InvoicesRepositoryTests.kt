@@ -2,7 +2,7 @@ package com.processout.sdk
 
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.*
-import com.processout.sdk.api.model.response.POCustomerAction
+import com.processout.sdk.api.model.response.CustomerAction
 import com.processout.sdk.api.repository.InvoicesRepository
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.config.PROCESSOUT_GATEWAY_CONFIGURATION_ID
@@ -109,7 +109,7 @@ class InvoicesRepositoryTests {
                         ).let { authResult ->
                             authResult.assertFailure()
                             authResult.onSuccess { authSuccess ->
-                                assert(authSuccess.customerAction?.type() == POCustomerAction.Type.URL)
+                                assert(authSuccess.customerAction?.type() == CustomerAction.Type.URL)
                             }
                         }
                     }

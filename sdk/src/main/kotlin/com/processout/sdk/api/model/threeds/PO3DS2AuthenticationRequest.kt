@@ -1,7 +1,7 @@
 package com.processout.sdk.api.model.threeds
 
 /**
- * Holds transaction data that the 3DS Server requires to create the AReq.
+ * Transaction data required by the 3DS Server to create the AReq.
  *
  * @param deviceData Encrypted device data as a JWE string.
  * @param sdkAppId A unique string identifying the application.

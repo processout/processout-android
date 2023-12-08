@@ -5,7 +5,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
- * Represents the configuration parameters that are required by the 3DS SDK for initialization.
+ * Configuration parameters that are required by the 3DS SDK for initialization.
  *
  * @param directoryServerId The identifier of the directory server to use during the transaction creation phase.
  * @param directoryServerPublicKey The public key of the directory server to use during the transaction creation phase.

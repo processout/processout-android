@@ -4,7 +4,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-internal data class PONativeAlternativePaymentCaptureRequest(
+internal data class NativeAlternativePaymentCaptureRequest(
     @Json(name = "source")
     val gatewayConfigurationId: String
 )

@@ -4,7 +4,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-internal data class POCardIssuerInformationResponse(
+internal data class CardIssuerInformationResponse(
     @Json(name = "card_information")
     val cardInformation: POCardIssuerInformation
 )

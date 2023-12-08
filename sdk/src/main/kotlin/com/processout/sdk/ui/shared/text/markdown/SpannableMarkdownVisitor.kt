@@ -7,16 +7,7 @@ import android.text.Spanned
 import android.text.style.StyleSpan
 import android.text.style.URLSpan
 import com.processout.sdk.ui.shared.text.span.TextLeadingMarginSpan
-import org.commonmark.node.AbstractVisitor
-import org.commonmark.node.Emphasis
-import org.commonmark.node.HardLineBreak
-import org.commonmark.node.Link
-import org.commonmark.node.ListItem
-import org.commonmark.node.OrderedList
-import org.commonmark.node.Paragraph
-import org.commonmark.node.SoftLineBreak
-import org.commonmark.node.StrongEmphasis
-import org.commonmark.node.Text
+import org.commonmark.node.*
 import kotlin.math.roundToInt
 
 internal class SpannableMarkdownVisitor(textSize: Float) : AbstractVisitor() {

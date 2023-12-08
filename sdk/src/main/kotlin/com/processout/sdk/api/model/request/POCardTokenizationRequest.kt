@@ -40,7 +40,7 @@ data class POCardTokenizationRequest(
 }
 
 @JsonClass(generateAdapter = true)
-internal data class POCardTokenizationRequestWithDeviceData(
+internal data class CardTokenizationRequestWithDeviceData(
     val metadata: Map<String, String>? = emptyMap(),
     val number: String?,
     @Json(name = "exp_month")
@@ -57,7 +57,7 @@ internal data class POCardTokenizationRequestWithDeviceData(
     @Json(name = "payment_token")
     val paymentToken: String?,
     @Json(name = "device")
-    val deviceData: PODeviceData? = null
+    val deviceData: DeviceData? = null
 )
 
 /**

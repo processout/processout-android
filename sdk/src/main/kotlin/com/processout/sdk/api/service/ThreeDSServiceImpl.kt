@@ -1,13 +1,8 @@
 package com.processout.sdk.api.service
 
 import android.util.Base64
-import com.processout.sdk.api.model.response.POCustomerAction
-import com.processout.sdk.api.model.response.POCustomerAction.Type.CHALLENGE_MOBILE
-import com.processout.sdk.api.model.response.POCustomerAction.Type.FINGERPRINT
-import com.processout.sdk.api.model.response.POCustomerAction.Type.FINGERPRINT_MOBILE
-import com.processout.sdk.api.model.response.POCustomerAction.Type.REDIRECT
-import com.processout.sdk.api.model.response.POCustomerAction.Type.UNSUPPORTED
-import com.processout.sdk.api.model.response.POCustomerAction.Type.URL
+import com.processout.sdk.api.model.response.CustomerAction
+import com.processout.sdk.api.model.response.CustomerAction.Type.*
 import com.processout.sdk.api.model.threeds.PO3DS2AuthenticationRequest
 import com.processout.sdk.api.model.threeds.PO3DS2Challenge
 import com.processout.sdk.api.model.threeds.PO3DS2Configuration
@@ -31,7 +26,7 @@ internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
     }
 
     override fun handle(
-        action: POCustomerAction,
+        action: CustomerAction,
         delegate: PO3DSService,
         callback: (ProcessOutResult<String>) -> Unit
     ) {

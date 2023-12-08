@@ -4,7 +4,7 @@ import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-internal data class POInvoiceResponse(
+internal data class InvoiceResponse(
     val invoice: POInvoice
 )
 

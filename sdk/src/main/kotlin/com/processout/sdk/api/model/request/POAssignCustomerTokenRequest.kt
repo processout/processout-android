@@ -31,7 +31,7 @@ data class POAssignCustomerTokenRequest(
 )
 
 @JsonClass(generateAdapter = true)
-internal data class POAssignCustomerTokenRequestWithDeviceData(
+internal data class AssignCustomerTokenRequestWithDeviceData(
     val source: String,
     @Json(name = "preferred_scheme")
     val preferredScheme: String?,
@@ -44,5 +44,5 @@ internal data class POAssignCustomerTokenRequestWithDeviceData(
     val thirdPartySdkVersion: String?,
     val metadata: Map<String, String>?,
     @Json(name = "device")
-    val deviceData: PODeviceData
+    val deviceData: DeviceData
 )

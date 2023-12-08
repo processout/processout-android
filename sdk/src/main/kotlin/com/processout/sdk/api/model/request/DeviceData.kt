@@ -4,7 +4,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-internal data class PODeviceData(
+internal data class DeviceData(
     @Json(name = "app_language")
     val appLanguage: String,
     @Json(name = "app_screen_width")

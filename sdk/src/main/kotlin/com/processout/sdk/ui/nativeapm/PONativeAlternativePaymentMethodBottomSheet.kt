@@ -40,6 +40,7 @@ import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.databinding.PoBottomSheetCaptureBinding
 import com.processout.sdk.databinding.PoBottomSheetNativeApmBinding
+import com.processout.sdk.ui.nativeapm.NativeAlternativePaymentMethodUiState.*
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityContract.Companion.EXTRA_CONFIGURATION
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityContract.Companion.EXTRA_RESULT
 import com.processout.sdk.ui.shared.model.InputParameter
@@ -76,8 +77,8 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
 
     private var configuration: PONativeAlternativePaymentMethodConfiguration? = null
 
-    private val viewModel: PONativeAlternativePaymentMethodViewModel by viewModels {
-        PONativeAlternativePaymentMethodViewModel.Factory(
+    private val viewModel: NativeAlternativePaymentMethodViewModel by viewModels {
+        NativeAlternativePaymentMethodViewModel.Factory(
             requireActivity().application,
             configuration?.gatewayConfigurationId ?: String(),
             configuration?.invoiceId ?: String(),
@@ -217,13 +218,13 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
 
     private fun adjustPeekHeight(animate: Boolean) {
         val peekHeight = when (viewModel.uiState.value) {
-            PONativeAlternativePaymentMethodUiState.Loading -> minPeekHeight
-            is PONativeAlternativePaymentMethodUiState.Loaded -> minPeekHeight
-            is PONativeAlternativePaymentMethodUiState.UserInput -> minPeekHeight
-            is PONativeAlternativePaymentMethodUiState.Submitted -> minPeekHeight
-            is PONativeAlternativePaymentMethodUiState.Capture -> maxPeekHeight
-            is PONativeAlternativePaymentMethodUiState.Success -> maxPeekHeight
-            is PONativeAlternativePaymentMethodUiState.Failure -> bottomSheetBehavior.peekHeight
+            Loading -> minPeekHeight
+            is Loaded -> minPeekHeight
+            is UserInput -> minPeekHeight
+            is Submitted -> minPeekHeight
+            is Capture -> maxPeekHeight
+            is Success -> maxPeekHeight
+            is Failure -> bottomSheetBehavior.peekHeight
         }
 
         if (peekHeight != bottomSheetBehavior.peekHeight) {
@@ -260,7 +261,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     }
 
     private fun adjustBottomSheetState(
-        uiModel: PONativeAlternativePaymentMethodUiModel
+        uiModel: NativeAlternativePaymentMethodUiModel
     ) {
         val forceExpand = screenHeight * REQUIRED_SCREEN_HEIGHT_PERCENTAGE < minPeekHeight
         if (forceExpand) {
@@ -273,7 +274,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     }
 
     private fun shouldExpandAllowingCollapse(
-        uiModel: PONativeAlternativePaymentMethodUiModel
+        uiModel: NativeAlternativePaymentMethodUiModel
     ): Boolean {
         if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
             val inputsCount = uiModel.inputParameters.size
@@ -291,18 +292,13 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         return false
     }
 
-    private fun handleUiState(uiState: PONativeAlternativePaymentMethodUiState) {
+    private fun handleUiState(uiState: NativeAlternativePaymentMethodUiState) {
         when (uiState) {
-            PONativeAlternativePaymentMethodUiState.Loading ->
-                bindLoading()
-            is PONativeAlternativePaymentMethodUiState.UserInput ->
-                bindUserInput(uiState.uiModel)
-            is PONativeAlternativePaymentMethodUiState.Capture ->
-                showCapture(uiState.uiModel)
-            is PONativeAlternativePaymentMethodUiState.Success ->
-                handleSuccess(uiState.uiModel)
-            is PONativeAlternativePaymentMethodUiState.Failure ->
-                handleFailure(uiState.failure)
+            Loading -> bindLoading()
+            is UserInput -> bindUserInput(uiState.uiModel)
+            is Capture -> showCapture(uiState.uiModel)
+            is Success -> handleSuccess(uiState.uiModel)
+            is Failure -> handleFailure(uiState.failure)
             else -> {}
         }
     }
@@ -317,7 +313,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         binding.poSecondaryButton.visibility = View.GONE
     }
 
-    private fun bindUserInput(uiModel: PONativeAlternativePaymentMethodUiModel) {
+    private fun bindUserInput(uiModel: NativeAlternativePaymentMethodUiModel) {
         binding.poTitle.text = uiModel.title
         bindPrimaryButton(uiModel)
         bindSecondaryButton(uiModel)
@@ -354,7 +350,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         bindInputs(uiModel)
     }
 
-    private fun bindPrimaryButton(uiModel: PONativeAlternativePaymentMethodUiModel) {
+    private fun bindPrimaryButton(uiModel: NativeAlternativePaymentMethodUiModel) {
         with(binding.poPrimaryButton) {
             text = uiModel.primaryActionText
             if (uiModel.isSubmitting) {
@@ -367,7 +363,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         }
     }
 
-    private fun bindSecondaryButton(uiModel: PONativeAlternativePaymentMethodUiModel) {
+    private fun bindSecondaryButton(uiModel: NativeAlternativePaymentMethodUiModel) {
         uiModel.secondaryAction?.let { action ->
             with(binding.poSecondaryButton) {
                 when (action) {
@@ -385,7 +381,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         }
     }
 
-    private fun bindInputs(uiModel: PONativeAlternativePaymentMethodUiModel) {
+    private fun bindInputs(uiModel: NativeAlternativePaymentMethodUiModel) {
         val inputParameters = resolveInputParametersState(uiModel)
 
         // find and remove inputs that currently present in the container
@@ -413,7 +409,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         resolveInputFocus(uiModel.focusedInputId)
     }
 
-    private fun resolveInputParametersState(uiModel: PONativeAlternativePaymentMethodUiModel) =
+    private fun resolveInputParametersState(uiModel: NativeAlternativePaymentMethodUiModel) =
         uiModel.inputParameters.run {
             if (uiModel.isSubmitting)
                 map { it.copy(state = Input.State.Default(editable = false)) }
@@ -532,7 +528,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         }
     }
 
-    private fun showCapture(uiModel: PONativeAlternativePaymentMethodUiModel) {
+    private fun showCapture(uiModel: NativeAlternativePaymentMethodUiModel) {
         with(binding.poContainer) {
             if (viewModel.animateViewTransition) {
                 viewModel.animateViewTransition = false
@@ -553,7 +549,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         }
     }
 
-    private fun bindCapture(uiModel: PONativeAlternativePaymentMethodUiModel) {
+    private fun bindCapture(uiModel: NativeAlternativePaymentMethodUiModel) {
         initCaptureView()
         bindPaymentConfirmationSecondaryButton(uiModel)
         if (uiModel.showCustomerAction()) {
@@ -579,7 +575,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     }
 
     private fun bindCaptureHeader(
-        uiModel: PONativeAlternativePaymentMethodUiModel,
+        uiModel: NativeAlternativePaymentMethodUiModel,
         titleStyle: POTextStyle
     ) {
         bindingCapture.poHeader.visibility = View.VISIBLE
@@ -604,7 +600,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         }
     }
 
-    private fun bindCustomerActionImage(uiModel: PONativeAlternativePaymentMethodUiModel) {
+    private fun bindCustomerActionImage(uiModel: NativeAlternativePaymentMethodUiModel) {
         bindingCapture.poActionImage.load(uiModel.customerActionImageUrl) {
             listener(
                 onSuccess = { _, _ ->
@@ -626,7 +622,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     }
 
     private fun bindPaymentConfirmationSecondaryButton(
-        uiModel: PONativeAlternativePaymentMethodUiModel
+        uiModel: NativeAlternativePaymentMethodUiModel
     ) {
         uiModel.paymentConfirmationSecondaryAction?.let { action ->
             with(bindingCapture.poSecondaryButton) {
@@ -642,7 +638,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         } ?: run { bindingCapture.poFooter.visibility = View.GONE }
     }
 
-    private fun handleSuccess(uiModel: PONativeAlternativePaymentMethodUiModel) {
+    private fun handleSuccess(uiModel: NativeAlternativePaymentMethodUiModel) {
         if (viewModel.options.waitsPaymentConfirmation &&
             viewModel.options.skipSuccessScreen.not()
         ) {
@@ -653,7 +649,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         }
     }
 
-    private fun showSuccess(uiModel: PONativeAlternativePaymentMethodUiModel) {
+    private fun showSuccess(uiModel: NativeAlternativePaymentMethodUiModel) {
         initCaptureView()
         if (viewModel.animateViewTransition) {
             viewModel.animateViewTransition = false
@@ -694,7 +690,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         }
     }
 
-    private fun bindSuccess(uiModel: PONativeAlternativePaymentMethodUiModel) {
+    private fun bindSuccess(uiModel: NativeAlternativePaymentMethodUiModel) {
         bindingCapture.poCircularProgressIndicator.visibility = View.GONE
         bindSuccessBackground()
         bindSuccessMessage(uiModel.successMessage)
@@ -820,7 +816,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     }
 
     private fun finishWithSuccess(): Boolean {
-        if (viewModel.uiState.value is PONativeAlternativePaymentMethodUiState.Success) {
+        if (viewModel.uiState.value is Success) {
             setActivityResult(
                 Activity.RESULT_OK,
                 PONativeAlternativePaymentMethodResult.Success

@@ -7,7 +7,8 @@ import com.checkout.threeds.Environment
 import com.checkout.threeds.domain.model.AuthenticationCompleted
 import com.checkout.threeds.domain.model.AuthenticationError
 import com.checkout.threeds.domain.model.AuthenticationErrorType.*
-import com.checkout.threeds.domain.model.ResultType.*
+import com.checkout.threeds.domain.model.ResultType.Completed
+import com.checkout.threeds.domain.model.ResultType.Error
 import com.checkout.threeds.standalone.Standalone3DSService
 import com.checkout.threeds.standalone.api.ThreeDS2Service
 import com.checkout.threeds.standalone.dochallenge.models.ChallengeParameters
@@ -21,7 +22,8 @@ import com.processout.sdk.api.model.threeds.PO3DS2Configuration
 import com.processout.sdk.api.model.threeds.PO3DSRedirect
 import com.processout.sdk.api.service.PO3DSService
 import com.processout.sdk.checkout.threeds.Checkout3DSServiceState.*
-import com.processout.sdk.checkout.threeds.CheckoutConstants.*
+import com.processout.sdk.checkout.threeds.CheckoutConstants.AuthenticationProcessErrorCodes
+import com.processout.sdk.checkout.threeds.CheckoutConstants.ConnectivityErrorCode
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.copy

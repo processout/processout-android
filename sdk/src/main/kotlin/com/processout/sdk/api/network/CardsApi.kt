@@ -1,10 +1,10 @@
 package com.processout.sdk.api.network
 
+import com.processout.sdk.api.model.request.CardTokenizationRequestWithDeviceData
 import com.processout.sdk.api.model.request.CardUpdateRequestBody
-import com.processout.sdk.api.model.request.POCardTokenizationRequestWithDeviceData
 import com.processout.sdk.api.model.request.POCardUpdateCVCRequest
-import com.processout.sdk.api.model.response.POCardIssuerInformationResponse
-import com.processout.sdk.api.model.response.POCardResponse
+import com.processout.sdk.api.model.response.CardIssuerInformationResponse
+import com.processout.sdk.api.model.response.CardResponse
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -12,14 +12,14 @@ internal interface CardsApi {
 
     @POST("/cards")
     suspend fun tokenize(
-        @Body request: POCardTokenizationRequestWithDeviceData
-    ): Response<POCardResponse>
+        @Body request: CardTokenizationRequestWithDeviceData
+    ): Response<CardResponse>
 
     @PUT("/cards/{id}")
     suspend fun updateCard(
         @Path("id") cardId: String,
         @Body request: CardUpdateRequestBody
-    ): Response<POCardResponse>
+    ): Response<CardResponse>
 
     @Deprecated(
         message = "Use replacement function.",
@@ -29,10 +29,10 @@ internal interface CardsApi {
     suspend fun updateCVC(
         @Path("id") cardId: String,
         @Body request: POCardUpdateCVCRequest
-    ): Response<POCardResponse>
+    ): Response<CardResponse>
 
     @GET("/iins/{iin}")
     suspend fun fetchIssuerInformation(
         @Path("iin") iin: String
-    ): Response<POCardIssuerInformationResponse>
+    ): Response<CardIssuerInformationResponse>
 }

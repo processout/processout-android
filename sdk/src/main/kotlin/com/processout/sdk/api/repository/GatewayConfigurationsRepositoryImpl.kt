@@ -2,9 +2,9 @@ package com.processout.sdk.api.repository
 
 import com.processout.sdk.api.model.request.POAllGatewayConfigurationsRequest
 import com.processout.sdk.api.model.request.POGatewayConfigurationRequest
+import com.processout.sdk.api.model.response.GatewayConfigurationResponse
 import com.processout.sdk.api.model.response.POAllGatewayConfigurations
 import com.processout.sdk.api.model.response.POGatewayConfiguration
-import com.processout.sdk.api.model.response.POGatewayConfigurationResponse
 import com.processout.sdk.api.network.GatewayConfigurationsApi
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.map
@@ -31,7 +31,7 @@ internal class GatewayConfigurationsRepositoryImpl(
     override fun find(
         request: POGatewayConfigurationRequest,
         callback: ProcessOutCallback<POGatewayConfiguration>
-    ) = apiCallScoped(callback, POGatewayConfigurationResponse::toModel) {
+    ) = apiCallScoped(callback, GatewayConfigurationResponse::toModel) {
         api.find(request.gatewayConfigurationId, request.toQuery())
     }
 }
@@ -52,4 +52,4 @@ private fun POGatewayConfigurationRequest.toQuery(): Map<String, String> {
     return query
 }
 
-private fun POGatewayConfigurationResponse.toModel() = gatewayConfiguration
+private fun GatewayConfigurationResponse.toModel() = gatewayConfiguration
