@@ -6,10 +6,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.processout.sdk.api.model.response.POCard
@@ -22,16 +22,14 @@ import com.processout.sdk.ui.card.update.CardUpdateCompletion.Failure
 import com.processout.sdk.ui.card.update.CardUpdateCompletion.Success
 import com.processout.sdk.ui.card.update.CardUpdateEvent.Dismiss
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.shared.composable.ScreenMode
 import com.processout.sdk.ui.shared.composable.dpToPx
-import com.processout.sdk.ui.shared.composable.imeHeight
-import com.processout.sdk.ui.shared.composable.imeVisibleAsState
-import com.processout.sdk.ui.shared.composable.screenSize
+import com.processout.sdk.ui.shared.composable.screenModeAsState
 
 internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
 
     companion object {
         val tag: String = CardUpdateBottomSheet::class.java.simpleName
-        private const val DEFAULT_HEIGHT_DP = 420
     }
 
     private var configuration: POCardUpdateConfiguration? = null
@@ -68,8 +66,18 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
         setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
         setContent {
             ProcessOutTheme {
-                AdjustHeight(imeVisibleAsState().value)
-                handle(viewModel.completion.collectAsStateWithLifecycle().value)
+                val completion by viewModel.completion.collectAsStateWithLifecycle()
+                LaunchedEffect(completion) {
+                    handle(completion)
+                }
+
+                val screenMode by screenModeAsState(
+                    height = ProcessOutTheme.dimensions.cardUpdateBottomSheetHeight.dpToPx()
+                )
+                LaunchedEffect(screenMode) {
+                    apply(screenMode)
+                }
+
                 CardUpdateScreen(
                     state = viewModel.state.collectAsStateWithLifecycle().value,
                     onEvent = viewModel::onEvent,
@@ -84,23 +92,9 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
         configuration?.let { apply(it.options.cancellation) }
     }
 
-    @Composable
-    private fun AdjustHeight(imeVisible: Boolean) {
-        val defaultHeight = DEFAULT_HEIGHT_DP.dp.dpToPx()
-        if (imeVisible) {
-            val screenSizeHeight = screenSize().height
-            if (screenSizeHeight - imeHeight() < defaultHeight) {
-                allowExpandToFullScreen()
-                bottomSheetBehavior.peekHeight = screenSizeHeight
-            }
-        } else {
-            setHeight(defaultHeight)
-        }
-    }
-
-    private fun setHeight(height: Int) {
-        containerHeight = height
-        bottomSheetBehavior.peekHeight = height
+    private fun apply(mode: ScreenMode) = when (mode) {
+        is ScreenMode.Window -> setHeight(height = mode.height, expandable = false)
+        is ScreenMode.Fullscreen -> setHeight(height = mode.screenHeight, expandable = true)
     }
 
     private fun handle(completion: CardUpdateCompletion) =

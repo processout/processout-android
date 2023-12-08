@@ -164,7 +164,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
 
     override fun onShow(dialog: DialogInterface) {
         if (getDialog() == null) return
-        allowExpandToFullScreen()
+        expandable()
         adjustPeekHeight(animate = false)
     }
 
@@ -207,7 +207,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         }
     }
 
-    private fun allowExpandToFullScreen() {
+    private fun expandable() {
         val bottomSheet: FrameLayout = requireDialog().findViewById(
             com.google.android.material.R.id.design_bottom_sheet
         )
