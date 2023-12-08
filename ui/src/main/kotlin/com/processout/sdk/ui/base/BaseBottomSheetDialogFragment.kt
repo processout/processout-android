@@ -42,8 +42,9 @@ internal abstract class BaseBottomSheetDialogFragment<T : Parcelable> : BottomSh
         dispatchBackPressed()
     }
 
-    protected fun allowExpandToFullScreen() {
-        containerHeight = ViewGroup.LayoutParams.MATCH_PARENT
+    protected fun setHeight(height: Int, expandable: Boolean) {
+        containerHeight = if (expandable) ViewGroup.LayoutParams.MATCH_PARENT else height
+        bottomSheetBehavior.peekHeight = height
     }
 
     protected fun apply(configuration: POCancellationConfiguration) {
