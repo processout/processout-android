@@ -23,10 +23,10 @@ internal class DefaultContextGraph(
             -(it.get(Calendar.ZONE_OFFSET) + it.get(Calendar.DST_OFFSET)) / (1000 * 60)
         }
         return DeviceData(
-            application.currentAppLocale().toLanguageTag(),
-            displayMetrics.widthPixels,
-            displayMetrics.heightPixels,
-            timeZoneOffset
+            appLanguage = application.currentAppLocale().toLanguageTag(),
+            appScreenWidth = displayMetrics.widthPixels,
+            appScreenHeight = displayMetrics.heightPixels,
+            appTimeZoneOffset = timeZoneOffset
         )
     }
 }
