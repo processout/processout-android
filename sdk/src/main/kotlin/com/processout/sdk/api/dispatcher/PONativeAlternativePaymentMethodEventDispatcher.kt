@@ -30,18 +30,18 @@ interface PONativeAlternativePaymentMethodEventDispatcher {
      *
      * ```
      * viewModelScope.launch {
-     *     with(ProcessOutApi.instance.dispatchers.nativeAlternativePaymentMethod) {
+     *     with(ProcessOut.instance.dispatchers.nativeAlternativePaymentMethod) {
      *         // Subscribe for request to provide default values.
      *         defaultValuesRequest.collect { request ->
      *             // Default values should be provided as Map<String, String>
-     *             // where key is PONativeAlternativePaymentMethodParameter.key
+     *             // where key is a [PONativeAlternativePaymentMethodParameter.key]
      *             // and value is a custom default value.
      *             val defaultValues = mutableMapOf<String, String>()
      *
      *             // Populate default values map based on request parameters.
      *             // It's not mandatory to provide defaults for all parameters.
      *             request.parameters.find {
-     *                 it.type == ParameterType.phone
+     *                 it.type() == ParameterType.PHONE
      *             }?.also {
      *                 defaultValues[it.key] = "+111122223333"
      *             }
