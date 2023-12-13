@@ -78,26 +78,26 @@ internal class DefaultInvoicesRepository(
 
     private fun POInvoiceAuthorizationRequest.toDeviceDataRequest() =
         InvoiceAuthorizationRequestWithDeviceData(
-            source,
-            incremental,
-            enableThreeDS2,
-            preferredScheme,
-            thirdPartySdkVersion,
-            invoiceDetailsIds,
-            overrideMacBlocking,
-            initialSchemeTransactionId,
-            autoCaptureAt,
-            captureAmount,
-            authorizeOnly,
-            allowFallbackToSale,
-            metadata,
-            contextGraph.deviceData
+            source = source,
+            incremental = incremental,
+            enableThreeDS2 = enableThreeDS2,
+            preferredScheme = preferredScheme,
+            thirdPartySdkVersion = thirdPartySdkVersion,
+            invoiceDetailsIds = invoiceDetailsIds,
+            overrideMacBlocking = overrideMacBlocking,
+            initialSchemeTransactionId = initialSchemeTransactionId,
+            autoCaptureAt = autoCaptureAt,
+            captureAmount = captureAmount,
+            authorizeOnly = authorizeOnly,
+            allowFallbackToSale = allowFallbackToSale,
+            metadata = metadata,
+            deviceData = contextGraph.deviceData
         )
 
     private fun PONativeAlternativePaymentMethodRequest.toBody() =
         NativeAPMRequestBody(
-            gatewayConfigurationId,
-            NativeAPMRequestParameters(parameters)
+            gatewayConfigurationId = gatewayConfigurationId,
+            nativeApm = NativeAPMRequestParameters(parameterValues = parameters)
         )
 }
 

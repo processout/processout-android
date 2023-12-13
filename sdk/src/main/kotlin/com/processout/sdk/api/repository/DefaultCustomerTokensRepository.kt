@@ -42,13 +42,13 @@ internal class DefaultCustomerTokensRepository(
 
     private fun POAssignCustomerTokenRequest.toDeviceDataRequest() =
         AssignCustomerTokenRequestWithDeviceData(
-            source,
-            preferredScheme,
-            enableThreeDS2,
-            verify,
-            invoiceId,
-            thirdPartySdkVersion,
-            metadata,
-            contextGraph.deviceData
+            source = source,
+            preferredScheme = preferredScheme,
+            enableThreeDS2 = enableThreeDS2,
+            verify = verify,
+            invoiceId = invoiceId,
+            thirdPartySdkVersion = thirdPartySdkVersion,
+            metadata = metadata,
+            deviceData = contextGraph.deviceData
         )
 }

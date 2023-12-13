@@ -74,20 +74,20 @@ internal class DefaultCardsRepository(
 
     private fun POCardTokenizationRequest.toDeviceDataRequest() =
         CardTokenizationRequestWithDeviceData(
-            metadata,
-            number,
-            expMonth,
-            expYear,
-            cvc,
-            name,
-            contact,
-            preferredScheme,
-            tokenType?.value ?: String(),
-            paymentToken,
-            contextGraph.deviceData
+            metadata = metadata,
+            number = number,
+            expMonth = expMonth,
+            expYear = expYear,
+            cvc = cvc,
+            name = name,
+            contact = contact,
+            preferredScheme = preferredScheme,
+            tokenType = tokenType?.value ?: String(),
+            paymentToken = paymentToken,
+            deviceData = contextGraph.deviceData
         )
 
-    private fun POCardUpdateRequest.toBody() = CardUpdateRequestBody(cvc)
+    private fun POCardUpdateRequest.toBody() = CardUpdateRequestBody(cvc = cvc)
 }
 
 private fun CardResponse.toModel() = card
