@@ -19,14 +19,14 @@ internal class DefaultContextGraph(
 
     private fun provideDeviceData(): DeviceData {
         val displayMetrics = application.resources.displayMetrics
-        val timezoneOffset = Calendar.getInstance().let {
+        val timeZoneOffset = Calendar.getInstance().let {
             -(it.get(Calendar.ZONE_OFFSET) + it.get(Calendar.DST_OFFSET)) / (1000 * 60)
         }
         return DeviceData(
             application.currentAppLocale().toLanguageTag(),
             displayMetrics.widthPixels,
             displayMetrics.heightPixels,
-            timezoneOffset
+            timeZoneOffset
         )
     }
 }
