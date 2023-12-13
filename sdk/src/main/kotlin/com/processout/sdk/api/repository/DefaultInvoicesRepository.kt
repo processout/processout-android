@@ -17,7 +17,7 @@ internal class DefaultInvoicesRepository(
     override suspend fun authorizeInvoice(
         request: POInvoiceAuthorizationRequest
     ) = apiCall {
-        api.authorizeInvoice(request.invoiceId, request.toDeviceDataRequest())
+        api.authorizeInvoice(request.invoiceId, request.withDeviceData())
     }
 
     override suspend fun initiatePayment(
@@ -76,7 +76,7 @@ internal class DefaultInvoicesRepository(
     override suspend fun createInvoice(request: POCreateInvoiceRequest) =
         apiCall { api.createInvoice(request) }.map { it.invoice }
 
-    private fun POInvoiceAuthorizationRequest.toDeviceDataRequest() =
+    private fun POInvoiceAuthorizationRequest.withDeviceData() =
         InvoiceAuthorizationRequestWithDeviceData(
             source = source,
             incremental = incremental,

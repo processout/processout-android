@@ -23,7 +23,7 @@ internal class DefaultCustomerTokensRepository(
         api.assignCustomerToken(
             request.customerId,
             request.tokenId,
-            request.toDeviceDataRequest()
+            request.withDeviceData()
         )
     }
 
@@ -40,7 +40,7 @@ internal class DefaultCustomerTokensRepository(
     override suspend fun createCustomer(request: POCreateCustomerRequest) =
         apiCall { api.createCustomer(request) }.map { it.customer }
 
-    private fun POAssignCustomerTokenRequest.toDeviceDataRequest() =
+    private fun POAssignCustomerTokenRequest.withDeviceData() =
         AssignCustomerTokenRequestWithDeviceData(
             source = source,
             preferredScheme = preferredScheme,

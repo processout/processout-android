@@ -19,14 +19,14 @@ internal class DefaultCardsRepository(
 
     override suspend fun tokenize(request: POCardTokenizationRequest) =
         apiCall {
-            api.tokenize(request.toDeviceDataRequest())
+            api.tokenize(request.withDeviceData())
         }.map { it.toModel() }
 
     override fun tokenize(
         request: POCardTokenizationRequest,
         callback: ProcessOutCallback<POCard>
     ) = apiCallScoped(callback, CardResponse::toModel) {
-        api.tokenize(request.toDeviceDataRequest())
+        api.tokenize(request.withDeviceData())
     }
 
     override suspend fun updateCard(
@@ -72,7 +72,7 @@ internal class DefaultCardsRepository(
         api.fetchIssuerInformation(iin)
     }
 
-    private fun POCardTokenizationRequest.toDeviceDataRequest() =
+    private fun POCardTokenizationRequest.withDeviceData() =
         CardTokenizationRequestWithDeviceData(
             metadata = metadata,
             number = number,
