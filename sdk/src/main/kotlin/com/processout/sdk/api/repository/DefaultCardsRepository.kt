@@ -17,10 +17,11 @@ internal class DefaultCardsRepository(
     private val contextGraph: ContextGraph
 ) : BaseRepository(moshi), POCardsRepository {
 
-    override suspend fun tokenize(request: POCardTokenizationRequest) =
-        apiCall {
-            api.tokenize(request.withDeviceData())
-        }.map { it.toModel() }
+    override suspend fun tokenize(
+        request: POCardTokenizationRequest
+    ) = apiCall {
+        api.tokenize(request.withDeviceData())
+    }.map { it.toModel() }
 
     override fun tokenize(
         request: POCardTokenizationRequest,
@@ -31,8 +32,9 @@ internal class DefaultCardsRepository(
 
     override suspend fun updateCard(
         request: POCardUpdateRequest
-    ) = apiCall { api.updateCard(request.cardId, request.toBody()) }
-        .map { it.toModel() }
+    ) = apiCall {
+        api.updateCard(request.cardId, request.toBody())
+    }.map { it.toModel() }
 
     override fun updateCard(
         request: POCardUpdateRequest,

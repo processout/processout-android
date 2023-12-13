@@ -15,18 +15,20 @@ internal class DefaultGatewayConfigurationsRepository(
     private val api: GatewayConfigurationsApi
 ) : BaseRepository(moshi), POGatewayConfigurationsRepository {
 
-    override suspend fun fetch(request: POAllGatewayConfigurationsRequest) =
-        apiCall { api.fetch(request.toQuery()) }
+    override suspend fun fetch(
+        request: POAllGatewayConfigurationsRequest
+    ) = apiCall { api.fetch(request.toQuery()) }
 
     override fun fetch(
         request: POAllGatewayConfigurationsRequest,
         callback: ProcessOutCallback<POAllGatewayConfigurations>
     ) = apiCallScoped(callback) { api.fetch(request.toQuery()) }
 
-    override suspend fun find(request: POGatewayConfigurationRequest) =
-        apiCall {
-            api.find(request.gatewayConfigurationId, request.toQuery())
-        }.map { it.toModel() }
+    override suspend fun find(
+        request: POGatewayConfigurationRequest
+    ) = apiCall {
+        api.find(request.gatewayConfigurationId, request.toQuery())
+    }.map { it.toModel() }
 
     override fun find(
         request: POGatewayConfigurationRequest,
