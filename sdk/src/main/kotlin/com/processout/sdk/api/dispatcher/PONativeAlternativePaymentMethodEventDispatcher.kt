@@ -10,23 +10,19 @@ import kotlinx.coroutines.flow.SharedFlow
 /**
  * Dispatcher that allows to handle events during native alternative payments.
  */
-abstract class PONativeAlternativePaymentMethodEventDispatcher {
+interface PONativeAlternativePaymentMethodEventDispatcher {
 
     /**
      * Allows to subscribe for native alternative payment lifecycle events.
      */
-    abstract val events: SharedFlow<PONativeAlternativePaymentMethodEvent>
+    val events: SharedFlow<PONativeAlternativePaymentMethodEvent>
 
     /**
      * Allows to subscribe for request to provide default values.
      * Once you've subscribed it's required to call [provideDefaultValues]
      * for each request to proceed with the payment flow.
      */
-    abstract val defaultValuesRequest: SharedFlow<PONativeAlternativePaymentMethodDefaultValuesRequest>
-    internal abstract val defaultValuesResponse: SharedFlow<PONativeAlternativePaymentMethodDefaultValuesResponse>
-
-    internal abstract suspend fun send(event: PONativeAlternativePaymentMethodEvent)
-    internal abstract suspend fun send(request: PONativeAlternativePaymentMethodDefaultValuesRequest)
+    val defaultValuesRequest: SharedFlow<PONativeAlternativePaymentMethodDefaultValuesRequest>
 
     /**
      * Allows to provide default values response which must be constructed from request
@@ -61,7 +57,5 @@ abstract class PONativeAlternativePaymentMethodEventDispatcher {
      * }
      * ```
      */
-    abstract suspend fun provideDefaultValues(response: PONativeAlternativePaymentMethodDefaultValuesResponse)
-
-    internal abstract fun subscribedForDefaultValuesRequest(): Boolean
+    suspend fun provideDefaultValues(response: PONativeAlternativePaymentMethodDefaultValuesResponse)
 }
