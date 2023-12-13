@@ -10,7 +10,7 @@ internal interface RepositoryGraph {
     val logsRepository: LogsRepository
 }
 
-internal class RepositoryGraphImpl(
+internal class DefaultRepositoryGraph(
     contextGraph: ContextGraph,
     networkGraph: NetworkGraph
 ) : RepositoryGraph {

@@ -10,7 +10,9 @@ internal interface ContextGraph {
     val deviceData: DeviceData
 }
 
-internal class ContextGraphImpl(override val application: Application) : ContextGraph {
+internal class DefaultContextGraph(
+    override val application: Application
+) : ContextGraph {
 
     override val deviceData: DeviceData
         get() = provideDeviceData()

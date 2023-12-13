@@ -17,7 +17,7 @@ internal interface ServiceGraph {
     val remoteLoggerService: POLoggerService
 }
 
-internal class ServiceGraphImpl(
+internal class DefaultServiceGraph(
     contextGraph: ContextGraph,
     networkGraph: NetworkGraph,
     repositoryGraph: RepositoryGraph,

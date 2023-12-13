@@ -22,7 +22,9 @@ internal interface NetworkGraph {
     val logsApi: LogsApi
 }
 
-internal class NetworkGraphImpl(configuration: NetworkConfiguration) : NetworkGraph {
+internal class DefaultNetworkGraph(
+    configuration: NetworkConfiguration
+) : NetworkGraph {
 
     private val okHttpClient: OkHttpClient =
         OkHttpClient.Builder()
@@ -42,6 +44,7 @@ internal class NetworkGraphImpl(configuration: NetworkConfiguration) : NetworkGr
     override val moshi: Moshi = Moshi.Builder()
         .add(Date::class.java, Rfc3339DateJsonAdapter())
         .build()
+
     private val moshiConverterFactory = MoshiConverterFactory.create(moshi)
 
     private val retrofit: Retrofit =
