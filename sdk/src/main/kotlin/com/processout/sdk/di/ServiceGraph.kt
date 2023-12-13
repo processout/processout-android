@@ -27,27 +27,27 @@ internal class DefaultServiceGraph(
     private val mainCoroutineScope: CoroutineScope
         get() = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
-    private val threeDSService: ThreeDSService = ThreeDSServiceImpl(networkGraph.moshi)
+    private val threeDSService: ThreeDSService = DefaultThreeDSService(networkGraph.moshi)
 
     override val invoicesService: POInvoicesService =
-        InvoicesServiceImpl(
+        DefaultInvoicesService(
             mainCoroutineScope,
             repositoryGraph.invoicesRepository,
             threeDSService
         )
 
     override val customerTokensService: POCustomerTokensService =
-        CustomerTokensServiceImpl(
+        DefaultCustomerTokensService(
             mainCoroutineScope,
             repositoryGraph.customerTokensRepository,
             threeDSService
         )
 
     override val alternativePaymentMethodsService: POAlternativePaymentMethodsService =
-        AlternativePaymentMethodsServiceImpl(alternativePaymentMethodsConfiguration)
+        DefaultAlternativePaymentMethodsService(alternativePaymentMethodsConfiguration)
 
     override val browserCapabilitiesService: POBrowserCapabilitiesService =
-        BrowserCapabilitiesServiceImpl(contextGraph.application)
+        DefaultBrowserCapabilitiesService(contextGraph.application)
 
     override val systemLoggerService: POLoggerService =
         SystemLoggerService(minimumLevel = POLogLevel.DEBUG)

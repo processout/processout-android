@@ -9,7 +9,7 @@ import com.processout.sdk.core.POFailure.Code.*
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.util.findBy
 
-internal class AlternativePaymentMethodsServiceImpl(
+internal class DefaultAlternativePaymentMethodsService(
     private val configuration: AlternativePaymentMethodsConfiguration
 ) : POAlternativePaymentMethodsService {
 

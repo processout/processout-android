@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
-internal class InvoicesServiceImpl(
+internal class DefaultInvoicesService(
     private val scope: CoroutineScope,
     private val repository: InvoicesRepository,
     private val threeDSService: ThreeDSService
@@ -32,7 +32,7 @@ internal class InvoicesServiceImpl(
             when (val result = repository.authorizeInvoice(request)) {
                 is ProcessOutResult.Success ->
                     result.value.customerAction?.let { action ->
-                        this@InvoicesServiceImpl.threeDSService
+                        this@DefaultInvoicesService.threeDSService
                             .handle(action, threeDSService) { serviceResult ->
                                 when (serviceResult) {
                                     is ProcessOutResult.Success ->
@@ -77,7 +77,7 @@ internal class InvoicesServiceImpl(
             when (val result = repository.authorizeInvoice(request)) {
                 is ProcessOutResult.Success ->
                     result.value.customerAction?.let { action ->
-                        this@InvoicesServiceImpl.threeDSService
+                        this@DefaultInvoicesService.threeDSService
                             .handle(action, threeDSService) { serviceResult ->
                                 @Suppress("DEPRECATION")
                                 when (serviceResult) {
