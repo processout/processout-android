@@ -34,22 +34,22 @@ internal class DefaultGatewayConfigurationsRepository(
     ) = apiCallScoped(callback, GatewayConfigurationResponse::toModel) {
         api.find(request.gatewayConfigurationId, request.toQuery())
     }
-}
 
-private fun POAllGatewayConfigurationsRequest.toQuery(): Map<String, String> {
-    val query = mutableMapOf<String, String>()
-    filter?.let { query["filter"] = it.queryValue }
-    query["with_disabled"] = withDisabled.toString()
-    query["expand_merchant_accounts"] = true.toString()
-    return query
-}
-
-private fun POGatewayConfigurationRequest.toQuery(): Map<String, String> {
-    val query = mutableMapOf<String, String>()
-    if (withGateway) {
-        query["expand[]"] = "gateway"
+    private fun POAllGatewayConfigurationsRequest.toQuery(): Map<String, String> {
+        val query = mutableMapOf<String, String>()
+        filter?.let { query["filter"] = it.queryValue }
+        query["with_disabled"] = withDisabled.toString()
+        query["expand_merchant_accounts"] = true.toString()
+        return query
     }
-    return query
+
+    private fun POGatewayConfigurationRequest.toQuery(): Map<String, String> {
+        val query = mutableMapOf<String, String>()
+        if (withGateway) {
+            query["expand[]"] = "gateway"
+        }
+        return query
+    }
 }
 
 private fun GatewayConfigurationResponse.toModel() = gatewayConfiguration

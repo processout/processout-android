@@ -19,14 +19,14 @@ internal class DefaultCardsRepository(
 
     override suspend fun tokenize(request: POCardTokenizationRequest) =
         apiCall {
-            api.tokenize(request.toDeviceDataRequest(contextGraph.deviceData))
+            api.tokenize(request.toDeviceDataRequest())
         }.map { it.toModel() }
 
     override fun tokenize(
         request: POCardTokenizationRequest,
         callback: ProcessOutCallback<POCard>
     ) = apiCallScoped(callback, CardResponse::toModel) {
-        api.tokenize(request.toDeviceDataRequest(contextGraph.deviceData))
+        api.tokenize(request.toDeviceDataRequest())
     }
 
     override suspend fun updateCard(
@@ -71,24 +71,24 @@ internal class DefaultCardsRepository(
     ) = apiCallScoped(callback, CardIssuerInformationResponse::toModel) {
         api.fetchIssuerInformation(iin)
     }
+
+    private fun POCardTokenizationRequest.toDeviceDataRequest() =
+        CardTokenizationRequestWithDeviceData(
+            metadata,
+            number,
+            expMonth,
+            expYear,
+            cvc,
+            name,
+            contact,
+            preferredScheme,
+            tokenType?.value ?: String(),
+            paymentToken,
+            contextGraph.deviceData
+        )
+
+    private fun POCardUpdateRequest.toBody() = CardUpdateRequestBody(cvc)
 }
-
-private fun POCardTokenizationRequest.toDeviceDataRequest(deviceData: DeviceData) =
-    CardTokenizationRequestWithDeviceData(
-        metadata,
-        number,
-        expMonth,
-        expYear,
-        cvc,
-        name,
-        contact,
-        preferredScheme,
-        tokenType?.value ?: String(),
-        paymentToken,
-        deviceData
-    )
-
-private fun POCardUpdateRequest.toBody() = CardUpdateRequestBody(cvc)
 
 private fun CardResponse.toModel() = card
 
