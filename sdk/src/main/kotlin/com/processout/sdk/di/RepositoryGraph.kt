@@ -16,17 +16,17 @@ internal class DefaultRepositoryGraph(
 ) : RepositoryGraph {
 
     override val gatewayConfigurationsRepository: POGatewayConfigurationsRepository =
-        GatewayConfigurationsRepositoryImpl(networkGraph.moshi, networkGraph.gatewayConfigurationsApi)
+        DefaultGatewayConfigurationsRepository(networkGraph.moshi, networkGraph.gatewayConfigurationsApi)
 
     override val invoicesRepository: InvoicesRepository =
-        InvoicesRepositoryImpl(networkGraph.moshi, networkGraph.invoicesApi, contextGraph)
+        DefaultInvoicesRepository(networkGraph.moshi, networkGraph.invoicesApi, contextGraph)
 
     override val cardsRepository: POCardsRepository =
-        CardsRepositoryImpl(networkGraph.moshi, networkGraph.cardsApi, contextGraph)
+        DefaultCardsRepository(networkGraph.moshi, networkGraph.cardsApi, contextGraph)
 
     override val customerTokensRepository: CustomerTokensRepository =
-        CustomerTokensRepositoryImpl(networkGraph.moshi, networkGraph.customerTokensApi, contextGraph)
+        DefaultCustomerTokensRepository(networkGraph.moshi, networkGraph.customerTokensApi, contextGraph)
 
     override val logsRepository: LogsRepository =
-        LogsRepositoryImpl(networkGraph.moshi, networkGraph.logsApi)
+        DefaultLogsRepository(networkGraph.moshi, networkGraph.logsApi)
 }

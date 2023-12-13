@@ -5,7 +5,7 @@ import com.processout.sdk.api.network.LogsApi
 import com.squareup.moshi.Moshi
 import kotlinx.coroutines.launch
 
-internal class LogsRepositoryImpl(
+internal class DefaultLogsRepository(
     moshi: Moshi,
     private val api: LogsApi
 ) : BaseRepository(moshi), LogsRepository {

@@ -11,7 +11,7 @@ import com.processout.sdk.core.map
 import com.processout.sdk.di.ContextGraph
 import com.squareup.moshi.Moshi
 
-internal class CardsRepositoryImpl(
+internal class DefaultCardsRepository(
     moshi: Moshi,
     private val api: CardsApi,
     private val contextGraph: ContextGraph

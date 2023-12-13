@@ -10,7 +10,7 @@ import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.map
 import com.squareup.moshi.Moshi
 
-internal class GatewayConfigurationsRepositoryImpl(
+internal class DefaultGatewayConfigurationsRepository(
     moshi: Moshi,
     private val api: GatewayConfigurationsApi
 ) : BaseRepository(moshi), POGatewayConfigurationsRepository {

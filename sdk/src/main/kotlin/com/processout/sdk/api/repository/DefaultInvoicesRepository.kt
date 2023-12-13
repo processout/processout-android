@@ -8,7 +8,7 @@ import com.processout.sdk.core.map
 import com.processout.sdk.di.ContextGraph
 import com.squareup.moshi.Moshi
 
-internal class InvoicesRepositoryImpl(
+internal class DefaultInvoicesRepository(
     moshi: Moshi,
     private val api: InvoicesApi,
     private val contextGraph: ContextGraph

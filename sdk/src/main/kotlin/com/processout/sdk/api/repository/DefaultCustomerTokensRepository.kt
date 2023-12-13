@@ -11,7 +11,7 @@ import com.processout.sdk.core.map
 import com.processout.sdk.di.ContextGraph
 import com.squareup.moshi.Moshi
 
-internal class CustomerTokensRepositoryImpl(
+internal class DefaultCustomerTokensRepository(
     moshi: Moshi,
     private val api: CustomerTokensApi,
     private val contextGraph: ContextGraph
