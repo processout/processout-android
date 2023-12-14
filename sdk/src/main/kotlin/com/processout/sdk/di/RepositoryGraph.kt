@@ -19,18 +19,23 @@ internal class DefaultRepositoryGraph(
     private val failureMapper: ApiFailureMapper
         get() = ApiFailureMapper(adapter = networkGraph.moshi.adapter(POFailure.ApiError::class.java))
 
-    override val gatewayConfigurationsRepository: POGatewayConfigurationsRepository =
+    override val gatewayConfigurationsRepository: POGatewayConfigurationsRepository by lazy {
         DefaultGatewayConfigurationsRepository(failureMapper, networkGraph.gatewayConfigurationsApi)
+    }
 
-    override val invoicesRepository: InvoicesRepository =
+    override val invoicesRepository: InvoicesRepository by lazy {
         DefaultInvoicesRepository(failureMapper, networkGraph.invoicesApi, contextGraph)
+    }
 
-    override val cardsRepository: POCardsRepository =
+    override val cardsRepository: POCardsRepository by lazy {
         DefaultCardsRepository(failureMapper, networkGraph.cardsApi, contextGraph)
+    }
 
-    override val customerTokensRepository: CustomerTokensRepository =
+    override val customerTokensRepository: CustomerTokensRepository by lazy {
         DefaultCustomerTokensRepository(failureMapper, networkGraph.customerTokensApi, contextGraph)
+    }
 
-    override val logsRepository: LogsRepository =
+    override val logsRepository: LogsRepository by lazy {
         DefaultLogsRepository(failureMapper, networkGraph.logsApi)
+    }
 }
