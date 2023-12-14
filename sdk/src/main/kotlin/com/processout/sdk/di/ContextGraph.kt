@@ -18,9 +18,7 @@ internal class DefaultContextGraph(
     override val application: Application
 ) : ContextGraph {
 
-    private val screenSize: Size by lazy {
-        application.screenSize()
-    }
+    private val screenSize: Size by lazy { application.screenSize() }
 
     override val deviceData: DeviceData
         get() = provideDeviceData()
