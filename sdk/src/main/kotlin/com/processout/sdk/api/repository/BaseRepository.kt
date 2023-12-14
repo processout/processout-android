@@ -26,7 +26,7 @@ internal abstract class BaseRepository(
         apiMethod: suspend () -> Response<T>
     ): ProcessOutResult<T> = withContext(workDispatcher) {
         try {
-            val response = retry(retryStrategy, apiMethod)
+            val response = retry(apiMethod, retryStrategy)
             when (response.isSuccessful) {
                 true -> response.body()?.let { ProcessOutResult.Success(it) }
                     ?: response.handleEmptyBody()
@@ -58,8 +58,8 @@ internal abstract class BaseRepository(
     }
 
     private suspend fun <T : Any> retry(
-        strategy: RetryStrategy,
-        apiMethod: suspend () -> Response<T>
+        apiMethod: suspend () -> Response<T>,
+        strategy: RetryStrategy
     ): Response<T> {
         val iterator = strategy.iterator
         repeat(strategy.maxRetries - 1) {
