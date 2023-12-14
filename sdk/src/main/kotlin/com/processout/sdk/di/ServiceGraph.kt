@@ -27,31 +27,39 @@ internal class DefaultServiceGraph(
     private val mainCoroutineScope: CoroutineScope
         get() = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
-    private val threeDSService: ThreeDSService = DefaultThreeDSService(networkGraph.moshi)
+    private val threeDSService: ThreeDSService by lazy {
+        DefaultThreeDSService(networkGraph.moshi)
+    }
 
-    override val invoicesService: POInvoicesService =
+    override val invoicesService: POInvoicesService by lazy {
         DefaultInvoicesService(
             mainCoroutineScope,
             repositoryGraph.invoicesRepository,
             threeDSService
         )
+    }
 
-    override val customerTokensService: POCustomerTokensService =
+    override val customerTokensService: POCustomerTokensService by lazy {
         DefaultCustomerTokensService(
             mainCoroutineScope,
             repositoryGraph.customerTokensRepository,
             threeDSService
         )
+    }
 
-    override val alternativePaymentMethodsService: POAlternativePaymentMethodsService =
+    override val alternativePaymentMethodsService: POAlternativePaymentMethodsService by lazy {
         DefaultAlternativePaymentMethodsService(alternativePaymentMethodsConfiguration)
+    }
 
-    override val browserCapabilitiesService: POBrowserCapabilitiesService =
+    override val browserCapabilitiesService: POBrowserCapabilitiesService by lazy {
         DefaultBrowserCapabilitiesService(contextGraph.application)
+    }
 
-    override val systemLoggerService: POLoggerService =
+    override val systemLoggerService: POLoggerService by lazy {
         SystemLoggerService(minimumLevel = POLogLevel.DEBUG)
+    }
 
-    override val remoteLoggerService: POLoggerService =
+    override val remoteLoggerService: POLoggerService by lazy {
         RemoteLoggerService(minimumLevel = POLogLevel.WARN, repositoryGraph.logsRepository)
+    }
 }
