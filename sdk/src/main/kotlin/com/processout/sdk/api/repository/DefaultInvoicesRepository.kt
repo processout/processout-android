@@ -6,13 +6,12 @@ import com.processout.sdk.api.network.InvoicesApi
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.map
 import com.processout.sdk.di.ContextGraph
-import com.squareup.moshi.Moshi
 
 internal class DefaultInvoicesRepository(
-    moshi: Moshi,
+    failureMapper: ApiFailureMapper,
     private val api: InvoicesApi,
     private val contextGraph: ContextGraph
-) : BaseRepository(moshi), InvoicesRepository {
+) : BaseRepository(failureMapper), InvoicesRepository {
 
     override suspend fun authorizeInvoice(
         request: POInvoiceAuthorizationRequest

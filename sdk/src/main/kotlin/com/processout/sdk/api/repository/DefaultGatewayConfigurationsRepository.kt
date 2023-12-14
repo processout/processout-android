@@ -8,12 +8,11 @@ import com.processout.sdk.api.model.response.POGatewayConfiguration
 import com.processout.sdk.api.network.GatewayConfigurationsApi
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.map
-import com.squareup.moshi.Moshi
 
 internal class DefaultGatewayConfigurationsRepository(
-    moshi: Moshi,
+    failureMapper: ApiFailureMapper,
     private val api: GatewayConfigurationsApi
-) : BaseRepository(moshi), POGatewayConfigurationsRepository {
+) : BaseRepository(failureMapper), POGatewayConfigurationsRepository {
 
     override suspend fun fetch(
         request: POAllGatewayConfigurationsRequest

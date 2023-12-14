@@ -9,13 +9,12 @@ import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.map
 import com.processout.sdk.di.ContextGraph
-import com.squareup.moshi.Moshi
 
 internal class DefaultCustomerTokensRepository(
-    moshi: Moshi,
+    failureMapper: ApiFailureMapper,
     private val api: CustomerTokensApi,
     private val contextGraph: ContextGraph
-) : BaseRepository(moshi), CustomerTokensRepository {
+) : BaseRepository(failureMapper), CustomerTokensRepository {
 
     override suspend fun assignCustomerToken(
         request: POAssignCustomerTokenRequest

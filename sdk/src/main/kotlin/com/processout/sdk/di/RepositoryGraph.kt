@@ -1,6 +1,7 @@
 package com.processout.sdk.di
 
 import com.processout.sdk.api.repository.*
+import com.processout.sdk.core.POFailure
 
 internal interface RepositoryGraph {
     val gatewayConfigurationsRepository: POGatewayConfigurationsRepository
@@ -12,21 +13,24 @@ internal interface RepositoryGraph {
 
 internal class DefaultRepositoryGraph(
     contextGraph: ContextGraph,
-    networkGraph: NetworkGraph
+    private val networkGraph: NetworkGraph
 ) : RepositoryGraph {
 
+    private val failureMapper: ApiFailureMapper
+        get() = ApiFailureMapper(adapter = networkGraph.moshi.adapter(POFailure.ApiError::class.java))
+
     override val gatewayConfigurationsRepository: POGatewayConfigurationsRepository =
-        DefaultGatewayConfigurationsRepository(networkGraph.moshi, networkGraph.gatewayConfigurationsApi)
+        DefaultGatewayConfigurationsRepository(failureMapper, networkGraph.gatewayConfigurationsApi)
 
     override val invoicesRepository: InvoicesRepository =
-        DefaultInvoicesRepository(networkGraph.moshi, networkGraph.invoicesApi, contextGraph)
+        DefaultInvoicesRepository(failureMapper, networkGraph.invoicesApi, contextGraph)
 
     override val cardsRepository: POCardsRepository =
-        DefaultCardsRepository(networkGraph.moshi, networkGraph.cardsApi, contextGraph)
+        DefaultCardsRepository(failureMapper, networkGraph.cardsApi, contextGraph)
 
     override val customerTokensRepository: CustomerTokensRepository =
-        DefaultCustomerTokensRepository(networkGraph.moshi, networkGraph.customerTokensApi, contextGraph)
+        DefaultCustomerTokensRepository(failureMapper, networkGraph.customerTokensApi, contextGraph)
 
     override val logsRepository: LogsRepository =
-        DefaultLogsRepository(networkGraph.moshi, networkGraph.logsApi)
+        DefaultLogsRepository(failureMapper, networkGraph.logsApi)
 }

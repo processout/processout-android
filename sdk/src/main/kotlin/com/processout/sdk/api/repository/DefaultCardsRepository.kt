@@ -9,13 +9,12 @@ import com.processout.sdk.api.network.CardsApi
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.map
 import com.processout.sdk.di.ContextGraph
-import com.squareup.moshi.Moshi
 
 internal class DefaultCardsRepository(
-    moshi: Moshi,
+    failureMapper: ApiFailureMapper,
     private val api: CardsApi,
     private val contextGraph: ContextGraph
-) : BaseRepository(moshi), POCardsRepository {
+) : BaseRepository(failureMapper), POCardsRepository {
 
     override suspend fun tokenize(
         request: POCardTokenizationRequest
