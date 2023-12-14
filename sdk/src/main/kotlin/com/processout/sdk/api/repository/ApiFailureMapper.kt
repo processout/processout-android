@@ -13,8 +13,12 @@ internal class ApiFailureMapper(
     fun <T : Any> map(response: Response<T>): ProcessOutResult.Failure {
         val errorBodyString = response.errorBody()?.string()
         val apiError = errorBodyString?.let {
-            adapter.fromJson(errorBodyString)
+            adapter.fromJson(it)
         }
+
+        val failureCode = apiError?.errorType?.let {
+            failureCode(statusCode = response.code(), errorType = it)
+        } ?: POFailure.Code.Internal()
 
         val message = buildString {
             append("Status code: ${response.code()}")
@@ -22,16 +26,11 @@ internal class ApiFailureMapper(
                 append(" | Reason: $it")
             }
         }
-
-        val failureCode = apiError?.errorType?.let {
-            failureCode(httpStatusCode = response.code(), errorType = it)
-        } ?: POFailure.Code.Internal()
-
         return ProcessOutResult.Failure(failureCode, message, apiError?.invalidFields)
     }
 
-    private fun failureCode(httpStatusCode: Int, errorType: String): POFailure.Code {
-        val failureCode = when (httpStatusCode) {
+    private fun failureCode(statusCode: Int, errorType: String): POFailure.Code {
+        val failureCode = when (statusCode) {
             401 -> POFailure.AuthenticationCode::rawValue.findBy(errorType)
                 ?.let { POFailure.Code.Authentication(it) }
             404 -> POFailure.NotFoundCode::rawValue.findBy(errorType)
