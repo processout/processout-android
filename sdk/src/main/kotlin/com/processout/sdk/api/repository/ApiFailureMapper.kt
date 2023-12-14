@@ -16,14 +16,15 @@ internal class ApiFailureMapper(
             adapter.fromJson(errorBodyString)
         }
 
-        val message = "Status code: ${response.code()}".let {
-            errorBodyString?.let { error ->
-                it.plus(" | Reason: $error")
-            } ?: it
+        val message = buildString {
+            append("Status code: ${response.code()}")
+            errorBodyString?.let {
+                append(" | Reason: $it")
+            }
         }
 
         val failureCode = apiError?.errorType?.let {
-            failureCode(response.code(), it)
+            failureCode(httpStatusCode = response.code(), errorType = it)
         } ?: POFailure.Code.Internal()
 
         return ProcessOutResult.Failure(failureCode, message, apiError?.invalidFields)
