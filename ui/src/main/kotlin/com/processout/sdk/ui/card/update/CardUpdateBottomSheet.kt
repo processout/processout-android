@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
@@ -66,21 +66,17 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
         setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
         setContent {
             ProcessOutTheme {
-                val completion by viewModel.completion.collectAsStateWithLifecycle()
-                LaunchedEffect(completion) {
-                    handle(completion)
+                with(viewModel.completion.collectAsStateWithLifecycle()) {
+                    LaunchedEffect(value) { handle(value) }
                 }
 
-                val screenMode by screenModeAsState(
-                    height = ProcessOutTheme.dimensions.cardUpdateBottomSheetHeight.dpToPx()
-                )
-                LaunchedEffect(screenMode) {
-                    apply(screenMode)
+                with(screenModeAsState(height = ProcessOutTheme.dimensions.cardUpdateBottomSheetHeight.dpToPx())) {
+                    LaunchedEffect(value) { apply(value) }
                 }
 
                 CardUpdateScreen(
                     state = viewModel.state.collectAsStateWithLifecycle().value,
-                    onEvent = viewModel::onEvent,
+                    onEvent = remember { viewModel::onEvent },
                     style = CardUpdateScreen.style(custom = configuration?.style)
                 )
             }
