@@ -6,18 +6,17 @@ import com.processout.sdk.api.network.InvoicesApi
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.map
 import com.processout.sdk.di.ContextGraph
-import com.squareup.moshi.Moshi
 
-internal class InvoicesRepositoryImpl(
-    moshi: Moshi,
+internal class DefaultInvoicesRepository(
+    failureMapper: ApiFailureMapper,
     private val api: InvoicesApi,
     private val contextGraph: ContextGraph
-) : BaseRepository(moshi), InvoicesRepository {
+) : BaseRepository(failureMapper), InvoicesRepository {
 
     override suspend fun authorizeInvoice(
         request: POInvoiceAuthorizationRequest
     ) = apiCall {
-        api.authorizeInvoice(request.invoiceId, request.toDeviceDataRequest())
+        api.authorizeInvoice(request.invoiceId, request.withDeviceData())
     }
 
     override suspend fun initiatePayment(
@@ -76,28 +75,28 @@ internal class InvoicesRepositoryImpl(
     override suspend fun createInvoice(request: POCreateInvoiceRequest) =
         apiCall { api.createInvoice(request) }.map { it.invoice }
 
-    private fun POInvoiceAuthorizationRequest.toDeviceDataRequest() =
+    private fun POInvoiceAuthorizationRequest.withDeviceData() =
         InvoiceAuthorizationRequestWithDeviceData(
-            source,
-            incremental,
-            enableThreeDS2,
-            preferredScheme,
-            thirdPartySdkVersion,
-            invoiceDetailsIds,
-            overrideMacBlocking,
-            initialSchemeTransactionId,
-            autoCaptureAt,
-            captureAmount,
-            authorizeOnly,
-            allowFallbackToSale,
-            metadata,
-            contextGraph.deviceData
+            source = source,
+            incremental = incremental,
+            enableThreeDS2 = enableThreeDS2,
+            preferredScheme = preferredScheme,
+            thirdPartySdkVersion = thirdPartySdkVersion,
+            invoiceDetailsIds = invoiceDetailsIds,
+            overrideMacBlocking = overrideMacBlocking,
+            initialSchemeTransactionId = initialSchemeTransactionId,
+            autoCaptureAt = autoCaptureAt,
+            captureAmount = captureAmount,
+            authorizeOnly = authorizeOnly,
+            allowFallbackToSale = allowFallbackToSale,
+            metadata = metadata,
+            deviceData = contextGraph.deviceData
         )
 
     private fun PONativeAlternativePaymentMethodRequest.toBody() =
         NativeAPMRequestBody(
-            gatewayConfigurationId,
-            NativeAPMRequestParameters(parameters)
+            gatewayConfigurationId = gatewayConfigurationId,
+            nativeApm = NativeAPMRequestParameters(parameterValues = parameters)
         )
 }
 

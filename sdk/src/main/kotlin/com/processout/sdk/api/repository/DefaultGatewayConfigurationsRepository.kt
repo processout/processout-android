@@ -8,25 +8,26 @@ import com.processout.sdk.api.model.response.POGatewayConfiguration
 import com.processout.sdk.api.network.GatewayConfigurationsApi
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.map
-import com.squareup.moshi.Moshi
 
-internal class GatewayConfigurationsRepositoryImpl(
-    moshi: Moshi,
+internal class DefaultGatewayConfigurationsRepository(
+    failureMapper: ApiFailureMapper,
     private val api: GatewayConfigurationsApi
-) : BaseRepository(moshi), POGatewayConfigurationsRepository {
+) : BaseRepository(failureMapper), POGatewayConfigurationsRepository {
 
-    override suspend fun fetch(request: POAllGatewayConfigurationsRequest) =
-        apiCall { api.fetch(request.toQuery()) }
+    override suspend fun fetch(
+        request: POAllGatewayConfigurationsRequest
+    ) = apiCall { api.fetch(request.toQuery()) }
 
     override fun fetch(
         request: POAllGatewayConfigurationsRequest,
         callback: ProcessOutCallback<POAllGatewayConfigurations>
     ) = apiCallScoped(callback) { api.fetch(request.toQuery()) }
 
-    override suspend fun find(request: POGatewayConfigurationRequest) =
-        apiCall {
-            api.find(request.gatewayConfigurationId, request.toQuery())
-        }.map { it.toModel() }
+    override suspend fun find(
+        request: POGatewayConfigurationRequest
+    ) = apiCall {
+        api.find(request.gatewayConfigurationId, request.toQuery())
+    }.map { it.toModel() }
 
     override fun find(
         request: POGatewayConfigurationRequest,
@@ -34,22 +35,22 @@ internal class GatewayConfigurationsRepositoryImpl(
     ) = apiCallScoped(callback, GatewayConfigurationResponse::toModel) {
         api.find(request.gatewayConfigurationId, request.toQuery())
     }
-}
 
-private fun POAllGatewayConfigurationsRequest.toQuery(): Map<String, String> {
-    val query = mutableMapOf<String, String>()
-    filter?.let { query["filter"] = it.queryValue }
-    query["with_disabled"] = withDisabled.toString()
-    query["expand_merchant_accounts"] = true.toString()
-    return query
-}
-
-private fun POGatewayConfigurationRequest.toQuery(): Map<String, String> {
-    val query = mutableMapOf<String, String>()
-    if (withGateway) {
-        query["expand[]"] = "gateway"
+    private fun POAllGatewayConfigurationsRequest.toQuery(): Map<String, String> {
+        val query = mutableMapOf<String, String>()
+        filter?.let { query["filter"] = it.queryValue }
+        query["with_disabled"] = withDisabled.toString()
+        query["expand_merchant_accounts"] = true.toString()
+        return query
     }
-    return query
+
+    private fun POGatewayConfigurationRequest.toQuery(): Map<String, String> {
+        val query = mutableMapOf<String, String>()
+        if (withGateway) {
+            query["expand[]"] = "gateway"
+        }
+        return query
+    }
 }
 
 private fun GatewayConfigurationResponse.toModel() = gatewayConfiguration

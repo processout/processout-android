@@ -19,7 +19,7 @@ import coil.request.ImageRequest
 import coil.request.ImageResult
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
-import com.processout.sdk.api.dispatcher.PONativeAlternativePaymentMethodEventDispatcher
+import com.processout.sdk.api.dispatcher.nativeapm.DefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.*
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodDefaultValuesRequest
@@ -53,7 +53,7 @@ internal class NativeAlternativePaymentMethodViewModel(
     private val gatewayConfigurationId: String,
     private val invoiceId: String,
     private val invoicesService: POInvoicesService,
-    private val eventDispatcher: PONativeAlternativePaymentMethodEventDispatcher,
+    private val eventDispatcher: DefaultNativeAlternativePaymentMethodEventDispatcher,
     val options: Options,
     val logAttributes: Map<String, String>
 ) : AndroidViewModel(app) {
@@ -68,12 +68,12 @@ internal class NativeAlternativePaymentMethodViewModel(
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
             with(ProcessOut.instance) {
                 NativeAlternativePaymentMethodViewModel(
-                    app,
-                    gatewayConfigurationId,
-                    invoiceId,
-                    invoices,
-                    dispatchers.nativeAlternativePaymentMethod,
-                    options.validate(),
+                    app = app,
+                    gatewayConfigurationId = gatewayConfigurationId,
+                    invoiceId = invoiceId,
+                    invoicesService = invoices,
+                    eventDispatcher = DefaultNativeAlternativePaymentMethodEventDispatcher,
+                    options = options.validate(),
                     logAttributes = mapOf(
                         LOG_ATTRIBUTE_INVOICE_ID to invoiceId,
                         LOG_ATTRIBUTE_GATEWAY_CONFIGURATION_ID to gatewayConfigurationId

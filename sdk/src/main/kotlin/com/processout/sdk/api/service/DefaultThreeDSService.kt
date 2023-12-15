@@ -14,7 +14,7 @@ import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
 import java.net.MalformedURLException
 
-internal class ThreeDSServiceImpl(private val moshi: Moshi) : ThreeDSService {
+internal class DefaultThreeDSService(private val moshi: Moshi) : ThreeDSService {
 
     private companion object {
         private const val DEVICE_CHANNEL = "app"

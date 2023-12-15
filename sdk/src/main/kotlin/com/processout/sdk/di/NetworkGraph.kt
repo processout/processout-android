@@ -22,9 +22,11 @@ internal interface NetworkGraph {
     val logsApi: LogsApi
 }
 
-internal class NetworkGraphImpl(configuration: NetworkConfiguration) : NetworkGraph {
+internal class DefaultNetworkGraph(
+    configuration: NetworkConfiguration
+) : NetworkGraph {
 
-    private val okHttpClient: OkHttpClient =
+    private val okHttpClient: OkHttpClient by lazy {
         OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
@@ -38,27 +40,39 @@ internal class NetworkGraphImpl(configuration: NetworkConfiguration) : NetworkGr
                     }.apply { level = HttpLoggingInterceptor.Level.BODY })
                 }
             }.build()
+    }
 
-    override val moshi: Moshi = Moshi.Builder()
-        .add(Date::class.java, Rfc3339DateJsonAdapter())
-        .build()
-    private val moshiConverterFactory = MoshiConverterFactory.create(moshi)
+    override val moshi: Moshi by lazy {
+        Moshi.Builder()
+            .add(Date::class.java, Rfc3339DateJsonAdapter())
+            .build()
+    }
 
-    private val retrofit: Retrofit =
+    private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(configuration.baseUrl)
             .client(okHttpClient)
-            .addConverterFactory(moshiConverterFactory)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
+    }
 
-    override val gatewayConfigurationsApi: GatewayConfigurationsApi =
+    override val gatewayConfigurationsApi: GatewayConfigurationsApi by lazy {
         retrofit.create(GatewayConfigurationsApi::class.java)
+    }
 
-    override val invoicesApi: InvoicesApi = retrofit.create(InvoicesApi::class.java)
+    override val invoicesApi: InvoicesApi by lazy {
+        retrofit.create(InvoicesApi::class.java)
+    }
 
-    override val cardsApi: CardsApi = retrofit.create(CardsApi::class.java)
+    override val cardsApi: CardsApi by lazy {
+        retrofit.create(CardsApi::class.java)
+    }
 
-    override val customerTokensApi: CustomerTokensApi = retrofit.create(CustomerTokensApi::class.java)
+    override val customerTokensApi: CustomerTokensApi by lazy {
+        retrofit.create(CustomerTokensApi::class.java)
+    }
 
-    override val logsApi: LogsApi = retrofit.create(LogsApi::class.java)
+    override val logsApi: LogsApi by lazy {
+        retrofit.create(LogsApi::class.java)
+    }
 }

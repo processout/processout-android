@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
-internal class CustomerTokensServiceImpl(
+internal class DefaultCustomerTokensService(
     private val scope: CoroutineScope,
     private val repository: CustomerTokensRepository,
     private val threeDSService: ThreeDSService
@@ -30,7 +30,7 @@ internal class CustomerTokensServiceImpl(
             when (val result = repository.assignCustomerToken(request)) {
                 is ProcessOutResult.Success ->
                     result.value.customerAction?.let { action ->
-                        this@CustomerTokensServiceImpl.threeDSService
+                        this@DefaultCustomerTokensService.threeDSService
                             .handle(action, threeDSService) { serviceResult ->
                                 when (serviceResult) {
                                     is ProcessOutResult.Success ->
@@ -85,7 +85,7 @@ internal class CustomerTokensServiceImpl(
             when (val result = repository.assignCustomerToken(request)) {
                 is ProcessOutResult.Success ->
                     result.value.customerAction?.let { action ->
-                        this@CustomerTokensServiceImpl.threeDSService
+                        this@DefaultCustomerTokensService.threeDSService
                             .handle(action, threeDSService) { serviceResult ->
                                 @Suppress("DEPRECATION")
                                 when (serviceResult) {

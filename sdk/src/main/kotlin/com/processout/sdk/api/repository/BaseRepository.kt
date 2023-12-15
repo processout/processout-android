@@ -9,28 +9,32 @@ import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.map
 import com.processout.sdk.core.retry.RetryStrategy
 import com.processout.sdk.core.retry.RetryStrategy.Exponential
-import com.squareup.moshi.Moshi
 import kotlinx.coroutines.*
 import retrofit2.Response
 import java.io.IOException
 import java.net.SocketTimeoutException
 
 internal abstract class BaseRepository(
-    protected val moshi: Moshi,
+    private val failureMapper: ApiFailureMapper,
+    private val retryStrategy: RetryStrategy = Exponential(
+        maxRetries = 4,
+        initialDelay = 100,
+        maxDelay = 1000,
+        factor = 3.0
+    ),
     protected val repositoryScope: CoroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob()),
-    protected val workDispatcher: CoroutineDispatcher = Dispatchers.IO,
-    private val retryStrategy: RetryStrategy = Exponential(maxRetries = 4, initialDelay = 100, maxDelay = 1000, factor = 3.0)
+    protected val workDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
 
     protected suspend fun <T : Any> apiCall(
         apiMethod: suspend () -> Response<T>
     ): ProcessOutResult<T> = withContext(workDispatcher) {
         try {
-            val response = retry(retryStrategy, apiMethod)
+            val response = retry(apiMethod, retryStrategy)
             when (response.isSuccessful) {
                 true -> response.body()?.let { ProcessOutResult.Success(it) }
                     ?: response.handleEmptyBody()
-                false -> response.toFailure(moshi)
+                false -> failureMapper.map(response)
             }
         } catch (e: Exception) {
             val repositoryMethodName = apiMethod.javaClass.name
@@ -58,8 +62,8 @@ internal abstract class BaseRepository(
     }
 
     private suspend fun <T : Any> retry(
-        strategy: RetryStrategy,
-        apiMethod: suspend () -> Response<T>
+        apiMethod: suspend () -> Response<T>,
+        strategy: RetryStrategy
     ): Response<T> {
         val iterator = strategy.iterator
         repeat(strategy.maxRetries - 1) {

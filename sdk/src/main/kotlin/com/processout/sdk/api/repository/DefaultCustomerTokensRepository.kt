@@ -9,13 +9,12 @@ import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.map
 import com.processout.sdk.di.ContextGraph
-import com.squareup.moshi.Moshi
 
-internal class CustomerTokensRepositoryImpl(
-    moshi: Moshi,
+internal class DefaultCustomerTokensRepository(
+    failureMapper: ApiFailureMapper,
     private val api: CustomerTokensApi,
     private val contextGraph: ContextGraph
-) : BaseRepository(moshi), CustomerTokensRepository {
+) : BaseRepository(failureMapper), CustomerTokensRepository {
 
     override suspend fun assignCustomerToken(
         request: POAssignCustomerTokenRequest
@@ -23,7 +22,7 @@ internal class CustomerTokensRepositoryImpl(
         api.assignCustomerToken(
             request.customerId,
             request.tokenId,
-            request.toDeviceDataRequest()
+            request.withDeviceData()
         )
     }
 
@@ -40,15 +39,15 @@ internal class CustomerTokensRepositoryImpl(
     override suspend fun createCustomer(request: POCreateCustomerRequest) =
         apiCall { api.createCustomer(request) }.map { it.customer }
 
-    private fun POAssignCustomerTokenRequest.toDeviceDataRequest() =
+    private fun POAssignCustomerTokenRequest.withDeviceData() =
         AssignCustomerTokenRequestWithDeviceData(
-            source,
-            preferredScheme,
-            enableThreeDS2,
-            verify,
-            invoiceId,
-            thirdPartySdkVersion,
-            metadata,
-            contextGraph.deviceData
+            source = source,
+            preferredScheme = preferredScheme,
+            enableThreeDS2 = enableThreeDS2,
+            verify = verify,
+            invoiceId = invoiceId,
+            thirdPartySdkVersion = thirdPartySdkVersion,
+            metadata = metadata,
+            deviceData = contextGraph.deviceData
         )
 }

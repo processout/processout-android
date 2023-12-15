@@ -6,8 +6,11 @@ import com.processout.sdk.api.dispatcher.nativeapm.DefaultNativeAlternativePayme
 
 internal object DefaultEventDispatchers : POEventDispatchers {
 
-    override val cardUpdate: POCardUpdateEventDispatcher = PODefaultCardUpdateEventDispatcher
+    override val cardUpdate: POCardUpdateEventDispatcher by lazy {
+        PODefaultCardUpdateEventDispatcher
+    }
 
-    override val nativeAlternativePaymentMethod: PONativeAlternativePaymentMethodEventDispatcher =
+    override val nativeAlternativePaymentMethod: PONativeAlternativePaymentMethodEventDispatcher by lazy {
         DefaultNativeAlternativePaymentMethodEventDispatcher
+    }
 }

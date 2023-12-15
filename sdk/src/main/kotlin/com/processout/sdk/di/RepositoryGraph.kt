@@ -1,6 +1,7 @@
 package com.processout.sdk.di
 
 import com.processout.sdk.api.repository.*
+import com.processout.sdk.core.POFailure
 
 internal interface RepositoryGraph {
     val gatewayConfigurationsRepository: POGatewayConfigurationsRepository
@@ -10,23 +11,31 @@ internal interface RepositoryGraph {
     val logsRepository: LogsRepository
 }
 
-internal class RepositoryGraphImpl(
+internal class DefaultRepositoryGraph(
     contextGraph: ContextGraph,
-    networkGraph: NetworkGraph
+    private val networkGraph: NetworkGraph
 ) : RepositoryGraph {
 
-    override val gatewayConfigurationsRepository: POGatewayConfigurationsRepository =
-        GatewayConfigurationsRepositoryImpl(networkGraph.moshi, networkGraph.gatewayConfigurationsApi)
+    private val failureMapper: ApiFailureMapper
+        get() = ApiFailureMapper(adapter = networkGraph.moshi.adapter(POFailure.ApiError::class.java))
 
-    override val invoicesRepository: InvoicesRepository =
-        InvoicesRepositoryImpl(networkGraph.moshi, networkGraph.invoicesApi, contextGraph)
+    override val gatewayConfigurationsRepository: POGatewayConfigurationsRepository by lazy {
+        DefaultGatewayConfigurationsRepository(failureMapper, networkGraph.gatewayConfigurationsApi)
+    }
 
-    override val cardsRepository: POCardsRepository =
-        CardsRepositoryImpl(networkGraph.moshi, networkGraph.cardsApi, contextGraph)
+    override val invoicesRepository: InvoicesRepository by lazy {
+        DefaultInvoicesRepository(failureMapper, networkGraph.invoicesApi, contextGraph)
+    }
 
-    override val customerTokensRepository: CustomerTokensRepository =
-        CustomerTokensRepositoryImpl(networkGraph.moshi, networkGraph.customerTokensApi, contextGraph)
+    override val cardsRepository: POCardsRepository by lazy {
+        DefaultCardsRepository(failureMapper, networkGraph.cardsApi, contextGraph)
+    }
 
-    override val logsRepository: LogsRepository =
-        LogsRepositoryImpl(networkGraph.moshi, networkGraph.logsApi)
+    override val customerTokensRepository: CustomerTokensRepository by lazy {
+        DefaultCustomerTokensRepository(failureMapper, networkGraph.customerTokensApi, contextGraph)
+    }
+
+    override val logsRepository: LogsRepository by lazy {
+        DefaultLogsRepository(failureMapper, networkGraph.logsApi)
+    }
 }

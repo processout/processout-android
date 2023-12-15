@@ -27,46 +27,46 @@ class ProcessOut private constructor(
 ) {
 
     /** Gateway configurations repository. */
-    val gatewayConfigurations: POGatewayConfigurationsRepository
+    val gatewayConfigurations: POGatewayConfigurationsRepository by lazy {
+        apiGraph.repositoryGraph.gatewayConfigurationsRepository
+    }
 
     /** Cards repository. */
-    val cards: POCardsRepository
+    val cards: POCardsRepository by lazy {
+        apiGraph.repositoryGraph.cardsRepository
+    }
 
     /** Invoices service. */
-    val invoices: POInvoicesService
+    val invoices: POInvoicesService by lazy {
+        apiGraph.serviceGraph.invoicesService
+    }
 
     /** Customer tokens service. */
-    val customerTokens: POCustomerTokensService
+    val customerTokens: POCustomerTokensService by lazy {
+        apiGraph.serviceGraph.customerTokensService
+    }
 
     /** Alternative payment methods service. */
-    val alternativePaymentMethods: POAlternativePaymentMethodsService
+    val alternativePaymentMethods: POAlternativePaymentMethodsService by lazy {
+        apiGraph.serviceGraph.alternativePaymentMethodsService
+    }
 
     /** Browser capabilities service. */
-    val browserCapabilities: POBrowserCapabilitiesService
+    val browserCapabilities: POBrowserCapabilitiesService by lazy {
+        apiGraph.serviceGraph.browserCapabilitiesService
+    }
 
     /** Dispatcher that allows to handle events during native alternative payments. */
     @Deprecated(
         message = "Use replacement property.",
         replaceWith = ReplaceWith("dispatchers.nativeAlternativePaymentMethod")
     )
-    val nativeAlternativePaymentMethodEventDispatcher: PONativeAlternativePaymentMethodEventDispatcher =
+    val nativeAlternativePaymentMethodEventDispatcher: PONativeAlternativePaymentMethodEventDispatcher by lazy {
         DefaultNativeAlternativePaymentMethodEventDispatcher
+    }
 
     /** Dispatchers that allows to handle events during various payment flows. */
-    val dispatchers: POEventDispatchers = DefaultEventDispatchers
-
-    init {
-        with(apiGraph.repositoryGraph) {
-            gatewayConfigurations = gatewayConfigurationsRepository
-            cards = cardsRepository
-        }
-        with(apiGraph.serviceGraph) {
-            invoices = invoicesService
-            customerTokens = customerTokensService
-            alternativePaymentMethods = alternativePaymentMethodsService
-            browserCapabilities = browserCapabilitiesService
-        }
-    }
+    val dispatchers: POEventDispatchers by lazy { DefaultEventDispatchers }
 
     /**
      * Entry point to ProcessOut Android SDK.
@@ -103,11 +103,11 @@ class ProcessOut private constructor(
                 return
             }
 
-            val contextGraph = ContextGraphImpl(
+            val contextGraph = DefaultContextGraph(
                 application = configuration.application
             )
 
-            val networkGraph = NetworkGraphImpl(
+            val networkGraph = DefaultNetworkGraph(
                 configuration = NetworkConfiguration(
                     application = configuration.application,
                     sdkVersion = VERSION,
@@ -118,14 +118,14 @@ class ProcessOut private constructor(
                 )
             )
 
-            val repositoryGraph = RepositoryGraphImpl(
+            val repositoryGraph = DefaultRepositoryGraph(
                 contextGraph = contextGraph,
                 networkGraph = networkGraph
             )
 
             val apiGraph = ApiGraph(
                 repositoryGraph = repositoryGraph,
-                serviceGraph = ServiceGraphImpl(
+                serviceGraph = DefaultServiceGraph(
                     contextGraph = contextGraph,
                     networkGraph = networkGraph,
                     repositoryGraph = repositoryGraph,

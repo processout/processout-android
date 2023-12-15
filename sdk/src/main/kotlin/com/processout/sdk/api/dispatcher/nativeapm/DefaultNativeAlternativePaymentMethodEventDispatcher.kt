@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
 internal object DefaultNativeAlternativePaymentMethodEventDispatcher
-    : PONativeAlternativePaymentMethodEventDispatcher() {
+    : PONativeAlternativePaymentMethodEventDispatcher {
 
     private val _events = MutableSharedFlow<PONativeAlternativePaymentMethodEvent>()
     override val events = _events.asSharedFlow()
@@ -17,13 +17,13 @@ internal object DefaultNativeAlternativePaymentMethodEventDispatcher
     override val defaultValuesRequest = _defaultValuesRequest.asSharedFlow()
 
     private val _defaultValuesResponse = MutableSharedFlow<PONativeAlternativePaymentMethodDefaultValuesResponse>()
-    override val defaultValuesResponse = _defaultValuesResponse.asSharedFlow()
+    val defaultValuesResponse = _defaultValuesResponse.asSharedFlow()
 
-    override suspend fun send(event: PONativeAlternativePaymentMethodEvent) {
+    suspend fun send(event: PONativeAlternativePaymentMethodEvent) {
         _events.emit(event)
     }
 
-    override suspend fun send(request: PONativeAlternativePaymentMethodDefaultValuesRequest) {
+    suspend fun send(request: PONativeAlternativePaymentMethodDefaultValuesRequest) {
         _defaultValuesRequest.emit(request)
     }
 
@@ -31,5 +31,5 @@ internal object DefaultNativeAlternativePaymentMethodEventDispatcher
         _defaultValuesResponse.emit(response)
     }
 
-    override fun subscribedForDefaultValuesRequest() = _defaultValuesRequest.subscriptionCount.value > 0
+    fun subscribedForDefaultValuesRequest() = _defaultValuesRequest.subscriptionCount.value > 0
 }

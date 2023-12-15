@@ -10,23 +10,19 @@ import kotlinx.coroutines.flow.SharedFlow
 /**
  * Dispatcher that allows to handle events during native alternative payments.
  */
-abstract class PONativeAlternativePaymentMethodEventDispatcher {
+interface PONativeAlternativePaymentMethodEventDispatcher {
 
     /**
      * Allows to subscribe for native alternative payment lifecycle events.
      */
-    abstract val events: SharedFlow<PONativeAlternativePaymentMethodEvent>
+    val events: SharedFlow<PONativeAlternativePaymentMethodEvent>
 
     /**
      * Allows to subscribe for request to provide default values.
      * Once you've subscribed it's required to call [provideDefaultValues]
      * for each request to proceed with the payment flow.
      */
-    abstract val defaultValuesRequest: SharedFlow<PONativeAlternativePaymentMethodDefaultValuesRequest>
-    internal abstract val defaultValuesResponse: SharedFlow<PONativeAlternativePaymentMethodDefaultValuesResponse>
-
-    internal abstract suspend fun send(event: PONativeAlternativePaymentMethodEvent)
-    internal abstract suspend fun send(request: PONativeAlternativePaymentMethodDefaultValuesRequest)
+    val defaultValuesRequest: SharedFlow<PONativeAlternativePaymentMethodDefaultValuesRequest>
 
     /**
      * Allows to provide default values response which must be constructed from request
@@ -34,18 +30,18 @@ abstract class PONativeAlternativePaymentMethodEventDispatcher {
      *
      * ```
      * viewModelScope.launch {
-     *     with(ProcessOutApi.instance.dispatchers.nativeAlternativePaymentMethod) {
+     *     with(ProcessOut.instance.dispatchers.nativeAlternativePaymentMethod) {
      *         // Subscribe for request to provide default values.
      *         defaultValuesRequest.collect { request ->
      *             // Default values should be provided as Map<String, String>
-     *             // where key is PONativeAlternativePaymentMethodParameter.key
+     *             // where key is a [PONativeAlternativePaymentMethodParameter.key]
      *             // and value is a custom default value.
      *             val defaultValues = mutableMapOf<String, String>()
      *
      *             // Populate default values map based on request parameters.
      *             // It's not mandatory to provide defaults for all parameters.
      *             request.parameters.find {
-     *                 it.type == ParameterType.phone
+     *                 it.type() == ParameterType.PHONE
      *             }?.also {
      *                 defaultValues[it.key] = "+111122223333"
      *             }
@@ -61,7 +57,5 @@ abstract class PONativeAlternativePaymentMethodEventDispatcher {
      * }
      * ```
      */
-    abstract suspend fun provideDefaultValues(response: PONativeAlternativePaymentMethodDefaultValuesResponse)
-
-    internal abstract fun subscribedForDefaultValuesRequest(): Boolean
+    suspend fun provideDefaultValues(response: PONativeAlternativePaymentMethodDefaultValuesResponse)
 }
