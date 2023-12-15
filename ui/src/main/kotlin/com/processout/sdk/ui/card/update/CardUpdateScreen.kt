@@ -12,7 +12,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
@@ -111,13 +113,16 @@ private fun Fields(
     }
 
     fields.elements.forEachIndexed { index, state ->
-        var value by remember { mutableStateOf(state.value) }
         POTextField(
-            value = value,
+            value = state.value,
             onValueChange = {
                 val formatted = state.formatter?.format(it.text) ?: it.text
-                value = it.copy(text = formatted)
-                onEvent(FieldValueChanged(key = state.key, value = value))
+                onEvent(
+                    FieldValueChanged(
+                        key = state.key,
+                        value = it.copy(text = formatted)
+                    )
+                )
             },
             modifier = Modifier
                 .fillMaxWidth()
