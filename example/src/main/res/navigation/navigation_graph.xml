@@ -24,6 +24,13 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_featuresFragment_to_cardTokenizationFragment"
+            app:destination="@id/cardTokenizationFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
     <fragment
@@ -64,5 +71,11 @@
         android:name="com.processout.example.ui.screen.card.payment.CardPaymentFragment"
         android:label="@string/card_payment"
         tools:layout="@layout/fragment_card_payment" />
+
+    <fragment
+        android:id="@+id/cardTokenizationFragment"
+        android:name="com.processout.example.ui.screen.card.tokenization.CardTokenizationFragment"
+        android:label="@string/card_tokenization"
+        tools:layout="@layout/fragment_card_tokenization" />
 
 </navigation>

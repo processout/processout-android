@@ -1,5 +1,6 @@
 package com.processout.example.ui.screen.card.payment
 
+import com.processout.example.ui.screen.card.InvoiceDetails
 import com.processout.sdk.core.ProcessOutResult
 
 sealed class CardPaymentUiState {
@@ -26,9 +27,4 @@ data class CardDetails(
     val expMonth: String,
     val expYear: String,
     val cvc: String
-)
-
-data class InvoiceDetails(
-    val amount: String,
-    val currency: String
 )

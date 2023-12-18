@@ -1,10 +1,9 @@
-package com.processout.example.ui.screen.card.payment
+package com.processout.example.ui.screen.card.tokenization
 
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.RadioButton
-import androidx.core.text.isDigitsOnly
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -12,14 +11,14 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.checkout.threeds.Environment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.processout.example.R
-import com.processout.example.databinding.FragmentCardPaymentBinding
+import com.processout.example.databinding.FragmentCardTokenizationBinding
 import com.processout.example.service.Checkout3DSServiceDelegate
 import com.processout.example.service.POAdyen3DSService
 import com.processout.example.shared.Constants
 import com.processout.example.shared.toMessage
 import com.processout.example.ui.screen.base.BaseFragment
 import com.processout.example.ui.screen.card.InvoiceDetails
-import com.processout.example.ui.screen.card.payment.CardPaymentUiState.*
+import com.processout.example.ui.screen.card.tokenization.CardTokenizationUiState.*
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
 import com.processout.sdk.api.service.PO3DSService
@@ -31,12 +30,12 @@ import com.processout.sdk.ui.threeds.PO3DSRedirectCustomTabLauncher
 import com.processout.sdk.ui.threeds.POTest3DSService
 import kotlinx.coroutines.launch
 
-class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
-    FragmentCardPaymentBinding::inflate
+class CardTokenizationFragment : BaseFragment<FragmentCardTokenizationBinding>(
+    FragmentCardTokenizationBinding::inflate
 ) {
 
-    private val viewModel: CardPaymentViewModel by viewModels {
-        CardPaymentViewModel.Factory()
+    private val viewModel: CardTokenizationViewModel by viewModels {
+        CardTokenizationViewModel.Factory()
     }
 
     private val invoices = ProcessOut.instance.invoices
@@ -132,30 +131,19 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
 
     private fun onSubmitClick() {
         with(binding) {
-            val details = CardPaymentDetails(
-                card = CardDetails(
-                    number = numberInput.text.toString(),
-                    expMonth = expMonthInput.text.toString().let {
-                        if (it.isNotBlank() && it.isDigitsOnly()) it else "0"
-                    },
-                    expYear = expYearInput.text.toString().let {
-                        if (it.isNotBlank() && it.isDigitsOnly()) it else "0"
-                    },
-                    cvc = cvcInput.text.toString()
-                ),
-                invoice = InvoiceDetails(
-                    amount = amountInput.text.toString(),
-                    currency = currencyInput.text.toString()
-                )
+            val details = InvoiceDetails(
+                amount = amountInput.text.toString(),
+                currency = currencyInput.text.toString()
             )
             viewModel.submit(details)
         }
     }
 
-    private fun handle(uiState: CardPaymentUiState) {
+    private fun handle(uiState: CardTokenizationUiState) {
         handleControls(uiState)
         when (uiState) {
-            is Submitted -> with(uiState.uiModel) {
+            is Submitted -> startCardTokenization()
+            is Tokenized -> with(uiState.uiModel) {
                 authorizeInvoice(invoiceId, cardId)
             }
             is Failure -> showAlert(uiState.failure.toMessage())
@@ -163,7 +151,12 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
         }
     }
 
-    private fun handleControls(uiState: CardPaymentUiState) {
+    private fun startCardTokenization() {
+        viewModel.onTokenizing()
+        // TODO
+    }
+
+    private fun handleControls(uiState: CardTokenizationUiState) {
         when (uiState) {
             Submitting -> enableControls(false)
             else -> enableControls(true)
@@ -172,10 +165,6 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
 
     private fun enableControls(isEnabled: Boolean) {
         with(binding) {
-            numberInput.isEnabled = isEnabled
-            expMonthInput.isEnabled = isEnabled
-            expYearInput.isEnabled = isEnabled
-            cvcInput.isEnabled = isEnabled
             amountInput.isEnabled = isEnabled
             currencyInput.isEnabled = isEnabled
             authorizeInvoiceButton.isClickable = isEnabled
