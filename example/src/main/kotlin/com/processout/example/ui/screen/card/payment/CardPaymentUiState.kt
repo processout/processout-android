@@ -1,4 +1,4 @@
-package com.processout.example.ui.screen.card
+package com.processout.example.ui.screen.card.payment
 
 import com.processout.sdk.core.ProcessOutResult
 

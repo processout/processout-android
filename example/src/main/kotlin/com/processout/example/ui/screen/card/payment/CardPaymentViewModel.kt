@@ -1,10 +1,10 @@
-package com.processout.example.ui.screen.card
+package com.processout.example.ui.screen.card.payment
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.processout.example.shared.Constants
-import com.processout.example.ui.screen.card.CardPaymentUiState.*
+import com.processout.example.ui.screen.card.payment.CardPaymentUiState.*
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POCardTokenizationRequest
 import com.processout.sdk.api.model.request.POCreateInvoiceRequest

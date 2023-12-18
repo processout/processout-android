@@ -1,4 +1,4 @@
-package com.processout.example.ui.screen.card
+package com.processout.example.ui.screen.card.payment
 
 import android.os.Bundle
 import android.view.View
@@ -18,7 +18,7 @@ import com.processout.example.service.POAdyen3DSService
 import com.processout.example.shared.Constants
 import com.processout.example.shared.toMessage
 import com.processout.example.ui.screen.base.BaseFragment
-import com.processout.example.ui.screen.card.CardPaymentUiState.*
+import com.processout.example.ui.screen.card.payment.CardPaymentUiState.*
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
 import com.processout.sdk.api.service.PO3DSService
