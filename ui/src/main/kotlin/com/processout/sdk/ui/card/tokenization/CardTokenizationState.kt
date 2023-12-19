@@ -20,6 +20,6 @@ internal sealed interface CardTokenizationEvent {
 
 internal sealed interface CardTokenizationCompletion {
     data object Awaiting : CardTokenizationCompletion
-    data class Success(val card: POCardTokenizationResponse) : CardTokenizationCompletion
+    data class Success(val response: POCardTokenizationResponse) : CardTokenizationCompletion
     data class Failure(val failure: ProcessOutResult.Failure) : CardTokenizationCompletion
 }

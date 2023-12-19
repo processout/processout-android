@@ -6,12 +6,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.repository.POCardsRepository
+import com.processout.sdk.core.POFailure
+import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Awaiting
+import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Failure
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
 import com.processout.sdk.ui.core.state.POActionState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 internal class CardTokenizationViewModel(
     private val app: Application,
@@ -57,9 +61,7 @@ internal class CardTokenizationViewModel(
         is FieldValueChanged -> updateFieldValue(event.key, event.value)
         Submit -> submit()
         Cancel -> cancel()
-        is Dismiss -> POLogger.info(
-            message = "Dismissed: %s", event.failure
-        )
+        is Dismiss -> POLogger.info("Dismissed: %s", event.failure)
     }
 
     private fun updateFieldValue(key: String, value: TextFieldValue) {
@@ -71,6 +73,13 @@ internal class CardTokenizationViewModel(
     }
 
     private fun cancel() {
-        // TODO
+        _completion.update {
+            Failure(
+                ProcessOutResult.Failure(
+                    code = POFailure.Code.Cancelled,
+                    message = "Cancelled by the user with secondary cancel action."
+                ).also { POLogger.info("Cancelled: %s", it) }
+            )
+        }
     }
 }

@@ -13,7 +13,8 @@ data class PODimensions(
     val formComponentHeight: Dp = 44.dp,
     val dragHandleWidth: Dp = 32.dp,
     val dragHandleHeight: Dp = 4.dp,
-    val cardUpdateBottomSheetHeight: Dp = 420.dp
+    val cardUpdateBottomSheetHeight: Dp = 420.dp,
+    val cardTokenizationBottomSheetHeight: Dp = 438.dp
 )
 
 internal val LocalPODimensions = staticCompositionLocalOf { PODimensions() }
