@@ -53,7 +53,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:importantForAutofill="no"
-                    android:inputType="numberDecimal" />
+                    android:inputType="numberDecimal"
+                    android:text="5" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -71,7 +72,8 @@
                     android:layout_height="wrap_content"
                     android:imeOptions="actionDone"
                     android:importantForAutofill="no"
-                    android:inputType="text|textCapCharacters" />
+                    android:inputType="text|textCapCharacters"
+                    android:text="USD" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
