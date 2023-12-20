@@ -1,9 +1,6 @@
 package com.processout.sdk.ui.card.tokenization
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
@@ -15,12 +12,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.input.TextFieldValue
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.Cancel
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.Submit
 import com.processout.sdk.ui.core.component.POActionsContainer
 import com.processout.sdk.ui.core.component.POHeader
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
+import com.processout.sdk.ui.core.component.field.POTextField
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POActionStateExtended
 import com.processout.sdk.ui.core.state.POImmutableCollection
@@ -69,6 +68,11 @@ internal fun CardTokenizationScreen(
             verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.large)
         ) {
             // TODO
+            POTextField(
+                value = TextFieldValue(),
+                onValueChange = {},
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }
