@@ -22,15 +22,17 @@ import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Failur
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Success
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.Dismiss
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
-import com.processout.sdk.ui.shared.composable.ScreenMode
-import com.processout.sdk.ui.shared.composable.dpToPx
 import com.processout.sdk.ui.shared.composable.screenModeAsState
+import com.processout.sdk.ui.shared.extension.dpToPx
 
 internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCardTokenizationResponse>() {
 
     companion object {
         val tag: String = CardTokenizationBottomSheet::class.java.simpleName
     }
+
+    override val defaultViewHeight by lazy { 440.dpToPx(requireContext()) }
+    override val expandable = true
 
     private var configuration: POCardTokenizationConfiguration? = null
 
@@ -59,8 +61,7 @@ internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCar
                     LaunchedEffect(value) { handle(value) }
                 }
 
-                val bottomSheetHeight = ProcessOutTheme.dimensions.cardTokenizationBottomSheetHeight.dpToPx()
-                with(screenModeAsState(height = bottomSheetHeight)) {
+                with(screenModeAsState(viewHeight = defaultViewHeight)) {
                     LaunchedEffect(value) { apply(value) }
                 }
 
@@ -76,11 +77,6 @@ internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCar
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         configuration?.let { apply(it.cancellation) }
-    }
-
-    private fun apply(mode: ScreenMode) = when (mode) {
-        is ScreenMode.Window -> setHeight(height = mode.height, expandable = false)
-        is ScreenMode.Fullscreen -> setHeight(height = mode.screenHeight, expandable = true)
     }
 
     private fun handle(completion: CardTokenizationCompletion) =

@@ -22,15 +22,17 @@ import com.processout.sdk.ui.card.update.CardUpdateCompletion.Failure
 import com.processout.sdk.ui.card.update.CardUpdateCompletion.Success
 import com.processout.sdk.ui.card.update.CardUpdateEvent.Dismiss
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
-import com.processout.sdk.ui.shared.composable.ScreenMode
-import com.processout.sdk.ui.shared.composable.dpToPx
 import com.processout.sdk.ui.shared.composable.screenModeAsState
+import com.processout.sdk.ui.shared.extension.dpToPx
 
 internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
 
     companion object {
         val tag: String = CardUpdateBottomSheet::class.java.simpleName
     }
+
+    override val defaultViewHeight by lazy { 420.dpToPx(requireContext()) }
+    override val expandable = false
 
     private var configuration: POCardUpdateConfiguration? = null
 
@@ -70,7 +72,7 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
                     LaunchedEffect(value) { handle(value) }
                 }
 
-                with(screenModeAsState(height = ProcessOutTheme.dimensions.cardUpdateBottomSheetHeight.dpToPx())) {
+                with(screenModeAsState(viewHeight = defaultViewHeight)) {
                     LaunchedEffect(value) { apply(value) }
                 }
 
@@ -86,11 +88,6 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         configuration?.let { apply(it.options.cancellation) }
-    }
-
-    private fun apply(mode: ScreenMode) = when (mode) {
-        is ScreenMode.Window -> setHeight(height = mode.height, expandable = false)
-        is ScreenMode.Fullscreen -> setHeight(height = mode.screenHeight, expandable = true)
     }
 
     private fun handle(completion: CardUpdateCompletion) =
