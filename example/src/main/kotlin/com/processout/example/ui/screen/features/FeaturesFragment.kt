@@ -39,6 +39,11 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
         super.onViewCreated(view, savedInstanceState)
         val navController = findNavController()
         with(binding) {
+            cardTokenizationButton.setOnClickListener {
+                navController.navigate(
+                    FeaturesFragmentDirections.actionFeaturesFragmentToCardTokenizationFragment()
+                )
+            }
             cardPaymentButton.setOnClickListener {
                 navController.navigate(
                     FeaturesFragmentDirections.actionFeaturesFragmentToCardPaymentFragment()

@@ -1,4 +1,4 @@
-package com.processout.sdk.ui.card.update
+package com.processout.sdk.ui.card.tokenization
 
 import android.app.Activity
 import android.content.Context
@@ -12,52 +12,41 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.processout.sdk.api.model.response.POCard
-import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.toActivityResult
 import com.processout.sdk.ui.base.BaseBottomSheetDialogFragment
-import com.processout.sdk.ui.card.update.CardUpdateCompletion.Failure
-import com.processout.sdk.ui.card.update.CardUpdateCompletion.Success
-import com.processout.sdk.ui.card.update.CardUpdateEvent.Dismiss
+import com.processout.sdk.ui.card.tokenization.CardTokenizationActivityContract.Companion.EXTRA_CONFIGURATION
+import com.processout.sdk.ui.card.tokenization.CardTokenizationActivityContract.Companion.EXTRA_RESULT
+import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Failure
+import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Success
+import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.Dismiss
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.composable.screenModeAsState
 import com.processout.sdk.ui.shared.extension.dpToPx
 
-internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
+internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCardTokenizationResponse>() {
 
     companion object {
-        val tag: String = CardUpdateBottomSheet::class.java.simpleName
+        val tag: String = CardTokenizationBottomSheet::class.java.simpleName
     }
 
-    override val defaultViewHeight by lazy { 420.dpToPx(requireContext()) }
-    override val expandable = false
+    override val defaultViewHeight by lazy { 440.dpToPx(requireContext()) }
+    override val expandable = true
 
-    private var configuration: POCardUpdateConfiguration? = null
+    private var configuration: POCardTokenizationConfiguration? = null
 
-    private val viewModel: CardUpdateViewModel by viewModels {
-        CardUpdateViewModel.Factory(
+    private val viewModel: CardTokenizationViewModel by viewModels {
+        CardTokenizationViewModel.Factory(
             app = requireActivity().application,
-            cardId = configuration?.cardId ?: String(),
-            options = configuration?.options ?: POCardUpdateConfiguration.Options()
+            configuration = configuration ?: POCardTokenizationConfiguration()
         )
     }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         @Suppress("DEPRECATION")
-        configuration = arguments?.getParcelable(CardUpdateActivityContract.EXTRA_CONFIGURATION)
-        configuration?.run {
-            if (cardId.isBlank()) {
-                dismiss(
-                    ProcessOutResult.Failure(
-                        code = POFailure.Code.Generic(),
-                        message = "Card ID is blank."
-                    )
-                )
-            }
-        }
+        configuration = arguments?.getParcelable(EXTRA_CONFIGURATION)
     }
 
     override fun onCreateView(
@@ -76,10 +65,10 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
                     LaunchedEffect(value) { apply(value) }
                 }
 
-                CardUpdateScreen(
+                CardTokenizationScreen(
                     state = viewModel.state.collectAsStateWithLifecycle().value,
                     onEvent = remember { viewModel::onEvent },
-                    style = CardUpdateScreen.style(custom = configuration?.style)
+                    style = CardTokenizationScreen.style(custom = configuration?.style)
                 )
             }
         }
@@ -87,14 +76,14 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        configuration?.let { apply(it.options.cancellation) }
+        configuration?.let { apply(it.cancellation) }
     }
 
-    private fun handle(completion: CardUpdateCompletion) =
+    private fun handle(completion: CardTokenizationCompletion) =
         when (completion) {
             is Success -> finishWithActivityResult(
                 resultCode = Activity.RESULT_OK,
-                result = ProcessOutActivityResult.Success(completion.card)
+                result = ProcessOutActivityResult.Success(completion.response)
             )
             is Failure -> finishWithActivityResult(
                 resultCode = Activity.RESULT_CANCELED,
@@ -115,11 +104,11 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
 
     private fun finishWithActivityResult(
         resultCode: Int,
-        result: ProcessOutActivityResult<POCard>
+        result: ProcessOutActivityResult<POCardTokenizationResponse>
     ) {
         setActivityResult(
             resultCode = resultCode,
-            extraName = CardUpdateActivityContract.EXTRA_RESULT,
+            extraName = EXTRA_RESULT,
             result = result
         )
         finish()

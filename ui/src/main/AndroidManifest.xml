@@ -7,6 +7,12 @@
             android:exported="false"
             android:launchMode="singleInstance"
             android:theme="@style/Theme.ProcessOut.BottomSheet" />
+
+        <activity
+            android:name=".card.tokenization.CardTokenizationActivity"
+            android:exported="false"
+            android:launchMode="singleInstance"
+            android:theme="@style/Theme.ProcessOut.BottomSheet" />
     </application>
 
 </manifest>

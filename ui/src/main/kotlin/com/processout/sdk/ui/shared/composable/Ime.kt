@@ -7,13 +7,13 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
 @Composable
-internal fun imeVisibleAsState(): State<Boolean> {
-    val imeVisible = remember { mutableStateOf(false) }
+internal fun isImeVisibleAsState(): State<Boolean> {
+    val isImeVisible = remember { mutableStateOf(false) }
     val view = LocalView.current.rootView
     val viewTreeObserver = view.viewTreeObserver
     DisposableEffect(viewTreeObserver) {
         val listener = ViewTreeObserver.OnGlobalLayoutListener {
-            imeVisible.value = ViewCompat.getRootWindowInsets(view)
+            isImeVisible.value = ViewCompat.getRootWindowInsets(view)
                 ?.isVisible(WindowInsetsCompat.Type.ime()) ?: false
         }
         viewTreeObserver.addOnGlobalLayoutListener(listener)
@@ -21,7 +21,7 @@ internal fun imeVisibleAsState(): State<Boolean> {
             viewTreeObserver.removeOnGlobalLayoutListener(listener)
         }
     }
-    return imeVisible
+    return isImeVisible
 }
 
 @Composable
