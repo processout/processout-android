@@ -16,6 +16,7 @@ data class POCardTokenizationConfiguration(
     val title: String? = null,
     val primaryActionText: String? = null,
     val secondaryActionText: String? = null,
+    val isCardholderNameFieldVisible: Boolean = true,
     val cancellation: POCancellationConfiguration = POCancellationConfiguration(),
     val style: Style? = null
 ) : Parcelable {
