@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.POFailure
@@ -44,13 +45,13 @@ internal class CardTokenizationViewModel(
 
     private fun initState() = with(configuration) {
         CardTokenizationState(
-            title = title ?: "Add New Card",
+            title = title ?: app.getString(R.string.po_card_tokenization_title),
             primaryAction = POActionState(
-                text = primaryActionText ?: "Submit",
+                text = primaryActionText ?: app.getString(R.string.po_card_tokenization_button_submit),
                 primary = true
             ),
             secondaryAction = if (cancellation.secondaryAction) POActionState(
-                text = secondaryActionText ?: "Cancel",
+                text = secondaryActionText ?: app.getString(R.string.po_card_tokenization_button_cancel),
                 primary = false
             ) else null,
             draggable = cancellation.dragDown
