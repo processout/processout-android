@@ -1,11 +1,8 @@
-package com.processout.sdk.ui.shared.formatter
+package com.processout.sdk.ui.shared.transformation
 
-import com.processout.sdk.ui.core.formatter.POFormatter
-
-internal class CardNumberFormatter : POFormatter {
+internal class CardNumberVisualTransformation : BaseVisualTransformation() {
 
     private companion object {
-        const val MAX_LENGTH = 19 // Maximum PAN length based on ISO/IEC 7812
         const val PLACEHOLDER_CHAR = '#'
         const val DEFAULT_PATTERN = "#### #### #### #### ###"
     }
@@ -39,23 +36,22 @@ internal class CardNumberFormatter : POFormatter {
         )
     )
 
-    override fun format(string: String): String {
-        val cardNumber = string.filter { it.isDigit() }.take(MAX_LENGTH)
+    override fun transform(text: String): String {
         formats.forEach { format ->
-            format(cardNumber = cardNumber, format = format)
+            transform(cardNumber = text, format = format)
                 ?.let { return it }
         }
-        return format(cardNumber = cardNumber, pattern = DEFAULT_PATTERN) ?: string
+        return transform(cardNumber = text, pattern = DEFAULT_PATTERN) ?: text
     }
 
-    private fun format(cardNumber: String, format: CardNumberFormat): String? {
+    private fun transform(cardNumber: String, format: CardNumberFormat): String? {
         format.leading.forEach { leading ->
             // First and last values of the range are expected to be of the same length.
             val leadingLength = leading.first.toString().length
             cardNumber.take(leadingLength).let { cardNumberLeading ->
                 if (cardNumberLeading.isNotEmpty() && leading.contains(cardNumberLeading.toInt())) {
                     format.patterns.forEach { pattern ->
-                        format(cardNumber = cardNumber, pattern = pattern)
+                        transform(cardNumber = cardNumber, pattern = pattern)
                             ?.let { return it }
                     }
                 }
@@ -64,7 +60,7 @@ internal class CardNumberFormatter : POFormatter {
         return null
     }
 
-    private fun format(cardNumber: String, pattern: String): String? =
+    private fun transform(cardNumber: String, pattern: String): String? =
         buildString {
             var cardNumberIndex = 0
             for (index in pattern.indices) {
@@ -80,4 +76,6 @@ internal class CardNumberFormatter : POFormatter {
             if (cardNumberIndex != cardNumber.length)
                 return null
         }
+
+    override fun isSeparator(char: Char) = !char.isDigit()
 }
