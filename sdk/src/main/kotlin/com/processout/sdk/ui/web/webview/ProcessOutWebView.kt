@@ -64,11 +64,11 @@ internal class ProcessOutWebView(
                 super.onPageStarted(view, url, favicon)
                 url?.let {
                     val uri = Uri.parse(it)
-                    if (uri.isHierarchical && uri.path != null) {
+                    if (uri.isHierarchical) {
                         configuration.returnUris.find { returnUri ->
                             val returnUrl = returnUri.toString()
                             if (returnUrl.isNotBlank()) {
-                                uri.toString().startsWith(returnUrl, ignoreCase = false)
+                                uri.toString().startsWith(returnUrl)
                             } else false
                         }?.let { complete(uri) }
                     }
