@@ -66,10 +66,9 @@ internal class ProcessOutWebView(
                     val uri = Uri.parse(it)
                     if (uri.isHierarchical) {
                         configuration.returnUris.find { returnUri ->
-                            val returnUrl = returnUri.toString()
-                            if (returnUrl.isNotBlank()) {
-                                uri.toString().startsWith(returnUrl)
-                            } else false
+                            uri.scheme == returnUri.scheme &&
+                                    uri.host == returnUri.host &&
+                                    uri.path == returnUri.path
                         }?.let { complete(uri) }
                     }
                 }

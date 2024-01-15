@@ -61,7 +61,10 @@ internal class CustomTabAuthorizationViewModel(
         val returnUri = intent.data
         if (returnUri != null) {
             timeoutHandler.removeCallbacks(cancellationRunnable)
-            if (returnUri.toString().startsWith(configuration.returnUri.toString())) {
+            if (returnUri.scheme == configuration.returnUri.scheme &&
+                returnUri.host == configuration.returnUri.host &&
+                returnUri.path == configuration.returnUri.path
+            ) {
                 POLogger.info("Custom Chrome Tabs has been redirected to return URI: %s", returnUri)
                 savedState[KEY_SAVED_STATE] = Success(returnUri)
             } else {
