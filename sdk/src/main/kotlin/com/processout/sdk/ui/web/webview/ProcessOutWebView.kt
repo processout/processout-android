@@ -136,7 +136,7 @@ internal class ProcessOutWebView(
             }
         } ?: complete(
             ProcessOutResult.Failure(
-                POFailure.Code.Internal(),
+                POFailure.Code.Generic(),
                 "$description | Failed to load URL: $failingUrl"
             )
         )
