@@ -85,6 +85,19 @@ class AlternativePaymentMethodsServiceTests {
     }
 
     @Test
+    fun alternativePaymentMethodResponseWithoutGatewayToken() {
+        val returnUrl = "https://processout.return"
+
+        apmService.alternativePaymentMethodResponse(Uri.parse(returnUrl)).let { result ->
+            result.assertFailure()
+            result.onSuccess { response ->
+                assert(response.gatewayToken.isEmpty())
+                assert(response.returnType == POAlternativePaymentMethodResponse.APMReturnType.AUTHORIZATION)
+            }
+        }
+    }
+
+    @Test
     fun alternativePaymentMethodResponseWithCustomerToken() {
         val returnUrl = "https://processout.return?token=gway_req_test" +
                 "&token_id=tok_test&customer_id=cust_test"
