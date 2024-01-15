@@ -64,12 +64,11 @@ internal class ProcessOutWebView(
                 super.onPageStarted(view, url, favicon)
                 url?.let {
                     val uri = Uri.parse(it)
-                    if (uri.isHierarchical && uri.path != null) {
+                    if (uri.isHierarchical) {
                         configuration.returnUris.find { returnUri ->
-                            val returnUrl = returnUri.toString()
-                            if (returnUrl.isNotBlank()) {
-                                uri.toString().startsWith(returnUrl, ignoreCase = false)
-                            } else false
+                            uri.scheme == returnUri.scheme &&
+                                    uri.host == returnUri.host &&
+                                    uri.path == returnUri.path
                         }?.let { complete(uri) }
                     }
                 }
@@ -136,7 +135,7 @@ internal class ProcessOutWebView(
             }
         } ?: complete(
             ProcessOutResult.Failure(
-                POFailure.Code.Internal(),
+                POFailure.Code.Generic(),
                 "$description | Failed to load URL: $failingUrl"
             )
         )

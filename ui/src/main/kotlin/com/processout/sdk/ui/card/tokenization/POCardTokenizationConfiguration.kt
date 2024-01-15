@@ -2,12 +2,15 @@ package com.processout.sdk.ui.card.tokenization
 
 import android.os.Parcelable
 import androidx.annotation.ColorRes
+import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.style.POActionsContainerStyle
 import com.processout.sdk.ui.core.style.POFieldStyle
 import com.processout.sdk.ui.core.style.POTextStyle
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import kotlinx.parcelize.Parcelize
 
+/** @suppress */
+@ProcessOutInternalApi
 @Parcelize
 data class POCardTokenizationConfiguration(
     val title: String? = null,

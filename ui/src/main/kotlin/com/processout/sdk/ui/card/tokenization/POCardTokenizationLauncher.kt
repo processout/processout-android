@@ -4,10 +4,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.Fragment
 import com.processout.sdk.core.ProcessOutActivityResult
+import com.processout.sdk.core.annotation.ProcessOutInternalApi
 
 /**
  * Launcher that starts [CardTokenizationActivity] and provides the result.
  */
+/** @suppress */
+@ProcessOutInternalApi
 class POCardTokenizationLauncher private constructor() {
 
     private lateinit var launcher: ActivityResultLauncher<POCardTokenizationConfiguration>

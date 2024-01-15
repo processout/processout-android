@@ -95,6 +95,7 @@ class PO3DSRedirectCustomTabLauncher private constructor(
             customTabLauncher.launch(
                 CustomTabConfiguration(
                     uri = delegate.uri,
+                    returnUri = Uri.parse(returnUrl),
                     timeoutSeconds = redirect.timeoutSeconds
                 )
             )

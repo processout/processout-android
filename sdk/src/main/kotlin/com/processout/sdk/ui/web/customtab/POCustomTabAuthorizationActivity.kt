@@ -87,6 +87,7 @@ class POCustomTabAuthorizationActivity : AppCompatActivity() {
             is Success -> finishWithActivityResult(
                 ProcessOutActivityResult.Success(uiState.returnUri)
             )
+            is Failure -> finishWithActivityResult(uiState.failure)
             Cancelled -> finishWithActivityResult(
                 ProcessOutActivityResult.Failure(
                     POFailure.Code.Cancelled,

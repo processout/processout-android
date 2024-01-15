@@ -35,16 +35,18 @@ internal class DefaultAlternativePaymentMethodsService(
     }
 
     override fun alternativePaymentMethodResponse(uri: Uri): ProcessOutResult<POAlternativePaymentMethodResponse> {
-        val errorMessage = "Invalid or malformed Alternative Payment Method URL: $uri"
-        if (uri.isOpaque)
-            return ProcessOutResult.Failure(code = Internal(), message = errorMessage)
+        if (uri.isOpaque) {
+            return ProcessOutResult.Failure(
+                code = Internal(),
+                message = "Invalid or malformed alternative payment method URI: $uri"
+            )
+        }
 
         uri.getQueryParameter("error_code")?.let { errorCode ->
             return ProcessOutResult.Failure(failureCode(errorCode))
         }
 
-        val gatewayToken = uri.getQueryParameter("token")
-            ?: return ProcessOutResult.Failure(code = Internal(), message = errorMessage)
+        val gatewayToken = uri.getQueryParameter("token") ?: String()
 
         val customerId = uri.getQueryParameter("customer_id")
         val tokenId = uri.getQueryParameter("token_id")

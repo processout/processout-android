@@ -15,14 +15,20 @@ internal class ThreeDSRedirectWebAuthorizationDelegate(
     }
 
     override fun complete(uri: Uri) {
-        uri.getQueryParameter(TOKEN_QUERY_KEY)?.let { token ->
-            callback(ProcessOutResult.Success(token))
-        } ?: callback(
-            ProcessOutResult.Failure(
-                POFailure.Code.Internal(),
-                "Token not found in URI: $uri"
+        if (uri.isHierarchical) {
+            callback(
+                ProcessOutResult.Success(
+                    value = uri.getQueryParameter(TOKEN_QUERY_KEY) ?: String()
+                )
             )
-        )
+        } else {
+            callback(
+                ProcessOutResult.Failure(
+                    code = POFailure.Code.Internal(),
+                    message = "Invalid or malformed 3DS redirect URI: $uri"
+                )
+            )
+        }
     }
 
     override fun complete(failure: ProcessOutResult.Failure) {
