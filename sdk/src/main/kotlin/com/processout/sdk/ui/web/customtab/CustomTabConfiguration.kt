@@ -7,5 +7,6 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 internal data class CustomTabConfiguration(
     val uri: Uri,
+    val returnUri: Uri,
     val timeoutSeconds: Int? = null
 ) : Parcelable

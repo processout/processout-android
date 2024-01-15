@@ -151,6 +151,7 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
             customTabLauncher.launch(
                 CustomTabConfiguration(
                     uri = uri,
+                    returnUri = Uri.parse(returnUrl),
                     timeoutSeconds = null
                 )
             )
