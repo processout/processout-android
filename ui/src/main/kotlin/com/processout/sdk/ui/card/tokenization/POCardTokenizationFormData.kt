@@ -1,8 +1,11 @@
 package com.processout.sdk.ui.card.tokenization
 
 import android.os.Parcelable
+import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import kotlinx.parcelize.Parcelize
 
+/** @suppress */
+@ProcessOutInternalApi
 @Parcelize
 data class POCardTokenizationFormData(
     internal val cardInformation: CardInformation,
