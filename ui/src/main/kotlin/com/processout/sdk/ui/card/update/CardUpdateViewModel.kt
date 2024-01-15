@@ -28,7 +28,7 @@ import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableCollection
 import com.processout.sdk.ui.shared.extension.orElse
-import com.processout.sdk.ui.shared.formatter.CardSecurityCodeFormatter
+import com.processout.sdk.ui.shared.filter.CardSecurityCodeInputFilter
 import com.processout.sdk.ui.shared.mapper.cardSchemeDrawableResId
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -129,7 +129,7 @@ internal class CardUpdateViewModel(
         key = Field.CVC.key,
         placeholder = app.getString(R.string.po_card_update_cvc),
         iconResId = com.processout.sdk.ui.R.drawable.po_card_back,
-        formatter = CardSecurityCodeFormatter(scheme = options.cardInformation?.scheme),
+        inputFilter = CardSecurityCodeInputFilter(scheme = options.cardInformation?.scheme),
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.NumberPassword,
             imeAction = ImeAction.Done
@@ -180,12 +180,10 @@ internal class CardUpdateViewModel(
                                 iconResId = cardSchemeDrawableResId(scheme)
                             )
                             Field.CVC.key -> {
-                                val formatter = CardSecurityCodeFormatter(scheme = scheme)
+                                val inputFilter = CardSecurityCodeInputFilter(scheme = scheme)
                                 it.copy(
-                                    value = it.value.copy(
-                                        text = formatter.format(it.value.text)
-                                    ),
-                                    formatter = formatter
+                                    value = inputFilter.filter(it.value),
+                                    inputFilter = inputFilter
                                 )
                             }
                             else -> it.copy()

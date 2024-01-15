@@ -116,11 +116,10 @@ private fun Fields(
         POTextField(
             value = state.value,
             onValueChange = {
-                val formatted = state.formatter?.format(it.text) ?: it.text
                 onEvent(
                     FieldValueChanged(
                         key = state.key,
-                        value = it.copy(text = formatted)
+                        value = state.inputFilter?.filter(it) ?: it
                     )
                 )
             },
