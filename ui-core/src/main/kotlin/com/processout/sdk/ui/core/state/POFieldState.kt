@@ -2,6 +2,7 @@ package com.processout.sdk.ui.core.state
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
@@ -9,6 +10,7 @@ import com.processout.sdk.ui.core.filter.POInputFilter
 
 /** @suppress */
 @ProcessOutInternalApi
+@Immutable
 data class POFieldState(
     val key: String,
     val value: TextFieldValue = TextFieldValue(),

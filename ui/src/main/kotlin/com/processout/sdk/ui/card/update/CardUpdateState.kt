@@ -1,5 +1,6 @@
 package com.processout.sdk.ui.card.update
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.input.TextFieldValue
 import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.core.ProcessOutResult
@@ -7,6 +8,7 @@ import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableCollection
 
+@Immutable
 internal data class CardUpdateState(
     val title: String,
     val fields: POImmutableCollection<POFieldState>,

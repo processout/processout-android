@@ -1,9 +1,11 @@
 package com.processout.sdk.ui.card.tokenization
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.input.TextFieldValue
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.core.state.POActionState
 
+@Immutable
 internal data class CardTokenizationState(
     val title: String,
     val primaryAction: POActionState,
