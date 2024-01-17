@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.state.POActionStateExtended
-import com.processout.sdk.ui.core.state.POImmutableCollection
+import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POActionsContainerStyle
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
@@ -21,7 +21,7 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme
 @ProcessOutInternalApi
 @Composable
 fun POActionsContainer(
-    actions: POImmutableCollection<POActionStateExtended>,
+    actions: POImmutableList<POActionStateExtended>,
     style: POActionsContainer.Style = POActionsContainer.default
 ) {
     Column {
@@ -62,7 +62,7 @@ fun POActionsContainer(
 
 @Composable
 private fun Actions(
-    actions: POImmutableCollection<POActionStateExtended>,
+    actions: POImmutableList<POActionStateExtended>,
     modifier: Modifier = Modifier,
     primaryStyle: POButton.Style = POButton.primary,
     secondaryStyle: POButton.Style = POButton.secondary

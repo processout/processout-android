@@ -6,6 +6,6 @@ import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 /** @suppress */
 @ProcessOutInternalApi
 @Immutable
-data class POImmutableCollection<T>(
-    val elements: Collection<T>
+data class POImmutableList<E>(
+    val elements: List<E>
 )

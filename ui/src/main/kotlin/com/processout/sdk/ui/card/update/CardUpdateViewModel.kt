@@ -26,7 +26,7 @@ import com.processout.sdk.ui.card.update.CardUpdateCompletion.*
 import com.processout.sdk.ui.card.update.CardUpdateEvent.*
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POFieldState
-import com.processout.sdk.ui.core.state.POImmutableCollection
+import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.shared.extension.orElse
 import com.processout.sdk.ui.shared.filter.CardSecurityCodeInputFilter
 import com.processout.sdk.ui.shared.mapper.cardSchemeDrawableResId
@@ -102,11 +102,11 @@ internal class CardUpdateViewModel(
         )
     }
 
-    private fun initFields(): POImmutableCollection<POFieldState> {
+    private fun initFields(): POImmutableList<POFieldState> {
         val fields = mutableListOf<POFieldState>()
         initCardNumberField()?.let { fields.add(it) }
         fields.add(initCvcField())
-        return POImmutableCollection(fields)
+        return POImmutableList(fields)
     }
 
     private fun initCardNumberField(): POFieldState? =
@@ -173,7 +173,7 @@ internal class CardUpdateViewModel(
     private fun updateScheme(scheme: String) {
         _state.update { state ->
             state.copy(
-                fields = POImmutableCollection(
+                fields = POImmutableList(
                     state.fields.elements.map {
                         when (it.key) {
                             Field.Number.key -> it.copy(
@@ -211,7 +211,7 @@ internal class CardUpdateViewModel(
     private fun updateFieldValue(key: String, value: TextFieldValue) {
         _state.update { state ->
             state.copy(
-                fields = POImmutableCollection(
+                fields = POImmutableList(
                     state.fields.elements.map {
                         when (it.key) {
                             key -> it.copy(
@@ -250,7 +250,7 @@ internal class CardUpdateViewModel(
         submitting: Boolean,
         errorMessage: String? = null
     ) = state.copy(
-        fields = POImmutableCollection(
+        fields = POImmutableList(
             state.fields.elements.map {
                 when (it.key) {
                     Field.CVC.key -> it.copy(isError = errorMessage != null)

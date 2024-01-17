@@ -35,7 +35,7 @@ import com.processout.sdk.ui.core.component.field.POTextField
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POActionStateExtended
 import com.processout.sdk.ui.core.state.POFieldState
-import com.processout.sdk.ui.core.state.POImmutableCollection
+import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.composable.RequestFocus
@@ -102,7 +102,7 @@ internal fun CardUpdateScreen(
 
 @Composable
 private fun Fields(
-    fields: POImmutableCollection<POFieldState>,
+    fields: POImmutableList<POFieldState>,
     onEvent: (CardUpdateEvent) -> Unit,
     style: POField.Style = POField.default
 ) {
@@ -133,7 +133,7 @@ private fun Fields(
             placeholderText = state.placeholder,
             trailingIcon = { state.iconResId?.let { AnimatedIcon(id = it) } },
             keyboardOptions = state.keyboardOptions,
-            keyboardActions = if (index == fields.elements.size - 1)
+            keyboardActions = if (index == fields.elements.lastIndex)
                 KeyboardActions(onDone = { onEvent(Submit) })
             else KeyboardActions.Default
         )
@@ -184,7 +184,7 @@ private fun Actions(
             ))
     }
     POActionsContainer(
-        actions = POImmutableCollection(
+        actions = POImmutableList(
             if (style.axis == POAxis.Horizontal) actions.reversed() else actions
         ),
         style = style
