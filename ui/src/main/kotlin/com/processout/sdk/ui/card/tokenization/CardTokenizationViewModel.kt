@@ -13,7 +13,11 @@ import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Awaiting
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Failure
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
+import com.processout.sdk.ui.card.tokenization.CardTokenizationState.Item
+import com.processout.sdk.ui.card.tokenization.CardTokenizationState.Section
 import com.processout.sdk.ui.core.state.POActionState
+import com.processout.sdk.ui.core.state.POFieldState
+import com.processout.sdk.ui.core.state.POImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -46,6 +50,7 @@ internal class CardTokenizationViewModel(
     private fun initState() = with(configuration) {
         CardTokenizationState(
             title = title ?: app.getString(R.string.po_card_tokenization_title),
+            sections = sections(),
             primaryAction = POActionState(
                 text = primaryActionText ?: app.getString(R.string.po_card_tokenization_button_submit),
                 primary = true
@@ -58,6 +63,47 @@ internal class CardTokenizationViewModel(
         )
     }
 
+    private fun sections() = POImmutableList(
+        listOf(
+            Section(
+                items = POImmutableList(
+                    listOf(
+                        Item.TextField(
+                            POFieldState(
+                                key = "card",
+                                value = TextFieldValue(text = "card")
+                            )
+                        ),
+                        Item.Group(
+                            items = POImmutableList(
+                                listOf(
+                                    Item.TextField(
+                                        POFieldState(
+                                            key = "exp",
+                                            value = TextFieldValue(text = "exp")
+                                        )
+                                    ),
+                                    Item.TextField(
+                                        POFieldState(
+                                            key = "cvc",
+                                            value = TextFieldValue(text = "cvc")
+                                        )
+                                    )
+                                )
+                            )
+                        ),
+                        Item.TextField(
+                            POFieldState(
+                                key = "cardholder",
+                                value = TextFieldValue(text = "cardholder")
+                            )
+                        )
+                    )
+                )
+            )
+        )
+    )
+
     fun onEvent(event: CardTokenizationEvent) = when (event) {
         is FieldValueChanged -> updateFieldValue(event.key, event.value)
         Submit -> submit()
@@ -66,7 +112,43 @@ internal class CardTokenizationViewModel(
     }
 
     private fun updateFieldValue(key: String, value: TextFieldValue) {
-        // TODO
+        _state.update { state ->
+            state.copy(
+                sections = POImmutableList(
+                    state.sections.elements.map { section ->
+                        section.copy(
+                            items = POImmutableList(
+                                section.items.elements.map { item ->
+                                    updateFieldValue(key, value, item)
+                                }
+                            )
+                        )
+                    }
+                )
+            )
+        }
+    }
+
+    private fun updateFieldValue(
+        key: String,
+        value: TextFieldValue,
+        item: Item
+    ): Item = when (item) {
+        is Item.TextField -> when (item.state.key) {
+            key -> item.copy(
+                state = item.state.copy(
+                    value = value.copy()
+                )
+            )
+            else -> item.copy()
+        }
+        is Item.Group -> item.copy(
+            items = POImmutableList(
+                item.items.elements.map { groupItem ->
+                    updateFieldValue(key, value, groupItem)
+                }
+            )
+        )
     }
 
     private fun submit() {

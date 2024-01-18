@@ -12,9 +12,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.text.input.TextFieldValue
-import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.Cancel
-import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.Submit
+import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
+import com.processout.sdk.ui.card.tokenization.CardTokenizationState.Item
 import com.processout.sdk.ui.core.component.POActionsContainer
 import com.processout.sdk.ui.core.component.POHeader
 import com.processout.sdk.ui.core.component.POText
@@ -22,6 +21,7 @@ import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.POTextField
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POActionStateExtended
+import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
@@ -65,16 +65,65 @@ internal fun CardTokenizationScreen(
                     horizontal = ProcessOutTheme.spacing.extraLarge,
                     vertical = ProcessOutTheme.spacing.large
                 ),
-            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.large)
+            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
         ) {
-            // TODO
-            POTextField(
-                value = TextFieldValue(),
-                onValueChange = {},
-                modifier = Modifier.fillMaxWidth()
-            )
+            state.sections.elements.forEach { section ->
+                section.items.elements.forEach { item ->
+                    Item(
+                        item = item,
+                        onEvent = onEvent,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
         }
     }
+}
+
+@Composable
+private fun Item(
+    item: Item,
+    onEvent: (CardTokenizationEvent) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    when (item) {
+        is Item.TextField -> TextField(
+            state = item.state,
+            onEvent = onEvent,
+            modifier = modifier
+        )
+        is Item.Group -> Row(
+            horizontalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
+        ) {
+            item.items.elements.forEach { groupItem ->
+                Item(
+                    item = groupItem,
+                    onEvent = onEvent,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun TextField(
+    state: POFieldState,
+    onEvent: (CardTokenizationEvent) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    POTextField(
+        value = state.value,
+        onValueChange = {
+            onEvent(
+                FieldValueChanged(
+                    key = state.key,
+                    value = state.inputFilter?.filter(it) ?: it
+                )
+            )
+        },
+        modifier = modifier
+    )
 }
 
 @Composable
