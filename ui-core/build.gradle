@@ -52,6 +52,12 @@ android {
     kotlinOptions {
         jvmTarget = '17'
         freeCompilerArgs += '-opt-in=com.processout.sdk.ui.core.annotation.ProcessOutInternalApi'
+        if (project.findProperty("composeCompilerReports") == "true") {
+            freeCompilerArgs += [
+                    "-P", "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=" +
+                    project.buildDir.absolutePath + "/compose"
+            ]
+        }
     }
 
     buildFeatures {
