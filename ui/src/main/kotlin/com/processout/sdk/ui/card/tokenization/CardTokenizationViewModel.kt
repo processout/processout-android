@@ -1,6 +1,10 @@
 package com.processout.sdk.ui.card.tokenization
 
 import android.app.Application
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -18,6 +22,11 @@ import com.processout.sdk.ui.card.tokenization.CardTokenizationState.Section
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableList
+import com.processout.sdk.ui.shared.filter.CardExpirationInputFilter
+import com.processout.sdk.ui.shared.filter.CardNumberInputFilter
+import com.processout.sdk.ui.shared.filter.CardSecurityCodeInputFilter
+import com.processout.sdk.ui.shared.transformation.CardExpirationVisualTransformation
+import com.processout.sdk.ui.shared.transformation.CardNumberVisualTransformation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -41,6 +50,13 @@ internal class CardTokenizationViewModel(
             ) as T
     }
 
+    private enum class CardField(val key: String) {
+        Number("card-number"),
+        Expiration("card-expiration"),
+        CVC("card-cvc"),
+        Cardholder("cardholder-name")
+    }
+
     private val _completion = MutableStateFlow<CardTokenizationCompletion>(Awaiting)
     val completion = _completion.asStateFlow()
 
@@ -50,7 +66,7 @@ internal class CardTokenizationViewModel(
     private fun initState() = with(configuration) {
         CardTokenizationState(
             title = title ?: app.getString(R.string.po_card_tokenization_title),
-            sections = sections(),
+            sections = POImmutableList(listOf(cardInformationSection())),
             primaryAction = POActionState(
                 text = primaryActionText ?: app.getString(R.string.po_card_tokenization_button_submit),
                 primary = true
@@ -63,43 +79,76 @@ internal class CardTokenizationViewModel(
         )
     }
 
-    private fun sections() = POImmutableList(
-        listOf(
-            Section(
+    private fun cardInformationSection(): Section {
+        val items = mutableListOf(
+            cardNumberField(),
+            Item.Group(
                 items = POImmutableList(
                     listOf(
-                        Item.TextField(
-                            POFieldState(
-                                key = "card",
-                                value = TextFieldValue(text = "card")
-                            )
-                        ),
-                        Item.Group(
-                            items = POImmutableList(
-                                listOf(
-                                    Item.TextField(
-                                        POFieldState(
-                                            key = "exp",
-                                            value = TextFieldValue(text = "exp")
-                                        )
-                                    ),
-                                    Item.TextField(
-                                        POFieldState(
-                                            key = "cvc",
-                                            value = TextFieldValue(text = "cvc")
-                                        )
-                                    )
-                                )
-                            )
-                        ),
-                        Item.TextField(
-                            POFieldState(
-                                key = "cardholder",
-                                value = TextFieldValue(text = "cardholder")
-                            )
-                        )
+                        cardExpirationField(),
+                        cvcField()
                     )
                 )
+            )
+        )
+        if (configuration.isCardholderNameFieldVisible) {
+            items.add(cardholderField())
+        }
+        return Section(POImmutableList(items))
+    }
+
+    private fun cardNumberField() = Item.TextField(
+        POFieldState(
+            key = CardField.Number.key,
+            placeholder = app.getString(R.string.po_card_tokenization_card_details_number_placeholder),
+            inputFilter = CardNumberInputFilter(),
+            visualTransformation = CardNumberVisualTransformation(),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.NumberPassword,
+                imeAction = ImeAction.Next
+            ),
+            forceTextDirectionLtr = true
+        )
+    )
+
+    private fun cardExpirationField() = Item.TextField(
+        POFieldState(
+            key = CardField.Expiration.key,
+            placeholder = app.getString(R.string.po_card_tokenization_card_details_expiration_placeholder),
+            inputFilter = CardExpirationInputFilter(),
+            visualTransformation = CardExpirationVisualTransformation(),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.NumberPassword,
+                imeAction = ImeAction.Next
+            ),
+            forceTextDirectionLtr = true
+        )
+    )
+
+    private fun cvcField() = Item.TextField(
+        POFieldState(
+            key = CardField.CVC.key,
+            placeholder = app.getString(R.string.po_card_tokenization_card_details_cvc_placeholder),
+            iconResId = com.processout.sdk.ui.R.drawable.po_card_back,
+            inputFilter = CardSecurityCodeInputFilter(scheme = null),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.NumberPassword,
+                imeAction = if (configuration.isCardholderNameFieldVisible)
+                    ImeAction.Next else ImeAction.Done
+            ),
+            forceTextDirectionLtr = true
+        )
+    )
+
+    private fun cardholderField() = Item.TextField(
+        POFieldState(
+            key = CardField.Cardholder.key,
+            placeholder = app.getString(R.string.po_card_tokenization_card_details_cardholder_placeholder),
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.Words,
+                autoCorrect = false,
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Done
             )
         )
     )

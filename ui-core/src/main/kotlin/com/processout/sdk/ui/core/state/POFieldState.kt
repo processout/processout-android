@@ -20,7 +20,7 @@ data class POFieldState(
     @DrawableRes
     val iconResId: Int? = null,
     val inputFilter: POInputFilter? = null,
-    val visualTransformation: VisualTransformation? = null,
+    val visualTransformation: VisualTransformation = VisualTransformation.None,
     val keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     val enabled: Boolean = true,
     val isError: Boolean = false,

@@ -1,5 +1,6 @@
 package com.processout.sdk.ui.card.tokenization
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -10,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
@@ -25,6 +27,7 @@ import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.shared.composable.AnimatedImage
 
 @Composable
 internal fun CardTokenizationScreen(
@@ -72,7 +75,8 @@ internal fun CardTokenizationScreen(
                     Item(
                         item = item,
                         onEvent = onEvent,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        style = style.field
                     )
                 }
             }
@@ -84,13 +88,15 @@ internal fun CardTokenizationScreen(
 private fun Item(
     item: Item,
     onEvent: (CardTokenizationEvent) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    style: POField.Style = POField.default
 ) {
     when (item) {
         is Item.TextField -> TextField(
             state = item.state,
             onEvent = onEvent,
-            modifier = modifier
+            modifier = modifier,
+            style = style
         )
         is Item.Group -> Row(
             horizontalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
@@ -99,7 +105,8 @@ private fun Item(
                 Item(
                     item = groupItem,
                     onEvent = onEvent,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    style = style
                 )
             }
         }
@@ -110,7 +117,8 @@ private fun Item(
 private fun TextField(
     state: POFieldState,
     onEvent: (CardTokenizationEvent) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    style: POField.Style = POField.default
 ) {
     POTextField(
         value = state.value,
@@ -122,7 +130,26 @@ private fun TextField(
                 )
             )
         },
-        modifier = modifier
+        modifier = modifier,
+        style = style,
+        enabled = state.enabled,
+        isError = state.isError,
+        forceTextDirectionLtr = state.forceTextDirectionLtr,
+        placeholderText = state.placeholder,
+        trailingIcon = { state.iconResId?.let { AnimatedIcon(id = it) } },
+        keyboardOptions = state.keyboardOptions,
+        visualTransformation = state.visualTransformation
+    )
+}
+
+@Composable
+private fun AnimatedIcon(@DrawableRes id: Int) {
+    AnimatedImage(
+        id = id,
+        modifier = Modifier
+            .height(ProcessOutTheme.dimensions.formComponentHeight)
+            .padding(POField.contentPadding),
+        contentScale = ContentScale.FillHeight
     )
 }
 

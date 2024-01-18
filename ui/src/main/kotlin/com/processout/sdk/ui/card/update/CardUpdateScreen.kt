@@ -1,12 +1,6 @@
 package com.processout.sdk.ui.card.update
 
 import androidx.annotation.DrawableRes
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.MutableTransitionState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
@@ -24,7 +18,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.card.update.CardUpdateEvent.*
 import com.processout.sdk.ui.core.component.POActionsContainer
@@ -38,6 +31,7 @@ import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.shared.composable.AnimatedImage
 import com.processout.sdk.ui.shared.composable.RequestFocus
 import com.processout.sdk.ui.shared.composable.rememberLifecycleEvent
 
@@ -141,27 +135,14 @@ private fun Fields(
 }
 
 @Composable
-private fun AnimatedIcon(
-    @DrawableRes id: Int,
-    visibleState: MutableTransitionState<Boolean> = remember {
-        MutableTransitionState(initialState = false)
-            .apply { targetState = true }
-    }
-) {
-    AnimatedVisibility(
-        visibleState = visibleState,
-        enter = fadeIn(animationSpec = tween()),
-        exit = fadeOut(animationSpec = tween())
-    ) {
-        Image(
-            painter = painterResource(id = id),
-            contentDescription = null,
-            modifier = Modifier
-                .height(ProcessOutTheme.dimensions.formComponentHeight)
-                .padding(POField.contentPadding),
-            contentScale = ContentScale.FillHeight
-        )
-    }
+private fun AnimatedIcon(@DrawableRes id: Int) {
+    AnimatedImage(
+        id = id,
+        modifier = Modifier
+            .height(ProcessOutTheme.dimensions.formComponentHeight)
+            .padding(POField.contentPadding),
+        contentScale = ContentScale.FillHeight
+    )
 }
 
 @Composable
