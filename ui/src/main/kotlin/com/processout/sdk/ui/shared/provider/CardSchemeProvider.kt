@@ -2,6 +2,7 @@ package com.processout.sdk.ui.shared.provider
 
 import com.processout.sdk.ui.shared.provider.CardSchemeProvider.IssuerNumbers.*
 import com.processout.sdk.ui.shared.provider.CardSchemeProvider.IssuerNumbers.Set
+import kotlin.math.pow
 
 internal class CardSchemeProvider {
 
@@ -107,6 +108,24 @@ internal class CardSchemeProvider {
     )
 
     fun scheme(cardNumber: String): String? {
+        val normalized = cardNumber.filter { it.isDigit() }.take(MAX_IIN_LENGTH)
+        if (normalized.startsWith("0")) {
+            return null
+        }
+        normalized.toIntOrNull()?.let { normalizedInt ->
+            val issuer = issuers.find { issuer ->
+                val lengthDiff = normalized.length - issuer.length
+                if (lengthDiff < 0) return@find false
+                // Equalize lookup value with issuer.length
+                val value = (normalizedInt / 10f.pow(lengthDiff)).toInt()
+                when (val numbers = issuer.numbers) {
+                    is Set -> numbers.set.contains(value)
+                    is Range -> numbers.range.contains(value)
+                    is Exact -> numbers.value == value
+                }
+            }
+            return issuer?.scheme
+        }
         return null
     }
 }
