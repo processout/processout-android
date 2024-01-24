@@ -55,6 +55,37 @@ POCardUpdateConfiguration(
 )
 ```
 
+### Error Handling
+
+```kotlin
+viewModelScope.launch {
+    with(ProcessOut.instance.dispatchers.cardUpdate) {
+        shouldContinueRequest.collect { request ->
+            // Inspect the failure to decide whether the flow should continue or complete.
+            val shouldContinue = when (val code = request.failure.code) {
+                is Generic -> when (code.genericCode) {
+                    requestInvalidCard,
+                    cardInvalid,
+                    cardBadTrackData,
+                    cardMissingCvc,
+                    cardInvalidCvc,
+                    cardFailedCvc,
+                    cardFailedCvcAndAvs -> true
+                    else -> false
+                }
+                else -> false
+            }
+
+            // Notify by sending the response which must be constructed from request.
+            // Note that once you've subscribed to 'shouldContinueRequest'
+            // it's required to send response back otherwise the card update flow will not proceed.
+            shouldContinue(request.toResponse(shouldContinue = shouldContinue))
+        }
+    }
+}
+
+```
+
 ### Lifecycle Events
 
 ```kotlin
