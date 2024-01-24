@@ -2,6 +2,8 @@ package com.processout.sdk.ui.card.tokenization
 
 import android.app.Application
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -17,14 +19,15 @@ import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Awaiting
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Failure
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
-import com.processout.sdk.ui.card.tokenization.CardTokenizationState.Item
-import com.processout.sdk.ui.card.tokenization.CardTokenizationState.Section
+import com.processout.sdk.ui.card.tokenization.CardTokenizationSection.Item
 import com.processout.sdk.ui.core.state.POActionState
-import com.processout.sdk.ui.core.state.POFieldState
-import com.processout.sdk.ui.core.state.POImmutableList
+import com.processout.sdk.ui.core.state.POMutableFieldState
+import com.processout.sdk.ui.core.state.POStableList
 import com.processout.sdk.ui.shared.filter.CardExpirationInputFilter
 import com.processout.sdk.ui.shared.filter.CardNumberInputFilter
 import com.processout.sdk.ui.shared.filter.CardSecurityCodeInputFilter
+import com.processout.sdk.ui.shared.provider.CardSchemeProvider
+import com.processout.sdk.ui.shared.provider.cardSchemeDrawableResId
 import com.processout.sdk.ui.shared.transformation.CardExpirationVisualTransformation
 import com.processout.sdk.ui.shared.transformation.CardNumberVisualTransformation
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,7 +37,8 @@ import kotlinx.coroutines.flow.update
 internal class CardTokenizationViewModel(
     private val app: Application,
     private val configuration: POCardTokenizationConfiguration,
-    private val cardsRepository: POCardsRepository
+    private val cardsRepository: POCardsRepository,
+    private val cardSchemeProvider: CardSchemeProvider
 ) : ViewModel() {
 
     class Factory(
@@ -46,7 +50,8 @@ internal class CardTokenizationViewModel(
             CardTokenizationViewModel(
                 app = app,
                 configuration = configuration,
-                cardsRepository = ProcessOut.instance.cards
+                cardsRepository = ProcessOut.instance.cards,
+                cardSchemeProvider = CardSchemeProvider()
             ) as T
     }
 
@@ -63,10 +68,12 @@ internal class CardTokenizationViewModel(
     private val _state = MutableStateFlow(initState())
     val state = _state.asStateFlow()
 
+    private val _sections = mutableStateListOf(cardInformationSection())
+    val sections = POStableList(_sections)
+
     private fun initState() = with(configuration) {
         CardTokenizationState(
             title = title ?: app.getString(R.string.po_card_tokenization_title),
-            sections = POImmutableList(listOf(cardInformationSection())),
             primaryAction = POActionState(
                 text = primaryActionText ?: app.getString(R.string.po_card_tokenization_button_submit),
                 primary = true
@@ -79,11 +86,11 @@ internal class CardTokenizationViewModel(
         )
     }
 
-    private fun cardInformationSection(): Section {
+    private fun cardInformationSection(): CardTokenizationSection {
         val items = mutableListOf(
             cardNumberField(),
             Item.Group(
-                items = POImmutableList(
+                items = POStableList(
                     listOf(
                         cardExpirationField(),
                         cvcField()
@@ -94,11 +101,11 @@ internal class CardTokenizationViewModel(
         if (configuration.isCardholderNameFieldVisible) {
             items.add(cardholderField())
         }
-        return Section(POImmutableList(items))
+        return CardTokenizationSection(POStableList(items))
     }
 
     private fun cardNumberField() = Item.TextField(
-        POFieldState(
+        POMutableFieldState(
             key = CardField.Number.key,
             placeholder = app.getString(R.string.po_card_tokenization_card_details_number_placeholder),
             inputFilter = CardNumberInputFilter(),
@@ -112,7 +119,7 @@ internal class CardTokenizationViewModel(
     )
 
     private fun cardExpirationField() = Item.TextField(
-        POFieldState(
+        POMutableFieldState(
             key = CardField.Expiration.key,
             placeholder = app.getString(R.string.po_card_tokenization_card_details_expiration_placeholder),
             inputFilter = CardExpirationInputFilter(),
@@ -126,13 +133,14 @@ internal class CardTokenizationViewModel(
     )
 
     private fun cvcField() = Item.TextField(
-        POFieldState(
+        POMutableFieldState(
             key = CardField.CVC.key,
             placeholder = app.getString(R.string.po_card_tokenization_card_details_cvc_placeholder),
-            iconResId = com.processout.sdk.ui.R.drawable.po_card_back,
+            iconResId = mutableStateOf(com.processout.sdk.ui.R.drawable.po_card_back),
             inputFilter = CardSecurityCodeInputFilter(scheme = null),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.NumberPassword,
+                // TODO: Check for generic approach to determine ImeAction.Done for last item.
                 imeAction = if (configuration.isCardholderNameFieldVisible)
                     ImeAction.Next else ImeAction.Done
             ),
@@ -141,13 +149,14 @@ internal class CardTokenizationViewModel(
     )
 
     private fun cardholderField() = Item.TextField(
-        POFieldState(
+        POMutableFieldState(
             key = CardField.Cardholder.key,
             placeholder = app.getString(R.string.po_card_tokenization_card_details_cardholder_placeholder),
             keyboardOptions = KeyboardOptions(
                 capitalization = KeyboardCapitalization.Words,
                 autoCorrect = false,
                 keyboardType = KeyboardType.Text,
+                // TODO: Check for generic approach to determine ImeAction.Done for last item.
                 imeAction = ImeAction.Done
             )
         )
@@ -161,43 +170,42 @@ internal class CardTokenizationViewModel(
     }
 
     private fun updateFieldValue(key: String, value: TextFieldValue) {
-        _state.update { state ->
-            state.copy(
-                sections = POImmutableList(
-                    state.sections.elements.map { section ->
-                        section.copy(
-                            items = POImmutableList(
-                                section.items.elements.map { item ->
-                                    updateFieldValue(key, value, item)
-                                }
-                            )
-                        )
-                    }
-                )
-            )
+        field(key)?.let { field ->
+            field.value.value = value
+
+            // TODO: Resolve and update issuer information by iin locally then call backend when there is at least 6 digits.
+            // TODO: Update iconResId for card field by resolved scheme.
+            // TODO: Filter and update CVC field by resolved scheme.
+            if (key == CardField.Number.key) {
+                cardSchemeProvider.scheme(cardNumber = value.text).let { scheme ->
+                    field.iconResId.value = scheme?.let { cardSchemeDrawableResId(scheme) }
+                }
+            }
         }
     }
 
-    private fun updateFieldValue(
-        key: String,
-        value: TextFieldValue,
-        item: Item
-    ): Item = when (item) {
-        is Item.TextField -> when (item.state.key) {
-            key -> item.copy(
-                state = item.state.copy(
-                    value = value.copy()
-                )
-            )
-            else -> item.copy()
+    private fun field(key: String): POMutableFieldState? {
+        _sections.forEach { section ->
+            section.items.elements.forEach { item ->
+                field(key, item)
+                    ?.let { return it }
+            }
         }
-        is Item.Group -> item.copy(
-            items = POImmutableList(
-                item.items.elements.map { groupItem ->
-                    updateFieldValue(key, value, groupItem)
+        return null
+    }
+
+    private fun field(key: String, item: Item): POMutableFieldState? {
+        when (item) {
+            is Item.TextField ->
+                if (item.state.key == key) {
+                    return item.state
                 }
-            )
-        )
+            is Item.Group -> item.items.elements.forEach { groupItem ->
+                field(key, groupItem)
+                    ?.let { return it }
+            }
+        }
+        return null
     }
 
     private fun submit() {

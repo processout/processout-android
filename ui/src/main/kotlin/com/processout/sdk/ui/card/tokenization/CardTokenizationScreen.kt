@@ -15,16 +15,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
-import com.processout.sdk.ui.card.tokenization.CardTokenizationState.Item
+import com.processout.sdk.ui.card.tokenization.CardTokenizationSection.Item
 import com.processout.sdk.ui.core.component.POActionsContainer
 import com.processout.sdk.ui.core.component.POHeader
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.POTextField
-import com.processout.sdk.ui.core.state.POActionState
-import com.processout.sdk.ui.core.state.POActionStateExtended
-import com.processout.sdk.ui.core.state.POFieldState
-import com.processout.sdk.ui.core.state.POImmutableList
+import com.processout.sdk.ui.core.state.*
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.composable.AnimatedImage
@@ -32,6 +29,7 @@ import com.processout.sdk.ui.shared.composable.AnimatedImage
 @Composable
 internal fun CardTokenizationScreen(
     state: CardTokenizationState,
+    sections: POStableList<CardTokenizationSection>,
     onEvent: (CardTokenizationEvent) -> Unit,
     style: CardTokenizationScreen.Style = CardTokenizationScreen.style()
 ) {
@@ -70,7 +68,7 @@ internal fun CardTokenizationScreen(
                 ),
             verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
         ) {
-            state.sections.elements.forEach { section ->
+            sections.elements.forEach { section ->
                 section.items.elements.forEach { item ->
                     Item(
                         item = item,
@@ -115,13 +113,13 @@ private fun Item(
 
 @Composable
 private fun TextField(
-    state: POFieldState,
+    state: POMutableFieldState,
     onEvent: (CardTokenizationEvent) -> Unit,
     modifier: Modifier = Modifier,
     style: POField.Style = POField.default
 ) {
     POTextField(
-        value = state.value,
+        value = state.value.value,
         onValueChange = {
             onEvent(
                 FieldValueChanged(
@@ -136,7 +134,7 @@ private fun TextField(
         isError = state.isError,
         forceTextDirectionLtr = state.forceTextDirectionLtr,
         placeholderText = state.placeholder,
-        trailingIcon = { state.iconResId?.let { AnimatedIcon(id = it) } },
+        trailingIcon = { state.iconResId.value?.let { AnimatedIcon(id = it) } },
         keyboardOptions = state.keyboardOptions,
         visualTransformation = state.visualTransformation
     )
