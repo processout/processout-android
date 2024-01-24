@@ -1,4 +1,4 @@
-package com.processout.sdk.ui.shared.mapper
+package com.processout.sdk.ui.shared.provider
 
 import androidx.annotation.DrawableRes
 import com.processout.sdk.ui.R

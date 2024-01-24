@@ -1,5 +1,6 @@
 package com.processout.sdk.ui.card.tokenization
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -10,25 +11,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.text.input.TextFieldValue
-import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.Cancel
-import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.Submit
+import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
+import com.processout.sdk.ui.card.tokenization.CardTokenizationSection.Item
 import com.processout.sdk.ui.core.component.POActionsContainer
 import com.processout.sdk.ui.core.component.POHeader
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.POTextField
-import com.processout.sdk.ui.core.state.POActionState
-import com.processout.sdk.ui.core.state.POActionStateExtended
-import com.processout.sdk.ui.core.state.POImmutableCollection
+import com.processout.sdk.ui.core.state.*
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.shared.composable.AnimatedImage
 
 @Composable
 internal fun CardTokenizationScreen(
     state: CardTokenizationState,
+    sections: POStableList<CardTokenizationSection>,
     onEvent: (CardTokenizationEvent) -> Unit,
     style: CardTokenizationScreen.Style = CardTokenizationScreen.style()
 ) {
@@ -65,16 +66,89 @@ internal fun CardTokenizationScreen(
                     horizontal = ProcessOutTheme.spacing.extraLarge,
                     vertical = ProcessOutTheme.spacing.large
                 ),
-            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.large)
+            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
         ) {
-            // TODO
-            POTextField(
-                value = TextFieldValue(),
-                onValueChange = {},
-                modifier = Modifier.fillMaxWidth()
-            )
+            sections.elements.forEach { section ->
+                section.items.elements.forEach { item ->
+                    Item(
+                        item = item,
+                        onEvent = onEvent,
+                        modifier = Modifier.fillMaxWidth(),
+                        style = style.field
+                    )
+                }
+            }
         }
     }
+}
+
+@Composable
+private fun Item(
+    item: Item,
+    onEvent: (CardTokenizationEvent) -> Unit,
+    modifier: Modifier = Modifier,
+    style: POField.Style = POField.default
+) {
+    when (item) {
+        is Item.TextField -> TextField(
+            state = item.state,
+            onEvent = onEvent,
+            modifier = modifier,
+            style = style
+        )
+        is Item.Group -> Row(
+            horizontalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
+        ) {
+            item.items.elements.forEach { groupItem ->
+                Item(
+                    item = groupItem,
+                    onEvent = onEvent,
+                    modifier = Modifier.weight(1f),
+                    style = style
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun TextField(
+    state: POMutableFieldState,
+    onEvent: (CardTokenizationEvent) -> Unit,
+    modifier: Modifier = Modifier,
+    style: POField.Style = POField.default
+) {
+    POTextField(
+        value = state.value.value,
+        onValueChange = {
+            onEvent(
+                FieldValueChanged(
+                    key = state.key,
+                    value = state.inputFilter?.filter(it) ?: it
+                )
+            )
+        },
+        modifier = modifier,
+        style = style,
+        enabled = state.enabled,
+        isError = state.isError,
+        forceTextDirectionLtr = state.forceTextDirectionLtr,
+        placeholderText = state.placeholder,
+        trailingIcon = { state.iconResId.value?.let { AnimatedIcon(id = it) } },
+        keyboardOptions = state.keyboardOptions,
+        visualTransformation = state.visualTransformation
+    )
+}
+
+@Composable
+private fun AnimatedIcon(@DrawableRes id: Int) {
+    AnimatedImage(
+        id = id,
+        modifier = Modifier
+            .height(ProcessOutTheme.dimensions.formComponentHeight)
+            .padding(POField.contentPadding),
+        contentScale = ContentScale.FillHeight
+    )
 }
 
 @Composable
@@ -97,7 +171,7 @@ private fun Actions(
             ))
     }
     POActionsContainer(
-        actions = POImmutableCollection(
+        actions = POImmutableList(
             if (style.axis == POAxis.Horizontal) actions.reversed() else actions
         ),
         style = style

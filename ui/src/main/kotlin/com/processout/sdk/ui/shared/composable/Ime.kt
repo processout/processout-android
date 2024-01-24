@@ -8,7 +8,12 @@ import androidx.core.view.WindowInsetsCompat
 
 @Composable
 internal fun isImeVisibleAsState(): State<Boolean> {
-    val isImeVisible = remember { mutableStateOf(false) }
+    val isImeVisible = remember {
+        mutableStateOf(
+            value = false,
+            policy = neverEqualPolicy()
+        )
+    }
     val view = LocalView.current.rootView
     val viewTreeObserver = view.viewTreeObserver
     DisposableEffect(viewTreeObserver) {

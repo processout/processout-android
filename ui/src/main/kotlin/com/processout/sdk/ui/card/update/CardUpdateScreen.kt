@@ -1,12 +1,6 @@
 package com.processout.sdk.ui.card.update
 
 import androidx.annotation.DrawableRes
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.MutableTransitionState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
@@ -24,7 +18,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.card.update.CardUpdateEvent.*
 import com.processout.sdk.ui.core.component.POActionsContainer
@@ -35,9 +28,10 @@ import com.processout.sdk.ui.core.component.field.POTextField
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POActionStateExtended
 import com.processout.sdk.ui.core.state.POFieldState
-import com.processout.sdk.ui.core.state.POImmutableCollection
+import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.shared.composable.AnimatedImage
 import com.processout.sdk.ui.shared.composable.RequestFocus
 import com.processout.sdk.ui.shared.composable.rememberLifecycleEvent
 
@@ -102,7 +96,7 @@ internal fun CardUpdateScreen(
 
 @Composable
 private fun Fields(
-    fields: POImmutableCollection<POFieldState>,
+    fields: POImmutableList<POFieldState>,
     onEvent: (CardUpdateEvent) -> Unit,
     style: POField.Style = POField.default
 ) {
@@ -116,11 +110,10 @@ private fun Fields(
         POTextField(
             value = state.value,
             onValueChange = {
-                val formatted = state.formatter?.format(it.text) ?: it.text
                 onEvent(
                     FieldValueChanged(
                         key = state.key,
-                        value = it.copy(text = formatted)
+                        value = state.inputFilter?.filter(it) ?: it
                     )
                 )
             },
@@ -134,7 +127,7 @@ private fun Fields(
             placeholderText = state.placeholder,
             trailingIcon = { state.iconResId?.let { AnimatedIcon(id = it) } },
             keyboardOptions = state.keyboardOptions,
-            keyboardActions = if (index == fields.elements.size - 1)
+            keyboardActions = if (index == fields.elements.lastIndex)
                 KeyboardActions(onDone = { onEvent(Submit) })
             else KeyboardActions.Default
         )
@@ -142,27 +135,14 @@ private fun Fields(
 }
 
 @Composable
-private fun AnimatedIcon(
-    @DrawableRes id: Int,
-    visibleState: MutableTransitionState<Boolean> = remember {
-        MutableTransitionState(initialState = false)
-            .apply { targetState = true }
-    }
-) {
-    AnimatedVisibility(
-        visibleState = visibleState,
-        enter = fadeIn(animationSpec = tween()),
-        exit = fadeOut(animationSpec = tween())
-    ) {
-        Image(
-            painter = painterResource(id = id),
-            contentDescription = null,
-            modifier = Modifier
-                .height(ProcessOutTheme.dimensions.formComponentHeight)
-                .padding(POField.contentPadding),
-            contentScale = ContentScale.FillHeight
-        )
-    }
+private fun AnimatedIcon(@DrawableRes id: Int) {
+    AnimatedImage(
+        id = id,
+        modifier = Modifier
+            .height(ProcessOutTheme.dimensions.formComponentHeight)
+            .padding(POField.contentPadding),
+        contentScale = ContentScale.FillHeight
+    )
 }
 
 @Composable
@@ -185,7 +165,7 @@ private fun Actions(
             ))
     }
     POActionsContainer(
-        actions = POImmutableCollection(
+        actions = POImmutableList(
             if (style.axis == POAxis.Horizontal) actions.reversed() else actions
         ),
         style = style

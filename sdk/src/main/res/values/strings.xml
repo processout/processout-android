@@ -29,4 +29,23 @@
     <string name="po_card_update_error_cvc">Your card CVC is invalid.</string>
     <string name="po_card_update_error_generic">Something went wrong, please try again.</string>
 
+    <!-- Card Tokenization -->
+    <string name="po_card_tokenization_title">Add New Card</string>
+    <string name="po_card_tokenization_button_submit">Submit</string>
+    <string name="po_card_tokenization_button_cancel">Cancel</string>
+    <string name="po_card_tokenization_preferred_scheme">Preferred Scheme</string>
+    <string name="po_card_tokenization_card_details_cardholder_placeholder">Cardholder Name</string>
+    <string name="po_card_tokenization_card_details_cvc_placeholder">CVC</string>
+    <string name="po_card_tokenization_card_details_expiration_placeholder">MM / YY</string>
+    <string name="po_card_tokenization_card_details_number_placeholder">4242 4242 4242 4242</string>
+    <string name="po_card_tokenization_billing_address_title">Billing Address</string>
+    <string name="po_card_tokenization_billing_address_street">Address line %d</string>
+    <string name="po_card_tokenization_error_card">Your card information is invalid.</string>
+    <string name="po_card_tokenization_error_card_expiration">Your card expiration date is invalid.</string>
+    <string name="po_card_tokenization_error_card_number">Your card number is invalid.</string>
+    <string name="po_card_tokenization_error_cardholder">The cardholder name is invalid.</string>
+    <string name="po_card_tokenization_error_cvc">Your card CVC is invalid.</string>
+    <string name="po_card_tokenization_error_generic">Something went wrong, please try again.</string>
+    <string name="po_card_tokenization_error_track_data">Your card expiration date and/or CVC is invalid.</string>
+
 </resources>

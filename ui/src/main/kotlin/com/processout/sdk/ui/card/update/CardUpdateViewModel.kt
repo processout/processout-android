@@ -26,10 +26,10 @@ import com.processout.sdk.ui.card.update.CardUpdateCompletion.*
 import com.processout.sdk.ui.card.update.CardUpdateEvent.*
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POFieldState
-import com.processout.sdk.ui.core.state.POImmutableCollection
+import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.shared.extension.orElse
-import com.processout.sdk.ui.shared.formatter.CardSecurityCodeFormatter
-import com.processout.sdk.ui.shared.mapper.cardSchemeDrawableResId
+import com.processout.sdk.ui.shared.filter.CardSecurityCodeInputFilter
+import com.processout.sdk.ui.shared.provider.cardSchemeDrawableResId
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -102,11 +102,11 @@ internal class CardUpdateViewModel(
         )
     }
 
-    private fun initFields(): POImmutableCollection<POFieldState> {
+    private fun initFields(): POImmutableList<POFieldState> {
         val fields = mutableListOf<POFieldState>()
         initCardNumberField()?.let { fields.add(it) }
         fields.add(initCvcField())
-        return POImmutableCollection(fields)
+        return POImmutableList(fields)
     }
 
     private fun initCardNumberField(): POFieldState? =
@@ -129,7 +129,7 @@ internal class CardUpdateViewModel(
         key = Field.CVC.key,
         placeholder = app.getString(R.string.po_card_update_cvc),
         iconResId = com.processout.sdk.ui.R.drawable.po_card_back,
-        formatter = CardSecurityCodeFormatter(scheme = options.cardInformation?.scheme),
+        inputFilter = CardSecurityCodeInputFilter(scheme = options.cardInformation?.scheme),
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.NumberPassword,
             imeAction = ImeAction.Done
@@ -173,19 +173,17 @@ internal class CardUpdateViewModel(
     private fun updateScheme(scheme: String) {
         _state.update { state ->
             state.copy(
-                fields = POImmutableCollection(
+                fields = POImmutableList(
                     state.fields.elements.map {
                         when (it.key) {
                             Field.Number.key -> it.copy(
                                 iconResId = cardSchemeDrawableResId(scheme)
                             )
                             Field.CVC.key -> {
-                                val formatter = CardSecurityCodeFormatter(scheme = scheme)
+                                val inputFilter = CardSecurityCodeInputFilter(scheme = scheme)
                                 it.copy(
-                                    value = it.value.copy(
-                                        text = formatter.format(it.value.text)
-                                    ),
-                                    formatter = formatter
+                                    value = inputFilter.filter(it.value),
+                                    inputFilter = inputFilter
                                 )
                             }
                             else -> it.copy()
@@ -213,7 +211,7 @@ internal class CardUpdateViewModel(
     private fun updateFieldValue(key: String, value: TextFieldValue) {
         _state.update { state ->
             state.copy(
-                fields = POImmutableCollection(
+                fields = POImmutableList(
                     state.fields.elements.map {
                         when (it.key) {
                             key -> it.copy(
@@ -252,7 +250,7 @@ internal class CardUpdateViewModel(
         submitting: Boolean,
         errorMessage: String? = null
     ) = state.copy(
-        fields = POImmutableCollection(
+        fields = POImmutableList(
             state.fields.elements.map {
                 when (it.key) {
                     Field.CVC.key -> it.copy(isError = errorMessage != null)

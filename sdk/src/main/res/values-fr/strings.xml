@@ -11,4 +11,23 @@
     <string name="po_card_update_error_cvc">Le code CVV de votre carte est incorrect.</string>
     <string name="po_card_update_error_generic">Une erreur s’est produite, veuillez réessayer.</string>
 
+    <!-- Card Tokenization -->
+    <string name="po_card_tokenization_title">Ajouter une nouvelle carte</string>
+    <string name="po_card_tokenization_button_submit">Envoyer</string>
+    <string name="po_card_tokenization_button_cancel">Annuler</string>
+    <string name="po_card_tokenization_preferred_scheme">Réseau de Carte Préféré</string>
+    <string name="po_card_tokenization_card_details_cardholder_placeholder">Nom du porteur de carte</string>
+    <string name="po_card_tokenization_card_details_cvc_placeholder">CVV</string>
+    <string name="po_card_tokenization_card_details_expiration_placeholder">MM / AA</string>
+    <string name="po_card_tokenization_card_details_number_placeholder">4242 4242 4242 4242</string>
+    <string name="po_card_tokenization_billing_address_title">Adresse de Facturation</string>
+    <string name="po_card_tokenization_billing_address_street">Ligne d’adresse %d</string>
+    <string name="po_card_tokenization_error_card">Les informations de votre carte sont incorrectes.</string>
+    <string name="po_card_tokenization_error_card_expiration">La date d’expiration de votre carte est incorrecte.</string>
+    <string name="po_card_tokenization_error_card_number">Votre numéro de carte est incorrect.</string>
+    <string name="po_card_tokenization_error_cardholder">Le nom du porteur de carte est incorrect.</string>
+    <string name="po_card_tokenization_error_cvc">Le code CVV de votre carte est incorrect.</string>
+    <string name="po_card_tokenization_error_generic">Une erreur s’est produite, veuillez réessayer.</string>
+    <string name="po_card_tokenization_error_track_data">La date d’expiration de votre carte ou son code CVV sont incorrects.</string>
+
 </resources>
