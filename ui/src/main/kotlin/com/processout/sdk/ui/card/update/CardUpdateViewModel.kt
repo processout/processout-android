@@ -14,6 +14,7 @@ import com.processout.sdk.api.dispatcher.card.update.PODefaultCardUpdateEventDis
 import com.processout.sdk.api.model.event.POCardUpdateEvent
 import com.processout.sdk.api.model.event.POCardUpdateEvent.*
 import com.processout.sdk.api.model.request.POCardUpdateRequest
+import com.processout.sdk.api.model.request.POCardUpdateShouldContinueRequest
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.POFailure.Code.Generic
@@ -77,7 +78,10 @@ internal class CardUpdateViewModel(
     private val _state = MutableStateFlow(initState())
     val state = _state.asStateFlow()
 
+    private val shouldContinueRequests = mutableSetOf<POCardUpdateShouldContinueRequest>()
+
     init {
+        handleIfShouldContinue()
         POLogger.info(
             message = "Card update is started: waiting for user input.",
             attributes = logAttributes
@@ -284,7 +288,43 @@ internal class CardUpdateViewModel(
                 )
                 dispatch(DidComplete)
                 _completion.update { Success(card) }
-            }.onFailure { handle(failure = it) }
+            }.onFailure { failure ->
+                if (eventDispatcher.subscribedForShouldContinueRequest()) {
+                    requestIfShouldContinue(failure)
+                } else {
+                    handle(failure)
+                }
+            }
+        }
+    }
+
+    private fun requestIfShouldContinue(failure: ProcessOutResult.Failure) {
+        viewModelScope.launch {
+            val request = POCardUpdateShouldContinueRequest(cardId, failure)
+            shouldContinueRequests.add(request)
+            eventDispatcher.send(request)
+            POLogger.info(
+                message = "Requested to decide whether the flow should continue or complete after the failure: %s", failure,
+                attributes = logAttributes
+            )
+        }
+    }
+
+    private fun handleIfShouldContinue() {
+        viewModelScope.launch {
+            eventDispatcher.shouldContinueResponse.collect { response ->
+                if (shouldContinueRequests.removeAll { it.uuid == response.uuid }) {
+                    if (response.shouldContinue) {
+                        handle(response.failure)
+                    } else {
+                        POLogger.info(
+                            message = "Completed after the failure: %s", response.failure,
+                            attributes = logAttributes
+                        )
+                        _completion.update { Failure(response.failure) }
+                    }
+                }
+            }
         }
     }
 
