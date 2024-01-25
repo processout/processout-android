@@ -2,6 +2,7 @@ package com.processout.sdk.ui.card.update
 
 import android.app.Application
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -26,15 +27,14 @@ import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.card.update.CardUpdateCompletion.*
 import com.processout.sdk.ui.card.update.CardUpdateEvent.*
 import com.processout.sdk.ui.core.state.POActionState
-import com.processout.sdk.ui.core.state.POFieldState
-import com.processout.sdk.ui.core.state.POImmutableList
+import com.processout.sdk.ui.core.state.POMutableFieldState
+import com.processout.sdk.ui.core.state.POStableList
 import com.processout.sdk.ui.shared.extension.orElse
 import com.processout.sdk.ui.shared.filter.CardSecurityCodeInputFilter
 import com.processout.sdk.ui.shared.provider.cardSchemeDrawableResId
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.launch
 
 internal class CardUpdateViewModel(
@@ -67,7 +67,7 @@ internal class CardUpdateViewModel(
         const val LOG_ATTRIBUTE_CARD_ID = "CardId"
     }
 
-    private enum class Field(val key: String) {
+    private enum class CardField(val key: String) {
         Number("card-number"),
         CVC("card-cvc")
     }
@@ -77,6 +77,9 @@ internal class CardUpdateViewModel(
 
     private val _state = MutableStateFlow(initState())
     val state = _state.asStateFlow()
+
+    private val _fields = mutableStateListOf<POMutableFieldState>().apply { addAll(initFields()) }
+    val fields = POStableList(_fields)
 
     private val shouldContinueRequests = mutableSetOf<POCardUpdateShouldContinueRequest>()
 
@@ -93,7 +96,6 @@ internal class CardUpdateViewModel(
     private fun initState() = with(options) {
         CardUpdateState(
             title = title ?: app.getString(R.string.po_card_update_title),
-            fields = initFields(),
             primaryAction = POActionState(
                 text = primaryActionText ?: app.getString(R.string.po_card_update_button_submit),
                 primary = true
@@ -106,40 +108,42 @@ internal class CardUpdateViewModel(
         )
     }
 
-    private fun initFields(): POImmutableList<POFieldState> {
-        val fields = mutableListOf<POFieldState>()
-        initCardNumberField()?.let { fields.add(it) }
-        fields.add(initCvcField())
-        return POImmutableList(fields)
+    private fun initFields(): List<POMutableFieldState> {
+        val fields = mutableListOf<POMutableFieldState>()
+        cardNumberField()?.let { fields.add(it) }
+        fields.add(cvcField())
+        return fields
     }
 
-    private fun initCardNumberField(): POFieldState? =
+    private fun cardNumberField(): POMutableFieldState? =
         with(options.cardInformation) {
             this?.maskedNumber?.let { maskedNumber ->
                 if (maskedNumber.isBlank()) return null
-                POFieldState(
-                    key = Field.Number.key,
+                POMutableFieldState(
+                    key = CardField.Number.key,
+                    forceTextDirectionLtr = true,
                     value = TextFieldValue(text = maskedNumber),
+                    enabled = false,
                     iconResId = cardSchemeDrawableResId(
                         scheme = preferredScheme ?: scheme ?: String()
-                    ),
-                    enabled = false,
-                    forceTextDirectionLtr = true
+                    )
                 )
             }
         }
 
-    private fun initCvcField() = POFieldState(
-        key = Field.CVC.key,
+    private fun cvcField() = POMutableFieldState(
+        key = CardField.CVC.key,
         placeholder = app.getString(R.string.po_card_update_cvc),
+        forceTextDirectionLtr = true,
         iconResId = com.processout.sdk.ui.R.drawable.po_card_back,
         inputFilter = CardSecurityCodeInputFilter(scheme = options.cardInformation?.scheme),
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.NumberPassword,
             imeAction = ImeAction.Done
-        ),
-        forceTextDirectionLtr = true
+        )
     )
+
+    private fun field(key: String) = _fields.find { it.key == key }
 
     private fun resolveScheme() {
         with(options.cardInformation) {
@@ -175,26 +179,17 @@ internal class CardUpdateViewModel(
             ?: "^([0-9]{6})".toRegex().find(maskedNumber)?.value
 
     private fun updateScheme(scheme: String) {
-        _state.update { state ->
-            state.copy(
-                fields = POImmutableList(
-                    state.fields.elements.map {
-                        when (it.key) {
-                            Field.Number.key -> it.copy(
-                                iconResId = cardSchemeDrawableResId(scheme)
-                            )
-                            Field.CVC.key -> {
-                                val inputFilter = CardSecurityCodeInputFilter(scheme = scheme)
-                                it.copy(
-                                    value = inputFilter.filter(it.value),
-                                    inputFilter = inputFilter
-                                )
-                            }
-                            else -> it.copy()
-                        }
-                    }
-                )
-            )
+        _fields.forEach {
+            when (it.key) {
+                CardField.Number.key -> it.apply {
+                    iconResId = cardSchemeDrawableResId(scheme)
+                }
+                CardField.CVC.key -> it.apply {
+                    val inputFilter = CardSecurityCodeInputFilter(scheme = scheme)
+                    value = inputFilter.filter(value)
+                    this.inputFilter = inputFilter
+                }
+            }
         }
         POLogger.info(
             message = "Card scheme is resolved: %s", scheme,
@@ -213,19 +208,12 @@ internal class CardUpdateViewModel(
     }
 
     private fun updateFieldValue(key: String, value: TextFieldValue) {
+        field(key)?.apply {
+            this.value = value
+            isError = false
+        }
         _state.update { state ->
             state.copy(
-                fields = POImmutableList(
-                    state.fields.elements.map {
-                        when (it.key) {
-                            key -> it.copy(
-                                value = value.copy(),
-                                isError = false
-                            )
-                            else -> it.copy()
-                        }
-                    }
-                ),
                 primaryAction = state.primaryAction.copy(
                     enabled = true
                 ),
@@ -240,12 +228,11 @@ internal class CardUpdateViewModel(
     }
 
     private fun submit() {
-        _state.updateAndGet {
+        _state.update {
             resolve(state = it, submitting = true)
-        }.also { state ->
-            state.fields.elements.find { it.key == Field.CVC.key }?.let { cvcField ->
-                updateCard(cvcField.value.text)
-            }
+        }
+        field(CardField.CVC.key)?.let {
+            updateCard(cvc = it.value.text)
         }
     }
 
@@ -253,24 +240,21 @@ internal class CardUpdateViewModel(
         state: CardUpdateState,
         submitting: Boolean,
         errorMessage: String? = null
-    ) = state.copy(
-        fields = POImmutableList(
-            state.fields.elements.map {
-                when (it.key) {
-                    Field.CVC.key -> it.copy(isError = errorMessage != null)
-                    else -> it.copy()
-                }
-            }
-        ),
-        primaryAction = state.primaryAction.copy(
-            enabled = errorMessage == null,
-            loading = submitting
-        ),
-        secondaryAction = state.secondaryAction?.copy(
-            enabled = !submitting
-        ),
-        errorMessage = errorMessage
-    )
+    ): CardUpdateState {
+        field(CardField.CVC.key)?.apply {
+            isError = errorMessage != null
+        }
+        return state.copy(
+            primaryAction = state.primaryAction.copy(
+                enabled = errorMessage == null,
+                loading = submitting
+            ),
+            secondaryAction = state.secondaryAction?.copy(
+                enabled = !submitting
+            ),
+            errorMessage = errorMessage
+        )
+    }
 
     private fun updateCard(cvc: String) {
         POLogger.info(
