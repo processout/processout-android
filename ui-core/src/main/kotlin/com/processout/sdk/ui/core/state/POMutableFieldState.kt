@@ -2,9 +2,10 @@ package com.processout.sdk.ui.core.state
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
@@ -13,18 +14,27 @@ import com.processout.sdk.ui.core.filter.POInputFilter
 /** @suppress */
 @ProcessOutInternalApi
 @Stable
-data class POMutableFieldState(
+class POMutableFieldState(
     val key: String,
-    val value: MutableState<TextFieldValue> = mutableStateOf(TextFieldValue()),
     val title: String? = null,
-    val description: String? = null,
     val placeholder: String? = null,
+    val forceTextDirectionLtr: Boolean = false,
+    value: TextFieldValue = TextFieldValue(),
+    enabled: Boolean = true,
+    isError: Boolean = false,
+    description: String? = null,
     @DrawableRes
-    val iconResId: MutableState<Int?> = mutableStateOf(null),
-    val inputFilter: POInputFilter? = null,
-    val visualTransformation: VisualTransformation = VisualTransformation.None,
-    val keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    val enabled: Boolean = true,
-    val isError: Boolean = false,
-    val forceTextDirectionLtr: Boolean = false
-)
+    iconResId: Int? = null,
+    inputFilter: POInputFilter? = null,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
+) {
+    var value by mutableStateOf(value)
+    var enabled by mutableStateOf(enabled)
+    var isError by mutableStateOf(isError)
+    var description by mutableStateOf(description)
+    var iconResId by mutableStateOf(iconResId)
+    var inputFilter by mutableStateOf(inputFilter)
+    var visualTransformation by mutableStateOf(visualTransformation)
+    var keyboardOptions by mutableStateOf(keyboardOptions)
+}

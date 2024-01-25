@@ -3,7 +3,6 @@ package com.processout.sdk.ui.card.tokenization
 import android.app.Application
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -108,13 +107,13 @@ internal class CardTokenizationViewModel(
         POMutableFieldState(
             key = CardField.Number.key,
             placeholder = app.getString(R.string.po_card_tokenization_card_details_number_placeholder),
+            forceTextDirectionLtr = true,
             inputFilter = CardNumberInputFilter(),
             visualTransformation = CardNumberVisualTransformation(),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.NumberPassword,
                 imeAction = ImeAction.Next
-            ),
-            forceTextDirectionLtr = true
+            )
         )
     )
 
@@ -122,13 +121,13 @@ internal class CardTokenizationViewModel(
         POMutableFieldState(
             key = CardField.Expiration.key,
             placeholder = app.getString(R.string.po_card_tokenization_card_details_expiration_placeholder),
+            forceTextDirectionLtr = true,
             inputFilter = CardExpirationInputFilter(),
             visualTransformation = CardExpirationVisualTransformation(),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.NumberPassword,
                 imeAction = ImeAction.Next
-            ),
-            forceTextDirectionLtr = true
+            )
         )
     )
 
@@ -136,15 +135,15 @@ internal class CardTokenizationViewModel(
         POMutableFieldState(
             key = CardField.CVC.key,
             placeholder = app.getString(R.string.po_card_tokenization_card_details_cvc_placeholder),
-            iconResId = mutableStateOf(com.processout.sdk.ui.R.drawable.po_card_back),
+            forceTextDirectionLtr = true,
+            iconResId = com.processout.sdk.ui.R.drawable.po_card_back,
             inputFilter = CardSecurityCodeInputFilter(scheme = null),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.NumberPassword,
                 // TODO: Check for generic approach to determine ImeAction.Done for last item.
                 imeAction = if (configuration.isCardholderNameFieldVisible)
                     ImeAction.Next else ImeAction.Done
-            ),
-            forceTextDirectionLtr = true
+            )
         )
     )
 
@@ -171,14 +170,14 @@ internal class CardTokenizationViewModel(
 
     private fun updateFieldValue(key: String, value: TextFieldValue) {
         field(key)?.let { field ->
-            field.value.value = value
+            field.value = value
 
             // TODO: Resolve and update issuer information by iin locally then call backend when there is at least 6 digits.
             // TODO: Update iconResId for card field by resolved scheme.
             // TODO: Filter and update CVC field by resolved scheme.
             if (key == CardField.Number.key) {
                 cardSchemeProvider.scheme(cardNumber = value.text).let { scheme ->
-                    field.iconResId.value = scheme?.let { cardSchemeDrawableResId(scheme) }
+                    field.iconResId = scheme?.let { cardSchemeDrawableResId(scheme) }
                 }
             }
         }

@@ -119,7 +119,7 @@ private fun TextField(
     style: POField.Style = POField.default
 ) {
     POTextField(
-        value = state.value.value,
+        value = state.value,
         onValueChange = {
             onEvent(
                 FieldValueChanged(
@@ -134,7 +134,7 @@ private fun TextField(
         isError = state.isError,
         forceTextDirectionLtr = state.forceTextDirectionLtr,
         placeholderText = state.placeholder,
-        trailingIcon = { state.iconResId.value?.let { AnimatedIcon(id = it) } },
+        trailingIcon = { state.iconResId?.let { AnimatedIcon(id = it) } },
         keyboardOptions = state.keyboardOptions,
         visualTransformation = state.visualTransformation
     )
