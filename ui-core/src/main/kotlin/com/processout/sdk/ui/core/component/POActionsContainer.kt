@@ -11,17 +11,20 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
-import com.processout.sdk.ui.core.state.POActionStateExtended
+import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POActionsContainerStyle
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 
+private typealias ActionKey = String
+
 /** @suppress */
 @ProcessOutInternalApi
 @Composable
 fun POActionsContainer(
-    actions: POImmutableList<POActionStateExtended>,
+    actions: POImmutableList<POActionState>,
+    onClick: (ActionKey) -> Unit,
     style: POActionsContainer.Style = POActionsContainer.default
 ) {
     Column {
@@ -39,6 +42,7 @@ fun POActionsContainer(
             ) {
                 Actions(
                     actions = actions,
+                    onClick = onClick,
                     primaryStyle = style.primary,
                     secondaryStyle = style.secondary
                 )
@@ -51,6 +55,7 @@ fun POActionsContainer(
             ) {
                 Actions(
                     actions = actions,
+                    onClick = onClick,
                     modifier = Modifier.weight(1f),
                     primaryStyle = style.primary,
                     secondaryStyle = style.secondary
@@ -62,16 +67,17 @@ fun POActionsContainer(
 
 @Composable
 private fun Actions(
-    actions: POImmutableList<POActionStateExtended>,
+    actions: POImmutableList<POActionState>,
+    onClick: (ActionKey) -> Unit,
     modifier: Modifier = Modifier,
     primaryStyle: POButton.Style = POButton.primary,
     secondaryStyle: POButton.Style = POButton.secondary
 ) {
     actions.elements.forEach {
-        with(it.state) {
+        with(it) {
             POButton(
                 text = text,
-                onClick = it.onClick,
+                onClick = { onClick(key) },
                 modifier = modifier.fillMaxWidth(),
                 style = if (primary) primaryStyle else secondaryStyle,
                 enabled = enabled,

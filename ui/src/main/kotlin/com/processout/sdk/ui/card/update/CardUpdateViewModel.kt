@@ -72,6 +72,11 @@ internal class CardUpdateViewModel(
         const val CVC = "card-cvc"
     }
 
+    private object ActionKey {
+        const val SUBMIT = "submit"
+        const val CANCEL = "cancel"
+    }
+
     private val _completion = MutableStateFlow<CardUpdateCompletion>(Awaiting)
     val completion = _completion.asStateFlow()
 
@@ -97,10 +102,12 @@ internal class CardUpdateViewModel(
         CardUpdateState(
             title = title ?: app.getString(R.string.po_card_update_title),
             primaryAction = POActionState(
+                key = ActionKey.SUBMIT,
                 text = primaryActionText ?: app.getString(R.string.po_card_update_button_submit),
                 primary = true
             ),
             secondaryAction = if (cancellation.secondaryAction) POActionState(
+                key = ActionKey.CANCEL,
                 text = secondaryActionText ?: app.getString(R.string.po_card_update_button_cancel),
                 primary = false
             ) else null,
@@ -140,7 +147,8 @@ internal class CardUpdateViewModel(
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.NumberPassword,
             imeAction = ImeAction.Done
-        )
+        ),
+        keyboardActionKey = ActionKey.SUBMIT
     )
 
     private fun field(key: String) = _fields.find { it.key == key }
@@ -197,14 +205,18 @@ internal class CardUpdateViewModel(
         )
     }
 
-    fun onEvent(event: CardUpdateEvent) = when (event) {
-        is FieldValueChanged -> updateFieldValue(event.key, event.value)
-        Submit -> submit()
-        Cancel -> cancel()
-        is Dismiss -> POLogger.info(
-            message = "Dismissed: %s", event.failure,
-            attributes = logAttributes
-        )
+    fun onEvent(event: CardUpdateEvent) {
+        when (event) {
+            is FieldValueChanged -> updateFieldValue(event.key, event.value)
+            is Action -> when (event.key) {
+                ActionKey.SUBMIT -> submit()
+                ActionKey.CANCEL -> cancel()
+            }
+            is Dismiss -> POLogger.info(
+                message = "Dismissed: %s", event.failure,
+                attributes = logAttributes
+            )
+        }
     }
 
     private fun updateFieldValue(key: String, value: TextFieldValue) {

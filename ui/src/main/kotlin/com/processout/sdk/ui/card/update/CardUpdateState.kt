@@ -17,8 +17,7 @@ internal data class CardUpdateState(
 
 internal sealed interface CardUpdateEvent {
     data class FieldValueChanged(val key: String, val value: TextFieldValue) : CardUpdateEvent
-    data object Submit : CardUpdateEvent
-    data object Cancel : CardUpdateEvent
+    data class Action(val key: String) : CardUpdateEvent
     data class Dismiss(val failure: ProcessOutResult.Failure) : CardUpdateEvent
 }
 

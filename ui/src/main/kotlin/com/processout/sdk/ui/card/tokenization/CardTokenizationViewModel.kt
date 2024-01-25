@@ -61,6 +61,11 @@ internal class CardTokenizationViewModel(
         const val CARDHOLDER = "cardholder-name"
     }
 
+    private object ActionKey {
+        const val SUBMIT = "submit"
+        const val CANCEL = "cancel"
+    }
+
     private val _completion = MutableStateFlow<CardTokenizationCompletion>(Awaiting)
     val completion = _completion.asStateFlow()
 
@@ -74,10 +79,12 @@ internal class CardTokenizationViewModel(
         CardTokenizationState(
             title = title ?: app.getString(R.string.po_card_tokenization_title),
             primaryAction = POActionState(
+                key = ActionKey.SUBMIT,
                 text = primaryActionText ?: app.getString(R.string.po_card_tokenization_button_submit),
                 primary = true
             ),
             secondaryAction = if (cancellation.secondaryAction) POActionState(
+                key = ActionKey.CANCEL,
                 text = secondaryActionText ?: app.getString(R.string.po_card_tokenization_button_cancel),
                 primary = false
             ) else null,
@@ -143,7 +150,8 @@ internal class CardTokenizationViewModel(
                 // TODO: Check for generic approach to determine ImeAction.Done for last item.
                 imeAction = if (configuration.isCardholderNameFieldVisible)
                     ImeAction.Next else ImeAction.Done
-            )
+            ),
+            keyboardActionKey = ActionKey.SUBMIT
         )
     )
 
@@ -157,15 +165,20 @@ internal class CardTokenizationViewModel(
                 keyboardType = KeyboardType.Text,
                 // TODO: Check for generic approach to determine ImeAction.Done for last item.
                 imeAction = ImeAction.Done
-            )
+            ),
+            keyboardActionKey = ActionKey.SUBMIT
         )
     )
 
-    fun onEvent(event: CardTokenizationEvent) = when (event) {
-        is FieldValueChanged -> updateFieldValue(event.key, event.value)
-        Submit -> submit()
-        Cancel -> cancel()
-        is Dismiss -> POLogger.info("Dismissed: %s", event.failure)
+    fun onEvent(event: CardTokenizationEvent) {
+        when (event) {
+            is FieldValueChanged -> updateFieldValue(event.key, event.value)
+            is Action -> when (event.key) {
+                ActionKey.SUBMIT -> submit()
+                ActionKey.CANCEL -> cancel()
+            }
+            is Dismiss -> POLogger.info("Dismissed: %s", event.failure)
+        }
     }
 
     private fun updateFieldValue(key: String, value: TextFieldValue) {

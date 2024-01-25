@@ -18,14 +18,19 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.lifecycle.Lifecycle
-import com.processout.sdk.ui.card.update.CardUpdateEvent.*
+import com.processout.sdk.ui.card.update.CardUpdateEvent.Action
+import com.processout.sdk.ui.card.update.CardUpdateEvent.FieldValueChanged
 import com.processout.sdk.ui.core.component.POActionsContainer
 import com.processout.sdk.ui.core.component.POHeader
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.POTextField
-import com.processout.sdk.ui.core.state.*
+import com.processout.sdk.ui.core.state.POActionState
+import com.processout.sdk.ui.core.state.POImmutableList
+import com.processout.sdk.ui.core.state.POMutableFieldState
+import com.processout.sdk.ui.core.state.POStableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.composable.AnimatedImage
@@ -104,7 +109,7 @@ private fun Fields(
         RequestFocus(focusRequester, lifecycleEvent)
     }
 
-    fields.elements.forEachIndexed { index, state ->
+    fields.elements.forEach { state ->
         POTextField(
             value = state.value,
             onValueChange = {
@@ -125,11 +130,21 @@ private fun Fields(
             placeholderText = state.placeholder,
             trailingIcon = { state.iconResId?.let { AnimatedIcon(id = it) } },
             keyboardOptions = state.keyboardOptions,
-            keyboardActions = if (index == fields.elements.lastIndex)
-                KeyboardActions(onDone = { onEvent(Submit) })
-            else KeyboardActions.Default
+            keyboardActions = keyboardActions(state, onEvent)
         )
     }
+}
+
+private fun keyboardActions(
+    state: POMutableFieldState,
+    onEvent: (CardUpdateEvent) -> Unit
+) = when (state.keyboardOptions.imeAction) {
+    ImeAction.Done -> KeyboardActions(
+        onDone = state.keyboardActionKey?.let {
+            { onEvent(Action(key = it)) }
+        }
+    )
+    else -> KeyboardActions.Default
 }
 
 @Composable
@@ -150,22 +165,13 @@ private fun Actions(
     onEvent: (CardUpdateEvent) -> Unit,
     style: POActionsContainer.Style = POActionsContainer.default
 ) {
-    val actions = mutableListOf(
-        POActionStateExtended(
-            state = primary,
-            onClick = { onEvent(Submit) }
-        ))
-    secondary?.let {
-        actions.add(
-            POActionStateExtended(
-                state = it,
-                onClick = { onEvent(Cancel) }
-            ))
-    }
+    val actions = mutableListOf(primary)
+    secondary?.let { actions.add(it) }
     POActionsContainer(
         actions = POImmutableList(
             if (style.axis == POAxis.Horizontal) actions.reversed() else actions
         ),
+        onClick = { onEvent(Action(key = it)) },
         style = style
     )
 }

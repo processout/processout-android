@@ -23,11 +23,11 @@ class POMutableFieldState(
     enabled: Boolean = true,
     isError: Boolean = false,
     description: String? = null,
-    @DrawableRes
-    iconResId: Int? = null,
+    @DrawableRes iconResId: Int? = null,
     inputFilter: POInputFilter? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActionKey: String? = null
 ) {
     var value by mutableStateOf(value)
     var enabled by mutableStateOf(enabled)
@@ -37,4 +37,5 @@ class POMutableFieldState(
     var inputFilter by mutableStateOf(inputFilter)
     var visualTransformation by mutableStateOf(visualTransformation)
     var keyboardOptions by mutableStateOf(keyboardOptions)
+    var keyboardActionKey by mutableStateOf(keyboardActionKey)
 }

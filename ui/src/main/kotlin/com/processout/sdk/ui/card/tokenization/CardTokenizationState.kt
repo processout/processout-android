@@ -29,8 +29,7 @@ internal data class CardTokenizationSection(
 
 internal sealed interface CardTokenizationEvent {
     data class FieldValueChanged(val key: String, val value: TextFieldValue) : CardTokenizationEvent
-    data object Submit : CardTokenizationEvent
-    data object Cancel : CardTokenizationEvent
+    data class Action(val key: String) : CardTokenizationEvent
     data class Dismiss(val failure: ProcessOutResult.Failure) : CardTokenizationEvent
 }
 

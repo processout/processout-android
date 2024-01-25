@@ -3,6 +3,7 @@ package com.processout.sdk.ui.card.tokenization
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -14,14 +15,19 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
-import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
+import androidx.compose.ui.text.input.ImeAction
+import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.Action
+import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.FieldValueChanged
 import com.processout.sdk.ui.card.tokenization.CardTokenizationSection.Item
 import com.processout.sdk.ui.core.component.POActionsContainer
 import com.processout.sdk.ui.core.component.POHeader
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.POTextField
-import com.processout.sdk.ui.core.state.*
+import com.processout.sdk.ui.core.state.POActionState
+import com.processout.sdk.ui.core.state.POImmutableList
+import com.processout.sdk.ui.core.state.POMutableFieldState
+import com.processout.sdk.ui.core.state.POStableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.composable.AnimatedImage
@@ -136,8 +142,21 @@ private fun TextField(
         placeholderText = state.placeholder,
         trailingIcon = { state.iconResId?.let { AnimatedIcon(id = it) } },
         keyboardOptions = state.keyboardOptions,
+        keyboardActions = keyboardActions(state, onEvent),
         visualTransformation = state.visualTransformation
     )
+}
+
+private fun keyboardActions(
+    state: POMutableFieldState,
+    onEvent: (CardTokenizationEvent) -> Unit
+) = when (state.keyboardOptions.imeAction) {
+    ImeAction.Done -> KeyboardActions(
+        onDone = state.keyboardActionKey?.let {
+            { onEvent(Action(key = it)) }
+        }
+    )
+    else -> KeyboardActions.Default
 }
 
 @Composable
@@ -158,22 +177,13 @@ private fun Actions(
     onEvent: (CardTokenizationEvent) -> Unit,
     style: POActionsContainer.Style = POActionsContainer.default
 ) {
-    val actions = mutableListOf(
-        POActionStateExtended(
-            state = primary,
-            onClick = { onEvent(Submit) }
-        ))
-    secondary?.let {
-        actions.add(
-            POActionStateExtended(
-                state = it,
-                onClick = { onEvent(Cancel) }
-            ))
-    }
+    val actions = mutableListOf(primary)
+    secondary?.let { actions.add(it) }
     POActionsContainer(
         actions = POImmutableList(
             if (style.axis == POAxis.Horizontal) actions.reversed() else actions
         ),
+        onClick = { onEvent(Action(key = it)) },
         style = style
     )
 }
