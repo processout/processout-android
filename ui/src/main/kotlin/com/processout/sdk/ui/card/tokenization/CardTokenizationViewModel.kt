@@ -54,11 +54,11 @@ internal class CardTokenizationViewModel(
             ) as T
     }
 
-    private enum class CardField(val key: String) {
-        Number("card-number"),
-        Expiration("card-expiration"),
-        CVC("card-cvc"),
-        Cardholder("cardholder-name")
+    private object CardFieldKey {
+        const val NUMBER = "card-number"
+        const val EXPIRATION = "card-expiration"
+        const val CVC = "card-cvc"
+        const val CARDHOLDER = "cardholder-name"
     }
 
     private val _completion = MutableStateFlow<CardTokenizationCompletion>(Awaiting)
@@ -105,7 +105,7 @@ internal class CardTokenizationViewModel(
 
     private fun cardNumberField() = Item.TextField(
         POMutableFieldState(
-            key = CardField.Number.key,
+            key = CardFieldKey.NUMBER,
             placeholder = app.getString(R.string.po_card_tokenization_card_details_number_placeholder),
             forceTextDirectionLtr = true,
             inputFilter = CardNumberInputFilter(),
@@ -119,7 +119,7 @@ internal class CardTokenizationViewModel(
 
     private fun cardExpirationField() = Item.TextField(
         POMutableFieldState(
-            key = CardField.Expiration.key,
+            key = CardFieldKey.EXPIRATION,
             placeholder = app.getString(R.string.po_card_tokenization_card_details_expiration_placeholder),
             forceTextDirectionLtr = true,
             inputFilter = CardExpirationInputFilter(),
@@ -133,7 +133,7 @@ internal class CardTokenizationViewModel(
 
     private fun cvcField() = Item.TextField(
         POMutableFieldState(
-            key = CardField.CVC.key,
+            key = CardFieldKey.CVC,
             placeholder = app.getString(R.string.po_card_tokenization_card_details_cvc_placeholder),
             forceTextDirectionLtr = true,
             iconResId = com.processout.sdk.ui.R.drawable.po_card_back,
@@ -149,7 +149,7 @@ internal class CardTokenizationViewModel(
 
     private fun cardholderField() = Item.TextField(
         POMutableFieldState(
-            key = CardField.Cardholder.key,
+            key = CardFieldKey.CARDHOLDER,
             placeholder = app.getString(R.string.po_card_tokenization_card_details_cardholder_placeholder),
             keyboardOptions = KeyboardOptions(
                 capitalization = KeyboardCapitalization.Words,
@@ -175,7 +175,7 @@ internal class CardTokenizationViewModel(
             // TODO: Resolve and update issuer information by iin locally then call backend when there is at least 6 digits.
             // TODO: Update iconResId for card field by resolved scheme.
             // TODO: Filter and update CVC field by resolved scheme.
-            if (key == CardField.Number.key) {
+            if (key == CardFieldKey.NUMBER) {
                 cardSchemeProvider.scheme(cardNumber = value.text).let { scheme ->
                     field.iconResId = scheme?.let { cardSchemeDrawableResId(scheme) }
                 }

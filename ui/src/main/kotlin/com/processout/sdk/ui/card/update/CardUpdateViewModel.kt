@@ -67,9 +67,9 @@ internal class CardUpdateViewModel(
         const val LOG_ATTRIBUTE_CARD_ID = "CardId"
     }
 
-    private enum class CardField(val key: String) {
-        Number("card-number"),
-        CVC("card-cvc")
+    private object CardFieldKey {
+        const val NUMBER = "card-number"
+        const val CVC = "card-cvc"
     }
 
     private val _completion = MutableStateFlow<CardUpdateCompletion>(Awaiting)
@@ -120,7 +120,7 @@ internal class CardUpdateViewModel(
             this?.maskedNumber?.let { maskedNumber ->
                 if (maskedNumber.isBlank()) return null
                 POMutableFieldState(
-                    key = CardField.Number.key,
+                    key = CardFieldKey.NUMBER,
                     forceTextDirectionLtr = true,
                     value = TextFieldValue(text = maskedNumber),
                     enabled = false,
@@ -132,7 +132,7 @@ internal class CardUpdateViewModel(
         }
 
     private fun cvcField() = POMutableFieldState(
-        key = CardField.CVC.key,
+        key = CardFieldKey.CVC,
         placeholder = app.getString(R.string.po_card_update_cvc),
         forceTextDirectionLtr = true,
         iconResId = com.processout.sdk.ui.R.drawable.po_card_back,
@@ -181,10 +181,10 @@ internal class CardUpdateViewModel(
     private fun updateScheme(scheme: String) {
         _fields.forEach {
             when (it.key) {
-                CardField.Number.key -> it.apply {
+                CardFieldKey.NUMBER -> it.apply {
                     iconResId = cardSchemeDrawableResId(scheme)
                 }
-                CardField.CVC.key -> it.apply {
+                CardFieldKey.CVC -> it.apply {
                     val inputFilter = CardSecurityCodeInputFilter(scheme = scheme)
                     value = inputFilter.filter(value)
                     this.inputFilter = inputFilter
@@ -231,7 +231,7 @@ internal class CardUpdateViewModel(
         _state.update {
             resolve(state = it, submitting = true)
         }
-        field(CardField.CVC.key)?.let {
+        field(CardFieldKey.CVC)?.let {
             updateCard(cvc = it.value.text)
         }
     }
@@ -241,7 +241,7 @@ internal class CardUpdateViewModel(
         submitting: Boolean,
         errorMessage: String? = null
     ): CardUpdateState {
-        field(CardField.CVC.key)?.apply {
+        field(CardFieldKey.CVC)?.apply {
             isError = errorMessage != null
         }
         return state.copy(
