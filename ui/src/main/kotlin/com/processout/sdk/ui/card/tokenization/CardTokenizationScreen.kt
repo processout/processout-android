@@ -144,14 +144,14 @@ private fun TextField(
         forceTextDirectionLtr = state.forceTextDirectionLtr,
         placeholderText = state.placeholder,
         trailingIcon = { state.iconResId?.let { AnimatedIcon(id = it) } },
+        visualTransformation = state.visualTransformation,
         keyboardOptions = state.keyboardOptions,
         keyboardActions = POField.keyboardActions(
             imeAction = state.keyboardOptions.imeAction,
             actionKey = state.keyboardActionKey,
             enabled = isPrimaryActionEnabled,
             onClick = { onEvent(Action(key = it)) }
-        ),
-        visualTransformation = state.visualTransformation
+        )
     )
 }
 

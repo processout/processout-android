@@ -58,12 +58,12 @@ fun POLabeledTextField(
             placeholderText = placeholderText,
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
+            visualTransformation = visualTransformation,
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
             singleLine = singleLine,
             maxLines = maxLines,
             minLines = minLines,
-            visualTransformation = visualTransformation,
             interactionSource = interactionSource
         )
         POText(
