@@ -75,6 +75,10 @@ internal class CardTokenizationViewModel(
     private val _sections = mutableStateListOf(cardInformationSection())
     val sections = POStableList(_sections)
 
+    init {
+        setLastFieldImeAction()
+    }
+
     private fun initState() = with(configuration) {
         CardTokenizationState(
             title = title ?: app.getString(R.string.po_card_tokenization_title),
@@ -147,11 +151,8 @@ internal class CardTokenizationViewModel(
             inputFilter = CardSecurityCodeInputFilter(scheme = null),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.NumberPassword,
-                // TODO: Check for generic approach to determine ImeAction.Done for last item.
-                imeAction = if (configuration.isCardholderNameFieldVisible)
-                    ImeAction.Next else ImeAction.Done
-            ),
-            keyboardActionKey = ActionKey.SUBMIT
+                imeAction = ImeAction.Next
+            )
         )
     )
 
@@ -163,12 +164,17 @@ internal class CardTokenizationViewModel(
                 capitalization = KeyboardCapitalization.Words,
                 autoCorrect = false,
                 keyboardType = KeyboardType.Text,
-                // TODO: Check for generic approach to determine ImeAction.Done for last item.
-                imeAction = ImeAction.Done
-            ),
-            keyboardActionKey = ActionKey.SUBMIT
+                imeAction = ImeAction.Next
+            )
         )
     )
+
+    private fun setLastFieldImeAction() {
+        lastField()?.apply {
+            keyboardOptions = keyboardOptions.copy(imeAction = ImeAction.Done)
+            keyboardActionKey = ActionKey.SUBMIT
+        }
+    }
 
     fun onEvent(event: CardTokenizationEvent) {
         when (event) {
@@ -215,6 +221,25 @@ internal class CardTokenizationViewModel(
             is Item.Group -> item.items.elements.forEach { groupItem ->
                 field(key, groupItem)
                     ?.let { return it }
+            }
+        }
+        return null
+    }
+
+    private fun lastField(): POMutableFieldState? {
+        _sections.lastOrNull()?.let { section ->
+            section.items.elements.lastOrNull()?.let { item ->
+                return lastField(item)
+            }
+        }
+        return null
+    }
+
+    private fun lastField(item: Item): POMutableFieldState? {
+        when (item) {
+            is Item.TextField -> return item.state
+            is Item.Group -> item.items.elements.lastOrNull()?.let { groupItem ->
+                return lastField(groupItem)
             }
         }
         return null
