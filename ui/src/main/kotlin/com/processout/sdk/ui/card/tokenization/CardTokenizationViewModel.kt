@@ -118,7 +118,7 @@ internal class CardTokenizationViewModel(
             inputFilter = CardNumberInputFilter(),
             visualTransformation = CardNumberVisualTransformation(),
             keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.NumberPassword,
+                keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Next
             )
         )
@@ -132,7 +132,7 @@ internal class CardTokenizationViewModel(
             inputFilter = CardExpirationInputFilter(),
             visualTransformation = CardExpirationVisualTransformation(),
             keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.NumberPassword,
+                keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Next
             )
         )
