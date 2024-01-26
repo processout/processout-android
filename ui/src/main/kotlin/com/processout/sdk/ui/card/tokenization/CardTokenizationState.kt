@@ -3,6 +3,7 @@ package com.processout.sdk.ui.card.tokenization
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.input.TextFieldValue
+import com.processout.sdk.api.model.response.POCardIssuerInformation
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POMutableFieldState
@@ -13,6 +14,7 @@ internal data class CardTokenizationState(
     val title: String,
     val primaryAction: POActionState,
     val secondaryAction: POActionState?,
+    val issuerInformation: POCardIssuerInformation? = null,
     val draggable: Boolean
 )
 
