@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -15,11 +16,13 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.core.component.ActionKey
 import com.processout.sdk.ui.core.component.POBorderStroke
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.style.POFieldStateStyle
@@ -165,5 +168,19 @@ object POField {
             color = if (isError) style.error.placeholderTextColor else style.normal.placeholderTextColor,
             style = if (isError) style.error.text.textStyle else style.normal.text.textStyle
         )
+    }
+
+    fun keyboardActions(
+        imeAction: ImeAction,
+        actionKey: String?,
+        enabled: Boolean,
+        onClick: (ActionKey) -> Unit
+    ) = when (imeAction) {
+        ImeAction.Done -> {
+            if (enabled && actionKey != null)
+                KeyboardActions(onDone = { onClick(actionKey) })
+            else KeyboardActions(onDone = {})
+        }
+        else -> KeyboardActions.Default
     }
 }

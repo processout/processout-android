@@ -17,8 +17,6 @@ import com.processout.sdk.ui.core.style.POActionsContainerStyle
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 
-private typealias ActionKey = String
-
 /** @suppress */
 @ProcessOutInternalApi
 @Composable
