@@ -3,7 +3,6 @@ package com.processout.sdk.ui.card.update
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -18,7 +17,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.text.input.ImeAction
 import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.card.update.CardUpdateEvent.Action
 import com.processout.sdk.ui.card.update.CardUpdateEvent.FieldValueChanged
@@ -82,6 +80,7 @@ internal fun CardUpdateScreen(
             Fields(
                 fields = fields,
                 onEvent = onEvent,
+                isPrimaryActionEnabled = state.primaryAction.enabled,
                 style = style.field
             )
             state.errorMessage?.let {
@@ -101,6 +100,7 @@ internal fun CardUpdateScreen(
 private fun Fields(
     fields: POStableList<POMutableFieldState>,
     onEvent: (CardUpdateEvent) -> Unit,
+    isPrimaryActionEnabled: Boolean,
     style: POField.Style = POField.default
 ) {
     val focusRequester = remember { FocusRequester() }
@@ -130,21 +130,14 @@ private fun Fields(
             placeholderText = state.placeholder,
             trailingIcon = { state.iconResId?.let { AnimatedIcon(id = it) } },
             keyboardOptions = state.keyboardOptions,
-            keyboardActions = keyboardActions(state, onEvent)
+            keyboardActions = POField.keyboardActions(
+                imeAction = state.keyboardOptions.imeAction,
+                actionKey = state.keyboardActionKey,
+                enabled = isPrimaryActionEnabled,
+                onClick = { onEvent(Action(key = it)) }
+            )
         )
     }
-}
-
-private fun keyboardActions(
-    state: POMutableFieldState,
-    onEvent: (CardUpdateEvent) -> Unit
-) = when (state.keyboardOptions.imeAction) {
-    ImeAction.Done -> KeyboardActions(
-        onDone = state.keyboardActionKey?.let {
-            { onEvent(Action(key = it)) }
-        }
-    )
-    else -> KeyboardActions.Default
 }
 
 @Composable

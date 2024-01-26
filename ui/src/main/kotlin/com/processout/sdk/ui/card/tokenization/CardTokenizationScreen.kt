@@ -3,7 +3,6 @@ package com.processout.sdk.ui.card.tokenization
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -15,7 +14,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.text.input.ImeAction
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.Action
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.FieldValueChanged
 import com.processout.sdk.ui.card.tokenization.CardTokenizationSection.Item
@@ -79,6 +77,7 @@ internal fun CardTokenizationScreen(
                     Item(
                         item = item,
                         onEvent = onEvent,
+                        isPrimaryActionEnabled = state.primaryAction.enabled,
                         modifier = Modifier.fillMaxWidth(),
                         style = style.field
                     )
@@ -92,6 +91,7 @@ internal fun CardTokenizationScreen(
 private fun Item(
     item: Item,
     onEvent: (CardTokenizationEvent) -> Unit,
+    isPrimaryActionEnabled: Boolean,
     modifier: Modifier = Modifier,
     style: POField.Style = POField.default
 ) {
@@ -99,6 +99,7 @@ private fun Item(
         is Item.TextField -> TextField(
             state = item.state,
             onEvent = onEvent,
+            isPrimaryActionEnabled = isPrimaryActionEnabled,
             modifier = modifier,
             style = style
         )
@@ -109,6 +110,7 @@ private fun Item(
                 Item(
                     item = groupItem,
                     onEvent = onEvent,
+                    isPrimaryActionEnabled = isPrimaryActionEnabled,
                     modifier = Modifier.weight(1f),
                     style = style
                 )
@@ -121,6 +123,7 @@ private fun Item(
 private fun TextField(
     state: POMutableFieldState,
     onEvent: (CardTokenizationEvent) -> Unit,
+    isPrimaryActionEnabled: Boolean,
     modifier: Modifier = Modifier,
     style: POField.Style = POField.default
 ) {
@@ -142,21 +145,14 @@ private fun TextField(
         placeholderText = state.placeholder,
         trailingIcon = { state.iconResId?.let { AnimatedIcon(id = it) } },
         keyboardOptions = state.keyboardOptions,
-        keyboardActions = keyboardActions(state, onEvent),
+        keyboardActions = POField.keyboardActions(
+            imeAction = state.keyboardOptions.imeAction,
+            actionKey = state.keyboardActionKey,
+            enabled = isPrimaryActionEnabled,
+            onClick = { onEvent(Action(key = it)) }
+        ),
         visualTransformation = state.visualTransformation
     )
-}
-
-private fun keyboardActions(
-    state: POMutableFieldState,
-    onEvent: (CardTokenizationEvent) -> Unit
-) = when (state.keyboardOptions.imeAction) {
-    ImeAction.Done -> KeyboardActions(
-        onDone = state.keyboardActionKey?.let {
-            { onEvent(Action(key = it)) }
-        }
-    )
-    else -> KeyboardActions.Default
 }
 
 @Composable
