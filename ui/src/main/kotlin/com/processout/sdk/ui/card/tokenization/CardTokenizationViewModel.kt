@@ -9,12 +9,16 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
+import com.processout.sdk.api.model.response.POCardIssuerInformation
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.getOrNull
 import com.processout.sdk.core.logger.POLogger
+import com.processout.sdk.core.onFailure
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Awaiting
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Failure
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
@@ -32,6 +36,7 @@ import com.processout.sdk.ui.shared.transformation.CardNumberVisualTransformatio
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 internal class CardTokenizationViewModel(
     private val app: Application,
@@ -52,6 +57,10 @@ internal class CardTokenizationViewModel(
                 cardsRepository = ProcessOut.instance.cards,
                 cardSchemeProvider = CardSchemeProvider()
             ) as T
+    }
+
+    private companion object {
+        const val LOG_ATTRIBUTE_IIN = "IIN"
     }
 
     private object CardFieldKey {
@@ -188,17 +197,54 @@ internal class CardTokenizationViewModel(
     }
 
     private fun updateFieldValue(key: String, value: TextFieldValue) {
-        field(key)?.let { field ->
-            field.value = value
+        field(key)?.apply {
+            this.value = value
+        }
+        if (key == CardFieldKey.NUMBER) {
+            updateIssuerInformation(cardNumber = value.text)
+        }
+    }
 
-            // TODO: Resolve and update issuer information by iin locally then call backend when there is at least 6 digits.
-            // TODO: Update iconResId for card field by resolved scheme.
-            // TODO: Filter and update CVC field by resolved scheme.
-            if (key == CardFieldKey.NUMBER) {
-                cardSchemeProvider.scheme(cardNumber = value.text).let { scheme ->
-                    field.iconResId = scheme?.let { cardSchemeDrawableResId(scheme) }
+    private fun updateIssuerInformation(cardNumber: String) {
+        when (cardNumber.length) {
+            in 0..6 -> localIssuerInformation(cardNumber).let { issuerInformation ->
+                _state.update { it.copy(issuerInformation = issuerInformation) }
+                updateFields(issuerInformation)
+            }
+        }
+        when (cardNumber.length) {
+            6, 8 -> viewModelScope.launch {
+                fetchIssuerInformation(cardNumber)?.let { issuerInformation ->
+                    _state.update { it.copy(issuerInformation = issuerInformation) }
+                    updateFields(issuerInformation)
                 }
             }
+        }
+    }
+
+    private fun localIssuerInformation(cardNumber: String) =
+        cardSchemeProvider.scheme(cardNumber)?.let { scheme ->
+            POCardIssuerInformation(scheme = scheme)
+        }
+
+    private suspend fun fetchIssuerInformation(iin: String) =
+        cardsRepository.fetchIssuerInformation(iin)
+            .onFailure {
+                POLogger.info(
+                    message = "Failed to fetch issuer information: %s", it,
+                    attributes = mapOf(LOG_ATTRIBUTE_IIN to iin)
+                )
+            }.getOrNull()
+
+    private fun updateFields(issuerInformation: POCardIssuerInformation?) {
+        val scheme = issuerInformation?.coScheme ?: issuerInformation?.scheme
+        field(CardFieldKey.NUMBER)?.apply {
+            iconResId = scheme?.let { cardSchemeDrawableResId(it) }
+        }
+        field(CardFieldKey.CVC)?.apply {
+            val inputFilter = CardSecurityCodeInputFilter(scheme = scheme)
+            value = inputFilter.filter(value)
+            this.inputFilter = inputFilter
         }
     }
 
