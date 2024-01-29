@@ -101,6 +101,7 @@ internal class CardTokenizationViewModel(
                 text = secondaryActionText ?: app.getString(R.string.po_card_tokenization_button_cancel),
                 primary = false
             ) else null,
+            focusedFieldKey = CardFieldKey.NUMBER,
             draggable = cancellation.dragDown
         )
     }
@@ -188,6 +189,7 @@ internal class CardTokenizationViewModel(
     fun onEvent(event: CardTokenizationEvent) {
         when (event) {
             is FieldValueChanged -> updateFieldValue(event.key, event.value)
+            is FieldFocusChanged -> updateFieldFocus(event.key, event.isFocused)
             is Action -> when (event.key) {
                 ActionKey.SUBMIT -> submit()
                 ActionKey.CANCEL -> cancel()
@@ -199,9 +201,16 @@ internal class CardTokenizationViewModel(
     private fun updateFieldValue(key: String, value: TextFieldValue) {
         field(key)?.apply {
             this.value = value
+            isError = false
         }
         if (key == CardFieldKey.NUMBER) {
             updateIssuerInformation(cardNumber = value.text)
+        }
+    }
+
+    private fun updateFieldFocus(key: String, isFocused: Boolean) {
+        if (isFocused) {
+            _state.update { it.copy(focusedFieldKey = key) }
         }
     }
 
