@@ -22,7 +22,7 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme
 @Composable
 fun POActionsContainer(
     actions: POImmutableList<POActionState>,
-    onClick: (ActionKey) -> Unit,
+    onClick: (ActionId) -> Unit,
     style: POActionsContainer.Style = POActionsContainer.default
 ) {
     Column {
@@ -66,7 +66,7 @@ fun POActionsContainer(
 @Composable
 private fun Actions(
     actions: POImmutableList<POActionState>,
-    onClick: (ActionKey) -> Unit,
+    onClick: (ActionId) -> Unit,
     modifier: Modifier = Modifier,
     primaryStyle: POButton.Style = POButton.primary,
     secondaryStyle: POButton.Style = POButton.secondary
@@ -75,7 +75,7 @@ private fun Actions(
         with(it) {
             POButton(
                 text = text,
-                onClick = { onClick(key) },
+                onClick = { onClick(id) },
                 modifier = modifier.fillMaxWidth(),
                 style = if (primary) primaryStyle else secondaryStyle,
                 enabled = enabled,

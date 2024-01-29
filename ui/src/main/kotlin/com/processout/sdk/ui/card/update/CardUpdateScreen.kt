@@ -80,7 +80,7 @@ internal fun CardUpdateScreen(
             Fields(
                 fields = fields,
                 onEvent = onEvent,
-                focusedFieldKey = state.focusedFieldKey,
+                focusedFieldId = state.focusedFieldId,
                 isPrimaryActionEnabled = state.primaryAction.enabled,
                 style = style.field
             )
@@ -101,7 +101,7 @@ internal fun CardUpdateScreen(
 private fun Fields(
     fields: POStableList<POMutableFieldState>,
     onEvent: (CardUpdateEvent) -> Unit,
-    focusedFieldKey: String?,
+    focusedFieldId: String?,
     isPrimaryActionEnabled: Boolean,
     style: POField.Style = POField.default
 ) {
@@ -113,7 +113,7 @@ private fun Fields(
             onValueChange = {
                 onEvent(
                     FieldValueChanged(
-                        key = state.key,
+                        id = state.id,
                         value = state.inputFilter?.filter(it) ?: it
                     )
                 )
@@ -124,7 +124,7 @@ private fun Fields(
                 .onFocusChanged {
                     onEvent(
                         FieldFocusChanged(
-                            key = state.key,
+                            id = state.id,
                             isFocused = it.isFocused
                         )
                     )
@@ -138,12 +138,12 @@ private fun Fields(
             keyboardOptions = state.keyboardOptions,
             keyboardActions = POField.keyboardActions(
                 imeAction = state.keyboardOptions.imeAction,
-                actionKey = state.keyboardActionKey,
+                actionId = state.keyboardActionId,
                 enabled = isPrimaryActionEnabled,
-                onClick = { onEvent(Action(key = it)) }
+                onClick = { onEvent(Action(id = it)) }
             )
         )
-        if (state.key == focusedFieldKey && lifecycleEvent == Lifecycle.Event.ON_RESUME) {
+        if (state.id == focusedFieldId && lifecycleEvent == Lifecycle.Event.ON_RESUME) {
             RequestFocus(focusRequester, lifecycleEvent)
         }
     }
@@ -173,7 +173,7 @@ private fun Actions(
         actions = POImmutableList(
             if (style.axis == POAxis.Horizontal) actions.reversed() else actions
         ),
-        onClick = { onEvent(Action(key = it)) },
+        onClick = { onEvent(Action(id = it)) },
         style = style
     )
 }

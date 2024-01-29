@@ -15,7 +15,7 @@ internal data class CardTokenizationState(
     val primaryAction: POActionState,
     val secondaryAction: POActionState?,
     val issuerInformation: POCardIssuerInformation? = null,
-    val focusedFieldKey: String? = null,
+    val focusedFieldId: String? = null,
     val draggable: Boolean
 )
 
@@ -31,9 +31,9 @@ internal data class CardTokenizationSection(
 }
 
 internal sealed interface CardTokenizationEvent {
-    data class FieldValueChanged(val key: String, val value: TextFieldValue) : CardTokenizationEvent
-    data class FieldFocusChanged(val key: String, val isFocused: Boolean) : CardTokenizationEvent
-    data class Action(val key: String) : CardTokenizationEvent
+    data class FieldValueChanged(val id: String, val value: TextFieldValue) : CardTokenizationEvent
+    data class FieldFocusChanged(val id: String, val isFocused: Boolean) : CardTokenizationEvent
+    data class Action(val id: String) : CardTokenizationEvent
     data class Dismiss(val failure: ProcessOutResult.Failure) : CardTokenizationEvent
 }
 

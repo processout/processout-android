@@ -7,7 +7,7 @@ import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 @ProcessOutInternalApi
 @Immutable
 data class POActionState(
-    val key: String,
+    val id: String,
     val text: String,
     val primary: Boolean,
     val enabled: Boolean = true,

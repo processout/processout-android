@@ -22,7 +22,7 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
-import com.processout.sdk.ui.core.component.ActionKey
+import com.processout.sdk.ui.core.component.ActionId
 import com.processout.sdk.ui.core.component.POBorderStroke
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.style.POFieldStateStyle
@@ -172,13 +172,13 @@ object POField {
 
     fun keyboardActions(
         imeAction: ImeAction,
-        actionKey: String?,
+        actionId: String?,
         enabled: Boolean,
-        onClick: (ActionKey) -> Unit
+        onClick: (ActionId) -> Unit
     ) = when (imeAction) {
         ImeAction.Done -> {
-            if (enabled && actionKey != null)
-                KeyboardActions(onDone = { onClick(actionKey) })
+            if (enabled && actionId != null)
+                KeyboardActions(onDone = { onClick(actionId) })
             else KeyboardActions(onDone = {})
         }
         else -> KeyboardActions.Default

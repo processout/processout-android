@@ -67,12 +67,12 @@ internal class CardUpdateViewModel(
         const val LOG_ATTRIBUTE_CARD_ID = "CardId"
     }
 
-    private object CardFieldKey {
+    private object CardFieldId {
         const val NUMBER = "card-number"
         const val CVC = "card-cvc"
     }
 
-    private object ActionKey {
+    private object ActionId {
         const val SUBMIT = "submit"
         const val CANCEL = "cancel"
     }
@@ -102,16 +102,16 @@ internal class CardUpdateViewModel(
         CardUpdateState(
             title = title ?: app.getString(R.string.po_card_update_title),
             primaryAction = POActionState(
-                key = ActionKey.SUBMIT,
+                id = ActionId.SUBMIT,
                 text = primaryActionText ?: app.getString(R.string.po_card_update_button_submit),
                 primary = true
             ),
             secondaryAction = if (cancellation.secondaryAction) POActionState(
-                key = ActionKey.CANCEL,
+                id = ActionId.CANCEL,
                 text = secondaryActionText ?: app.getString(R.string.po_card_update_button_cancel),
                 primary = false
             ) else null,
-            focusedFieldKey = CardFieldKey.CVC,
+            focusedFieldId = CardFieldId.CVC,
             draggable = cancellation.dragDown
         )
     }
@@ -128,7 +128,7 @@ internal class CardUpdateViewModel(
             this?.maskedNumber?.let { maskedNumber ->
                 if (maskedNumber.isBlank()) return null
                 POMutableFieldState(
-                    key = CardFieldKey.NUMBER,
+                    id = CardFieldId.NUMBER,
                     forceTextDirectionLtr = true,
                     value = TextFieldValue(text = maskedNumber),
                     enabled = false,
@@ -140,7 +140,7 @@ internal class CardUpdateViewModel(
         }
 
     private fun cvcField() = POMutableFieldState(
-        key = CardFieldKey.CVC,
+        id = CardFieldId.CVC,
         placeholder = app.getString(R.string.po_card_update_cvc),
         forceTextDirectionLtr = true,
         iconResId = com.processout.sdk.ui.R.drawable.po_card_back,
@@ -149,10 +149,10 @@ internal class CardUpdateViewModel(
             keyboardType = KeyboardType.NumberPassword,
             imeAction = ImeAction.Done
         ),
-        keyboardActionKey = ActionKey.SUBMIT
+        keyboardActionId = ActionId.SUBMIT
     )
 
-    private fun field(key: String) = _fields.find { it.key == key }
+    private fun field(id: String) = _fields.find { it.id == id }
 
     private fun resolveScheme() {
         with(options.cardInformation) {
@@ -189,11 +189,11 @@ internal class CardUpdateViewModel(
 
     private fun updateScheme(scheme: String) {
         _fields.forEach {
-            when (it.key) {
-                CardFieldKey.NUMBER -> it.apply {
+            when (it.id) {
+                CardFieldId.NUMBER -> it.apply {
                     iconResId = cardSchemeDrawableResId(scheme)
                 }
-                CardFieldKey.CVC -> it.apply {
+                CardFieldId.CVC -> it.apply {
                     val inputFilter = CardSecurityCodeInputFilter(scheme = scheme)
                     value = inputFilter.filter(value)
                     this.inputFilter = inputFilter
@@ -208,11 +208,11 @@ internal class CardUpdateViewModel(
 
     fun onEvent(event: CardUpdateEvent) {
         when (event) {
-            is FieldValueChanged -> updateFieldValue(event.key, event.value)
-            is FieldFocusChanged -> updateFieldFocus(event.key, event.isFocused)
-            is Action -> when (event.key) {
-                ActionKey.SUBMIT -> submit()
-                ActionKey.CANCEL -> cancel()
+            is FieldValueChanged -> updateFieldValue(event.id, event.value)
+            is FieldFocusChanged -> updateFieldFocus(event.id, event.isFocused)
+            is Action -> when (event.id) {
+                ActionId.SUBMIT -> submit()
+                ActionId.CANCEL -> cancel()
             }
             is Dismiss -> POLogger.info(
                 message = "Dismissed: %s", event.failure,
@@ -221,8 +221,8 @@ internal class CardUpdateViewModel(
         }
     }
 
-    private fun updateFieldValue(key: String, value: TextFieldValue) {
-        field(key)?.apply {
+    private fun updateFieldValue(id: String, value: TextFieldValue) {
+        field(id)?.apply {
             this.value = value
             isError = false
         }
@@ -235,15 +235,15 @@ internal class CardUpdateViewModel(
             )
         }
         POLogger.debug(
-            message = "Field is edited by the user: %s", key,
+            message = "Field is edited by the user: %s", id,
             attributes = logAttributes
         )
         dispatch(ParametersChanged)
     }
 
-    private fun updateFieldFocus(key: String, isFocused: Boolean) {
+    private fun updateFieldFocus(id: String, isFocused: Boolean) {
         if (isFocused) {
-            _state.update { it.copy(focusedFieldKey = key) }
+            _state.update { it.copy(focusedFieldId = id) }
         }
     }
 
@@ -251,7 +251,7 @@ internal class CardUpdateViewModel(
         _state.update {
             resolve(state = it, submitting = true)
         }
-        field(CardFieldKey.CVC)?.let {
+        field(CardFieldId.CVC)?.let {
             updateCard(cvc = it.value.text)
         }
     }
@@ -261,7 +261,7 @@ internal class CardUpdateViewModel(
         submitting: Boolean,
         errorMessage: String? = null
     ): CardUpdateState {
-        field(CardFieldKey.CVC)?.apply {
+        field(CardFieldId.CVC)?.apply {
             isError = errorMessage != null
         }
         return state.copy(

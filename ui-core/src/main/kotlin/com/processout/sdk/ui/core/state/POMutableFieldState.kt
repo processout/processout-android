@@ -15,7 +15,7 @@ import com.processout.sdk.ui.core.filter.POInputFilter
 @ProcessOutInternalApi
 @Stable
 class POMutableFieldState(
-    val key: String,
+    val id: String,
     val title: String? = null,
     val placeholder: String? = null,
     val forceTextDirectionLtr: Boolean = false,
@@ -27,7 +27,7 @@ class POMutableFieldState(
     inputFilter: POInputFilter? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    keyboardActionKey: String? = null
+    keyboardActionId: String? = null
 ) {
     var value by mutableStateOf(value)
     var enabled by mutableStateOf(enabled)
@@ -37,5 +37,5 @@ class POMutableFieldState(
     var inputFilter by mutableStateOf(inputFilter)
     var visualTransformation by mutableStateOf(visualTransformation)
     var keyboardOptions by mutableStateOf(keyboardOptions)
-    var keyboardActionKey by mutableStateOf(keyboardActionKey)
+    var keyboardActionId by mutableStateOf(keyboardActionId)
 }

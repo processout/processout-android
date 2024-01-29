@@ -85,7 +85,7 @@ internal fun CardTokenizationScreen(
                         item = item,
                         onEvent = onEvent,
                         lifecycleEvent = lifecycleEvent,
-                        focusedFieldKey = state.focusedFieldKey,
+                        focusedFieldId = state.focusedFieldId,
                         isPrimaryActionEnabled = state.primaryAction.enabled,
                         modifier = Modifier.fillMaxWidth(),
                         style = style.field
@@ -101,7 +101,7 @@ private fun Item(
     item: Item,
     onEvent: (CardTokenizationEvent) -> Unit,
     lifecycleEvent: Lifecycle.Event,
-    focusedFieldKey: String?,
+    focusedFieldId: String?,
     isPrimaryActionEnabled: Boolean,
     modifier: Modifier = Modifier,
     style: POField.Style = POField.default
@@ -111,7 +111,7 @@ private fun Item(
             state = item.state,
             onEvent = onEvent,
             lifecycleEvent = lifecycleEvent,
-            focusedFieldKey = focusedFieldKey,
+            focusedFieldId = focusedFieldId,
             isPrimaryActionEnabled = isPrimaryActionEnabled,
             modifier = modifier,
             style = style
@@ -124,7 +124,7 @@ private fun Item(
                     item = groupItem,
                     onEvent = onEvent,
                     lifecycleEvent = lifecycleEvent,
-                    focusedFieldKey = focusedFieldKey,
+                    focusedFieldId = focusedFieldId,
                     isPrimaryActionEnabled = isPrimaryActionEnabled,
                     modifier = Modifier.weight(1f),
                     style = style
@@ -139,7 +139,7 @@ private fun TextField(
     state: POMutableFieldState,
     onEvent: (CardTokenizationEvent) -> Unit,
     lifecycleEvent: Lifecycle.Event,
-    focusedFieldKey: String?,
+    focusedFieldId: String?,
     isPrimaryActionEnabled: Boolean,
     modifier: Modifier = Modifier,
     style: POField.Style = POField.default
@@ -150,7 +150,7 @@ private fun TextField(
         onValueChange = {
             onEvent(
                 FieldValueChanged(
-                    key = state.key,
+                    id = state.id,
                     value = state.inputFilter?.filter(it) ?: it
                 )
             )
@@ -160,7 +160,7 @@ private fun TextField(
             .onFocusChanged {
                 onEvent(
                     FieldFocusChanged(
-                        key = state.key,
+                        id = state.id,
                         isFocused = it.isFocused
                     )
                 )
@@ -175,12 +175,12 @@ private fun TextField(
         keyboardOptions = state.keyboardOptions,
         keyboardActions = POField.keyboardActions(
             imeAction = state.keyboardOptions.imeAction,
-            actionKey = state.keyboardActionKey,
+            actionId = state.keyboardActionId,
             enabled = isPrimaryActionEnabled,
-            onClick = { onEvent(Action(key = it)) }
+            onClick = { onEvent(Action(id = it)) }
         )
     )
-    if (state.key == focusedFieldKey && lifecycleEvent == Lifecycle.Event.ON_RESUME) {
+    if (state.id == focusedFieldId && lifecycleEvent == Lifecycle.Event.ON_RESUME) {
         RequestFocus(focusRequester, lifecycleEvent)
     }
 }
@@ -209,7 +209,7 @@ private fun Actions(
         actions = POImmutableList(
             if (style.axis == POAxis.Horizontal) actions.reversed() else actions
         ),
-        onClick = { onEvent(Action(key = it)) },
+        onClick = { onEvent(Action(id = it)) },
         style = style
     )
 }

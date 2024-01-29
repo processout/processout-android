@@ -63,14 +63,14 @@ internal class CardTokenizationViewModel(
         const val LOG_ATTRIBUTE_IIN = "IIN"
     }
 
-    private object CardFieldKey {
+    private object CardFieldId {
         const val NUMBER = "card-number"
         const val EXPIRATION = "card-expiration"
         const val CVC = "card-cvc"
         const val CARDHOLDER = "cardholder-name"
     }
 
-    private object ActionKey {
+    private object ActionId {
         const val SUBMIT = "submit"
         const val CANCEL = "cancel"
     }
@@ -92,16 +92,16 @@ internal class CardTokenizationViewModel(
         CardTokenizationState(
             title = title ?: app.getString(R.string.po_card_tokenization_title),
             primaryAction = POActionState(
-                key = ActionKey.SUBMIT,
+                id = ActionId.SUBMIT,
                 text = primaryActionText ?: app.getString(R.string.po_card_tokenization_button_submit),
                 primary = true
             ),
             secondaryAction = if (cancellation.secondaryAction) POActionState(
-                key = ActionKey.CANCEL,
+                id = ActionId.CANCEL,
                 text = secondaryActionText ?: app.getString(R.string.po_card_tokenization_button_cancel),
                 primary = false
             ) else null,
-            focusedFieldKey = CardFieldKey.NUMBER,
+            focusedFieldId = CardFieldId.NUMBER,
             draggable = cancellation.dragDown
         )
     }
@@ -126,7 +126,7 @@ internal class CardTokenizationViewModel(
 
     private fun cardNumberField() = Item.TextField(
         POMutableFieldState(
-            key = CardFieldKey.NUMBER,
+            id = CardFieldId.NUMBER,
             placeholder = app.getString(R.string.po_card_tokenization_card_details_number_placeholder),
             forceTextDirectionLtr = true,
             inputFilter = CardNumberInputFilter(),
@@ -140,7 +140,7 @@ internal class CardTokenizationViewModel(
 
     private fun cardExpirationField() = Item.TextField(
         POMutableFieldState(
-            key = CardFieldKey.EXPIRATION,
+            id = CardFieldId.EXPIRATION,
             placeholder = app.getString(R.string.po_card_tokenization_card_details_expiration_placeholder),
             forceTextDirectionLtr = true,
             inputFilter = CardExpirationInputFilter(),
@@ -154,7 +154,7 @@ internal class CardTokenizationViewModel(
 
     private fun cvcField() = Item.TextField(
         POMutableFieldState(
-            key = CardFieldKey.CVC,
+            id = CardFieldId.CVC,
             placeholder = app.getString(R.string.po_card_tokenization_card_details_cvc_placeholder),
             forceTextDirectionLtr = true,
             iconResId = com.processout.sdk.ui.R.drawable.po_card_back,
@@ -168,7 +168,7 @@ internal class CardTokenizationViewModel(
 
     private fun cardholderField() = Item.TextField(
         POMutableFieldState(
-            key = CardFieldKey.CARDHOLDER,
+            id = CardFieldId.CARDHOLDER,
             placeholder = app.getString(R.string.po_card_tokenization_card_details_cardholder_placeholder),
             keyboardOptions = KeyboardOptions(
                 capitalization = KeyboardCapitalization.Words,
@@ -182,35 +182,35 @@ internal class CardTokenizationViewModel(
     private fun setLastFieldImeAction() {
         lastField()?.apply {
             keyboardOptions = keyboardOptions.copy(imeAction = ImeAction.Done)
-            keyboardActionKey = ActionKey.SUBMIT
+            keyboardActionId = ActionId.SUBMIT
         }
     }
 
     fun onEvent(event: CardTokenizationEvent) {
         when (event) {
-            is FieldValueChanged -> updateFieldValue(event.key, event.value)
-            is FieldFocusChanged -> updateFieldFocus(event.key, event.isFocused)
-            is Action -> when (event.key) {
-                ActionKey.SUBMIT -> submit()
-                ActionKey.CANCEL -> cancel()
+            is FieldValueChanged -> updateFieldValue(event.id, event.value)
+            is FieldFocusChanged -> updateFieldFocus(event.id, event.isFocused)
+            is Action -> when (event.id) {
+                ActionId.SUBMIT -> submit()
+                ActionId.CANCEL -> cancel()
             }
             is Dismiss -> POLogger.info("Dismissed: %s", event.failure)
         }
     }
 
-    private fun updateFieldValue(key: String, value: TextFieldValue) {
-        field(key)?.apply {
+    private fun updateFieldValue(id: String, value: TextFieldValue) {
+        field(id)?.apply {
             this.value = value
             isError = false
         }
-        if (key == CardFieldKey.NUMBER) {
+        if (id == CardFieldId.NUMBER) {
             updateIssuerInformation(cardNumber = value.text)
         }
     }
 
-    private fun updateFieldFocus(key: String, isFocused: Boolean) {
+    private fun updateFieldFocus(id: String, isFocused: Boolean) {
         if (isFocused) {
-            _state.update { it.copy(focusedFieldKey = key) }
+            _state.update { it.copy(focusedFieldId = id) }
         }
     }
 
@@ -247,10 +247,10 @@ internal class CardTokenizationViewModel(
 
     private fun updateFields(issuerInformation: POCardIssuerInformation?) {
         val scheme = issuerInformation?.coScheme ?: issuerInformation?.scheme
-        field(CardFieldKey.NUMBER)?.apply {
+        field(CardFieldId.NUMBER)?.apply {
             iconResId = scheme?.let { cardSchemeDrawableResId(it) }
         }
-        field(CardFieldKey.CVC)?.apply {
+        field(CardFieldId.CVC)?.apply {
             val inputFilter = CardSecurityCodeInputFilter(scheme = scheme)
             value = inputFilter.filter(value)
             this.inputFilter = inputFilter
@@ -272,24 +272,24 @@ internal class CardTokenizationViewModel(
         }
     }
 
-    private fun field(key: String): POMutableFieldState? {
+    private fun field(id: String): POMutableFieldState? {
         _sections.forEach { section ->
             section.items.elements.forEach { item ->
-                field(key, item)
+                field(id, item)
                     ?.let { return it }
             }
         }
         return null
     }
 
-    private fun field(key: String, item: Item): POMutableFieldState? {
+    private fun field(id: String, item: Item): POMutableFieldState? {
         when (item) {
             is Item.TextField ->
-                if (item.state.key == key) {
+                if (item.state.id == id) {
                     return item.state
                 }
             is Item.Group -> item.items.elements.forEach { groupItem ->
-                field(key, groupItem)
+                field(id, groupItem)
                     ?.let { return it }
             }
         }

@@ -11,15 +11,15 @@ internal data class CardUpdateState(
     val title: String,
     val primaryAction: POActionState,
     val secondaryAction: POActionState?,
-    val focusedFieldKey: String? = null,
+    val focusedFieldId: String? = null,
     val errorMessage: String? = null,
     val draggable: Boolean
 )
 
 internal sealed interface CardUpdateEvent {
-    data class FieldValueChanged(val key: String, val value: TextFieldValue) : CardUpdateEvent
-    data class FieldFocusChanged(val key: String, val isFocused: Boolean) : CardUpdateEvent
-    data class Action(val key: String) : CardUpdateEvent
+    data class FieldValueChanged(val id: String, val value: TextFieldValue) : CardUpdateEvent
+    data class FieldFocusChanged(val id: String, val isFocused: Boolean) : CardUpdateEvent
+    data class Action(val id: String) : CardUpdateEvent
     data class Dismiss(val failure: ProcessOutResult.Failure) : CardUpdateEvent
 }
 
