@@ -12,14 +12,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
 import androidx.lifecycle.Lifecycle
-import com.processout.sdk.ui.card.update.CardUpdateEvent.Action
-import com.processout.sdk.ui.card.update.CardUpdateEvent.FieldValueChanged
+import com.processout.sdk.ui.card.update.CardUpdateEvent.*
 import com.processout.sdk.ui.core.component.POActionsContainer
 import com.processout.sdk.ui.core.component.POHeader
 import com.processout.sdk.ui.core.component.POText
@@ -80,6 +80,7 @@ internal fun CardUpdateScreen(
             Fields(
                 fields = fields,
                 onEvent = onEvent,
+                focusedFieldKey = state.focusedFieldKey,
                 isPrimaryActionEnabled = state.primaryAction.enabled,
                 style = style.field
             )
@@ -100,16 +101,13 @@ internal fun CardUpdateScreen(
 private fun Fields(
     fields: POStableList<POMutableFieldState>,
     onEvent: (CardUpdateEvent) -> Unit,
+    focusedFieldKey: String?,
     isPrimaryActionEnabled: Boolean,
     style: POField.Style = POField.default
 ) {
-    val focusRequester = remember { FocusRequester() }
     val lifecycleEvent = rememberLifecycleEvent()
-    if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
-        RequestFocus(focusRequester, lifecycleEvent)
-    }
-
     fields.elements.forEach { state ->
+        val focusRequester = remember { FocusRequester() }
         POTextField(
             value = state.value,
             onValueChange = {
@@ -122,7 +120,15 @@ private fun Fields(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .focusRequester(focusRequester),
+                .focusRequester(focusRequester)
+                .onFocusChanged {
+                    onEvent(
+                        FieldFocusChanged(
+                            key = state.key,
+                            isFocused = it.isFocused
+                        )
+                    )
+                },
             style = style,
             enabled = state.enabled,
             isError = state.isError,
@@ -137,6 +143,9 @@ private fun Fields(
                 onClick = { onEvent(Action(key = it)) }
             )
         )
+        if (state.key == focusedFieldKey && lifecycleEvent == Lifecycle.Event.ON_RESUME) {
+            RequestFocus(focusRequester, lifecycleEvent)
+        }
     }
 }
 
