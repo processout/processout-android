@@ -257,6 +257,21 @@ internal class CardTokenizationViewModel(
         }
     }
 
+    private fun submit() {
+        // TODO
+    }
+
+    private fun cancel() {
+        _completion.update {
+            Failure(
+                ProcessOutResult.Failure(
+                    code = POFailure.Code.Cancelled,
+                    message = "Cancelled by the user with secondary cancel action."
+                ).also { POLogger.info("Cancelled: %s", it) }
+            )
+        }
+    }
+
     private fun field(key: String): POMutableFieldState? {
         _sections.forEach { section ->
             section.items.elements.forEach { item ->
@@ -298,20 +313,5 @@ internal class CardTokenizationViewModel(
             }
         }
         return null
-    }
-
-    private fun submit() {
-        // TODO
-    }
-
-    private fun cancel() {
-        _completion.update {
-            Failure(
-                ProcessOutResult.Failure(
-                    code = POFailure.Code.Cancelled,
-                    message = "Cancelled by the user with secondary cancel action."
-                ).also { POLogger.info("Cancelled: %s", it) }
-            )
-        }
     }
 }
