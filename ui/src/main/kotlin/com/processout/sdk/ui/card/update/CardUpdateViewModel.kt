@@ -89,7 +89,7 @@ internal class CardUpdateViewModel(
     private val shouldContinueRequests = mutableSetOf<POCardUpdateShouldContinueRequest>()
 
     init {
-        handleIfShouldContinue()
+        shouldContinueOnFailure()
         POLogger.info(
             message = "Card update is started: waiting for user input.",
             attributes = logAttributes
@@ -314,7 +314,7 @@ internal class CardUpdateViewModel(
         }
     }
 
-    private fun handleIfShouldContinue() {
+    private fun shouldContinueOnFailure() {
         viewModelScope.launch {
             eventDispatcher.shouldContinueResponse.collect { response ->
                 if (shouldContinueRequests.removeAll { it.uuid == response.uuid }) {
