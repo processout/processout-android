@@ -25,10 +25,12 @@ class PONativeAlternativePaymentMethodActivityContract : ActivityResultContract
     override fun parseResult(
         resultCode: Int,
         intent: Intent?
-    ): PONativeAlternativePaymentMethodResult =
-        intent?.getParcelableExtra(EXTRA_RESULT)
+    ): PONativeAlternativePaymentMethodResult {
+        intent?.setExtrasClassLoader(PONativeAlternativePaymentMethodResult::class.java.classLoader)
+        return intent?.getParcelableExtra(EXTRA_RESULT)
             ?: PONativeAlternativePaymentMethodResult.Failure(
-                POFailure.Code.Internal(),
-                "Activity result was not provided."
+                code = POFailure.Code.Internal(),
+                message = "Activity result was not provided."
             ).also { POLogger.error("%s", it) }
+    }
 }
