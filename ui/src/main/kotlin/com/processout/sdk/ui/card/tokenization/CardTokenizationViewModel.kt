@@ -63,6 +63,11 @@ internal class CardTokenizationViewModel(
         const val LOG_ATTRIBUTE_IIN = "IIN"
     }
 
+    private object SectionId {
+        const val CARD_INFORMATION = "card-information"
+        const val BILLING_ADDRESS = "billing-address"
+    }
+
     private object CardFieldId {
         const val NUMBER = "card-number"
         const val EXPIRATION = "card-expiration"
@@ -121,7 +126,10 @@ internal class CardTokenizationViewModel(
         if (configuration.isCardholderNameFieldVisible) {
             items.add(cardholderField())
         }
-        return CardTokenizationSection(POStableList(items))
+        return CardTokenizationSection(
+            id = SectionId.CARD_INFORMATION,
+            items = POStableList(items)
+        )
     }
 
     private fun cardNumberField() = Item.TextField(

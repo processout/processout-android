@@ -21,6 +21,8 @@ internal data class CardTokenizationState(
 
 @Stable
 internal data class CardTokenizationSection(
+    val id: String,
+    val title: String? = null,
     val items: POStableList<Item>
 ) {
     @Stable
