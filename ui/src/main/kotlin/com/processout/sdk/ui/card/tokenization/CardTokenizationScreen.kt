@@ -1,6 +1,7 @@
 package com.processout.sdk.ui.card.tokenization
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -18,6 +19,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationSection.Item
@@ -84,7 +86,6 @@ internal fun CardTokenizationScreen(
                     with(style.sectionTitle) {
                         POText(
                             text = it,
-                            modifier = Modifier.padding(top = ProcessOutTheme.spacing.small),
                             color = color,
                             style = textStyle
                         )
@@ -101,6 +102,10 @@ internal fun CardTokenizationScreen(
                         style = style.field
                     )
                 }
+                AnimatedText(
+                    text = section.errorMessage,
+                    style = style.errorMessage
+                )
             }
         }
     }
@@ -204,6 +209,29 @@ private fun AnimatedIcon(@DrawableRes id: Int) {
             .padding(POField.contentPadding),
         contentScale = ContentScale.FillHeight
     )
+}
+
+@Composable
+private fun AnimatedText(
+    text: String?,
+    style: POText.Style
+) {
+    var modifier = Modifier
+        .animateContentSize()
+        .fillMaxWidth()
+    modifier = if (text != null) {
+        modifier.wrapContentHeight()
+    } else {
+        modifier.requiredHeight(0.dp)
+    }
+    with(style) {
+        POText(
+            text = text ?: String(),
+            modifier = modifier,
+            color = color,
+            style = textStyle
+        )
+    }
 }
 
 @Composable

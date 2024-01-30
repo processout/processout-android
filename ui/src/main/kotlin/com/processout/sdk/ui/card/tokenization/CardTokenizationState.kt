@@ -1,7 +1,6 @@
 package com.processout.sdk.ui.card.tokenization
 
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.*
 import androidx.compose.ui.text.input.TextFieldValue
 import com.processout.sdk.api.model.response.POCardIssuerInformation
 import com.processout.sdk.core.ProcessOutResult
@@ -25,6 +24,8 @@ internal data class CardTokenizationSection(
     val title: String? = null,
     val items: POStableList<Item>
 ) {
+    var errorMessage: String? by mutableStateOf(null)
+
     @Stable
     sealed interface Item {
         data class TextField(val state: POMutableFieldState) : Item
