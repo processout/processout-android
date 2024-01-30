@@ -24,11 +24,11 @@ internal data class CardIssuerInformationResponse(
 data class POCardIssuerInformation(
     val scheme: String,
     @Json(name = "co_scheme")
-    val coScheme: String?,
-    val type: String?,
+    val coScheme: String? = null,
+    val type: String? = null,
     @Json(name = "bank_name")
-    val bankName: String?,
-    val brand: String?,
-    val category: String?,
-    val country: String?
+    val bankName: String? = null,
+    val brand: String? = null,
+    val category: String? = null,
+    val country: String? = null
 )

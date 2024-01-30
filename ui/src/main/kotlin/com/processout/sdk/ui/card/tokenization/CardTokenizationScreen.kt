@@ -7,13 +7,18 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
+import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationSection.Item
 import com.processout.sdk.ui.core.component.POActionsContainer
@@ -21,10 +26,15 @@ import com.processout.sdk.ui.core.component.POHeader
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.POTextField
-import com.processout.sdk.ui.core.state.*
+import com.processout.sdk.ui.core.state.POActionState
+import com.processout.sdk.ui.core.state.POImmutableList
+import com.processout.sdk.ui.core.state.POMutableFieldState
+import com.processout.sdk.ui.core.state.POStableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.composable.AnimatedImage
+import com.processout.sdk.ui.shared.composable.RequestFocus
+import com.processout.sdk.ui.shared.composable.rememberLifecycleEvent
 
 @Composable
 internal fun CardTokenizationScreen(
@@ -68,11 +78,15 @@ internal fun CardTokenizationScreen(
                 ),
             verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
         ) {
+            val lifecycleEvent = rememberLifecycleEvent()
             sections.elements.forEach { section ->
                 section.items.elements.forEach { item ->
                     Item(
                         item = item,
                         onEvent = onEvent,
+                        lifecycleEvent = lifecycleEvent,
+                        focusedFieldId = state.focusedFieldId,
+                        isPrimaryActionEnabled = state.primaryAction.enabled,
                         modifier = Modifier.fillMaxWidth(),
                         style = style.field
                     )
@@ -86,6 +100,9 @@ internal fun CardTokenizationScreen(
 private fun Item(
     item: Item,
     onEvent: (CardTokenizationEvent) -> Unit,
+    lifecycleEvent: Lifecycle.Event,
+    focusedFieldId: String?,
+    isPrimaryActionEnabled: Boolean,
     modifier: Modifier = Modifier,
     style: POField.Style = POField.default
 ) {
@@ -93,6 +110,9 @@ private fun Item(
         is Item.TextField -> TextField(
             state = item.state,
             onEvent = onEvent,
+            lifecycleEvent = lifecycleEvent,
+            focusedFieldId = focusedFieldId,
+            isPrimaryActionEnabled = isPrimaryActionEnabled,
             modifier = modifier,
             style = style
         )
@@ -103,6 +123,9 @@ private fun Item(
                 Item(
                     item = groupItem,
                     onEvent = onEvent,
+                    lifecycleEvent = lifecycleEvent,
+                    focusedFieldId = focusedFieldId,
+                    isPrimaryActionEnabled = isPrimaryActionEnabled,
                     modifier = Modifier.weight(1f),
                     style = style
                 )
@@ -115,29 +138,51 @@ private fun Item(
 private fun TextField(
     state: POMutableFieldState,
     onEvent: (CardTokenizationEvent) -> Unit,
+    lifecycleEvent: Lifecycle.Event,
+    focusedFieldId: String?,
+    isPrimaryActionEnabled: Boolean,
     modifier: Modifier = Modifier,
     style: POField.Style = POField.default
 ) {
+    val focusRequester = remember { FocusRequester() }
     POTextField(
-        value = state.value.value,
+        value = state.value,
         onValueChange = {
             onEvent(
                 FieldValueChanged(
-                    key = state.key,
+                    id = state.id,
                     value = state.inputFilter?.filter(it) ?: it
                 )
             )
         },
-        modifier = modifier,
+        modifier = modifier
+            .focusRequester(focusRequester)
+            .onFocusChanged {
+                onEvent(
+                    FieldFocusChanged(
+                        id = state.id,
+                        isFocused = it.isFocused
+                    )
+                )
+            },
         style = style,
         enabled = state.enabled,
         isError = state.isError,
         forceTextDirectionLtr = state.forceTextDirectionLtr,
         placeholderText = state.placeholder,
-        trailingIcon = { state.iconResId.value?.let { AnimatedIcon(id = it) } },
+        trailingIcon = { state.iconResId?.let { AnimatedIcon(id = it) } },
+        visualTransformation = state.visualTransformation,
         keyboardOptions = state.keyboardOptions,
-        visualTransformation = state.visualTransformation
+        keyboardActions = POField.keyboardActions(
+            imeAction = state.keyboardOptions.imeAction,
+            actionId = state.keyboardActionId,
+            enabled = isPrimaryActionEnabled,
+            onClick = { onEvent(Action(id = it)) }
+        )
     )
+    if (state.id == focusedFieldId && lifecycleEvent == Lifecycle.Event.ON_RESUME) {
+        RequestFocus(focusRequester, lifecycleEvent)
+    }
 }
 
 @Composable
@@ -158,22 +203,13 @@ private fun Actions(
     onEvent: (CardTokenizationEvent) -> Unit,
     style: POActionsContainer.Style = POActionsContainer.default
 ) {
-    val actions = mutableListOf(
-        POActionStateExtended(
-            state = primary,
-            onClick = { onEvent(Submit) }
-        ))
-    secondary?.let {
-        actions.add(
-            POActionStateExtended(
-                state = it,
-                onClick = { onEvent(Cancel) }
-            ))
-    }
+    val actions = mutableListOf(primary)
+    secondary?.let { actions.add(it) }
     POActionsContainer(
         actions = POImmutableList(
             if (style.axis == POAxis.Horizontal) actions.reversed() else actions
         ),
+        onClick = { onEvent(Action(id = it)) },
         style = style
     )
 }

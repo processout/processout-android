@@ -3,7 +3,6 @@ package com.processout.sdk.ui.card.update
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -13,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
@@ -26,9 +26,9 @@ import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.POTextField
 import com.processout.sdk.ui.core.state.POActionState
-import com.processout.sdk.ui.core.state.POActionStateExtended
-import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableList
+import com.processout.sdk.ui.core.state.POMutableFieldState
+import com.processout.sdk.ui.core.state.POStableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.composable.AnimatedImage
@@ -38,6 +38,7 @@ import com.processout.sdk.ui.shared.composable.rememberLifecycleEvent
 @Composable
 internal fun CardUpdateScreen(
     state: CardUpdateState,
+    fields: POStableList<POMutableFieldState>,
     onEvent: (CardUpdateEvent) -> Unit,
     style: CardUpdateScreen.Style = CardUpdateScreen.style()
 ) {
@@ -77,8 +78,10 @@ internal fun CardUpdateScreen(
             verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.large)
         ) {
             Fields(
-                fields = state.fields,
+                fields = fields,
                 onEvent = onEvent,
+                focusedFieldId = state.focusedFieldId,
+                isPrimaryActionEnabled = state.primaryAction.enabled,
                 style = style.field
             )
             state.errorMessage?.let {
@@ -96,30 +99,36 @@ internal fun CardUpdateScreen(
 
 @Composable
 private fun Fields(
-    fields: POImmutableList<POFieldState>,
+    fields: POStableList<POMutableFieldState>,
     onEvent: (CardUpdateEvent) -> Unit,
+    focusedFieldId: String?,
+    isPrimaryActionEnabled: Boolean,
     style: POField.Style = POField.default
 ) {
-    val focusRequester = remember { FocusRequester() }
     val lifecycleEvent = rememberLifecycleEvent()
-    if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
-        RequestFocus(focusRequester, lifecycleEvent)
-    }
-
-    fields.elements.forEachIndexed { index, state ->
+    fields.elements.forEach { state ->
+        val focusRequester = remember { FocusRequester() }
         POTextField(
             value = state.value,
             onValueChange = {
                 onEvent(
                     FieldValueChanged(
-                        key = state.key,
+                        id = state.id,
                         value = state.inputFilter?.filter(it) ?: it
                     )
                 )
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .focusRequester(focusRequester),
+                .focusRequester(focusRequester)
+                .onFocusChanged {
+                    onEvent(
+                        FieldFocusChanged(
+                            id = state.id,
+                            isFocused = it.isFocused
+                        )
+                    )
+                },
             style = style,
             enabled = state.enabled,
             isError = state.isError,
@@ -127,10 +136,16 @@ private fun Fields(
             placeholderText = state.placeholder,
             trailingIcon = { state.iconResId?.let { AnimatedIcon(id = it) } },
             keyboardOptions = state.keyboardOptions,
-            keyboardActions = if (index == fields.elements.lastIndex)
-                KeyboardActions(onDone = { onEvent(Submit) })
-            else KeyboardActions.Default
+            keyboardActions = POField.keyboardActions(
+                imeAction = state.keyboardOptions.imeAction,
+                actionId = state.keyboardActionId,
+                enabled = isPrimaryActionEnabled,
+                onClick = { onEvent(Action(id = it)) }
+            )
         )
+        if (state.id == focusedFieldId && lifecycleEvent == Lifecycle.Event.ON_RESUME) {
+            RequestFocus(focusRequester, lifecycleEvent)
+        }
     }
 }
 
@@ -152,22 +167,13 @@ private fun Actions(
     onEvent: (CardUpdateEvent) -> Unit,
     style: POActionsContainer.Style = POActionsContainer.default
 ) {
-    val actions = mutableListOf(
-        POActionStateExtended(
-            state = primary,
-            onClick = { onEvent(Submit) }
-        ))
-    secondary?.let {
-        actions.add(
-            POActionStateExtended(
-                state = it,
-                onClick = { onEvent(Cancel) }
-            ))
-    }
+    val actions = mutableListOf(primary)
+    secondary?.let { actions.add(it) }
     POActionsContainer(
         actions = POImmutableList(
             if (style.axis == POAxis.Horizontal) actions.reversed() else actions
         ),
+        onClick = { onEvent(Action(id = it)) },
         style = style
     )
 }
