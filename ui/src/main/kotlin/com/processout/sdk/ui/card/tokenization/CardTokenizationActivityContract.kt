@@ -26,10 +26,12 @@ internal class CardTokenizationActivityContract : ActivityResultContract
     override fun parseResult(
         resultCode: Int,
         intent: Intent?
-    ): ProcessOutActivityResult<POCardTokenizationResponse> =
-        intent?.getParcelableExtra(EXTRA_RESULT)
+    ): ProcessOutActivityResult<POCardTokenizationResponse> {
+        intent?.setExtrasClassLoader(ProcessOutActivityResult::class.java.classLoader)
+        return intent?.getParcelableExtra(EXTRA_RESULT)
             ?: ProcessOutActivityResult.Failure(
                 code = POFailure.Code.Internal(),
                 message = "Activity result was not provided."
             ).also { POLogger.error("%s", it) }
+    }
 }

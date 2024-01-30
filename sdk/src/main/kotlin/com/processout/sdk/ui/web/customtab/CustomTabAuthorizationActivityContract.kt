@@ -28,10 +28,12 @@ internal class CustomTabAuthorizationActivityContract : ActivityResultContract
     override fun parseResult(
         resultCode: Int,
         intent: Intent?
-    ): ProcessOutActivityResult<Uri> =
-        intent?.getParcelableExtra(EXTRA_RESULT)
+    ): ProcessOutActivityResult<Uri> {
+        intent?.setExtrasClassLoader(ProcessOutActivityResult::class.java.classLoader)
+        return intent?.getParcelableExtra(EXTRA_RESULT)
             ?: ProcessOutActivityResult.Failure(
-                POFailure.Code.Internal(),
-                "Activity result was not provided."
+                code = POFailure.Code.Internal(),
+                message = "Activity result was not provided."
             ).also { POLogger.error("%s", it) }
+    }
 }
