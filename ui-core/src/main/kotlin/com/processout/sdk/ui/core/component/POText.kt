@@ -62,6 +62,12 @@ object POText {
             textStyle = ProcessOutTheme.typography.medium.title
         )
 
+    val labelHeading: Style
+        @Composable get() = Style(
+            color = ProcessOutTheme.colors.text.secondary,
+            textStyle = ProcessOutTheme.typography.fixed.labelHeading
+        )
+
     val errorLabel: Style
         @Composable get() = Style(
             color = ProcessOutTheme.colors.text.error,

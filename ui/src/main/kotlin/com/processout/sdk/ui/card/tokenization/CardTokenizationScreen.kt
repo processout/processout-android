@@ -80,6 +80,16 @@ internal fun CardTokenizationScreen(
         ) {
             val lifecycleEvent = rememberLifecycleEvent()
             sections.elements.forEach { section ->
+                section.title?.let {
+                    with(style.sectionTitle) {
+                        POText(
+                            text = it,
+                            modifier = Modifier.padding(top = ProcessOutTheme.spacing.small),
+                            color = color,
+                            style = textStyle
+                        )
+                    }
+                }
                 section.items.elements.forEach { item ->
                     Item(
                         item = item,
@@ -219,6 +229,7 @@ internal object CardTokenizationScreen {
     @Immutable
     data class Style(
         val title: POText.Style,
+        val sectionTitle: POText.Style,
         val field: POField.Style,
         val errorMessage: POText.Style,
         val actionsContainer: POActionsContainer.Style,
@@ -232,6 +243,9 @@ internal object CardTokenizationScreen {
         title = custom?.title?.let {
             POText.custom(style = it)
         } ?: POText.title,
+        sectionTitle = custom?.sectionTitle?.let {
+            POText.custom(style = it)
+        } ?: POText.labelHeading,
         field = custom?.field?.let {
             POField.custom(style = it)
         } ?: POField.default,

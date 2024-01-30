@@ -24,6 +24,7 @@ data class POCardTokenizationConfiguration(
     @Parcelize
     data class Style(
         val title: POTextStyle? = null,
+        val sectionTitle: POTextStyle? = null,
         val field: POFieldStyle? = null,
         val errorMessage: POTextStyle? = null,
         val actionsContainer: POActionsContainerStyle? = null,
