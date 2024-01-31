@@ -3,6 +3,7 @@ package com.processout.sdk.ui.card.tokenization
 import android.app.Application
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -79,6 +80,12 @@ internal class CardTokenizationViewModel(
         const val SUBMIT = "submit"
         const val CANCEL = "cancel"
     }
+
+    private data class FieldValue(
+        val id: String,
+        val value: String,
+        val isValid: Boolean
+    )
 
     private val _completion = MutableStateFlow<CardTokenizationCompletion>(Awaiting)
     val completion = _completion.asStateFlow()
@@ -321,5 +328,32 @@ internal class CardTokenizationViewModel(
             }
         }
         return null
+    }
+
+    private fun SnapshotStateList<CardTokenizationSection>.fieldValues(): List<FieldValue> {
+        val fieldValues = mutableListOf<FieldValue>()
+        forEach { section ->
+            section.items.elements.forEach { item ->
+                fieldValues(item, fieldValues)
+            }
+        }
+        return fieldValues
+    }
+
+    private fun fieldValues(item: Item, fieldValues: MutableList<FieldValue>) {
+        when (item) {
+            is Item.TextField -> with(item.state) {
+                fieldValues.add(
+                    FieldValue(
+                        id = id,
+                        value = value.text,
+                        isValid = !isError
+                    )
+                )
+            }
+            is Item.Group -> item.items.elements.forEach { groupItem ->
+                fieldValues(groupItem, fieldValues)
+            }
+        }
     }
 }
