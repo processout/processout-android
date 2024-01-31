@@ -13,17 +13,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
+import com.processout.sdk.api.model.request.POCardTokenizationRequest
 import com.processout.sdk.api.model.response.POCardIssuerInformation
 import com.processout.sdk.api.repository.POCardsRepository
-import com.processout.sdk.core.POFailure
-import com.processout.sdk.core.ProcessOutResult
-import com.processout.sdk.core.getOrNull
+import com.processout.sdk.core.*
 import com.processout.sdk.core.logger.POLogger
-import com.processout.sdk.core.onFailure
-import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Awaiting
-import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Failure
+import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationSection.Item
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationFormData.CardInformation
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POMutableFieldState
 import com.processout.sdk.ui.core.state.POStableList
@@ -62,6 +60,7 @@ internal class CardTokenizationViewModel(
 
     private companion object {
         const val LOG_ATTRIBUTE_IIN = "IIN"
+        const val EXPIRATION_DATE_PART_LENGTH = 2
     }
 
     private object SectionId {
@@ -85,6 +84,11 @@ internal class CardTokenizationViewModel(
         val id: String,
         val value: String,
         val isValid: Boolean
+    )
+
+    private data class Expiration(
+        val month: Int,
+        val year: Int
     )
 
     private val _completion = MutableStateFlow<CardTokenizationCompletion>(Awaiting)
@@ -273,6 +277,32 @@ internal class CardTokenizationViewModel(
     }
 
     private fun submit() {
+        _sections.fieldValues().let { fieldValues ->
+            if (!fieldValues.all { it.isValid }) {
+                POLogger.debug("Ignored attempt to tokenize with invalid values.")
+                return
+            }
+            tokenize(fieldValues.toFormData())
+        }
+    }
+
+    private fun tokenize(formData: POCardTokenizationFormData) {
+        viewModelScope.launch {
+            cardsRepository.tokenize(formData.toRequest())
+                .onSuccess { card ->
+                    _completion.update {
+                        Success(
+                            POCardTokenizationData(
+                                card = card,
+                                formData = formData
+                            )
+                        )
+                    }
+                }.onFailure { handle(it) }
+        }
+    }
+
+    private fun handle(failure: ProcessOutResult.Failure) {
         // TODO
     }
 
@@ -355,5 +385,49 @@ internal class CardTokenizationViewModel(
                 fieldValues(groupItem, fieldValues)
             }
         }
+    }
+
+    private fun List<FieldValue>.toFormData(): POCardTokenizationFormData {
+        var number = String()
+        var expiration = String()
+        var cvc = String()
+        var cardholderName = String()
+        forEach {
+            when (it.id) {
+                CardFieldId.NUMBER -> number = it.value
+                CardFieldId.EXPIRATION -> expiration = it.value
+                CardFieldId.CVC -> cvc = it.value
+                CardFieldId.CARDHOLDER -> cardholderName = it.value
+            }
+        }
+        return POCardTokenizationFormData(
+            cardInformation = CardInformation(
+                number = number,
+                expiration = expiration,
+                cvc = cvc,
+                cardholderName = cardholderName
+            )
+        )
+    }
+
+    private fun POCardTokenizationFormData.toRequest(): POCardTokenizationRequest {
+        with(cardInformation) {
+            val expiration = expiration(expiration)
+            return POCardTokenizationRequest(
+                number = number,
+                expMonth = expiration.month,
+                expYear = expiration.year,
+                cvc = cvc,
+                name = cardholderName
+            )
+        }
+    }
+
+    private fun expiration(value: String): Expiration {
+        val dateParts = value.chunked(EXPIRATION_DATE_PART_LENGTH)
+        return Expiration(
+            month = dateParts.getOrNull(0)?.toIntOrNull() ?: 0,
+            year = dateParts.getOrNull(1)?.toIntOrNull() ?: 0
+        )
     }
 }
