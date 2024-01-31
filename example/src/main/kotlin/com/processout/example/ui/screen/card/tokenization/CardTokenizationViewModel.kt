@@ -11,7 +11,7 @@ import com.processout.sdk.api.model.request.POCreateInvoiceRequest
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
-import com.processout.sdk.ui.card.tokenization.POCardTokenizationResponse
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -67,12 +67,12 @@ class CardTokenizationViewModel(
         }
     }
 
-    fun onTokenized(response: POCardTokenizationResponse) {
+    fun onTokenized(data: POCardTokenizationData) {
         val uiState = _uiState.value
         if (uiState is Tokenizing) {
             _uiState.value = Tokenized(
                 uiState.uiModel.copy(
-                    cardId = response.card.id
+                    cardId = data.card.id
                 )
             )
         }

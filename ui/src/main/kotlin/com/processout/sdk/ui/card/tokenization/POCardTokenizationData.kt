@@ -8,7 +8,7 @@ import kotlinx.parcelize.Parcelize
 /** @suppress */
 @ProcessOutInternalApi
 @Parcelize
-data class POCardTokenizationResponse(
+data class POCardTokenizationData(
     val card: POCard,
     val formData: POCardTokenizationFormData
 ) : Parcelable

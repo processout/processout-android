@@ -15,7 +15,8 @@ data class POCardTokenizationFormData(
     @Parcelize
     data class CardInformation(
         internal val number: String,
-        internal val expirationDate: String,
+        internal val expiration: String,
+        internal val cvc: String,
         internal val cardholderName: String
     ) : Parcelable {
         override fun toString() = String()

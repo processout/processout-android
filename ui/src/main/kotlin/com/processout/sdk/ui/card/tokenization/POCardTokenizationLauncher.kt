@@ -22,7 +22,7 @@ class POCardTokenizationLauncher private constructor() {
          */
         fun create(
             from: Fragment,
-            callback: (ProcessOutActivityResult<POCardTokenizationResponse>) -> Unit
+            callback: (ProcessOutActivityResult<POCardTokenizationData>) -> Unit
         ) = POCardTokenizationLauncher().apply {
             launcher = from.registerForActivityResult(
                 CardTokenizationActivityContract(),
@@ -36,7 +36,7 @@ class POCardTokenizationLauncher private constructor() {
          */
         fun create(
             from: ComponentActivity,
-            callback: (ProcessOutActivityResult<POCardTokenizationResponse>) -> Unit
+            callback: (ProcessOutActivityResult<POCardTokenizationData>) -> Unit
         ) = POCardTokenizationLauncher().apply {
             launcher = from.registerForActivityResult(
                 CardTokenizationActivityContract(),
