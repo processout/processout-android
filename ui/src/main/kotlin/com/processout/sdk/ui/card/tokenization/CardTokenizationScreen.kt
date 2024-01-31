@@ -115,8 +115,8 @@ private fun Sections(
                 lifecycleEvent = lifecycleEvent,
                 focusedFieldId = state.focusedFieldId,
                 isPrimaryActionEnabled = state.primaryAction.enabled,
-                modifier = Modifier.fillMaxWidth(),
-                style = style.field
+                style = style.field,
+                modifier = Modifier.fillMaxWidth()
             )
         }
         AnimatedText(
@@ -133,8 +133,8 @@ private fun Item(
     lifecycleEvent: Lifecycle.Event,
     focusedFieldId: String?,
     isPrimaryActionEnabled: Boolean,
-    modifier: Modifier = Modifier,
-    style: POField.Style = POField.default
+    style: POField.Style,
+    modifier: Modifier = Modifier
 ) {
     when (item) {
         is Item.TextField -> TextField(
@@ -143,8 +143,8 @@ private fun Item(
             lifecycleEvent = lifecycleEvent,
             focusedFieldId = focusedFieldId,
             isPrimaryActionEnabled = isPrimaryActionEnabled,
-            modifier = modifier,
-            style = style
+            style = style,
+            modifier = modifier
         )
         is Item.Group -> Row(
             horizontalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
@@ -156,8 +156,8 @@ private fun Item(
                     lifecycleEvent = lifecycleEvent,
                     focusedFieldId = focusedFieldId,
                     isPrimaryActionEnabled = isPrimaryActionEnabled,
-                    modifier = Modifier.weight(1f),
-                    style = style
+                    style = style,
+                    modifier = Modifier.weight(1f)
                 )
             }
         }
@@ -171,8 +171,8 @@ private fun TextField(
     lifecycleEvent: Lifecycle.Event,
     focusedFieldId: String?,
     isPrimaryActionEnabled: Boolean,
-    modifier: Modifier = Modifier,
-    style: POField.Style = POField.default
+    style: POField.Style,
+    modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
     POTextField(
@@ -254,7 +254,7 @@ private fun Actions(
     primary: POActionState,
     secondary: POActionState?,
     onEvent: (CardTokenizationEvent) -> Unit,
-    style: POActionsContainer.Style = POActionsContainer.default
+    style: POActionsContainer.Style
 ) {
     val actions = mutableListOf(primary)
     secondary?.let { actions.add(it) }

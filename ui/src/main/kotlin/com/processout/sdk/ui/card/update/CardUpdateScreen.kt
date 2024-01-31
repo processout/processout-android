@@ -103,7 +103,7 @@ private fun Fields(
     onEvent: (CardUpdateEvent) -> Unit,
     focusedFieldId: String?,
     isPrimaryActionEnabled: Boolean,
-    style: POField.Style = POField.default
+    style: POField.Style
 ) {
     val lifecycleEvent = rememberLifecycleEvent()
     fields.elements.forEach { state ->
@@ -165,7 +165,7 @@ private fun Actions(
     primary: POActionState,
     secondary: POActionState?,
     onEvent: (CardUpdateEvent) -> Unit,
-    style: POActionsContainer.Style = POActionsContainer.default
+    style: POActionsContainer.Style
 ) {
     val actions = mutableListOf(primary)
     secondary?.let { actions.add(it) }
