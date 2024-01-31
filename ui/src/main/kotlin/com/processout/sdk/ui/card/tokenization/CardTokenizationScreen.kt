@@ -80,34 +80,49 @@ internal fun CardTokenizationScreen(
                 ),
             verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
         ) {
-            val lifecycleEvent = rememberLifecycleEvent()
-            sections.elements.forEach { section ->
-                section.title?.let {
-                    with(style.sectionTitle) {
-                        POText(
-                            text = it,
-                            color = color,
-                            style = textStyle
-                        )
-                    }
-                }
-                section.items.elements.forEach { item ->
-                    Item(
-                        item = item,
-                        onEvent = onEvent,
-                        lifecycleEvent = lifecycleEvent,
-                        focusedFieldId = state.focusedFieldId,
-                        isPrimaryActionEnabled = state.primaryAction.enabled,
-                        modifier = Modifier.fillMaxWidth(),
-                        style = style.field
-                    )
-                }
-                AnimatedText(
-                    text = section.errorMessage,
-                    style = style.errorMessage
+            Sections(
+                state = state,
+                sections = sections,
+                onEvent = onEvent,
+                style = style
+            )
+        }
+    }
+}
+
+@Composable
+private fun Sections(
+    state: CardTokenizationState,
+    sections: POStableList<CardTokenizationSection>,
+    onEvent: (CardTokenizationEvent) -> Unit,
+    style: CardTokenizationScreen.Style
+) {
+    val lifecycleEvent = rememberLifecycleEvent()
+    sections.elements.forEach { section ->
+        section.title?.let {
+            with(style.sectionTitle) {
+                POText(
+                    text = it,
+                    color = color,
+                    style = textStyle
                 )
             }
         }
+        section.items.elements.forEach { item ->
+            Item(
+                item = item,
+                onEvent = onEvent,
+                lifecycleEvent = lifecycleEvent,
+                focusedFieldId = state.focusedFieldId,
+                isPrimaryActionEnabled = state.primaryAction.enabled,
+                modifier = Modifier.fillMaxWidth(),
+                style = style.field
+            )
+        }
+        AnimatedText(
+            text = section.errorMessage,
+            style = style.errorMessage
+        )
     }
 }
 
