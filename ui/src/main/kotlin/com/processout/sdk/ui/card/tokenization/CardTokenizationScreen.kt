@@ -114,7 +114,7 @@ private fun Sections(
                 onEvent = onEvent,
                 lifecycleEvent = lifecycleEvent,
                 focusedFieldId = state.focusedFieldId,
-                isPrimaryActionEnabled = state.primaryAction.enabled,
+                isPrimaryActionEnabled = state.primaryAction.enabled && !state.primaryAction.loading,
                 style = style.field,
                 modifier = Modifier.fillMaxWidth()
             )

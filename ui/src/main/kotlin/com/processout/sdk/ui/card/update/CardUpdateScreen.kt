@@ -81,7 +81,7 @@ internal fun CardUpdateScreen(
                 fields = fields,
                 onEvent = onEvent,
                 focusedFieldId = state.focusedFieldId,
-                isPrimaryActionEnabled = state.primaryAction.enabled,
+                isPrimaryActionEnabled = state.primaryAction.enabled && !state.primaryAction.loading,
                 style = style.field
             )
             state.errorMessage?.let {
