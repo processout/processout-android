@@ -7,13 +7,13 @@ import kotlinx.parcelize.Parcelize
 /** @suppress */
 @ProcessOutInternalApi
 @Parcelize
-data class POCardTokenizationFormData(
+data class POCardTokenizationFormData internal constructor(
     internal val cardInformation: CardInformation,
     internal val billingAddress: BillingAddress? = null
 ) : Parcelable {
 
     @Parcelize
-    data class CardInformation(
+    data class CardInformation internal constructor(
         internal val number: String,
         internal val expiration: String,
         internal val cvc: String,
@@ -23,7 +23,7 @@ data class POCardTokenizationFormData(
     }
 
     @Parcelize
-    data class BillingAddress(
+    data class BillingAddress internal constructor(
         internal val address1: String,
         internal val address2: String,
         internal val city: String,

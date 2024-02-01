@@ -2,6 +2,7 @@ package com.processout.sdk.ui.card.tokenization
 
 import android.os.Parcelable
 import androidx.annotation.ColorRes
+import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.style.POActionsContainerStyle
 import com.processout.sdk.ui.core.style.POFieldStyle
@@ -14,12 +15,19 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class POCardTokenizationConfiguration(
     val title: String? = null,
+    val isCardholderNameFieldVisible: Boolean = true,
     val primaryActionText: String? = null,
     val secondaryActionText: String? = null,
-    val isCardholderNameFieldVisible: Boolean = true,
     val cancellation: POCancellationConfiguration = POCancellationConfiguration(),
+    val restore: RestoreConfiguration? = null,
     val style: Style? = null
 ) : Parcelable {
+
+    @Parcelize
+    data class RestoreConfiguration(
+        val formData: POCardTokenizationFormData,
+        val failureCode: POFailure.Code? = null
+    ) : Parcelable
 
     @Parcelize
     data class Style(
