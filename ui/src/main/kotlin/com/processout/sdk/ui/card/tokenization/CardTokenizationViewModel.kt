@@ -3,7 +3,6 @@ package com.processout.sdk.ui.card.tokenization
 import android.app.Application
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -222,6 +221,7 @@ internal class CardTokenizationViewModel(
             this.value = value
             isError = false
         }
+        updateActions(submitting = false, isError = !fieldValues().areAllValid())
         if (id == CardFieldId.NUMBER) {
             updateIssuerInformation(cardNumber = value.text)
         }
@@ -277,12 +277,28 @@ internal class CardTokenizationViewModel(
     }
 
     private fun submit() {
-        _sections.fieldValues().let { fieldValues ->
-            if (!fieldValues.all { it.isValid }) {
-                POLogger.debug("Ignored attempt to tokenize with invalid values.")
-                return
+        val fieldValues = fieldValues()
+        if (!fieldValues.areAllValid()) {
+            POLogger.debug("Ignored attempt to tokenize with invalid values.")
+            return
+        }
+        updateActions(submitting = true)
+        tokenize(fieldValues.toFormData())
+    }
+
+    private fun updateActions(submitting: Boolean, isError: Boolean = false) {
+        _state.update {
+            with(it) {
+                copy(
+                    primaryAction = primaryAction.copy(
+                        enabled = !isError,
+                        loading = submitting
+                    ),
+                    secondaryAction = secondaryAction?.copy(
+                        enabled = !submitting
+                    )
+                )
             }
-            tokenize(fieldValues.toFormData())
         }
     }
 
@@ -303,7 +319,7 @@ internal class CardTokenizationViewModel(
     }
 
     private fun handle(failure: ProcessOutResult.Failure) {
-        // TODO
+        updateActions(submitting = false, isError = true)
     }
 
     private fun cancel() {
@@ -360,9 +376,9 @@ internal class CardTokenizationViewModel(
         return null
     }
 
-    private fun SnapshotStateList<CardTokenizationSection>.fieldValues(): List<FieldValue> {
+    private fun fieldValues(): List<FieldValue> {
         val fieldValues = mutableListOf<FieldValue>()
-        forEach { section ->
+        _sections.forEach { section ->
             section.items.elements.forEach { item ->
                 fieldValues(item, fieldValues)
             }
@@ -386,6 +402,8 @@ internal class CardTokenizationViewModel(
             }
         }
     }
+
+    private fun List<FieldValue>.areAllValid() = all { it.isValid }
 
     private fun List<FieldValue>.toFormData(): POCardTokenizationFormData {
         var number = String()
