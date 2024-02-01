@@ -16,6 +16,7 @@ import com.processout.sdk.api.model.request.POCardTokenizationRequest
 import com.processout.sdk.api.model.response.POCardIssuerInformation
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.*
+import com.processout.sdk.core.POFailure.GenericCode.*
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
@@ -221,7 +222,11 @@ internal class CardTokenizationViewModel(
             this.value = value
             isError = false
         }
-        updateActions(submitting = false, isError = !fieldValues().areAllValid())
+        val isError = !fieldValues().areAllValid()
+        updateActions(submitting = false, isError = isError)
+        if (!isError) {
+            updateErrorMessage(value = null)
+        }
         if (id == CardFieldId.NUMBER) {
             updateIssuerInformation(cardNumber = value.text)
         }
@@ -320,6 +325,63 @@ internal class CardTokenizationViewModel(
 
     private fun handle(failure: ProcessOutResult.Failure) {
         updateActions(submitting = false, isError = true)
+        val invalidFieldIds = mutableSetOf<String>()
+        val errorMessage: String
+        when (val code = failure.code) {
+            is POFailure.Code.Generic -> when (code.genericCode) {
+                requestInvalidCard,
+                cardInvalid -> {
+                    invalidFieldIds.addAll(
+                        listOf(
+                            CardFieldId.NUMBER,
+                            CardFieldId.EXPIRATION,
+                            CardFieldId.CVC,
+                            CardFieldId.CARDHOLDER
+                        )
+                    )
+                    errorMessage = app.getString(R.string.po_card_tokenization_error_card)
+                }
+                cardInvalidNumber,
+                cardMissingNumber -> {
+                    invalidFieldIds.add(CardFieldId.NUMBER)
+                    errorMessage = app.getString(R.string.po_card_tokenization_error_card_number)
+                }
+                cardMissingExpiry,
+                cardInvalidExpiryDate,
+                cardInvalidExpiryMonth,
+                cardInvalidExpiryYear -> {
+                    invalidFieldIds.add(CardFieldId.EXPIRATION)
+                    errorMessage = app.getString(R.string.po_card_tokenization_error_card_expiration)
+                }
+                cardBadTrackData -> {
+                    invalidFieldIds.addAll(listOf(CardFieldId.EXPIRATION, CardFieldId.CVC))
+                    errorMessage = app.getString(R.string.po_card_tokenization_error_track_data)
+                }
+                cardMissingCvc,
+                cardInvalidCvc,
+                cardFailedCvc,
+                cardFailedCvcAndAvs -> {
+                    invalidFieldIds.add(CardFieldId.CVC)
+                    errorMessage = app.getString(R.string.po_card_tokenization_error_cvc)
+                }
+                cardInvalidName -> {
+                    invalidFieldIds.add(CardFieldId.CARDHOLDER)
+                    errorMessage = app.getString(R.string.po_card_tokenization_error_cardholder)
+                }
+                else -> errorMessage = app.getString(R.string.po_card_tokenization_error_generic)
+            }
+            else -> errorMessage = app.getString(R.string.po_card_tokenization_error_generic)
+        }
+        invalidFieldIds.forEach { id ->
+            field(id)?.let { it.isError = true }
+        }
+        updateErrorMessage(errorMessage)
+    }
+
+    private fun updateErrorMessage(value: String?) {
+        _sections.find { it.id == SectionId.CARD_INFORMATION }?.apply {
+            errorMessage = value
+        }
     }
 
     private fun cancel() {
