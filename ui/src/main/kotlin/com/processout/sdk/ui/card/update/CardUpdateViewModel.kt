@@ -269,16 +269,18 @@ internal class CardUpdateViewModel(
         field(CardFieldId.CVC)?.apply {
             isError = errorMessage != null
         }
-        return state.copy(
-            primaryAction = state.primaryAction.copy(
-                enabled = errorMessage == null,
-                loading = submitting
-            ),
-            secondaryAction = state.secondaryAction?.copy(
-                enabled = !submitting
-            ),
-            errorMessage = errorMessage
-        )
+        return with(state) {
+            copy(
+                primaryAction = primaryAction.copy(
+                    enabled = errorMessage == null,
+                    loading = submitting
+                ),
+                secondaryAction = secondaryAction?.copy(
+                    enabled = !submitting
+                ),
+                errorMessage = errorMessage
+            )
+        }
     }
 
     private fun updateCard(cvc: String) {
