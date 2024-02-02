@@ -220,7 +220,7 @@ private fun AnimatedIcon(@DrawableRes id: Int) {
     AnimatedImage(
         id = id,
         modifier = Modifier
-            .height(ProcessOutTheme.dimensions.formComponentHeight)
+            .requiredHeight(ProcessOutTheme.dimensions.formComponentHeight)
             .padding(POField.contentPadding),
         contentScale = ContentScale.FillHeight
     )
