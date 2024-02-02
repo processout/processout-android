@@ -44,7 +44,7 @@ fun POButton(
     CompositionLocalProvider(LocalRippleTheme provides NoRippleTheme) {
         Button(
             onClick = onClick,
-            modifier = modifier.height(ProcessOutTheme.dimensions.formComponentHeight),
+            modifier = modifier.requiredHeight(ProcessOutTheme.dimensions.formComponentHeight),
             enabled = enabled && !loading,
             colors = POButton.colors(enabled = enabled, loading = loading, pressed = pressed, style = style),
             shape = if (enabled) style.normal.shape else style.disabled.shape,
