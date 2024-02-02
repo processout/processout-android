@@ -76,7 +76,7 @@ internal fun CardUpdateScreen(
                     horizontal = ProcessOutTheme.spacing.extraLarge,
                     vertical = ProcessOutTheme.spacing.large
                 ),
-            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.large)
+            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
         ) {
             Fields(
                 fields = fields,
