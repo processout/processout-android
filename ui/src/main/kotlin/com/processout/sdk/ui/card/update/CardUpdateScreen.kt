@@ -32,6 +32,7 @@ import com.processout.sdk.ui.core.state.POStableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.composable.AnimatedImage
+import com.processout.sdk.ui.shared.composable.ExpandableText
 import com.processout.sdk.ui.shared.composable.RequestFocus
 import com.processout.sdk.ui.shared.composable.rememberLifecycleEvent
 
@@ -84,15 +85,11 @@ internal fun CardUpdateScreen(
                 isPrimaryActionEnabled = state.primaryAction.enabled && !state.primaryAction.loading,
                 style = style.field
             )
-            state.errorMessage?.let {
-                with(style.errorMessage) {
-                    POText(
-                        text = it,
-                        color = color,
-                        style = textStyle
-                    )
-                }
-            }
+            ExpandableText(
+                text = state.errorMessage,
+                style = style.errorMessage,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }
