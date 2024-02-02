@@ -3,6 +3,7 @@ package com.processout.sdk.ui.card.tokenization
 import android.app.Application
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -102,6 +103,10 @@ internal class CardTokenizationViewModel(
 
     init {
         setLastFieldImeAction()
+        configuration.restore?.let {
+            val failureCode = it.failureCode ?: POFailure.Code.Generic()
+            handle(ProcessOutResult.Failure(failureCode))
+        }
     }
 
     private fun initState() = with(configuration) {
@@ -143,60 +148,88 @@ internal class CardTokenizationViewModel(
         )
     }
 
-    private fun cardNumberField() = Item.TextField(
-        POMutableFieldState(
-            id = CardFieldId.NUMBER,
-            placeholder = app.getString(R.string.po_card_tokenization_card_details_number_placeholder),
-            forceTextDirectionLtr = true,
-            inputFilter = CardNumberInputFilter(),
-            visualTransformation = CardNumberVisualTransformation(),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Next
+    private fun cardNumberField(): Item.TextField {
+        val number = configuration.restore?.formData?.cardInformation?.number ?: String()
+        return Item.TextField(
+            POMutableFieldState(
+                id = CardFieldId.NUMBER,
+                value = TextFieldValue(
+                    text = number,
+                    selection = TextRange(number.length)
+                ),
+                placeholder = app.getString(R.string.po_card_tokenization_card_details_number_placeholder),
+                forceTextDirectionLtr = true,
+                inputFilter = CardNumberInputFilter(),
+                visualTransformation = CardNumberVisualTransformation(),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next
+                )
             )
         )
-    )
+    }
 
-    private fun cardExpirationField() = Item.TextField(
-        POMutableFieldState(
-            id = CardFieldId.EXPIRATION,
-            placeholder = app.getString(R.string.po_card_tokenization_card_details_expiration_placeholder),
-            forceTextDirectionLtr = true,
-            inputFilter = CardExpirationInputFilter(),
-            visualTransformation = CardExpirationVisualTransformation(),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Next
+    private fun cardExpirationField(): Item.TextField {
+        val expiration = configuration.restore?.formData?.cardInformation?.expiration ?: String()
+        return Item.TextField(
+            POMutableFieldState(
+                id = CardFieldId.EXPIRATION,
+                value = TextFieldValue(
+                    text = expiration,
+                    selection = TextRange(expiration.length)
+                ),
+                placeholder = app.getString(R.string.po_card_tokenization_card_details_expiration_placeholder),
+                forceTextDirectionLtr = true,
+                inputFilter = CardExpirationInputFilter(),
+                visualTransformation = CardExpirationVisualTransformation(),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next
+                )
             )
         )
-    )
+    }
 
-    private fun cvcField() = Item.TextField(
-        POMutableFieldState(
-            id = CardFieldId.CVC,
-            placeholder = app.getString(R.string.po_card_tokenization_card_details_cvc_placeholder),
-            forceTextDirectionLtr = true,
-            iconResId = com.processout.sdk.ui.R.drawable.po_card_back,
-            inputFilter = CardSecurityCodeInputFilter(scheme = null),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.NumberPassword,
-                imeAction = ImeAction.Next
+    private fun cvcField(): Item.TextField {
+        val cvc = configuration.restore?.formData?.cardInformation?.cvc ?: String()
+        return Item.TextField(
+            POMutableFieldState(
+                id = CardFieldId.CVC,
+                value = TextFieldValue(
+                    text = cvc,
+                    selection = TextRange(cvc.length)
+                ),
+                placeholder = app.getString(R.string.po_card_tokenization_card_details_cvc_placeholder),
+                forceTextDirectionLtr = true,
+                iconResId = com.processout.sdk.ui.R.drawable.po_card_back,
+                inputFilter = CardSecurityCodeInputFilter(scheme = null),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.NumberPassword,
+                    imeAction = ImeAction.Next
+                )
             )
         )
-    )
+    }
 
-    private fun cardholderField() = Item.TextField(
-        POMutableFieldState(
-            id = CardFieldId.CARDHOLDER,
-            placeholder = app.getString(R.string.po_card_tokenization_card_details_cardholder_placeholder),
-            keyboardOptions = KeyboardOptions(
-                capitalization = KeyboardCapitalization.Words,
-                autoCorrect = false,
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Next
+    private fun cardholderField(): Item.TextField {
+        val cardholderName = configuration.restore?.formData?.cardInformation?.cardholderName ?: String()
+        return Item.TextField(
+            POMutableFieldState(
+                id = CardFieldId.CARDHOLDER,
+                value = TextFieldValue(
+                    text = cardholderName,
+                    selection = TextRange(cardholderName.length)
+                ),
+                placeholder = app.getString(R.string.po_card_tokenization_card_details_cardholder_placeholder),
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Words,
+                    autoCorrect = false,
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next
+                )
             )
         )
-    )
+    }
 
     private fun setLastFieldImeAction() {
         lastField()?.apply {
