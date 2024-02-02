@@ -222,17 +222,22 @@ internal class CardUpdateViewModel(
     }
 
     private fun updateFieldValue(id: String, value: TextFieldValue) {
-        field(id)?.apply {
-            this.value = value
-            isError = false
-        }
-        _state.update { state ->
-            state.copy(
-                primaryAction = state.primaryAction.copy(
-                    enabled = true
-                ),
-                errorMessage = null
-            )
+        field(id)?.let {
+            val isTextChanged = it.value.text != value.text
+            it.value = value
+            if (isTextChanged) {
+                it.isError = false
+                _state.update { state ->
+                    with(state) {
+                        copy(
+                            primaryAction = primaryAction.copy(
+                                enabled = true
+                            ),
+                            errorMessage = null
+                        )
+                    }
+                }
+            }
         }
         POLogger.debug(
             message = "Field is edited by the user: %s", id,
