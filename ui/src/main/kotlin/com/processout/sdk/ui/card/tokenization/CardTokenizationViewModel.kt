@@ -22,6 +22,7 @@ import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationSection.Item
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.RestoreConfiguration
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationFormData.CardInformation
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POMutableFieldState
@@ -103,10 +104,7 @@ internal class CardTokenizationViewModel(
 
     init {
         setLastFieldImeAction()
-        configuration.restore?.let {
-            val failureCode = it.failureCode ?: POFailure.Code.Generic()
-            handle(ProcessOutResult.Failure(failureCode))
-        }
+        configuration.restore?.let { restore(it) }
     }
 
     private fun initState() = with(configuration) {
@@ -235,6 +233,17 @@ internal class CardTokenizationViewModel(
         lastField()?.apply {
             keyboardOptions = keyboardOptions.copy(imeAction = ImeAction.Done)
             keyboardActionId = ActionId.SUBMIT
+        }
+    }
+
+    private fun restore(configuration: RestoreConfiguration) {
+        val failureCode = configuration.failureCode ?: POFailure.Code.Generic()
+        handle(ProcessOutResult.Failure(failureCode))
+        // Focus on first invalid field.
+        fieldValues().find { !it.isValid }?.let {
+            _state.update { state ->
+                state.copy(focusedFieldId = it.id)
+            }
         }
     }
 
