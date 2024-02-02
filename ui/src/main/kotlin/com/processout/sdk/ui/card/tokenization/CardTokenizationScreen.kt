@@ -1,7 +1,6 @@
 package com.processout.sdk.ui.card.tokenization
 
 import androidx.annotation.DrawableRes
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -19,7 +18,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationSection.Item
@@ -35,6 +33,7 @@ import com.processout.sdk.ui.core.state.POStableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.composable.AnimatedImage
+import com.processout.sdk.ui.shared.composable.ExpandableText
 import com.processout.sdk.ui.shared.composable.RequestFocus
 import com.processout.sdk.ui.shared.composable.rememberLifecycleEvent
 
@@ -119,9 +118,10 @@ private fun Sections(
                 modifier = Modifier.fillMaxWidth()
             )
         }
-        AnimatedText(
+        ExpandableText(
             text = section.errorMessage,
-            style = style.errorMessage
+            style = style.errorMessage,
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }
@@ -224,29 +224,6 @@ private fun AnimatedIcon(@DrawableRes id: Int) {
             .padding(POField.contentPadding),
         contentScale = ContentScale.FillHeight
     )
-}
-
-@Composable
-private fun AnimatedText(
-    text: String?,
-    style: POText.Style
-) {
-    var modifier = Modifier
-        .animateContentSize()
-        .fillMaxWidth()
-    modifier = if (text != null) {
-        modifier.wrapContentHeight()
-    } else {
-        modifier.requiredHeight(0.dp)
-    }
-    with(style) {
-        POText(
-            text = text ?: String(),
-            modifier = modifier,
-            color = color,
-            style = textStyle
-        )
-    }
 }
 
 @Composable
