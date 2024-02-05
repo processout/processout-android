@@ -13,6 +13,7 @@ internal data class CardTokenizationState(
     val title: String,
     val primaryAction: POActionState,
     val secondaryAction: POActionState?,
+    val submitting: Boolean = false,
     val issuerInformation: POCardIssuerInformation? = null,
     val focusedFieldId: String? = null,
     val draggable: Boolean

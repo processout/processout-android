@@ -239,12 +239,6 @@ internal class CardTokenizationViewModel(
     private fun restore(configuration: RestoreConfiguration) {
         val failureCode = configuration.failureCode ?: POFailure.Code.Generic()
         handle(ProcessOutResult.Failure(failureCode))
-        // Focus on first invalid field.
-        fieldValues().find { !it.isValid }?.let {
-            _state.update { state ->
-                state.copy(focusedFieldId = it.id)
-            }
-        }
     }
 
     fun onEvent(event: CardTokenizationEvent) {
@@ -260,17 +254,22 @@ internal class CardTokenizationViewModel(
     }
 
     private fun updateFieldValue(id: String, value: TextFieldValue) {
-        field(id)?.apply {
-            this.value = value
-            isError = false
-        }
-        val isError = !fieldValues().areAllValid()
-        updateActions(submitting = false, isError = isError)
-        if (!isError) {
-            updateErrorMessage(value = null)
-        }
-        if (id == CardFieldId.NUMBER) {
-            updateIssuerInformation(cardNumber = value.text)
+        field(id)?.let {
+            val isTextChanged = it.value.text != value.text
+            it.value = value
+            if (isTextChanged) {
+                it.isError = false
+                if (areAllFieldsValid()) {
+                    updateState(
+                        submitAllowed = true,
+                        submitting = _state.value.submitting,
+                        errorMessage = null
+                    )
+                }
+                if (id == CardFieldId.NUMBER) {
+                    updateIssuerInformation(cardNumber = value.text)
+                }
+            }
         }
     }
 
@@ -324,28 +323,45 @@ internal class CardTokenizationViewModel(
     }
 
     private fun submit() {
-        val fieldValues = fieldValues()
-        if (!fieldValues.areAllValid()) {
+        if (!areAllFieldsValid()) {
             POLogger.debug("Ignored attempt to tokenize with invalid values.")
             return
         }
-        updateActions(submitting = true)
-        tokenize(fieldValues.toFormData())
+        updateState(
+            submitAllowed = true,
+            submitting = true,
+            errorMessage = null
+        )
+        tokenize(fieldValues().toFormData())
     }
 
-    private fun updateActions(submitting: Boolean, isError: Boolean = false) {
+    private fun areAllFieldsValid() = fieldValues().all { it.isValid }
+
+    private fun updateState(
+        submitAllowed: Boolean,
+        submitting: Boolean,
+        errorMessage: String?
+    ) {
         _state.update {
             with(it) {
                 copy(
                     primaryAction = primaryAction.copy(
-                        enabled = !isError,
+                        enabled = submitAllowed,
                         loading = submitting
                     ),
                     secondaryAction = secondaryAction?.copy(
                         enabled = !submitting
-                    )
+                    ),
+                    submitting = submitting
                 )
             }
+        }
+        updateErrorMessage(errorMessage)
+    }
+
+    private fun updateErrorMessage(value: String?) {
+        _sections.find { it.id == SectionId.CARD_INFORMATION }?.apply {
+            errorMessage = value
         }
     }
 
@@ -366,10 +382,8 @@ internal class CardTokenizationViewModel(
     }
 
     private fun handle(failure: ProcessOutResult.Failure) {
-        updateActions(submitting = false, isError = true)
         val invalidFieldIds = mutableSetOf<String>()
-        val errorMessage: String
-        when (val code = failure.code) {
+        val errorMessage = when (val code = failure.code) {
             is POFailure.Code.Generic -> when (code.genericCode) {
                 requestInvalidCard,
                 cardInvalid -> {
@@ -381,49 +395,53 @@ internal class CardTokenizationViewModel(
                             CardFieldId.CARDHOLDER
                         )
                     )
-                    errorMessage = app.getString(R.string.po_card_tokenization_error_card)
+                    app.getString(R.string.po_card_tokenization_error_card)
                 }
                 cardInvalidNumber,
                 cardMissingNumber -> {
                     invalidFieldIds.add(CardFieldId.NUMBER)
-                    errorMessage = app.getString(R.string.po_card_tokenization_error_card_number)
+                    app.getString(R.string.po_card_tokenization_error_card_number)
                 }
                 cardMissingExpiry,
                 cardInvalidExpiryDate,
                 cardInvalidExpiryMonth,
                 cardInvalidExpiryYear -> {
                     invalidFieldIds.add(CardFieldId.EXPIRATION)
-                    errorMessage = app.getString(R.string.po_card_tokenization_error_card_expiration)
+                    app.getString(R.string.po_card_tokenization_error_card_expiration)
                 }
                 cardBadTrackData -> {
                     invalidFieldIds.addAll(listOf(CardFieldId.EXPIRATION, CardFieldId.CVC))
-                    errorMessage = app.getString(R.string.po_card_tokenization_error_track_data)
+                    app.getString(R.string.po_card_tokenization_error_track_data)
                 }
                 cardMissingCvc,
                 cardInvalidCvc,
                 cardFailedCvc,
                 cardFailedCvcAndAvs -> {
                     invalidFieldIds.add(CardFieldId.CVC)
-                    errorMessage = app.getString(R.string.po_card_tokenization_error_cvc)
+                    app.getString(R.string.po_card_tokenization_error_cvc)
                 }
                 cardInvalidName -> {
                     invalidFieldIds.add(CardFieldId.CARDHOLDER)
-                    errorMessage = app.getString(R.string.po_card_tokenization_error_cardholder)
+                    app.getString(R.string.po_card_tokenization_error_cardholder)
                 }
-                else -> errorMessage = app.getString(R.string.po_card_tokenization_error_generic)
+                else -> app.getString(R.string.po_card_tokenization_error_generic)
             }
-            else -> errorMessage = app.getString(R.string.po_card_tokenization_error_generic)
+            else -> app.getString(R.string.po_card_tokenization_error_generic)
         }
         invalidFieldIds.forEach { id ->
-            field(id)?.let { it.isError = true }
+            field(id)?.apply {
+                isError = true
+                value = value.copy(selection = TextRange(value.text.length))
+            }
         }
-        updateErrorMessage(errorMessage)
-    }
-
-    private fun updateErrorMessage(value: String?) {
-        _sections.find { it.id == SectionId.CARD_INFORMATION }?.apply {
-            errorMessage = value
+        fieldValues().find { !it.isValid }?.let { firstInvalidField ->
+            _state.update { it.copy(focusedFieldId = firstInvalidField.id) }
         }
+        updateState(
+            submitAllowed = areAllFieldsValid(),
+            submitting = false,
+            errorMessage = errorMessage
+        )
     }
 
     private fun cancel() {
@@ -506,8 +524,6 @@ internal class CardTokenizationViewModel(
             }
         }
     }
-
-    private fun List<FieldValue>.areAllValid() = all { it.isValid }
 
     private fun List<FieldValue>.toFormData(): POCardTokenizationFormData {
         var number = String()
