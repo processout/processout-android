@@ -11,6 +11,7 @@ internal data class CardUpdateState(
     val title: String,
     val primaryAction: POActionState,
     val secondaryAction: POActionState?,
+    val submitting: Boolean = false,
     val focusedFieldId: String? = null,
     val errorMessage: String? = null,
     val draggable: Boolean
