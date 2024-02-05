@@ -556,7 +556,8 @@ internal class CardTokenizationViewModel(
                 expMonth = expiration.month,
                 expYear = expiration.year,
                 cvc = cvc,
-                name = cardholderName
+                name = cardholderName,
+                metadata = configuration.metadata
             )
         }
     }
