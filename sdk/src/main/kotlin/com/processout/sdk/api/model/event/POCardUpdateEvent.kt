@@ -3,27 +3,27 @@ package com.processout.sdk.api.model.event
 /**
  * Defines card update lifecycle events.
  */
-sealed interface POCardUpdateEvent {
+sealed class POCardUpdateEvent {
 
     /**
      * Event indicates that initial data has been loaded successfully.
      * Currently waiting for user input.
      */
-    data object DidStart : POCardUpdateEvent
+    data object DidStart : POCardUpdateEvent()
 
     /**
      * Event is sent when user changes any editable value.
      */
-    data object ParametersChanged : POCardUpdateEvent
+    data object ParametersChanged : POCardUpdateEvent()
 
     /**
      * Event is sent just before submitting user input.
      * This is usually a result of a user action, e.g. button press.
      */
-    data object WillUpdateCard : POCardUpdateEvent
+    data object WillUpdateCard : POCardUpdateEvent()
 
     /**
      * Event is sent after card is updated. This is a final event.
      */
-    data object DidComplete : POCardUpdateEvent
+    data object DidComplete : POCardUpdateEvent()
 }
