@@ -13,7 +13,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
+import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
+import com.processout.sdk.api.model.event.POCardTokenizationEvent
+import com.processout.sdk.api.model.event.POCardTokenizationEvent.DidStart
 import com.processout.sdk.api.model.request.POCardTokenizationRequest
+import com.processout.sdk.api.model.request.POCardTokenizationShouldContinueRequest
 import com.processout.sdk.api.model.response.POCardIssuerInformation
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.*
@@ -43,7 +47,8 @@ internal class CardTokenizationViewModel(
     private val app: Application,
     private val configuration: POCardTokenizationConfiguration,
     private val cardsRepository: POCardsRepository,
-    private val cardSchemeProvider: CardSchemeProvider
+    private val cardSchemeProvider: CardSchemeProvider,
+    private val eventDispatcher: PODefaultCardTokenizationEventDispatcher
 ) : ViewModel() {
 
     class Factory(
@@ -56,7 +61,8 @@ internal class CardTokenizationViewModel(
                 app = app,
                 configuration = configuration,
                 cardsRepository = ProcessOut.instance.cards,
-                cardSchemeProvider = CardSchemeProvider()
+                cardSchemeProvider = CardSchemeProvider(),
+                eventDispatcher = PODefaultCardTokenizationEventDispatcher
             ) as T
     }
 
@@ -102,8 +108,13 @@ internal class CardTokenizationViewModel(
     private val _sections = mutableStateListOf(cardInformationSection())
     val sections = POStableList(_sections)
 
+    private val shouldContinueRequests = mutableSetOf<POCardTokenizationShouldContinueRequest>()
+
     init {
+        shouldContinueOnFailure()
         setLastFieldImeAction()
+        POLogger.info("Card tokenization is started: waiting for user input.")
+        dispatch(DidStart)
         configuration.restore?.let { restore(it) }
     }
 
@@ -377,7 +388,37 @@ internal class CardTokenizationViewModel(
                             )
                         )
                     }
-                }.onFailure { handle(it) }
+                }.onFailure { failure ->
+                    if (eventDispatcher.subscribedForShouldContinueRequest()) {
+                        requestIfShouldContinue(failure)
+                    } else {
+                        handle(failure)
+                    }
+                }
+        }
+    }
+
+    private fun requestIfShouldContinue(failure: ProcessOutResult.Failure) {
+        viewModelScope.launch {
+            val request = POCardTokenizationShouldContinueRequest(failure)
+            shouldContinueRequests.add(request)
+            eventDispatcher.send(request)
+            POLogger.info("Requested to decide whether the flow should continue or complete after the failure: %s", failure)
+        }
+    }
+
+    private fun shouldContinueOnFailure() {
+        viewModelScope.launch {
+            eventDispatcher.shouldContinueResponse.collect { response ->
+                if (shouldContinueRequests.removeAll { it.uuid == response.uuid }) {
+                    if (response.shouldContinue) {
+                        handle(response.failure)
+                    } else {
+                        POLogger.info("Completed after the failure: %s", response.failure)
+                        _completion.update { Failure(response.failure) }
+                    }
+                }
+            }
         }
     }
 
@@ -452,6 +493,12 @@ internal class CardTokenizationViewModel(
                     message = "Cancelled by the user with secondary cancel action."
                 ).also { POLogger.info("Cancelled: %s", it) }
             )
+        }
+    }
+
+    private fun dispatch(event: POCardTokenizationEvent) {
+        viewModelScope.launch {
+            eventDispatcher.send(event)
         }
     }
 
