@@ -6,7 +6,7 @@ package com.processout.sdk.api.model.event
 sealed class POCardUpdateEvent {
 
     /**
-     * Event indicates that initial data has been loaded successfully.
+     * Event indicates that initialization is complete.
      * Currently waiting for user input.
      */
     data object DidStart : POCardUpdateEvent()
@@ -23,7 +23,7 @@ sealed class POCardUpdateEvent {
     data object WillUpdateCard : POCardUpdateEvent()
 
     /**
-     * Event is sent after card is updated. This is a final event.
+     * Event is sent when card is updated. This is a final event.
      */
     data object DidComplete : POCardUpdateEvent()
 }
