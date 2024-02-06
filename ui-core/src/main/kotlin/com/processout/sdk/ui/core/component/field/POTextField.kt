@@ -5,8 +5,8 @@ package com.processout.sdk.ui.core.component.field
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -52,7 +52,7 @@ fun POTextField(
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
-            modifier = modifier.height(ProcessOutTheme.dimensions.formComponentHeight),
+            modifier = modifier.requiredHeight(ProcessOutTheme.dimensions.formComponentHeight),
             enabled = enabled,
             textStyle = POField.textStyle(
                 isError = isError,

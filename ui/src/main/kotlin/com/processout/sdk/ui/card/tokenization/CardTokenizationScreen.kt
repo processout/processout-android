@@ -33,6 +33,7 @@ import com.processout.sdk.ui.core.state.POStableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.composable.AnimatedImage
+import com.processout.sdk.ui.shared.composable.ExpandableText
 import com.processout.sdk.ui.shared.composable.RequestFocus
 import com.processout.sdk.ui.shared.composable.rememberLifecycleEvent
 
@@ -78,21 +79,50 @@ internal fun CardTokenizationScreen(
                 ),
             verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
         ) {
-            val lifecycleEvent = rememberLifecycleEvent()
-            sections.elements.forEach { section ->
-                section.items.elements.forEach { item ->
-                    Item(
-                        item = item,
-                        onEvent = onEvent,
-                        lifecycleEvent = lifecycleEvent,
-                        focusedFieldId = state.focusedFieldId,
-                        isPrimaryActionEnabled = state.primaryAction.enabled,
-                        modifier = Modifier.fillMaxWidth(),
-                        style = style.field
-                    )
-                }
+            Sections(
+                state = state,
+                sections = sections,
+                onEvent = onEvent,
+                style = style
+            )
+        }
+    }
+}
+
+@Composable
+private fun Sections(
+    state: CardTokenizationState,
+    sections: POStableList<CardTokenizationSection>,
+    onEvent: (CardTokenizationEvent) -> Unit,
+    style: CardTokenizationScreen.Style
+) {
+    val lifecycleEvent = rememberLifecycleEvent()
+    sections.elements.forEach { section ->
+        section.title?.let {
+            with(style.sectionTitle) {
+                POText(
+                    text = it,
+                    color = color,
+                    style = textStyle
+                )
             }
         }
+        section.items.elements.forEach { item ->
+            Item(
+                item = item,
+                onEvent = onEvent,
+                lifecycleEvent = lifecycleEvent,
+                focusedFieldId = state.focusedFieldId,
+                isPrimaryActionEnabled = state.primaryAction.enabled && !state.primaryAction.loading,
+                style = style.field,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        ExpandableText(
+            text = section.errorMessage,
+            style = style.errorMessage,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 
@@ -103,8 +133,8 @@ private fun Item(
     lifecycleEvent: Lifecycle.Event,
     focusedFieldId: String?,
     isPrimaryActionEnabled: Boolean,
-    modifier: Modifier = Modifier,
-    style: POField.Style = POField.default
+    style: POField.Style,
+    modifier: Modifier = Modifier
 ) {
     when (item) {
         is Item.TextField -> TextField(
@@ -113,8 +143,8 @@ private fun Item(
             lifecycleEvent = lifecycleEvent,
             focusedFieldId = focusedFieldId,
             isPrimaryActionEnabled = isPrimaryActionEnabled,
-            modifier = modifier,
-            style = style
+            style = style,
+            modifier = modifier
         )
         is Item.Group -> Row(
             horizontalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
@@ -126,8 +156,8 @@ private fun Item(
                     lifecycleEvent = lifecycleEvent,
                     focusedFieldId = focusedFieldId,
                     isPrimaryActionEnabled = isPrimaryActionEnabled,
-                    modifier = Modifier.weight(1f),
-                    style = style
+                    style = style,
+                    modifier = Modifier.weight(1f)
                 )
             }
         }
@@ -141,8 +171,8 @@ private fun TextField(
     lifecycleEvent: Lifecycle.Event,
     focusedFieldId: String?,
     isPrimaryActionEnabled: Boolean,
-    modifier: Modifier = Modifier,
-    style: POField.Style = POField.default
+    style: POField.Style,
+    modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
     POTextField(
@@ -190,7 +220,7 @@ private fun AnimatedIcon(@DrawableRes id: Int) {
     AnimatedImage(
         id = id,
         modifier = Modifier
-            .height(ProcessOutTheme.dimensions.formComponentHeight)
+            .requiredHeight(ProcessOutTheme.dimensions.formComponentHeight)
             .padding(POField.contentPadding),
         contentScale = ContentScale.FillHeight
     )
@@ -201,7 +231,7 @@ private fun Actions(
     primary: POActionState,
     secondary: POActionState?,
     onEvent: (CardTokenizationEvent) -> Unit,
-    style: POActionsContainer.Style = POActionsContainer.default
+    style: POActionsContainer.Style
 ) {
     val actions = mutableListOf(primary)
     secondary?.let { actions.add(it) }
@@ -219,6 +249,7 @@ internal object CardTokenizationScreen {
     @Immutable
     data class Style(
         val title: POText.Style,
+        val sectionTitle: POText.Style,
         val field: POField.Style,
         val errorMessage: POText.Style,
         val actionsContainer: POActionsContainer.Style,
@@ -232,6 +263,9 @@ internal object CardTokenizationScreen {
         title = custom?.title?.let {
             POText.custom(style = it)
         } ?: POText.title,
+        sectionTitle = custom?.sectionTitle?.let {
+            POText.custom(style = it)
+        } ?: POText.labelHeading,
         field = custom?.field?.let {
             POField.custom(style = it)
         } ?: POField.default,

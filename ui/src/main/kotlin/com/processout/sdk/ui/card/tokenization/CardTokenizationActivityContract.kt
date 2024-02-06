@@ -9,7 +9,7 @@ import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.BuildConfig
 
 internal class CardTokenizationActivityContract : ActivityResultContract
-<POCardTokenizationConfiguration, ProcessOutActivityResult<POCardTokenizationResponse>>() {
+<POCardTokenizationConfiguration, ProcessOutActivityResult<POCardTokenizationData>>() {
 
     companion object {
         const val EXTRA_CONFIGURATION = "${BuildConfig.LIBRARY_PACKAGE_NAME}.EXTRA_CONFIGURATION"
@@ -26,7 +26,7 @@ internal class CardTokenizationActivityContract : ActivityResultContract
     override fun parseResult(
         resultCode: Int,
         intent: Intent?
-    ): ProcessOutActivityResult<POCardTokenizationResponse> {
+    ): ProcessOutActivityResult<POCardTokenizationData> {
         intent?.setExtrasClassLoader(ProcessOutActivityResult::class.java.classLoader)
         return intent?.getParcelableExtra(EXTRA_RESULT)
             ?: ProcessOutActivityResult.Failure(

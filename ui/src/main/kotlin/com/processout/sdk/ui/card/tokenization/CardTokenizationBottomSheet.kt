@@ -25,7 +25,7 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.composable.screenModeAsState
 import com.processout.sdk.ui.shared.extension.dpToPx
 
-internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCardTokenizationResponse>() {
+internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCardTokenizationData>() {
 
     companion object {
         val tag: String = CardTokenizationBottomSheet::class.java.simpleName
@@ -84,7 +84,7 @@ internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCar
         when (completion) {
             is Success -> finishWithActivityResult(
                 resultCode = Activity.RESULT_OK,
-                result = ProcessOutActivityResult.Success(completion.response)
+                result = ProcessOutActivityResult.Success(completion.data)
             )
             is Failure -> finishWithActivityResult(
                 resultCode = Activity.RESULT_CANCELED,
@@ -105,7 +105,7 @@ internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCar
 
     private fun finishWithActivityResult(
         resultCode: Int,
-        result: ProcessOutActivityResult<POCardTokenizationResponse>
+        result: ProcessOutActivityResult<POCardTokenizationData>
     ) {
         setActivityResult(
             resultCode = resultCode,

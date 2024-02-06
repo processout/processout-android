@@ -3,7 +3,7 @@ package com.processout.sdk.ui.core.component
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,7 +20,7 @@ fun PODragHandle(
     Box(
         modifier = modifier
             .padding(top = spacing.medium)
-            .size(
+            .requiredSize(
                 width = dimensions.dragHandleWidth,
                 height = dimensions.dragHandleHeight
             )

@@ -3,6 +3,7 @@ package com.processout.sdk.ui.card.update
 import android.app.Application
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -222,17 +223,19 @@ internal class CardUpdateViewModel(
     }
 
     private fun updateFieldValue(id: String, value: TextFieldValue) {
-        field(id)?.apply {
-            this.value = value
-            isError = false
-        }
-        _state.update { state ->
-            state.copy(
-                primaryAction = state.primaryAction.copy(
-                    enabled = true
-                ),
-                errorMessage = null
-            )
+        field(id)?.let {
+            val isTextChanged = it.value.text != value.text
+            it.value = value
+            if (isTextChanged) {
+                it.isError = false
+                if (isCvcValid()) {
+                    updateState(
+                        submitAllowed = true,
+                        submitting = _state.value.submitting,
+                        errorMessage = null
+                    )
+                }
+            }
         }
         POLogger.debug(
             message = "Field is edited by the user: %s", id,
@@ -248,32 +251,42 @@ internal class CardUpdateViewModel(
     }
 
     private fun submit() {
-        _state.update {
-            resolve(state = it, submitting = true)
+        if (!isCvcValid()) {
+            POLogger.debug("Ignored attempt to update card with invalid CVC.")
+            return
         }
+        updateState(
+            submitAllowed = true,
+            submitting = true,
+            errorMessage = null
+        )
         field(CardFieldId.CVC)?.let {
             updateCard(cvc = it.value.text)
         }
     }
 
-    private fun resolve(
-        state: CardUpdateState,
+    private fun isCvcValid() = field(CardFieldId.CVC)?.let { !it.isError } ?: false
+
+    private fun updateState(
+        submitAllowed: Boolean,
         submitting: Boolean,
-        errorMessage: String? = null
-    ): CardUpdateState {
-        field(CardFieldId.CVC)?.apply {
-            isError = errorMessage != null
+        errorMessage: String?
+    ) {
+        _state.update {
+            with(it) {
+                copy(
+                    primaryAction = primaryAction.copy(
+                        enabled = submitAllowed,
+                        loading = submitting
+                    ),
+                    secondaryAction = secondaryAction?.copy(
+                        enabled = !submitting
+                    ),
+                    submitting = submitting,
+                    errorMessage = errorMessage
+                )
+            }
         }
-        return state.copy(
-            primaryAction = state.primaryAction.copy(
-                enabled = errorMessage == null,
-                loading = submitting
-            ),
-            secondaryAction = state.secondaryAction?.copy(
-                enabled = !submitting
-            ),
-            errorMessage = errorMessage
-        )
     }
 
     private fun updateCard(cvc: String) {
@@ -333,8 +346,7 @@ internal class CardUpdateViewModel(
     }
 
     private fun handle(failure: ProcessOutResult.Failure) {
-        val genericErrorMessage = app.getString(R.string.po_card_update_error_generic)
-        when (val code = failure.code) {
+        val errorMessage = when (val code = failure.code) {
             is Generic -> when (code.genericCode) {
                 requestInvalidCard,
                 cardInvalid,
@@ -342,25 +354,26 @@ internal class CardUpdateViewModel(
                 cardMissingCvc,
                 cardInvalidCvc,
                 cardFailedCvc,
-                cardFailedCvcAndAvs -> recover(app.getString(R.string.po_card_update_error_cvc))
-                else -> recover(genericErrorMessage)
+                cardFailedCvcAndAvs -> {
+                    field(CardFieldId.CVC)?.apply {
+                        isError = true
+                        value = value.copy(selection = TextRange(value.text.length))
+                    }
+                    app.getString(R.string.po_card_update_error_cvc)
+                }
+                else -> app.getString(R.string.po_card_update_error_generic)
             }
-            else -> recover(genericErrorMessage)
+            else -> app.getString(R.string.po_card_update_error_generic)
         }
+        updateState(
+            submitAllowed = isCvcValid(),
+            submitting = false,
+            errorMessage = errorMessage
+        )
         POLogger.info(
             message = "Recovered after the failure: %s", failure,
             attributes = logAttributes
         )
-    }
-
-    private fun recover(errorMessage: String) {
-        _state.update {
-            resolve(
-                state = it,
-                submitting = false,
-                errorMessage = errorMessage
-            )
-        }
     }
 
     private fun cancel() {

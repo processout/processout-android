@@ -1,7 +1,6 @@
 package com.processout.sdk.ui.card.tokenization
 
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.*
 import androidx.compose.ui.text.input.TextFieldValue
 import com.processout.sdk.api.model.response.POCardIssuerInformation
 import com.processout.sdk.core.ProcessOutResult
@@ -14,6 +13,7 @@ internal data class CardTokenizationState(
     val title: String,
     val primaryAction: POActionState,
     val secondaryAction: POActionState?,
+    val submitting: Boolean = false,
     val issuerInformation: POCardIssuerInformation? = null,
     val focusedFieldId: String? = null,
     val draggable: Boolean
@@ -21,8 +21,12 @@ internal data class CardTokenizationState(
 
 @Stable
 internal data class CardTokenizationSection(
+    val id: String,
+    val title: String? = null,
     val items: POStableList<Item>
 ) {
+    var errorMessage: String? by mutableStateOf(null)
+
     @Stable
     sealed interface Item {
         data class TextField(val state: POMutableFieldState) : Item
@@ -39,6 +43,6 @@ internal sealed interface CardTokenizationEvent {
 
 internal sealed interface CardTokenizationCompletion {
     data object Awaiting : CardTokenizationCompletion
-    data class Success(val response: POCardTokenizationResponse) : CardTokenizationCompletion
+    data class Success(val data: POCardTokenizationData) : CardTokenizationCompletion
     data class Failure(val failure: ProcessOutResult.Failure) : CardTokenizationCompletion
 }
