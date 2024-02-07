@@ -625,6 +625,7 @@ internal class CardTokenizationViewModel(
                 expYear = expiration.year,
                 cvc = cvc,
                 name = cardholderName,
+                preferredScheme = _state.value.preferredScheme,
                 metadata = configuration.metadata
             )
         }
