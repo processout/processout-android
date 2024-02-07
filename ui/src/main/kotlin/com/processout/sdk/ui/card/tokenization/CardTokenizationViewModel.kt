@@ -327,7 +327,7 @@ internal class CardTokenizationViewModel(
             }.getOrNull()
 
     private fun updateFields(issuerInformation: POCardIssuerInformation?) {
-        val scheme = issuerInformation?.coScheme ?: issuerInformation?.scheme
+        val scheme = issuerInformation?.scheme
         field(CardFieldId.NUMBER)?.apply {
             iconResId = scheme?.let { cardSchemeDrawableResId(it) }
         }
