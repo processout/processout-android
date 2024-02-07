@@ -16,6 +16,7 @@ import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
 import com.processout.sdk.api.model.event.POCardTokenizationEvent.DidStart
+import com.processout.sdk.api.model.request.POCardTokenizationPreferredSchemeRequest
 import com.processout.sdk.api.model.request.POCardTokenizationRequest
 import com.processout.sdk.api.model.request.POCardTokenizationShouldContinueRequest
 import com.processout.sdk.api.model.response.POCardIssuerInformation
@@ -108,11 +109,13 @@ internal class CardTokenizationViewModel(
     private val _sections = mutableStateListOf(cardInformationSection())
     val sections = POStableList(_sections)
 
+    private val preferredSchemeRequests = mutableSetOf<POCardTokenizationPreferredSchemeRequest>()
     private val shouldContinueRequests = mutableSetOf<POCardTokenizationShouldContinueRequest>()
 
     init {
-        shouldContinueOnFailure()
         setLastFieldImeAction()
+        collectPreferredScheme()
+        shouldContinueOnFailure()
         POLogger.info("Card tokenization is started: waiting for user input.")
         dispatch(DidStart)
         configuration.restore?.let { restore(it) }
@@ -330,6 +333,24 @@ internal class CardTokenizationViewModel(
             val inputFilter = CardSecurityCodeInputFilter(scheme = scheme)
             value = inputFilter.filter(value)
             this.inputFilter = inputFilter
+        }
+    }
+
+    private fun requestPreferredScheme(issuerInformation: POCardIssuerInformation) {
+        viewModelScope.launch {
+            val request = POCardTokenizationPreferredSchemeRequest(issuerInformation)
+            preferredSchemeRequests.add(request)
+            eventDispatcher.send(request)
+        }
+    }
+
+    private fun collectPreferredScheme() {
+        viewModelScope.launch {
+            eventDispatcher.preferredSchemeResponse.collect { response ->
+                if (preferredSchemeRequests.removeAll { it.uuid == response.uuid }) {
+                    // TODO
+                }
+            }
         }
     }
 
