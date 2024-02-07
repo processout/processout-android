@@ -134,6 +134,8 @@ internal class CardTokenizationViewModel(
                 text = secondaryActionText ?: app.getString(R.string.po_card_tokenization_button_cancel),
                 primary = false
             ) else null,
+            issuerInformation = restore?.formData?.cardInformation?.issuerInformation,
+            preferredScheme = restore?.formData?.cardInformation?.preferredScheme,
             focusedFieldId = CardFieldId.NUMBER,
             draggable = cancellation.dragDown
         )
@@ -364,7 +366,7 @@ internal class CardTokenizationViewModel(
             submitting = true,
             errorMessage = null
         )
-        tokenize(fieldValues().toFormData())
+        tokenize(fieldValues().toFormData(_state.value))
     }
 
     private fun areAllFieldsValid() = fieldValues().all { it.isValid }
@@ -593,7 +595,9 @@ internal class CardTokenizationViewModel(
         }
     }
 
-    private fun List<FieldValue>.toFormData(): POCardTokenizationFormData {
+    private fun List<FieldValue>.toFormData(
+        state: CardTokenizationState
+    ): POCardTokenizationFormData {
         var number = String()
         var expiration = String()
         var cvc = String()
@@ -611,7 +615,9 @@ internal class CardTokenizationViewModel(
                 number = number,
                 expiration = expiration,
                 cvc = cvc,
-                cardholderName = cardholderName
+                cardholderName = cardholderName,
+                issuerInformation = state.issuerInformation,
+                preferredScheme = state.preferredScheme
             )
         )
     }
@@ -625,7 +631,7 @@ internal class CardTokenizationViewModel(
                 expYear = expiration.year,
                 cvc = cvc,
                 name = cardholderName,
-                preferredScheme = _state.value.preferredScheme,
+                preferredScheme = preferredScheme,
                 metadata = configuration.metadata
             )
         }
