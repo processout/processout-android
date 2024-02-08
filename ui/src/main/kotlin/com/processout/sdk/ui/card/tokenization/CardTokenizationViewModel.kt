@@ -111,8 +111,8 @@ internal class CardTokenizationViewModel(
     private val _sections = mutableStateListOf(cardInformationSection())
     val sections = POStableList(_sections)
 
-    private val preferredSchemeRequests = mutableSetOf<POCardTokenizationPreferredSchemeRequest>()
-    private val shouldContinueRequests = mutableSetOf<POCardTokenizationShouldContinueRequest>()
+    private var latestPreferredSchemeRequest: POCardTokenizationPreferredSchemeRequest? = null
+    private var latestShouldContinueRequest: POCardTokenizationShouldContinueRequest? = null
 
     private var issuerInformationJob: Job? = null
 
@@ -356,15 +356,15 @@ internal class CardTokenizationViewModel(
 
     private suspend fun requestPreferredScheme(issuerInformation: POCardIssuerInformation) {
         val request = POCardTokenizationPreferredSchemeRequest(issuerInformation)
-        preferredSchemeRequests.clear()
-        preferredSchemeRequests.add(request)
+        latestPreferredSchemeRequest = request
         eventDispatcher.send(request)
     }
 
     private fun collectPreferredScheme() {
         viewModelScope.launch {
             eventDispatcher.preferredSchemeResponse.collect { response ->
-                if (preferredSchemeRequests.removeAll { it.uuid == response.uuid }) {
+                if (response.uuid == latestPreferredSchemeRequest?.uuid) {
+                    latestPreferredSchemeRequest = null
                     updateState(
                         issuerInformation = response.issuerInformation,
                         preferredScheme = response.preferredScheme
@@ -463,7 +463,7 @@ internal class CardTokenizationViewModel(
     private fun requestIfShouldContinue(failure: ProcessOutResult.Failure) {
         viewModelScope.launch {
             val request = POCardTokenizationShouldContinueRequest(failure)
-            shouldContinueRequests.add(request)
+            latestShouldContinueRequest = request
             eventDispatcher.send(request)
             POLogger.info("Requested to decide whether the flow should continue or complete after the failure: %s", failure)
         }
@@ -472,7 +472,8 @@ internal class CardTokenizationViewModel(
     private fun shouldContinueOnFailure() {
         viewModelScope.launch {
             eventDispatcher.shouldContinueResponse.collect { response ->
-                if (shouldContinueRequests.removeAll { it.uuid == response.uuid }) {
+                if (response.uuid == latestShouldContinueRequest?.uuid) {
+                    latestShouldContinueRequest = null
                     if (response.shouldContinue) {
                         handle(response.failure)
                     } else {
