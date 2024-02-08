@@ -68,8 +68,9 @@ internal class CardTokenizationViewModel(
     }
 
     private companion object {
-        const val LOG_ATTRIBUTE_IIN = "IIN"
+        const val IIN_LENGTH = 8
         const val EXPIRATION_DATE_PART_LENGTH = 2
+        const val LOG_ATTRIBUTE_IIN = "IIN"
     }
 
     private object SectionId {
@@ -296,15 +297,14 @@ internal class CardTokenizationViewModel(
     }
 
     private fun updateIssuerInformation(cardNumber: String) {
-        when (cardNumber.length) {
-            in 0..6 -> localIssuerInformation(cardNumber).let { issuerInformation ->
-                _state.update { it.copy(issuerInformation = issuerInformation) }
-                updateFields(issuerInformation)
-            }
+        localIssuerInformation(cardNumber).let { issuerInformation ->
+            _state.update { it.copy(issuerInformation = issuerInformation) }
+            updateFields(issuerInformation)
         }
-        when (cardNumber.length) {
+        val iin = cardNumber.take(IIN_LENGTH)
+        when (iin.length) {
             6, 8 -> viewModelScope.launch {
-                fetchIssuerInformation(cardNumber)?.let { issuerInformation ->
+                fetchIssuerInformation(iin)?.let { issuerInformation ->
                     _state.update { it.copy(issuerInformation = issuerInformation) }
                     updateFields(issuerInformation)
                 }

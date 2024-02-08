@@ -7,7 +7,7 @@ import kotlin.math.pow
 internal class CardSchemeProvider {
 
     private companion object {
-        const val MAX_IIN_LENGTH = 6
+        const val IIN_LENGTH = 6
     }
 
     private data class Issuer(
@@ -74,7 +74,7 @@ internal class CardSchemeProvider {
     )
 
     fun scheme(cardNumber: String): String? {
-        val normalized = cardNumber.filter { it.isDigit() }.take(MAX_IIN_LENGTH)
+        val normalized = cardNumber.filter { it.isDigit() }.take(IIN_LENGTH)
         if (normalized.startsWith("0")) {
             return null
         }
