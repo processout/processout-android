@@ -319,8 +319,7 @@ internal class CardTokenizationViewModel(
             preferredScheme = null
         )
         if (iin.length == IIN_LENGTH) {
-            issuerInformationJob?.cancel()
-            issuerInformationJob = launchIssuerInformationJob(iin)
+            updateIssuerInformation(iin)
         }
     }
 
@@ -331,8 +330,9 @@ internal class CardTokenizationViewModel(
             POCardIssuerInformation(scheme = scheme)
         }
 
-    private fun launchIssuerInformationJob(iin: String) =
-        viewModelScope.launch {
+    private fun updateIssuerInformation(iin: String) {
+        issuerInformationJob?.cancel()
+        issuerInformationJob = viewModelScope.launch {
             fetchIssuerInformation(iin)?.let { issuerInformation ->
                 if (eventDispatcher.subscribedForPreferredSchemeRequest()) {
                     requestPreferredScheme(issuerInformation)
@@ -344,6 +344,7 @@ internal class CardTokenizationViewModel(
                 }
             }
         }
+    }
 
     private suspend fun fetchIssuerInformation(iin: String) =
         cardsRepository.fetchIssuerInformation(iin)
