@@ -39,6 +39,7 @@ import com.processout.sdk.ui.shared.provider.CardSchemeProvider
 import com.processout.sdk.ui.shared.provider.cardSchemeDrawableResId
 import com.processout.sdk.ui.shared.transformation.CardExpirationVisualTransformation
 import com.processout.sdk.ui.shared.transformation.CardNumberVisualTransformation
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -112,6 +113,8 @@ internal class CardTokenizationViewModel(
 
     private val preferredSchemeRequests = mutableSetOf<POCardTokenizationPreferredSchemeRequest>()
     private val shouldContinueRequests = mutableSetOf<POCardTokenizationShouldContinueRequest>()
+
+    private var issuerInformationJob: Job? = null
 
     init {
         setLastFieldImeAction()
@@ -303,10 +306,13 @@ internal class CardTokenizationViewModel(
         }
         val iin = cardNumber.take(IIN_LENGTH)
         when (iin.length) {
-            6, 8 -> viewModelScope.launch {
-                fetchIssuerInformation(iin)?.let { issuerInformation ->
-                    _state.update { it.copy(issuerInformation = issuerInformation) }
-                    updateFields(issuerInformation)
+            6, 8 -> {
+                issuerInformationJob?.cancel()
+                issuerInformationJob = viewModelScope.launch {
+                    fetchIssuerInformation(iin)?.let { issuerInformation ->
+                        _state.update { it.copy(issuerInformation = issuerInformation) }
+                        updateFields(issuerInformation)
+                    }
                 }
             }
         }
