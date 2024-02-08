@@ -167,7 +167,9 @@ internal class CardTokenizationViewModel(
     }
 
     private fun cardNumberField(): Item.TextField {
-        val number = configuration.restore?.formData?.cardInformation?.number ?: String()
+        val cardInformation = configuration.restore?.formData?.cardInformation
+        val number = cardInformation?.number ?: String()
+        val scheme = cardInformation?.preferredScheme ?: cardInformation?.issuerInformation?.scheme
         return Item.TextField(
             POMutableFieldState(
                 id = CardFieldId.NUMBER,
@@ -177,6 +179,7 @@ internal class CardTokenizationViewModel(
                 ),
                 placeholder = app.getString(R.string.po_card_tokenization_card_details_number_placeholder),
                 forceTextDirectionLtr = true,
+                iconResId = scheme?.let { cardSchemeDrawableResId(it) },
                 inputFilter = CardNumberInputFilter(),
                 visualTransformation = CardNumberVisualTransformation(),
                 keyboardOptions = KeyboardOptions(
@@ -209,7 +212,8 @@ internal class CardTokenizationViewModel(
     }
 
     private fun cvcField(): Item.TextField {
-        val cvc = configuration.restore?.formData?.cardInformation?.cvc ?: String()
+        val cardInformation = configuration.restore?.formData?.cardInformation
+        val cvc = cardInformation?.cvc ?: String()
         return Item.TextField(
             POMutableFieldState(
                 id = CardFieldId.CVC,
@@ -220,7 +224,9 @@ internal class CardTokenizationViewModel(
                 placeholder = app.getString(R.string.po_card_tokenization_card_details_cvc_placeholder),
                 forceTextDirectionLtr = true,
                 iconResId = com.processout.sdk.ui.R.drawable.po_card_back,
-                inputFilter = CardSecurityCodeInputFilter(scheme = null),
+                inputFilter = CardSecurityCodeInputFilter(
+                    scheme = cardInformation?.issuerInformation?.scheme
+                ),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.NumberPassword,
                     imeAction = ImeAction.Next
