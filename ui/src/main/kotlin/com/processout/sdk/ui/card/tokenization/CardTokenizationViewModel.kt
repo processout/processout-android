@@ -69,7 +69,7 @@ internal class CardTokenizationViewModel(
     }
 
     private companion object {
-        const val IIN_LENGTH = 8
+        const val IIN_LENGTH = 6
         const val EXPIRATION_DATE_PART_LENGTH = 2
         const val LOG_ATTRIBUTE_IIN = "IIN"
     }
@@ -275,20 +275,24 @@ internal class CardTokenizationViewModel(
 
     private fun updateFieldValue(id: String, value: TextFieldValue) {
         field(id)?.let {
-            val isTextChanged = it.value.text != value.text
+            val oldText = it.value.text
             it.value = value
-            if (isTextChanged) {
-                it.isError = false
-                if (areAllFieldsValid()) {
-                    updateState(
-                        submitAllowed = true,
-                        submitting = _state.value.submitting,
-                        errorMessage = null
-                    )
-                }
-                if (id == CardFieldId.NUMBER) {
-                    updateIssuerInformation(cardNumber = value.text)
-                }
+            if (value.text == oldText) {
+                return
+            }
+            it.isError = false
+            if (areAllFieldsValid()) {
+                updateState(
+                    submitAllowed = true,
+                    submitting = _state.value.submitting,
+                    errorMessage = null
+                )
+            }
+            if (id == CardFieldId.NUMBER) {
+                updateIssuerInformation(
+                    cardNumber = value.text,
+                    oldCardNumber = oldText
+                )
             }
         }
     }
@@ -299,28 +303,40 @@ internal class CardTokenizationViewModel(
         }
     }
 
-    private fun updateIssuerInformation(cardNumber: String) {
-        localIssuerInformation(cardNumber).let { issuerInformation ->
-            _state.update { it.copy(issuerInformation = issuerInformation) }
-            updateFields(issuerInformation)
+    private fun updateIssuerInformation(cardNumber: String, oldCardNumber: String) {
+        val iin = iin(cardNumber)
+        if (iin == iin(oldCardNumber)) {
+            return
         }
-        val iin = cardNumber.take(IIN_LENGTH)
-        when (iin.length) {
-            6, 8 -> {
-                issuerInformationJob?.cancel()
-                issuerInformationJob = viewModelScope.launch {
-                    fetchIssuerInformation(iin)?.let { issuerInformation ->
-                        _state.update { it.copy(issuerInformation = issuerInformation) }
-                        updateFields(issuerInformation)
-                    }
-                }
-            }
+        updateState(
+            issuerInformation = localIssuerInformation(iin),
+            preferredScheme = null
+        )
+        if (iin.length == IIN_LENGTH) {
+            issuerInformationJob?.cancel()
+            issuerInformationJob = launchIssuerInformationJob(iin)
         }
     }
 
-    private fun localIssuerInformation(cardNumber: String) =
-        cardSchemeProvider.scheme(cardNumber)?.let { scheme ->
+    private fun iin(cardNumber: String) = cardNumber.take(IIN_LENGTH)
+
+    private fun localIssuerInformation(iin: String) =
+        cardSchemeProvider.scheme(iin)?.let { scheme ->
             POCardIssuerInformation(scheme = scheme)
+        }
+
+    private fun launchIssuerInformationJob(iin: String) =
+        viewModelScope.launch {
+            fetchIssuerInformation(iin)?.let { issuerInformation ->
+                if (eventDispatcher.subscribedForPreferredSchemeRequest()) {
+                    requestPreferredScheme(issuerInformation)
+                } else {
+                    updateState(
+                        issuerInformation = issuerInformation,
+                        preferredScheme = null
+                    )
+                }
+            }
         }
 
     private suspend fun fetchIssuerInformation(iin: String) =
@@ -332,33 +348,44 @@ internal class CardTokenizationViewModel(
                 )
             }.getOrNull()
 
-    private fun updateFields(issuerInformation: POCardIssuerInformation?) {
-        val scheme = issuerInformation?.scheme
-        field(CardFieldId.NUMBER)?.apply {
-            iconResId = scheme?.let { cardSchemeDrawableResId(it) }
-        }
-        field(CardFieldId.CVC)?.apply {
-            val inputFilter = CardSecurityCodeInputFilter(scheme = scheme)
-            value = inputFilter.filter(value)
-            this.inputFilter = inputFilter
-        }
-    }
-
-    private fun requestPreferredScheme(issuerInformation: POCardIssuerInformation) {
-        viewModelScope.launch {
-            val request = POCardTokenizationPreferredSchemeRequest(issuerInformation)
-            preferredSchemeRequests.add(request)
-            eventDispatcher.send(request)
-        }
+    private suspend fun requestPreferredScheme(issuerInformation: POCardIssuerInformation) {
+        val request = POCardTokenizationPreferredSchemeRequest(issuerInformation)
+        preferredSchemeRequests.clear()
+        preferredSchemeRequests.add(request)
+        eventDispatcher.send(request)
     }
 
     private fun collectPreferredScheme() {
         viewModelScope.launch {
             eventDispatcher.preferredSchemeResponse.collect { response ->
                 if (preferredSchemeRequests.removeAll { it.uuid == response.uuid }) {
-                    // TODO
+                    updateState(
+                        issuerInformation = response.issuerInformation,
+                        preferredScheme = response.preferredScheme
+                    )
                 }
             }
+        }
+    }
+
+    private fun updateState(
+        issuerInformation: POCardIssuerInformation?,
+        preferredScheme: String?
+    ) {
+        _state.update {
+            it.copy(
+                issuerInformation = issuerInformation,
+                preferredScheme = preferredScheme
+            )
+        }
+        val scheme = preferredScheme ?: issuerInformation?.scheme
+        field(CardFieldId.NUMBER)?.apply {
+            iconResId = scheme?.let { cardSchemeDrawableResId(it) }
+        }
+        field(CardFieldId.CVC)?.apply {
+            val inputFilter = CardSecurityCodeInputFilter(scheme = issuerInformation?.scheme)
+            value = inputFilter.filter(value)
+            this.inputFilter = inputFilter
         }
     }
 

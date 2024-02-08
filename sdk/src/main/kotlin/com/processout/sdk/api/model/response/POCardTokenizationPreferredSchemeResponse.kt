@@ -6,6 +6,7 @@ import java.util.UUID
 
 data class POCardTokenizationPreferredSchemeResponse internal constructor(
     val uuid: UUID,
+    val issuerInformation: POCardIssuerInformation,
     val preferredScheme: String?
 )
 
@@ -13,4 +14,4 @@ data class POCardTokenizationPreferredSchemeResponse internal constructor(
 @ProcessOutInternalApi
 fun POCardTokenizationPreferredSchemeRequest.toResponse(
     preferredScheme: String?
-) = POCardTokenizationPreferredSchemeResponse(uuid, preferredScheme)
+) = POCardTokenizationPreferredSchemeResponse(uuid, issuerInformation, preferredScheme)
