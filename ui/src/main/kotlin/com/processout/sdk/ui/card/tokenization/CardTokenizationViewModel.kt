@@ -132,6 +132,7 @@ internal class CardTokenizationViewModel(
     }
 
     private fun initState() = with(configuration) {
+        val cardInformation = restore?.formData?.cardInformation
         CardTokenizationState(
             title = title ?: app.getString(R.string.po_card_tokenization_title),
             primaryAction = POActionState(
@@ -144,8 +145,8 @@ internal class CardTokenizationViewModel(
                 text = secondaryActionText ?: app.getString(R.string.po_card_tokenization_button_cancel),
                 primary = false
             ) else null,
-            issuerInformation = restore?.formData?.cardInformation?.issuerInformation,
-            preferredScheme = restore?.formData?.cardInformation?.preferredScheme,
+            issuerInformation = cardInformation?.issuerInformation,
+            preferredScheme = cardInformation?.preferredScheme,
             focusedFieldId = CardFieldId.NUMBER,
             draggable = cancellation.dragDown
         )
