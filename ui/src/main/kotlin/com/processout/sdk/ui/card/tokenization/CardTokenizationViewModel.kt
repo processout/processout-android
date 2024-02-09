@@ -15,7 +15,7 @@ import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
-import com.processout.sdk.api.model.event.POCardTokenizationEvent.DidStart
+import com.processout.sdk.api.model.event.POCardTokenizationEvent.*
 import com.processout.sdk.api.model.request.POCardTokenizationPreferredSchemeRequest
 import com.processout.sdk.api.model.request.POCardTokenizationRequest
 import com.processout.sdk.api.model.request.POCardTokenizationShouldContinueRequest
@@ -122,8 +122,8 @@ internal class CardTokenizationViewModel(
         collectPreferredScheme()
         shouldContinueOnFailure()
         configuration.restore?.let {
+            POLogger.info("Restoring card tokenization.")
             restore(it)
-            POLogger.info("Card tokenization is restored: waiting for user input.")
             dispatch(DidStart(restored = true))
         }.orElse {
             POLogger.info("Card tokenization is started: waiting for user input.")
@@ -293,6 +293,8 @@ internal class CardTokenizationViewModel(
                 return
             }
             it.isError = false
+            POLogger.debug(message = "Field is edited by the user: %s", id)
+            dispatch(ParametersChanged)
             if (areAllFieldsValid()) {
                 updateState(
                     submitAllowed = true,
@@ -365,6 +367,7 @@ internal class CardTokenizationViewModel(
         val request = POCardTokenizationPreferredSchemeRequest(issuerInformation)
         latestPreferredSchemeRequest = request
         eventDispatcher.send(request)
+        POLogger.info("Requested to choose preferred scheme by issuer information: %s", issuerInformation)
     }
 
     private fun collectPreferredScheme() {
@@ -400,11 +403,12 @@ internal class CardTokenizationViewModel(
             value = inputFilter.filter(value)
             this.inputFilter = inputFilter
         }
+        POLogger.info("State updated: [issuerInformation=%s] [preferredScheme=%s]", issuerInformation, preferredScheme)
     }
 
     private fun submit() {
         if (!areAllFieldsValid()) {
-            POLogger.debug("Ignored attempt to tokenize with invalid values.")
+            POLogger.debug("Ignored attempt to tokenize the card with invalid values.")
             return
         }
         updateState(
@@ -446,9 +450,13 @@ internal class CardTokenizationViewModel(
     }
 
     private fun tokenize(formData: POCardTokenizationFormData) {
+        POLogger.info(message = "Submitting card information.")
+        dispatch(WillTokenizeCard)
         viewModelScope.launch {
             cardsRepository.tokenize(formData.toRequest())
                 .onSuccess { card ->
+                    POLogger.info(message = "Card tokenized successfully.")
+                    dispatch(DidComplete)
                     _completion.update {
                         Success(
                             POCardTokenizationData(
@@ -553,6 +561,7 @@ internal class CardTokenizationViewModel(
             submitting = false,
             errorMessage = errorMessage
         )
+        POLogger.info(message = "Recovered after the failure: %s", failure)
     }
 
     private fun cancel() {

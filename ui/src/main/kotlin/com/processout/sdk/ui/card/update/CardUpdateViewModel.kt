@@ -228,6 +228,11 @@ internal class CardUpdateViewModel(
             it.value = value
             if (isTextChanged) {
                 it.isError = false
+                POLogger.debug(
+                    message = "Field is edited by the user: %s", id,
+                    attributes = logAttributes
+                )
+                dispatch(ParametersChanged)
                 if (isCvcValid()) {
                     updateState(
                         submitAllowed = true,
@@ -237,11 +242,6 @@ internal class CardUpdateViewModel(
                 }
             }
         }
-        POLogger.debug(
-            message = "Field is edited by the user: %s", id,
-            attributes = logAttributes
-        )
-        dispatch(ParametersChanged)
     }
 
     private fun updateFieldFocus(id: String, isFocused: Boolean) {
@@ -252,7 +252,7 @@ internal class CardUpdateViewModel(
 
     private fun submit() {
         if (!isCvcValid()) {
-            POLogger.debug("Ignored attempt to update card with invalid CVC.")
+            POLogger.debug("Ignored attempt to update the card with invalid CVC.")
             return
         }
         updateState(
