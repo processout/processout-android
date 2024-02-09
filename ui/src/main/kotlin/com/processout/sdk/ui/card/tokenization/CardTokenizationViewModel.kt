@@ -32,6 +32,7 @@ import com.processout.sdk.ui.card.tokenization.POCardTokenizationFormData.CardIn
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POMutableFieldState
 import com.processout.sdk.ui.core.state.POStableList
+import com.processout.sdk.ui.shared.extension.orElse
 import com.processout.sdk.ui.shared.filter.CardExpirationInputFilter
 import com.processout.sdk.ui.shared.filter.CardNumberInputFilter
 import com.processout.sdk.ui.shared.filter.CardSecurityCodeInputFilter
@@ -120,9 +121,14 @@ internal class CardTokenizationViewModel(
         setLastFieldImeAction()
         collectPreferredScheme()
         shouldContinueOnFailure()
-        POLogger.info("Card tokenization is started: waiting for user input.")
-        dispatch(DidStart)
-        configuration.restore?.let { restore(it) }
+        configuration.restore?.let {
+            restore(it)
+            POLogger.info("Card tokenization is restored: waiting for user input.")
+            dispatch(DidStart(restored = true))
+        }.orElse {
+            POLogger.info("Card tokenization is started: waiting for user input.")
+            dispatch(DidStart(restored = false))
+        }
     }
 
     private fun initState() = with(configuration) {
