@@ -28,5 +28,32 @@ interface POCardTokenizationEventDispatcher {
 
     suspend fun preferredScheme(response: POCardTokenizationPreferredSchemeResponse)
 
+    /**
+     * Notifies whether the flow should continue or complete after the failure.
+     * Response must be constructed from request that has been collected by subscribing to [shouldContinueRequest].
+     *
+     * ```
+     * viewModelScope.launch {
+     *     with(ProcessOut.instance.dispatchers.cardTokenization) {
+     *         shouldContinueRequest.collect { request ->
+     *             // Inspect the failure to decide whether the flow should continue or complete.
+     *             val shouldContinue = when (val code = request.failure.code) {
+     *                 is Generic -> when (code.genericCode) {
+     *                     requestInvalidCard,
+     *                     cardInvalid -> false
+     *                     else -> true
+     *                 }
+     *                 else -> false
+     *             }
+     *
+     *             // Notify by sending the response which must be constructed from request.
+     *             // Note that once you've subscribed to 'shouldContinueRequest'
+     *             // it's required to send response back otherwise the card tokenization flow will not proceed.
+     *             shouldContinue(request.toResponse(shouldContinue = shouldContinue))
+     *         }
+     *     }
+     * }
+     * ```
+     */
     suspend fun shouldContinue(response: POCardTokenizationShouldContinueResponse)
 }
