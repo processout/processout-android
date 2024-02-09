@@ -23,7 +23,7 @@ data class POCardTokenizationPreferredSchemeResponse internal constructor(
 /**
  * Creates [POCardTokenizationPreferredSchemeResponse] from [POCardTokenizationPreferredSchemeRequest].
  *
- * @param[preferredScheme] Preferred scheme that will be used by default for card tokenization.
+ * @param[preferredScheme] Preferred scheme that will be used by default for card tokenization. Will use a primary scheme if _null_.
  */
 /** @suppress */
 @ProcessOutInternalApi
