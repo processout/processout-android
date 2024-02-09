@@ -39,12 +39,6 @@ android {
         }
     }
 
-    variantFilter { variant ->
-        if (variant.getName() == "stagingRelease") {
-            setIgnore(true)
-        }
-    }
-
     buildFeatures {
         viewBinding true
     }
