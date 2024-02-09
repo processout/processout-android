@@ -32,6 +32,8 @@ object PODefaultCardTokenizationEventDispatcher : POCardTokenizationEventDispatc
         _events.emit(event)
     }
 
+    // Preferred Scheme
+
     suspend fun send(request: POCardTokenizationPreferredSchemeRequest) {
         _preferredSchemeRequest.emit(request)
     }
@@ -40,6 +42,10 @@ object PODefaultCardTokenizationEventDispatcher : POCardTokenizationEventDispatc
         _preferredSchemeResponse.emit(response)
     }
 
+    fun subscribedForPreferredSchemeRequest() = _preferredSchemeRequest.subscriptionCount.value > 0
+
+    // Should Continue
+
     suspend fun send(request: POCardTokenizationShouldContinueRequest) {
         _shouldContinueRequest.emit(request)
     }
@@ -47,8 +53,6 @@ object PODefaultCardTokenizationEventDispatcher : POCardTokenizationEventDispatc
     override suspend fun shouldContinue(response: POCardTokenizationShouldContinueResponse) {
         _shouldContinueResponse.emit(response)
     }
-
-    fun subscribedForPreferredSchemeRequest() = _preferredSchemeRequest.subscriptionCount.value > 0
 
     fun subscribedForShouldContinueRequest() = _shouldContinueRequest.subscriptionCount.value > 0
 }
