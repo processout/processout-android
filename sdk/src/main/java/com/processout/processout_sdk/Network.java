@@ -116,9 +116,7 @@ class Network {
             queue = Volley.newRequestQueue(context);
         }
 
-        if (Network.projectId == null) {
-            Network.projectId = projectId;
-        }
+        Network.projectId = projectId;
 
         if (Network.privateKey.equals(""))
             Network.privateKey = privateKey;
@@ -131,9 +129,7 @@ class Network {
             queue = Volley.newRequestQueue(context);
         }
 
-        if (Network.projectId == null) {
-            Network.projectId = projectId;
-        }
+        Network.projectId = projectId;
 
         return instance;
     }

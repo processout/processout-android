@@ -2,7 +2,7 @@
 
 package com.processout.sdk.api
 
-import com.processout.processout_sdk.ProcessOutAccessor
+import com.processout.processout_sdk.ProcessOutLegacyAccessor
 import com.processout.sdk.BuildConfig
 import com.processout.sdk.api.dispatcher.DefaultEventDispatchers
 import com.processout.sdk.api.dispatcher.POEventDispatchers
@@ -143,13 +143,7 @@ class ProcessOut private constructor(
                 )
 
                 instance = lazy { ProcessOut(apiGraph) }.value
-
-                legacyInstance = lazy {
-                    ProcessOutAccessor.initLegacyProcessOut(
-                        configuration.application,
-                        configuration.projectId
-                    )
-                }.value
+                legacyInstance = lazy { ProcessOutLegacyAccessor.configure(contextGraph) }.value
 
                 if (configuration.debug) {
                     POLogger.add(serviceGraph.systemLoggerService)
