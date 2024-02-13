@@ -1,4 +1,4 @@
-@file:Suppress("MemberVisibilityCanBePrivate", "unused", "RestrictedApi", "removal")
+@file:Suppress("MemberVisibilityCanBePrivate", "unused", "removal")
 
 package com.processout.sdk.api
 
@@ -9,7 +9,6 @@ import com.processout.sdk.api.dispatcher.POEventDispatchers
 import com.processout.sdk.api.dispatcher.PONativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.dispatcher.nativeapm.DefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.network.ApiConstants
-import com.processout.sdk.api.network.NetworkConfiguration
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.api.repository.POGatewayConfigurationsRepository
 import com.processout.sdk.api.service.*
@@ -108,14 +107,9 @@ class ProcessOut private constructor(
             )
 
             val networkGraph = DefaultNetworkGraph(
-                configuration = NetworkConfiguration(
-                    application = configuration.application,
-                    sdkVersion = VERSION,
-                    baseUrl = ApiConstants.BASE_URL,
-                    projectId = configuration.projectId,
-                    privateKey = configuration.privateKey,
-                    debug = configuration.debug
-                )
+                contextGraph = contextGraph,
+                baseUrl = ApiConstants.BASE_URL,
+                sdkVersion = VERSION
             )
 
             val repositoryGraph = DefaultRepositoryGraph(

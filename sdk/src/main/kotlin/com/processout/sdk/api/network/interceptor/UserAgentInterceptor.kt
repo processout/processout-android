@@ -1,7 +1,7 @@
 package com.processout.sdk.api.network.interceptor
 
-import android.app.Application
 import com.processout.sdk.core.locale.currentSdkLocale
+import com.processout.sdk.di.ContextGraph
 import okhttp3.Interceptor
 import okhttp3.Response
 import okhttp3.internal.userAgent
@@ -9,7 +9,7 @@ import java.io.IOException
 import java.util.UUID
 
 internal class UserAgentInterceptor(
-    private val application: Application,
+    private val contextGraph: ContextGraph,
     private val sdkVersion: String
 ) : Interceptor {
 
@@ -20,12 +20,10 @@ internal class UserAgentInterceptor(
             "ProcessOut Android-Bindings",
             sdkVersion
         )
-
-        val request = chain.request()
-        val userAgentRequest = request.newBuilder()
+        val userAgentRequest = chain.request().newBuilder()
             .header("Idempotency-Key", UUID.randomUUID().toString())
             .header("User-Agent", userAgentComponents.joinToString(separator = "/"))
-            .header("Accept-Language", application.currentSdkLocale().toLanguageTag())
+            .header("Accept-Language", contextGraph.configuration.application.currentSdkLocale().toLanguageTag())
             .build()
         return chain.proceed(userAgentRequest)
     }
