@@ -5,30 +5,36 @@ import android.os.Build
 import android.util.Size
 import android.view.WindowManager
 import androidx.core.content.ContextCompat
+import com.processout.sdk.api.ProcessOutConfiguration
 import com.processout.sdk.api.model.request.DeviceData
 import com.processout.sdk.core.locale.currentAppLocale
 import java.util.Calendar
 
 internal interface ContextGraph {
-    val application: Application
+    var configuration: ProcessOutConfiguration
     val deviceData: DeviceData
 }
 
 internal class DefaultContextGraph(
-    override val application: Application
+    configuration: ProcessOutConfiguration
 ) : ContextGraph {
 
-    private val screenSize: Size by lazy { application.screenSize() }
+    @Volatile
+    override var configuration: ProcessOutConfiguration = configuration
+        @Synchronized get
+        @Synchronized set
 
     override val deviceData: DeviceData
         get() = provideDeviceData()
+
+    private val screenSize: Size by lazy { this.configuration.application.screenSize() }
 
     private fun provideDeviceData(): DeviceData {
         val timeZoneOffset = Calendar.getInstance().let {
             -(it.get(Calendar.ZONE_OFFSET) + it.get(Calendar.DST_OFFSET)) / (1000 * 60)
         }
         return DeviceData(
-            appLanguage = application.currentAppLocale().toLanguageTag(),
+            appLanguage = configuration.application.currentAppLocale().toLanguageTag(),
             appScreenWidth = screenSize.width,
             appScreenHeight = screenSize.height,
             appTimeZoneOffset = timeZoneOffset

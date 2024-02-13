@@ -1,19 +1,19 @@
 package com.processout.sdk.api.service
 
-import android.app.Application
 import android.content.ComponentName
 import androidx.browser.customtabs.CustomTabsClient
 import androidx.browser.customtabs.CustomTabsServiceConnection
 import com.processout.sdk.api.service.POBrowserCapabilitiesService.Companion.CHROME_PACKAGE
+import com.processout.sdk.di.ContextGraph
 
 internal class DefaultBrowserCapabilitiesService(
-    private val application: Application
+    private val contextGraph: ContextGraph
 ) : POBrowserCapabilitiesService {
 
     override fun isCustomTabsSupported(): Boolean =
         runCatching {
             CustomTabsClient.bindCustomTabsService(
-                application,
+                contextGraph.configuration.application,
                 CHROME_PACKAGE,
                 NoOpCustomTabsServiceConnection()
             )

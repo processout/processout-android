@@ -52,7 +52,7 @@ internal class DefaultServiceGraph(
     }
 
     override val browserCapabilitiesService: POBrowserCapabilitiesService by lazy {
-        DefaultBrowserCapabilitiesService(contextGraph.application)
+        DefaultBrowserCapabilitiesService(contextGraph)
     }
 
     override val systemLoggerService: POLoggerService by lazy {

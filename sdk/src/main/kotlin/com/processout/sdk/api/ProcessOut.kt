@@ -104,7 +104,7 @@ class ProcessOut private constructor(
             }
 
             val contextGraph = DefaultContextGraph(
-                application = configuration.application
+                configuration = configuration
             )
 
             val networkGraph = DefaultNetworkGraph(
@@ -124,6 +124,7 @@ class ProcessOut private constructor(
             )
 
             val apiGraph = ApiGraph(
+                contextGraph = contextGraph,
                 repositoryGraph = repositoryGraph,
                 serviceGraph = DefaultServiceGraph(
                     contextGraph = contextGraph,
