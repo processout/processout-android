@@ -11,7 +11,10 @@ import com.processout.sdk.api.dispatcher.nativeapm.DefaultNativeAlternativePayme
 import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.api.repository.POGatewayConfigurationsRepository
-import com.processout.sdk.api.service.*
+import com.processout.sdk.api.service.POAlternativePaymentMethodsService
+import com.processout.sdk.api.service.POBrowserCapabilitiesService
+import com.processout.sdk.api.service.POCustomerTokensService
+import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.di.*
 
@@ -124,10 +127,7 @@ class ProcessOut private constructor(
                     contextGraph = contextGraph,
                     networkGraph = networkGraph,
                     repositoryGraph = repositoryGraph,
-                    alternativePaymentMethodsConfiguration = AlternativePaymentMethodsConfiguration(
-                        baseUrl = ApiConstants.CHECKOUT_URL,
-                        projectId = configuration.projectId
-                    )
+                    alternativePaymentMethodsBaseUrl = ApiConstants.CHECKOUT_URL
                 )
             )
 

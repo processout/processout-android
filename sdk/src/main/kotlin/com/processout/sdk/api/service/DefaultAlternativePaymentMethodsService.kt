@@ -8,28 +8,35 @@ import com.processout.sdk.core.POFailure.*
 import com.processout.sdk.core.POFailure.Code.*
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.util.findBy
+import com.processout.sdk.di.ContextGraph
 
 internal class DefaultAlternativePaymentMethodsService(
-    private val configuration: AlternativePaymentMethodsConfiguration
+    private val baseUrl: String,
+    private val contextGraph: ContextGraph
 ) : POAlternativePaymentMethodsService {
 
     override fun alternativePaymentMethodUri(request: POAlternativePaymentMethodRequest): ProcessOutResult<Uri> {
-        var pathComponents = arrayListOf(
-            configuration.projectId, request.invoiceId, "redirect",
-            request.gatewayConfigurationId
-        )
-        if (request.customerId != null && request.tokenId != null) {
-            pathComponents = arrayListOf(
-                configuration.projectId, request.customerId.toString(),
-                request.tokenId.toString(), "redirect", request.gatewayConfigurationId
+        val projectId = contextGraph.configuration.projectId
+        val pathComponents = if (request.customerId != null && request.tokenId != null) {
+            arrayListOf(
+                projectId,
+                request.customerId,
+                request.tokenId,
+                "redirect",
+                request.gatewayConfigurationId
+            )
+        } else {
+            arrayListOf(
+                projectId,
+                request.invoiceId,
+                "redirect",
+                request.gatewayConfigurationId
             )
         }
-        val uriBuilder = Uri.parse(configuration.baseUrl).buildUpon()
-        pathComponents.forEach { pathComponent ->
-            uriBuilder.appendPath(pathComponent)
-        }
+        val uriBuilder = Uri.parse(baseUrl).buildUpon()
+        pathComponents.forEach { uriBuilder.appendPath(it) }
         request.additionalData?.forEach {
-            uriBuilder.appendQueryParameter("additional_data[" + it.key + "]", it.value)
+            uriBuilder.appendQueryParameter("additional_data[${it.key}]", it.value)
         }
         return ProcessOutResult.Success(uriBuilder.build())
     }

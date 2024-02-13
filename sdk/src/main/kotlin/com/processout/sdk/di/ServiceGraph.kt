@@ -21,7 +21,7 @@ internal class DefaultServiceGraph(
     contextGraph: ContextGraph,
     networkGraph: NetworkGraph,
     repositoryGraph: RepositoryGraph,
-    alternativePaymentMethodsConfiguration: AlternativePaymentMethodsConfiguration
+    alternativePaymentMethodsBaseUrl: String
 ) : ServiceGraph {
 
     private val mainCoroutineScope: CoroutineScope
@@ -48,7 +48,7 @@ internal class DefaultServiceGraph(
     }
 
     override val alternativePaymentMethodsService: POAlternativePaymentMethodsService by lazy {
-        DefaultAlternativePaymentMethodsService(alternativePaymentMethodsConfiguration)
+        DefaultAlternativePaymentMethodsService(alternativePaymentMethodsBaseUrl, contextGraph)
     }
 
     override val browserCapabilitiesService: POBrowserCapabilitiesService by lazy {
