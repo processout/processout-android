@@ -18,6 +18,13 @@ class POLogger private constructor() {
             }
         }
 
+        fun clear() {
+            synchronized(servicesLock) {
+                servicesLock.clear()
+                services = servicesLock.toTypedArray()
+            }
+        }
+
         fun debug(
             message: String,
             vararg args: Any?,
