@@ -41,7 +41,6 @@ interface POCardUpdateEventDispatcher {
      *                 }
      *                 else -> false
      *             }
-     *
      *             // Notify by sending the response which must be constructed from request.
      *             // Note that once you've subscribed to 'shouldContinueRequest'
      *             // it's required to send response back otherwise the card update flow will not proceed.

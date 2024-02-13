@@ -18,7 +18,9 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
+            signingConfig signingConfigs.debug
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
@@ -36,12 +38,6 @@ android {
             dimension 'environment'
             applicationIdSuffix ".staging"
             setBuildConfig(it, rootProject.ext["staging.project.id"], rootProject.ext["staging.project.key"])
-        }
-    }
-
-    variantFilter { variant ->
-        if (variant.getName() == "stagingRelease") {
-            setIgnore(true)
         }
     }
 

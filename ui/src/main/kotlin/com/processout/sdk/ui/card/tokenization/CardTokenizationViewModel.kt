@@ -13,7 +13,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
+import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
+import com.processout.sdk.api.model.event.POCardTokenizationEvent
+import com.processout.sdk.api.model.event.POCardTokenizationEvent.*
+import com.processout.sdk.api.model.request.POCardTokenizationPreferredSchemeRequest
 import com.processout.sdk.api.model.request.POCardTokenizationRequest
+import com.processout.sdk.api.model.request.POCardTokenizationShouldContinueRequest
 import com.processout.sdk.api.model.response.POCardIssuerInformation
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.*
@@ -27,6 +32,7 @@ import com.processout.sdk.ui.card.tokenization.POCardTokenizationFormData.CardIn
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POMutableFieldState
 import com.processout.sdk.ui.core.state.POStableList
+import com.processout.sdk.ui.shared.extension.orElse
 import com.processout.sdk.ui.shared.filter.CardExpirationInputFilter
 import com.processout.sdk.ui.shared.filter.CardNumberInputFilter
 import com.processout.sdk.ui.shared.filter.CardSecurityCodeInputFilter
@@ -34,6 +40,7 @@ import com.processout.sdk.ui.shared.provider.CardSchemeProvider
 import com.processout.sdk.ui.shared.provider.cardSchemeDrawableResId
 import com.processout.sdk.ui.shared.transformation.CardExpirationVisualTransformation
 import com.processout.sdk.ui.shared.transformation.CardNumberVisualTransformation
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -43,7 +50,8 @@ internal class CardTokenizationViewModel(
     private val app: Application,
     private val configuration: POCardTokenizationConfiguration,
     private val cardsRepository: POCardsRepository,
-    private val cardSchemeProvider: CardSchemeProvider
+    private val cardSchemeProvider: CardSchemeProvider,
+    private val eventDispatcher: PODefaultCardTokenizationEventDispatcher
 ) : ViewModel() {
 
     class Factory(
@@ -56,13 +64,15 @@ internal class CardTokenizationViewModel(
                 app = app,
                 configuration = configuration,
                 cardsRepository = ProcessOut.instance.cards,
-                cardSchemeProvider = CardSchemeProvider()
+                cardSchemeProvider = CardSchemeProvider(),
+                eventDispatcher = PODefaultCardTokenizationEventDispatcher
             ) as T
     }
 
     private companion object {
-        const val LOG_ATTRIBUTE_IIN = "IIN"
+        const val IIN_LENGTH = 6
         const val EXPIRATION_DATE_PART_LENGTH = 2
+        const val LOG_ATTRIBUTE_IIN = "IIN"
     }
 
     private object SectionId {
@@ -102,12 +112,27 @@ internal class CardTokenizationViewModel(
     private val _sections = mutableStateListOf(cardInformationSection())
     val sections = POStableList(_sections)
 
+    private var latestPreferredSchemeRequest: POCardTokenizationPreferredSchemeRequest? = null
+    private var latestShouldContinueRequest: POCardTokenizationShouldContinueRequest? = null
+
+    private var issuerInformationJob: Job? = null
+
     init {
         setLastFieldImeAction()
-        configuration.restore?.let { restore(it) }
+        collectPreferredScheme()
+        shouldContinueOnFailure()
+        configuration.restore?.let {
+            POLogger.info("Restoring card tokenization.")
+            restore(it)
+            dispatch(DidStart(restored = true))
+        }.orElse {
+            POLogger.info("Card tokenization is started: waiting for user input.")
+            dispatch(DidStart(restored = false))
+        }
     }
 
     private fun initState() = with(configuration) {
+        val cardInformation = restore?.formData?.cardInformation
         CardTokenizationState(
             title = title ?: app.getString(R.string.po_card_tokenization_title),
             primaryAction = POActionState(
@@ -120,6 +145,8 @@ internal class CardTokenizationViewModel(
                 text = secondaryActionText ?: app.getString(R.string.po_card_tokenization_button_cancel),
                 primary = false
             ) else null,
+            issuerInformation = cardInformation?.issuerInformation,
+            preferredScheme = cardInformation?.preferredScheme,
             focusedFieldId = CardFieldId.NUMBER,
             draggable = cancellation.dragDown
         )
@@ -147,7 +174,9 @@ internal class CardTokenizationViewModel(
     }
 
     private fun cardNumberField(): Item.TextField {
-        val number = configuration.restore?.formData?.cardInformation?.number ?: String()
+        val cardInformation = configuration.restore?.formData?.cardInformation
+        val number = cardInformation?.number ?: String()
+        val scheme = cardInformation?.preferredScheme ?: cardInformation?.issuerInformation?.scheme
         return Item.TextField(
             POMutableFieldState(
                 id = CardFieldId.NUMBER,
@@ -157,6 +186,7 @@ internal class CardTokenizationViewModel(
                 ),
                 placeholder = app.getString(R.string.po_card_tokenization_card_details_number_placeholder),
                 forceTextDirectionLtr = true,
+                iconResId = scheme?.let { cardSchemeDrawableResId(it) },
                 inputFilter = CardNumberInputFilter(),
                 visualTransformation = CardNumberVisualTransformation(),
                 keyboardOptions = KeyboardOptions(
@@ -189,7 +219,8 @@ internal class CardTokenizationViewModel(
     }
 
     private fun cvcField(): Item.TextField {
-        val cvc = configuration.restore?.formData?.cardInformation?.cvc ?: String()
+        val cardInformation = configuration.restore?.formData?.cardInformation
+        val cvc = cardInformation?.cvc ?: String()
         return Item.TextField(
             POMutableFieldState(
                 id = CardFieldId.CVC,
@@ -200,7 +231,9 @@ internal class CardTokenizationViewModel(
                 placeholder = app.getString(R.string.po_card_tokenization_card_details_cvc_placeholder),
                 forceTextDirectionLtr = true,
                 iconResId = com.processout.sdk.ui.R.drawable.po_card_back,
-                inputFilter = CardSecurityCodeInputFilter(scheme = null),
+                inputFilter = CardSecurityCodeInputFilter(
+                    scheme = cardInformation?.issuerInformation?.scheme
+                ),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.NumberPassword,
                     imeAction = ImeAction.Next
@@ -255,20 +288,26 @@ internal class CardTokenizationViewModel(
 
     private fun updateFieldValue(id: String, value: TextFieldValue) {
         field(id)?.let {
-            val isTextChanged = it.value.text != value.text
+            val oldText = it.value.text
             it.value = value
-            if (isTextChanged) {
-                it.isError = false
-                if (areAllFieldsValid()) {
-                    updateState(
-                        submitAllowed = true,
-                        submitting = _state.value.submitting,
-                        errorMessage = null
-                    )
-                }
-                if (id == CardFieldId.NUMBER) {
-                    updateIssuerInformation(cardNumber = value.text)
-                }
+            if (value.text == oldText) {
+                return
+            }
+            it.isError = false
+            POLogger.debug(message = "Field is edited by the user: %s", id)
+            dispatch(ParametersChanged)
+            if (areAllFieldsValid()) {
+                updateState(
+                    submitAllowed = true,
+                    submitting = _state.value.submitting,
+                    errorMessage = null
+                )
+            }
+            if (id == CardFieldId.NUMBER) {
+                updateIssuerInformation(
+                    cardNumber = value.text,
+                    oldCardNumber = oldText
+                )
             }
         }
     }
@@ -279,27 +318,42 @@ internal class CardTokenizationViewModel(
         }
     }
 
-    private fun updateIssuerInformation(cardNumber: String) {
-        when (cardNumber.length) {
-            in 0..6 -> localIssuerInformation(cardNumber).let { issuerInformation ->
-                _state.update { it.copy(issuerInformation = issuerInformation) }
-                updateFields(issuerInformation)
-            }
+    private fun updateIssuerInformation(cardNumber: String, oldCardNumber: String) {
+        val iin = iin(cardNumber)
+        if (iin == iin(oldCardNumber)) {
+            return
         }
-        when (cardNumber.length) {
-            6, 8 -> viewModelScope.launch {
-                fetchIssuerInformation(cardNumber)?.let { issuerInformation ->
-                    _state.update { it.copy(issuerInformation = issuerInformation) }
-                    updateFields(issuerInformation)
+        updateState(
+            issuerInformation = localIssuerInformation(iin),
+            preferredScheme = null
+        )
+        if (iin.length == IIN_LENGTH) {
+            updateIssuerInformation(iin)
+        }
+    }
+
+    private fun iin(cardNumber: String) = cardNumber.take(IIN_LENGTH)
+
+    private fun localIssuerInformation(iin: String) =
+        cardSchemeProvider.scheme(iin)?.let { scheme ->
+            POCardIssuerInformation(scheme = scheme)
+        }
+
+    private fun updateIssuerInformation(iin: String) {
+        issuerInformationJob?.cancel()
+        issuerInformationJob = viewModelScope.launch {
+            fetchIssuerInformation(iin)?.let { issuerInformation ->
+                if (eventDispatcher.subscribedForPreferredSchemeRequest()) {
+                    requestPreferredScheme(issuerInformation)
+                } else {
+                    updateState(
+                        issuerInformation = issuerInformation,
+                        preferredScheme = null
+                    )
                 }
             }
         }
     }
-
-    private fun localIssuerInformation(cardNumber: String) =
-        cardSchemeProvider.scheme(cardNumber)?.let { scheme ->
-            POCardIssuerInformation(scheme = scheme)
-        }
 
     private suspend fun fetchIssuerInformation(iin: String) =
         cardsRepository.fetchIssuerInformation(iin)
@@ -310,21 +364,52 @@ internal class CardTokenizationViewModel(
                 )
             }.getOrNull()
 
-    private fun updateFields(issuerInformation: POCardIssuerInformation?) {
-        val scheme = issuerInformation?.coScheme ?: issuerInformation?.scheme
+    private suspend fun requestPreferredScheme(issuerInformation: POCardIssuerInformation) {
+        val request = POCardTokenizationPreferredSchemeRequest(issuerInformation)
+        latestPreferredSchemeRequest = request
+        eventDispatcher.send(request)
+        POLogger.info("Requested to choose preferred scheme by issuer information: %s", issuerInformation)
+    }
+
+    private fun collectPreferredScheme() {
+        viewModelScope.launch {
+            eventDispatcher.preferredSchemeResponse.collect { response ->
+                if (response.uuid == latestPreferredSchemeRequest?.uuid) {
+                    latestPreferredSchemeRequest = null
+                    updateState(
+                        issuerInformation = response.issuerInformation,
+                        preferredScheme = response.preferredScheme
+                    )
+                }
+            }
+        }
+    }
+
+    private fun updateState(
+        issuerInformation: POCardIssuerInformation?,
+        preferredScheme: String?
+    ) {
+        _state.update {
+            it.copy(
+                issuerInformation = issuerInformation,
+                preferredScheme = preferredScheme
+            )
+        }
+        val scheme = preferredScheme ?: issuerInformation?.scheme
         field(CardFieldId.NUMBER)?.apply {
             iconResId = scheme?.let { cardSchemeDrawableResId(it) }
         }
         field(CardFieldId.CVC)?.apply {
-            val inputFilter = CardSecurityCodeInputFilter(scheme = scheme)
+            val inputFilter = CardSecurityCodeInputFilter(scheme = issuerInformation?.scheme)
             value = inputFilter.filter(value)
             this.inputFilter = inputFilter
         }
+        POLogger.info("State updated: [issuerInformation=%s] [preferredScheme=%s]", issuerInformation, preferredScheme)
     }
 
     private fun submit() {
         if (!areAllFieldsValid()) {
-            POLogger.debug("Ignored attempt to tokenize with invalid values.")
+            POLogger.debug("Ignored attempt to tokenize the card with invalid values.")
             return
         }
         updateState(
@@ -332,7 +417,7 @@ internal class CardTokenizationViewModel(
             submitting = true,
             errorMessage = null
         )
-        tokenize(fieldValues().toFormData())
+        tokenize(fieldValues().toFormData(_state.value))
     }
 
     private fun areAllFieldsValid() = fieldValues().all { it.isValid }
@@ -366,9 +451,13 @@ internal class CardTokenizationViewModel(
     }
 
     private fun tokenize(formData: POCardTokenizationFormData) {
+        POLogger.info(message = "Submitting card information.")
+        dispatch(WillTokenizeCard)
         viewModelScope.launch {
             cardsRepository.tokenize(formData.toRequest())
                 .onSuccess { card ->
+                    POLogger.info(message = "Card tokenized successfully.")
+                    dispatch(DidComplete)
                     _completion.update {
                         Success(
                             POCardTokenizationData(
@@ -377,7 +466,38 @@ internal class CardTokenizationViewModel(
                             )
                         )
                     }
-                }.onFailure { handle(it) }
+                }.onFailure { failure ->
+                    if (eventDispatcher.subscribedForShouldContinueRequest()) {
+                        requestIfShouldContinue(failure)
+                    } else {
+                        handle(failure)
+                    }
+                }
+        }
+    }
+
+    private fun requestIfShouldContinue(failure: ProcessOutResult.Failure) {
+        viewModelScope.launch {
+            val request = POCardTokenizationShouldContinueRequest(failure)
+            latestShouldContinueRequest = request
+            eventDispatcher.send(request)
+            POLogger.info("Requested to decide whether the flow should continue or complete after the failure: %s", failure)
+        }
+    }
+
+    private fun shouldContinueOnFailure() {
+        viewModelScope.launch {
+            eventDispatcher.shouldContinueResponse.collect { response ->
+                if (response.uuid == latestShouldContinueRequest?.uuid) {
+                    latestShouldContinueRequest = null
+                    if (response.shouldContinue) {
+                        handle(response.failure)
+                    } else {
+                        POLogger.info("Completed after the failure: %s", response.failure)
+                        _completion.update { Failure(response.failure) }
+                    }
+                }
+            }
         }
     }
 
@@ -442,6 +562,7 @@ internal class CardTokenizationViewModel(
             submitting = false,
             errorMessage = errorMessage
         )
+        POLogger.info(message = "Recovered after the failure: %s", failure)
     }
 
     private fun cancel() {
@@ -452,6 +573,12 @@ internal class CardTokenizationViewModel(
                     message = "Cancelled by the user with secondary cancel action."
                 ).also { POLogger.info("Cancelled: %s", it) }
             )
+        }
+    }
+
+    private fun dispatch(event: POCardTokenizationEvent) {
+        viewModelScope.launch {
+            eventDispatcher.send(event)
         }
     }
 
@@ -525,7 +652,9 @@ internal class CardTokenizationViewModel(
         }
     }
 
-    private fun List<FieldValue>.toFormData(): POCardTokenizationFormData {
+    private fun List<FieldValue>.toFormData(
+        state: CardTokenizationState
+    ): POCardTokenizationFormData {
         var number = String()
         var expiration = String()
         var cvc = String()
@@ -543,7 +672,9 @@ internal class CardTokenizationViewModel(
                 number = number,
                 expiration = expiration,
                 cvc = cvc,
-                cardholderName = cardholderName
+                cardholderName = cardholderName,
+                issuerInformation = state.issuerInformation,
+                preferredScheme = state.preferredScheme
             )
         )
     }
@@ -557,6 +688,7 @@ internal class CardTokenizationViewModel(
                 expYear = expiration.year,
                 cvc = cvc,
                 name = cardholderName,
+                preferredScheme = preferredScheme,
                 metadata = configuration.metadata
             )
         }

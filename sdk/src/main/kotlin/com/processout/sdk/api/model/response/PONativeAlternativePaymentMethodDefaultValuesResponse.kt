@@ -5,7 +5,7 @@ import java.util.UUID
 
 /**
  * Defines the response with default values for native alternative payment method parameters.
- * This response can only be created from [PONativeAlternativePaymentMethodDefaultValuesRequest.toResponse] to use the same UUID.
+ * This response can only be created from [PONativeAlternativePaymentMethodDefaultValuesRequest.toResponse] function.
  *
  * @param[uuid] Unique identifier of response that must be equal to UUID of request.
  * @param[defaultValues] Map where key is [PONativeAlternativePaymentMethodParameter.key] and value is a default value for this parameter.

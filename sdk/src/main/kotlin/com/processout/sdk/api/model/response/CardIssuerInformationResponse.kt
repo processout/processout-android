@@ -1,7 +1,9 @@
 package com.processout.sdk.api.model.response
 
+import android.os.Parcelable
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import kotlinx.parcelize.Parcelize
 
 @JsonClass(generateAdapter = true)
 internal data class CardIssuerInformationResponse(
@@ -20,6 +22,7 @@ internal data class CardIssuerInformationResponse(
  * @param[category] Card category.
  * @param[country] Country of origin.
  */
+@Parcelize
 @JsonClass(generateAdapter = true)
 data class POCardIssuerInformation(
     val scheme: String,
@@ -31,4 +34,4 @@ data class POCardIssuerInformation(
     val brand: String? = null,
     val category: String? = null,
     val country: String? = null
-)
+) : Parcelable

@@ -87,7 +87,7 @@ internal class CardUpdateViewModel(
     private val _fields = mutableStateListOf<POMutableFieldState>().apply { addAll(initFields()) }
     val fields = POStableList(_fields)
 
-    private val shouldContinueRequests = mutableSetOf<POCardUpdateShouldContinueRequest>()
+    private var latestShouldContinueRequest: POCardUpdateShouldContinueRequest? = null
 
     init {
         shouldContinueOnFailure()
@@ -228,6 +228,11 @@ internal class CardUpdateViewModel(
             it.value = value
             if (isTextChanged) {
                 it.isError = false
+                POLogger.debug(
+                    message = "Field is edited by the user: %s", id,
+                    attributes = logAttributes
+                )
+                dispatch(ParametersChanged)
                 if (isCvcValid()) {
                     updateState(
                         submitAllowed = true,
@@ -237,11 +242,6 @@ internal class CardUpdateViewModel(
                 }
             }
         }
-        POLogger.debug(
-            message = "Field is edited by the user: %s", id,
-            attributes = logAttributes
-        )
-        dispatch(ParametersChanged)
     }
 
     private fun updateFieldFocus(id: String, isFocused: Boolean) {
@@ -252,7 +252,7 @@ internal class CardUpdateViewModel(
 
     private fun submit() {
         if (!isCvcValid()) {
-            POLogger.debug("Ignored attempt to update card with invalid CVC.")
+            POLogger.debug("Ignored attempt to update the card with invalid CVC.")
             return
         }
         updateState(
@@ -318,7 +318,7 @@ internal class CardUpdateViewModel(
     private fun requestIfShouldContinue(failure: ProcessOutResult.Failure) {
         viewModelScope.launch {
             val request = POCardUpdateShouldContinueRequest(cardId, failure)
-            shouldContinueRequests.add(request)
+            latestShouldContinueRequest = request
             eventDispatcher.send(request)
             POLogger.info(
                 message = "Requested to decide whether the flow should continue or complete after the failure: %s", failure,
@@ -330,7 +330,8 @@ internal class CardUpdateViewModel(
     private fun shouldContinueOnFailure() {
         viewModelScope.launch {
             eventDispatcher.shouldContinueResponse.collect { response ->
-                if (shouldContinueRequests.removeAll { it.uuid == response.uuid }) {
+                if (response.uuid == latestShouldContinueRequest?.uuid) {
+                    latestShouldContinueRequest = null
                     if (response.shouldContinue) {
                         handle(response.failure)
                     } else {
