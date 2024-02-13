@@ -97,52 +97,65 @@ class ProcessOut private constructor(
 
         /**
          * Configures singleton instances accessible by [ProcessOut.instance] and [ProcessOut.legacyInstance].
-         * Configuration applies only on first invocation and all subsequent calls are ignored.
+         *
+         * @param[configuration] Defines ProcessOut configuration.
+         * @param[force] When set to _false_ (the default value),
+         * the configuration applies only on first invocation and all subsequent calls are ignored.
+         * When set to _true_, the existing instances will be reconfigured.
          */
-        fun configure(configuration: ProcessOutConfiguration) {
+        fun configure(configuration: ProcessOutConfiguration, force: Boolean = false) {
             if (isConfigured) {
-                POLogger.info("Already configured.")
-                return
-            }
-
-            val contextGraph = DefaultContextGraph(
-                configuration = configuration
-            )
-
-            val networkGraph = DefaultNetworkGraph(
-                contextGraph = contextGraph,
-                baseUrl = ApiConstants.BASE_URL,
-                sdkVersion = VERSION
-            )
-
-            val repositoryGraph = DefaultRepositoryGraph(
-                contextGraph = contextGraph,
-                networkGraph = networkGraph
-            )
-
-            val apiGraph = ApiGraph(
-                contextGraph = contextGraph,
-                repositoryGraph = repositoryGraph,
-                serviceGraph = DefaultServiceGraph(
+                if (force) {
+                    with(instance.apiGraph) {
+                        contextGraph.configuration = configuration
+                        POLogger.clear()
+                        if (configuration.debug) {
+                            POLogger.add(serviceGraph.systemLoggerService)
+                            POLogger.info("Applied new ProcessOut configuration.")
+                        }
+                    }
+                } else {
+                    POLogger.info("ProcessOut is already configured.")
+                }
+            } else {
+                val contextGraph = DefaultContextGraph(
+                    configuration = configuration
+                )
+                val networkGraph = DefaultNetworkGraph(
+                    contextGraph = contextGraph,
+                    baseUrl = ApiConstants.BASE_URL,
+                    sdkVersion = VERSION
+                )
+                val repositoryGraph = DefaultRepositoryGraph(
+                    contextGraph = contextGraph,
+                    networkGraph = networkGraph
+                )
+                val serviceGraph = DefaultServiceGraph(
                     contextGraph = contextGraph,
                     networkGraph = networkGraph,
                     repositoryGraph = repositoryGraph,
                     alternativePaymentMethodsBaseUrl = ApiConstants.CHECKOUT_URL
                 )
-            )
-
-            if (configuration.debug) {
-                POLogger.add(apiGraph.serviceGraph.systemLoggerService)
-            }
-
-            instance = lazy { ProcessOut(apiGraph) }.value
-
-            legacyInstance = lazy {
-                ProcessOutAccessor.initLegacyProcessOut(
-                    configuration.application,
-                    configuration.projectId
+                val apiGraph = ApiGraph(
+                    contextGraph = contextGraph,
+                    repositoryGraph = repositoryGraph,
+                    serviceGraph = serviceGraph
                 )
-            }.value
+
+                instance = lazy { ProcessOut(apiGraph) }.value
+
+                legacyInstance = lazy {
+                    ProcessOutAccessor.initLegacyProcessOut(
+                        configuration.application,
+                        configuration.projectId
+                    )
+                }.value
+
+                if (configuration.debug) {
+                    POLogger.add(serviceGraph.systemLoggerService)
+                    POLogger.info("ProcessOut configuration is complete.")
+                }
+            }
         }
     }
 }
