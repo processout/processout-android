@@ -23,7 +23,9 @@ internal interface NetworkGraph {
 }
 
 internal class DefaultNetworkGraph(
-    configuration: NetworkConfiguration
+    contextGraph: ContextGraph,
+    baseUrl: String,
+    sdkVersion: String
 ) : NetworkGraph {
 
     private val okHttpClient: OkHttpClient by lazy {
@@ -31,15 +33,14 @@ internal class DefaultNetworkGraph(
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
-            .addInterceptor(BasicAuthInterceptor(configuration.projectId, configuration.privateKey))
-            .addInterceptor(UserAgentInterceptor(configuration.application, configuration.sdkVersion))
-            .apply {
-                if (configuration.debug) {
-                    addInterceptor(HttpLoggingInterceptor { message ->
-                        POLogger.debug(message)
-                    }.apply { level = HttpLoggingInterceptor.Level.BODY })
+            .addInterceptor(BasicAuthInterceptor(contextGraph))
+            .addInterceptor(UserAgentInterceptor(contextGraph, sdkVersion))
+            .addInterceptor(HttpLoggingInterceptor { message ->
+                if (contextGraph.configuration.debug) {
+                    POLogger.debug(message)
                 }
-            }.build()
+            }.apply { level = HttpLoggingInterceptor.Level.BODY })
+            .build()
     }
 
     override val moshi: Moshi by lazy {
@@ -50,7 +51,7 @@ internal class DefaultNetworkGraph(
 
     private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
-            .baseUrl(configuration.baseUrl)
+            .baseUrl(baseUrl)
             .client(okHttpClient)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()

@@ -2,7 +2,6 @@ package com.processout.processout_sdk;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Application;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
@@ -22,6 +21,7 @@ import com.processout.processout_sdk.POWebViews.ProcessOutWebView;
 import com.processout.processout_sdk.ProcessOutExceptions.ProcessOutException;
 import com.processout.sdk.BuildConfig;
 import com.processout.sdk.api.network.ApiConstants;
+import com.processout.sdk.di.ContextGraph;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,13 +44,11 @@ public final class ProcessOut {
     public static final String SDK_NAME = BuildConfig.LIBRARY_NAME;
     public static final String SDK_VERSION = BuildConfig.LIBRARY_VERSION;
 
-    private String projectId;
-    private Context context;
-    private Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+    private final ContextGraph contextGraph;
+    private final Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 
-    ProcessOut(Application application, String projectId) {
-        this.projectId = projectId;
-        this.context = application.getApplicationContext();
+    ProcessOut(ContextGraph contextGraph) {
+        this.contextGraph = contextGraph;
     }
 
     /**
@@ -86,7 +84,7 @@ public final class ProcessOut {
 
             body.put("device", new JSONObject(getDeviceInfo()));
 
-            Network.getInstance(this.context, this.projectId).CallProcessOut("/cards", Request.Method.POST, body, new Network.NetworkResult() {
+            Network.getInstance(contextGraph.getConfiguration().getApplication(), contextGraph.getConfiguration().getProjectId()).CallProcessOut("/cards", Request.Method.POST, body, new Network.NetworkResult() {
                 @Override
                 public void onError(Exception error) {
                     callback.onError(error);
@@ -113,9 +111,9 @@ public final class ProcessOut {
         Calendar calendar = Calendar.getInstance();
         int tzOffsetMin = -(calendar.get(Calendar.ZONE_OFFSET) + calendar.get(Calendar.DST_OFFSET))/(1000*60);
 
-        DisplayMetrics metrics = this.context.getResources().getDisplayMetrics();
+        DisplayMetrics metrics = contextGraph.getConfiguration().getApplication().getResources().getDisplayMetrics();
 
-        Locale locale = this.context.getResources().getConfiguration().locale;
+        Locale locale = contextGraph.getConfiguration().getApplication().getResources().getConfiguration().locale;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             deviceInfo.put("app_language", locale.toLanguageTag());
@@ -146,7 +144,7 @@ public final class ProcessOut {
             body.put("device", new JSONObject(getDeviceInfo()));
 
             Network.getInstance(
-                    this.context, this.projectId).CallProcessOut(
+                    contextGraph.getConfiguration().getApplication(), contextGraph.getConfiguration().getProjectId()).CallProcessOut(
                     "/cards/" + card.getId(),
                     Request.Method.PUT,
                     body, new Network.NetworkResult() {
@@ -192,7 +190,7 @@ public final class ProcessOut {
                 filterValue = "";
         }
 
-        Network.getInstance(this.context, this.projectId).CallProcessOut(
+        Network.getInstance(contextGraph.getConfiguration().getApplication(), contextGraph.getConfiguration().getProjectId()).CallProcessOut(
                 "/gateway-configurations?filter=" + filterValue + "&expand_merchant_accounts=true",
                 Request.Method.GET, null, new Network.NetworkResult() {
                     @Override
@@ -231,7 +229,7 @@ public final class ProcessOut {
      */
     public Uri makeAPMToken(@NonNull GatewayConfiguration apm, @NonNull String customerId, @NonNull String tokenId, @NonNull Map<String, String> additionalData, @NonNull Context with) {
         // Build the URL
-        String baseUrl = ApiConstants.CHECKOUT_URL + "/" + this.projectId;
+        String baseUrl = ApiConstants.CHECKOUT_URL + "/" + contextGraph.getConfiguration().getProjectId();
         String checkout = "/" + customerId + "/" + tokenId + "/redirect/" + apm.getId();
         String globalUrl = baseUrl + checkout;
 
@@ -267,7 +265,7 @@ public final class ProcessOut {
 
     public Uri makeAPMPayment(@NonNull GatewayConfiguration apm, @NonNull String invoiceId, @NonNull Map<String, String> additionalData, @NonNull Context with) {
         // Build the URL
-        String baseUrl = ApiConstants.CHECKOUT_URL + "/" + this.projectId;
+        String baseUrl = ApiConstants.CHECKOUT_URL + "/" + contextGraph.getConfiguration().getProjectId();
         String checkout = "/" + invoiceId + "/redirect/" + apm.getId();
         String globalUrl = baseUrl + checkout;
 
@@ -604,7 +602,7 @@ public final class ProcessOut {
             IncrementAuthorizationRequest request = new IncrementAuthorizationRequest(amount);
             final JSONObject body = new JSONObject(gson.toJson(request));
 
-            Network.getInstance(this.context, this.projectId).CallProcessOut(
+            Network.getInstance(contextGraph.getConfiguration().getApplication(), contextGraph.getConfiguration().getProjectId()).CallProcessOut(
                     "/invoices/" + invoiceId + "/increment_authorization", Request.Method.POST,
                     body, new Network.NetworkResult() {
                         @Override
@@ -638,7 +636,7 @@ public final class ProcessOut {
             final JSONObject body = new JSONObject(gson.toJson(request));
             body.put("device", new JSONObject(getDeviceInfo()));
 
-            Network.getInstance(this.context, this.projectId).CallProcessOut("/customers/" + customerId + "/tokens/" + tokenId, Request.Method.PUT, body, new Network.NetworkResult() {
+            Network.getInstance(contextGraph.getConfiguration().getApplication(), contextGraph.getConfiguration().getProjectId()).CallProcessOut("/customers/" + customerId + "/tokens/" + tokenId, Request.Method.PUT, body, new Network.NetworkResult() {
                 @Override
                 public void onError(Exception error) {
                     handler.onError(error);
@@ -686,7 +684,7 @@ public final class ProcessOut {
             TokenRequest request = new TokenRequest(source, thirdPartySDKVersion);
             final JSONObject body = new JSONObject(gson.toJson(request));
 
-            Network.getInstance(this.context, this.projectId).CallProcessOut("/customers/" + customerId + "/tokens/" + tokenId, Request.Method.PUT, body, new Network.NetworkResult() {
+            Network.getInstance(contextGraph.getConfiguration().getApplication(), contextGraph.getConfiguration().getProjectId()).CallProcessOut("/customers/" + customerId + "/tokens/" + tokenId, Request.Method.PUT, body, new Network.NetworkResult() {
                 @Override
                 public void onError(Exception error) {
                     handler.onError(error);
@@ -736,7 +734,7 @@ public final class ProcessOut {
 
             final JSONObject body = new JSONObject(gson.toJson(request));
 
-            Network.getInstance(this.context, this.projectId).CallProcessOut("/customers/" + request.getCustomerID() +
+            Network.getInstance(contextGraph.getConfiguration().getApplication(), contextGraph.getConfiguration().getProjectId()).CallProcessOut("/customers/" + request.getCustomerID() +
                     "/tokens/" + request.getTokenID(), Request.Method.PUT, body, new Network.NetworkResult() {
                 @Override
                 public void onError(Exception error) {
@@ -881,7 +879,7 @@ public final class ProcessOut {
      */
     private void requestAuthorization(@NonNull final String invoiceId, @NonNull final JSONObject body, @NonNull final RequestAuthorizationCallback callback) throws JSONException {
         body.put("device", new JSONObject(getDeviceInfo()));
-        Network.getInstance(this.context /* Using the same context as other network calls */, this.projectId).CallProcessOut(
+        Network.getInstance(contextGraph.getConfiguration().getApplication(), contextGraph.getConfiguration().getProjectId()).CallProcessOut(
                 "/invoices/" + invoiceId + "/authorize", Request.Method.POST,
                 body, new Network.NetworkResult() {
                     @Override

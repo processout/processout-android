@@ -7,9 +7,9 @@ import com.processout.sdk.core.annotation.ProcessOutInternalApi
 /**
  * Defines ProcessOut configuration.
  *
- * @param[application] Instance of [Application].
+ * @param[application] Instance of the [Application].
  * @param[projectId] Project ID.
- * @param[debug] Enables debug mode. Default value is _false_. __Note:__ Debug logs may contain sensitive data.
+ * @param[debug] Enables debug mode. Default value is _false_. __Note:__ debug logs may contain sensitive data.
  */
 data class ProcessOutConfiguration(
     val application: Application,

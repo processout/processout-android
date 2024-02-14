@@ -1,18 +1,20 @@
-@file:Suppress("MemberVisibilityCanBePrivate", "unused", "RestrictedApi", "removal")
+@file:Suppress("MemberVisibilityCanBePrivate", "unused", "removal")
 
 package com.processout.sdk.api
 
-import com.processout.processout_sdk.ProcessOutAccessor
+import com.processout.processout_sdk.ProcessOutLegacyAccessor
 import com.processout.sdk.BuildConfig
 import com.processout.sdk.api.dispatcher.DefaultEventDispatchers
 import com.processout.sdk.api.dispatcher.POEventDispatchers
 import com.processout.sdk.api.dispatcher.PONativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.dispatcher.nativeapm.DefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.network.ApiConstants
-import com.processout.sdk.api.network.NetworkConfiguration
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.api.repository.POGatewayConfigurationsRepository
-import com.processout.sdk.api.service.*
+import com.processout.sdk.api.service.POAlternativePaymentMethodsService
+import com.processout.sdk.api.service.POBrowserCapabilitiesService
+import com.processout.sdk.api.service.POCustomerTokensService
+import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.di.*
 
@@ -95,59 +97,59 @@ class ProcessOut private constructor(
 
         /**
          * Configures singleton instances accessible by [ProcessOut.instance] and [ProcessOut.legacyInstance].
-         * Configuration applies only on first invocation and all subsequent calls are ignored.
+         *
+         * @param[configuration] Defines ProcessOut configuration.
+         * @param[force] When set to _false_ (the default value),
+         * the configuration applies only on first invocation and all subsequent calls are ignored.
+         * When set to _true_, the existing instances will be reconfigured.
          */
-        fun configure(configuration: ProcessOutConfiguration) {
+        fun configure(configuration: ProcessOutConfiguration, force: Boolean = false) {
             if (isConfigured) {
-                POLogger.info("Already configured.")
-                return
-            }
-
-            val contextGraph = DefaultContextGraph(
-                application = configuration.application
-            )
-
-            val networkGraph = DefaultNetworkGraph(
-                configuration = NetworkConfiguration(
-                    application = configuration.application,
-                    sdkVersion = VERSION,
-                    baseUrl = ApiConstants.BASE_URL,
-                    projectId = configuration.projectId,
-                    privateKey = configuration.privateKey,
-                    debug = configuration.debug
+                if (force) {
+                    with(instance.apiGraph) {
+                        contextGraph.configuration = configuration
+                        POLogger.clear()
+                        if (configuration.debug) {
+                            POLogger.add(serviceGraph.systemLoggerService)
+                            POLogger.info("Applied new ProcessOut configuration.")
+                        }
+                    }
+                } else {
+                    POLogger.info("ProcessOut is already configured.")
+                }
+            } else {
+                val contextGraph = DefaultContextGraph(
+                    configuration = configuration
                 )
-            )
-
-            val repositoryGraph = DefaultRepositoryGraph(
-                contextGraph = contextGraph,
-                networkGraph = networkGraph
-            )
-
-            val apiGraph = ApiGraph(
-                repositoryGraph = repositoryGraph,
-                serviceGraph = DefaultServiceGraph(
+                val networkGraph = DefaultNetworkGraph(
+                    contextGraph = contextGraph,
+                    baseUrl = ApiConstants.BASE_URL,
+                    sdkVersion = VERSION
+                )
+                val repositoryGraph = DefaultRepositoryGraph(
+                    contextGraph = contextGraph,
+                    networkGraph = networkGraph
+                )
+                val serviceGraph = DefaultServiceGraph(
                     contextGraph = contextGraph,
                     networkGraph = networkGraph,
                     repositoryGraph = repositoryGraph,
-                    alternativePaymentMethodsConfiguration = AlternativePaymentMethodsConfiguration(
-                        baseUrl = ApiConstants.CHECKOUT_URL,
-                        projectId = configuration.projectId
-                    )
+                    alternativePaymentMethodsBaseUrl = ApiConstants.CHECKOUT_URL
                 )
-            )
+                val apiGraph = ApiGraph(
+                    contextGraph = contextGraph,
+                    repositoryGraph = repositoryGraph,
+                    serviceGraph = serviceGraph
+                )
 
-            if (configuration.debug) {
-                POLogger.add(apiGraph.serviceGraph.systemLoggerService)
+                instance = lazy { ProcessOut(apiGraph) }.value
+                legacyInstance = lazy { ProcessOutLegacyAccessor.configure(contextGraph) }.value
+
+                if (configuration.debug) {
+                    POLogger.add(serviceGraph.systemLoggerService)
+                    POLogger.info("ProcessOut configuration is complete.")
+                }
             }
-
-            instance = lazy { ProcessOut(apiGraph) }.value
-
-            legacyInstance = lazy {
-                ProcessOutAccessor.initLegacyProcessOut(
-                    configuration.application,
-                    configuration.projectId
-                )
-            }.value
         }
     }
 }
