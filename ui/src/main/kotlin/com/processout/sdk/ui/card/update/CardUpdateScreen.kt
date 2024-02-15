@@ -128,6 +128,7 @@ private fun Fields(
                 },
             style = style,
             enabled = state.enabled,
+            readOnly = !state.enabled,
             isError = state.isError,
             forceTextDirectionLtr = state.forceTextDirectionLtr,
             placeholderText = state.placeholder,
