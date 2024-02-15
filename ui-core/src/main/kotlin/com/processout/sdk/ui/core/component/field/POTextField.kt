@@ -33,6 +33,7 @@ fun POTextField(
     modifier: Modifier = Modifier,
     style: POField.Style = POField.default,
     enabled: Boolean = true,
+    readOnly: Boolean = false,
     isError: Boolean = false,
     forceTextDirectionLtr: Boolean = false,
     placeholderText: String? = null,
@@ -54,6 +55,7 @@ fun POTextField(
             onValueChange = onValueChange,
             modifier = modifier.requiredHeight(ProcessOutTheme.dimensions.formComponentHeight),
             enabled = enabled,
+            readOnly = readOnly,
             textStyle = POField.textStyle(
                 isError = isError,
                 forceTextDirectionLtr = forceTextDirectionLtr,
