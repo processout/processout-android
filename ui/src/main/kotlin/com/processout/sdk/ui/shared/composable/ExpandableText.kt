@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.component.POText
+import com.processout.sdk.ui.shared.extension.conditional
 
 @Composable
 internal fun ExpandableText(
@@ -16,12 +17,13 @@ internal fun ExpandableText(
     style: POText.Style,
     modifier: Modifier = Modifier
 ) {
-    var modifier = modifier.animateContentSize()
-    modifier = if (text != null) {
-        modifier.wrapContentHeight()
-    } else {
-        modifier.requiredHeight(0.dp)
-    }
+    val modifier = modifier
+        .animateContentSize()
+        .conditional(
+            condition = text != null,
+            whenTrue = { wrapContentHeight() },
+            whenFalse = { requiredHeight(0.dp) }
+        )
     with(style) {
         POText(
             text = text ?: String(),
