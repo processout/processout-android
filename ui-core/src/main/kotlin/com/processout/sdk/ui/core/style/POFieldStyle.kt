@@ -19,5 +19,7 @@ data class POFieldStateStyle(
     val backgroundColorResId: Int,
     @ColorRes
     val controlsTintColorResId: Int,
-    val border: POBorderStyle
+    val border: POBorderStyle,
+    @ColorRes
+    val dropdownRippleColorResId: Int? = null
 ) : Parcelable
