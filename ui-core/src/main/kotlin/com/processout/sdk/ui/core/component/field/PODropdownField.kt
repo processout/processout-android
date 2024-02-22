@@ -12,10 +12,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.window.PopupProperties
+import com.processout.sdk.ui.core.R
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.state.POAvailableValue
@@ -30,6 +33,7 @@ fun PODropdownField(
     onValueChange: (TextFieldValue) -> Unit,
     availableValues: POImmutableList<POAvailableValue>,
     modifier: Modifier = Modifier,
+    fieldStyle: POField.Style = POField.default,
     enabled: Boolean = true,
     isError: Boolean = false,
     placeholderText: String? = null,
@@ -48,13 +52,19 @@ fun PODropdownField(
                     ?.let { TextFieldValue(it.text) } ?: TextFieldValue(),
                 onValueChange = {},
                 modifier = modifier.menuAnchor(),
+                style = fieldStyle,
                 enabled = enabled,
                 readOnly = true,
                 isDropdown = true,
                 isError = isError,
                 placeholderText = placeholderText,
                 trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                    Icon(
+                        painter = painterResource(id = R.drawable.po_dropdown_arrow),
+                        contentDescription = null,
+                        modifier = Modifier.rotate(if (expanded) 180f else 0f),
+                        tint = if (isError) fieldStyle.error.controlsTintColor else fieldStyle.normal.controlsTintColor
+                    )
                 }
             )
             val menuItemHeight = ProcessOutTheme.dimensions.formComponentHeight
