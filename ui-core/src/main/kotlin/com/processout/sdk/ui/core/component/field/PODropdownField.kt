@@ -1,4 +1,5 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
+@file:Suppress("MayBeConstant")
 
 package com.processout.sdk.ui.core.component.field
 
@@ -14,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.POText
@@ -57,12 +57,15 @@ fun PODropdownField(
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                 }
             )
+            val menuItemHeight = ProcessOutTheme.dimensions.formComponentHeight
+            val menuVerticalPaddings = ProcessOutTheme.spacing.large
+            val maxMenuHeight = remember { menuItemHeight * PODropdownField.MaxVisibleMenuItems + menuVerticalPaddings }
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
                 modifier = Modifier
                     .exposedDropdownSize()
-                    .requiredHeightIn(max = 324.dp)
+                    .requiredHeightIn(max = maxMenuHeight)
                     .background(color = ProcessOutTheme.colors.surface.neutral),
                 properties = PopupProperties(
                     focusable = true,
@@ -71,12 +74,13 @@ fun PODropdownField(
                 )
             ) {
                 availableValues.elements.forEach { availableValue ->
-                    PODropdownMenuItem(
+                    MenuItem(
                         availableValue = availableValue,
                         onClick = {
                             expanded = false
                             onValueChange(TextFieldValue(it.value))
-                        }
+                        },
+                        modifier = Modifier.requiredHeight(menuItemHeight)
                     )
                 }
             }
@@ -85,7 +89,7 @@ fun PODropdownField(
 }
 
 @Composable
-private fun PODropdownMenuItem(
+private fun MenuItem(
     availableValue: POAvailableValue,
     onClick: (POAvailableValue) -> Unit,
     modifier: Modifier = Modifier,
@@ -99,7 +103,6 @@ private fun PODropdownMenuItem(
                 indication = rememberRipple(color = ProcessOutTheme.colors.text.muted)
             )
             .fillMaxWidth()
-            .requiredHeight(44.dp)
             .padding(horizontal = ProcessOutTheme.spacing.medium),
         contentAlignment = Alignment.CenterStart
     ) {
@@ -117,4 +120,5 @@ private fun PODropdownMenuItem(
 @ProcessOutInternalApi
 object PODropdownField {
 
+    internal val MaxVisibleMenuItems = 7
 }
