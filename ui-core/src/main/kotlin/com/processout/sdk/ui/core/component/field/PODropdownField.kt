@@ -4,9 +4,11 @@
 package com.processout.sdk.ui.core.component.field
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -17,9 +19,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import com.processout.sdk.ui.core.R
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.core.component.POBorderStroke
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.core.state.POImmutableList
@@ -34,13 +38,14 @@ fun PODropdownField(
     availableValues: POImmutableList<POAvailableValue>,
     modifier: Modifier = Modifier,
     fieldStyle: POField.Style = POField.default,
+    menuStyle: PODropdownField.MenuStyle = PODropdownField.defaultMenu,
     enabled: Boolean = true,
     isError: Boolean = false,
     placeholderText: String? = null,
 ) {
     MaterialTheme(
         colorScheme = MaterialTheme.colorScheme.copy(surface = Color.Transparent),
-        shapes = MaterialTheme.shapes.copy(extraSmall = ProcessOutTheme.shapes.roundedCornersSmall)
+        shapes = MaterialTheme.shapes.copy(extraSmall = menuStyle.shape)
     ) {
         var expanded by remember { mutableStateOf(false) }
         ExposedDropdownMenuBox(
@@ -76,11 +81,16 @@ fun PODropdownField(
                 modifier = Modifier
                     .exposedDropdownSize()
                     .requiredHeightIn(max = maxMenuHeight)
-                    .background(color = ProcessOutTheme.colors.surface.neutral),
+                    .border(
+                        width = menuStyle.border.width,
+                        color = menuStyle.border.color,
+                        shape = menuStyle.shape
+                    )
+                    .background(color = menuStyle.backgroundColor),
                 properties = PopupProperties(
                     focusable = true,
-                    dismissOnClickOutside = true,
-                    dismissOnBackPress = true
+                    dismissOnBackPress = true,
+                    dismissOnClickOutside = true
                 )
             ) {
                 availableValues.elements.forEach { availableValue ->
@@ -90,7 +100,8 @@ fun PODropdownField(
                             expanded = false
                             onValueChange(TextFieldValue(it.value))
                         },
-                        modifier = Modifier.requiredHeight(menuItemHeight)
+                        modifier = Modifier.requiredHeight(menuItemHeight),
+                        style = menuStyle
                     )
                 }
             }
@@ -103,6 +114,7 @@ private fun MenuItem(
     availableValue: POAvailableValue,
     onClick: (POAvailableValue) -> Unit,
     modifier: Modifier = Modifier,
+    style: PODropdownField.MenuStyle,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
     Box(
@@ -110,7 +122,7 @@ private fun MenuItem(
             .clickable(
                 onClick = { onClick(availableValue) },
                 interactionSource = interactionSource,
-                indication = rememberRipple(color = ProcessOutTheme.colors.text.muted)
+                indication = rememberRipple(color = style.rippleColor)
             )
             .fillMaxWidth()
             .padding(horizontal = ProcessOutTheme.spacing.medium),
@@ -118,10 +130,10 @@ private fun MenuItem(
     ) {
         POText(
             text = availableValue.text,
-            color = ProcessOutTheme.colors.text.primary,
-            style = ProcessOutTheme.typography.fixed.label,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            color = style.text.color,
+            style = style.text.textStyle,
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1
         )
     }
 }
@@ -129,6 +141,29 @@ private fun MenuItem(
 /** @suppress */
 @ProcessOutInternalApi
 object PODropdownField {
+
+    @Immutable
+    data class MenuStyle(
+        val text: POText.Style,
+        val backgroundColor: Color,
+        val rippleColor: Color,
+        val shape: CornerBasedShape,
+        val border: POBorderStroke
+    )
+
+    val defaultMenu: MenuStyle
+        @Composable get() = with(ProcessOutTheme) {
+            MenuStyle(
+                text = POText.Style(
+                    color = colors.text.primary,
+                    textStyle = typography.fixed.label
+                ),
+                backgroundColor = colors.surface.neutral,
+                rippleColor = colors.text.muted,
+                shape = shapes.roundedCornersSmall,
+                border = POBorderStroke(width = 0.dp, color = Color.Transparent)
+            )
+        }
 
     internal val MaxVisibleMenuItems = 7
 }
