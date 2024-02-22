@@ -20,6 +20,7 @@ class POMutableFieldState(
     val placeholder: String? = null,
     val forceTextDirectionLtr: Boolean = false,
     value: TextFieldValue = TextFieldValue(),
+    availableValues: POImmutableList<POAvailableValue>? = null,
     enabled: Boolean = true,
     isError: Boolean = false,
     description: String? = null,
@@ -30,6 +31,7 @@ class POMutableFieldState(
     keyboardActionId: String? = null
 ) {
     var value by mutableStateOf(value)
+    var availableValues by mutableStateOf(availableValues)
     var enabled by mutableStateOf(enabled)
     var isError by mutableStateOf(isError)
     var description by mutableStateOf(description)
