@@ -83,7 +83,7 @@ fun PODropdownField(
                 onDismissRequest = { expanded = false },
                 modifier = Modifier
                     .exposedDropdownSize()
-                    .requiredHeightIn(max = maxMenuHeight)
+                    .heightIn(max = maxMenuHeight)
                     .border(
                         width = menuStyle.border.width,
                         color = menuStyle.border.color,
