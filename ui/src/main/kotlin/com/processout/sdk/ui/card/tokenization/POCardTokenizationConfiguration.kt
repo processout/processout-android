@@ -5,6 +5,7 @@ import androidx.annotation.ColorRes
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.style.POActionsContainerStyle
+import com.processout.sdk.ui.core.style.PODropdownMenuStyle
 import com.processout.sdk.ui.core.style.POFieldStyle
 import com.processout.sdk.ui.core.style.POTextStyle
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
@@ -35,6 +36,7 @@ data class POCardTokenizationConfiguration(
         val title: POTextStyle? = null,
         val sectionTitle: POTextStyle? = null,
         val field: POFieldStyle? = null,
+        val dropdownMenu: PODropdownMenuStyle? = null,
         val errorMessage: POTextStyle? = null,
         val actionsContainer: POActionsContainerStyle? = null,
         @ColorRes

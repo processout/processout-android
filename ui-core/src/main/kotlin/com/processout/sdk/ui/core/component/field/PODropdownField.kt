@@ -9,6 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CornerBasedShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
@@ -27,6 +29,7 @@ import com.processout.sdk.ui.core.component.POBorderStroke
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.core.state.POImmutableList
+import com.processout.sdk.ui.core.style.PODropdownMenuStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 
 /** @suppress */
@@ -164,6 +167,20 @@ object PODropdownField {
                 border = POBorderStroke(width = 0.dp, color = Color.Transparent)
             )
         }
+
+    @Composable
+    fun custom(style: PODropdownMenuStyle) = with(style) {
+        MenuStyle(
+            text = POText.custom(style = text),
+            backgroundColor = colorResource(id = backgroundColorResId),
+            rippleColor = colorResource(id = rippleColorResId),
+            shape = RoundedCornerShape(size = border.radiusDp.dp),
+            border = POBorderStroke(
+                width = border.widthDp.dp,
+                color = colorResource(id = border.colorResId)
+            )
+        )
+    }
 
     internal val MaxVisibleMenuItems = 7
 }

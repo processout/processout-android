@@ -24,6 +24,7 @@ import com.processout.sdk.ui.card.tokenization.CardTokenizationSection.Item
 import com.processout.sdk.ui.core.component.POActionsContainer
 import com.processout.sdk.ui.core.component.POHeader
 import com.processout.sdk.ui.core.component.POText
+import com.processout.sdk.ui.core.component.field.PODropdownField
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.POTextField
 import com.processout.sdk.ui.core.state.POActionState
@@ -251,6 +252,7 @@ internal object CardTokenizationScreen {
         val title: POText.Style,
         val sectionTitle: POText.Style,
         val field: POField.Style,
+        val dropdownMenu: PODropdownField.MenuStyle,
         val errorMessage: POText.Style,
         val actionsContainer: POActionsContainer.Style,
         val backgroundColor: Color,
@@ -269,6 +271,9 @@ internal object CardTokenizationScreen {
         field = custom?.field?.let {
             POField.custom(style = it)
         } ?: POField.default,
+        dropdownMenu = custom?.dropdownMenu?.let {
+            PODropdownField.custom(style = it)
+        } ?: PODropdownField.defaultMenu,
         errorMessage = custom?.errorMessage?.let {
             POText.custom(style = it)
         } ?: POText.errorLabel,
