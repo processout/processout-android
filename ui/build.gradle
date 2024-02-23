@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'org.jetbrains.dokka'
     id 'kotlin-parcelize'
+    id 'com.google.devtools.ksp'
 }
 
 ext {
@@ -86,4 +87,6 @@ dependencies {
     api "androidx.activity:activity-compose:$androidxActivityVersion"
     api "androidx.lifecycle:lifecycle-runtime-compose:$androidxLifecycleVersion"
     api "androidx.lifecycle:lifecycle-viewmodel-compose:$androidxLifecycleVersion"
+
+    ksp "com.squareup.moshi:moshi-kotlin-codegen:$moshiVersion"
 }
