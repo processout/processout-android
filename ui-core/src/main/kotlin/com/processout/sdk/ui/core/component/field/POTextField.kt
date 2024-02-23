@@ -34,6 +34,7 @@ fun POTextField(
     style: POField.Style = POField.default,
     enabled: Boolean = true,
     readOnly: Boolean = false,
+    isDropdown: Boolean = false,
     isError: Boolean = false,
     forceTextDirectionLtr: Boolean = false,
     placeholderText: String? = null,
@@ -90,6 +91,7 @@ fun POTextField(
                     contentPadding = POField.contentPadding,
                     container = {
                         POField.ContainerBox(
+                            isDropdown = isDropdown,
                             isError = isError,
                             style = style
                         )

@@ -2,14 +2,19 @@ package com.processout.sdk.ui.core.component.field
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.selection.TextSelectionColors
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
@@ -25,6 +30,7 @@ import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.ActionId
 import com.processout.sdk.ui.core.component.POBorderStroke
 import com.processout.sdk.ui.core.component.POText
+import com.processout.sdk.ui.core.extension.conditional
 import com.processout.sdk.ui.core.style.POFieldStateStyle
 import com.processout.sdk.ui.core.style.POFieldStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
@@ -45,6 +51,7 @@ object POField {
         val placeholderTextColor: Color,
         val backgroundColor: Color,
         val controlsTintColor: Color,
+        val dropdownRippleColor: Color,
         val shape: Shape,
         val border: POBorderStroke
     )
@@ -60,6 +67,7 @@ object POField {
                     placeholderTextColor = colors.text.muted,
                     backgroundColor = colors.surface.background,
                     controlsTintColor = colors.text.primary,
+                    dropdownRippleColor = colors.text.tertiary,
                     shape = shapes.roundedCornersSmall,
                     border = POBorderStroke(width = 1.dp, color = colors.border.default)
                 ),
@@ -71,6 +79,7 @@ object POField {
                     placeholderTextColor = colors.text.muted,
                     backgroundColor = colors.surface.background,
                     controlsTintColor = colors.text.error,
+                    dropdownRippleColor = colors.text.tertiary,
                     shape = shapes.roundedCornersSmall,
                     border = POBorderStroke(width = 1.dp, color = colors.text.error)
                 )
@@ -89,6 +98,8 @@ object POField {
         placeholderTextColor = colorResource(id = placeholderTextColorResId),
         backgroundColor = colorResource(id = backgroundColorResId),
         controlsTintColor = colorResource(id = controlsTintColorResId),
+        dropdownRippleColor = dropdownRippleColorResId?.let { colorResource(id = it) }
+            ?: ProcessOutTheme.colors.text.tertiary,
         shape = RoundedCornerShape(size = border.radiusDp.dp),
         border = POBorderStroke(
             width = border.widthDp.dp,
@@ -139,6 +150,7 @@ object POField {
 
     @Composable
     internal fun ContainerBox(
+        isDropdown: Boolean,
         isError: Boolean,
         style: Style
     ) {
@@ -154,6 +166,16 @@ object POField {
                     color = if (isError) style.error.backgroundColor else style.normal.backgroundColor,
                     shape = shape
                 )
+                .clip(shape)
+                .conditional(isDropdown) {
+                    clickable(
+                        onClick = {},
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = rememberRipple(
+                            color = if (isError) style.error.dropdownRippleColor else style.normal.dropdownRippleColor
+                        )
+                    )
+                }
         )
     }
 
