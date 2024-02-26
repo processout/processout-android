@@ -9,8 +9,8 @@ internal data class AddressSpecification(
     val units: List<Unit>?,
     val cityUnit: CityUnit?,
     val stateUnit: StateUnit?,
-    val states: List<State>?,
-    val postcodeUnit: PostcodeUnit?
+    val postcodeUnit: PostcodeUnit?,
+    val states: List<State>?
 ) {
 
     @JsonClass(generateAdapter = false)
