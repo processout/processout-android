@@ -31,8 +31,8 @@ internal class AddressSpecificationProvider(
         states = null
     )
 
-    suspend fun countryCodes(): List<String> {
-        return loadSpecifications().keys.sorted()
+    suspend fun countryCodes(): Set<String> {
+        return loadSpecifications().keys
     }
 
     suspend fun specification(countryCode: String): AddressSpecification {
