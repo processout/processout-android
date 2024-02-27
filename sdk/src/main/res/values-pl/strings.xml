@@ -23,4 +23,25 @@
         <item quantity="other">Nieprawidłowa długość. Oczekiwano %d znaków.</item>
     </plurals>
 
+    <!-- Address Specification -->
+    <string name="address_spec_area">Obszar</string>
+    <string name="address_spec_city">Miejscowość</string>
+    <string name="address_spec_county">Hrabstwo</string>
+    <string name="address_spec_department">Departament</string>
+    <string name="address_spec_district">Dystrykt</string>
+    <string name="address_spec_do_si">Do Si</string>
+    <string name="address_spec_eircode">Eircode</string>
+    <string name="address_spec_emirate">Emiraty</string>
+    <string name="address_spec_island">Wyspa</string>
+    <string name="address_spec_oblast">Obwód</string>
+    <string name="address_spec_parish">Parafia</string>
+    <string name="address_spec_pin">PIN</string>
+    <string name="address_spec_post_town">Miejscowość</string>
+    <string name="address_spec_postcode">Kod pocztowy</string>
+    <string name="address_spec_prefecture">Prefektura</string>
+    <string name="address_spec_province">Prowincja</string>
+    <string name="address_spec_state">Stan</string>
+    <string name="address_spec_suburb">Przedmieścia</string>
+    <string name="address_spec_zip">Kod p</string>
+
 </resources>
