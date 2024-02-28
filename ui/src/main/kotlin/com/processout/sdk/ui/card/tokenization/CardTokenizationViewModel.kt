@@ -320,7 +320,7 @@ internal class CardTokenizationViewModel(
     }
 
     private fun setLastFieldImeAction() {
-        lastField()?.apply {
+        lastFocusableField()?.apply {
             keyboardOptions = keyboardOptions.copy(imeAction = ImeAction.Done)
             keyboardActionId = ActionId.SUBMIT
         }
@@ -667,23 +667,27 @@ internal class CardTokenizationViewModel(
         return null
     }
 
-    private fun lastField(): POMutableFieldState? {
-        _sections.lastOrNull()?.let { section ->
-            section.items.elements.lastOrNull()?.let { item ->
-                return lastField(item)
+    private fun lastFocusableField(): POMutableFieldState? {
+        _sections.reversed().forEach { section ->
+            section.items.elements.reversed().forEach { item ->
+                lastFocusableField(item)
+                    ?.let { return it }
             }
         }
         return null
     }
 
-    private fun lastField(item: Item): POMutableFieldState? =
+    private fun lastFocusableField(item: Item): POMutableFieldState? {
         when (item) {
-            is Item.TextField -> item.state
-            is Item.Group -> item.items.elements.lastOrNull()?.let { groupItem ->
-                return lastField(groupItem)
+            is Item.TextField -> return item.state
+            is Item.Group -> item.items.elements.reversed().forEach { groupItem ->
+                lastFocusableField(groupItem)
+                    ?.let { return it }
             }
-            else -> null
+            else -> return null
         }
+        return null
+    }
 
     private fun fieldValues(): List<FieldValue> {
         val fieldValues = mutableListOf<FieldValue>()
