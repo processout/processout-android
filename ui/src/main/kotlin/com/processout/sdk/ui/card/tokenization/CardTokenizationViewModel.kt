@@ -27,16 +27,17 @@ import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationSection.Item
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.CollectionMode
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.RestoreConfiguration
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationFormData.CardInformation
-import com.processout.sdk.ui.core.state.POActionState
-import com.processout.sdk.ui.core.state.POMutableFieldState
-import com.processout.sdk.ui.core.state.POStableList
+import com.processout.sdk.ui.core.state.*
+import com.processout.sdk.ui.shared.extension.currentAppLocale
 import com.processout.sdk.ui.shared.extension.orElse
 import com.processout.sdk.ui.shared.filter.CardExpirationInputFilter
 import com.processout.sdk.ui.shared.filter.CardNumberInputFilter
 import com.processout.sdk.ui.shared.filter.CardSecurityCodeInputFilter
 import com.processout.sdk.ui.shared.provider.CardSchemeProvider
+import com.processout.sdk.ui.shared.provider.address.AddressSpecificationProvider
 import com.processout.sdk.ui.shared.provider.cardSchemeDrawableResId
 import com.processout.sdk.ui.shared.transformation.CardExpirationVisualTransformation
 import com.processout.sdk.ui.shared.transformation.CardNumberVisualTransformation
@@ -45,12 +46,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 internal class CardTokenizationViewModel(
     private val app: Application,
     private val configuration: POCardTokenizationConfiguration,
     private val cardsRepository: POCardsRepository,
     private val cardSchemeProvider: CardSchemeProvider,
+    private val addressSpecificationProvider: AddressSpecificationProvider,
     private val eventDispatcher: PODefaultCardTokenizationEventDispatcher
 ) : ViewModel() {
 
@@ -65,6 +68,7 @@ internal class CardTokenizationViewModel(
                 configuration = configuration,
                 cardsRepository = ProcessOut.instance.cards,
                 cardSchemeProvider = CardSchemeProvider(),
+                addressSpecificationProvider = AddressSpecificationProvider(app),
                 eventDispatcher = PODefaultCardTokenizationEventDispatcher
             ) as T
     }
@@ -85,6 +89,10 @@ internal class CardTokenizationViewModel(
         const val EXPIRATION = "card-expiration"
         const val CVC = "card-cvc"
         const val CARDHOLDER = "cardholder-name"
+    }
+
+    private object AddressFieldId {
+        const val COUNTRY = "country-code"
     }
 
     private object ActionId {
@@ -118,16 +126,22 @@ internal class CardTokenizationViewModel(
     private var issuerInformationJob: Job? = null
 
     init {
-        setLastFieldImeAction()
-        collectPreferredScheme()
-        shouldContinueOnFailure()
-        configuration.restore?.let {
-            POLogger.info("Restoring card tokenization.")
-            restore(it)
-            dispatch(DidStart(restored = true))
-        }.orElse {
-            POLogger.info("Card tokenization is started: waiting for user input.")
-            dispatch(DidStart(restored = false))
+        viewModelScope.launch {
+            if (configuration.billingAddress.mode != CollectionMode.Never) {
+                val countryCodes = addressSpecificationProvider.countryCodes()
+                billingAddressSection(countryCodes)?.let { _sections.add(it) }
+            }
+            setLastFieldImeAction()
+            collectPreferredScheme()
+            shouldContinueOnFailure()
+            configuration.restore?.let {
+                POLogger.info("Restoring card tokenization.")
+                restore(it)
+                dispatch(DidStart(restored = true))
+            }.orElse {
+                POLogger.info("Card tokenization is started: waiting for user input.")
+                dispatch(DidStart(restored = false))
+            }
         }
     }
 
@@ -169,6 +183,19 @@ internal class CardTokenizationViewModel(
         }
         return CardTokenizationSection(
             id = SectionId.CARD_INFORMATION,
+            items = POStableList(items)
+        )
+    }
+
+    private fun billingAddressSection(countryCodes: Set<String>): CardTokenizationSection? {
+        val items = mutableListOf<Item>()
+        countryField(countryCodes)?.let { items.add(it) }
+        if (items.isEmpty()) {
+            return null
+        }
+        return CardTokenizationSection(
+            id = SectionId.BILLING_ADDRESS,
+            title = app.getString(R.string.po_card_tokenization_billing_address_title),
             items = POStableList(items)
         )
     }
@@ -258,6 +285,36 @@ internal class CardTokenizationViewModel(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
                 )
+            )
+        )
+    }
+
+    private fun countryField(countryCodes: Set<String>): Item.DropdownField? {
+        val supportedCountryCodes = configuration.billingAddress.countryCodes
+            ?.let { configurationCountryCodes ->
+                configurationCountryCodes.filter { countryCodes.contains(it) }
+            }.orElse { countryCodes }
+        if (supportedCountryCodes.isEmpty()) {
+            return null
+        }
+
+        val availableValues = supportedCountryCodes.map {
+            POAvailableValue(
+                value = it,
+                text = Locale(String(), it).displayCountry
+            )
+        }.sortedBy { it.text }
+
+        var defaultCountryCode: String = configuration.billingAddress.defaultAddress?.countryCode
+            ?: app.currentAppLocale().country
+        if (!supportedCountryCodes.contains(defaultCountryCode)) {
+            defaultCountryCode = availableValues.first().value
+        }
+        return Item.DropdownField(
+            POMutableFieldState(
+                id = AddressFieldId.COUNTRY,
+                value = TextFieldValue(text = defaultCountryCode),
+                availableValues = POImmutableList(availableValues)
             )
         )
     }
@@ -598,6 +655,10 @@ internal class CardTokenizationViewModel(
                 if (item.state.id == id) {
                     return item.state
                 }
+            is Item.DropdownField ->
+                if (item.state.id == id) {
+                    return item.state
+                }
             is Item.Group -> item.items.elements.forEach { groupItem ->
                 field(id, groupItem)
                     ?.let { return it }
@@ -615,40 +676,44 @@ internal class CardTokenizationViewModel(
         return null
     }
 
-    private fun lastField(item: Item): POMutableFieldState? {
+    private fun lastField(item: Item): POMutableFieldState? =
         when (item) {
-            is Item.TextField -> return item.state
+            is Item.TextField -> item.state
             is Item.Group -> item.items.elements.lastOrNull()?.let { groupItem ->
                 return lastField(groupItem)
             }
+            else -> null
         }
-        return null
-    }
 
     private fun fieldValues(): List<FieldValue> {
         val fieldValues = mutableListOf<FieldValue>()
         _sections.forEach { section ->
             section.items.elements.forEach { item ->
-                fieldValues(item, fieldValues)
+                addFieldValues(item, fieldValues)
             }
         }
         return fieldValues
     }
 
-    private fun fieldValues(item: Item, fieldValues: MutableList<FieldValue>) {
+    private fun addFieldValues(item: Item, fieldValues: MutableList<FieldValue>) {
         when (item) {
-            is Item.TextField -> with(item.state) {
-                fieldValues.add(
-                    FieldValue(
-                        id = id,
-                        value = value.text,
-                        isValid = !isError
-                    )
-                )
-            }
+            is Item.TextField -> addFieldValue(item.state, fieldValues)
+            is Item.DropdownField -> addFieldValue(item.state, fieldValues)
             is Item.Group -> item.items.elements.forEach { groupItem ->
-                fieldValues(groupItem, fieldValues)
+                addFieldValues(groupItem, fieldValues)
             }
+        }
+    }
+
+    private fun addFieldValue(state: POMutableFieldState, fieldValues: MutableList<FieldValue>) {
+        with(state) {
+            fieldValues.add(
+                FieldValue(
+                    id = id,
+                    value = value.text,
+                    isValid = !isError
+                )
+            )
         }
     }
 

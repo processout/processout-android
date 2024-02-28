@@ -115,7 +115,7 @@ private fun Sections(
                 lifecycleEvent = lifecycleEvent,
                 focusedFieldId = state.focusedFieldId,
                 isPrimaryActionEnabled = state.primaryAction.enabled && !state.primaryAction.loading,
-                style = style.field,
+                style = style,
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -134,7 +134,7 @@ private fun Item(
     lifecycleEvent: Lifecycle.Event,
     focusedFieldId: String?,
     isPrimaryActionEnabled: Boolean,
-    style: POField.Style,
+    style: CardTokenizationScreen.Style,
     modifier: Modifier = Modifier
 ) {
     when (item) {
@@ -144,7 +144,14 @@ private fun Item(
             lifecycleEvent = lifecycleEvent,
             focusedFieldId = focusedFieldId,
             isPrimaryActionEnabled = isPrimaryActionEnabled,
-            style = style,
+            style = style.field,
+            modifier = modifier
+        )
+        is Item.DropdownField -> DropdownField(
+            state = item.state,
+            onEvent = onEvent,
+            fieldStyle = style.field,
+            menuStyle = style.dropdownMenu,
             modifier = modifier
         )
         is Item.Group -> Row(
@@ -214,6 +221,34 @@ private fun TextField(
     if (state.id == focusedFieldId && lifecycleEvent == Lifecycle.Event.ON_RESUME) {
         RequestFocus(focusRequester, lifecycleEvent)
     }
+}
+
+@Composable
+private fun DropdownField(
+    state: POMutableFieldState,
+    onEvent: (CardTokenizationEvent) -> Unit,
+    fieldStyle: POField.Style,
+    menuStyle: PODropdownField.MenuStyle,
+    modifier: Modifier = Modifier
+) {
+    PODropdownField(
+        value = state.value,
+        onValueChange = {
+            onEvent(
+                FieldValueChanged(
+                    id = state.id,
+                    value = it
+                )
+            )
+        },
+        availableValues = state.availableValues ?: POImmutableList(emptyList()),
+        modifier = modifier,
+        fieldStyle = fieldStyle,
+        menuStyle = menuStyle,
+        enabled = state.enabled,
+        isError = state.isError,
+        placeholderText = state.placeholder
+    )
 }
 
 @Composable

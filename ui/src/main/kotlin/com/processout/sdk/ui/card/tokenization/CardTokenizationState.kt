@@ -31,6 +31,7 @@ internal data class CardTokenizationSection(
     @Stable
     sealed interface Item {
         data class TextField(val state: POMutableFieldState) : Item
+        data class DropdownField(val state: POMutableFieldState) : Item
         data class Group(val items: POStableList<Item>) : Item
     }
 }
