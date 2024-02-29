@@ -57,7 +57,7 @@ ext {
     coilVersion = '2.5.0'
     commonMarkVersion = '0.21.0'
 
-    checkout3dsSdkVersion = '3.2.0'
+    checkout3dsSdkVersion = '3.2.1'
     adyen3dsSdkVersion = '2.2.15'
 
     junitVersion = '4.13.2'
