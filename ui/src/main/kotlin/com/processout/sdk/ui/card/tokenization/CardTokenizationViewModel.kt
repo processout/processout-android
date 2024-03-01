@@ -127,11 +127,8 @@ internal class CardTokenizationViewModel(
 
     init {
         viewModelScope.launch {
-            if (configuration.billingAddress.mode != CollectionMode.Never) {
-                val countryCodes = addressSpecificationProvider.countryCodes()
-                billingAddressSection(countryCodes)?.let { _sections.add(it) }
-            }
-            setLastFieldImeAction()
+            initBillingAddressSection()
+            updateImeActions()
             collectPreferredScheme()
             shouldContinueOnFailure()
             configuration.restore?.let {
@@ -169,22 +166,28 @@ internal class CardTokenizationViewModel(
     private fun cardInformationSection(): CardTokenizationSection {
         val items = mutableListOf(
             cardNumberField(),
-            Item.Group(
-                items = POStableList(
-                    listOf(
-                        cardExpirationField(),
-                        cvcField()
-                    )
-                )
-            )
+            Item.Group(listOf(cardExpirationField(), cvcField()))
         )
         if (configuration.isCardholderNameFieldVisible) {
             items.add(cardholderField())
         }
         return CardTokenizationSection(
             id = SectionId.CARD_INFORMATION,
-            items = POStableList(items)
+            items = items
         )
+    }
+
+    private suspend fun initBillingAddressSection() {
+        if (configuration.billingAddress.mode == CollectionMode.Never) {
+            return
+        }
+        val countryCodes = addressSpecificationProvider.countryCodes()
+        billingAddressSection(countryCodes)?.let {
+            _sections.add(it)
+            field(AddressFieldId.COUNTRY)?.let { field ->
+                updateAddressSpecification(countryCode = field.value.text)
+            }
+        }
     }
 
     private fun billingAddressSection(countryCodes: Set<String>): CardTokenizationSection? {
@@ -196,7 +199,7 @@ internal class CardTokenizationViewModel(
         return CardTokenizationSection(
             id = SectionId.BILLING_ADDRESS,
             title = app.getString(R.string.po_card_tokenization_billing_address_title),
-            items = POStableList(items)
+            items = items
         )
     }
 
@@ -319,10 +322,44 @@ internal class CardTokenizationViewModel(
         )
     }
 
-    private fun setLastFieldImeAction() {
-        lastFocusableField()?.apply {
-            keyboardOptions = keyboardOptions.copy(imeAction = ImeAction.Done)
-            keyboardActionId = ActionId.SUBMIT
+    private fun updateImeActions() {
+        resetImeActions()
+        lastFocusableField()?.let {
+            updateImeAction(
+                fieldState = it,
+                imeAction = ImeAction.Done
+            )
+        }
+    }
+
+    private fun resetImeActions() {
+        _sections.forEach { section ->
+            section.items.forEach { item ->
+                resetImeActions(item)
+            }
+        }
+    }
+
+    private fun resetImeActions(item: Item) {
+        when (item) {
+            is Item.TextField -> updateImeAction(
+                fieldState = item.state,
+                imeAction = ImeAction.Next
+            )
+            is Item.Group -> item.items.forEach { groupItem ->
+                resetImeActions(groupItem)
+            }
+            else -> {}
+        }
+    }
+
+    private fun updateImeAction(fieldState: POMutableFieldState, imeAction: ImeAction) {
+        with(fieldState) {
+            keyboardOptions = keyboardOptions.copy(imeAction = imeAction)
+            keyboardActionId = when (imeAction) {
+                ImeAction.Done -> ActionId.SUBMIT
+                else -> null
+            }
         }
     }
 
@@ -360,10 +397,13 @@ internal class CardTokenizationViewModel(
                     errorMessage = null
                 )
             }
-            if (id == CardFieldId.NUMBER) {
-                updateIssuerInformation(
+            when (id) {
+                CardFieldId.NUMBER -> updateIssuerInformation(
                     cardNumber = value.text,
                     oldCardNumber = oldText
+                )
+                AddressFieldId.COUNTRY -> updateAddressSpecification(
+                    countryCode = value.text
                 )
             }
         }
@@ -462,6 +502,17 @@ internal class CardTokenizationViewModel(
             this.inputFilter = inputFilter
         }
         POLogger.info("State updated: [issuerInformation=%s] [preferredScheme=%s]", issuerInformation, preferredScheme)
+    }
+
+    private fun updateAddressSpecification(countryCode: String) {
+        viewModelScope.launch {
+            val specification = addressSpecificationProvider.specification(countryCode)
+            _sections.find { it.id == SectionId.BILLING_ADDRESS }?.apply {
+                clearItems(keepIds = setOf(AddressFieldId.COUNTRY))
+                // TODO: add fields by address specification
+                updateImeActions()
+            }
+        }
     }
 
     private fun submit() {
@@ -639,9 +690,38 @@ internal class CardTokenizationViewModel(
         }
     }
 
+    private fun CardTokenizationSection.clearItems(
+        keepIds: Set<String> = emptySet()
+    ) {
+        val iterator = items.iterator()
+        while (iterator.hasNext()) {
+            clearItems(iterator, keepIds)
+        }
+    }
+
+    private fun CardTokenizationSection.clearItems(
+        iterator: MutableIterator<Item>,
+        keepIds: Set<String> = emptySet()
+    ) {
+        when (val item = iterator.next()) {
+            is Item.TextField -> if (!keepIds.contains(item.state.id)) {
+                iterator.remove()
+            }
+            is Item.DropdownField -> if (!keepIds.contains(item.state.id)) {
+                iterator.remove()
+            }
+            is Item.Group -> {
+                val groupIterator = item.items.iterator()
+                while (groupIterator.hasNext()) {
+                    clearItems(groupIterator, keepIds)
+                }
+            }
+        }
+    }
+
     private fun field(id: String): POMutableFieldState? {
         _sections.forEach { section ->
-            section.items.elements.forEach { item ->
+            section.items.forEach { item ->
                 field(id, item)
                     ?.let { return it }
             }
@@ -659,7 +739,7 @@ internal class CardTokenizationViewModel(
                 if (item.state.id == id) {
                     return item.state
                 }
-            is Item.Group -> item.items.elements.forEach { groupItem ->
+            is Item.Group -> item.items.forEach { groupItem ->
                 field(id, groupItem)
                     ?.let { return it }
             }
@@ -669,7 +749,7 @@ internal class CardTokenizationViewModel(
 
     private fun lastFocusableField(): POMutableFieldState? {
         _sections.reversed().forEach { section ->
-            section.items.elements.reversed().forEach { item ->
+            section.items.reversed().forEach { item ->
                 lastFocusableField(item)
                     ?.let { return it }
             }
@@ -680,7 +760,7 @@ internal class CardTokenizationViewModel(
     private fun lastFocusableField(item: Item): POMutableFieldState? {
         when (item) {
             is Item.TextField -> return item.state
-            is Item.Group -> item.items.elements.reversed().forEach { groupItem ->
+            is Item.Group -> item.items.reversed().forEach { groupItem ->
                 lastFocusableField(groupItem)
                     ?.let { return it }
             }
@@ -692,7 +772,7 @@ internal class CardTokenizationViewModel(
     private fun fieldValues(): List<FieldValue> {
         val fieldValues = mutableListOf<FieldValue>()
         _sections.forEach { section ->
-            section.items.elements.forEach { item ->
+            section.items.forEach { item ->
                 addFieldValues(item, fieldValues)
             }
         }
@@ -703,7 +783,7 @@ internal class CardTokenizationViewModel(
         when (item) {
             is Item.TextField -> addFieldValue(item.state, fieldValues)
             is Item.DropdownField -> addFieldValue(item.state, fieldValues)
-            is Item.Group -> item.items.elements.forEach { groupItem ->
+            is Item.Group -> item.items.forEach { groupItem ->
                 addFieldValues(groupItem, fieldValues)
             }
         }

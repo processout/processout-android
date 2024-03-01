@@ -108,7 +108,7 @@ private fun Sections(
                 )
             }
         }
-        section.items.elements.forEach { item ->
+        section.items.forEach { item ->
             Item(
                 item = item,
                 onEvent = onEvent,
@@ -157,7 +157,7 @@ private fun Item(
         is Item.Group -> Row(
             horizontalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
         ) {
-            item.items.elements.forEach { groupItem ->
+            item.items.forEach { groupItem ->
                 Item(
                     item = groupItem,
                     onEvent = onEvent,
