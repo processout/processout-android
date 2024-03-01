@@ -27,12 +27,12 @@ class POCardTokenizationFormData internal constructor(
 
     @Parcelize
     class BillingAddress internal constructor(
+        internal val countryCode: String,
         internal val address1: String,
         internal val address2: String,
         internal val city: String,
         internal val state: String,
-        internal val postalCode: String,
-        internal val countryCode: String
+        internal val postalCode: String
     ) : Parcelable {
         override fun toString() = String()
     }
