@@ -31,24 +31,24 @@
     <string name="po_card_tokenization_error_track_data">تاريخ انتهاء صلاحية البطاقة و/أو كود التحقق CVV غير صالح</string>
 
     <!-- Address Specification -->
-    <string name="address_spec_area">المنطقة</string>
-    <string name="address_spec_city">المدينة</string>
-    <string name="address_spec_county">البلد</string>
-    <string name="address_spec_department">المقاطعة</string>
-    <string name="address_spec_district">المقاطعة</string>
-    <string name="address_spec_do_si">الولاية</string>
-    <string name="address_spec_eircode">الرمز البريدي في أيرلندا</string>
-    <string name="address_spec_emirate">الإمارة</string>
-    <string name="address_spec_island">الجزيرة</string>
-    <string name="address_spec_oblast">المقاطعة</string>
-    <string name="address_spec_parish">إيبارشية</string>
-    <string name="address_spec_pin">رقم التعريف الشخصي</string>
-    <string name="address_spec_post_town">المدينة</string>
-    <string name="address_spec_postcode">الرمز البريدي</string>
-    <string name="address_spec_prefecture">الحي السكني</string>
-    <string name="address_spec_province">الولاية</string>
-    <string name="address_spec_state">الولاية</string>
-    <string name="address_spec_suburb">المنطقة</string>
-    <string name="address_spec_zip">الرمز البريدي</string>
+    <string name="po_address_spec_area">المنطقة</string>
+    <string name="po_address_spec_city">المدينة</string>
+    <string name="po_address_spec_county">البلد</string>
+    <string name="po_address_spec_department">المقاطعة</string>
+    <string name="po_address_spec_district">المقاطعة</string>
+    <string name="po_address_spec_do_si">الولاية</string>
+    <string name="po_address_spec_eircode">الرمز البريدي في أيرلندا</string>
+    <string name="po_address_spec_emirate">الإمارة</string>
+    <string name="po_address_spec_island">الجزيرة</string>
+    <string name="po_address_spec_oblast">المقاطعة</string>
+    <string name="po_address_spec_parish">إيبارشية</string>
+    <string name="po_address_spec_pin">رقم التعريف الشخصي</string>
+    <string name="po_address_spec_post_town">المدينة</string>
+    <string name="po_address_spec_postcode">الرمز البريدي</string>
+    <string name="po_address_spec_prefecture">الحي السكني</string>
+    <string name="po_address_spec_province">الولاية</string>
+    <string name="po_address_spec_state">الولاية</string>
+    <string name="po_address_spec_suburb">المنطقة</string>
+    <string name="po_address_spec_zip">الرمز البريدي</string>
 
 </resources>

@@ -49,24 +49,24 @@
     <string name="po_card_tokenization_error_track_data">Your card expiration date and/or CVC is invalid.</string>
 
     <!-- Address Specification -->
-    <string name="address_spec_area">Area</string>
-    <string name="address_spec_city">City</string>
-    <string name="address_spec_county">County</string>
-    <string name="address_spec_department">Department</string>
-    <string name="address_spec_district">District</string>
-    <string name="address_spec_do_si">Do Si</string>
-    <string name="address_spec_eircode">Eircode</string>
-    <string name="address_spec_emirate">Emirate</string>
-    <string name="address_spec_island">Island</string>
-    <string name="address_spec_oblast">Oblast</string>
-    <string name="address_spec_parish">Parish</string>
-    <string name="address_spec_pin">PIN</string>
-    <string name="address_spec_post_town">Town or city</string>
-    <string name="address_spec_postcode">Postal code</string>
-    <string name="address_spec_prefecture">Prefecture</string>
-    <string name="address_spec_province">Province</string>
-    <string name="address_spec_state">State</string>
-    <string name="address_spec_suburb">Suburb</string>
-    <string name="address_spec_zip">ZIP</string>
+    <string name="po_address_spec_area">Area</string>
+    <string name="po_address_spec_city">City</string>
+    <string name="po_address_spec_county">County</string>
+    <string name="po_address_spec_department">Department</string>
+    <string name="po_address_spec_district">District</string>
+    <string name="po_address_spec_do_si">Do Si</string>
+    <string name="po_address_spec_eircode">Eircode</string>
+    <string name="po_address_spec_emirate">Emirate</string>
+    <string name="po_address_spec_island">Island</string>
+    <string name="po_address_spec_oblast">Oblast</string>
+    <string name="po_address_spec_parish">Parish</string>
+    <string name="po_address_spec_pin">PIN</string>
+    <string name="po_address_spec_post_town">Town or city</string>
+    <string name="po_address_spec_postcode">Postal code</string>
+    <string name="po_address_spec_prefecture">Prefecture</string>
+    <string name="po_address_spec_province">Province</string>
+    <string name="po_address_spec_state">State</string>
+    <string name="po_address_spec_suburb">Suburb</string>
+    <string name="po_address_spec_zip">ZIP</string>
 
 </resources>
