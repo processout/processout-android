@@ -6,7 +6,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 internal data class AddressSpecification(
-    val units: List<Unit>?,
+    val units: List<AddressUnit>?,
     val cityUnit: CityUnit?,
     val stateUnit: StateUnit?,
     val postcodeUnit: PostcodeUnit?,
@@ -14,7 +14,7 @@ internal data class AddressSpecification(
 ) {
 
     @JsonClass(generateAdapter = false)
-    enum class Unit {
+    enum class AddressUnit {
         street, city, state, postcode
     }
 

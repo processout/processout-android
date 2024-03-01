@@ -2,6 +2,7 @@ package com.processout.sdk.ui.shared.provider.address
 
 import android.app.Application
 import com.processout.sdk.core.logger.POLogger
+import com.processout.sdk.ui.shared.provider.address.AddressSpecification.*
 import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
@@ -24,10 +25,10 @@ internal class AddressSpecificationProvider(
     private var specifications: Map<String, AddressSpecification>? = null
 
     private val default = AddressSpecification(
-        units = AddressSpecification.Unit.entries,
-        cityUnit = AddressSpecification.CityUnit.city,
-        stateUnit = AddressSpecification.StateUnit.province,
-        postcodeUnit = AddressSpecification.PostcodeUnit.postcode,
+        units = AddressUnit.entries,
+        cityUnit = CityUnit.city,
+        stateUnit = StateUnit.province,
+        postcodeUnit = PostcodeUnit.postcode,
         states = null
     )
 
