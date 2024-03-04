@@ -19,6 +19,7 @@ import com.processout.sdk.api.model.event.POCardTokenizationEvent.*
 import com.processout.sdk.api.model.request.POCardTokenizationPreferredSchemeRequest
 import com.processout.sdk.api.model.request.POCardTokenizationRequest
 import com.processout.sdk.api.model.request.POCardTokenizationShouldContinueRequest
+import com.processout.sdk.api.model.request.POContact
 import com.processout.sdk.api.model.response.POCardIssuerInformation
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.*
@@ -133,6 +134,7 @@ internal class CardTokenizationViewModel(
     private var latestShouldContinueRequest: POCardTokenizationShouldContinueRequest? = null
 
     private var issuerInformationJob: Job? = null
+    private var addressValues: POContact? = null
 
     init {
         viewModelScope.launch {
@@ -347,18 +349,18 @@ internal class CardTokenizationViewModel(
     private fun addressFields(countryCode: String, specification: AddressSpecification): List<Item> {
         val restoreAddress = configuration.restore?.formData?.billingAddress
         val defaultAddress = configuration.billingAddress.defaultAddress
-        var address1 = restoreAddress?.address1 ?: String()
-        var address2 = restoreAddress?.address2 ?: String()
-        var city = restoreAddress?.city ?: String()
-        var state = restoreAddress?.state ?: String()
-        var postalCode = restoreAddress?.postalCode ?: String()
-        if (countryCode == defaultAddress?.countryCode) {
-            address1 = defaultAddress.address1 ?: String()
-            address2 = defaultAddress.address2 ?: String()
-            city = defaultAddress.city ?: String()
-            state = defaultAddress.state ?: String()
-            postalCode = defaultAddress.zip ?: String()
-        }
+        val address1 = addressValues?.address1 ?: restoreAddress?.address1 ?: defaultAddress?.address1 ?: String()
+        val address2 = addressValues?.address2 ?: restoreAddress?.address2 ?: defaultAddress?.address2 ?: String()
+        val city = addressValues?.city ?: restoreAddress?.city ?: defaultAddress?.city ?: String()
+        val state = addressValues?.state ?: restoreAddress?.state ?: defaultAddress?.state ?: String()
+        val postalCode = addressValues?.zip ?: restoreAddress?.postalCode ?: defaultAddress?.zip ?: String()
+        addressValues = POContact(
+            address1 = address1,
+            address2 = address2,
+            city = city,
+            state = state,
+            zip = postalCode
+        )
         val fields = mutableListOf<Item>()
         specification.units?.forEach { unit ->
             when (unit) {
@@ -539,6 +541,21 @@ internal class CardTokenizationViewModel(
                 )
                 AddressFieldId.COUNTRY -> updateAddressSpecification(
                     countryCode = value.text
+                )
+                AddressFieldId.ADDRESS_1 -> addressValues = addressValues?.copy(
+                    address1 = value.text
+                )
+                AddressFieldId.ADDRESS_2 -> addressValues = addressValues?.copy(
+                    address2 = value.text
+                )
+                AddressFieldId.CITY -> addressValues = addressValues?.copy(
+                    city = value.text
+                )
+                AddressFieldId.STATE -> addressValues = addressValues?.copy(
+                    state = value.text
+                )
+                AddressFieldId.POSTAL_CODE -> addressValues = addressValues?.copy(
+                    zip = value.text
                 )
             }
         }
