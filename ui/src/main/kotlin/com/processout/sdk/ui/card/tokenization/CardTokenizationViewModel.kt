@@ -222,7 +222,7 @@ internal class CardTokenizationViewModel(
         }
     }
 
-    private fun cardNumberField(): Item.TextField {
+    private fun cardNumberField(): Item {
         val cardInformation = configuration.restore?.formData?.cardInformation
         val number = cardInformation?.number ?: String()
         val scheme = cardInformation?.preferredScheme ?: cardInformation?.issuerInformation?.scheme
@@ -246,7 +246,7 @@ internal class CardTokenizationViewModel(
         )
     }
 
-    private fun cardExpirationField(): Item.TextField {
+    private fun cardExpirationField(): Item {
         val expiration = configuration.restore?.formData?.cardInformation?.expiration ?: String()
         return Item.TextField(
             POMutableFieldState(
@@ -267,7 +267,7 @@ internal class CardTokenizationViewModel(
         )
     }
 
-    private fun cvcField(): Item.TextField {
+    private fun cvcField(): Item {
         val cardInformation = configuration.restore?.formData?.cardInformation
         val cvc = cardInformation?.cvc ?: String()
         return Item.TextField(
@@ -291,7 +291,7 @@ internal class CardTokenizationViewModel(
         )
     }
 
-    private fun cardholderField(): Item.TextField {
+    private fun cardholderField(): Item {
         val cardholderName = configuration.restore?.formData?.cardInformation?.cardholderName ?: String()
         return Item.TextField(
             POMutableFieldState(
@@ -311,7 +311,7 @@ internal class CardTokenizationViewModel(
         )
     }
 
-    private fun countryField(countryCodes: Set<String>): Item.DropdownField? {
+    private fun countryField(countryCodes: Set<String>): Item? {
         val supportedCountryCodes = configuration.billingAddress.countryCodes
             ?.let { configurationCountryCodes ->
                 configurationCountryCodes.filter { countryCodes.contains(it) }
@@ -341,8 +341,8 @@ internal class CardTokenizationViewModel(
         )
     }
 
-    private fun addressFields(specification: AddressSpecification): List<Item.TextField> {
-        val fields = mutableListOf<Item.TextField>()
+    private fun addressFields(specification: AddressSpecification): List<Item> {
+        val fields = mutableListOf<Item>()
         specification.units?.forEach { unit ->
             when (unit) {
                 AddressSpecification.AddressUnit.street -> {
