@@ -214,7 +214,7 @@ internal class CardTokenizationViewModel(
         _sections.find { it.id == SectionId.BILLING_ADDRESS }?.apply {
             viewModelScope.launch {
                 val specification = addressSpecificationProvider.specification(countryCode)
-                val addressFields = addressFields(specification)
+                val addressFields = addressFields(countryCode, specification)
                 clearItems(keepIds = setOf(AddressFieldId.COUNTRY))
                 items.addAll(addressFields)
                 updateImeActions()
@@ -341,7 +341,21 @@ internal class CardTokenizationViewModel(
         )
     }
 
-    private fun addressFields(specification: AddressSpecification): List<Item> {
+    private fun addressFields(countryCode: String, specification: AddressSpecification): List<Item> {
+        val restoreAddress = configuration.restore?.formData?.billingAddress
+        val defaultAddress = configuration.billingAddress.defaultAddress
+        var address1 = restoreAddress?.address1 ?: String()
+        var address2 = restoreAddress?.address2 ?: String()
+        var city = restoreAddress?.city ?: String()
+        var state = restoreAddress?.state ?: String()
+        var postalCode = restoreAddress?.postalCode ?: String()
+        if (countryCode == defaultAddress?.countryCode) {
+            address1 = defaultAddress.address1 ?: String()
+            address2 = defaultAddress.address2 ?: String()
+            city = defaultAddress.city ?: String()
+            state = defaultAddress.state ?: String()
+            postalCode = defaultAddress.zip ?: String()
+        }
         val fields = mutableListOf<Item>()
         specification.units?.forEach { unit ->
             when (unit) {
@@ -350,6 +364,10 @@ internal class CardTokenizationViewModel(
                         Item.TextField(
                             POMutableFieldState(
                                 id = AddressFieldId.ADDRESS_1,
+                                value = TextFieldValue(
+                                    text = address1,
+                                    selection = TextRange(address1.length)
+                                ),
                                 placeholder = app.getString(R.string.po_card_tokenization_billing_address_street, 1),
                                 keyboardOptions = KeyboardOptions(
                                     capitalization = KeyboardCapitalization.Sentences,
@@ -361,6 +379,10 @@ internal class CardTokenizationViewModel(
                         Item.TextField(
                             POMutableFieldState(
                                 id = AddressFieldId.ADDRESS_2,
+                                value = TextFieldValue(
+                                    text = address2,
+                                    selection = TextRange(address2.length)
+                                ),
                                 placeholder = app.getString(R.string.po_card_tokenization_billing_address_street, 2),
                                 keyboardOptions = KeyboardOptions(
                                     capitalization = KeyboardCapitalization.Sentences,
@@ -375,6 +397,10 @@ internal class CardTokenizationViewModel(
                 AddressSpecification.AddressUnit.city -> Item.TextField(
                     POMutableFieldState(
                         id = AddressFieldId.CITY,
+                        value = TextFieldValue(
+                            text = city,
+                            selection = TextRange(city.length)
+                        ),
                         placeholder = specification.cityUnit?.let { app.getString(it.stringResId()) },
                         keyboardOptions = KeyboardOptions(
                             capitalization = KeyboardCapitalization.Sentences,
@@ -386,6 +412,10 @@ internal class CardTokenizationViewModel(
                 AddressSpecification.AddressUnit.state -> Item.TextField(
                     POMutableFieldState(
                         id = AddressFieldId.STATE,
+                        value = TextFieldValue(
+                            text = state,
+                            selection = TextRange(state.length)
+                        ),
                         placeholder = specification.stateUnit?.let { app.getString(it.stringResId()) },
                         keyboardOptions = KeyboardOptions(
                             capitalization = KeyboardCapitalization.Sentences,
@@ -397,6 +427,10 @@ internal class CardTokenizationViewModel(
                 AddressSpecification.AddressUnit.postcode -> Item.TextField(
                     POMutableFieldState(
                         id = AddressFieldId.POSTAL_CODE,
+                        value = TextFieldValue(
+                            text = postalCode,
+                            selection = TextRange(postalCode.length)
+                        ),
                         placeholder = specification.postcodeUnit?.let { app.getString(it.stringResId()) },
                         forceTextDirectionLtr = true,
                         keyboardOptions = KeyboardOptions(
