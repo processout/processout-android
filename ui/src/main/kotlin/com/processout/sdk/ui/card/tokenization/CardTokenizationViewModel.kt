@@ -327,7 +327,8 @@ internal class CardTokenizationViewModel(
             )
         }.sortedBy { it.text }
 
-        var defaultCountryCode: String = configuration.billingAddress.defaultAddress?.countryCode
+        var defaultCountryCode: String = configuration.restore?.formData?.billingAddress?.countryCode
+            ?: configuration.billingAddress.defaultAddress?.countryCode
             ?: app.currentAppLocale().country
         if (!supportedCountryCodes.contains(defaultCountryCode)) {
             defaultCountryCode = availableValues.first().value
