@@ -29,6 +29,7 @@ import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationSection.Item
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.CollectionMode.*
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.RestoreConfiguration
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationFormData.BillingAddress
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationFormData.CardInformation
 import com.processout.sdk.ui.core.state.*
 import com.processout.sdk.ui.shared.extension.currentAppLocale
@@ -925,30 +926,64 @@ internal class CardTokenizationViewModel(
     }
 
     private fun List<FieldValue>.toFormData(
-        state: CardTokenizationState
+        tokenizationState: CardTokenizationState
     ): POCardTokenizationFormData {
-        var number = String()
+        var cardNumber = String()
         var expiration = String()
         var cvc = String()
         var cardholderName = String()
+        var countryCode = String()
+        var address1 = String()
+        var address2 = String()
+        var city = String()
+        var state = String()
+        var postalCode = String()
         forEach {
             when (it.id) {
-                CardFieldId.NUMBER -> number = it.value
+                CardFieldId.NUMBER -> cardNumber = it.value
                 CardFieldId.EXPIRATION -> expiration = it.value
                 CardFieldId.CVC -> cvc = it.value
                 CardFieldId.CARDHOLDER -> cardholderName = it.value
+                AddressFieldId.COUNTRY -> countryCode = it.value
+                AddressFieldId.ADDRESS_1 -> address1 = it.value
+                AddressFieldId.ADDRESS_2 -> address2 = it.value
+                AddressFieldId.CITY -> city = it.value
+                AddressFieldId.STATE -> state = it.value
+                AddressFieldId.POSTAL_CODE -> postalCode = it.value
             }
         }
+        val defaultAddress = configuration.billingAddress.defaultAddress
+        countryCode = addressValue(value = countryCode, defaultValue = defaultAddress?.countryCode)
+        address1 = addressValue(value = address1, defaultValue = defaultAddress?.address1)
+        address2 = addressValue(value = address2, defaultValue = defaultAddress?.address2)
+        city = addressValue(value = city, defaultValue = defaultAddress?.city)
+        state = addressValue(value = state, defaultValue = defaultAddress?.state)
+        postalCode = addressValue(value = postalCode, defaultValue = defaultAddress?.zip)
         return POCardTokenizationFormData(
             cardInformation = CardInformation(
-                number = number,
+                number = cardNumber,
                 expiration = expiration,
                 cvc = cvc,
                 cardholderName = cardholderName,
-                issuerInformation = state.issuerInformation,
-                preferredScheme = state.preferredScheme
+                issuerInformation = tokenizationState.issuerInformation,
+                preferredScheme = tokenizationState.preferredScheme
+            ),
+            billingAddress = BillingAddress(
+                countryCode = countryCode,
+                address1 = address1,
+                address2 = address2,
+                city = city,
+                state = state,
+                postalCode = postalCode
             )
         )
+    }
+
+    private fun addressValue(value: String, defaultValue: String?): String {
+        if (!configuration.billingAddress.attachDefaultsToPaymentMethod) {
+            return value
+        }
+        return value.ifBlank { defaultValue ?: String() }
     }
 
     private fun POCardTokenizationFormData.toRequest(): POCardTokenizationRequest {

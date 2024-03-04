@@ -10,7 +10,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 class POCardTokenizationFormData internal constructor(
     internal val cardInformation: CardInformation,
-    internal val billingAddress: BillingAddress? = null
+    internal val billingAddress: BillingAddress
 ) : Parcelable {
 
     @Parcelize
