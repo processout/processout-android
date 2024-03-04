@@ -38,6 +38,7 @@ import com.processout.sdk.ui.shared.filter.CardNumberInputFilter
 import com.processout.sdk.ui.shared.filter.CardSecurityCodeInputFilter
 import com.processout.sdk.ui.shared.provider.CardSchemeProvider
 import com.processout.sdk.ui.shared.provider.address.AddressSpecification
+import com.processout.sdk.ui.shared.provider.address.AddressSpecification.AddressUnit
 import com.processout.sdk.ui.shared.provider.address.AddressSpecificationProvider
 import com.processout.sdk.ui.shared.provider.address.stringResId
 import com.processout.sdk.ui.shared.provider.cardSchemeDrawableResId
@@ -360,7 +361,7 @@ internal class CardTokenizationViewModel(
         val fields = mutableListOf<Item>()
         specification.units?.forEach { unit ->
             when (unit) {
-                AddressSpecification.AddressUnit.street -> {
+                AddressUnit.street -> {
                     val streetFields = listOf(
                         Item.TextField(
                             POMutableFieldState(
@@ -395,7 +396,7 @@ internal class CardTokenizationViewModel(
                     )
                     fields.addAll(streetFields)
                 }
-                AddressSpecification.AddressUnit.city -> Item.TextField(
+                AddressUnit.city -> Item.TextField(
                     POMutableFieldState(
                         id = AddressFieldId.CITY,
                         value = TextFieldValue(
@@ -410,7 +411,7 @@ internal class CardTokenizationViewModel(
                         )
                     )
                 ).also { fields.add(it) }
-                AddressSpecification.AddressUnit.state -> Item.TextField(
+                AddressUnit.state -> Item.TextField(
                     POMutableFieldState(
                         id = AddressFieldId.STATE,
                         value = TextFieldValue(
@@ -425,7 +426,7 @@ internal class CardTokenizationViewModel(
                         )
                     )
                 ).also { fields.add(it) }
-                AddressSpecification.AddressUnit.postcode -> Item.TextField(
+                AddressUnit.postcode -> Item.TextField(
                     POMutableFieldState(
                         id = AddressFieldId.POSTAL_CODE,
                         value = TextFieldValue(
