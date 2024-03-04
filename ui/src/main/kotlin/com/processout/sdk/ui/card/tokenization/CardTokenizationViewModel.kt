@@ -1013,6 +1013,7 @@ internal class CardTokenizationViewModel(
                 cvc = cvc,
                 name = cardholderName,
                 preferredScheme = preferredScheme,
+                contact = billingAddress.toContact(),
                 metadata = configuration.metadata
             )
         }
@@ -1025,4 +1026,13 @@ internal class CardTokenizationViewModel(
             year = dateParts.getOrNull(1)?.toIntOrNull() ?: 0
         )
     }
+
+    private fun BillingAddress.toContact() = POContact(
+        countryCode = countryCode,
+        address1 = address1,
+        address2 = address2,
+        city = city,
+        state = state,
+        zip = postalCode
+    )
 }
