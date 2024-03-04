@@ -27,7 +27,7 @@ import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationSection.Item
-import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.CollectionMode
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.CollectionMode.*
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.RestoreConfiguration
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationFormData.CardInformation
 import com.processout.sdk.ui.core.state.*
@@ -186,7 +186,7 @@ internal class CardTokenizationViewModel(
     }
 
     private suspend fun initBillingAddressSection() {
-        if (configuration.billingAddress.mode == CollectionMode.Never) {
+        if (configuration.billingAddress.mode == Never) {
             return
         }
         val countryCodes = addressSpecificationProvider.countryCodes()
@@ -426,23 +426,31 @@ internal class CardTokenizationViewModel(
                         )
                     )
                 ).also { fields.add(it) }
-                AddressUnit.postcode -> Item.TextField(
-                    POMutableFieldState(
-                        id = AddressFieldId.POSTAL_CODE,
-                        value = TextFieldValue(
-                            text = postalCode,
-                            selection = TextRange(postalCode.length)
-                        ),
-                        placeholder = specification.postcodeUnit?.let { app.getString(it.stringResId()) },
-                        forceTextDirectionLtr = true,
-                        keyboardOptions = KeyboardOptions(
-                            capitalization = KeyboardCapitalization.Characters,
-                            autoCorrect = false,
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Next
-                        )
-                    )
-                ).also { fields.add(it) }
+                AddressUnit.postcode -> {
+                    val supportedCountryCodes = setOf("US", "GB", "CA")
+                    val collectionMode = configuration.billingAddress.mode
+                    if (collectionMode == Full ||
+                        collectionMode == Automatic && supportedCountryCodes.contains(countryCode)
+                    ) {
+                        Item.TextField(
+                            POMutableFieldState(
+                                id = AddressFieldId.POSTAL_CODE,
+                                value = TextFieldValue(
+                                    text = postalCode,
+                                    selection = TextRange(postalCode.length)
+                                ),
+                                placeholder = specification.postcodeUnit?.let { app.getString(it.stringResId()) },
+                                forceTextDirectionLtr = true,
+                                keyboardOptions = KeyboardOptions(
+                                    capitalization = KeyboardCapitalization.Characters,
+                                    autoCorrect = false,
+                                    keyboardType = KeyboardType.Text,
+                                    imeAction = ImeAction.Next
+                                )
+                            )
+                        ).also { fields.add(it) }
+                    }
+                }
             }
         }
         return fields
