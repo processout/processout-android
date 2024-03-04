@@ -13,7 +13,7 @@ import java.io.IOException
 
 internal class AddressSpecificationProvider(
     private val app: Application,
-    private val moshi: Moshi = Moshi.Builder().build(),
+    private val moshi: Moshi = Moshi.Builder().add(AddressSpecificationAdapter()).build(),
     private val workDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
 
