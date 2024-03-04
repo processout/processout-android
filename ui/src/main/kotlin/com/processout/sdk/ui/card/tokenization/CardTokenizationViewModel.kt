@@ -37,7 +37,9 @@ import com.processout.sdk.ui.shared.filter.CardExpirationInputFilter
 import com.processout.sdk.ui.shared.filter.CardNumberInputFilter
 import com.processout.sdk.ui.shared.filter.CardSecurityCodeInputFilter
 import com.processout.sdk.ui.shared.provider.CardSchemeProvider
+import com.processout.sdk.ui.shared.provider.address.AddressSpecification
 import com.processout.sdk.ui.shared.provider.address.AddressSpecificationProvider
+import com.processout.sdk.ui.shared.provider.address.stringResId
 import com.processout.sdk.ui.shared.provider.cardSchemeDrawableResId
 import com.processout.sdk.ui.shared.transformation.CardExpirationVisualTransformation
 import com.processout.sdk.ui.shared.transformation.CardNumberVisualTransformation
@@ -93,6 +95,11 @@ internal class CardTokenizationViewModel(
 
     private object AddressFieldId {
         const val COUNTRY = "country-code"
+        const val ADDRESS_1 = "address-1"
+        const val ADDRESS_2 = "address-2"
+        const val CITY = "city"
+        const val STATE = "state"
+        const val POSTAL_CODE = "postal-code"
     }
 
     private object ActionId {
@@ -201,6 +208,18 @@ internal class CardTokenizationViewModel(
             title = app.getString(R.string.po_card_tokenization_billing_address_title),
             items = items
         )
+    }
+
+    private fun updateAddressSpecification(countryCode: String) {
+        _sections.find { it.id == SectionId.BILLING_ADDRESS }?.apply {
+            viewModelScope.launch {
+                val specification = addressSpecificationProvider.specification(countryCode)
+                val addressFields = addressFields(specification)
+                clearItems(keepIds = setOf(AddressFieldId.COUNTRY))
+                items.addAll(addressFields)
+                updateImeActions()
+            }
+        }
     }
 
     private fun cardNumberField(): Item.TextField {
@@ -320,6 +339,77 @@ internal class CardTokenizationViewModel(
                 availableValues = POImmutableList(availableValues)
             )
         )
+    }
+
+    private fun addressFields(specification: AddressSpecification): List<Item.TextField> {
+        val fields = mutableListOf<Item.TextField>()
+        specification.units?.forEach { unit ->
+            when (unit) {
+                AddressSpecification.AddressUnit.street -> {
+                    val streetFields = listOf(
+                        Item.TextField(
+                            POMutableFieldState(
+                                id = AddressFieldId.ADDRESS_1,
+                                placeholder = app.getString(R.string.po_card_tokenization_billing_address_street, 1),
+                                keyboardOptions = KeyboardOptions(
+                                    capitalization = KeyboardCapitalization.Sentences,
+                                    keyboardType = KeyboardType.Text,
+                                    imeAction = ImeAction.Next
+                                )
+                            )
+                        ),
+                        Item.TextField(
+                            POMutableFieldState(
+                                id = AddressFieldId.ADDRESS_2,
+                                placeholder = app.getString(R.string.po_card_tokenization_billing_address_street, 2),
+                                keyboardOptions = KeyboardOptions(
+                                    capitalization = KeyboardCapitalization.Sentences,
+                                    keyboardType = KeyboardType.Text,
+                                    imeAction = ImeAction.Next
+                                )
+                            )
+                        )
+                    )
+                    fields.addAll(streetFields)
+                }
+                AddressSpecification.AddressUnit.city -> Item.TextField(
+                    POMutableFieldState(
+                        id = AddressFieldId.CITY,
+                        placeholder = specification.cityUnit?.let { app.getString(it.stringResId()) },
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Sentences,
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next
+                        )
+                    )
+                ).also { fields.add(it) }
+                AddressSpecification.AddressUnit.state -> Item.TextField(
+                    POMutableFieldState(
+                        id = AddressFieldId.STATE,
+                        placeholder = specification.stateUnit?.let { app.getString(it.stringResId()) },
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Sentences,
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next
+                        )
+                    )
+                ).also { fields.add(it) }
+                AddressSpecification.AddressUnit.postcode -> Item.TextField(
+                    POMutableFieldState(
+                        id = AddressFieldId.POSTAL_CODE,
+                        placeholder = specification.postcodeUnit?.let { app.getString(it.stringResId()) },
+                        forceTextDirectionLtr = true,
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Characters,
+                            autoCorrect = false,
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next
+                        )
+                    )
+                ).also { fields.add(it) }
+            }
+        }
+        return fields
     }
 
     private fun updateImeActions() {
@@ -502,17 +592,6 @@ internal class CardTokenizationViewModel(
             this.inputFilter = inputFilter
         }
         POLogger.info("State updated: [issuerInformation=%s] [preferredScheme=%s]", issuerInformation, preferredScheme)
-    }
-
-    private fun updateAddressSpecification(countryCode: String) {
-        viewModelScope.launch {
-            val specification = addressSpecificationProvider.specification(countryCode)
-            _sections.find { it.id == SectionId.BILLING_ADDRESS }?.apply {
-                clearItems(keepIds = setOf(AddressFieldId.COUNTRY))
-                // TODO: add fields by address specification
-                updateImeActions()
-            }
-        }
     }
 
     private fun submit() {
