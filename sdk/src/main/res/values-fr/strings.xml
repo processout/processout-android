@@ -30,4 +30,25 @@
     <string name="po_card_tokenization_error_generic">Une erreur s’est produite, veuillez réessayer.</string>
     <string name="po_card_tokenization_error_track_data">La date d’expiration de votre carte ou son code CVV sont incorrects.</string>
 
+    <!-- Address Specification -->
+    <string name="po_address_spec_area">Zone</string>
+    <string name="po_address_spec_city">Ville</string>
+    <string name="po_address_spec_county">Comté</string>
+    <string name="po_address_spec_department">Département</string>
+    <string name="po_address_spec_district">District</string>
+    <string name="po_address_spec_do_si">Province et ville</string>
+    <string name="po_address_spec_eircode">Eircode</string>
+    <string name="po_address_spec_emirate">Émirat</string>
+    <string name="po_address_spec_island">Île</string>
+    <string name="po_address_spec_oblast">Oblast</string>
+    <string name="po_address_spec_parish">Paroisse</string>
+    <string name="po_address_spec_pin">PIN</string>
+    <string name="po_address_spec_post_town">Ville</string>
+    <string name="po_address_spec_postcode">Code postal</string>
+    <string name="po_address_spec_prefecture">Préfecture</string>
+    <string name="po_address_spec_province">Province</string>
+    <string name="po_address_spec_state">État</string>
+    <string name="po_address_spec_suburb">Localité</string>
+    <string name="po_address_spec_zip">Code postal</string>
+
 </resources>

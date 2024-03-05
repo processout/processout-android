@@ -6,7 +6,6 @@ import com.processout.sdk.api.model.response.POCardIssuerInformation
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POMutableFieldState
-import com.processout.sdk.ui.core.state.POStableList
 
 @Immutable
 internal data class CardTokenizationState(
@@ -21,17 +20,21 @@ internal data class CardTokenizationState(
 )
 
 @Stable
-internal data class CardTokenizationSection(
+internal class CardTokenizationSection(
     val id: String,
     val title: String? = null,
-    val items: POStableList<Item>
+    items: List<Item>
 ) {
+    val items = mutableStateListOf<Item>().apply { addAll(items) }
     var errorMessage: String? by mutableStateOf(null)
 
     @Stable
     sealed interface Item {
         data class TextField(val state: POMutableFieldState) : Item
-        data class Group(val items: POStableList<Item>) : Item
+        data class DropdownField(val state: POMutableFieldState) : Item
+        class Group(items: List<Item>) : Item {
+            val items = mutableStateListOf<Item>().apply { addAll(items) }
+        }
     }
 }
 

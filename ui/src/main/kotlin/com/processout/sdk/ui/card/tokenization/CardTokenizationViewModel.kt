@@ -19,6 +19,7 @@ import com.processout.sdk.api.model.event.POCardTokenizationEvent.*
 import com.processout.sdk.api.model.request.POCardTokenizationPreferredSchemeRequest
 import com.processout.sdk.api.model.request.POCardTokenizationRequest
 import com.processout.sdk.api.model.request.POCardTokenizationShouldContinueRequest
+import com.processout.sdk.api.model.request.POContact
 import com.processout.sdk.api.model.response.POCardIssuerInformation
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.*
@@ -27,16 +28,21 @@ import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationSection.Item
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.CollectionMode.*
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.RestoreConfiguration
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationFormData.BillingAddress
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationFormData.CardInformation
-import com.processout.sdk.ui.core.state.POActionState
-import com.processout.sdk.ui.core.state.POMutableFieldState
-import com.processout.sdk.ui.core.state.POStableList
+import com.processout.sdk.ui.core.state.*
+import com.processout.sdk.ui.shared.extension.currentAppLocale
 import com.processout.sdk.ui.shared.extension.orElse
 import com.processout.sdk.ui.shared.filter.CardExpirationInputFilter
 import com.processout.sdk.ui.shared.filter.CardNumberInputFilter
 import com.processout.sdk.ui.shared.filter.CardSecurityCodeInputFilter
 import com.processout.sdk.ui.shared.provider.CardSchemeProvider
+import com.processout.sdk.ui.shared.provider.address.AddressSpecification
+import com.processout.sdk.ui.shared.provider.address.AddressSpecification.AddressUnit
+import com.processout.sdk.ui.shared.provider.address.AddressSpecificationProvider
+import com.processout.sdk.ui.shared.provider.address.stringResId
 import com.processout.sdk.ui.shared.provider.cardSchemeDrawableResId
 import com.processout.sdk.ui.shared.transformation.CardExpirationVisualTransformation
 import com.processout.sdk.ui.shared.transformation.CardNumberVisualTransformation
@@ -45,12 +51,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 internal class CardTokenizationViewModel(
     private val app: Application,
     private val configuration: POCardTokenizationConfiguration,
     private val cardsRepository: POCardsRepository,
     private val cardSchemeProvider: CardSchemeProvider,
+    private val addressSpecificationProvider: AddressSpecificationProvider,
     private val eventDispatcher: PODefaultCardTokenizationEventDispatcher
 ) : ViewModel() {
 
@@ -65,6 +73,7 @@ internal class CardTokenizationViewModel(
                 configuration = configuration,
                 cardsRepository = ProcessOut.instance.cards,
                 cardSchemeProvider = CardSchemeProvider(),
+                addressSpecificationProvider = AddressSpecificationProvider(app),
                 eventDispatcher = PODefaultCardTokenizationEventDispatcher
             ) as T
     }
@@ -85,6 +94,15 @@ internal class CardTokenizationViewModel(
         const val EXPIRATION = "card-expiration"
         const val CVC = "card-cvc"
         const val CARDHOLDER = "cardholder-name"
+    }
+
+    private object AddressFieldId {
+        const val COUNTRY = "country-code"
+        const val ADDRESS_1 = "address-1"
+        const val ADDRESS_2 = "address-2"
+        const val CITY = "city"
+        const val STATE = "state"
+        const val POSTAL_CODE = "postal-code"
     }
 
     private object ActionId {
@@ -116,18 +134,22 @@ internal class CardTokenizationViewModel(
     private var latestShouldContinueRequest: POCardTokenizationShouldContinueRequest? = null
 
     private var issuerInformationJob: Job? = null
+    private var addressValues: POContact? = null
 
     init {
-        setLastFieldImeAction()
-        collectPreferredScheme()
-        shouldContinueOnFailure()
-        configuration.restore?.let {
-            POLogger.info("Restoring card tokenization.")
-            restore(it)
-            dispatch(DidStart(restored = true))
-        }.orElse {
-            POLogger.info("Card tokenization is started: waiting for user input.")
-            dispatch(DidStart(restored = false))
+        viewModelScope.launch {
+            initBillingAddressSection()
+            updateImeActions()
+            collectPreferredScheme()
+            shouldContinueOnFailure()
+            configuration.restore?.let {
+                POLogger.info("Restoring card tokenization.")
+                restore(it)
+                dispatch(DidStart(restored = true))
+            }.orElse {
+                POLogger.info("Card tokenization is started: waiting for user input.")
+                dispatch(DidStart(restored = false))
+            }
         }
     }
 
@@ -155,25 +177,56 @@ internal class CardTokenizationViewModel(
     private fun cardInformationSection(): CardTokenizationSection {
         val items = mutableListOf(
             cardNumberField(),
-            Item.Group(
-                items = POStableList(
-                    listOf(
-                        cardExpirationField(),
-                        cvcField()
-                    )
-                )
-            )
+            Item.Group(listOf(cardExpirationField(), cvcField()))
         )
         if (configuration.isCardholderNameFieldVisible) {
             items.add(cardholderField())
         }
         return CardTokenizationSection(
             id = SectionId.CARD_INFORMATION,
-            items = POStableList(items)
+            items = items
         )
     }
 
-    private fun cardNumberField(): Item.TextField {
+    private suspend fun initBillingAddressSection() {
+        if (configuration.billingAddress.mode == Never) {
+            return
+        }
+        val countryCodes = addressSpecificationProvider.countryCodes()
+        billingAddressSection(countryCodes)?.let {
+            _sections.add(it)
+            field(AddressFieldId.COUNTRY)?.let { field ->
+                updateAddressSpecification(countryCode = field.value.text)
+            }
+        }
+    }
+
+    private fun billingAddressSection(countryCodes: Set<String>): CardTokenizationSection? {
+        val items = mutableListOf<Item>()
+        countryField(countryCodes)?.let { items.add(it) }
+        if (items.isEmpty()) {
+            return null
+        }
+        return CardTokenizationSection(
+            id = SectionId.BILLING_ADDRESS,
+            title = app.getString(R.string.po_card_tokenization_billing_address_title),
+            items = items
+        )
+    }
+
+    private fun updateAddressSpecification(countryCode: String) {
+        _sections.find { it.id == SectionId.BILLING_ADDRESS }?.apply {
+            viewModelScope.launch {
+                val specification = addressSpecificationProvider.specification(countryCode)
+                val addressFields = addressFields(countryCode, specification)
+                clearItems(keepIds = setOf(AddressFieldId.COUNTRY))
+                items.addAll(addressFields)
+                updateImeActions()
+            }
+        }
+    }
+
+    private fun cardNumberField(): Item {
         val cardInformation = configuration.restore?.formData?.cardInformation
         val number = cardInformation?.number ?: String()
         val scheme = cardInformation?.preferredScheme ?: cardInformation?.issuerInformation?.scheme
@@ -197,7 +250,7 @@ internal class CardTokenizationViewModel(
         )
     }
 
-    private fun cardExpirationField(): Item.TextField {
+    private fun cardExpirationField(): Item {
         val expiration = configuration.restore?.formData?.cardInformation?.expiration ?: String()
         return Item.TextField(
             POMutableFieldState(
@@ -218,7 +271,7 @@ internal class CardTokenizationViewModel(
         )
     }
 
-    private fun cvcField(): Item.TextField {
+    private fun cvcField(): Item {
         val cardInformation = configuration.restore?.formData?.cardInformation
         val cvc = cardInformation?.cvc ?: String()
         return Item.TextField(
@@ -242,7 +295,7 @@ internal class CardTokenizationViewModel(
         )
     }
 
-    private fun cardholderField(): Item.TextField {
+    private fun cardholderField(): Item {
         val cardholderName = configuration.restore?.formData?.cardInformation?.cardholderName ?: String()
         return Item.TextField(
             POMutableFieldState(
@@ -262,10 +315,188 @@ internal class CardTokenizationViewModel(
         )
     }
 
-    private fun setLastFieldImeAction() {
-        lastField()?.apply {
-            keyboardOptions = keyboardOptions.copy(imeAction = ImeAction.Done)
-            keyboardActionId = ActionId.SUBMIT
+    private fun countryField(countryCodes: Set<String>): Item? {
+        val supportedCountryCodes = configuration.billingAddress.countryCodes
+            ?.let { configurationCountryCodes ->
+                configurationCountryCodes.filter { countryCodes.contains(it) }
+            }.orElse { countryCodes }
+        if (supportedCountryCodes.isEmpty()) {
+            return null
+        }
+
+        val availableValues = supportedCountryCodes.map {
+            POAvailableValue(
+                value = it,
+                text = Locale(String(), it).displayCountry
+            )
+        }.sortedBy { it.text }
+
+        var defaultCountryCode: String = configuration.restore?.formData?.billingAddress?.countryCode
+            ?: configuration.billingAddress.defaultAddress?.countryCode
+            ?: app.currentAppLocale().country
+        if (!supportedCountryCodes.contains(defaultCountryCode)) {
+            defaultCountryCode = availableValues.first().value
+        }
+        return Item.DropdownField(
+            POMutableFieldState(
+                id = AddressFieldId.COUNTRY,
+                value = TextFieldValue(text = defaultCountryCode),
+                availableValues = POImmutableList(availableValues)
+            )
+        )
+    }
+
+    private fun addressFields(countryCode: String, specification: AddressSpecification): List<Item> {
+        val restoreAddress = configuration.restore?.formData?.billingAddress
+        val defaultAddress = configuration.billingAddress.defaultAddress
+        val address1 = addressValues?.address1 ?: restoreAddress?.address1 ?: defaultAddress?.address1 ?: String()
+        val address2 = addressValues?.address2 ?: restoreAddress?.address2 ?: defaultAddress?.address2 ?: String()
+        val city = addressValues?.city ?: restoreAddress?.city ?: defaultAddress?.city ?: String()
+        val state = addressValues?.state ?: restoreAddress?.state ?: defaultAddress?.state ?: String()
+        val postalCode = addressValues?.zip ?: restoreAddress?.postalCode ?: defaultAddress?.zip ?: String()
+        addressValues = POContact(
+            address1 = address1,
+            address2 = address2,
+            city = city,
+            state = state,
+            zip = postalCode
+        )
+        val fields = mutableListOf<Item>()
+        specification.units?.forEach { unit ->
+            when (unit) {
+                AddressUnit.street -> {
+                    val streetFields = listOf(
+                        Item.TextField(
+                            POMutableFieldState(
+                                id = AddressFieldId.ADDRESS_1,
+                                value = TextFieldValue(
+                                    text = address1,
+                                    selection = TextRange(address1.length)
+                                ),
+                                placeholder = app.getString(R.string.po_card_tokenization_billing_address_street, 1),
+                                keyboardOptions = KeyboardOptions(
+                                    capitalization = KeyboardCapitalization.Sentences,
+                                    keyboardType = KeyboardType.Text,
+                                    imeAction = ImeAction.Next
+                                )
+                            )
+                        ),
+                        Item.TextField(
+                            POMutableFieldState(
+                                id = AddressFieldId.ADDRESS_2,
+                                value = TextFieldValue(
+                                    text = address2,
+                                    selection = TextRange(address2.length)
+                                ),
+                                placeholder = app.getString(R.string.po_card_tokenization_billing_address_street, 2),
+                                keyboardOptions = KeyboardOptions(
+                                    capitalization = KeyboardCapitalization.Sentences,
+                                    keyboardType = KeyboardType.Text,
+                                    imeAction = ImeAction.Next
+                                )
+                            )
+                        )
+                    )
+                    fields.addAll(streetFields)
+                }
+                AddressUnit.city -> Item.TextField(
+                    POMutableFieldState(
+                        id = AddressFieldId.CITY,
+                        value = TextFieldValue(
+                            text = city,
+                            selection = TextRange(city.length)
+                        ),
+                        placeholder = specification.cityUnit?.let { app.getString(it.stringResId()) },
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Sentences,
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next
+                        )
+                    )
+                ).also { fields.add(it) }
+                AddressUnit.state -> Item.TextField(
+                    POMutableFieldState(
+                        id = AddressFieldId.STATE,
+                        value = TextFieldValue(
+                            text = state,
+                            selection = TextRange(state.length)
+                        ),
+                        placeholder = specification.stateUnit?.let { app.getString(it.stringResId()) },
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Sentences,
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next
+                        )
+                    )
+                ).also { fields.add(it) }
+                AddressUnit.postcode -> {
+                    val supportedCountryCodes = setOf("US", "GB", "CA")
+                    val collectionMode = configuration.billingAddress.mode
+                    if (collectionMode == Full ||
+                        collectionMode == Automatic && supportedCountryCodes.contains(countryCode)
+                    ) {
+                        Item.TextField(
+                            POMutableFieldState(
+                                id = AddressFieldId.POSTAL_CODE,
+                                value = TextFieldValue(
+                                    text = postalCode,
+                                    selection = TextRange(postalCode.length)
+                                ),
+                                placeholder = specification.postcodeUnit?.let { app.getString(it.stringResId()) },
+                                forceTextDirectionLtr = true,
+                                keyboardOptions = KeyboardOptions(
+                                    capitalization = KeyboardCapitalization.Characters,
+                                    autoCorrect = false,
+                                    keyboardType = KeyboardType.Text,
+                                    imeAction = ImeAction.Next
+                                )
+                            )
+                        ).also { fields.add(it) }
+                    }
+                }
+            }
+        }
+        return fields
+    }
+
+    private fun updateImeActions() {
+        resetImeActions()
+        lastFocusableField()?.let {
+            updateImeAction(
+                fieldState = it,
+                imeAction = ImeAction.Done
+            )
+        }
+    }
+
+    private fun resetImeActions() {
+        _sections.forEach { section ->
+            section.items.forEach { item ->
+                resetImeActions(item)
+            }
+        }
+    }
+
+    private fun resetImeActions(item: Item) {
+        when (item) {
+            is Item.TextField -> updateImeAction(
+                fieldState = item.state,
+                imeAction = ImeAction.Next
+            )
+            is Item.Group -> item.items.forEach { groupItem ->
+                resetImeActions(groupItem)
+            }
+            else -> {}
+        }
+    }
+
+    private fun updateImeAction(fieldState: POMutableFieldState, imeAction: ImeAction) {
+        with(fieldState) {
+            keyboardOptions = keyboardOptions.copy(imeAction = imeAction)
+            keyboardActionId = when (imeAction) {
+                ImeAction.Done -> ActionId.SUBMIT
+                else -> null
+            }
         }
     }
 
@@ -303,10 +534,28 @@ internal class CardTokenizationViewModel(
                     errorMessage = null
                 )
             }
-            if (id == CardFieldId.NUMBER) {
-                updateIssuerInformation(
+            when (id) {
+                CardFieldId.NUMBER -> updateIssuerInformation(
                     cardNumber = value.text,
                     oldCardNumber = oldText
+                )
+                AddressFieldId.COUNTRY -> updateAddressSpecification(
+                    countryCode = value.text
+                )
+                AddressFieldId.ADDRESS_1 -> addressValues = addressValues?.copy(
+                    address1 = value.text
+                )
+                AddressFieldId.ADDRESS_2 -> addressValues = addressValues?.copy(
+                    address2 = value.text
+                )
+                AddressFieldId.CITY -> addressValues = addressValues?.copy(
+                    city = value.text
+                )
+                AddressFieldId.STATE -> addressValues = addressValues?.copy(
+                    state = value.text
+                )
+                AddressFieldId.POSTAL_CODE -> addressValues = addressValues?.copy(
+                    zip = value.text
                 )
             }
         }
@@ -582,9 +831,38 @@ internal class CardTokenizationViewModel(
         }
     }
 
+    private fun CardTokenizationSection.clearItems(
+        keepIds: Set<String> = emptySet()
+    ) {
+        val iterator = items.iterator()
+        while (iterator.hasNext()) {
+            clearItems(iterator, keepIds)
+        }
+    }
+
+    private fun CardTokenizationSection.clearItems(
+        iterator: MutableIterator<Item>,
+        keepIds: Set<String> = emptySet()
+    ) {
+        when (val item = iterator.next()) {
+            is Item.TextField -> if (!keepIds.contains(item.state.id)) {
+                iterator.remove()
+            }
+            is Item.DropdownField -> if (!keepIds.contains(item.state.id)) {
+                iterator.remove()
+            }
+            is Item.Group -> {
+                val groupIterator = item.items.iterator()
+                while (groupIterator.hasNext()) {
+                    clearItems(groupIterator, keepIds)
+                }
+            }
+        }
+    }
+
     private fun field(id: String): POMutableFieldState? {
         _sections.forEach { section ->
-            section.items.elements.forEach { item ->
+            section.items.forEach { item ->
                 field(id, item)
                     ?.let { return it }
             }
@@ -598,7 +876,11 @@ internal class CardTokenizationViewModel(
                 if (item.state.id == id) {
                     return item.state
                 }
-            is Item.Group -> item.items.elements.forEach { groupItem ->
+            is Item.DropdownField ->
+                if (item.state.id == id) {
+                    return item.state
+                }
+            is Item.Group -> item.items.forEach { groupItem ->
                 field(id, groupItem)
                     ?.let { return it }
             }
@@ -606,21 +888,24 @@ internal class CardTokenizationViewModel(
         return null
     }
 
-    private fun lastField(): POMutableFieldState? {
-        _sections.lastOrNull()?.let { section ->
-            section.items.elements.lastOrNull()?.let { item ->
-                return lastField(item)
+    private fun lastFocusableField(): POMutableFieldState? {
+        _sections.reversed().forEach { section ->
+            section.items.reversed().forEach { item ->
+                lastFocusableField(item)
+                    ?.let { return it }
             }
         }
         return null
     }
 
-    private fun lastField(item: Item): POMutableFieldState? {
+    private fun lastFocusableField(item: Item): POMutableFieldState? {
         when (item) {
             is Item.TextField -> return item.state
-            is Item.Group -> item.items.elements.lastOrNull()?.let { groupItem ->
-                return lastField(groupItem)
+            is Item.Group -> item.items.reversed().forEach { groupItem ->
+                lastFocusableField(groupItem)
+                    ?.let { return it }
             }
+            else -> return null
         }
         return null
     }
@@ -628,55 +913,94 @@ internal class CardTokenizationViewModel(
     private fun fieldValues(): List<FieldValue> {
         val fieldValues = mutableListOf<FieldValue>()
         _sections.forEach { section ->
-            section.items.elements.forEach { item ->
-                fieldValues(item, fieldValues)
+            section.items.forEach { item ->
+                addFieldValues(item, fieldValues)
             }
         }
         return fieldValues
     }
 
-    private fun fieldValues(item: Item, fieldValues: MutableList<FieldValue>) {
+    private fun addFieldValues(item: Item, fieldValues: MutableList<FieldValue>) {
         when (item) {
-            is Item.TextField -> with(item.state) {
-                fieldValues.add(
-                    FieldValue(
-                        id = id,
-                        value = value.text,
-                        isValid = !isError
-                    )
-                )
-            }
-            is Item.Group -> item.items.elements.forEach { groupItem ->
-                fieldValues(groupItem, fieldValues)
+            is Item.TextField -> addFieldValue(item.state, fieldValues)
+            is Item.DropdownField -> addFieldValue(item.state, fieldValues)
+            is Item.Group -> item.items.forEach { groupItem ->
+                addFieldValues(groupItem, fieldValues)
             }
         }
     }
 
+    private fun addFieldValue(state: POMutableFieldState, fieldValues: MutableList<FieldValue>) {
+        with(state) {
+            fieldValues.add(
+                FieldValue(
+                    id = id,
+                    value = value.text,
+                    isValid = !isError
+                )
+            )
+        }
+    }
+
     private fun List<FieldValue>.toFormData(
-        state: CardTokenizationState
+        tokenizationState: CardTokenizationState
     ): POCardTokenizationFormData {
-        var number = String()
+        var cardNumber = String()
         var expiration = String()
         var cvc = String()
         var cardholderName = String()
+        var countryCode = String()
+        var address1 = String()
+        var address2 = String()
+        var city = String()
+        var state = String()
+        var postalCode = String()
         forEach {
             when (it.id) {
-                CardFieldId.NUMBER -> number = it.value
+                CardFieldId.NUMBER -> cardNumber = it.value
                 CardFieldId.EXPIRATION -> expiration = it.value
                 CardFieldId.CVC -> cvc = it.value
                 CardFieldId.CARDHOLDER -> cardholderName = it.value
+                AddressFieldId.COUNTRY -> countryCode = it.value
+                AddressFieldId.ADDRESS_1 -> address1 = it.value
+                AddressFieldId.ADDRESS_2 -> address2 = it.value
+                AddressFieldId.CITY -> city = it.value
+                AddressFieldId.STATE -> state = it.value
+                AddressFieldId.POSTAL_CODE -> postalCode = it.value
             }
         }
+        val defaultAddress = configuration.billingAddress.defaultAddress
+        countryCode = addressValue(value = countryCode, defaultValue = defaultAddress?.countryCode)
+        address1 = addressValue(value = address1, defaultValue = defaultAddress?.address1)
+        address2 = addressValue(value = address2, defaultValue = defaultAddress?.address2)
+        city = addressValue(value = city, defaultValue = defaultAddress?.city)
+        state = addressValue(value = state, defaultValue = defaultAddress?.state)
+        postalCode = addressValue(value = postalCode, defaultValue = defaultAddress?.zip)
         return POCardTokenizationFormData(
             cardInformation = CardInformation(
-                number = number,
+                number = cardNumber,
                 expiration = expiration,
                 cvc = cvc,
                 cardholderName = cardholderName,
-                issuerInformation = state.issuerInformation,
-                preferredScheme = state.preferredScheme
+                issuerInformation = tokenizationState.issuerInformation,
+                preferredScheme = tokenizationState.preferredScheme
+            ),
+            billingAddress = BillingAddress(
+                countryCode = countryCode,
+                address1 = address1,
+                address2 = address2,
+                city = city,
+                state = state,
+                postalCode = postalCode
             )
         )
+    }
+
+    private fun addressValue(value: String, defaultValue: String?): String {
+        if (!configuration.billingAddress.attachDefaultsToPaymentMethod) {
+            return value
+        }
+        return value.ifBlank { defaultValue ?: String() }
     }
 
     private fun POCardTokenizationFormData.toRequest(): POCardTokenizationRequest {
@@ -689,6 +1013,7 @@ internal class CardTokenizationViewModel(
                 cvc = cvc,
                 name = cardholderName,
                 preferredScheme = preferredScheme,
+                contact = billingAddress.toContact(),
                 metadata = configuration.metadata
             )
         }
@@ -701,4 +1026,13 @@ internal class CardTokenizationViewModel(
             year = dateParts.getOrNull(1)?.toIntOrNull() ?: 0
         )
     }
+
+    private fun BillingAddress.toContact() = POContact(
+        countryCode = countryCode,
+        address1 = address1,
+        address2 = address2,
+        city = city,
+        state = state,
+        zip = postalCode
+    )
 }

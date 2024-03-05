@@ -1,7 +1,9 @@
 package com.processout.sdk.api.model.request
 
+import android.os.Parcelable
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import kotlinx.parcelize.Parcelize
 
 /**
  * Details of the card that should be tokenized.
@@ -70,6 +72,7 @@ internal data class CardTokenizationRequestWithDeviceData(
  * @param[zip] ZIP code of cardholder’s address.
  * @param[countryCode] Country code of cardholder’s address.
  */
+@Parcelize
 @JsonClass(generateAdapter = true)
 data class POContact(
     val address1: String? = "",
@@ -79,4 +82,4 @@ data class POContact(
     val zip: String? = "",
     @Json(name = "country_code")
     val countryCode: String? = ""
-)
+) : Parcelable

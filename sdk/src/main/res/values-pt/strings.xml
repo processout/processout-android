@@ -48,4 +48,25 @@
     <string name="po_card_tokenization_error_generic">Ocorreu um erro ao processar o seu cartão, por favor tente novamente.</string>
     <string name="po_card_tokenization_error_track_data">A data de validade e/ou o código de segurança do seu cartão são inválidos.</string>
 
+    <!-- Address Specification -->
+    <string name="po_address_spec_area">Região</string>
+    <string name="po_address_spec_city">Cidade</string>
+    <string name="po_address_spec_county">Distrito</string>
+    <string name="po_address_spec_department">Estado</string>
+    <string name="po_address_spec_district">Distrito</string>
+    <string name="po_address_spec_do_si">Do Si</string>
+    <string name="po_address_spec_eircode">Eircode</string>
+    <string name="po_address_spec_emirate">Emirado</string>
+    <string name="po_address_spec_island">Ilha</string>
+    <string name="po_address_spec_oblast">Região</string>
+    <string name="po_address_spec_parish">Freguesia</string>
+    <string name="po_address_spec_pin">PIN</string>
+    <string name="po_address_spec_post_town">Cidade</string>
+    <string name="po_address_spec_postcode">Código postal</string>
+    <string name="po_address_spec_prefecture">Distrito</string>
+    <string name="po_address_spec_province">Província</string>
+    <string name="po_address_spec_state">Estado</string>
+    <string name="po_address_spec_suburb">Localidade</string>
+    <string name="po_address_spec_zip">Código postal</string>
+
 </resources>
