@@ -10,6 +10,7 @@ import com.processout.sdk.api.model.threeds.PO3DSRedirect
 import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.core.*
 import com.processout.sdk.core.logger.POLogger
+import com.processout.sdk.ui.web.ActivityResultApi
 import com.processout.sdk.ui.web.WebAuthorizationActivityResultDispatcher
 import com.processout.sdk.ui.web.WebAuthorizationDelegate
 import com.processout.sdk.ui.web.WebAuthorizationDelegateCache
@@ -94,7 +95,8 @@ class PO3DSRedirectCustomTabLauncher private constructor(
                 CustomTabConfiguration(
                     uri = delegate.uri,
                     returnUri = Uri.parse(returnUrl),
-                    timeoutSeconds = redirect.timeoutSeconds
+                    timeoutSeconds = redirect.timeoutSeconds,
+                    resultApi = ActivityResultApi.Dispatcher
                 )
             )
         } else {
@@ -107,7 +109,8 @@ class PO3DSRedirectCustomTabLauncher private constructor(
                         Uri.parse(returnUrl)
                     ),
                     sdkVersion = ProcessOut.VERSION,
-                    timeoutSeconds = redirect.timeoutSeconds
+                    timeoutSeconds = redirect.timeoutSeconds,
+                    resultApi = ActivityResultApi.Dispatcher
                 )
             )
         }
