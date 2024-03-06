@@ -18,6 +18,11 @@ import com.processout.sdk.api.service.POBrowserCapabilitiesService.Companion.CHR
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.logger.POLogger
+import com.processout.sdk.core.onFailure
+import com.processout.sdk.ui.web.ActivityResultApi.Android
+import com.processout.sdk.ui.web.ActivityResultApi.Dispatcher
+import com.processout.sdk.ui.web.ActivityResultDispatcher
+import com.processout.sdk.ui.web.WebAuthorizationActivityResultDispatcher
 import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationActivityContract.Companion.EXTRA_CONFIGURATION
 import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationActivityContract.Companion.EXTRA_RESULT
 import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationActivityContract.Companion.EXTRA_TIMEOUT_FINISH
@@ -31,6 +36,7 @@ import kotlinx.coroutines.launch
  */
 class POCustomTabAuthorizationActivity : AppCompatActivity() {
 
+    private val resultDispatcher: ActivityResultDispatcher<Uri> = WebAuthorizationActivityResultDispatcher
     private lateinit var configuration: CustomTabConfiguration
 
     private val viewModel: CustomTabAuthorizationViewModel by viewModels {
@@ -127,12 +133,13 @@ class POCustomTabAuthorizationActivity : AppCompatActivity() {
     }
 
     private fun finishWithActivityResult(result: ProcessOutActivityResult<Uri>) {
-        when (result) {
-            is ProcessOutActivityResult.Success -> setActivityResult(Activity.RESULT_OK, result)
-            is ProcessOutActivityResult.Failure -> {
-                POLogger.info("Custom Chrome Tabs failure: %s", result)
-                setActivityResult(Activity.RESULT_CANCELED, result)
+        result.onFailure { POLogger.info("Custom Chrome Tabs failure: %s", it) }
+        when (configuration.resultApi) {
+            Android -> when (result) {
+                is ProcessOutActivityResult.Success -> setActivityResult(Activity.RESULT_OK, result)
+                is ProcessOutActivityResult.Failure -> setActivityResult(Activity.RESULT_CANCELED, result)
             }
+            Dispatcher -> resultDispatcher.dispatch(result)
         }
         finish()
     }
