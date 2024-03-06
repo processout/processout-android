@@ -7,6 +7,4 @@ internal interface WebAuthorizationDelegateCache {
     fun isCached(): Boolean
 
     fun remove(): WebAuthorizationDelegate?
-
-    fun clear()
 }

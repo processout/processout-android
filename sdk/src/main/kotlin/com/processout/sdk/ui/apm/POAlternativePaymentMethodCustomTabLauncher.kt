@@ -12,13 +12,11 @@ import com.processout.sdk.api.model.request.POAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.api.service.POAlternativePaymentMethodsService
-import com.processout.sdk.core.POFailure
-import com.processout.sdk.core.ProcessOutActivityResult
-import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.*
 import com.processout.sdk.core.logger.POLogger
+import com.processout.sdk.ui.web.WebAuthorizationActivityResultDispatcher
 import com.processout.sdk.ui.web.WebAuthorizationDelegate
 import com.processout.sdk.ui.web.WebAuthorizationDelegateCache
-import com.processout.sdk.ui.web.WebAuthorizationDelegateMemoryCache
 import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationActivityContract
 import com.processout.sdk.ui.web.customtab.CustomTabConfiguration
 import com.processout.sdk.ui.web.webview.WebViewAuthorizationActivityLauncher
@@ -48,7 +46,7 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
             callback: (ProcessOutResult<POAlternativePaymentMethodResponse>) -> Unit
         ) = POAlternativePaymentMethodCustomTabLauncher(
             ProcessOut.instance.alternativePaymentMethods,
-            WebAuthorizationDelegateMemoryCache
+            WebAuthorizationActivityResultDispatcher
         ).apply {
             val activityResultHandler = ActivityResultHandler(alternativePaymentMethods, callback)
             customTabLauncher = from.registerForActivityResult(
@@ -70,7 +68,7 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
             callback: (ProcessOutResult<POAlternativePaymentMethodResponse>) -> Unit
         ) = POAlternativePaymentMethodCustomTabLauncher(
             ProcessOut.instance.alternativePaymentMethods,
-            WebAuthorizationDelegateMemoryCache
+            WebAuthorizationActivityResultDispatcher
         ).apply {
             val activityResultHandler = ActivityResultHandler(alternativePaymentMethods, callback)
             customTabLauncher = from.registerForActivityResult(
@@ -93,7 +91,7 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
         )
         fun create(from: Fragment) = POAlternativePaymentMethodCustomTabLauncher(
             ProcessOut.instance.alternativePaymentMethods,
-            WebAuthorizationDelegateMemoryCache
+            WebAuthorizationActivityResultDispatcher
         ).apply {
             customTabLauncher = from.registerForActivityResult(
                 CustomTabAuthorizationActivityContract(),
@@ -114,7 +112,7 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
         )
         fun create(from: ComponentActivity) = POAlternativePaymentMethodCustomTabLauncher(
             ProcessOut.instance.alternativePaymentMethods,
-            WebAuthorizationDelegateMemoryCache
+            WebAuthorizationActivityResultDispatcher
         ).apply {
             customTabLauncher = from.registerForActivityResult(
                 CustomTabAuthorizationActivityContract(),
@@ -216,16 +214,14 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
     }
 
     @Deprecated("Used in other deprecated functions.")
-    private val activityResultCallback = ActivityResultCallback<ProcessOutActivityResult<Uri>> {
-        if (delegateCache.isCached().not()) {
-            POLogger.error("Cannot provide APM result. Delegate is not cached.")
+    private val activityResultCallback = ActivityResultCallback<ProcessOutActivityResult<Uri>> { result ->
+        if (!delegateCache.isCached()) {
+            POLogger.error("Cannot provide result. Delegate is not cached. Possibly process was killed.")
+            return@ActivityResultCallback
         }
-        when (it) {
-            is ProcessOutActivityResult.Success -> delegateCache.remove()?.complete(uri = it.value)
-            is ProcessOutActivityResult.Failure -> delegateCache.remove()?.complete(
-                ProcessOutResult.Failure(it.code, it.message)
-            )
-        }
+        result
+            .onSuccess { delegateCache.remove()?.complete(uri = it) }
+            .onFailure { delegateCache.remove()?.complete(ProcessOutResult.Failure(it.code, it.message)) }
     }
 
     private class ActivityResultHandler(
@@ -234,18 +230,9 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
     ) : ActivityResultCallback<ProcessOutActivityResult<Uri>> {
 
         override fun onActivityResult(result: ProcessOutActivityResult<Uri>) {
-            when (result) {
-                is ProcessOutActivityResult.Success -> {
-                    val serviceResult = alternativePaymentMethods.alternativePaymentMethodResponse(uri = result.value)
-                    when (serviceResult) {
-                        is ProcessOutResult.Success -> callback(serviceResult.copy())
-                        is ProcessOutResult.Failure -> callback(serviceResult.copy())
-                    }
-                }
-                is ProcessOutActivityResult.Failure -> callback(
-                    ProcessOutResult.Failure(result.code, result.message)
-                )
-            }
+            result
+                .onSuccess { callback(alternativePaymentMethods.alternativePaymentMethodResponse(uri = it)) }
+                .onFailure { callback(ProcessOutResult.Failure(it.code, it.message)) }
         }
     }
 }
