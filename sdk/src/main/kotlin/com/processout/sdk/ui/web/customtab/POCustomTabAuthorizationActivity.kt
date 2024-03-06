@@ -61,12 +61,12 @@ class POCustomTabAuthorizationActivity : AppCompatActivity() {
             ?.let { configuration = it }
 
         if (::configuration.isInitialized.not()) {
-            finishWithActivityResult(
-                ProcessOutActivityResult.Failure(
-                    POFailure.Code.Internal(),
-                    "Configuration is not provided. Possibly started from redirect activity by a deep link when flow is already finished."
-                )
+            POLogger.warn(
+                message = "Configuration is not provided. " +
+                        "Possibly started from redirect activity by a deep link when flow is already finished. " +
+                        "Or user chose to setup a Chrome account on the first start."
             )
+            finish()
             return
         }
 
