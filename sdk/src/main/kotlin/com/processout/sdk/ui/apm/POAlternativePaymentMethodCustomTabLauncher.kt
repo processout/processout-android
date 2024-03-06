@@ -50,7 +50,7 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
         ).apply {
             val activityResultHandler = ActivityResultHandler(alternativePaymentMethods, callback)
             customTabLauncher = from.registerForActivityResult(
-                CustomTabAuthorizationActivityContract(),
+                CustomTabAuthorizationActivityContract(from.requireActivity()),
                 activityResultHandler
             )
             webViewFallbackLauncher = WebViewAuthorizationActivityLauncher.create(
@@ -72,7 +72,7 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
         ).apply {
             val activityResultHandler = ActivityResultHandler(alternativePaymentMethods, callback)
             customTabLauncher = from.registerForActivityResult(
-                CustomTabAuthorizationActivityContract(),
+                CustomTabAuthorizationActivityContract(from),
                 from.activityResultRegistry,
                 activityResultHandler
             )
@@ -94,7 +94,7 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
             WebAuthorizationActivityResultDispatcher
         ).apply {
             customTabLauncher = from.registerForActivityResult(
-                CustomTabAuthorizationActivityContract(),
+                CustomTabAuthorizationActivityContract(from.requireActivity()),
                 activityResultCallback
             )
             webViewFallbackLauncher = WebViewAuthorizationActivityLauncher.create(
@@ -115,7 +115,7 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
             WebAuthorizationActivityResultDispatcher
         ).apply {
             customTabLauncher = from.registerForActivityResult(
-                CustomTabAuthorizationActivityContract(),
+                CustomTabAuthorizationActivityContract(from),
                 from.activityResultRegistry,
                 activityResultCallback
             )

@@ -28,6 +28,7 @@ class PO3DSRedirectCustomTabLauncher private constructor(
     private val delegateCache: WebAuthorizationDelegateCache
 ) {
 
+    private lateinit var contract: CustomTabAuthorizationActivityContract
     private lateinit var customTabLauncher: ActivityResultLauncher<CustomTabConfiguration>
     private lateinit var webViewFallbackLauncher: WebViewAuthorizationActivityLauncher
 
@@ -39,9 +40,9 @@ class PO3DSRedirectCustomTabLauncher private constructor(
         fun create(from: Fragment) = PO3DSRedirectCustomTabLauncher(
             WebAuthorizationActivityResultDispatcher
         ).apply {
+            contract = CustomTabAuthorizationActivityContract(from.requireActivity())
             customTabLauncher = from.registerForActivityResult(
-                CustomTabAuthorizationActivityContract(),
-                activityResultCallback
+                contract, activityResultCallback
             )
             webViewFallbackLauncher = WebViewAuthorizationActivityLauncher.create(
                 from, activityResultCallback
@@ -55,10 +56,9 @@ class PO3DSRedirectCustomTabLauncher private constructor(
         fun create(from: ComponentActivity) = PO3DSRedirectCustomTabLauncher(
             WebAuthorizationActivityResultDispatcher
         ).apply {
+            contract = CustomTabAuthorizationActivityContract(from)
             customTabLauncher = from.registerForActivityResult(
-                CustomTabAuthorizationActivityContract(),
-                from.activityResultRegistry,
-                activityResultCallback
+                contract, from.activityResultRegistry, activityResultCallback
             )
             webViewFallbackLauncher = WebViewAuthorizationActivityLauncher.create(
                 from, activityResultCallback
