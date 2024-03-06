@@ -2,13 +2,12 @@ package com.processout.sdk.ui.threeds
 
 import android.net.Uri
 import androidx.activity.ComponentActivity
-import androidx.activity.result.ActivityResultCallback
-import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.Fragment
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.threeds.PO3DSRedirect
 import com.processout.sdk.api.network.ApiConstants
-import com.processout.sdk.core.*
+import com.processout.sdk.core.POFailure
+import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.web.ActivityResultApi
 import com.processout.sdk.ui.web.WebAuthorizationActivityResultDispatcher
@@ -29,39 +28,30 @@ class PO3DSRedirectCustomTabLauncher private constructor(
 ) {
 
     private lateinit var contract: CustomTabAuthorizationActivityContract
-    private lateinit var customTabLauncher: ActivityResultLauncher<CustomTabConfiguration>
     private lateinit var webViewFallbackLauncher: WebViewAuthorizationActivityLauncher
 
     companion object {
         /**
          * Creates the launcher from Fragment.
-         * __Note:__ Required to call in _onCreate()_ to register for activity result.
          */
         fun create(from: Fragment) = PO3DSRedirectCustomTabLauncher(
             WebAuthorizationActivityResultDispatcher
         ).apply {
             contract = CustomTabAuthorizationActivityContract(from.requireActivity())
-            customTabLauncher = from.registerForActivityResult(
-                contract, activityResultCallback
-            )
             webViewFallbackLauncher = WebViewAuthorizationActivityLauncher.create(
-                from, activityResultCallback
+                from, activityResultCallback = null
             )
         }
 
         /**
          * Creates the launcher from Activity.
-         * __Note:__ Required to call in _onCreate()_ to register for activity result.
          */
         fun create(from: ComponentActivity) = PO3DSRedirectCustomTabLauncher(
             WebAuthorizationActivityResultDispatcher
         ).apply {
             contract = CustomTabAuthorizationActivityContract(from)
-            customTabLauncher = from.registerForActivityResult(
-                contract, from.activityResultRegistry, activityResultCallback
-            )
             webViewFallbackLauncher = WebViewAuthorizationActivityLauncher.create(
-                from, activityResultCallback
+                from, activityResultCallback = null
             )
         }
     }
@@ -91,7 +81,7 @@ class PO3DSRedirectCustomTabLauncher private constructor(
         delegateCache.delegate = delegate
 
         if (ProcessOut.instance.browserCapabilities.isCustomTabsSupported()) {
-            customTabLauncher.launch(
+            contract.startActivity(
                 CustomTabConfiguration(
                     uri = delegate.uri,
                     returnUri = Uri.parse(returnUrl),
@@ -101,7 +91,7 @@ class PO3DSRedirectCustomTabLauncher private constructor(
             )
         } else {
             POLogger.info("Custom Chrome Tabs is not supported on device. Will use WebView.")
-            webViewFallbackLauncher.launch(
+            webViewFallbackLauncher.startActivity(
                 WebViewConfiguration(
                     uri = delegate.uri,
                     returnUris = listOf(
@@ -125,15 +115,5 @@ class PO3DSRedirectCustomTabLauncher private constructor(
     )
     fun launch(redirect: PO3DSRedirect, callback: (ProcessOutResult<String>) -> Unit) {
         launch(redirect, returnUrl = String(), callback)
-    }
-
-    private val activityResultCallback = ActivityResultCallback<ProcessOutActivityResult<Uri>> { result ->
-        if (!delegateCache.isCached()) {
-            POLogger.error("Cannot provide result. Delegate is not cached. Possibly process was killed.")
-            return@ActivityResultCallback
-        }
-        result
-            .onSuccess { delegateCache.remove()?.complete(uri = it) }
-            .onFailure { delegateCache.remove()?.complete(ProcessOutResult.Failure(it.code, it.message)) }
     }
 }

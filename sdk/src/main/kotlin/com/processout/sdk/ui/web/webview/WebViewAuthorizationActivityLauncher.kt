@@ -12,35 +12,37 @@ import com.processout.sdk.core.ProcessOutActivityResult
 
 internal class WebViewAuthorizationActivityLauncher private constructor(
     private val contract: WebViewAuthorizationActivityContract,
-    private val launcher: ActivityResultLauncher<WebViewConfiguration>,
+    private val launcher: ActivityResultLauncher<WebViewConfiguration>?,
     private val activityOptions: ActivityOptionsCompat
 ) {
 
     companion object {
         fun create(
             from: Fragment,
-            activityResultCallback: ActivityResultCallback<ProcessOutActivityResult<Uri>>
+            activityResultCallback: ActivityResultCallback<ProcessOutActivityResult<Uri>>?
         ): WebViewAuthorizationActivityLauncher {
             val contract = WebViewAuthorizationActivityContract(from.requireActivity())
             return WebViewAuthorizationActivityLauncher(
                 contract = contract,
-                launcher = from.registerForActivityResult(
-                    contract, activityResultCallback
-                ),
+                launcher = activityResultCallback?.let { callback ->
+                    from.registerForActivityResult(contract, callback)
+                },
                 activityOptions = createActivityOptions(from.requireContext())
             )
         }
 
         fun create(
             from: ComponentActivity,
-            activityResultCallback: ActivityResultCallback<ProcessOutActivityResult<Uri>>
+            activityResultCallback: ActivityResultCallback<ProcessOutActivityResult<Uri>>?
         ): WebViewAuthorizationActivityLauncher {
             val contract = WebViewAuthorizationActivityContract(from)
             return WebViewAuthorizationActivityLauncher(
                 contract = contract,
-                launcher = from.registerForActivityResult(
-                    contract, from.activityResultRegistry, activityResultCallback
-                ),
+                launcher = activityResultCallback?.let { callback ->
+                    from.registerForActivityResult(
+                        contract, from.activityResultRegistry, callback
+                    )
+                },
                 activityOptions = createActivityOptions(from)
             )
         }
@@ -56,6 +58,6 @@ internal class WebViewAuthorizationActivityLauncher private constructor(
     }
 
     fun launch(configuration: WebViewConfiguration) {
-        launcher.launch(configuration, activityOptions)
+        launcher?.launch(configuration, activityOptions)
     }
 }
