@@ -14,7 +14,7 @@ when creating token.
 ### Implement 3DS service delegate
 
 ```kotlin
-// 1) It is required to initialize PO3DSRedirectCustomTabLauncher in onCreate() method of Activity or Fragment.
+// 1) Initialize launcher in Activity or Fragment.
 
 private lateinit var customTabLauncher: PO3DSRedirectCustomTabLauncher
 
