@@ -2,19 +2,17 @@ package com.processout.sdk.ui.threeds
 
 import android.net.Uri
 import androidx.activity.ComponentActivity
-import androidx.activity.result.ActivityResultCallback
-import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.Fragment
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.threeds.PO3DSRedirect
 import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.core.POFailure
-import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
+import com.processout.sdk.ui.web.ActivityResultApi
+import com.processout.sdk.ui.web.WebAuthorizationActivityResultDispatcher
 import com.processout.sdk.ui.web.WebAuthorizationDelegate
 import com.processout.sdk.ui.web.WebAuthorizationDelegateCache
-import com.processout.sdk.ui.web.WebAuthorizationDelegateMemoryCache
 import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationActivityContract
 import com.processout.sdk.ui.web.customtab.CustomTabConfiguration
 import com.processout.sdk.ui.web.webview.WebViewAuthorizationActivityLauncher
@@ -29,40 +27,31 @@ class PO3DSRedirectCustomTabLauncher private constructor(
     private val delegateCache: WebAuthorizationDelegateCache
 ) {
 
-    private lateinit var customTabLauncher: ActivityResultLauncher<CustomTabConfiguration>
+    private lateinit var contract: CustomTabAuthorizationActivityContract
     private lateinit var webViewFallbackLauncher: WebViewAuthorizationActivityLauncher
 
     companion object {
         /**
          * Creates the launcher from Fragment.
-         * __Note:__ Required to call in _onCreate()_ to register for activity result.
          */
         fun create(from: Fragment) = PO3DSRedirectCustomTabLauncher(
-            WebAuthorizationDelegateMemoryCache
+            WebAuthorizationActivityResultDispatcher
         ).apply {
-            customTabLauncher = from.registerForActivityResult(
-                CustomTabAuthorizationActivityContract(),
-                activityResultCallback
-            )
+            contract = CustomTabAuthorizationActivityContract(from.requireActivity())
             webViewFallbackLauncher = WebViewAuthorizationActivityLauncher.create(
-                from, activityResultCallback
+                from, activityResultCallback = null
             )
         }
 
         /**
          * Creates the launcher from Activity.
-         * __Note:__ Required to call in _onCreate()_ to register for activity result.
          */
         fun create(from: ComponentActivity) = PO3DSRedirectCustomTabLauncher(
-            WebAuthorizationDelegateMemoryCache
+            WebAuthorizationActivityResultDispatcher
         ).apply {
-            customTabLauncher = from.registerForActivityResult(
-                CustomTabAuthorizationActivityContract(),
-                from.activityResultRegistry,
-                activityResultCallback
-            )
+            contract = CustomTabAuthorizationActivityContract(from)
             webViewFallbackLauncher = WebViewAuthorizationActivityLauncher.create(
-                from, activityResultCallback
+                from, activityResultCallback = null
             )
         }
     }
@@ -92,16 +81,17 @@ class PO3DSRedirectCustomTabLauncher private constructor(
         delegateCache.delegate = delegate
 
         if (ProcessOut.instance.browserCapabilities.isCustomTabsSupported()) {
-            customTabLauncher.launch(
+            contract.startActivity(
                 CustomTabConfiguration(
                     uri = delegate.uri,
                     returnUri = Uri.parse(returnUrl),
-                    timeoutSeconds = redirect.timeoutSeconds
+                    timeoutSeconds = redirect.timeoutSeconds,
+                    resultApi = ActivityResultApi.Dispatcher
                 )
             )
         } else {
             POLogger.info("Custom Chrome Tabs is not supported on device. Will use WebView.")
-            webViewFallbackLauncher.launch(
+            webViewFallbackLauncher.startActivity(
                 WebViewConfiguration(
                     uri = delegate.uri,
                     returnUris = listOf(
@@ -109,7 +99,8 @@ class PO3DSRedirectCustomTabLauncher private constructor(
                         Uri.parse(returnUrl)
                     ),
                     sdkVersion = ProcessOut.VERSION,
-                    timeoutSeconds = redirect.timeoutSeconds
+                    timeoutSeconds = redirect.timeoutSeconds,
+                    resultApi = ActivityResultApi.Dispatcher
                 )
             )
         }
@@ -124,17 +115,5 @@ class PO3DSRedirectCustomTabLauncher private constructor(
     )
     fun launch(redirect: PO3DSRedirect, callback: (ProcessOutResult<String>) -> Unit) {
         launch(redirect, returnUrl = String(), callback)
-    }
-
-    private val activityResultCallback = ActivityResultCallback<ProcessOutActivityResult<Uri>> {
-        if (delegateCache.isCached().not()) {
-            POLogger.error("Cannot provide 3DS result. Delegate is not cached.")
-        }
-        when (it) {
-            is ProcessOutActivityResult.Success -> delegateCache.remove()?.complete(uri = it.value)
-            is ProcessOutActivityResult.Failure -> delegateCache.remove()?.complete(
-                ProcessOutResult.Failure(it.code, it.message)
-            )
-        }
     }
 }

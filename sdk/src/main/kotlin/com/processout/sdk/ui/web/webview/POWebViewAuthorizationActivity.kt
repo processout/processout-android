@@ -13,6 +13,10 @@ import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.toActivityResult
+import com.processout.sdk.ui.web.ActivityResultApi.Android
+import com.processout.sdk.ui.web.ActivityResultApi.Dispatcher
+import com.processout.sdk.ui.web.ActivityResultDispatcher
+import com.processout.sdk.ui.web.WebAuthorizationActivityResultDispatcher
 import com.processout.sdk.ui.web.webview.WebViewAuthorizationActivityContract.Companion.EXTRA_CONFIGURATION
 import com.processout.sdk.ui.web.webview.WebViewAuthorizationActivityContract.Companion.EXTRA_RESULT
 
@@ -21,6 +25,9 @@ import com.processout.sdk.ui.web.webview.WebViewAuthorizationActivityContract.Co
  * Used internally as a fallback option when Custom Chrome Tabs is not available on the device.
  */
 class POWebViewAuthorizationActivity : AppCompatActivity() {
+
+    private val resultDispatcher: ActivityResultDispatcher<Uri> = WebAuthorizationActivityResultDispatcher
+    private lateinit var configuration: WebViewConfiguration
 
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,13 +38,12 @@ class POWebViewAuthorizationActivity : AppCompatActivity() {
         requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O)
             ActivityInfo.SCREEN_ORIENTATION_BEHIND else ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
-        dispatchBackPressed()
         intent.getParcelableExtra<WebViewConfiguration>(EXTRA_CONFIGURATION)
-            ?.let { configuration ->
-                setContentView(ProcessOutWebView(this, configuration) {
-                    finishWithActivityResult(it.toActivityResult())
-                })
-            }
+            ?.let { configuration = it }
+        dispatchBackPressed()
+        setContentView(ProcessOutWebView(this, configuration) {
+            finishWithActivityResult(it.toActivityResult())
+        })
     }
 
     private fun dispatchBackPressed() {
@@ -53,9 +59,12 @@ class POWebViewAuthorizationActivity : AppCompatActivity() {
 
     private fun finishWithActivityResult(result: ProcessOutActivityResult<Uri>) {
         if (!isFinishing) {
-            when (result) {
-                is ProcessOutActivityResult.Success -> setActivityResult(Activity.RESULT_OK, result)
-                is ProcessOutActivityResult.Failure -> setActivityResult(Activity.RESULT_CANCELED, result)
+            when (configuration.resultApi) {
+                Android -> when (result) {
+                    is ProcessOutActivityResult.Success -> setActivityResult(Activity.RESULT_OK, result)
+                    is ProcessOutActivityResult.Failure -> setActivityResult(Activity.RESULT_CANCELED, result)
+                }
+                Dispatcher -> resultDispatcher.dispatch(result)
             }
             finish()
         }
@@ -67,6 +76,11 @@ class POWebViewAuthorizationActivity : AppCompatActivity() {
 
     override fun finish() {
         super.finish()
-        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            overrideActivityTransition(Activity.OVERRIDE_TRANSITION_CLOSE, R.anim.slide_in_left, R.anim.slide_out_right)
+        } else {
+            @Suppress("DEPRECATION")
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
+        }
     }
 }
