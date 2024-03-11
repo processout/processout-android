@@ -12,10 +12,8 @@ sealed class POCardTokenizationEvent {
     /**
      * Event indicates that initialization is complete.
      * Currently waiting for user input.
-     *
-     * @param[restored] Indicates whether it's a fresh start or if the flow has been restored.
      */
-    data class DidStart(val restored: Boolean) : POCardTokenizationEvent()
+    data object DidStart : POCardTokenizationEvent()
 
     /**
      * Event is sent when user changes any editable value.

@@ -29,7 +29,6 @@ import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationSection.Item
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.CollectionMode.*
-import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.RestoreConfiguration
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationFormData.BillingAddress
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationFormData.CardInformation
 import com.processout.sdk.ui.core.state.*
@@ -142,19 +141,12 @@ internal class CardTokenizationViewModel(
             updateImeActions()
             collectPreferredScheme()
             shouldContinueOnFailure()
-            configuration.restore?.let {
-                POLogger.info("Restoring card tokenization.")
-                restore(it)
-                dispatch(DidStart(restored = true))
-            }.orElse {
-                POLogger.info("Card tokenization is started: waiting for user input.")
-                dispatch(DidStart(restored = false))
-            }
+            POLogger.info("Card tokenization is started: waiting for user input.")
+            dispatch(DidStart)
         }
     }
 
     private fun initState() = with(configuration) {
-        val cardInformation = restore?.formData?.cardInformation
         CardTokenizationState(
             title = title ?: app.getString(R.string.po_card_tokenization_title),
             primaryAction = POActionState(
@@ -167,8 +159,6 @@ internal class CardTokenizationViewModel(
                 text = secondaryActionText ?: app.getString(R.string.po_card_tokenization_button_cancel),
                 primary = false
             ) else null,
-            issuerInformation = cardInformation?.issuerInformation,
-            preferredScheme = cardInformation?.preferredScheme,
             focusedFieldId = CardFieldId.NUMBER,
             draggable = cancellation.dragDown
         )
@@ -226,94 +216,60 @@ internal class CardTokenizationViewModel(
         }
     }
 
-    private fun cardNumberField(): Item {
-        val cardInformation = configuration.restore?.formData?.cardInformation
-        val number = cardInformation?.number ?: String()
-        val scheme = cardInformation?.preferredScheme ?: cardInformation?.issuerInformation?.scheme
-        return Item.TextField(
-            POMutableFieldState(
-                id = CardFieldId.NUMBER,
-                value = TextFieldValue(
-                    text = number,
-                    selection = TextRange(number.length)
-                ),
-                placeholder = app.getString(R.string.po_card_tokenization_card_details_number_placeholder),
-                forceTextDirectionLtr = true,
-                iconResId = scheme?.let { cardSchemeDrawableResId(it) },
-                inputFilter = CardNumberInputFilter(),
-                visualTransformation = CardNumberVisualTransformation(),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Next
-                )
+    private fun cardNumberField(): Item = Item.TextField(
+        POMutableFieldState(
+            id = CardFieldId.NUMBER,
+            placeholder = app.getString(R.string.po_card_tokenization_card_details_number_placeholder),
+            forceTextDirectionLtr = true,
+            inputFilter = CardNumberInputFilter(),
+            visualTransformation = CardNumberVisualTransformation(),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Next
             )
         )
-    }
+    )
 
-    private fun cardExpirationField(): Item {
-        val expiration = configuration.restore?.formData?.cardInformation?.expiration ?: String()
-        return Item.TextField(
-            POMutableFieldState(
-                id = CardFieldId.EXPIRATION,
-                value = TextFieldValue(
-                    text = expiration,
-                    selection = TextRange(expiration.length)
-                ),
-                placeholder = app.getString(R.string.po_card_tokenization_card_details_expiration_placeholder),
-                forceTextDirectionLtr = true,
-                inputFilter = CardExpirationInputFilter(),
-                visualTransformation = CardExpirationVisualTransformation(),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Next
-                )
+    private fun cardExpirationField(): Item = Item.TextField(
+        POMutableFieldState(
+            id = CardFieldId.EXPIRATION,
+            placeholder = app.getString(R.string.po_card_tokenization_card_details_expiration_placeholder),
+            forceTextDirectionLtr = true,
+            inputFilter = CardExpirationInputFilter(),
+            visualTransformation = CardExpirationVisualTransformation(),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Next
             )
         )
-    }
+    )
 
-    private fun cvcField(): Item {
-        val cardInformation = configuration.restore?.formData?.cardInformation
-        val cvc = cardInformation?.cvc ?: String()
-        return Item.TextField(
-            POMutableFieldState(
-                id = CardFieldId.CVC,
-                value = TextFieldValue(
-                    text = cvc,
-                    selection = TextRange(cvc.length)
-                ),
-                placeholder = app.getString(R.string.po_card_tokenization_card_details_cvc_placeholder),
-                forceTextDirectionLtr = true,
-                iconResId = com.processout.sdk.ui.R.drawable.po_card_back,
-                inputFilter = CardSecurityCodeInputFilter(
-                    scheme = cardInformation?.issuerInformation?.scheme
-                ),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.NumberPassword,
-                    imeAction = ImeAction.Next
-                )
+    private fun cvcField(): Item = Item.TextField(
+        POMutableFieldState(
+            id = CardFieldId.CVC,
+            placeholder = app.getString(R.string.po_card_tokenization_card_details_cvc_placeholder),
+            forceTextDirectionLtr = true,
+            iconResId = com.processout.sdk.ui.R.drawable.po_card_back,
+            inputFilter = CardSecurityCodeInputFilter(scheme = null),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.NumberPassword,
+                imeAction = ImeAction.Next
             )
         )
-    }
+    )
 
-    private fun cardholderField(): Item {
-        val cardholderName = configuration.restore?.formData?.cardInformation?.cardholderName ?: String()
-        return Item.TextField(
-            POMutableFieldState(
-                id = CardFieldId.CARDHOLDER,
-                value = TextFieldValue(
-                    text = cardholderName,
-                    selection = TextRange(cardholderName.length)
-                ),
-                placeholder = app.getString(R.string.po_card_tokenization_card_details_cardholder_placeholder),
-                keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Words,
-                    autoCorrect = false,
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Next
-                )
+    private fun cardholderField(): Item = Item.TextField(
+        POMutableFieldState(
+            id = CardFieldId.CARDHOLDER,
+            placeholder = app.getString(R.string.po_card_tokenization_card_details_cardholder_placeholder),
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.Words,
+                autoCorrect = false,
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Next
             )
         )
-    }
+    )
 
     private fun countryField(countryCodes: Set<String>): Item? {
         val supportedCountryCodes = configuration.billingAddress.countryCodes
@@ -331,8 +287,7 @@ internal class CardTokenizationViewModel(
             )
         }.sortedBy { it.text }
 
-        var defaultCountryCode: String = configuration.restore?.formData?.billingAddress?.countryCode
-            ?: configuration.billingAddress.defaultAddress?.countryCode
+        var defaultCountryCode: String = configuration.billingAddress.defaultAddress?.countryCode
             ?: app.currentAppLocale().country
         if (!supportedCountryCodes.contains(defaultCountryCode)) {
             defaultCountryCode = availableValues.first().value
@@ -347,13 +302,12 @@ internal class CardTokenizationViewModel(
     }
 
     private fun addressFields(countryCode: String, specification: AddressSpecification): List<Item> {
-        val restoreAddress = configuration.restore?.formData?.billingAddress
         val defaultAddress = configuration.billingAddress.defaultAddress
-        val address1 = addressValues?.address1 ?: restoreAddress?.address1 ?: defaultAddress?.address1 ?: String()
-        val address2 = addressValues?.address2 ?: restoreAddress?.address2 ?: defaultAddress?.address2 ?: String()
-        val city = addressValues?.city ?: restoreAddress?.city ?: defaultAddress?.city ?: String()
-        val state = addressValues?.state ?: restoreAddress?.state ?: defaultAddress?.state ?: String()
-        val postalCode = addressValues?.zip ?: restoreAddress?.postalCode ?: defaultAddress?.zip ?: String()
+        val address1 = addressValues?.address1 ?: defaultAddress?.address1 ?: String()
+        val address2 = addressValues?.address2 ?: defaultAddress?.address2 ?: String()
+        val city = addressValues?.city ?: defaultAddress?.city ?: String()
+        val state = addressValues?.state ?: defaultAddress?.state ?: String()
+        val postalCode = addressValues?.zip ?: defaultAddress?.zip ?: String()
         addressValues = POContact(
             address1 = address1,
             address2 = address2,
@@ -498,11 +452,6 @@ internal class CardTokenizationViewModel(
                 else -> null
             }
         }
-    }
-
-    private fun restore(configuration: RestoreConfiguration) {
-        val failureCode = configuration.failureCode ?: POFailure.Code.Generic()
-        handle(ProcessOutResult.Failure(failureCode))
     }
 
     fun onEvent(event: CardTokenizationEvent) {
@@ -982,7 +931,6 @@ internal class CardTokenizationViewModel(
                 expiration = expiration,
                 cvc = cvc,
                 cardholderName = cardholderName,
-                issuerInformation = tokenizationState.issuerInformation,
                 preferredScheme = tokenizationState.preferredScheme
             ),
             billingAddress = BillingAddress(

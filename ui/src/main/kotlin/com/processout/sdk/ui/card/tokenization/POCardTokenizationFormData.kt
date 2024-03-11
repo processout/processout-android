@@ -1,7 +1,6 @@
 package com.processout.sdk.ui.card.tokenization
 
 import android.os.Parcelable
-import com.processout.sdk.api.model.response.POCardIssuerInformation
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import kotlinx.parcelize.Parcelize
 
@@ -19,7 +18,6 @@ class POCardTokenizationFormData internal constructor(
         internal val expiration: String,
         internal val cvc: String,
         internal val cardholderName: String,
-        internal val issuerInformation: POCardIssuerInformation?,
         internal val preferredScheme: String?
     ) : Parcelable {
         override fun toString() = String()
