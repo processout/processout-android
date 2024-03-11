@@ -10,6 +10,11 @@ import com.processout.sdk.core.annotation.ProcessOutInternalApi
 sealed class POCardTokenizationEvent {
 
     /**
+     * Initial event that is sent prior any other event.
+     */
+    data object WillStart : POCardTokenizationEvent()
+
+    /**
      * Event indicates that initialization is complete.
      * Currently waiting for user input.
      */

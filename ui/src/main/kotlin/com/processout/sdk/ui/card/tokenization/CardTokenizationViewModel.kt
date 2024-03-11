@@ -137,6 +137,8 @@ internal class CardTokenizationViewModel(
 
     init {
         viewModelScope.launch {
+            POLogger.info("Starting card tokenization.")
+            dispatch(WillStart)
             initBillingAddressSection()
             updateImeActions()
             collectPreferredScheme()
