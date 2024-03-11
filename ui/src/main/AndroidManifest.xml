@@ -5,13 +5,13 @@
         <activity
             android:name=".card.update.CardUpdateActivity"
             android:exported="false"
-            android:launchMode="singleInstance"
+            android:launchMode="singleTop"
             android:theme="@style/Theme.ProcessOut.BottomSheet" />
 
         <activity
             android:name=".card.tokenization.CardTokenizationActivity"
             android:exported="false"
-            android:launchMode="singleInstance"
+            android:launchMode="singleTop"
             android:theme="@style/Theme.ProcessOut.BottomSheet" />
     </application>
 
