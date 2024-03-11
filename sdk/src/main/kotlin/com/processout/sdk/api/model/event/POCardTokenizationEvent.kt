@@ -1,5 +1,6 @@
 package com.processout.sdk.api.model.event
 
+import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 
 /**
@@ -32,7 +33,13 @@ sealed class POCardTokenizationEvent {
     data object WillTokenize : POCardTokenizationEvent()
 
     /**
-     * Event is sent when card is tokenized. This is a final event.
+     * Event is sent when card is tokenized.
+     */
+    data class DidTokenize(val card: POCard) : POCardTokenizationEvent()
+
+    /**
+     * Event is sent when tokenized card has been processed, e.g. authorized.
+     * This is a final event.
      */
     data object DidComplete : POCardTokenizationEvent()
 }
