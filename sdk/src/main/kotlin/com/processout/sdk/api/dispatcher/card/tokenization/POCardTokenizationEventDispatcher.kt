@@ -3,6 +3,7 @@ package com.processout.sdk.api.dispatcher.card.tokenization
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
 import com.processout.sdk.api.model.request.POCardTokenizationPreferredSchemeRequest
 import com.processout.sdk.api.model.request.POCardTokenizationShouldContinueRequest
+import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.api.model.response.POCardTokenizationPreferredSchemeResponse
 import com.processout.sdk.api.model.response.POCardTokenizationShouldContinueResponse
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
@@ -29,6 +30,12 @@ interface POCardTokenizationEventDispatcher {
      * Once you've subscribed it's required to call [shouldContinue] for each request to proceed with the card tokenization flow.
      */
     val shouldContinueRequest: SharedFlow<POCardTokenizationShouldContinueRequest>
+
+    /**
+     * Subscribe to additionally process tokenized card before completion.
+     * For example to authorize an invoice or assign customer token.
+     */
+    val processTokenizedCard: SharedFlow<POCard>
 
     /**
      * Allows to provide a preferred scheme that will be used for card tokenization by default.

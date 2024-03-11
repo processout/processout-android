@@ -20,6 +20,7 @@ import com.processout.sdk.api.model.request.POCardTokenizationPreferredSchemeReq
 import com.processout.sdk.api.model.request.POCardTokenizationRequest
 import com.processout.sdk.api.model.request.POCardTokenizationShouldContinueRequest
 import com.processout.sdk.api.model.request.POContact
+import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.api.model.response.POCardIssuerInformation
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.*
@@ -81,6 +82,7 @@ internal class CardTokenizationViewModel(
         const val IIN_LENGTH = 6
         const val EXPIRATION_DATE_PART_LENGTH = 2
         const val LOG_ATTRIBUTE_IIN = "IIN"
+        const val LOG_ATTRIBUTE_CARD_ID = "CardId"
     }
 
     private object SectionId {
@@ -656,15 +658,22 @@ internal class CardTokenizationViewModel(
         viewModelScope.launch {
             cardsRepository.tokenize(formData.toRequest())
                 .onSuccess { card ->
-                    POLogger.info(message = "Card tokenized successfully.")
-                    dispatch(DidComplete)
-                    _completion.update {
-                        Success(
-                            POCardTokenizationData(
-                                card = card,
-                                formData = formData
+                    POLogger.info(
+                        message = "Card tokenized successfully.",
+                        attributes = mapOf(LOG_ATTRIBUTE_CARD_ID to card.id)
+                    )
+                    dispatch(DidTokenize(card))
+                    if (eventDispatcher.subscribedForProcessTokenizedCard()) {
+                        requestToProcessTokenizedCard(card)
+                    } else {
+                        _completion.update {
+                            Success(
+                                POCardTokenizationData(
+                                    card = card,
+                                    formData = formData
+                                )
                             )
-                        )
+                        }
                     }
                 }.onFailure { failure ->
                     if (eventDispatcher.subscribedForShouldContinueRequest()) {
@@ -673,6 +682,16 @@ internal class CardTokenizationViewModel(
                         handle(failure)
                     }
                 }
+        }
+    }
+
+    private fun requestToProcessTokenizedCard(card: POCard) {
+        viewModelScope.launch {
+            eventDispatcher.processTokenizedCard(card)
+            POLogger.info(
+                message = "Requested to process tokenized card.",
+                attributes = mapOf(LOG_ATTRIBUTE_CARD_ID to card.id)
+            )
         }
     }
 
