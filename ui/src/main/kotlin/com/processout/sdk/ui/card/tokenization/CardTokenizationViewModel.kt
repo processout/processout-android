@@ -652,7 +652,7 @@ internal class CardTokenizationViewModel(
 
     private fun tokenize(formData: POCardTokenizationFormData) {
         POLogger.info(message = "Submitting card information.")
-        dispatch(WillTokenizeCard)
+        dispatch(WillTokenize)
         viewModelScope.launch {
             cardsRepository.tokenize(formData.toRequest())
                 .onSuccess { card ->

@@ -29,7 +29,7 @@ sealed class POCardTokenizationEvent {
      * Event is sent just before submitting user input.
      * This is usually a result of a user action, e.g. button press.
      */
-    data object WillTokenizeCard : POCardTokenizationEvent()
+    data object WillTokenize : POCardTokenizationEvent()
 
     /**
      * Event is sent when card is tokenized. This is a final event.
