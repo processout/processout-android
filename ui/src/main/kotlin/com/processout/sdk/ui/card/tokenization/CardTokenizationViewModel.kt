@@ -136,6 +136,7 @@ internal class CardTokenizationViewModel(
 
     private var issuerInformationJob: Job? = null
     private var addressValues: POContact? = null
+    private var tokenizedCard: POCard? = null
 
     init {
         viewModelScope.launch {
@@ -144,6 +145,7 @@ internal class CardTokenizationViewModel(
             initBillingAddressSection()
             updateImeActions()
             collectPreferredScheme()
+            handleCompletion()
             shouldContinueOnFailure()
             POLogger.info("Card tokenization is started: waiting for user input.")
             dispatch(DidStart)
@@ -658,6 +660,7 @@ internal class CardTokenizationViewModel(
         viewModelScope.launch {
             cardsRepository.tokenize(formData.toRequest())
                 .onSuccess { card ->
+                    tokenizedCard = card
                     POLogger.info(
                         message = "Card tokenized successfully.",
                         attributes = mapOf(LOG_ATTRIBUTE_CARD_ID to card.id)
@@ -666,14 +669,11 @@ internal class CardTokenizationViewModel(
                     if (eventDispatcher.subscribedForProcessTokenizedCard()) {
                         requestToProcessTokenizedCard(card)
                     } else {
-                        _completion.update {
-                            Success(
-                                POCardTokenizationData(
-                                    card = card,
-                                    formData = formData
-                                )
-                            )
-                        }
+                        POLogger.info(
+                            message = "Completed successfully.",
+                            attributes = mapOf(LOG_ATTRIBUTE_CARD_ID to card.id)
+                        )
+                        _completion.update { Success(card) }
                     }
                 }.onFailure { failure ->
                     if (eventDispatcher.subscribedForShouldContinueRequest()) {
@@ -692,6 +692,37 @@ internal class CardTokenizationViewModel(
                 message = "Requested to process tokenized card.",
                 attributes = mapOf(LOG_ATTRIBUTE_CARD_ID to card.id)
             )
+        }
+    }
+
+    private fun handleCompletion() {
+        viewModelScope.launch {
+            eventDispatcher.completion.collect { result ->
+                result.onSuccess {
+                    tokenizedCard?.let { card ->
+                        POLogger.info(
+                            message = "Completed successfully.",
+                            attributes = mapOf(LOG_ATTRIBUTE_CARD_ID to card.id)
+                        )
+                        _completion.update { Success(card) }
+                    }.orElse {
+                        val failure = ProcessOutResult.Failure(
+                            code = POFailure.Code.Generic(),
+                            message = "Completion is called with Success via dispatcher before card is tokenized."
+                        )
+                        handleCompletion(failure)
+                    }
+                }.onFailure { handleCompletion(it) }
+            }
+        }
+    }
+
+    private fun handleCompletion(failure: ProcessOutResult.Failure) {
+        if (eventDispatcher.subscribedForShouldContinueRequest()) {
+            requestIfShouldContinue(failure)
+        } else {
+            POLogger.info("Completed after the failure: %s", failure)
+            _completion.update { Failure(failure) }
         }
     }
 

@@ -21,6 +21,7 @@ import com.processout.example.ui.screen.card.InvoiceDetails
 import com.processout.example.ui.screen.card.tokenization.CardTokenizationUiState.*
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
+import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.api.service.PO3DSService
 import com.processout.sdk.checkout.threeds.POCheckout3DSService
 import com.processout.sdk.core.ProcessOutActivityResult
@@ -28,7 +29,6 @@ import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
-import com.processout.sdk.ui.card.tokenization.POCardTokenizationData
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationLauncher
 import com.processout.sdk.ui.threeds.PO3DSRedirectCustomTabLauncher
 import com.processout.sdk.ui.threeds.POTest3DSService
@@ -89,7 +89,7 @@ class CardTokenizationFragment : BaseFragment<FragmentCardTokenizationBinding>(
         )
     }
 
-    private fun handle(result: ProcessOutActivityResult<POCardTokenizationData>) {
+    private fun handle(result: ProcessOutActivityResult<POCard>) {
         result.onSuccess {
             viewModel.onTokenized(it)
         }.onFailure {
