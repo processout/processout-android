@@ -28,10 +28,10 @@ import com.processout.sdk.core.POFailure.GenericCode.*
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
+import com.processout.sdk.ui.card.tokenization.CardTokenizationFormData.BillingAddress
+import com.processout.sdk.ui.card.tokenization.CardTokenizationFormData.CardInformation
 import com.processout.sdk.ui.card.tokenization.CardTokenizationSection.Item
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.CollectionMode.*
-import com.processout.sdk.ui.card.tokenization.POCardTokenizationFormData.BillingAddress
-import com.processout.sdk.ui.card.tokenization.POCardTokenizationFormData.CardInformation
 import com.processout.sdk.ui.core.state.*
 import com.processout.sdk.ui.shared.extension.currentAppLocale
 import com.processout.sdk.ui.shared.extension.orElse
@@ -654,7 +654,7 @@ internal class CardTokenizationViewModel(
         }
     }
 
-    private fun tokenize(formData: POCardTokenizationFormData) {
+    private fun tokenize(formData: CardTokenizationFormData) {
         POLogger.info(message = "Submitting card information.")
         dispatch(WillTokenize)
         viewModelScope.launch {
@@ -945,7 +945,7 @@ internal class CardTokenizationViewModel(
 
     private fun List<FieldValue>.toFormData(
         tokenizationState: CardTokenizationState
-    ): POCardTokenizationFormData {
+    ): CardTokenizationFormData {
         var cardNumber = String()
         var expiration = String()
         var cvc = String()
@@ -977,7 +977,7 @@ internal class CardTokenizationViewModel(
         city = addressValue(value = city, defaultValue = defaultAddress?.city)
         state = addressValue(value = state, defaultValue = defaultAddress?.state)
         postalCode = addressValue(value = postalCode, defaultValue = defaultAddress?.zip)
-        return POCardTokenizationFormData(
+        return CardTokenizationFormData(
             cardInformation = CardInformation(
                 number = cardNumber,
                 expiration = expiration,
@@ -1003,7 +1003,7 @@ internal class CardTokenizationViewModel(
         return value.ifBlank { defaultValue ?: String() }
     }
 
-    private fun POCardTokenizationFormData.toRequest(): POCardTokenizationRequest {
+    private fun CardTokenizationFormData.toRequest(): POCardTokenizationRequest {
         with(cardInformation) {
             val expiration = expiration(expiration)
             return POCardTokenizationRequest(
