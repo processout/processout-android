@@ -16,6 +16,7 @@ internal data class CardTokenizationState(
     val submitting: Boolean = false,
     val issuerInformation: POCardIssuerInformation? = null,
     val preferredScheme: String? = null,
+    val tokenizedCard: POCard? = null,
     val focusedFieldId: String? = null,
     val draggable: Boolean
 )

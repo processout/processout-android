@@ -136,7 +136,6 @@ internal class CardTokenizationViewModel(
 
     private var issuerInformationJob: Job? = null
     private var addressValues: POContact? = null
-    private var tokenizedCard: POCard? = null
 
     init {
         viewModelScope.launch {
@@ -660,7 +659,7 @@ internal class CardTokenizationViewModel(
         viewModelScope.launch {
             cardsRepository.tokenize(formData.toRequest())
                 .onSuccess { card ->
-                    tokenizedCard = card
+                    _state.update { it.copy(tokenizedCard = card) }
                     POLogger.info(
                         message = "Card tokenized successfully.",
                         attributes = mapOf(LOG_ATTRIBUTE_CARD_ID to card.id)
@@ -699,7 +698,7 @@ internal class CardTokenizationViewModel(
         viewModelScope.launch {
             eventDispatcher.completion.collect { result ->
                 result.onSuccess {
-                    tokenizedCard?.let { card ->
+                    _state.value.tokenizedCard?.let { card ->
                         POLogger.info(
                             message = "Completed successfully.",
                             attributes = mapOf(LOG_ATTRIBUTE_CARD_ID to card.id)
