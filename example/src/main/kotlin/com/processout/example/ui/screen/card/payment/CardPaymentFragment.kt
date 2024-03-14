@@ -86,7 +86,7 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
     private fun handle(uiState: CardPaymentUiState) {
         handleControls(uiState)
         when (uiState) {
-            is Submitted -> startCardTokenization()
+            is Submitted -> launchCardTokenization()
             is Tokenized -> with(uiState.uiModel) {
                 authorizeInvoice(invoiceId, cardId)
             }
@@ -95,11 +95,9 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
         }
     }
 
-    private fun startCardTokenization() {
+    private fun launchCardTokenization() {
         viewModel.onTokenizing()
-        launcher.launch(
-            POCardTokenizationConfiguration()
-        )
+        launcher.launch(POCardTokenizationConfiguration())
     }
 
     private fun authorizeInvoice(invoiceId: String, cardId: String) {
