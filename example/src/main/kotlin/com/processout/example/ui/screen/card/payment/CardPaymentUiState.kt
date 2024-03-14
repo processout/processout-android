@@ -13,9 +13,8 @@ sealed class CardPaymentUiState {
 }
 
 data class CardPaymentUiModel(
-    val cardId: String,
     val invoiceId: String,
-    val invoice: InvoiceDetails
+    val cardId: String
 )
 
 data class InvoiceDetails(

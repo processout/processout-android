@@ -35,13 +35,13 @@ class CardPaymentViewModel(
         _uiState.value = Submitting
         viewModelScope.launch {
             createInvoice(details).let { result ->
-                result.onFailure { _uiState.value = Failure(it) }
+                result
+                    .onFailure { _uiState.value = Failure(it) }
                     .onSuccess {
                         _uiState.value = Submitted(
                             CardPaymentUiModel(
-                                cardId = String(),
                                 invoiceId = it.id,
-                                invoice = details
+                                cardId = String()
                             )
                         )
                     }
