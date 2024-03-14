@@ -3,6 +3,7 @@ package com.processout.sdk.ui.card.tokenization
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.Fragment
+import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 
@@ -22,7 +23,7 @@ class POCardTokenizationLauncher private constructor() {
          */
         fun create(
             from: Fragment,
-            callback: (ProcessOutActivityResult<POCardTokenizationData>) -> Unit
+            callback: (ProcessOutActivityResult<POCard>) -> Unit
         ) = POCardTokenizationLauncher().apply {
             launcher = from.registerForActivityResult(
                 CardTokenizationActivityContract(),
@@ -36,7 +37,7 @@ class POCardTokenizationLauncher private constructor() {
          */
         fun create(
             from: ComponentActivity,
-            callback: (ProcessOutActivityResult<POCardTokenizationData>) -> Unit
+            callback: (ProcessOutActivityResult<POCard>) -> Unit
         ) = POCardTokenizationLauncher().apply {
             launcher = from.registerForActivityResult(
                 CardTokenizationActivityContract(),

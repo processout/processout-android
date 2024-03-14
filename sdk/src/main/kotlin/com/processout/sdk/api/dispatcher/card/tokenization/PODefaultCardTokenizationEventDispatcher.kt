@@ -3,8 +3,10 @@ package com.processout.sdk.api.dispatcher.card.tokenization
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
 import com.processout.sdk.api.model.request.POCardTokenizationPreferredSchemeRequest
 import com.processout.sdk.api.model.request.POCardTokenizationShouldContinueRequest
+import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.api.model.response.POCardTokenizationPreferredSchemeResponse
 import com.processout.sdk.api.model.response.POCardTokenizationShouldContinueResponse
+import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -27,6 +29,14 @@ object PODefaultCardTokenizationEventDispatcher : POCardTokenizationEventDispatc
 
     private val _shouldContinueResponse = MutableSharedFlow<POCardTokenizationShouldContinueResponse>()
     val shouldContinueResponse = _shouldContinueResponse.asSharedFlow()
+
+    private val _processTokenizedCard = MutableSharedFlow<POCard>()
+    override val processTokenizedCard = _processTokenizedCard.asSharedFlow()
+
+    private val _completion = MutableSharedFlow<ProcessOutResult<Any>>()
+    val completion = _completion.asSharedFlow()
+
+    // Events
 
     suspend fun send(event: POCardTokenizationEvent) {
         _events.emit(event)
@@ -55,4 +65,16 @@ object PODefaultCardTokenizationEventDispatcher : POCardTokenizationEventDispatc
     }
 
     fun subscribedForShouldContinueRequest() = _shouldContinueRequest.subscriptionCount.value > 0
+
+    // Process Tokenized Card
+
+    suspend fun processTokenizedCard(card: POCard) {
+        _processTokenizedCard.emit(card)
+    }
+
+    override suspend fun complete(result: ProcessOutResult<Any>) {
+        _completion.emit(result)
+    }
+
+    fun subscribedForProcessTokenizedCard() = _processTokenizedCard.subscriptionCount.value > 0
 }

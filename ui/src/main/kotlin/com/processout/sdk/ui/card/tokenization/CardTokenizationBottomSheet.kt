@@ -12,6 +12,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.toActivityResult
@@ -26,7 +27,7 @@ import com.processout.sdk.ui.shared.composable.screenModeAsState
 import com.processout.sdk.ui.shared.extension.screenSize
 import kotlin.math.roundToInt
 
-internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCardTokenizationData>() {
+internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
 
     companion object {
         val tag: String = CardTokenizationBottomSheet::class.java.simpleName
@@ -85,7 +86,7 @@ internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCar
         when (completion) {
             is Success -> finishWithActivityResult(
                 resultCode = Activity.RESULT_OK,
-                result = ProcessOutActivityResult.Success(completion.data)
+                result = ProcessOutActivityResult.Success(completion.card)
             )
             is Failure -> finishWithActivityResult(
                 resultCode = Activity.RESULT_CANCELED,
@@ -106,7 +107,7 @@ internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCar
 
     private fun finishWithActivityResult(
         resultCode: Int,
-        result: ProcessOutActivityResult<POCardTokenizationData>
+        result: ProcessOutActivityResult<POCard>
     ) {
         setActivityResult(
             resultCode = resultCode,

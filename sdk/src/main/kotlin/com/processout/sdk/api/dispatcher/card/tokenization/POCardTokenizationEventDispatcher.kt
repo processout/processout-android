@@ -3,8 +3,10 @@ package com.processout.sdk.api.dispatcher.card.tokenization
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
 import com.processout.sdk.api.model.request.POCardTokenizationPreferredSchemeRequest
 import com.processout.sdk.api.model.request.POCardTokenizationShouldContinueRequest
+import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.api.model.response.POCardTokenizationPreferredSchemeResponse
 import com.processout.sdk.api.model.response.POCardTokenizationShouldContinueResponse
+import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import kotlinx.coroutines.flow.SharedFlow
 
@@ -29,6 +31,13 @@ interface POCardTokenizationEventDispatcher {
      * Once you've subscribed it's required to call [shouldContinue] for each request to proceed with the card tokenization flow.
      */
     val shouldContinueRequest: SharedFlow<POCardTokenizationShouldContinueRequest>
+
+    /**
+     * Subscribe to additionally process tokenized card before completion.
+     * For example to authorize an invoice or assign customer token.
+     * Once you've subscribed it's required to call [complete] after processing.
+     */
+    val processTokenizedCard: SharedFlow<POCard>
 
     /**
      * Allows to provide a preferred scheme that will be used for card tokenization by default.
@@ -81,4 +90,12 @@ interface POCardTokenizationEventDispatcher {
      * ```
      */
     suspend fun shouldContinue(response: POCardTokenizationShouldContinueResponse)
+
+    /**
+     * Notify that processing of tokenized card is complete (e.g. after invoice authorization or assigning of a customer token).
+     * Pass the result from respective ProcessOut API. If processing is done by a custom implementation you can pass
+     * _ProcessOutResult.Success(Unit)_ or appropriate _ProcessOutResult.Failure(...)_.
+     * Calling this method will complete the flow, unless you've subscribed to [shouldContinueRequest] to decide it on your own in case of failure.
+     */
+    suspend fun complete(result: ProcessOutResult<Any>)
 }

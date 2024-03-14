@@ -3,7 +3,6 @@ package com.processout.sdk.ui.card.tokenization
 import android.os.Parcelable
 import androidx.annotation.ColorRes
 import com.processout.sdk.api.model.request.POContact
-import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.style.POActionsContainerStyle
 import com.processout.sdk.ui.core.style.PODropdownMenuStyle
@@ -23,7 +22,6 @@ data class POCardTokenizationConfiguration(
     val secondaryActionText: String? = null,
     val cancellation: POCancellationConfiguration = POCancellationConfiguration(),
     val metadata: Map<String, String>? = null,
-    val restore: RestoreConfiguration? = null,
     val style: Style? = null
 ) : Parcelable {
 
@@ -40,12 +38,6 @@ data class POCardTokenizationConfiguration(
         val countryCodes: Set<String>? = null,
         val defaultAddress: POContact? = null,
         val attachDefaultsToPaymentMethod: Boolean = false
-    ) : Parcelable
-
-    @Parcelize
-    data class RestoreConfiguration(
-        val formData: POCardTokenizationFormData,
-        val failureCode: POFailure.Code? = null
     ) : Parcelable
 
     @Parcelize
