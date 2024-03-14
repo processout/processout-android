@@ -9,11 +9,11 @@
     tools:context=".ui.screen.features.FeaturesFragment">
 
     <Button
-        android:id="@+id/card_update_button"
+        android:id="@+id/native_apm_button"
         style="@style/Widget.ProcessOut.Button.Secondary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/card_update" />
+        android:text="@string/native_apm" />
 
     <Button
         android:id="@+id/card_payment_button"
@@ -24,11 +24,11 @@
         android:text="@string/card_payment" />
 
     <Button
-        android:id="@+id/native_apm_button"
+        android:id="@+id/card_update_button"
         style="@style/Widget.ProcessOut.Button.Secondary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/button_space_vertical"
-        android:text="@string/native_apm" />
+        android:text="@string/card_update" />
 
 </LinearLayout>
