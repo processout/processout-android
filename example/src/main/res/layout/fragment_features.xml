@@ -16,14 +16,6 @@
         android:text="@string/card_update" />
 
     <Button
-        android:id="@+id/card_tokenization_button"
-        style="@style/Widget.ProcessOut.Button.Secondary"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/button_space_vertical"
-        android:text="@string/card_tokenization" />
-
-    <Button
         android:id="@+id/card_payment_button"
         style="@style/Widget.ProcessOut.Button.Secondary"
         android:layout_width="match_parent"

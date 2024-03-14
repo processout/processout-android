@@ -33,86 +33,10 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
-                android:id="@+id/card_details_subtitle"
-                style="@style/Widget.ProcessOut.Subtitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/card_details" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/number_input_layout"
-                style="@style/Widget.ProcessOut.Example.TextInputLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/subtitle_paddingVertical"
-                android:hint="@string/card_number">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/number_input"
-                    style="@style/Widget.ProcessOut.Example.EditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:importantForAutofill="no"
-                    android:inputType="number" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/exp_month_input_layout"
-                style="@style/Widget.ProcessOut.Example.TextInputLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/input_space_vertical"
-                android:hint="@string/card_expiration_month">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/exp_month_input"
-                    style="@style/Widget.ProcessOut.Example.EditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:importantForAutofill="no"
-                    android:inputType="number" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/exp_year_input_layout"
-                style="@style/Widget.ProcessOut.Example.TextInputLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/input_space_vertical"
-                android:hint="@string/card_expiration_year">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/exp_year_input"
-                    style="@style/Widget.ProcessOut.Example.EditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:importantForAutofill="no"
-                    android:inputType="number" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/cvc_input_layout"
-                style="@style/Widget.ProcessOut.Example.TextInputLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/input_space_vertical"
-                android:hint="@string/card_cvc">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/cvc_input"
-                    style="@style/Widget.ProcessOut.Example.EditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:importantForAutofill="no"
-                    android:inputType="number" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <TextView
                 android:id="@+id/invoice_details_subtitle"
                 style="@style/Widget.ProcessOut.Subtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/layout_padding"
                 android:text="@string/invoice_details" />
 
             <com.google.android.material.textfield.TextInputLayout
@@ -129,7 +53,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:importantForAutofill="no"
-                    android:inputType="numberDecimal" />
+                    android:inputType="numberDecimal"
+                    android:text="5" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -147,7 +72,8 @@
                     android:layout_height="wrap_content"
                     android:imeOptions="actionDone"
                     android:importantForAutofill="no"
-                    android:inputType="text|textCapCharacters" />
+                    android:inputType="text|textCapCharacters"
+                    android:text="USD" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
