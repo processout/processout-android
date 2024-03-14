@@ -24,7 +24,6 @@ import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.api.service.PO3DSService
 import com.processout.sdk.checkout.threeds.POCheckout3DSService
 import com.processout.sdk.core.ProcessOutActivityResult
-import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
@@ -42,6 +41,7 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
     }
 
     private val invoices = ProcessOut.instance.invoices
+    private val dispatcher = ProcessOut.instance.dispatchers.cardTokenization
     private lateinit var launcher: POCardTokenizationLauncher
     private lateinit var customTabLauncher: PO3DSRedirectCustomTabLauncher
 
@@ -58,15 +58,29 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
         super.onViewCreated(view, savedInstanceState)
         setOnClickListeners()
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.CREATED) {
                 viewModel.uiState.collect { handle(it) }
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.CREATED) {
-                invoices.authorizeInvoiceResult.collect { onAuthorizeInvoiceResult(it) }
+            dispatcher.processTokenizedCard.collect { card ->
+                viewModel.onTokenized(card)
             }
         }
+        viewLifecycleOwner.lifecycleScope.launch {
+            invoices.authorizeInvoiceResult.collect { result ->
+                dispatcher.complete(result)
+            }
+        }
+    }
+
+    private fun handle(result: ProcessOutActivityResult<POCard>) {
+        val uiState = viewModel.uiState.value
+        val invoiceId = if (uiState is Authorizing) uiState.uiModel.invoiceId else null
+        viewModel.reset()
+        result.onSuccess { card ->
+            showAlert(getString(R.string.authorize_invoice_success_format, invoiceId, card.id))
+        }.onFailure { showAlert(it.toMessage()) }
     }
 
     private fun handle(uiState: CardPaymentUiState) {
@@ -88,15 +102,6 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
         )
     }
 
-    private fun handle(result: ProcessOutActivityResult<POCard>) {
-        result.onSuccess {
-            viewModel.onTokenized(it)
-        }.onFailure {
-            viewModel.reset()
-            showAlert(it.toMessage())
-        }
-    }
-
     private fun authorizeInvoice(invoiceId: String, cardId: String) {
         invoices.authorizeInvoice(
             request = POInvoiceAuthorizationRequest(
@@ -106,14 +111,6 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
             threeDSService = create3DSService()
         )
         viewModel.onAuthorizing()
-    }
-
-    private fun onAuthorizeInvoiceResult(result: ProcessOutResult<String>) {
-        val uiState = viewModel.uiState.value
-        val cardId = if (uiState is Authorizing) uiState.uiModel.cardId else null
-        viewModel.reset()
-        result.onSuccess { showAlert(getString(R.string.authorize_invoice_success_format, it, cardId)) }
-            .onFailure { showAlert(it.toMessage()) }
     }
 
     private fun create3DSService(): PO3DSService {
