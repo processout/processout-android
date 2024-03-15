@@ -182,6 +182,8 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
             amountInput.isEnabled = isEnabled
             currencyInput.isEnabled = isEnabled
             authorizeInvoiceButton.isClickable = isEnabled
+            amountInput.clearFocus()
+            currencyInput.clearFocus()
         }
     }
 
