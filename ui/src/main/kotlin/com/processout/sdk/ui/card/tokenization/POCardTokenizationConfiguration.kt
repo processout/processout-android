@@ -10,6 +10,18 @@ import com.processout.sdk.ui.core.style.POTextStyle
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Defines card tokenization configuration.
+ *
+ * @param[title] Custom title.
+ * @param[isCardholderNameFieldVisible] Specifies whether the cardholder name field should be displayed. Default value is _true_.
+ * @param[billingAddress] Allows to customize the collection of billing address.
+ * @param[primaryActionText] Custom primary action text (e.g. "Submit").
+ * @param[secondaryActionText] Custom secondary action text (e.g. "Cancel").
+ * @param[cancellation] Specifies cancellation behaviour.
+ * @param[metadata] Metadata related to the card.
+ * @param[style] Allows to customize the look and feel.
+ */
 @Parcelize
 data class POCardTokenizationConfiguration(
     val title: String? = null,
@@ -37,6 +49,19 @@ data class POCardTokenizationConfiguration(
         val attachDefaultsToPaymentMethod: Boolean = false
     ) : Parcelable
 
+    /**
+     * Allows to customize the look and feel.
+     *
+     * @param[title] Title style.
+     * @param[sectionTitle] Section title style.
+     * @param[field] Field style.
+     * @param[dropdownMenu] Dropdown menu style.
+     * @param[errorMessage] Error message style.
+     * @param[actionsContainer] Style of action buttons and their container.
+     * @param[backgroundColorResId] Color resource ID for background.
+     * @param[dividerColorResId] Color resource ID for title divider.
+     * @param[dragHandleColorResId] Color resource ID for bottom sheet drag handle.
+     */
     @Parcelize
     data class Style(
         val title: POTextStyle? = null,
