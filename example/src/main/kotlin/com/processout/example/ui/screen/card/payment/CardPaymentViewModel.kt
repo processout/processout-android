@@ -75,6 +75,13 @@ class CardPaymentViewModel(
                 )
             )
         }
+        if (uiState is Authorizing) {
+            _uiState.value = Tokenized(
+                uiState.uiModel.copy(
+                    cardId = card.id
+                )
+            )
+        }
     }
 
     fun onAuthorizing() {
