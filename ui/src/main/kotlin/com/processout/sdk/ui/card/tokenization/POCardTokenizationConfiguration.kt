@@ -35,19 +35,20 @@ data class POCardTokenizationConfiguration(
 ) : Parcelable {
 
     @Parcelize
-    enum class CollectionMode : Parcelable {
-        Never,
-        Automatic,
-        Full
-    }
-
-    @Parcelize
     data class BillingAddressConfiguration(
         val mode: CollectionMode = CollectionMode.Automatic,
         val countryCodes: Set<String>? = null,
         val defaultAddress: POContact? = null,
         val attachDefaultsToPaymentMethod: Boolean = false
-    ) : Parcelable
+    ) : Parcelable {
+
+        @Parcelize
+        enum class CollectionMode : Parcelable {
+            Never,
+            Automatic,
+            Full
+        }
+    }
 
     /**
      * Allows to customize the look and feel.
