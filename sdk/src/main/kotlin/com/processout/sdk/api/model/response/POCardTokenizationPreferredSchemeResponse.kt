@@ -1,7 +1,6 @@
 package com.processout.sdk.api.model.response
 
 import com.processout.sdk.api.model.request.POCardTokenizationPreferredSchemeRequest
-import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import java.util.UUID
 
 /**
@@ -12,8 +11,6 @@ import java.util.UUID
  * @param[issuerInformation] Holds information about card issuing institution that issued the card to the card holder.
  * @param[preferredScheme] Preferred scheme that will be used by default for card tokenization.
  */
-/** @suppress */
-@ProcessOutInternalApi
 data class POCardTokenizationPreferredSchemeResponse internal constructor(
     val uuid: UUID,
     val issuerInformation: POCardIssuerInformation,
@@ -25,8 +22,6 @@ data class POCardTokenizationPreferredSchemeResponse internal constructor(
  *
  * @param[preferredScheme] Preferred scheme that will be used by default for card tokenization. Will use a primary scheme if _null_.
  */
-/** @suppress */
-@ProcessOutInternalApi
 fun POCardTokenizationPreferredSchemeRequest.toResponse(
     preferredScheme: String?
 ) = POCardTokenizationPreferredSchemeResponse(uuid, issuerInformation, preferredScheme)
