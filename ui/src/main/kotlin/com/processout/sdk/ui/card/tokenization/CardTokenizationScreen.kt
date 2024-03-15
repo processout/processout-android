@@ -16,6 +16,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
 import androidx.lifecycle.Lifecycle
@@ -97,6 +98,9 @@ private fun Sections(
     onEvent: (CardTokenizationEvent) -> Unit,
     style: CardTokenizationScreen.Style
 ) {
+    if (state.focusedFieldId == null) {
+        LocalFocusManager.current.clearFocus(force = true)
+    }
     val lifecycleEvent = rememberLifecycleEvent()
     sections.elements.forEach { section ->
         section.title?.let {

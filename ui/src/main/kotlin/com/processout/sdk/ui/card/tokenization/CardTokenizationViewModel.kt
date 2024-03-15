@@ -686,6 +686,7 @@ internal class CardTokenizationViewModel(
 
     private fun requestToProcessTokenizedCard(card: POCard) {
         viewModelScope.launch {
+            _state.update { it.copy(focusedFieldId = null) }
             eventDispatcher.processTokenizedCard(card)
             POLogger.info(
                 message = "Requested to process tokenized card.",
