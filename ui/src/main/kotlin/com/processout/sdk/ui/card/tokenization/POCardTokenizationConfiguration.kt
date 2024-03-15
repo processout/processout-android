@@ -3,6 +3,7 @@ package com.processout.sdk.ui.card.tokenization
 import android.os.Parcelable
 import androidx.annotation.ColorRes
 import com.processout.sdk.api.model.request.POContact
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode
 import com.processout.sdk.ui.core.style.POActionsContainerStyle
 import com.processout.sdk.ui.core.style.PODropdownMenuStyle
 import com.processout.sdk.ui.core.style.POFieldStyle
@@ -34,6 +35,15 @@ data class POCardTokenizationConfiguration(
     val style: Style? = null
 ) : Parcelable {
 
+    /**
+     * Defines billing address configuration.
+     *
+     * @param[mode] Defines how to collect the billing address. Default value is [CollectionMode.Automatic].
+     * @param[countryCodes] Set of ISO country codes that is supported for the billing address. When _null_, all countries are provided.
+     * @param[defaultAddress] Default address information.
+     * @param[attachDefaultsToPaymentMethod] Specifies whether the [defaultAddress] values should be attached to the card,
+     * including fields that aren't displayed in the form.
+     */
     @Parcelize
     data class BillingAddressConfiguration(
         val mode: CollectionMode = CollectionMode.Automatic,
@@ -42,10 +52,18 @@ data class POCardTokenizationConfiguration(
         val attachDefaultsToPaymentMethod: Boolean = false
     ) : Parcelable {
 
+        /**
+         * Defines how to collect the billing address.
+         */
         @Parcelize
         enum class CollectionMode : Parcelable {
+            /** Never collect. */
             Never,
+
+            /** Only collect the fields that are required by the particular payment method. */
             Automatic,
+
+            /** Collect the full billing address. */
             Full
         }
     }
