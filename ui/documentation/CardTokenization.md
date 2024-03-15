@@ -1,6 +1,6 @@
 # Module ProcessOut Android SDK - UI
 
-## Card Tokenization
+## Card Tokenization (since 4.15.0)
 
 ### Launch Card Tokenization Bottom Sheet
 

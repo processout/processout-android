@@ -1,6 +1,6 @@
 # Module ProcessOut Android SDK - UI
 
-## Card Update
+## Card Update (since 4.10.0)
 
 ### Launch Card Update Bottom Sheet
 
