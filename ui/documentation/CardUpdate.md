@@ -33,7 +33,7 @@ launcher.launch(
 POCardUpdateConfiguration(
     cardId = "card_",
     options = POCardUpdateConfiguration.Options(
-        title = "Payment details",
+        title = "Payment Details",
         cardInformation = POCardUpdateConfiguration.CardInformation(
             maskedNumber = "4010 **** **** **21",
             iin = "401000",
