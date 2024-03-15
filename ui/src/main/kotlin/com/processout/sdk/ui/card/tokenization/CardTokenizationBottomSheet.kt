@@ -25,7 +25,6 @@ import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.Dismiss
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.composable.screenModeAsState
 import com.processout.sdk.ui.shared.extension.screenSize
-import kotlin.math.roundToInt
 
 internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
 
@@ -33,7 +32,7 @@ internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCar
         val tag: String = CardTokenizationBottomSheet::class.java.simpleName
     }
 
-    override val defaultViewHeight by lazy { (requireContext().screenSize().height * 0.9).roundToInt() }
+    override val defaultViewHeight by lazy { requireContext().screenSize().height }
     override val expandable = false
 
     private var configuration: POCardTokenizationConfiguration? = null
