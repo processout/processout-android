@@ -1,13 +1,10 @@
 package com.processout.sdk.api.model.event
 
 import com.processout.sdk.api.model.response.POCard
-import com.processout.sdk.core.annotation.ProcessOutInternalApi
 
 /**
  * Defines card tokenization lifecycle events.
  */
-/** @suppress */
-@ProcessOutInternalApi
 sealed class POCardTokenizationEvent {
 
     /**

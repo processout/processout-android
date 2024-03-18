@@ -2,7 +2,6 @@ package com.processout.sdk.api.model.response
 
 import com.processout.sdk.api.model.request.POCardTokenizationShouldContinueRequest
 import com.processout.sdk.core.ProcessOutResult
-import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import java.util.UUID
 
 /**
@@ -13,8 +12,6 @@ import java.util.UUID
  * @param[failure] Failure that occurred. Must be provided from [POCardTokenizationShouldContinueRequest].
  * @param[shouldContinue] Boolean that indicates whether the flow should continue or complete after the [failure].
  */
-/** @suppress */
-@ProcessOutInternalApi
 data class POCardTokenizationShouldContinueResponse internal constructor(
     val uuid: UUID,
     val failure: ProcessOutResult.Failure,
@@ -26,8 +23,6 @@ data class POCardTokenizationShouldContinueResponse internal constructor(
  *
  * @param[shouldContinue] Boolean that indicates whether the flow should continue or complete after the failure.
  */
-/** @suppress */
-@ProcessOutInternalApi
 fun POCardTokenizationShouldContinueRequest.toResponse(
     shouldContinue: Boolean
 ) = POCardTokenizationShouldContinueResponse(uuid, failure, shouldContinue)

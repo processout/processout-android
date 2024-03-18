@@ -31,7 +31,7 @@ import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationFormData.BillingAddress
 import com.processout.sdk.ui.card.tokenization.CardTokenizationFormData.CardInformation
 import com.processout.sdk.ui.card.tokenization.CardTokenizationSection.Item
-import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.CollectionMode.*
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode.*
 import com.processout.sdk.ui.core.state.*
 import com.processout.sdk.ui.shared.extension.currentAppLocale
 import com.processout.sdk.ui.shared.extension.orElse
@@ -686,6 +686,7 @@ internal class CardTokenizationViewModel(
 
     private fun requestToProcessTokenizedCard(card: POCard) {
         viewModelScope.launch {
+            _state.update { it.copy(focusedFieldId = null) }
             eventDispatcher.processTokenizedCard(card)
             POLogger.info(
                 message = "Requested to process tokenized card.",

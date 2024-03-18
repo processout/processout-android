@@ -106,6 +106,8 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
             amountInput.isEnabled = isEnabled
             currencyInput.isEnabled = isEnabled
             createInvoiceButton.isClickable = isEnabled
+            amountInput.clearFocus()
+            currencyInput.clearFocus()
         }
     }
 

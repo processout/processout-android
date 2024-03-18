@@ -7,14 +7,11 @@ import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.api.model.response.POCardTokenizationPreferredSchemeResponse
 import com.processout.sdk.api.model.response.POCardTokenizationShouldContinueResponse
 import com.processout.sdk.core.ProcessOutResult
-import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import kotlinx.coroutines.flow.SharedFlow
 
 /**
  * Dispatcher that allows to handle events during card tokenization.
  */
-/** @suppress */
-@ProcessOutInternalApi
 interface POCardTokenizationEventDispatcher {
 
     /** Allows to subscribe for card tokenization lifecycle events. */
