@@ -45,6 +45,7 @@ internal data class NativeAlternativePaymentMethodUiModel(
     val primaryActionText: String,
     val secondaryAction: SecondaryActionUiModel?,
     val paymentConfirmationSecondaryAction: SecondaryActionUiModel?,
+    val isPaymentConfirmationProgressIndicatorVisible: Boolean,
     val isSubmitting: Boolean
 ) {
     fun isSubmitAllowed() = inputParameters.all { it.state is Input.State.Default }

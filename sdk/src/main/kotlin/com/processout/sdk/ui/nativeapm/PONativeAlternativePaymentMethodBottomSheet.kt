@@ -554,6 +554,11 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         bindPaymentConfirmationSecondaryButton(uiModel)
         if (uiModel.showCustomerAction()) {
             bindingCapture.poCircularProgressIndicator.visibility = View.GONE
+            if (uiModel.isPaymentConfirmationProgressIndicatorVisible) {
+                bindingCapture.poCaptureCircularProgressIndicator.visibility = View.VISIBLE
+            } else {
+                bindingCapture.poCaptureCircularProgressIndicator.visibility = View.GONE
+            }
             bindCaptureHeader(
                 uiModel,
                 titleStyle = POTextStyle(
@@ -567,6 +572,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             uiModel.customerActionMessageMarkdown?.let { bindCustomerActionMessage(it) }
         } else {
             bindingCapture.poCircularProgressIndicator.visibility = View.VISIBLE
+            bindingCapture.poCaptureCircularProgressIndicator.visibility = View.GONE
             bindingCapture.poMessage.visibility = View.GONE
             bindingCapture.poHeader.visibility = View.GONE
             bindingCapture.poActionImage.visibility = View.GONE
@@ -656,6 +662,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             fadeOut(
                 listOf(
                     bindingCapture.poCircularProgressIndicator,
+                    bindingCapture.poCaptureCircularProgressIndicator,
                     bindingCapture.poMessage,
                     bindingCapture.poActionImage,
                     bindingCapture.poFooter
@@ -692,6 +699,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
 
     private fun bindSuccess(uiModel: NativeAlternativePaymentMethodUiModel) {
         bindingCapture.poCircularProgressIndicator.visibility = View.GONE
+        bindingCapture.poCaptureCircularProgressIndicator.visibility = View.GONE
         bindSuccessBackground()
         bindSuccessMessage(uiModel.successMessage)
         bindCaptureHeader(

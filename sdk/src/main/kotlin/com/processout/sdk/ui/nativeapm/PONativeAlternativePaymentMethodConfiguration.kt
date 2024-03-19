@@ -46,6 +46,8 @@ data class PONativeAlternativePaymentMethodConfiguration(
      * Maximum value is 180 seconds, this is a default.
      * @param[paymentConfirmationSecondaryAction] Action that could be optionally presented to user during payment confirmation stage.
      * To hide action use _null_, this is a default behaviour.
+     * @param[showPaymentConfirmationProgressIndicatorAfterSeconds] Show progress indicator during payment confirmation after provided delay (in seconds).
+     * To hide progress indicator use _null_, this is a default behaviour.
      */
     @Parcelize
     data class Options(
@@ -58,7 +60,8 @@ data class PONativeAlternativePaymentMethodConfiguration(
         val skipSuccessScreen: Boolean = false,
         val waitsPaymentConfirmation: Boolean = true,
         val paymentConfirmationTimeoutSeconds: Int = MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS,
-        val paymentConfirmationSecondaryAction: SecondaryAction? = null
+        val paymentConfirmationSecondaryAction: SecondaryAction? = null,
+        val showPaymentConfirmationProgressIndicatorAfterSeconds: Int? = null
     ) : Parcelable {
         companion object {
             const val MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS = 180
