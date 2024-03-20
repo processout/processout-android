@@ -398,6 +398,11 @@ internal class NativeAlternativePaymentMethodViewModel(
             animateViewTransition = true
             _uiState.value = Capture(updatedUiModel)
 
+            options.showPaymentConfirmationProgressIndicatorAfterSeconds?.let { afterSeconds ->
+                showPaymentConfirmationProgressIndicator(
+                    afterMillis = TimeUnit.SECONDS.toMillis(afterSeconds.toLong())
+                )
+            }
             updatedUiModel.paymentConfirmationSecondaryAction?.let {
                 scheduleSecondaryActionEnabling(it) { enablePaymentConfirmationSecondaryAction() }
             }
@@ -590,6 +595,7 @@ internal class NativeAlternativePaymentMethodViewModel(
             primaryActionText = options.primaryActionText ?: invoice.formatPrimaryActionText(),
             secondaryAction = options.secondaryAction?.toUiModel(),
             paymentConfirmationSecondaryAction = options.paymentConfirmationSecondaryAction?.toUiModel(),
+            isPaymentConfirmationProgressIndicatorVisible = false,
             isSubmitting = false
         )
 
@@ -695,6 +701,16 @@ internal class NativeAlternativePaymentMethodViewModel(
                     )
                 )
             )
+        }
+    }
+
+    private fun showPaymentConfirmationProgressIndicator(afterMillis: Long) {
+        handler.postDelayed(delayInMillis = afterMillis) {
+            _uiState.value.doWhenCapture { uiModel ->
+                _uiState.value = Capture(
+                    uiModel.copy(isPaymentConfirmationProgressIndicatorVisible = true)
+                )
+            }
         }
     }
 
