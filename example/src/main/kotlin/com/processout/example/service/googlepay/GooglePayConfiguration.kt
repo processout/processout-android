@@ -28,9 +28,8 @@ import java.math.RoundingMode
 /**
  * Contains helper static methods for dealing with the Payments API.
  *
- * Many of the parameters used in the code are optional and are set here merely to call out their
- * existence. Please consult the documentation to learn more and feel free to remove ones not
- * relevant to your implementation.
+ * Many of the parameters used in the code are optional and are set here merely to call out their existence.
+ * Please consult the documentation to learn more and feel free to remove ones not relevant to your implementation.
  */
 object GooglePayConfiguration {
 
@@ -51,8 +50,7 @@ object GooglePayConfiguration {
      *
      * The Google Pay API response will return an encrypted payment method capable of being charged
      * by a supported gateway after payer authorization.
-     *
-     * TODO: Check with your gateway on the parameters to pass and modify them in [GooglePayConstants].
+     * Check with your gateway on the parameters to pass and modify them in [GooglePayConstants].
      *
      * @return Payment data tokenization for the CARD payment method.
      * @throws JSONException
@@ -65,8 +63,7 @@ object GooglePayConfiguration {
 
     /**
      * Card networks supported by your app and your gateway.
-     *
-     * TODO: Confirm card networks supported by your app and gateway & update in [GooglePayConstants].
+     * Confirm card networks supported by your app and gateway & update in [GooglePayConstants].
      *
      * @return Allowed card networks
      * See [CardParameters](https://developers.google.com/pay/api/android/reference/object.CardParameters)
@@ -75,9 +72,8 @@ object GooglePayConfiguration {
 
     /**
      * Card authentication methods supported by your app and your gateway.
-     *
-     * TODO: Confirm your processor supports Android device tokens on your supported card networks
-     * and make updates in [GooglePayConstants].
+     * Confirm your processor supports Android device tokens
+     * on your supported card networks and make updates in [GooglePayConstants].
      *
      * @return Allowed card authentication methods.
      * See [CardParameters](https://developers.google.com/pay/api/android/reference/object.CardParameters)
@@ -86,9 +82,7 @@ object GooglePayConfiguration {
 
     /**
      * Describe your app's support for the CARD payment method.
-     *
-     * The provided properties are applicable to both an IsReadyToPayRequest and a
-     * PaymentDataRequest.
+     * The provided properties are applicable to both an IsReadyToPayRequest and a PaymentDataRequest.
      *
      * @return A CARD PaymentMethod object describing accepted cards.
      * @throws JSONException
@@ -110,7 +104,7 @@ object GooglePayConfiguration {
             )
 
     /**
-     * Describe the expected returned payment data for the CARD payment method
+     * Describe the expected returned payment data for the CARD payment method.
      *
      * @return A CARD PaymentMethod describing accepted cards and optional fields.
      * @throws JSONException
@@ -122,8 +116,7 @@ object GooglePayConfiguration {
     val allowedPaymentMethods: JSONArray = JSONArray().put(cardPaymentMethod)
 
     /**
-     * An object describing accepted forms of payment by your app, used to determine a viewer's
-     * readiness to pay.
+     * An object describing accepted forms of payment by your app, used to determine a viewer's readiness to pay.
      *
      * @return API version and payment methods supported by the app.
      * See [IsReadyToPayRequest](https://developers.google.com/pay/api/android/reference/object.IsReadyToPayRequest)
@@ -137,7 +130,7 @@ object GooglePayConfiguration {
         }
 
     /**
-     * Information about the merchant requesting payment information
+     * Information about the merchant requesting payment information.
      *
      * @return Information about the merchant.
      * @throws JSONException
@@ -147,8 +140,8 @@ object GooglePayConfiguration {
         JSONObject().put("merchantName", "Example Merchant")
 
     /**
-     * Creates an instance of [PaymentsClient] for use in an [Context] using the
-     * environment and theme set in [GooglePayConstants].
+     * Creates an instance of [PaymentsClient] for use in an [Context]
+     * using the environment and theme set in [GooglePayConstants].
      *
      * @param context from the caller activity.
      */
@@ -163,7 +156,7 @@ object GooglePayConfiguration {
     /**
      * Provide Google Pay API with a payment amount, currency, and amount status.
      *
-     * @return information about the requested payment.
+     * @return Information about the requested payment.
      * @throws JSONException
      * See [TransactionInfo](https://developers.google.com/pay/api/android/reference/object.TransactionInfo)
      */
@@ -175,7 +168,7 @@ object GooglePayConfiguration {
             .put("currencyCode", GooglePayConstants.CURRENCY_CODE)
 
     /**
-     * An object describing information requested in a Google Pay payment sheet
+     * An object describing information requested in a Google Pay payment sheet.
      *
      * @return Payment data expected by your app.
      * See [PaymentDataRequest](https://developers.google.com/pay/api/android/reference/object.PaymentDataRequest)
