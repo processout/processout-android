@@ -4,11 +4,13 @@ import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.android.gms.wallet.Wallet.WalletOptions
 import com.google.android.gms.wallet.button.ButtonOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.processout.example.R
 import com.processout.example.databinding.FragmentFeaturesBinding
 import com.processout.example.service.googlepay.GooglePayConfiguration
+import com.processout.example.service.googlepay.GooglePayConstants
 import com.processout.example.shared.toMessage
 import com.processout.example.ui.screen.base.BaseFragment
 import com.processout.sdk.api.ProcessOut
@@ -19,6 +21,7 @@ import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.getOrNull
 import com.processout.sdk.ui.card.update.POCardUpdateConfiguration
 import com.processout.sdk.ui.card.update.POCardUpdateLauncher
+import com.processout.sdk.ui.googlepay.POGooglePayLauncher
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import kotlinx.coroutines.launch
 
@@ -28,12 +31,22 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
 
     private val cardsRepository = ProcessOut.instance.cards
     private lateinit var cardUpdateLauncher: POCardUpdateLauncher
+    private lateinit var googlePayLauncher: POGooglePayLauncher
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         cardUpdateLauncher = POCardUpdateLauncher.create(
             from = this,
             callback = ::handleCardUpdateResult
+        )
+        googlePayLauncher = POGooglePayLauncher.create(
+            from = this,
+            walletOptions = WalletOptions.Builder()
+                .setEnvironment(GooglePayConstants.PAYMENTS_ENVIRONMENT)
+                .build(),
+            callback = {
+                // TODO
+            }
         )
     }
 
@@ -117,8 +130,13 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
                 .setAllowedPaymentMethods(GooglePayConfiguration.allowedPaymentMethods.toString())
                 .build()
             initialize(options)
-            setOnClickListener { showAlert("click") }
+            setOnClickListener { launchGooglePay() }
         }
+    }
+
+    private fun launchGooglePay() {
+        val paymentDataRequestJson = GooglePayConfiguration.getPaymentDataRequest(priceCents = 1000L)
+        googlePayLauncher.launch(paymentDataRequestJson)
     }
 
     private fun showAlert(message: String) {
