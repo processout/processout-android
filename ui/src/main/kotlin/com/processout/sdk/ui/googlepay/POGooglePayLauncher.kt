@@ -10,7 +10,7 @@ import com.google.android.gms.wallet.Wallet.WalletOptions
 import com.google.android.gms.wallet.contract.ApiTaskResult
 import com.google.android.gms.wallet.contract.TaskResultContracts
 import com.processout.sdk.api.model.response.POCard
-import com.processout.sdk.core.ProcessOutActivityResult
+import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
 import org.json.JSONObject
 
@@ -28,7 +28,7 @@ class POGooglePayLauncher private constructor(
         fun create(
             from: Fragment,
             walletOptions: WalletOptions,
-            callback: (ProcessOutActivityResult<POCard>) -> Unit
+            callback: (ProcessOutResult<POCard>) -> Unit
         ) = POGooglePayLauncher(
             service = GooglePayService(
                 application = from.requireActivity().application,
@@ -48,7 +48,7 @@ class POGooglePayLauncher private constructor(
         fun create(
             from: ComponentActivity,
             walletOptions: WalletOptions,
-            callback: (ProcessOutActivityResult<POCard>) -> Unit
+            callback: (ProcessOutResult<POCard>) -> Unit
         ) = POGooglePayLauncher(
             service = GooglePayService(
                 application = from.application,
