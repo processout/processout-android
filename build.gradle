@@ -51,6 +51,7 @@ ext {
     materialVersion = '1.11.0'
 
     gmsWalletVersion = '19.3.0'
+    kotlinxCoroutinesPlayServicesVersion = '1.8.0'
 
     retrofitVersion = '2.9.0'
     moshiVersion = '1.15.0'

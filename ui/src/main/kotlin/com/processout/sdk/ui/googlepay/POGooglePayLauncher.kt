@@ -63,6 +63,9 @@ class POGooglePayLauncher private constructor(
         }
     }
 
+    suspend fun isReadyToPay(isReadyToPayRequestJson: JSONObject): Boolean =
+        service.isReadyToPay(isReadyToPayRequestJson)
+
     fun launch(paymentDataRequestJson: JSONObject) {
         with(service.loadPaymentData(paymentDataRequestJson)) {
             addOnCompleteListener(launcher::launch)

@@ -121,13 +121,8 @@ object GooglePayConfiguration {
      * @return API version and payment methods supported by the app.
      * See [IsReadyToPayRequest](https://developers.google.com/pay/api/android/reference/object.IsReadyToPayRequest)
      */
-    fun isReadyToPayRequest(): JSONObject? =
-        try {
-            baseRequest
-                .put("allowedPaymentMethods", JSONArray().put(baseCardPaymentMethod()))
-        } catch (e: JSONException) {
-            null
-        }
+    fun isReadyToPayRequest(): JSONObject = baseRequest
+        .put("allowedPaymentMethods", JSONArray().put(baseCardPaymentMethod()))
 
     /**
      * Information about the merchant requesting payment information.

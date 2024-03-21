@@ -125,12 +125,17 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
     }
 
     private fun setupGooglePay() {
-        with(binding.googlePayButton) {
-            val options = ButtonOptions.newBuilder()
-                .setAllowedPaymentMethods(GooglePayConfiguration.allowedPaymentMethods.toString())
-                .build()
-            initialize(options)
-            setOnClickListener { launchGooglePay() }
+        lifecycleScope.launch {
+            if (!googlePayLauncher.isReadyToPay(GooglePayConfiguration.isReadyToPayRequest())) {
+                return@launch
+            }
+            with(binding.googlePayButton) {
+                val options = ButtonOptions.newBuilder()
+                    .setAllowedPaymentMethods(GooglePayConfiguration.allowedPaymentMethods.toString())
+                    .build()
+                initialize(options)
+                setOnClickListener { launchGooglePay() }
+            }
         }
     }
 
