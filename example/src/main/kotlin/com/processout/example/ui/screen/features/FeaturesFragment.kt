@@ -4,9 +4,11 @@ import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.android.gms.wallet.button.ButtonOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.processout.example.R
 import com.processout.example.databinding.FragmentFeaturesBinding
+import com.processout.example.service.googlepay.GooglePayConfiguration
 import com.processout.example.shared.toMessage
 import com.processout.example.ui.screen.base.BaseFragment
 import com.processout.sdk.api.ProcessOut
@@ -54,6 +56,7 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
             }
         }
         setupCardUpdate()
+        setupGooglePay()
     }
 
     private fun setupCardUpdate() {
@@ -105,6 +108,16 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
                 getString(R.string.card_update_success_format, result.value.id)
             )
             is ProcessOutActivityResult.Failure -> showAlert(result.toMessage())
+        }
+    }
+
+    private fun setupGooglePay() {
+        with(binding.googlePayButton) {
+            val options = ButtonOptions.newBuilder()
+                .setAllowedPaymentMethods(GooglePayConfiguration.allowedPaymentMethods.toString())
+                .build()
+            initialize(options)
+            setOnClickListener { showAlert("click") }
         }
     }
 
