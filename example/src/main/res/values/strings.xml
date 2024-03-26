@@ -26,4 +26,5 @@
     <string name="success" translatable="false">Success</string>
     <string name="authorize_invoice_success_format" translatable="false">Success: authorized invoice [%s] with card [%s].</string>
     <string name="card_update_success_format" translatable="false">Success: card updated [%s].</string>
+    <string name="google_pay_success_format" translatable="false">Success: tokenized with Google Pay [%s].</string>
 </resources>

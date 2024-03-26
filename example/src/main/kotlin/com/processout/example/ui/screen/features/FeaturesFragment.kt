@@ -17,8 +17,8 @@ import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POAllGatewayConfigurationsRequest
 import com.processout.sdk.api.model.request.POCardTokenizationRequest
 import com.processout.sdk.api.model.response.POCard
-import com.processout.sdk.core.ProcessOutActivityResult
-import com.processout.sdk.core.getOrNull
+import com.processout.sdk.api.model.response.POGooglePayResponse
+import com.processout.sdk.core.*
 import com.processout.sdk.ui.card.update.POCardUpdateConfiguration
 import com.processout.sdk.ui.card.update.POCardUpdateLauncher
 import com.processout.sdk.ui.googlepay.POGooglePayLauncher
@@ -44,9 +44,7 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
             walletOptions = WalletOptions.Builder()
                 .setEnvironment(GooglePayConstants.PAYMENTS_ENVIRONMENT)
                 .build(),
-            callback = {
-                // TODO
-            }
+            callback = ::handleGooglePayResult
         )
     }
 
@@ -116,12 +114,9 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
     }
 
     private fun handleCardUpdateResult(result: ProcessOutActivityResult<POCard>) {
-        when (result) {
-            is ProcessOutActivityResult.Success -> showAlert(
-                getString(R.string.card_update_success_format, result.value.id)
-            )
-            is ProcessOutActivityResult.Failure -> showAlert(result.toMessage())
-        }
+        result
+            .onSuccess { showAlert(getString(R.string.card_update_success_format, it.id)) }
+            .onFailure { showAlert(it.toMessage()) }
     }
 
     private fun setupGooglePay() {
@@ -140,8 +135,14 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
     }
 
     private fun launchGooglePay() {
-        val paymentDataRequestJson = GooglePayConfiguration.getPaymentDataRequest(priceCents = 1000L)
+        val paymentDataRequestJson = GooglePayConfiguration.getPaymentDataRequest(priceCents = 100L)
         googlePayLauncher.launch(paymentDataRequestJson)
+    }
+
+    private fun handleGooglePayResult(result: ProcessOutResult<POGooglePayResponse>) {
+        result
+            .onSuccess { showAlert(getString(R.string.google_pay_success_format, it.card.id)) }
+            .onFailure { showAlert(it.toMessage()) }
     }
 
     private fun showAlert(message: String) {

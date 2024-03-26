@@ -17,6 +17,7 @@
 package com.processout.example.service.googlepay
 
 import com.google.android.gms.wallet.WalletConstants
+import com.processout.example.BuildConfig
 
 /**
  * This file contains several constants you must edit before proceeding.
@@ -90,14 +91,6 @@ object GooglePayConstants {
     val SHIPPING_SUPPORTED_COUNTRIES = listOf("US", "GB")
 
     /**
-     * The name of your payment processor/gateway.
-     * Please refer to their documentation for more information.
-     *
-     * @value #PAYMENT_GATEWAY_TOKENIZATION_NAME
-     */
-    private const val PAYMENT_GATEWAY_TOKENIZATION_NAME = "example"
-
-    /**
      * Custom parameters required by the processor/gateway.
      * In many cases, your processor / gateway will only require a gatewayMerchantId.
      * Please refer to your processor's documentation for more information.
@@ -106,8 +99,8 @@ object GooglePayConstants {
      * @value #PAYMENT_GATEWAY_TOKENIZATION_PARAMETERS
      */
     val PAYMENT_GATEWAY_TOKENIZATION_PARAMETERS = mapOf(
-        "gateway" to PAYMENT_GATEWAY_TOKENIZATION_NAME,
-        "gatewayMerchantId" to "exampleGatewayMerchantId"
+        "gateway" to "processout",
+        "gatewayMerchantId" to BuildConfig.PROJECT_ID
     )
 
     /**
