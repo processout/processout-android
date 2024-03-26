@@ -15,8 +15,8 @@ import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POCardTokenizationRequest
 import com.processout.sdk.api.model.request.POCardTokenizationRequest.TokenType.GOOGLE_PAY
 import com.processout.sdk.api.model.request.POContact
+import com.processout.sdk.api.model.response.POGooglePayCardTokenizationData
 import com.processout.sdk.api.model.response.POGooglePayPaymentData
-import com.processout.sdk.api.model.response.POGooglePayResponse
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.POFailure.Code.Generic
@@ -32,7 +32,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
-class POGooglePayLauncher private constructor(
+class POGooglePayCardTokenizationLauncher private constructor(
     private val launcher: ActivityResultLauncher<Task<PaymentData>>,
     private val service: GooglePayService
 ) {
@@ -45,8 +45,8 @@ class POGooglePayLauncher private constructor(
         fun create(
             from: Fragment,
             walletOptions: WalletOptions,
-            callback: (ProcessOutResult<POGooglePayResponse>) -> Unit
-        ) = POGooglePayLauncher(
+            callback: (ProcessOutResult<POGooglePayCardTokenizationData>) -> Unit
+        ) = POGooglePayCardTokenizationLauncher(
             launcher = from.registerForActivityResult(
                 TaskResultContracts.GetPaymentDataResult(),
                 ActivityResultHandler(callback)
@@ -64,8 +64,8 @@ class POGooglePayLauncher private constructor(
         fun create(
             from: ComponentActivity,
             walletOptions: WalletOptions,
-            callback: (ProcessOutResult<POGooglePayResponse>) -> Unit
-        ) = POGooglePayLauncher(
+            callback: (ProcessOutResult<POGooglePayCardTokenizationData>) -> Unit
+        ) = POGooglePayCardTokenizationLauncher(
             launcher = from.registerForActivityResult(
                 TaskResultContracts.GetPaymentDataResult(),
                 from.activityResultRegistry,
@@ -88,7 +88,7 @@ class POGooglePayLauncher private constructor(
     }
 
     private class ActivityResultHandler(
-        private val callback: (ProcessOutResult<POGooglePayResponse>) -> Unit,
+        private val callback: (ProcessOutResult<POGooglePayCardTokenizationData>) -> Unit,
         private val cards: POCardsRepository = ProcessOut.instance.cards,
         private val mapper: PaymentDataMapper = PaymentDataMapper(),
         private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
@@ -96,7 +96,7 @@ class POGooglePayLauncher private constructor(
 
         override fun onActivityResult(result: ApiTaskResult<PaymentData>) {
             scope.launch {
-                val launcherResult: ProcessOutResult<POGooglePayResponse> =
+                val launcherResult: ProcessOutResult<POGooglePayCardTokenizationData> =
                     when (result.status.statusCode) {
                         CommonStatusCodes.SUCCESS -> {
                             result.result?.let { paymentData ->
@@ -112,7 +112,7 @@ class POGooglePayLauncher private constructor(
                                     )
                                     when (tokenizationResult) {
                                         is Success -> Success(
-                                            POGooglePayResponse(
+                                            POGooglePayCardTokenizationData(
                                                 card = tokenizationResult.value,
                                                 paymentData = mappedPaymentData
                                             )

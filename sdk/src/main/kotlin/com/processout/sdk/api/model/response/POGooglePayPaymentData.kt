@@ -2,6 +2,10 @@ package com.processout.sdk.api.model.response
 
 import com.squareup.moshi.JsonClass
 
+/**
+ * Corresponds to Google Pay
+ * [PaymentData](https://developers.google.com/pay/api/android/reference/response-objects#PaymentData).
+ */
 @JsonClass(generateAdapter = true)
 data class POGooglePayPaymentData(
     val apiVersion: Int,
@@ -11,6 +15,10 @@ data class POGooglePayPaymentData(
     val shippingAddress: Address?
 ) {
 
+    /**
+     * Corresponds to Google Pay
+     * [PaymentMethodData](https://developers.google.com/pay/api/android/reference/response-objects#PaymentMethodData).
+     */
     @JsonClass(generateAdapter = true)
     data class PaymentMethodData(
         val type: String,
@@ -19,6 +27,10 @@ data class POGooglePayPaymentData(
         val tokenizationData: PaymentMethodTokenizationData
     )
 
+    /**
+     * Corresponds to Google Pay
+     * [CardInfo](https://developers.google.com/pay/api/android/reference/response-objects#CardInfo).
+     */
     @JsonClass(generateAdapter = true)
     data class CardInfo(
         val cardDetails: String,
@@ -27,12 +39,20 @@ data class POGooglePayPaymentData(
         val billingAddress: Address?
     )
 
+    /**
+     * Corresponds to Google Pay
+     * [AssuranceDetailsSpecifications](https://developers.google.com/pay/api/android/reference/response-objects#assurance-details-specifications).
+     */
     @JsonClass(generateAdapter = true)
     data class AssuranceDetailsSpecifications(
         val accountVerified: Boolean,
         val cardHolderAuthenticated: Boolean
     )
 
+    /**
+     * Corresponds to Google Pay
+     * [Address](https://developers.google.com/pay/api/android/reference/response-objects#Address).
+     */
     @JsonClass(generateAdapter = true)
     data class Address(
         val name: String,
@@ -47,6 +67,10 @@ data class POGooglePayPaymentData(
         val sortingCode: String
     )
 
+    /**
+     * Corresponds to Google Pay
+     * [PaymentMethodTokenizationData](https://developers.google.com/pay/api/android/reference/response-objects#PaymentMethodTokenizationData).
+     */
     @JsonClass(generateAdapter = true)
     data class PaymentMethodTokenizationData(
         val type: String,

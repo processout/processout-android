@@ -17,11 +17,11 @@ import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POAllGatewayConfigurationsRequest
 import com.processout.sdk.api.model.request.POCardTokenizationRequest
 import com.processout.sdk.api.model.response.POCard
-import com.processout.sdk.api.model.response.POGooglePayResponse
+import com.processout.sdk.api.model.response.POGooglePayCardTokenizationData
 import com.processout.sdk.core.*
 import com.processout.sdk.ui.card.update.POCardUpdateConfiguration
 import com.processout.sdk.ui.card.update.POCardUpdateLauncher
-import com.processout.sdk.ui.googlepay.POGooglePayLauncher
+import com.processout.sdk.ui.googlepay.POGooglePayCardTokenizationLauncher
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import kotlinx.coroutines.launch
 
@@ -31,7 +31,7 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
 
     private val cardsRepository = ProcessOut.instance.cards
     private lateinit var cardUpdateLauncher: POCardUpdateLauncher
-    private lateinit var googlePayLauncher: POGooglePayLauncher
+    private lateinit var googlePayLauncher: POGooglePayCardTokenizationLauncher
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +39,7 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
             from = this,
             callback = ::handleCardUpdateResult
         )
-        googlePayLauncher = POGooglePayLauncher.create(
+        googlePayLauncher = POGooglePayCardTokenizationLauncher.create(
             from = this,
             walletOptions = WalletOptions.Builder()
                 .setEnvironment(GooglePayConstants.PAYMENTS_ENVIRONMENT)
@@ -139,7 +139,7 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
         googlePayLauncher.launch(paymentDataRequestJson)
     }
 
-    private fun handleGooglePayResult(result: ProcessOutResult<POGooglePayResponse>) {
+    private fun handleGooglePayResult(result: ProcessOutResult<POGooglePayCardTokenizationData>) {
         result
             .onSuccess { showAlert(getString(R.string.google_pay_success_format, it.card.id)) }
             .onFailure { showAlert(it.toMessage()) }
