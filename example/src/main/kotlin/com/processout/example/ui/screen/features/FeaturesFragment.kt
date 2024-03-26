@@ -5,6 +5,7 @@ import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.wallet.Wallet.WalletOptions
+import com.google.android.gms.wallet.button.ButtonConstants
 import com.google.android.gms.wallet.button.ButtonOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.processout.example.R
@@ -126,6 +127,7 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
             }
             with(binding.googlePayButton) {
                 val options = ButtonOptions.newBuilder()
+                    .setButtonType(ButtonConstants.ButtonType.PLAIN)
                     .setAllowedPaymentMethods(GooglePayConfiguration.allowedPaymentMethods.toString())
                     .build()
                 initialize(options)
