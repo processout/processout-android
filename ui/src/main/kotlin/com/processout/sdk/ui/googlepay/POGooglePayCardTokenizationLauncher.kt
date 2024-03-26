@@ -32,6 +32,9 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
+/**
+ * Launcher that starts Google Pay payment sheet for card tokenization and provides the result.
+ */
 class POGooglePayCardTokenizationLauncher private constructor(
     private val launcher: ActivityResultLauncher<Task<PaymentData>>,
     private val service: GooglePayService
@@ -78,9 +81,19 @@ class POGooglePayCardTokenizationLauncher private constructor(
         )
     }
 
+    /**
+     * Allows to check Google Pay API readiness before showing the Google Pay button.
+     * [Follow tutorial](https://developers.google.com/pay/api/android/guides/tutorial)
+     * to create [isReadyToPayRequestJson].
+     */
     suspend fun isReadyToPay(isReadyToPayRequestJson: JSONObject): Boolean =
         service.isReadyToPay(isReadyToPayRequestJson)
 
+    /**
+     * Loads payment data for the given request and shows Google Pay payment sheet.
+     * [Follow tutorial](https://developers.google.com/pay/api/android/guides/tutorial)
+     * to create [paymentDataRequestJson].
+     */
     fun launch(paymentDataRequestJson: JSONObject) {
         with(service.loadPaymentData(paymentDataRequestJson)) {
             addOnCompleteListener(launcher::launch)
