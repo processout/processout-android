@@ -12,8 +12,8 @@ import com.checkout.threeds.Environment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.processout.example.R
 import com.processout.example.databinding.FragmentCardPaymentBinding
-import com.processout.example.service.Checkout3DSServiceDelegate
-import com.processout.example.service.POAdyen3DSService
+import com.processout.example.service.threeds.Checkout3DSServiceDelegate
+import com.processout.example.service.threeds.POAdyen3DSService
 import com.processout.example.shared.Constants
 import com.processout.example.shared.toMessage
 import com.processout.example.ui.screen.base.BaseFragment
