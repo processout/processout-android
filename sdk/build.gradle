@@ -110,6 +110,7 @@ dependencies {
     implementation "io.coil-kt:coil:$coilVersion"
     implementation "org.commonmark:commonmark:$commonMarkVersion"
 
+    ksp "com.squareup.retrofit2:response-type-keeper:$retrofitVersion"
     ksp "com.squareup.moshi:moshi-kotlin-codegen:$moshiVersion"
 
     testImplementation "junit:junit:$junitVersion"
