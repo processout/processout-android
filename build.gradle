@@ -58,7 +58,7 @@ ext {
     okhttpVersion = '4.12.0'
     okioVersion = '3.6.0'
     coilVersion = '2.5.0'
-    commonMarkVersion = '0.21.0'
+    commonMarkVersion = '0.22.0'
 
     checkout3dsSdkVersion = '3.2.1'
     adyen3dsSdkVersion = '2.2.15'

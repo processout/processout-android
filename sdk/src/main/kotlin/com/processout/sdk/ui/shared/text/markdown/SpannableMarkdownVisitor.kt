@@ -73,8 +73,8 @@ internal class SpannableMarkdownVisitor(textSize: Float) : AbstractVisitor() {
 
         val marker = when (val parent = listItem.parent) {
             is OrderedList -> {
-                val startNumber = parent.startNumber
-                parent.startNumber += 1
+                val startNumber = parent.markerStartNumber
+                parent.markerStartNumber += 1
                 "$startNumber$LIST_ITEM_DELIMITER"
             }
             else -> LIST_ITEM_BULLET
