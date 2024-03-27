@@ -2,10 +2,10 @@
 
 buildscript {
     ext {
-        androidGradlePluginVersion = '8.3.0'
-        kotlinVersion = '1.9.22'
-        kspVersion = '1.9.22-1.0.17'
-        dokkaVersion = '1.9.10'
+        androidGradlePluginVersion = '8.3.1'
+        kotlinVersion = '1.9.23'
+        kspVersion = '1.9.23-1.0.19'
+        dokkaVersion = '1.9.20'
         androidxNavigationVersion = '2.7.7'
         nexusPublishPluginVersion = '1.3.0'
     }
@@ -43,28 +43,28 @@ ext {
     androidxLifecycleVersion = '2.7.0'
     androidxRecyclerViewVersion = '1.3.2'
     androidxSwipeRefreshLayoutVersion = '1.1.0'
-    androidxBrowserVersion = '1.7.0'
+    androidxBrowserVersion = '1.8.0'
 
-    androidxComposeBOMVersion = '2024.02.01'
-    androidxComposeCompilerVersion = '1.5.10'
+    androidxComposeBOMVersion = '2024.02.02'
+    androidxComposeCompilerVersion = '1.5.11'
 
     materialVersion = '1.11.0'
 
     gmsWalletVersion = '19.3.0'
     kotlinxCoroutinesPlayServicesVersion = '1.8.0'
 
-    retrofitVersion = '2.9.0'
-    moshiVersion = '1.15.0'
+    retrofitVersion = '2.10.0'
+    moshiVersion = '1.15.1'
     okhttpVersion = '4.12.0'
-    okioVersion = '3.6.0'
-    coilVersion = '2.5.0'
-    commonMarkVersion = '0.21.0'
+    okioVersion = '3.9.0'
+    coilVersion = '2.6.0'
+    commonMarkVersion = '0.22.0'
 
     checkout3dsSdkVersion = '3.2.1'
     adyen3dsSdkVersion = '2.2.15'
 
     junitVersion = '4.13.2'
-    mockitoVersion = '5.8.0'
+    mockitoVersion = '5.11.0'
     mockitoInlineVersion = '5.2.0'
     mockitoKotlinVersion = '5.2.1'
     robolectricVersion = '4.11.1'
