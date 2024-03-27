@@ -22,7 +22,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
 import com.processout.sdk.ui.card.tokenization.v2.CardTokenizationEvent.*
-import com.processout.sdk.ui.card.tokenization.v2.CardTokenizationSection.Item
+import com.processout.sdk.ui.card.tokenization.v2.CardTokenizationViewModelState.Item
 import com.processout.sdk.ui.core.component.POActionsContainer
 import com.processout.sdk.ui.core.component.POHeader
 import com.processout.sdk.ui.core.component.POText
@@ -30,9 +30,8 @@ import com.processout.sdk.ui.core.component.field.PODropdownField
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.POTextField
 import com.processout.sdk.ui.core.state.POActionState
+import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableList
-import com.processout.sdk.ui.core.state.POMutableFieldState
-import com.processout.sdk.ui.core.state.POStableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.composable.AnimatedImage
@@ -42,8 +41,7 @@ import com.processout.sdk.ui.shared.composable.rememberLifecycleEvent
 
 @Composable
 internal fun CardTokenizationScreen(
-    state: CardTokenizationState,
-    sections: POStableList<CardTokenizationSection>,
+    state: CardTokenizationViewModelState,
     onEvent: (CardTokenizationEvent) -> Unit,
     style: CardTokenizationScreen.Style = CardTokenizationScreen.style()
 ) {
@@ -84,7 +82,6 @@ internal fun CardTokenizationScreen(
         ) {
             Sections(
                 state = state,
-                sections = sections,
                 onEvent = onEvent,
                 style = style
             )
@@ -94,8 +91,7 @@ internal fun CardTokenizationScreen(
 
 @Composable
 private fun Sections(
-    state: CardTokenizationState,
-    sections: POStableList<CardTokenizationSection>,
+    state: CardTokenizationViewModelState,
     onEvent: (CardTokenizationEvent) -> Unit,
     style: CardTokenizationScreen.Style
 ) {
@@ -103,7 +99,7 @@ private fun Sections(
         LocalFocusManager.current.clearFocus(force = true)
     }
     val lifecycleEvent = rememberLifecycleEvent()
-    sections.elements.forEach { section ->
+    state.sections.elements.forEach { section ->
         section.title?.let {
             with(style.sectionTitle) {
                 POText(
@@ -113,7 +109,7 @@ private fun Sections(
                 )
             }
         }
-        section.items.forEach { item ->
+        section.items.elements.forEach { item ->
             Item(
                 item = item,
                 onEvent = onEvent,
@@ -162,7 +158,7 @@ private fun Item(
         is Item.Group -> Row(
             horizontalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
         ) {
-            item.items.forEach { groupItem ->
+            item.items.elements.forEach { groupItem ->
                 Item(
                     item = groupItem,
                     onEvent = onEvent,
@@ -179,7 +175,7 @@ private fun Item(
 
 @Composable
 private fun TextField(
-    state: POMutableFieldState,
+    state: POFieldState,
     onEvent: (CardTokenizationEvent) -> Unit,
     lifecycleEvent: Lifecycle.Event,
     focusedFieldId: String?,
@@ -230,7 +226,7 @@ private fun TextField(
 
 @Composable
 private fun DropdownField(
-    state: POMutableFieldState,
+    state: POFieldState,
     onEvent: (CardTokenizationEvent) -> Unit,
     fieldStyle: POField.Style,
     menuStyle: PODropdownField.MenuStyle,
