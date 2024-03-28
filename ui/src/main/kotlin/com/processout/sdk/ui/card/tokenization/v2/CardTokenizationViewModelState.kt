@@ -9,9 +9,9 @@ import com.processout.sdk.ui.core.state.POImmutableList
 internal data class CardTokenizationViewModelState(
     val title: String,
     val sections: POImmutableList<Section>,
-    val focusedFieldId: String? = null,
     val primaryAction: POActionState,
     val secondaryAction: POActionState?,
+    val focusedFieldId: String? = null,
     val draggable: Boolean
 ) {
 

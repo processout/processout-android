@@ -64,8 +64,14 @@ internal class CardTokenizationInteractor(
     private val _completion = MutableStateFlow<CardTokenizationCompletion>(Awaiting)
     val completion = _completion.asStateFlow()
 
-    private val _state = MutableStateFlow(CardTokenizationInteractorState())
+    private val _state = MutableStateFlow(init())
     val state = _state.asStateFlow()
+
+    private fun init() = CardTokenizationInteractorState(
+        primaryActionId = ActionId.SUBMIT,
+        secondaryActionId = ActionId.CANCEL,
+        focusedFieldId = CardFieldId.NUMBER
+    )
 
     fun onEvent(event: CardTokenizationEvent) {
         when (event) {
@@ -84,7 +90,9 @@ internal class CardTokenizationInteractor(
     }
 
     private fun updateFieldFocus(id: String, isFocused: Boolean) {
-
+        if (isFocused) {
+            _state.update { it.copy(focusedFieldId = id) }
+        }
     }
 
     private fun submit() {
