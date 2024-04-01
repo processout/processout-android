@@ -14,8 +14,7 @@ import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
-import com.processout.sdk.ui.card.tokenization.v2.CardTokenizationInteractorState.CardFieldId
-import com.processout.sdk.ui.card.tokenization.v2.CardTokenizationInteractorState.Field
+import com.processout.sdk.ui.card.tokenization.v2.CardTokenizationInteractorState.*
 import com.processout.sdk.ui.card.tokenization.v2.CardTokenizationViewModelState.*
 import com.processout.sdk.ui.core.filter.POInputFilter
 import com.processout.sdk.ui.core.state.POActionState
@@ -88,14 +87,35 @@ internal class CardTokenizationViewModel(
     }
 
     private fun sections(state: CardTokenizationInteractorState): POImmutableList<Section> {
-        return POImmutableList(listOf(cardInformationSection(state)))
+        val lastFocusableFieldId = lastFocusableFieldId(state)
+        return POImmutableList(listOf(cardInformationSection(state, lastFocusableFieldId)))
     }
 
-    private fun cardInformationSection(state: CardTokenizationInteractorState): Section {
+    private fun lastFocusableFieldId(state: CardTokenizationInteractorState): String? {
+        with(state) {
+            cardFields.plus(addressFields).reversed().forEach { field ->
+                if (field.shouldCollect && field.availableValues.isNullOrEmpty()) {
+                    return field.id
+                }
+            }
+        }
+        return null
+    }
+
+    private fun cardInformationSection(
+        state: CardTokenizationInteractorState,
+        lastFocusableFieldId: String?
+    ): Section {
         var cardNumberField: Item? = null
         var cardholderField: Item? = null
         val trackFields = mutableListOf<Item?>()
         state.cardFields.forEach { field ->
+            var imeAction: ImeAction = ImeAction.Next
+            var keyboardActionId: String? = null
+            if (field.id == lastFocusableFieldId) {
+                imeAction = ImeAction.Done
+                keyboardActionId = ActionId.SUBMIT
+            }
             when (field.id) {
                 CardFieldId.NUMBER -> cardNumberField = field(
                     field = field,
@@ -105,8 +125,9 @@ internal class CardTokenizationViewModel(
                     visualTransformation = CardNumberVisualTransformation(),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Next
-                    )
+                        imeAction = imeAction
+                    ),
+                    keyboardActionId = keyboardActionId
                 )
                 CardFieldId.EXPIRATION -> trackFields.add(
                     field(
@@ -117,8 +138,9 @@ internal class CardTokenizationViewModel(
                         visualTransformation = CardExpirationVisualTransformation(),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Next
-                        )
+                            imeAction = imeAction
+                        ),
+                        keyboardActionId = keyboardActionId
                     )
                 )
                 CardFieldId.CVC -> trackFields.add(
@@ -130,8 +152,9 @@ internal class CardTokenizationViewModel(
                         inputFilter = CardSecurityCodeInputFilter(scheme = state.issuerInformation?.scheme),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.NumberPassword,
-                            imeAction = ImeAction.Next
-                        )
+                            imeAction = imeAction
+                        ),
+                        keyboardActionId = keyboardActionId
                     )
                 )
                 CardFieldId.CARDHOLDER -> cardholderField = field(
@@ -141,8 +164,9 @@ internal class CardTokenizationViewModel(
                         capitalization = KeyboardCapitalization.Words,
                         autoCorrect = false,
                         keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Next
-                    )
+                        imeAction = imeAction
+                    ),
+                    keyboardActionId = keyboardActionId
                 )
             }
         }
@@ -164,7 +188,8 @@ internal class CardTokenizationViewModel(
         forceTextDirectionLtr: Boolean = false,
         inputFilter: POInputFilter? = null,
         visualTransformation: VisualTransformation = VisualTransformation.None,
-        keyboardOptions: KeyboardOptions = KeyboardOptions.Default
+        keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+        keyboardActionId: String? = null
     ): Item? {
         if (!field.shouldCollect) {
             return null
@@ -179,7 +204,8 @@ internal class CardTokenizationViewModel(
             forceTextDirectionLtr = forceTextDirectionLtr,
             inputFilter = inputFilter,
             visualTransformation = visualTransformation,
-            keyboardOptions = keyboardOptions
+            keyboardOptions = keyboardOptions,
+            keyboardActionId = keyboardActionId
         )
     }
 
@@ -194,7 +220,8 @@ internal class CardTokenizationViewModel(
         forceTextDirectionLtr: Boolean = false,
         inputFilter: POInputFilter? = null,
         visualTransformation: VisualTransformation = VisualTransformation.None,
-        keyboardOptions: KeyboardOptions = KeyboardOptions.Default
+        keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+        keyboardActionId: String? = null
     ): Item = Item.TextField(
         POFieldState(
             id = field.id,
@@ -205,7 +232,8 @@ internal class CardTokenizationViewModel(
             forceTextDirectionLtr = forceTextDirectionLtr,
             inputFilter = inputFilter,
             visualTransformation = visualTransformation,
-            keyboardOptions = keyboardOptions
+            keyboardOptions = keyboardOptions,
+            keyboardActionId = keyboardActionId
         )
     )
 }
