@@ -2,10 +2,13 @@ package com.processout.sdk.ui.card.tokenization.v2
 
 import androidx.compose.ui.text.input.TextFieldValue
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
+import com.processout.sdk.api.model.event.POCardTokenizationEvent
+import com.processout.sdk.api.model.event.POCardTokenizationEvent.ParametersChanged
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
+import com.processout.sdk.ui.base.BaseInteractor
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
 import com.processout.sdk.ui.card.tokenization.v2.CardTokenizationCompletion.Awaiting
 import com.processout.sdk.ui.card.tokenization.v2.CardTokenizationEvent.*
@@ -15,6 +18,7 @@ import com.processout.sdk.ui.shared.provider.address.AddressSpecificationProvide
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 internal class CardTokenizationInteractor(
     private val configuration: POCardTokenizationConfiguration,
@@ -22,7 +26,7 @@ internal class CardTokenizationInteractor(
     private val cardSchemeProvider: CardSchemeProvider,
     private val addressSpecificationProvider: AddressSpecificationProvider,
     private val eventDispatcher: PODefaultCardTokenizationEventDispatcher
-) {
+) : BaseInteractor() {
 
     private companion object {
         const val IIN_LENGTH = 6
@@ -73,7 +77,47 @@ internal class CardTokenizationInteractor(
     }
 
     private fun updateFieldValue(id: String, value: TextFieldValue) {
-
+        var isTextChanged = false
+        var previousValue: TextFieldValue? = null
+        _state.update {
+            it.copy(
+                cardFields = it.cardFields.map { field ->
+                    if (field.id == id) {
+                        previousValue = field.value
+                        isTextChanged = value.text != field.value.text
+                        if (isTextChanged)
+                            field.copy(value = value, isValid = true)
+                        else field.copy(value = value)
+                    } else {
+                        field.copy()
+                    }
+                },
+                addressFields = it.addressFields.map { field ->
+                    if (field.id == id) {
+                        previousValue = field.value
+                        isTextChanged = value.text != field.value.text
+                        if (isTextChanged)
+                            field.copy(value = value, isValid = true)
+                        else field.copy(value = value)
+                    } else {
+                        field.copy()
+                    }
+                }
+            )
+        }
+        if (isTextChanged) {
+            POLogger.debug(message = "Field is edited by the user: %s", id)
+            dispatch(ParametersChanged)
+            if (areAllFieldsValid()) {
+                _state.update {
+                    it.copy(
+                        submitAllowed = true,
+                        submitting = _state.value.submitting,
+                        errorMessage = null
+                    )
+                }
+            }
+        }
     }
 
     private fun updateFieldFocus(id: String, isFocused: Boolean) {
@@ -86,6 +130,10 @@ internal class CardTokenizationInteractor(
 
     }
 
+    private fun areAllFieldsValid() = with(_state.value) {
+        cardFields.plus(addressFields).all { it.isValid }
+    }
+
     private fun cancel() {
         _completion.update {
             CardTokenizationCompletion.Failure(
@@ -94,6 +142,12 @@ internal class CardTokenizationInteractor(
                     message = "Cancelled by the user with secondary cancel action."
                 ).also { POLogger.info("Cancelled: %s", it) }
             )
+        }
+    }
+
+    private fun dispatch(event: POCardTokenizationEvent) {
+        interactorScope.launch {
+            eventDispatcher.send(event)
         }
     }
 }

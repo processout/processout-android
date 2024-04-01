@@ -59,6 +59,10 @@ internal class CardTokenizationViewModel(
 
     val state = interactor.state.map(viewModelScope, ::map)
 
+    init {
+        addCloseable(interactor.interactorScope)
+    }
+
     fun onEvent(event: CardTokenizationEvent) = interactor.onEvent(event)
 
     private fun map(state: CardTokenizationInteractorState) = with(configuration) {
@@ -69,12 +73,15 @@ internal class CardTokenizationViewModel(
             primaryAction = POActionState(
                 id = state.primaryActionId,
                 text = primaryActionText ?: app.getString(R.string.po_card_tokenization_button_submit),
-                primary = true
+                primary = true,
+                enabled = state.submitAllowed,
+                loading = state.submitting
             ),
             secondaryAction = if (cancellation.secondaryAction) POActionState(
                 id = state.secondaryActionId,
                 text = secondaryActionText ?: app.getString(R.string.po_card_tokenization_button_cancel),
-                primary = false
+                primary = false,
+                enabled = !state.submitting
             ) else null,
             draggable = cancellation.dragDown
         )
@@ -120,7 +127,7 @@ internal class CardTokenizationViewModel(
                         placeholder = app.getString(R.string.po_card_tokenization_card_details_cvc_placeholder),
                         forceTextDirectionLtr = true,
                         iconResId = com.processout.sdk.ui.R.drawable.po_card_back,
-                        inputFilter = CardSecurityCodeInputFilter(scheme = null),
+                        inputFilter = CardSecurityCodeInputFilter(scheme = state.issuerInformation?.scheme),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.NumberPassword,
                             imeAction = ImeAction.Next

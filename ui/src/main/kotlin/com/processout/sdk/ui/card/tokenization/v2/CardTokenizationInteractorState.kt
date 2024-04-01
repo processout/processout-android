@@ -11,8 +11,9 @@ internal data class CardTokenizationInteractorState(
     val focusedFieldId: String?,
     val primaryActionId: String,
     val secondaryActionId: String,
-    val errorMessage: String? = null,
+    val submitAllowed: Boolean = true,
     val submitting: Boolean = false,
+    val errorMessage: String? = null,
     val issuerInformation: POCardIssuerInformation? = null,
     val preferredScheme: String? = null,
     val tokenizedCard: POCard? = null
