@@ -12,4 +12,14 @@ internal class CardNumberInputFilter : POInputFilter {
     override fun filter(value: TextFieldValue) = value.copy(
         text = value.text.filter { it.isDigit() }.take(MAX_LENGTH)
     )
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return javaClass.hashCode()
+    }
 }

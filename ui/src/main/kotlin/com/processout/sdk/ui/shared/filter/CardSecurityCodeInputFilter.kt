@@ -16,4 +16,15 @@ internal class CardSecurityCodeInputFilter(
         }
         return value.copy(text = value.text.filter { it.isDigit() }.take(length))
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        other as CardSecurityCodeInputFilter
+        return scheme == other.scheme
+    }
+
+    override fun hashCode(): Int {
+        return scheme?.hashCode() ?: javaClass.hashCode()
+    }
 }
