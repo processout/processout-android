@@ -9,9 +9,9 @@ import com.processout.sdk.ui.core.state.POImmutableList
 internal data class CardTokenizationViewModelState(
     val title: String,
     val sections: POImmutableList<Section>,
+    val focusedFieldId: String?,
     val primaryAction: POActionState,
     val secondaryAction: POActionState?,
-    val focusedFieldId: String? = null,
     val draggable: Boolean
 ) {
 
@@ -28,5 +28,10 @@ internal data class CardTokenizationViewModelState(
         data class TextField(val state: POFieldState) : Item
         data class DropdownField(val state: POFieldState) : Item
         data class Group(val items: POImmutableList<Item>) : Item
+    }
+
+    object SectionId {
+        const val CARD_INFORMATION = "card-information"
+        const val BILLING_ADDRESS = "billing-address"
     }
 }

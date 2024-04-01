@@ -9,6 +9,7 @@ import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
 import com.processout.sdk.ui.card.tokenization.v2.CardTokenizationCompletion.Awaiting
 import com.processout.sdk.ui.card.tokenization.v2.CardTokenizationEvent.*
+import com.processout.sdk.ui.card.tokenization.v2.CardTokenizationInteractorState.*
 import com.processout.sdk.ui.shared.provider.CardSchemeProvider
 import com.processout.sdk.ui.shared.provider.address.AddressSpecificationProvider
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,32 +31,6 @@ internal class CardTokenizationInteractor(
         const val LOG_ATTRIBUTE_CARD_ID = "CardId"
     }
 
-    private object SectionId {
-        const val CARD_INFORMATION = "card-information"
-        const val BILLING_ADDRESS = "billing-address"
-    }
-
-    private object CardFieldId {
-        const val NUMBER = "card-number"
-        const val EXPIRATION = "card-expiration"
-        const val CVC = "card-cvc"
-        const val CARDHOLDER = "cardholder-name"
-    }
-
-    private object AddressFieldId {
-        const val COUNTRY = "country-code"
-        const val ADDRESS_1 = "address-1"
-        const val ADDRESS_2 = "address-2"
-        const val CITY = "city"
-        const val STATE = "state"
-        const val POSTAL_CODE = "postal-code"
-    }
-
-    private object ActionId {
-        const val SUBMIT = "submit"
-        const val CANCEL = "cancel"
-    }
-
     private data class Expiration(
         val month: Int,
         val year: Int
@@ -68,9 +43,21 @@ internal class CardTokenizationInteractor(
     val state = _state.asStateFlow()
 
     private fun init() = CardTokenizationInteractorState(
+        cardFields = cardFields(),
+        addressFields = emptyList(),
+        focusedFieldId = CardFieldId.NUMBER,
         primaryActionId = ActionId.SUBMIT,
-        secondaryActionId = ActionId.CANCEL,
-        focusedFieldId = CardFieldId.NUMBER
+        secondaryActionId = ActionId.CANCEL
+    )
+
+    private fun cardFields(): List<Field> = mutableListOf(
+        Field(id = CardFieldId.NUMBER),
+        Field(id = CardFieldId.EXPIRATION),
+        Field(id = CardFieldId.CVC),
+        Field(
+            id = CardFieldId.CARDHOLDER,
+            shouldCollect = configuration.isCardholderNameFieldVisible
+        )
     )
 
     fun onEvent(event: CardTokenizationEvent) {
