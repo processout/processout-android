@@ -56,6 +56,11 @@ internal class CardTokenizationViewModel(
             ) as T
     }
 
+    private data class KeyboardAction(
+        val imeAction: ImeAction,
+        val actionId: String?
+    )
+
     val completion = interactor.completion
 
     val state = interactor.state.map(viewModelScope, ::map)
@@ -117,12 +122,7 @@ internal class CardTokenizationViewModel(
         var cardholderField: Item? = null
         val trackFields = mutableListOf<Item?>()
         state.cardFields.forEach { field ->
-            var imeAction: ImeAction = ImeAction.Next
-            var keyboardActionId: String? = null
-            if (field.id == lastFocusableFieldId) {
-                imeAction = ImeAction.Done
-                keyboardActionId = ActionId.SUBMIT
-            }
+            val keyboardAction = keyboardAction(field.id, lastFocusableFieldId)
             when (field.id) {
                 CardFieldId.NUMBER -> {
                     val scheme = state.preferredScheme ?: state.issuerInformation?.scheme
@@ -135,9 +135,9 @@ internal class CardTokenizationViewModel(
                         visualTransformation = CardNumberVisualTransformation(),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number,
-                            imeAction = imeAction
+                            imeAction = keyboardAction.imeAction
                         ),
-                        keyboardActionId = keyboardActionId
+                        keyboardActionId = keyboardAction.actionId
                     )
                 }
                 CardFieldId.EXPIRATION -> trackFields.add(
@@ -149,9 +149,9 @@ internal class CardTokenizationViewModel(
                         visualTransformation = CardExpirationVisualTransformation(),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number,
-                            imeAction = imeAction
+                            imeAction = keyboardAction.imeAction
                         ),
-                        keyboardActionId = keyboardActionId
+                        keyboardActionId = keyboardAction.actionId
                     )
                 )
                 CardFieldId.CVC -> {
@@ -165,9 +165,9 @@ internal class CardTokenizationViewModel(
                             inputFilter = inputFilter,
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.NumberPassword,
-                                imeAction = imeAction
+                                imeAction = keyboardAction.imeAction
                             ),
-                            keyboardActionId = keyboardActionId
+                            keyboardActionId = keyboardAction.actionId
                         )
                     )
                 }
@@ -178,9 +178,9 @@ internal class CardTokenizationViewModel(
                         capitalization = KeyboardCapitalization.Words,
                         autoCorrect = false,
                         keyboardType = KeyboardType.Text,
-                        imeAction = imeAction
+                        imeAction = keyboardAction.imeAction
                     ),
-                    keyboardActionId = keyboardActionId
+                    keyboardActionId = keyboardAction.actionId
                 )
             }
         }
@@ -201,12 +201,7 @@ internal class CardTokenizationViewModel(
     ): Section? {
         val items = mutableListOf<Item>()
         state.addressFields.forEach { field ->
-            var imeAction: ImeAction = ImeAction.Next
-            var keyboardActionId: String? = null
-            if (field.id == lastFocusableFieldId) {
-                imeAction = ImeAction.Done
-                keyboardActionId = ActionId.SUBMIT
-            }
+            val keyboardAction = keyboardAction(field.id, lastFocusableFieldId)
             when (field.id) {
                 AddressFieldId.COUNTRY -> field(
                     field = field
@@ -222,6 +217,19 @@ internal class CardTokenizationViewModel(
             items = POImmutableList(items)
         )
     }
+
+    private fun keyboardAction(fieldId: String, lastFocusableFieldId: String?) =
+        if (fieldId == lastFocusableFieldId) {
+            KeyboardAction(
+                imeAction = ImeAction.Done,
+                actionId = ActionId.SUBMIT
+            )
+        } else {
+            KeyboardAction(
+                imeAction = ImeAction.Next,
+                actionId = null
+            )
+        }
 
     private fun field(
         field: Field,
