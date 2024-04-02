@@ -147,31 +147,17 @@ internal class CardTokenizationInteractor(
     }
 
     private fun updateFieldValue(id: String, value: TextFieldValue) {
-        var isTextChanged = false
-        var previousValue = TextFieldValue()
+        val previousValue = with(_state.value) {
+            cardFields.plus(addressFields).find { it.id == id }?.value ?: TextFieldValue()
+        }
+        val isTextChanged = value.text != previousValue.text
         _state.update {
             it.copy(
                 cardFields = it.cardFields.map { field ->
-                    if (field.id == id) {
-                        previousValue = field.value
-                        isTextChanged = value.text != field.value.text
-                        if (isTextChanged)
-                            field.copy(value = value, isValid = true)
-                        else field.copy(value = value)
-                    } else {
-                        field.copy()
-                    }
+                    updatedField(id, value, field, isTextChanged)
                 },
                 addressFields = it.addressFields.map { field ->
-                    if (field.id == id) {
-                        previousValue = field.value
-                        isTextChanged = value.text != field.value.text
-                        if (isTextChanged)
-                            field.copy(value = value, isValid = true)
-                        else field.copy(value = value)
-                    } else {
-                        field.copy()
-                    }
+                    updatedField(id, value, field, isTextChanged)
                 }
             )
         }
@@ -194,6 +180,22 @@ internal class CardTokenizationInteractor(
             }
         }
     }
+
+    private fun updatedField(
+        id: String,
+        value: TextFieldValue,
+        field: Field,
+        isTextChanged: Boolean
+    ): Field =
+        if (id == field.id) {
+            if (isTextChanged) {
+                field.copy(value = value, isValid = true)
+            } else {
+                field.copy(value = value)
+            }
+        } else {
+            field.copy()
+        }
 
     private fun updateFieldFocus(id: String, isFocused: Boolean) {
         if (isFocused) {
