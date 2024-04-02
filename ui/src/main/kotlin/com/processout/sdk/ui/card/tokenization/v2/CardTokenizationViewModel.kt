@@ -26,6 +26,7 @@ import com.processout.sdk.ui.shared.filter.CardNumberInputFilter
 import com.processout.sdk.ui.shared.filter.CardSecurityCodeInputFilter
 import com.processout.sdk.ui.shared.provider.CardSchemeProvider
 import com.processout.sdk.ui.shared.provider.address.AddressSpecificationProvider
+import com.processout.sdk.ui.shared.provider.cardSchemeDrawableResId
 import com.processout.sdk.ui.shared.transformation.CardExpirationVisualTransformation
 import com.processout.sdk.ui.shared.transformation.CardNumberVisualTransformation
 
@@ -117,18 +118,22 @@ internal class CardTokenizationViewModel(
                 keyboardActionId = ActionId.SUBMIT
             }
             when (field.id) {
-                CardFieldId.NUMBER -> cardNumberField = field(
-                    field = field,
-                    placeholder = app.getString(R.string.po_card_tokenization_card_details_number_placeholder),
-                    forceTextDirectionLtr = true,
-                    inputFilter = CardNumberInputFilter(),
-                    visualTransformation = CardNumberVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = imeAction
-                    ),
-                    keyboardActionId = keyboardActionId
-                )
+                CardFieldId.NUMBER -> {
+                    val scheme = state.preferredScheme ?: state.issuerInformation?.scheme
+                    cardNumberField = field(
+                        field = field,
+                        placeholder = app.getString(R.string.po_card_tokenization_card_details_number_placeholder),
+                        iconResId = scheme?.let { cardSchemeDrawableResId(it) },
+                        forceTextDirectionLtr = true,
+                        inputFilter = CardNumberInputFilter(),
+                        visualTransformation = CardNumberVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = imeAction
+                        ),
+                        keyboardActionId = keyboardActionId
+                    )
+                }
                 CardFieldId.EXPIRATION -> trackFields.add(
                     field(
                         field = field,
@@ -143,20 +148,23 @@ internal class CardTokenizationViewModel(
                         keyboardActionId = keyboardActionId
                     )
                 )
-                CardFieldId.CVC -> trackFields.add(
-                    field(
-                        field = field,
-                        placeholder = app.getString(R.string.po_card_tokenization_card_details_cvc_placeholder),
-                        forceTextDirectionLtr = true,
-                        iconResId = com.processout.sdk.ui.R.drawable.po_card_back,
-                        inputFilter = CardSecurityCodeInputFilter(scheme = state.issuerInformation?.scheme),
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.NumberPassword,
-                            imeAction = imeAction
-                        ),
-                        keyboardActionId = keyboardActionId
+                CardFieldId.CVC -> {
+                    val inputFilter = CardSecurityCodeInputFilter(scheme = state.issuerInformation?.scheme)
+                    trackFields.add(
+                        field(
+                            field = field.copy(value = inputFilter.filter(field.value)),
+                            placeholder = app.getString(R.string.po_card_tokenization_card_details_cvc_placeholder),
+                            forceTextDirectionLtr = true,
+                            iconResId = com.processout.sdk.ui.R.drawable.po_card_back,
+                            inputFilter = inputFilter,
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.NumberPassword,
+                                imeAction = imeAction
+                            ),
+                            keyboardActionId = keyboardActionId
+                        )
                     )
-                )
+                }
                 CardFieldId.CARDHOLDER -> cardholderField = field(
                     field = field,
                     placeholder = app.getString(R.string.po_card_tokenization_card_details_cardholder_placeholder),

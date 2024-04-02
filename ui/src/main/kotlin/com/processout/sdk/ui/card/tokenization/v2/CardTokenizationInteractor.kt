@@ -3,11 +3,16 @@ package com.processout.sdk.ui.card.tokenization.v2
 import androidx.compose.ui.text.input.TextFieldValue
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
-import com.processout.sdk.api.model.event.POCardTokenizationEvent.ParametersChanged
+import com.processout.sdk.api.model.event.POCardTokenizationEvent.*
+import com.processout.sdk.api.model.request.POCardTokenizationPreferredSchemeRequest
+import com.processout.sdk.api.model.request.POCardTokenizationShouldContinueRequest
+import com.processout.sdk.api.model.response.POCardIssuerInformation
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.getOrNull
 import com.processout.sdk.core.logger.POLogger
+import com.processout.sdk.core.onFailure
 import com.processout.sdk.ui.base.BaseInteractor
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
 import com.processout.sdk.ui.card.tokenization.v2.CardTokenizationCompletion.Awaiting
@@ -15,6 +20,7 @@ import com.processout.sdk.ui.card.tokenization.v2.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.v2.CardTokenizationInteractorState.*
 import com.processout.sdk.ui.shared.provider.CardSchemeProvider
 import com.processout.sdk.ui.shared.provider.address.AddressSpecificationProvider
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -45,6 +51,19 @@ internal class CardTokenizationInteractor(
 
     private val _state = MutableStateFlow(init())
     val state = _state.asStateFlow()
+
+    private var latestPreferredSchemeRequest: POCardTokenizationPreferredSchemeRequest? = null
+    private var latestShouldContinueRequest: POCardTokenizationShouldContinueRequest? = null
+
+    private var issuerInformationJob: Job? = null
+
+    init {
+        POLogger.info("Starting card tokenization.")
+        dispatch(WillStart)
+        collectPreferredScheme()
+        POLogger.info("Card tokenization is started: waiting for user input.")
+        dispatch(DidStart)
+    }
 
     private fun init() = CardTokenizationInteractorState(
         cardFields = cardFields(),
@@ -78,7 +97,7 @@ internal class CardTokenizationInteractor(
 
     private fun updateFieldValue(id: String, value: TextFieldValue) {
         var isTextChanged = false
-        var previousValue: TextFieldValue? = null
+        var previousValue = TextFieldValue()
         _state.update {
             it.copy(
                 cardFields = it.cardFields.map { field ->
@@ -112,10 +131,15 @@ internal class CardTokenizationInteractor(
                 _state.update {
                     it.copy(
                         submitAllowed = true,
-                        submitting = _state.value.submitting,
                         errorMessage = null
                     )
                 }
+            }
+            when (id) {
+                CardFieldId.NUMBER -> updateIssuerInformation(
+                    cardNumber = value.text,
+                    previousCardNumber = previousValue.text
+                )
             }
         }
     }
@@ -124,6 +148,86 @@ internal class CardTokenizationInteractor(
         if (isFocused) {
             _state.update { it.copy(focusedFieldId = id) }
         }
+    }
+
+    private fun updateIssuerInformation(cardNumber: String, previousCardNumber: String) {
+        val iin = iin(cardNumber)
+        if (iin == iin(previousCardNumber)) {
+            return
+        }
+        updateState(
+            issuerInformation = localIssuerInformation(iin),
+            preferredScheme = null
+        )
+        if (iin.length == IIN_LENGTH) {
+            updateIssuerInformation(iin)
+        }
+    }
+
+    private fun iin(cardNumber: String) = cardNumber.take(IIN_LENGTH)
+
+    private fun localIssuerInformation(iin: String) =
+        cardSchemeProvider.scheme(iin)?.let { scheme ->
+            POCardIssuerInformation(scheme = scheme)
+        }
+
+    private fun updateIssuerInformation(iin: String) {
+        issuerInformationJob?.cancel()
+        issuerInformationJob = interactorScope.launch {
+            fetchIssuerInformation(iin)?.let { issuerInformation ->
+                if (eventDispatcher.subscribedForPreferredSchemeRequest()) {
+                    requestPreferredScheme(issuerInformation)
+                } else {
+                    updateState(
+                        issuerInformation = issuerInformation,
+                        preferredScheme = null
+                    )
+                }
+            }
+        }
+    }
+
+    private suspend fun fetchIssuerInformation(iin: String) =
+        cardsRepository.fetchIssuerInformation(iin)
+            .onFailure {
+                POLogger.info(
+                    message = "Failed to fetch issuer information: %s", it,
+                    attributes = mapOf(LOG_ATTRIBUTE_IIN to iin)
+                )
+            }.getOrNull()
+
+    private suspend fun requestPreferredScheme(issuerInformation: POCardIssuerInformation) {
+        val request = POCardTokenizationPreferredSchemeRequest(issuerInformation)
+        latestPreferredSchemeRequest = request
+        eventDispatcher.send(request)
+        POLogger.info("Requested to choose preferred scheme by issuer information: %s", issuerInformation)
+    }
+
+    private fun collectPreferredScheme() {
+        interactorScope.launch {
+            eventDispatcher.preferredSchemeResponse.collect { response ->
+                if (response.uuid == latestPreferredSchemeRequest?.uuid) {
+                    latestPreferredSchemeRequest = null
+                    updateState(
+                        issuerInformation = response.issuerInformation,
+                        preferredScheme = response.preferredScheme
+                    )
+                }
+            }
+        }
+    }
+
+    private fun updateState(
+        issuerInformation: POCardIssuerInformation?,
+        preferredScheme: String?
+    ) {
+        _state.update {
+            it.copy(
+                issuerInformation = issuerInformation,
+                preferredScheme = preferredScheme
+            )
+        }
+        POLogger.info("State updated: [issuerInformation=%s] [preferredScheme=%s]", issuerInformation, preferredScheme)
     }
 
     private fun submit() {
