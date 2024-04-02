@@ -24,6 +24,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.util.UUID
 
 /**
  * Contains helper static methods for dealing with the Payments API.
@@ -96,10 +97,14 @@ object GooglePayConfiguration {
                 "parameters", JSONObject()
                     .put("allowedAuthMethods", allowedCardAuthMethods)
                     .put("allowedCardNetworks", allowedCardNetworks)
-                    .put("billingAddressRequired", true)
+                    .put("allowPrepaidCards", true)
+                    .put("allowCreditCards", true)
+                    .put("assuranceDetailsRequired", true)
+                    .put("billingAddressRequired", false)
                     .put(
                         "billingAddressParameters", JSONObject()
                             .put("format", "FULL")
+                            .put("phoneNumberRequired", false)
                     )
             )
 
@@ -161,6 +166,9 @@ object GooglePayConfiguration {
             .put("totalPriceStatus", "FINAL")
             .put("countryCode", GooglePayConstants.COUNTRY_CODE)
             .put("currencyCode", GooglePayConstants.CURRENCY_CODE)
+            .put("transactionId", UUID.randomUUID().toString())
+            .put("totalPriceLabel", "Total Price Label")
+            .put("checkoutOption", "DEFAULT")
 
     /**
      * An object describing information requested in a Google Pay payment sheet.
@@ -173,11 +181,12 @@ object GooglePayConfiguration {
             .put("allowedPaymentMethods", allowedPaymentMethods)
             .put("transactionInfo", getTransactionInfo(priceCents.centsToString()))
             .put("merchantInfo", merchantInfo)
-            .put("shippingAddressRequired", true)
+            .put("emailRequired", false)
+            .put("shippingAddressRequired", false)
             .put(
                 "shippingAddressParameters", JSONObject()
                     .put("phoneNumberRequired", false)
-                    .put("allowedCountryCodes", JSONArray(listOf("US", "GB")))
+                    .put("allowedCountryCodes", JSONArray(listOf("US", "GB", "UA")))
             )
 }
 
