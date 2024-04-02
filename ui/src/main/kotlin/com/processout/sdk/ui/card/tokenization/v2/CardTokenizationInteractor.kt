@@ -1,5 +1,6 @@
 package com.processout.sdk.ui.card.tokenization.v2
 
+import android.app.Application
 import androidx.compose.ui.text.input.TextFieldValue
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
@@ -15,9 +16,14 @@ import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.ui.base.BaseInteractor
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode.Automatic
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode.Full
 import com.processout.sdk.ui.card.tokenization.v2.CardTokenizationCompletion.Awaiting
 import com.processout.sdk.ui.card.tokenization.v2.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.v2.CardTokenizationInteractorState.*
+import com.processout.sdk.ui.core.state.POAvailableValue
+import com.processout.sdk.ui.shared.extension.currentAppLocale
+import com.processout.sdk.ui.shared.extension.orElse
 import com.processout.sdk.ui.shared.provider.CardSchemeProvider
 import com.processout.sdk.ui.shared.provider.address.AddressSpecificationProvider
 import kotlinx.coroutines.Job
@@ -25,8 +31,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 internal class CardTokenizationInteractor(
+    private val app: Application,
     private val configuration: POCardTokenizationConfiguration,
     private val cardsRepository: POCardsRepository,
     private val cardSchemeProvider: CardSchemeProvider,
@@ -58,11 +66,14 @@ internal class CardTokenizationInteractor(
     private var issuerInformationJob: Job? = null
 
     init {
-        POLogger.info("Starting card tokenization.")
-        dispatch(WillStart)
-        collectPreferredScheme()
-        POLogger.info("Card tokenization is started: waiting for user input.")
-        dispatch(DidStart)
+        interactorScope.launch {
+            POLogger.info("Starting card tokenization.")
+            dispatch(WillStart)
+            initAddressFields()
+            collectPreferredScheme()
+            POLogger.info("Card tokenization is started: waiting for user input.")
+            dispatch(DidStart)
+        }
     }
 
     private fun init() = CardTokenizationInteractorState(
@@ -82,6 +93,46 @@ internal class CardTokenizationInteractor(
             shouldCollect = configuration.isCardholderNameFieldVisible
         )
     )
+
+    private suspend fun initAddressFields() {
+        val countryCodes = addressSpecificationProvider.countryCodes()
+        val countryField = countryField(countryCodes)
+        _state.update {
+            it.copy(
+                addressFields = listOf(
+                    countryField
+                )
+            )
+        }
+    }
+
+    private fun countryField(countryCodes: Set<String>): Field {
+        val supportedCountryCodes = configuration.billingAddress.countryCodes
+            ?.let { configurationCountryCodes ->
+                configurationCountryCodes.filter { countryCodes.contains(it) }
+            }.orElse { countryCodes }
+
+        val availableValues = supportedCountryCodes.map {
+            POAvailableValue(
+                value = it,
+                text = Locale(String(), it).displayCountry
+            )
+        }.sortedBy { it.text }
+
+        var defaultCountryCode: String = configuration.billingAddress.defaultAddress?.countryCode
+            ?: app.currentAppLocale().country
+        if (!supportedCountryCodes.contains(defaultCountryCode)) {
+            defaultCountryCode = availableValues.first().value
+        }
+
+        val supportedCollectionModes = setOf(Automatic, Full)
+        return Field(
+            id = AddressFieldId.COUNTRY,
+            value = TextFieldValue(text = defaultCountryCode),
+            availableValues = availableValues,
+            shouldCollect = supportedCountryCodes.isNotEmpty() && supportedCollectionModes.contains(configuration.billingAddress.mode)
+        )
+    }
 
     fun onEvent(event: CardTokenizationEvent) {
         when (event) {

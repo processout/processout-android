@@ -46,6 +46,7 @@ internal class CardTokenizationViewModel(
                 app = app,
                 configuration = configuration,
                 interactor = CardTokenizationInteractor(
+                    app = app,
                     configuration = configuration,
                     cardsRepository = ProcessOut.instance.cards,
                     cardSchemeProvider = CardSchemeProvider(),
@@ -88,8 +89,13 @@ internal class CardTokenizationViewModel(
     }
 
     private fun sections(state: CardTokenizationInteractorState): POImmutableList<Section> {
+        val sections = mutableListOf<Section>()
         val lastFocusableFieldId = lastFocusableFieldId(state)
-        return POImmutableList(listOf(cardInformationSection(state, lastFocusableFieldId)))
+        sections.add(cardInformationSection(state, lastFocusableFieldId))
+        billingAddressSection(state, lastFocusableFieldId)?.let {
+            sections.add(it)
+        }
+        return POImmutableList(sections)
     }
 
     private fun lastFocusableFieldId(state: CardTokenizationInteractorState): String? {
@@ -189,6 +195,34 @@ internal class CardTokenizationViewModel(
         )
     }
 
+    private fun billingAddressSection(
+        state: CardTokenizationInteractorState,
+        lastFocusableFieldId: String?
+    ): Section? {
+        val items = mutableListOf<Item>()
+        state.addressFields.forEach { field ->
+            var imeAction: ImeAction = ImeAction.Next
+            var keyboardActionId: String? = null
+            if (field.id == lastFocusableFieldId) {
+                imeAction = ImeAction.Done
+                keyboardActionId = ActionId.SUBMIT
+            }
+            when (field.id) {
+                AddressFieldId.COUNTRY -> field(
+                    field = field
+                )?.also { items.add(it) }
+            }
+        }
+        if (items.isEmpty()) {
+            return null
+        }
+        return Section(
+            id = SectionId.BILLING_ADDRESS,
+            title = app.getString(R.string.po_card_tokenization_billing_address_title),
+            items = POImmutableList(items)
+        )
+    }
+
     private fun field(
         field: Field,
         placeholder: String? = null,
@@ -217,9 +251,14 @@ internal class CardTokenizationViewModel(
         )
     }
 
-    private fun dropdownField(field: Field): Item? {
-        return null
-    }
+    private fun dropdownField(field: Field): Item =
+        Item.DropdownField(
+            POFieldState(
+                id = field.id,
+                value = field.value,
+                availableValues = POImmutableList(field.availableValues ?: emptyList())
+            )
+        )
 
     private fun textField(
         field: Field,
