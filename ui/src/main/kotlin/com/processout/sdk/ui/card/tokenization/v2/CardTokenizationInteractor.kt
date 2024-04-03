@@ -142,9 +142,7 @@ internal class CardTokenizationInteractor(
     }
 
     private fun updateFieldValue(id: String, value: TextFieldValue) {
-        val previousValue = with(_state.value) {
-            cardFields.plus(addressFields).find { it.id == id }?.value ?: TextFieldValue()
-        }
+        val previousValue = allFields().find { it.id == id }?.value ?: TextFieldValue()
         val isTextChanged = value.text != previousValue.text
         _state.update {
             it.copy(
@@ -410,12 +408,23 @@ internal class CardTokenizationInteractor(
     //endregion
 
     private fun submit() {
-
+        if (!areAllFieldsValid()) {
+            POLogger.debug("Ignored attempt to tokenize the card with invalid values.")
+            return
+        }
+        _state.update {
+            it.copy(
+                submitAllowed = true,
+                submitting = true,
+                errorMessage = null
+            )
+        }
+        // TODO: tokenize
     }
 
-    private fun areAllFieldsValid() = with(_state.value) {
-        cardFields.plus(addressFields).all { it.isValid }
-    }
+    private fun allFields(): List<Field> = with(_state.value) { cardFields + addressFields }
+
+    private fun areAllFieldsValid(): Boolean = allFields().all { it.isValid }
 
     private fun cancel() {
         _completion.update {
