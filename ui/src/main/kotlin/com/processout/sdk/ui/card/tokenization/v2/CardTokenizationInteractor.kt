@@ -1,12 +1,14 @@
 package com.processout.sdk.ui.card.tokenization.v2
 
 import android.app.Application
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
 import com.processout.sdk.api.model.event.POCardTokenizationEvent.*
 import com.processout.sdk.api.model.request.POCardTokenizationPreferredSchemeRequest
 import com.processout.sdk.api.model.request.POCardTokenizationShouldContinueRequest
+import com.processout.sdk.api.model.request.POContact
 import com.processout.sdk.api.model.response.POCardIssuerInformation
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.POFailure
@@ -16,8 +18,7 @@ import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.ui.base.BaseInteractor
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
-import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode.Automatic
-import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode.Full
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode.*
 import com.processout.sdk.ui.card.tokenization.v2.CardTokenizationCompletion.Awaiting
 import com.processout.sdk.ui.card.tokenization.v2.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.v2.CardTokenizationInteractorState.*
@@ -25,6 +26,8 @@ import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.shared.extension.currentAppLocale
 import com.processout.sdk.ui.shared.extension.orElse
 import com.processout.sdk.ui.shared.provider.CardSchemeProvider
+import com.processout.sdk.ui.shared.provider.address.AddressSpecification
+import com.processout.sdk.ui.shared.provider.address.AddressSpecification.AddressUnit
 import com.processout.sdk.ui.shared.provider.address.AddressSpecificationProvider
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -124,13 +127,11 @@ internal class CardTokenizationInteractor(
         if (!supportedCountryCodes.contains(defaultCountryCode)) {
             defaultCountryCode = availableValues.first().value
         }
-
-        val supportedCollectionModes = setOf(Automatic, Full)
         return Field(
             id = AddressFieldId.COUNTRY,
             value = TextFieldValue(text = defaultCountryCode),
             availableValues = availableValues,
-            shouldCollect = supportedCountryCodes.isNotEmpty() && supportedCollectionModes.contains(configuration.billingAddress.mode)
+            shouldCollect = configuration.billingAddress.mode != Never && supportedCountryCodes.isNotEmpty()
         )
     }
 
@@ -177,6 +178,9 @@ internal class CardTokenizationInteractor(
                     cardNumber = value.text,
                     previousCardNumber = previousValue.text
                 )
+                AddressFieldId.COUNTRY -> updateAddressSpecification(
+                    countryCode = value.text
+                )
             }
         }
     }
@@ -202,6 +206,8 @@ internal class CardTokenizationInteractor(
             _state.update { it.copy(focusedFieldId = id) }
         }
     }
+
+    //region Issuer Information & Preferred Scheme
 
     private fun updateIssuerInformation(cardNumber: String, previousCardNumber: String) {
         val iin = iin(cardNumber)
@@ -282,6 +288,124 @@ internal class CardTokenizationInteractor(
         }
         POLogger.info("State updated: [issuerInformation=%s] [preferredScheme=%s]", issuerInformation, preferredScheme)
     }
+
+    //endregion
+
+    //region Address Specification
+
+    private fun updateAddressSpecification(countryCode: String) {
+        _state.value.addressFields.find { it.id == AddressFieldId.COUNTRY }?.let { countryField ->
+            interactorScope.launch {
+                val specification = addressSpecificationProvider.specification(countryCode)
+                val addressFields = mutableListOf(countryField.copy())
+                addressFields.addAll(addressFields(countryCode, specification))
+                _state.update { it.copy(addressFields = addressFields) }
+            }
+        }
+    }
+
+    private fun addressFields(countryCode: String, specification: AddressSpecification): List<Field> {
+        val currentAddress = currentAddress()
+        val defaultAddress = configuration.billingAddress.defaultAddress
+        val address1 = currentAddress.address1 ?: defaultAddress?.address1 ?: String()
+        val address2 = currentAddress.address2 ?: defaultAddress?.address2 ?: String()
+        val city = currentAddress.city ?: defaultAddress?.city ?: String()
+        val state = currentAddress.state ?: defaultAddress?.state ?: String()
+        val postalCode = currentAddress.zip ?: defaultAddress?.zip ?: String()
+        val fields = mutableListOf<Field>()
+        specification.units?.forEach { unit ->
+            when (unit) {
+                AddressUnit.street -> {
+                    val streetFields = listOf(
+                        Field(
+                            id = AddressFieldId.ADDRESS_1,
+                            value = TextFieldValue(
+                                text = address1,
+                                selection = TextRange(address1.length)
+                            ),
+                            shouldCollect = shouldCollect(unit, countryCode)
+                        ),
+                        Field(
+                            id = AddressFieldId.ADDRESS_2,
+                            value = TextFieldValue(
+                                text = address2,
+                                selection = TextRange(address2.length)
+                            ),
+                            shouldCollect = shouldCollect(unit, countryCode)
+                        )
+                    )
+                    fields.addAll(streetFields)
+                }
+                AddressUnit.city -> Field(
+                    id = AddressFieldId.CITY,
+                    value = TextFieldValue(
+                        text = city,
+                        selection = TextRange(city.length)
+                    ),
+                    shouldCollect = shouldCollect(unit, countryCode)
+                ).also { fields.add(it) }
+                AddressUnit.state -> Field(
+                    id = AddressFieldId.STATE,
+                    value = TextFieldValue(
+                        text = state,
+                        selection = TextRange(state.length)
+                    ),
+                    shouldCollect = shouldCollect(unit, countryCode)
+                ).also { fields.add(it) }
+                AddressUnit.postcode -> Field(
+                    id = AddressFieldId.POSTAL_CODE,
+                    value = TextFieldValue(
+                        text = postalCode,
+                        selection = TextRange(postalCode.length)
+                    ),
+                    shouldCollect = shouldCollect(unit, countryCode)
+                ).also { fields.add(it) }
+            }
+        }
+        return fields
+    }
+
+    private fun currentAddress(): POContact {
+        var countryCode: String? = null
+        var address1: String? = null
+        var address2: String? = null
+        var city: String? = null
+        var state: String? = null
+        var postalCode: String? = null
+        _state.value.addressFields.forEach {
+            when (it.id) {
+                AddressFieldId.COUNTRY -> countryCode = it.value.text
+                AddressFieldId.ADDRESS_1 -> address1 = it.value.text
+                AddressFieldId.ADDRESS_2 -> address2 = it.value.text
+                AddressFieldId.CITY -> city = it.value.text
+                AddressFieldId.STATE -> state = it.value.text
+                AddressFieldId.POSTAL_CODE -> postalCode = it.value.text
+            }
+        }
+        return POContact(
+            address1 = address1,
+            address2 = address2,
+            city = city,
+            state = state,
+            zip = postalCode,
+            countryCode = countryCode
+        )
+    }
+
+    private fun shouldCollect(unit: AddressUnit, countryCode: String): Boolean =
+        when (configuration.billingAddress.mode) {
+            Never -> false
+            Automatic -> when (unit) {
+                AddressUnit.postcode -> {
+                    val supportedCountryCodes = setOf("US", "GB", "CA")
+                    supportedCountryCodes.contains(countryCode)
+                }
+                else -> true
+            }
+            Full -> true
+        }
+
+    //endregion
 
     private fun submit() {
 
