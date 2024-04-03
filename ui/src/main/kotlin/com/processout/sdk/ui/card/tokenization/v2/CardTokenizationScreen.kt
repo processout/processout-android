@@ -243,7 +243,15 @@ private fun DropdownField(
             )
         },
         availableValues = state.availableValues ?: POImmutableList(emptyList()),
-        modifier = modifier,
+        modifier = modifier
+            .onFocusChanged {
+                onEvent(
+                    FieldFocusChanged(
+                        id = state.id,
+                        isFocused = it.isFocused
+                    )
+                )
+            },
         fieldStyle = fieldStyle,
         menuStyle = menuStyle,
         enabled = state.enabled,
