@@ -35,7 +35,7 @@ internal data class CardTokenizationInteractorState(
     }
 
     object AddressFieldId {
-        const val COUNTRY = "country-code"
+        const val COUNTRY = "country"
         const val ADDRESS_1 = "address-1"
         const val ADDRESS_2 = "address-2"
         const val CITY = "city"
