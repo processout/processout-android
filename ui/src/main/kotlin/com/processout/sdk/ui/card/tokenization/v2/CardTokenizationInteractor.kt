@@ -360,7 +360,11 @@ internal class CardTokenizationInteractor(
                 ).also { fields.add(it) }
             }
         }
-        return fields
+        val fieldIds = fields.map { it.id }
+        val nonSpecFields = _state.value.addressFields.filter {
+            it.id != AddressFieldId.COUNTRY && !fieldIds.contains(it.id)
+        }.map { it.copy(shouldCollect = false) }
+        return fields + nonSpecFields
     }
 
     private fun currentAddress(): POContact {
