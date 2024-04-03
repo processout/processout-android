@@ -9,6 +9,7 @@ import com.processout.sdk.ui.shared.provider.address.AddressSpecification
 internal data class CardTokenizationInteractorState(
     val cardFields: List<Field>,
     val addressFields: List<Field>,
+    val addressSpecification: AddressSpecification? = null,
     val focusedFieldId: String?,
     val primaryActionId: String,
     val secondaryActionId: String,
@@ -17,7 +18,6 @@ internal data class CardTokenizationInteractorState(
     val errorMessage: String? = null,
     val issuerInformation: POCardIssuerInformation? = null,
     val preferredScheme: String? = null,
-    val addressSpecification: AddressSpecification? = null,
     val tokenizedCard: POCard? = null
 ) {
 
