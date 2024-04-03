@@ -26,6 +26,7 @@ import com.processout.sdk.ui.shared.filter.CardNumberInputFilter
 import com.processout.sdk.ui.shared.filter.CardSecurityCodeInputFilter
 import com.processout.sdk.ui.shared.provider.CardSchemeProvider
 import com.processout.sdk.ui.shared.provider.address.AddressSpecificationProvider
+import com.processout.sdk.ui.shared.provider.address.stringResId
 import com.processout.sdk.ui.shared.provider.cardSchemeDrawableResId
 import com.processout.sdk.ui.shared.transformation.CardExpirationVisualTransformation
 import com.processout.sdk.ui.shared.transformation.CardNumberVisualTransformation
@@ -199,12 +200,68 @@ internal class CardTokenizationViewModel(
         state: CardTokenizationInteractorState,
         lastFocusableFieldId: String?
     ): Section? {
+        if (state.addressFields.isEmpty()) {
+            return null
+        }
+        val specification = state.addressSpecification
         val items = mutableListOf<Item>()
         state.addressFields.forEach { field ->
             val keyboardAction = keyboardAction(field.id, lastFocusableFieldId)
             when (field.id) {
                 AddressFieldId.COUNTRY -> field(
                     field = field
+                )?.also { items.add(it) }
+                AddressFieldId.ADDRESS_1 -> field(
+                    field = field,
+                    placeholder = app.getString(R.string.po_card_tokenization_billing_address_street, 1),
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Sentences,
+                        keyboardType = KeyboardType.Text,
+                        imeAction = keyboardAction.imeAction
+                    ),
+                    keyboardActionId = keyboardAction.actionId
+                )?.also { items.add(it) }
+                AddressFieldId.ADDRESS_2 -> field(
+                    field = field,
+                    placeholder = app.getString(R.string.po_card_tokenization_billing_address_street, 2),
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Sentences,
+                        keyboardType = KeyboardType.Text,
+                        imeAction = keyboardAction.imeAction
+                    ),
+                    keyboardActionId = keyboardAction.actionId
+                )?.also { items.add(it) }
+                AddressFieldId.CITY -> field(
+                    field = field,
+                    placeholder = specification?.cityUnit?.let { app.getString(it.stringResId()) },
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Sentences,
+                        keyboardType = KeyboardType.Text,
+                        imeAction = keyboardAction.imeAction
+                    ),
+                    keyboardActionId = keyboardAction.actionId
+                )?.also { items.add(it) }
+                AddressFieldId.STATE -> field(
+                    field = field,
+                    placeholder = specification?.stateUnit?.let { app.getString(it.stringResId()) },
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Sentences,
+                        keyboardType = KeyboardType.Text,
+                        imeAction = keyboardAction.imeAction
+                    ),
+                    keyboardActionId = keyboardAction.actionId
+                )?.also { items.add(it) }
+                AddressFieldId.POSTAL_CODE -> field(
+                    field = field,
+                    placeholder = specification?.postcodeUnit?.let { app.getString(it.stringResId()) },
+                    forceTextDirectionLtr = true,
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Characters,
+                        autoCorrect = false,
+                        keyboardType = KeyboardType.Text,
+                        imeAction = keyboardAction.imeAction
+                    ),
+                    keyboardActionId = keyboardAction.actionId
                 )?.also { items.add(it) }
             }
         }

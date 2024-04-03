@@ -299,7 +299,12 @@ internal class CardTokenizationInteractor(
                 val specification = addressSpecificationProvider.specification(countryCode)
                 val addressFields = mutableListOf(countryField.copy())
                 addressFields.addAll(addressFields(countryCode, specification))
-                _state.update { it.copy(addressFields = addressFields) }
+                _state.update {
+                    it.copy(
+                        addressFields = addressFields,
+                        addressSpecification = specification
+                    )
+                }
             }
         }
     }
