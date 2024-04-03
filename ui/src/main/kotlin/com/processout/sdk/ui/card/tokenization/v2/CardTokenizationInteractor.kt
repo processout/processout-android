@@ -99,14 +99,8 @@ internal class CardTokenizationInteractor(
 
     private suspend fun initAddressFields() {
         val countryCodes = addressSpecificationProvider.countryCodes()
-        val countryField = countryField(countryCodes)
-        _state.update {
-            it.copy(
-                addressFields = listOf(
-                    countryField
-                )
-            )
-        }
+        _state.update { it.copy(addressFields = listOf(countryField(countryCodes))) }
+        updateAddressSpecification()
     }
 
     private fun countryField(countryCodes: Set<String>): Field {
@@ -178,9 +172,7 @@ internal class CardTokenizationInteractor(
                     cardNumber = value.text,
                     previousCardNumber = previousValue.text
                 )
-                AddressFieldId.COUNTRY -> updateAddressSpecification(
-                    countryCode = value.text
-                )
+                AddressFieldId.COUNTRY -> updateAddressSpecification()
             }
         }
     }
@@ -293,9 +285,10 @@ internal class CardTokenizationInteractor(
 
     //region Address Specification
 
-    private fun updateAddressSpecification(countryCode: String) {
+    private fun updateAddressSpecification() {
         _state.value.addressFields.find { it.id == AddressFieldId.COUNTRY }?.let { countryField ->
             interactorScope.launch {
+                val countryCode = countryField.value.text
                 val specification = addressSpecificationProvider.specification(countryCode)
                 val addressFields = mutableListOf(countryField.copy())
                 addressFields.addAll(addressFields(countryCode, specification))
