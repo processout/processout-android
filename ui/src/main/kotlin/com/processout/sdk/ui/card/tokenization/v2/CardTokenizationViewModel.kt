@@ -106,7 +106,8 @@ internal class CardTokenizationViewModel(
 
     private fun lastFocusableFieldId(state: CardTokenizationInteractorState): String? {
         with(state) {
-            cardFields.plus(addressFields).reversed().forEach { field ->
+            val allFields = cardFields + addressFields
+            allFields.reversed().forEach { field ->
                 if (field.shouldCollect && field.availableValues.isNullOrEmpty()) {
                     return field.id
                 }
