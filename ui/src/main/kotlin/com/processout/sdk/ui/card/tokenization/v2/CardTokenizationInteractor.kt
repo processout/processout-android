@@ -3,6 +3,7 @@ package com.processout.sdk.ui.card.tokenization.v2
 import android.app.Application
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
 import com.processout.sdk.api.model.event.POCardTokenizationEvent.*
@@ -10,17 +11,21 @@ import com.processout.sdk.api.model.request.POCardTokenizationPreferredSchemeReq
 import com.processout.sdk.api.model.request.POCardTokenizationRequest
 import com.processout.sdk.api.model.request.POCardTokenizationShouldContinueRequest
 import com.processout.sdk.api.model.request.POContact
+import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.api.model.response.POCardIssuerInformation
 import com.processout.sdk.api.repository.POCardsRepository
-import com.processout.sdk.core.POFailure
+import com.processout.sdk.core.POFailure.Code.Cancelled
+import com.processout.sdk.core.POFailure.Code.Generic
+import com.processout.sdk.core.POFailure.GenericCode.*
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.getOrNull
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
+import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.base.BaseInteractor
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode.*
-import com.processout.sdk.ui.card.tokenization.v2.CardTokenizationCompletion.Awaiting
+import com.processout.sdk.ui.card.tokenization.v2.CardTokenizationCompletion.*
 import com.processout.sdk.ui.card.tokenization.v2.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.v2.CardTokenizationInteractorState.*
 import com.processout.sdk.ui.core.state.POAvailableValue
@@ -75,6 +80,8 @@ internal class CardTokenizationInteractor(
             dispatch(WillStart)
             initAddressFields()
             collectPreferredScheme()
+            handleCompletion()
+            shouldContinueOnFailure()
             POLogger.info("Card tokenization is started: waiting for user input.")
             dispatch(DidStart)
         }
@@ -182,7 +189,7 @@ internal class CardTokenizationInteractor(
         field: Field,
         isTextChanged: Boolean
     ): Field =
-        if (id == field.id) {
+        if (field.id == id) {
             if (isTextChanged) {
                 field.copy(value = value, isValid = true)
             } else {
@@ -428,8 +435,197 @@ internal class CardTokenizationInteractor(
     private fun areAllFieldsValid(): Boolean = allFields().all { it.isValid }
 
     private fun tokenize(request: POCardTokenizationRequest) {
-        // TODO
+        POLogger.info(message = "Submitting card information.")
+        dispatch(WillTokenize)
+        interactorScope.launch {
+            cardsRepository.tokenize(request)
+                .onSuccess { card ->
+                    _state.update { it.copy(tokenizedCard = card) }
+                    POLogger.info(
+                        message = "Card tokenized successfully.",
+                        attributes = mapOf(LOG_ATTRIBUTE_CARD_ID to card.id)
+                    )
+                    dispatch(DidTokenize(card))
+                    if (eventDispatcher.subscribedForProcessTokenizedCard()) {
+                        requestToProcessTokenizedCard(card)
+                    } else {
+                        POLogger.info(
+                            message = "Completed successfully.",
+                            attributes = mapOf(LOG_ATTRIBUTE_CARD_ID to card.id)
+                        )
+                        _completion.update { Success(card) }
+                    }
+                }.onFailure { failure ->
+                    if (eventDispatcher.subscribedForShouldContinueRequest()) {
+                        requestIfShouldContinue(failure)
+                    } else {
+                        handle(failure)
+                    }
+                }
+        }
     }
+
+    private fun requestToProcessTokenizedCard(card: POCard) {
+        interactorScope.launch {
+            _state.update { it.copy(focusedFieldId = null) }
+            eventDispatcher.processTokenizedCard(card)
+            POLogger.info(
+                message = "Requested to process tokenized card.",
+                attributes = mapOf(LOG_ATTRIBUTE_CARD_ID to card.id)
+            )
+        }
+    }
+
+    private fun handleCompletion() {
+        interactorScope.launch {
+            eventDispatcher.completion.collect { result ->
+                result.onSuccess {
+                    _state.value.tokenizedCard?.let { card ->
+                        POLogger.info(
+                            message = "Completed successfully.",
+                            attributes = mapOf(LOG_ATTRIBUTE_CARD_ID to card.id)
+                        )
+                        _completion.update { Success(card) }
+                    }.orElse {
+                        val failure = ProcessOutResult.Failure(
+                            code = Generic(),
+                            message = "Completion is called with Success via dispatcher before card is tokenized."
+                        )
+                        handleCompletion(failure)
+                    }
+                }.onFailure { handleCompletion(it) }
+            }
+        }
+    }
+
+    private fun handleCompletion(failure: ProcessOutResult.Failure) {
+        if (eventDispatcher.subscribedForShouldContinueRequest()) {
+            requestIfShouldContinue(failure)
+        } else {
+            POLogger.info("Completed after the failure: %s", failure)
+            _completion.update { Failure(failure) }
+        }
+    }
+
+    private fun requestIfShouldContinue(failure: ProcessOutResult.Failure) {
+        interactorScope.launch {
+            val request = POCardTokenizationShouldContinueRequest(failure)
+            latestShouldContinueRequest = request
+            eventDispatcher.send(request)
+            POLogger.info("Requested to decide whether the flow should continue or complete after the failure: %s", failure)
+        }
+    }
+
+    private fun shouldContinueOnFailure() {
+        interactorScope.launch {
+            eventDispatcher.shouldContinueResponse.collect { response ->
+                if (response.uuid == latestShouldContinueRequest?.uuid) {
+                    latestShouldContinueRequest = null
+                    if (response.shouldContinue) {
+                        handle(response.failure)
+                    } else {
+                        POLogger.info("Completed after the failure: %s", response.failure)
+                        _completion.update { Failure(response.failure) }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun handle(failure: ProcessOutResult.Failure) {
+        val invalidFieldIds = mutableSetOf<String>()
+        val errorMessage = when (val code = failure.code) {
+            is Generic -> when (code.genericCode) {
+                requestInvalidCard,
+                cardInvalid -> {
+                    invalidFieldIds.addAll(
+                        listOf(
+                            CardFieldId.NUMBER,
+                            CardFieldId.EXPIRATION,
+                            CardFieldId.CVC,
+                            CardFieldId.CARDHOLDER
+                        )
+                    )
+                    app.getString(R.string.po_card_tokenization_error_card)
+                }
+                cardInvalidNumber,
+                cardMissingNumber -> {
+                    invalidFieldIds.add(CardFieldId.NUMBER)
+                    app.getString(R.string.po_card_tokenization_error_card_number)
+                }
+                cardMissingExpiry,
+                cardInvalidExpiryDate,
+                cardInvalidExpiryMonth,
+                cardInvalidExpiryYear -> {
+                    invalidFieldIds.add(CardFieldId.EXPIRATION)
+                    app.getString(R.string.po_card_tokenization_error_card_expiration)
+                }
+                cardBadTrackData -> {
+                    invalidFieldIds.addAll(
+                        listOf(
+                            CardFieldId.EXPIRATION,
+                            CardFieldId.CVC
+                        )
+                    )
+                    app.getString(R.string.po_card_tokenization_error_track_data)
+                }
+                cardMissingCvc,
+                cardInvalidCvc,
+                cardFailedCvc,
+                cardFailedCvcAndAvs -> {
+                    invalidFieldIds.add(CardFieldId.CVC)
+                    app.getString(R.string.po_card_tokenization_error_cvc)
+                }
+                cardInvalidName -> {
+                    invalidFieldIds.add(CardFieldId.CARDHOLDER)
+                    app.getString(R.string.po_card_tokenization_error_cardholder)
+                }
+                else -> app.getString(R.string.po_card_tokenization_error_generic)
+            }
+            else -> app.getString(R.string.po_card_tokenization_error_generic)
+        }
+        handle(failure, invalidFieldIds, errorMessage)
+    }
+
+    private fun handle(
+        failure: ProcessOutResult.Failure,
+        invalidFieldIds: Set<String>,
+        errorMessage: String
+    ) {
+        val cardFields = mutableListOf<Field>()
+        val addressFields = mutableListOf<Field>()
+        invalidFieldIds.forEach { id ->
+            _state.value.cardFields.forEach { field ->
+                cardFields.add(invalidatedField(id, field))
+            }
+            _state.value.addressFields.forEach { field ->
+                addressFields.add(invalidatedField(id, field))
+            }
+        }
+        val allFields = cardFields + addressFields
+        val firstInvalidFieldId = allFields.find { !it.isValid }?.id
+        _state.update { state ->
+            state.copy(
+                cardFields = cardFields,
+                addressFields = addressFields,
+                focusedFieldId = firstInvalidFieldId ?: state.focusedFieldId,
+                submitAllowed = allFields.all { it.isValid },
+                submitting = false,
+                errorMessage = errorMessage
+            )
+        }
+        POLogger.info(message = "Recovered after the failure: %s", failure)
+    }
+
+    private fun invalidatedField(id: String, field: Field): Field =
+        if (field.id == id) {
+            field.copy(
+                isValid = false,
+                value = field.value.copy(selection = TextRange(field.value.text.length))
+            )
+        } else {
+            field.copy()
+        }
 
     //region Tokenization Request
 
@@ -506,9 +702,9 @@ internal class CardTokenizationInteractor(
 
     private fun cancel() {
         _completion.update {
-            CardTokenizationCompletion.Failure(
+            Failure(
                 ProcessOutResult.Failure(
-                    code = POFailure.Code.Cancelled,
+                    code = Cancelled,
                     message = "Cancelled by the user with secondary cancel action."
                 ).also { POLogger.info("Cancelled: %s", it) }
             )
