@@ -594,12 +594,21 @@ internal class CardTokenizationInteractor(
     ) {
         val cardFields = mutableListOf<Field>()
         val addressFields = mutableListOf<Field>()
-        invalidFieldIds.forEach { id ->
+        if (invalidFieldIds.isEmpty()) {
             _state.value.cardFields.forEach { field ->
-                cardFields.add(invalidatedField(id, field))
+                cardFields.add(field.copy())
             }
             _state.value.addressFields.forEach { field ->
-                addressFields.add(invalidatedField(id, field))
+                addressFields.add(field.copy())
+            }
+        } else {
+            invalidFieldIds.forEach { id ->
+                _state.value.cardFields.forEach { field ->
+                    cardFields.add(invalidatedField(id, field))
+                }
+                _state.value.addressFields.forEach { field ->
+                    addressFields.add(invalidatedField(id, field))
+                }
             }
         }
         val allFields = cardFields + addressFields
