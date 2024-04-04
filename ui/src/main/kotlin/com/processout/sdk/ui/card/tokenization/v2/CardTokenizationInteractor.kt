@@ -687,24 +687,11 @@ internal class CardTokenizationInteractor(
         invalidFieldIds: Set<String>,
         errorMessage: String
     ) {
-        val cardFields = mutableListOf<Field>()
-        val addressFields = mutableListOf<Field>()
-        if (invalidFieldIds.isEmpty()) {
-            _state.value.cardFields.forEach { field ->
-                cardFields.add(field.copy())
-            }
-            _state.value.addressFields.forEach { field ->
-                addressFields.add(field.copy())
-            }
-        } else {
-            invalidFieldIds.forEach { id ->
-                _state.value.cardFields.forEach { field ->
-                    cardFields.add(invalidatedField(id, field))
-                }
-                _state.value.addressFields.forEach { field ->
-                    addressFields.add(invalidatedField(id, field))
-                }
-            }
+        val cardFields = _state.value.cardFields.map { field ->
+            validatedField(invalidFieldIds, field)
+        }
+        val addressFields = _state.value.addressFields.map { field ->
+            validatedField(invalidFieldIds, field)
         }
         val allFields = cardFields + addressFields
         val firstInvalidFieldId = allFields.find { !it.isValid }?.id
@@ -721,8 +708,8 @@ internal class CardTokenizationInteractor(
         POLogger.info(message = "Recovered after the failure: %s", failure)
     }
 
-    private fun invalidatedField(id: String, field: Field): Field =
-        if (field.id == id) {
+    private fun validatedField(invalidFieldIds: Set<String>, field: Field): Field =
+        if (invalidFieldIds.contains(field.id)) {
             field.copy(
                 isValid = false,
                 value = field.value.copy(selection = TextRange(field.value.text.length))
