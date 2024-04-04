@@ -74,6 +74,8 @@ internal class CardTokenizationInteractor(
 
     private var issuerInformationJob: Job? = null
 
+    //region Initialization
+
     init {
         interactorScope.launch {
             POLogger.info("Starting card tokenization.")
@@ -137,6 +139,10 @@ internal class CardTokenizationInteractor(
         )
     }
 
+    //endregion
+
+    //region Events
+
     fun onEvent(event: CardTokenizationEvent) {
         when (event) {
             is FieldValueChanged -> updateFieldValue(event.id, event.value)
@@ -148,6 +154,10 @@ internal class CardTokenizationInteractor(
             is Dismiss -> POLogger.info("Dismissed: %s", event.failure)
         }
     }
+
+    //endregion
+
+    //region Update Field
 
     private fun updateFieldValue(id: String, value: TextFieldValue) {
         val previousValue = allFields().find { it.id == id }?.value ?: TextFieldValue()
@@ -204,6 +214,8 @@ internal class CardTokenizationInteractor(
             _state.update { it.copy(focusedFieldId = id) }
         }
     }
+
+    //endregion
 
     //region Issuer Information & Preferred Scheme
 
@@ -415,6 +427,8 @@ internal class CardTokenizationInteractor(
 
     //endregion
 
+    //region Submit
+
     private fun submit() {
         if (!areAllFieldsValid()) {
             POLogger.debug("Ignored attempt to tokenize the card with invalid values.")
@@ -433,6 +447,83 @@ internal class CardTokenizationInteractor(
     private fun allFields(): List<Field> = with(_state.value) { cardFields + addressFields }
 
     private fun areAllFieldsValid(): Boolean = allFields().all { it.isValid }
+
+    //endregion
+
+    //region Tokenization Request
+
+    private fun tokenizationRequest(): POCardTokenizationRequest {
+        var cardNumber = String()
+        var expiration = String()
+        var cvc = String()
+        var cardholderName = String()
+        _state.value.cardFields.forEach {
+            when (it.id) {
+                CardFieldId.NUMBER -> cardNumber = it.value.text
+                CardFieldId.EXPIRATION -> expiration = it.value.text
+                CardFieldId.CVC -> cvc = it.value.text
+                CardFieldId.CARDHOLDER -> cardholderName = it.value.text
+            }
+        }
+        val parsedExpiration = parseExpiration(expiration)
+        return POCardTokenizationRequest(
+            number = cardNumber,
+            expMonth = parsedExpiration.month,
+            expYear = parsedExpiration.year,
+            cvc = cvc,
+            name = cardholderName,
+            preferredScheme = _state.value.preferredScheme,
+            contact = contact(),
+            metadata = configuration.metadata
+        )
+    }
+
+    private fun parseExpiration(value: String): Expiration {
+        val dateParts = value.chunked(EXPIRATION_DATE_PART_LENGTH)
+        return Expiration(
+            month = dateParts.getOrNull(0)?.toIntOrNull() ?: 0,
+            year = dateParts.getOrNull(1)?.toIntOrNull() ?: 0
+        )
+    }
+
+    private fun contact(): POContact {
+        var countryCode = String()
+        var address1 = String()
+        var address2 = String()
+        var city = String()
+        var state = String()
+        var postalCode = String()
+        val defaultAddress = configuration.billingAddress.defaultAddress
+        _state.value.addressFields.forEach {
+            when (it.id) {
+                AddressFieldId.COUNTRY -> countryCode = addressValue(it, defaultAddress?.countryCode)
+                AddressFieldId.ADDRESS_1 -> address1 = addressValue(it, defaultAddress?.address1)
+                AddressFieldId.ADDRESS_2 -> address2 = addressValue(it, defaultAddress?.address2)
+                AddressFieldId.CITY -> city = addressValue(it, defaultAddress?.city)
+                AddressFieldId.STATE -> state = addressValue(it, defaultAddress?.state)
+                AddressFieldId.POSTAL_CODE -> postalCode = addressValue(it, defaultAddress?.zip)
+            }
+        }
+        return POContact(
+            countryCode = countryCode,
+            address1 = address1,
+            address2 = address2,
+            city = city,
+            state = state,
+            zip = postalCode
+        )
+    }
+
+    private fun addressValue(field: Field, defaultValue: String?): String {
+        if (!configuration.billingAddress.attachDefaultsToPaymentMethod) {
+            return if (field.shouldCollect) field.value.text else String()
+        }
+        return field.value.text.ifBlank { defaultValue ?: String() }
+    }
+
+    //endregion
+
+    //region Tokenization
 
     private fun tokenize(request: POCardTokenizationRequest) {
         POLogger.info(message = "Submitting card information.")
@@ -531,6 +622,10 @@ internal class CardTokenizationInteractor(
             }
         }
     }
+
+    //endregion
+
+    //region Handle Failure
 
     private fun handle(failure: ProcessOutResult.Failure) {
         val invalidFieldIds = mutableSetOf<String>()
@@ -635,77 +730,6 @@ internal class CardTokenizationInteractor(
         } else {
             field.copy()
         }
-
-    //region Tokenization Request
-
-    private fun tokenizationRequest(): POCardTokenizationRequest {
-        var cardNumber = String()
-        var expiration = String()
-        var cvc = String()
-        var cardholderName = String()
-        _state.value.cardFields.forEach {
-            when (it.id) {
-                CardFieldId.NUMBER -> cardNumber = it.value.text
-                CardFieldId.EXPIRATION -> expiration = it.value.text
-                CardFieldId.CVC -> cvc = it.value.text
-                CardFieldId.CARDHOLDER -> cardholderName = it.value.text
-            }
-        }
-        val parsedExpiration = parseExpiration(expiration)
-        return POCardTokenizationRequest(
-            number = cardNumber,
-            expMonth = parsedExpiration.month,
-            expYear = parsedExpiration.year,
-            cvc = cvc,
-            name = cardholderName,
-            preferredScheme = _state.value.preferredScheme,
-            contact = contact(),
-            metadata = configuration.metadata
-        )
-    }
-
-    private fun parseExpiration(value: String): Expiration {
-        val dateParts = value.chunked(EXPIRATION_DATE_PART_LENGTH)
-        return Expiration(
-            month = dateParts.getOrNull(0)?.toIntOrNull() ?: 0,
-            year = dateParts.getOrNull(1)?.toIntOrNull() ?: 0
-        )
-    }
-
-    private fun contact(): POContact {
-        var countryCode = String()
-        var address1 = String()
-        var address2 = String()
-        var city = String()
-        var state = String()
-        var postalCode = String()
-        val defaultAddress = configuration.billingAddress.defaultAddress
-        _state.value.addressFields.forEach {
-            when (it.id) {
-                AddressFieldId.COUNTRY -> countryCode = addressValue(it, defaultAddress?.countryCode)
-                AddressFieldId.ADDRESS_1 -> address1 = addressValue(it, defaultAddress?.address1)
-                AddressFieldId.ADDRESS_2 -> address2 = addressValue(it, defaultAddress?.address2)
-                AddressFieldId.CITY -> city = addressValue(it, defaultAddress?.city)
-                AddressFieldId.STATE -> state = addressValue(it, defaultAddress?.state)
-                AddressFieldId.POSTAL_CODE -> postalCode = addressValue(it, defaultAddress?.zip)
-            }
-        }
-        return POContact(
-            countryCode = countryCode,
-            address1 = address1,
-            address2 = address2,
-            city = city,
-            state = state,
-            zip = postalCode
-        )
-    }
-
-    private fun addressValue(field: Field, defaultValue: String?): String {
-        if (!configuration.billingAddress.attachDefaultsToPaymentMethod) {
-            return if (field.shouldCollect) field.value.text else String()
-        }
-        return field.value.text.ifBlank { defaultValue ?: String() }
-    }
 
     //endregion
 
