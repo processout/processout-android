@@ -66,7 +66,7 @@ internal class CardTokenizationInteractor(
     private val _completion = MutableStateFlow<CardTokenizationCompletion>(Awaiting)
     val completion = _completion.asStateFlow()
 
-    private val _state = MutableStateFlow(init())
+    private val _state = MutableStateFlow(initState())
     val state = _state.asStateFlow()
 
     private var latestPreferredSchemeRequest: POCardTokenizationPreferredSchemeRequest? = null
@@ -87,7 +87,7 @@ internal class CardTokenizationInteractor(
         }
     }
 
-    private fun init() = CardTokenizationInteractorState(
+    private fun initState() = CardTokenizationInteractorState(
         cardFields = cardFields(),
         addressFields = emptyList(),
         focusedFieldId = CardFieldId.NUMBER,
