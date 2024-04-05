@@ -27,6 +27,9 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+        debug {
+            getIsDefault().set(true)
+        }
     }
 
     flavorDimensions = ['environment']
@@ -35,6 +38,7 @@ android {
             dimension 'environment'
         }
         staging {
+            getIsDefault().set(true)
             dimension 'environment'
         }
     }
