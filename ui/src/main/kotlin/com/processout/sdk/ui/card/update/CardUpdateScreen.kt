@@ -26,9 +26,8 @@ import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.POTextField
 import com.processout.sdk.ui.core.state.POActionState
+import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableList
-import com.processout.sdk.ui.core.state.POMutableFieldState
-import com.processout.sdk.ui.core.state.POStableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.composable.AnimatedImage
@@ -39,7 +38,6 @@ import com.processout.sdk.ui.shared.composable.rememberLifecycleEvent
 @Composable
 internal fun CardUpdateScreen(
     state: CardUpdateState,
-    fields: POStableList<POMutableFieldState>,
     onEvent: (CardUpdateEvent) -> Unit,
     style: CardUpdateScreen.Style = CardUpdateScreen.style()
 ) {
@@ -79,7 +77,7 @@ internal fun CardUpdateScreen(
             verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
         ) {
             Fields(
-                fields = fields,
+                fields = state.fields,
                 onEvent = onEvent,
                 focusedFieldId = state.focusedFieldId,
                 isPrimaryActionEnabled = state.primaryAction.enabled && !state.primaryAction.loading,
@@ -96,7 +94,7 @@ internal fun CardUpdateScreen(
 
 @Composable
 private fun Fields(
-    fields: POStableList<POMutableFieldState>,
+    fields: POImmutableList<POFieldState>,
     onEvent: (CardUpdateEvent) -> Unit,
     focusedFieldId: String?,
     isPrimaryActionEnabled: Boolean,
