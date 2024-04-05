@@ -1,4 +1,4 @@
-package com.processout.sdk.ui.card.tokenization.v2
+package com.processout.sdk.ui.card.tokenization
 
 import androidx.compose.runtime.Immutable
 import com.processout.sdk.ui.core.state.POActionState

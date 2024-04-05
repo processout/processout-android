@@ -1,4 +1,4 @@
-package com.processout.sdk.ui.card.tokenization.v2
+package com.processout.sdk.ui.card.tokenization
 
 import android.app.Application
 import androidx.compose.ui.text.TextRange
@@ -23,11 +23,10 @@ import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.base.BaseInteractor
-import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
+import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.*
+import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
+import com.processout.sdk.ui.card.tokenization.CardTokenizationInteractorState.*
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode.*
-import com.processout.sdk.ui.card.tokenization.v2.CardTokenizationCompletion.*
-import com.processout.sdk.ui.card.tokenization.v2.CardTokenizationEvent.*
-import com.processout.sdk.ui.card.tokenization.v2.CardTokenizationInteractorState.*
 import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.shared.extension.currentAppLocale
 import com.processout.sdk.ui.shared.extension.orElse

@@ -1,4 +1,4 @@
-package com.processout.sdk.ui.card.tokenization.v2
+package com.processout.sdk.ui.card.tokenization
 
 import androidx.compose.ui.text.input.TextFieldValue
 import com.processout.sdk.api.model.response.POCard
