@@ -106,12 +106,14 @@ private fun Fields(
         POTextField(
             value = state.value,
             onValueChange = {
-                onEvent(
-                    FieldValueChanged(
-                        id = state.id,
-                        value = state.inputFilter?.filter(it) ?: it
+                if (state.enabled) {
+                    onEvent(
+                        FieldValueChanged(
+                            id = state.id,
+                            value = state.inputFilter?.filter(it) ?: it
+                        )
                     )
-                )
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
