@@ -5,14 +5,17 @@ import androidx.compose.ui.text.input.TextFieldValue
 import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.core.state.POActionState
+import com.processout.sdk.ui.core.state.POFieldState
+import com.processout.sdk.ui.core.state.POImmutableList
 
 @Immutable
 internal data class CardUpdateState(
     val title: String,
+    val fields: POImmutableList<POFieldState>,
+    val focusedFieldId: String? = null,
     val primaryAction: POActionState,
     val secondaryAction: POActionState?,
     val submitting: Boolean = false,
-    val focusedFieldId: String? = null,
     val errorMessage: String? = null,
     val draggable: Boolean
 )
