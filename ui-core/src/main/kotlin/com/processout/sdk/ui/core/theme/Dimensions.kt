@@ -11,7 +11,6 @@ import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 @Immutable
 data class PODimensions(
     val formComponentHeight: Dp = 44.dp,
-    val radioButtonSize: Dp = 20.dp,
     val dragHandleWidth: Dp = 32.dp,
     val dragHandleHeight: Dp = 4.dp
 )

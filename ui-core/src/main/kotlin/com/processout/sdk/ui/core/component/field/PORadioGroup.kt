@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -17,6 +18,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.POText
+import com.processout.sdk.ui.core.component.field.PORadioGroup.RadioButtonScale
+import com.processout.sdk.ui.core.component.field.PORadioGroup.RadioButtonSize
+import com.processout.sdk.ui.core.component.field.PORadioGroup.buttonColors
+import com.processout.sdk.ui.core.component.field.PORadioGroup.textPaddingTop
+import com.processout.sdk.ui.core.component.field.PORadioGroup.textStyle
 import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
@@ -53,14 +59,15 @@ fun PORadioGroup(
                     selected = selected,
                     onClick = onClick,
                     modifier = Modifier
-                        .requiredWidth(ProcessOutTheme.dimensions.radioButtonSize)
+                        .scale(RadioButtonScale)
+                        .requiredWidth(RadioButtonSize)
                         .requiredHeight(ProcessOutTheme.dimensions.formComponentHeight),
-                    colors = PORadioGroup.buttonColors(style = style, isError = isError)
+                    colors = buttonColors(style = style, isError = isError)
                 )
-                val textStyle = PORadioGroup.textStyle(style = style, selected = selected, isError = isError)
+                val textStyle = textStyle(style = style, selected = selected, isError = isError)
                 POText(
                     text = it.text,
-                    modifier = Modifier.padding(start = 10.dp, top = PORadioGroup.textPaddingTop(textStyle)),
+                    modifier = Modifier.padding(start = 10.dp, top = textPaddingTop(textStyle)),
                     color = textStyle.color,
                     style = textStyle.textStyle
                 )
@@ -112,6 +119,10 @@ object PORadioGroup {
                 )
             )
         }
+
+    private val MaterialRadioButtonSize = 20.dp
+    internal val RadioButtonSize = 18.dp
+    internal val RadioButtonScale = RadioButtonSize.value / MaterialRadioButtonSize.value
 
     @Composable
     internal fun buttonColors(
