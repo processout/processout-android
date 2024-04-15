@@ -23,6 +23,7 @@ import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.Item
 import com.processout.sdk.ui.core.component.POActionsContainer
+import com.processout.sdk.ui.core.component.POExpandableText
 import com.processout.sdk.ui.core.component.POHeader
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.PODropdownField
@@ -34,7 +35,6 @@ import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.composable.AnimatedImage
-import com.processout.sdk.ui.shared.composable.ExpandableText
 import com.processout.sdk.ui.shared.composable.RequestFocus
 import com.processout.sdk.ui.shared.composable.rememberLifecycleEvent
 
@@ -119,7 +119,7 @@ private fun Sections(
                 modifier = Modifier.fillMaxWidth()
             )
         }
-        ExpandableText(
+        POExpandableText(
             text = section.errorMessage,
             style = style.errorMessage,
             modifier = Modifier.fillMaxWidth()
