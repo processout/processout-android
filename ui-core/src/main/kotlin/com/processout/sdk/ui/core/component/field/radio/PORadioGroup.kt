@@ -1,4 +1,4 @@
-package com.processout.sdk.ui.core.component.field
+package com.processout.sdk.ui.core.component.field.radio
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -19,11 +19,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.POText
-import com.processout.sdk.ui.core.component.field.PORadioGroup.RadioButtonScale
-import com.processout.sdk.ui.core.component.field.PORadioGroup.RadioButtonSize
-import com.processout.sdk.ui.core.component.field.PORadioGroup.buttonColors
-import com.processout.sdk.ui.core.component.field.PORadioGroup.textPaddingTop
-import com.processout.sdk.ui.core.component.field.PORadioGroup.textStyle
+import com.processout.sdk.ui.core.component.field.radio.PORadioGroup.RadioButtonScale
+import com.processout.sdk.ui.core.component.field.radio.PORadioGroup.RadioButtonSize
+import com.processout.sdk.ui.core.component.field.radio.PORadioGroup.buttonColors
+import com.processout.sdk.ui.core.component.field.radio.PORadioGroup.textPaddingTop
+import com.processout.sdk.ui.core.component.field.radio.PORadioGroup.textStyle
 import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.PORadioButtonStateStyle

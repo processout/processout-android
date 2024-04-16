@@ -1,7 +1,7 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 @file:Suppress("MayBeConstant")
 
-package com.processout.sdk.ui.core.component.field
+package com.processout.sdk.ui.core.component.field.dropdown
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -27,6 +27,8 @@ import com.processout.sdk.ui.core.R
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.POBorderStroke
 import com.processout.sdk.ui.core.component.POText
+import com.processout.sdk.ui.core.component.field.POField
+import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.PODropdownMenuStyle
