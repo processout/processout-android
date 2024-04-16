@@ -1,5 +1,3 @@
-@file:Suppress("PrivatePropertyName")
-
 package com.processout.sdk.ui.core.theme
 
 import androidx.compose.foundation.layout.Column

@@ -1,5 +1,3 @@
-@file:Suppress("MemberVisibilityCanBePrivate")
-
 package com.processout.sdk.ui.core.component
 
 import androidx.compose.foundation.BorderStroke
