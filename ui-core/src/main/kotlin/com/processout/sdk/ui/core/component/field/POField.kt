@@ -115,9 +115,9 @@ object POField {
 
     @Composable
     internal fun textStyle(
+        style: Style,
         isError: Boolean,
-        forceTextDirectionLtr: Boolean,
-        style: Style
+        forceTextDirectionLtr: Boolean
     ): TextStyle {
         val textStyle = when (isError) {
             true -> with(style.error.text) { textStyle.copy(color = color) }
@@ -133,8 +133,8 @@ object POField {
     }
 
     internal fun textSelectionColors(
-        isError: Boolean,
-        style: Style
+        style: Style,
+        isError: Boolean
     ): TextSelectionColors {
         val color = if (isError) style.error.controlsTintColor else style.normal.controlsTintColor
         return TextSelectionColors(
@@ -144,15 +144,15 @@ object POField {
     }
 
     internal fun cursorBrush(
-        isError: Boolean,
-        style: Style
+        style: Style,
+        isError: Boolean
     ) = SolidColor(value = if (isError) style.error.controlsTintColor else style.normal.controlsTintColor)
 
     @Composable
     internal fun ContainerBox(
+        style: Style,
         isDropdown: Boolean,
-        isError: Boolean,
-        style: Style
+        isError: Boolean
     ) {
         val shape = if (isError) style.error.shape else style.normal.shape
         Box(
@@ -181,9 +181,9 @@ object POField {
 
     @Composable
     internal fun Placeholder(
+        style: Style,
         text: String,
-        isError: Boolean,
-        style: Style
+        isError: Boolean
     ) {
         POText(
             text = text,

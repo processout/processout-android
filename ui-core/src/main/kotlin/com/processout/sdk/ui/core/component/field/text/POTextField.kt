@@ -23,6 +23,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.field.POField
+import com.processout.sdk.ui.core.component.field.POField.ContainerBox
+import com.processout.sdk.ui.core.component.field.POField.Placeholder
+import com.processout.sdk.ui.core.component.field.POField.cursorBrush
+import com.processout.sdk.ui.core.component.field.POField.textSelectionColors
+import com.processout.sdk.ui.core.component.field.POField.textStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 
 /** @suppress */
@@ -50,7 +55,7 @@ fun POTextField(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
     CompositionLocalProvider(
-        LocalTextSelectionColors provides POField.textSelectionColors(isError = isError, style = style)
+        LocalTextSelectionColors provides textSelectionColors(style = style, isError = isError)
     ) {
         BasicTextField(
             value = value,
@@ -58,12 +63,12 @@ fun POTextField(
             modifier = modifier.requiredHeight(ProcessOutTheme.dimensions.formComponentHeight),
             enabled = enabled,
             readOnly = readOnly,
-            textStyle = POField.textStyle(
+            textStyle = textStyle(
+                style = style,
                 isError = isError,
-                forceTextDirectionLtr = forceTextDirectionLtr,
-                style = style
+                forceTextDirectionLtr = forceTextDirectionLtr
             ),
-            cursorBrush = POField.cursorBrush(isError = isError, style = style),
+            cursorBrush = cursorBrush(style = style, isError = isError),
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
             singleLine = singleLine,
@@ -78,10 +83,10 @@ fun POTextField(
                     enabled = enabled,
                     isError = isError,
                     placeholder = {
-                        if (!placeholderText.isNullOrBlank()) POField.Placeholder(
+                        if (!placeholderText.isNullOrBlank()) Placeholder(
+                            style = style,
                             text = placeholderText,
-                            isError = isError,
-                            style = style
+                            isError = isError
                         )
                     },
                     leadingIcon = leadingIcon,
@@ -91,10 +96,10 @@ fun POTextField(
                     interactionSource = interactionSource,
                     contentPadding = POField.contentPadding,
                     container = {
-                        POField.ContainerBox(
+                        ContainerBox(
+                            style = style,
                             isDropdown = isDropdown,
-                            isError = isError,
-                            style = style
+                            isError = isError
                         )
                     }
                 )
