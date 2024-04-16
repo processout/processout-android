@@ -44,7 +44,7 @@ fun PODropdownField(
     menuStyle: PODropdownField.MenuStyle = PODropdownField.defaultMenu,
     enabled: Boolean = true,
     isError: Boolean = false,
-    placeholderText: String? = null,
+    placeholderText: String? = null
 ) {
     MaterialTheme(
         colorScheme = MaterialTheme.colorScheme.copy(surface = Color.Transparent),
