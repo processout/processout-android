@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -25,6 +26,8 @@ import com.processout.sdk.ui.core.component.field.PORadioGroup.textPaddingTop
 import com.processout.sdk.ui.core.component.field.PORadioGroup.textStyle
 import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.core.state.POImmutableList
+import com.processout.sdk.ui.core.style.PORadioButtonStateStyle
+import com.processout.sdk.ui.core.style.PORadioButtonStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 
 /** @suppress */
@@ -119,6 +122,19 @@ object PORadioGroup {
                 )
             )
         }
+
+    @Composable
+    fun custom(style: PORadioButtonStyle) = Style(
+        normal = style.normal.toStateStyle(),
+        selected = style.selected.toStateStyle(),
+        error = style.error.toStateStyle()
+    )
+
+    @Composable
+    private fun PORadioButtonStateStyle.toStateStyle() = StateStyle(
+        buttonColor = colorResource(id = buttonColorResId),
+        text = POText.custom(style = text)
+    )
 
     private val MaterialRadioButtonSize = 20.dp
     internal val RadioButtonSize = 18.dp
