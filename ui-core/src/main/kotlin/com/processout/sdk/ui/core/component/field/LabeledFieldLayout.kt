@@ -13,13 +13,10 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme
 internal fun LabeledFieldLayout(
     title: String,
     description: String?,
-    modifier: Modifier = Modifier,
     style: POFieldLabels.Style = POFieldLabels.default,
     content: @Composable () -> Unit
 ) {
-    Column(
-        modifier = modifier
-    ) {
+    Column {
         POText(
             text = title,
             modifier = Modifier.padding(bottom = ProcessOutTheme.spacing.small),

@@ -45,12 +45,12 @@ fun POLabeledTextField(
     LabeledFieldLayout(
         title = title,
         description = description,
-        modifier = modifier,
         style = labelsStyle
     ) {
         POTextField(
             value = value,
             onValueChange = onValueChange,
+            modifier = modifier,
             style = fieldStyle,
             enabled = enabled,
             readOnly = readOnly,
