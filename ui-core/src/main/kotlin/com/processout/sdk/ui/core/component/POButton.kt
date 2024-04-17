@@ -1,5 +1,3 @@
-@file:Suppress("MemberVisibilityCanBePrivate")
-
 package com.processout.sdk.ui.core.component
 
 import androidx.compose.foundation.BorderStroke
@@ -22,6 +20,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.core.component.POButton.border
+import com.processout.sdk.ui.core.component.POButton.colors
+import com.processout.sdk.ui.core.component.POButton.contentPadding
+import com.processout.sdk.ui.core.component.POButton.elevation
 import com.processout.sdk.ui.core.style.POButtonDefaults
 import com.processout.sdk.ui.core.style.POButtonStateStyle
 import com.processout.sdk.ui.core.style.POButtonStyle
@@ -46,11 +48,11 @@ fun POButton(
             onClick = onClick,
             modifier = modifier.requiredHeight(ProcessOutTheme.dimensions.formComponentHeight),
             enabled = enabled && !loading,
-            colors = POButton.colors(enabled = enabled, loading = loading, pressed = pressed, style = style),
+            colors = colors(style = style, enabled = enabled, loading = loading, pressed = pressed),
             shape = if (enabled) style.normal.shape else style.disabled.shape,
-            border = POButton.border(enabled = enabled, pressed = pressed, style = style),
-            elevation = POButton.elevation(enabled = enabled, loading = loading, style = style),
-            contentPadding = POButton.contentPadding(enabled = enabled, style = style),
+            border = border(style = style, enabled = enabled, pressed = pressed),
+            elevation = elevation(style = style, enabled = enabled, loading = loading),
+            contentPadding = contentPadding(style = style, enabled = enabled),
             interactionSource = interactionSource
         ) {
             if (enabled && loading) {
@@ -188,10 +190,10 @@ object POButton {
 
     @Composable
     internal fun colors(
+        style: Style,
         enabled: Boolean,
         loading: Boolean,
-        pressed: Boolean,
-        style: Style
+        pressed: Boolean
     ): ButtonColors {
         val normalTextColor: Color
         val normalBackgroundColor: Color
@@ -222,9 +224,9 @@ object POButton {
     }
 
     internal fun border(
+        style: Style,
         enabled: Boolean,
-        pressed: Boolean,
-        style: Style
+        pressed: Boolean
     ): BorderStroke {
         val normalBorderColor = if (pressed) style.highlighted.borderColor else style.normal.border.color
         return if (enabled) style.normal.border.solid(color = normalBorderColor)
@@ -233,9 +235,9 @@ object POButton {
 
     @Composable
     internal fun elevation(
+        style: Style,
         enabled: Boolean,
-        loading: Boolean,
-        style: Style
+        loading: Boolean
     ): ButtonElevation = ButtonDefaults.buttonElevation(
         defaultElevation = style.normal.elevation,
         pressedElevation = style.normal.elevation,
@@ -246,8 +248,8 @@ object POButton {
     )
 
     internal fun contentPadding(
-        enabled: Boolean,
-        style: Style
+        style: Style,
+        enabled: Boolean
     ): PaddingValues = if (enabled) PaddingValues(
         horizontal = style.normal.paddingHorizontal,
         vertical = style.normal.paddingVertical

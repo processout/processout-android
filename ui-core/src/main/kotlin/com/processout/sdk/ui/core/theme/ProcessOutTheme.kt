@@ -1,5 +1,3 @@
-@file:Suppress("MemberVisibilityCanBePrivate")
-
 package com.processout.sdk.ui.core.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme

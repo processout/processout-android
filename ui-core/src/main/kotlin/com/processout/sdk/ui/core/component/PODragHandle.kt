@@ -7,7 +7,10 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.core.component.PODragHandle.DragHandleHeight
+import com.processout.sdk.ui.core.component.PODragHandle.DragHandleWidth
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 
 /** @suppress */
@@ -21,12 +24,17 @@ fun PODragHandle(
         modifier = modifier
             .padding(top = spacing.medium)
             .requiredSize(
-                width = dimensions.dragHandleWidth,
-                height = dimensions.dragHandleHeight
+                width = DragHandleWidth,
+                height = DragHandleHeight
             )
             .background(
                 color = color,
                 shape = shapes.roundedCornersSmall
             )
     )
+}
+
+internal object PODragHandle {
+    val DragHandleWidth = 32.dp
+    val DragHandleHeight = 4.dp
 }

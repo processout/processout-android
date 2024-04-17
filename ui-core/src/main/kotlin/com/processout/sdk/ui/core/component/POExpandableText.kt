@@ -1,6 +1,6 @@
 @file:Suppress("NAME_SHADOWING")
 
-package com.processout.sdk.ui.shared.composable
+package com.processout.sdk.ui.core.component
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.requiredHeight
@@ -8,11 +8,13 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.processout.sdk.ui.core.component.POText
-import com.processout.sdk.ui.shared.extension.conditional
+import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.core.extension.conditional
 
+/** @suppress */
+@ProcessOutInternalApi
 @Composable
-internal fun ExpandableText(
+fun POExpandableText(
     text: String?,
     style: POText.Style,
     modifier: Modifier = Modifier
@@ -20,7 +22,7 @@ internal fun ExpandableText(
     val modifier = modifier
         .animateContentSize()
         .conditional(
-            condition = text != null,
+            condition = !text.isNullOrBlank(),
             whenTrue = { wrapContentHeight() },
             whenFalse = { requiredHeight(0.dp) }
         )

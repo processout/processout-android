@@ -1,4 +1,4 @@
-package com.processout.sdk.ui.core.component.field
+package com.processout.sdk.ui.core.component.field.text
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
@@ -14,16 +14,18 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
-import com.processout.sdk.ui.core.component.POText
-import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.core.component.field.LabeledFieldLayout
+import com.processout.sdk.ui.core.component.field.POField
+import com.processout.sdk.ui.core.component.field.POFieldLabels
 
 /** @suppress */
 @ProcessOutInternalApi
 @Composable
 fun POLabeledTextField(
-    title: String,
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
+    title: String,
+    description: String?,
     modifier: Modifier = Modifier,
     fieldStyle: POField.Style = POField.default,
     labelsStyle: POFieldLabels.Style = POFieldLabels.default,
@@ -31,25 +33,23 @@ fun POLabeledTextField(
     readOnly: Boolean = false,
     isDropdown: Boolean = false,
     isError: Boolean = false,
-    description: String = String(),
+    forceTextDirectionLtr: Boolean = false,
     placeholderText: String? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     singleLine: Boolean = true,
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     minLines: Int = 1,
-    visualTransformation: VisualTransformation = VisualTransformation.None,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
-    Column {
-        POText(
-            text = title,
-            modifier = Modifier.padding(bottom = ProcessOutTheme.spacing.small),
-            color = labelsStyle.title.color,
-            style = labelsStyle.title.textStyle
-        )
+    LabeledFieldLayout(
+        title = title,
+        description = description,
+        style = labelsStyle
+    ) {
         POTextField(
             value = value,
             onValueChange = onValueChange,
@@ -59,6 +59,7 @@ fun POLabeledTextField(
             readOnly = readOnly,
             isDropdown = isDropdown,
             isError = isError,
+            forceTextDirectionLtr = forceTextDirectionLtr,
             placeholderText = placeholderText,
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
@@ -69,12 +70,6 @@ fun POLabeledTextField(
             maxLines = maxLines,
             minLines = minLines,
             interactionSource = interactionSource
-        )
-        POText(
-            text = description,
-            modifier = Modifier.padding(top = ProcessOutTheme.spacing.small),
-            color = labelsStyle.description.color,
-            style = labelsStyle.description.textStyle
         )
     }
 }

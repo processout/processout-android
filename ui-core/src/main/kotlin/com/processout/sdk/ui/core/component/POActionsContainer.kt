@@ -2,7 +2,7 @@ package com.processout.sdk.ui.core.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
@@ -26,7 +26,7 @@ fun POActionsContainer(
     style: POActionsContainer.Style = POActionsContainer.default
 ) {
     Column {
-        Divider(thickness = 1.dp, color = style.dividerColor)
+        HorizontalDivider(thickness = 1.dp, color = style.dividerColor)
 
         val padding = POActionsContainer.containerPadding
         val spacing = POActionsContainer.actionSpacing

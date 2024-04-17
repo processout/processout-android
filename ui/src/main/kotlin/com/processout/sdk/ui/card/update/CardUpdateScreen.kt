@@ -21,17 +21,17 @@ import androidx.compose.ui.res.colorResource
 import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.card.update.CardUpdateEvent.*
 import com.processout.sdk.ui.core.component.POActionsContainer
+import com.processout.sdk.ui.core.component.POExpandableText
 import com.processout.sdk.ui.core.component.POHeader
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
-import com.processout.sdk.ui.core.component.field.POTextField
+import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.composable.AnimatedImage
-import com.processout.sdk.ui.shared.composable.ExpandableText
 import com.processout.sdk.ui.shared.composable.RequestFocus
 import com.processout.sdk.ui.shared.composable.rememberLifecycleEvent
 
@@ -83,7 +83,7 @@ internal fun CardUpdateScreen(
                 isPrimaryActionEnabled = state.primaryAction.enabled && !state.primaryAction.loading,
                 style = style.field
             )
-            ExpandableText(
+            POExpandableText(
                 text = state.errorMessage,
                 style = style.errorMessage,
                 modifier = Modifier.fillMaxWidth()
