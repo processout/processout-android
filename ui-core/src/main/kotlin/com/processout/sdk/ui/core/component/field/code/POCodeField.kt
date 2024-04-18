@@ -10,6 +10,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.text.POTextField
@@ -23,7 +24,7 @@ fun POCodeField(
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
     length: Int = POCodeField.DefaultLength,
-    style: POField.Style = POField.default
+    style: POField.Style = POCodeField.default
 ) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
@@ -101,4 +102,24 @@ private fun rememberDefaultValues(
 object POCodeField {
 
     internal val DefaultLength = 6
+
+    val default: POField.Style
+        @Composable get() = with(POField.default) {
+            copy(
+                normal = normal.copy(
+                    text = normal.text.copy(
+                        textStyle = ProcessOutTheme.typography.medium.title.copy(
+                            textAlign = TextAlign.Center
+                        )
+                    )
+                ),
+                error = error.copy(
+                    text = error.text.copy(
+                        textStyle = ProcessOutTheme.typography.medium.title.copy(
+                            textAlign = TextAlign.Center
+                        )
+                    )
+                )
+            )
+        }
 }
