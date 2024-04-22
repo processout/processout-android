@@ -82,12 +82,7 @@ fun POCodeField(
                     },
                 style = style,
                 keyboardOptions = keyboardOptions,
-                keyboardActions = KeyboardActions(
-                    onDone = keyboardActions.onDone,
-                    onNext = {
-                        focusManager.moveFocus(FocusDirection.Down)
-                    }
-                )
+                keyboardActions = keyboardActions
             )
         }
     }
