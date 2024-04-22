@@ -90,7 +90,6 @@ dependencies {
     api project(path: ':ui-core')
 
     api "androidx.activity:activity-compose:$androidxActivityVersion"
-    api "androidx.lifecycle:lifecycle-runtime-compose:$androidxLifecycleVersion"
     api "androidx.lifecycle:lifecycle-viewmodel-compose:$androidxLifecycleVersion"
 
     api "com.google.android.gms:play-services-wallet:$gmsWalletVersion"

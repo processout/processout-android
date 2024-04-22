@@ -9,12 +9,17 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.core.component.PORequestFocus
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
@@ -28,6 +33,8 @@ fun POCodeField(
     modifier: Modifier = Modifier,
     length: Int = POCodeField.DefaultLength,
     style: POField.Style = POCodeField.default,
+    isFocused: Boolean = false,
+    lifecycleEvent: Lifecycle.Event? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
@@ -36,8 +43,10 @@ fun POCodeField(
         horizontalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
     ) {
         val focusManager = LocalFocusManager.current
+        var focusedIndex by remember { mutableIntStateOf(0) }
         var values by rememberDefaultValues(value, length)
         for (textFieldIndex in 0..<length) {
+            val focusRequester = remember { FocusRequester() }
             POTextField(
                 value = values.getOrNull(textFieldIndex) ?: TextFieldValue(),
                 onValueChange = {
@@ -79,11 +88,24 @@ fun POCodeField(
                                 false
                             }
                         }
+                    }
+                    .focusRequester(focusRequester)
+                    .onFocusChanged {
+                        if (it.isFocused) {
+                            focusedIndex = textFieldIndex
+                        }
                     },
                 style = style,
                 keyboardOptions = keyboardOptions,
                 keyboardActions = keyboardActions
             )
+            if (isFocused && textFieldIndex == focusedIndex) {
+                if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
+                    PORequestFocus(focusRequester, lifecycleEvent)
+                } else {
+                    PORequestFocus(focusRequester)
+                }
+            }
         }
     }
 }
