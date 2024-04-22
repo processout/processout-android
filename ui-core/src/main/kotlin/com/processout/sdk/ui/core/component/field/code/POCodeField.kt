@@ -1,3 +1,5 @@
+@file:Suppress("MayBeConstant")
+
 package com.processout.sdk.ui.core.component.field.code
 
 import androidx.compose.foundation.focusGroup
