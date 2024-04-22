@@ -1,14 +1,17 @@
 package com.processout.sdk.ui.core.component.field.code
 
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.input.key.*
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
@@ -24,11 +27,15 @@ fun POCodeField(
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
     length: Int = POCodeField.DefaultLength,
-    style: POField.Style = POCodeField.default
+    style: POField.Style = POCodeField.default,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
     Row(
+        modifier = Modifier.focusGroup(),
         horizontalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
     ) {
+        val focusManager = LocalFocusManager.current
         var values by rememberDefaultValues(value, length)
         for (textFieldIndex in 0..<length) {
             POTextField(
@@ -53,11 +60,33 @@ fun POCodeField(
                     val updatedText = values.joinToString(separator = String()) { it.text }
                     onValueChange(TextFieldValue(text = updatedText))
                 },
-                modifier = modifier.requiredWidth(ProcessOutTheme.dimensions.formComponentHeight),
+                modifier = modifier
+                    .requiredWidth(ProcessOutTheme.dimensions.formComponentHeight)
+                    .onPreviewKeyEvent {
+                        when {
+                            it.key == Key.Backspace && it.type == KeyEventType.KeyUp -> {
+                                if (textFieldIndex != 0) {
+                                    focusManager.moveFocus(FocusDirection.Previous)
+                                }
+                                false
+                            }
+                            else -> {
+                                if (it.type == KeyEventType.KeyUp) {
+                                    if (textFieldIndex != length - 1) {
+                                        focusManager.moveFocus(FocusDirection.Next)
+                                    }
+                                }
+                                false
+                            }
+                        }
+                    },
                 style = style,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Next
+                keyboardOptions = keyboardOptions,
+                keyboardActions = KeyboardActions(
+                    onDone = keyboardActions.onDone,
+                    onNext = {
+                        focusManager.moveFocus(FocusDirection.Down)
+                    }
                 )
             )
         }
