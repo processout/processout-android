@@ -163,10 +163,6 @@ private fun values(
     return values
 }
 
-private fun List<TextFieldValue>.textFieldValue() = TextFieldValue(
-    text = joinToString(separator = String()) { it.text }
-)
-
 private fun List<TextFieldValue>.focusedIndex(): Int {
     forEachIndexed { index, textFieldValue ->
         if (textFieldValue.text.isEmpty()) {
@@ -175,6 +171,10 @@ private fun List<TextFieldValue>.focusedIndex(): Int {
     }
     return lastIndex
 }
+
+private fun List<TextFieldValue>.textFieldValue() = TextFieldValue(
+    text = joinToString(separator = String()) { it.text }
+)
 
 /** @suppress */
 @ProcessOutInternalApi
