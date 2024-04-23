@@ -88,6 +88,19 @@ fun POCodeField(
                                     textFieldValue.copy(selection = TextRange.Zero)
                                 }
                             }
+                            if (textFieldIndex != values.lastIndex && filteredText.length == 2 && it.selection.start == 2) {
+                                val nextText = filteredText.last().toString()
+                                values = values.mapIndexed { index, textFieldValue ->
+                                    if (index == textFieldIndex + 1) {
+                                        TextFieldValue(
+                                            text = nextText,
+                                            selection = TextRange(nextText.length)
+                                        )
+                                    } else {
+                                        textFieldValue.copy()
+                                    }
+                                }
+                            }
                             onValueChange(values.textFieldValue())
                         }
                     },
@@ -101,7 +114,7 @@ fun POCodeField(
                                             if (index == textFieldIndex - 1) {
                                                 TextFieldValue()
                                             } else {
-                                                textFieldValue.copy(selection = TextRange.Zero)
+                                                textFieldValue.copy()
                                             }
                                         }
                                         focusManager.moveFocus(FocusDirection.Previous)
