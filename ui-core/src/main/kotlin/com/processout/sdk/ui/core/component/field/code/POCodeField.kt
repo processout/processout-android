@@ -5,10 +5,12 @@ package com.processout.sdk.ui.core.component.field.code
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
@@ -40,6 +42,7 @@ fun POCodeField(
     modifier: Modifier = Modifier,
     style: POField.Style = POCodeField.default,
     length: Int = POCodeField.LengthMax,
+    alignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     isError: Boolean = false,
     isFocused: Boolean = false,
     lifecycleEvent: Lifecycle.Event? = null,
@@ -47,8 +50,14 @@ fun POCodeField(
     keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
     Row(
-        modifier = Modifier.focusGroup(),
-        horizontalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
+        modifier = Modifier
+            .fillMaxWidth()
+            .focusGroup(),
+        horizontalArrangement = Arrangement.spacedBy(
+            space = ProcessOutTheme.spacing.small,
+            alignment = alignment
+        ),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         val validLength by remember { mutableIntStateOf(validLength(length)) }
         var values by remember { mutableStateOf(values(value, validLength)) }
