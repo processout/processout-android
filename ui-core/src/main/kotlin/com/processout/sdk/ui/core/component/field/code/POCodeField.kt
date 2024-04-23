@@ -137,29 +137,28 @@ private fun values(
     length: Int
 ): List<TextFieldValue> {
     val values = if (value.text.isEmpty()) {
-        val list = mutableListOf<TextFieldValue>()
-        for (i in 0..<length) {
-            list.add(TextFieldValue())
+        val emptyValues = mutableListOf<TextFieldValue>()
+        while (emptyValues.size < length) {
+            emptyValues.add(TextFieldValue())
         }
-        list
+        emptyValues
     } else {
         val filteredText = value.text.replace(Regex("\\D"), String()).take(length)
-        var list = filteredText.map {
-            val text = if (it.isDigit()) it.toString() else String()
+        val values = filteredText.map {
+            val text = it.toString()
             TextFieldValue(
                 text = text,
                 selection = TextRange(text.length)
             )
         }
-        if (list.size < length) {
-            val lengthDiff = length - list.size
-            val mutableList = list.toMutableList()
-            for (i in 0..<lengthDiff) {
-                mutableList.add(TextFieldValue())
+        val emptyValues = mutableListOf<TextFieldValue>()
+        if (values.size < length) {
+            val lengthDiff = length - values.size
+            while (emptyValues.size < lengthDiff) {
+                emptyValues.add(TextFieldValue())
             }
-            list = mutableList
         }
-        list
+        values + emptyValues
     }
     return values
 }
