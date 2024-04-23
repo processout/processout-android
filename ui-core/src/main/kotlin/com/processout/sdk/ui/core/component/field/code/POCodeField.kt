@@ -39,6 +39,7 @@ fun POCodeField(
     modifier: Modifier = Modifier,
     style: POField.Style = POCodeField.default,
     length: Int = POCodeField.DefaultLength,
+    isError: Boolean = false,
     isFocused: Boolean = false,
     lifecycleEvent: Lifecycle.Event? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
@@ -118,6 +119,7 @@ fun POCodeField(
                                             }
                                         }
                                         focusManager.moveFocus(FocusDirection.Previous)
+                                        onValueChange(values.textFieldValue())
                                     }
                                     false
                                 }
@@ -136,6 +138,7 @@ fun POCodeField(
                             }
                         },
                     style = style,
+                    isError = isError,
                     keyboardOptions = keyboardOptions,
                     keyboardActions = keyboardActions
                 )
