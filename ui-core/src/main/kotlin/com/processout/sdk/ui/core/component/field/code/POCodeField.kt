@@ -15,7 +15,10 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalTextToolbar
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -24,6 +27,7 @@ import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.PORequestFocus
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.text.POTextField
+import com.processout.sdk.ui.core.component.texttoolbar.ProcessOutTextToolbar
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 
 /** @suppress */
@@ -44,79 +48,93 @@ fun POCodeField(
         modifier = Modifier.focusGroup(),
         horizontalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
     ) {
-        val focusManager = LocalFocusManager.current
-        var focusedIndex by remember { mutableIntStateOf(0) }
-        var values by rememberDefaultValues(value, length)
-        for (textFieldIndex in 0..<length) {
-            val focusRequester = remember { FocusRequester() }
-            POTextField(
-                value = values.getOrNull(textFieldIndex) ?: TextFieldValue(),
-                onValueChange = {
-                    values = values.mapIndexed { valueIndex, textFieldValue ->
-                        if (valueIndex == textFieldIndex) {
-                            val updatedText = it.text.find { it.isDigit() }?.toString() ?: String()
-                            val isTextChanged = textFieldValue.text != updatedText
-                            TextFieldValue(
-                                text = updatedText,
-                                selection = if (isTextChanged) {
-                                    TextRange(updatedText.length)
-                                } else {
-                                    it.selection
-                                }
-                            )
-                        } else {
-                            textFieldValue.copy()
-                        }
+        var values by remember { mutableStateOf(values(value, length)) }
+        val clipboardManager = LocalClipboardManager.current
+        CompositionLocalProvider(
+            LocalTextToolbar provides ProcessOutTextToolbar(
+                view = LocalView.current,
+                onPasteRequested = {
+                    if (clipboardManager.hasText()) {
+                        values = values(TextFieldValue(text = clipboardManager.getText()?.text ?: String()), length)
+                        onValueChange(values.textFieldValue())
                     }
-                    val updatedText = values.joinToString(separator = String()) { it.text }
-                    onValueChange(TextFieldValue(text = updatedText))
                 },
-                modifier = modifier
-                    .requiredWidth(ProcessOutTheme.dimensions.formComponentHeight)
-                    .onPreviewKeyEvent {
-                        when {
-                            it.key == Key.Backspace && it.type == KeyEventType.KeyUp -> {
-                                if (textFieldIndex != 0) {
-                                    focusManager.moveFocus(FocusDirection.Previous)
+                hideUnspecifiedActions = true
+            )
+        ) {
+            val focusManager = LocalFocusManager.current
+            var focusedIndex by remember { mutableIntStateOf(0) }
+            for (textFieldIndex in 0..<length) {
+                val focusRequester = remember { FocusRequester() }
+                POTextField(
+                    value = values.getOrNull(textFieldIndex) ?: TextFieldValue(),
+                    onValueChange = {
+                        if (it.selection.length == 0) {
+                            values = values.mapIndexed { valueIndex, textFieldValue ->
+                                if (valueIndex == textFieldIndex) {
+                                    val updatedText = it.text.find { char -> char.isDigit() }?.toString() ?: String()
+                                    val isTextChanged = textFieldValue.text != updatedText
+                                    TextFieldValue(
+                                        text = updatedText,
+                                        selection = if (isTextChanged) {
+                                            TextRange(updatedText.length)
+                                        } else {
+                                            it.selection
+                                        }
+                                    )
+                                } else {
+                                    textFieldValue.copy()
                                 }
-                                false
                             }
-                            else -> {
-                                if (it.type == KeyEventType.KeyUp) {
-                                    if (textFieldIndex != length - 1) {
-                                        focusManager.moveFocus(FocusDirection.Next)
-                                    }
-                                }
-                                false
-                            }
-                        }
-                    }
-                    .focusRequester(focusRequester)
-                    .onFocusChanged {
-                        if (it.isFocused) {
-                            focusedIndex = textFieldIndex
+                            onValueChange(values.textFieldValue())
                         }
                     },
-                style = style,
-                keyboardOptions = keyboardOptions,
-                keyboardActions = keyboardActions
-            )
-            if (isFocused && textFieldIndex == focusedIndex) {
-                if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
-                    PORequestFocus(focusRequester, lifecycleEvent)
-                } else {
-                    PORequestFocus(focusRequester)
+                    modifier = modifier
+                        .requiredWidth(ProcessOutTheme.dimensions.formComponentHeight)
+                        .onPreviewKeyEvent {
+                            when {
+                                it.key == Key.Backspace && it.type == KeyEventType.KeyUp -> {
+                                    if (textFieldIndex != 0) {
+                                        focusManager.moveFocus(FocusDirection.Previous)
+                                    }
+                                    false
+                                }
+                                else -> {
+                                    if (it.type == KeyEventType.KeyUp) {
+                                        if (textFieldIndex != length - 1) {
+                                            focusManager.moveFocus(FocusDirection.Next)
+                                        }
+                                    }
+                                    false
+                                }
+                            }
+                        }
+                        .focusRequester(focusRequester)
+                        .onFocusChanged {
+                            if (it.isFocused) {
+                                focusedIndex = textFieldIndex
+                            }
+                        },
+                    style = style,
+                    keyboardOptions = keyboardOptions,
+                    keyboardActions = keyboardActions
+                )
+                if (isFocused && textFieldIndex == focusedIndex) {
+                    if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
+                        PORequestFocus(focusRequester, lifecycleEvent)
+                    } else {
+                        PORequestFocus(focusRequester)
+                    }
                 }
             }
         }
     }
 }
 
-@Composable
-private fun rememberDefaultValues(
+private fun values(
     value: TextFieldValue,
     length: Int
-): MutableState<List<TextFieldValue>> = remember {
+): List<TextFieldValue> {
     val values = if (value.text.isEmpty()) {
         val list = mutableListOf<TextFieldValue>()
         for (i in 0..<length) {
@@ -142,8 +160,12 @@ private fun rememberDefaultValues(
         }
         list
     }
-    mutableStateOf(values)
+    return values
 }
+
+private fun List<TextFieldValue>.textFieldValue() = TextFieldValue(
+    text = joinToString(separator = String()) { it.text }
+)
 
 /** @suppress */
 @ProcessOutInternalApi
