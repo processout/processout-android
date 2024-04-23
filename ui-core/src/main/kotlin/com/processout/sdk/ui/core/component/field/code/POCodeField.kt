@@ -49,6 +49,7 @@ fun POCodeField(
         horizontalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
     ) {
         var values by remember { mutableStateOf(values(value, length)) }
+        var focusedIndex by remember { mutableIntStateOf(values.focusedIndex()) }
         val clipboardManager = LocalClipboardManager.current
         CompositionLocalProvider(
             LocalTextToolbar provides ProcessOutTextToolbar(
@@ -56,6 +57,7 @@ fun POCodeField(
                 onPasteRequested = {
                     if (clipboardManager.hasText()) {
                         values = values(TextFieldValue(text = clipboardManager.getText()?.text ?: String()), length)
+                        focusedIndex = values.focusedIndex()
                         onValueChange(values.textFieldValue())
                     }
                 },
@@ -63,7 +65,6 @@ fun POCodeField(
             )
         ) {
             val focusManager = LocalFocusManager.current
-            var focusedIndex by remember { mutableIntStateOf(0) }
             for (textFieldIndex in 0..<length) {
                 val focusRequester = remember { FocusRequester() }
                 POTextField(
@@ -166,6 +167,15 @@ private fun values(
 private fun List<TextFieldValue>.textFieldValue() = TextFieldValue(
     text = joinToString(separator = String()) { it.text }
 )
+
+private fun List<TextFieldValue>.focusedIndex(): Int {
+    forEachIndexed { index, textFieldValue ->
+        if (textFieldValue.text.isEmpty()) {
+            return index
+        }
+    }
+    return lastIndex
+}
 
 /** @suppress */
 @ProcessOutInternalApi
