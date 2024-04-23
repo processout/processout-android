@@ -71,9 +71,10 @@ fun POCodeField(
                     value = values.getOrNull(textFieldIndex) ?: TextFieldValue(),
                     onValueChange = {
                         if (it.selection.length == 0) {
+                            val filteredText = it.text.replace(Regex("\\D"), String())
                             values = values.mapIndexed { valueIndex, textFieldValue ->
                                 if (valueIndex == textFieldIndex) {
-                                    val updatedText = it.text.find { char -> char.isDigit() }?.toString() ?: String()
+                                    val updatedText = filteredText.firstOrNull()?.toString() ?: String()
                                     val isTextChanged = textFieldValue.text != updatedText
                                     TextFieldValue(
                                         text = updatedText,
@@ -84,7 +85,7 @@ fun POCodeField(
                                         }
                                     )
                                 } else {
-                                    textFieldValue.copy()
+                                    textFieldValue.copy(selection = TextRange.Zero)
                                 }
                             }
                             onValueChange(values.textFieldValue())
@@ -94,14 +95,21 @@ fun POCodeField(
                         .requiredWidth(ProcessOutTheme.dimensions.formComponentHeight)
                         .onPreviewKeyEvent {
                             when {
-                                it.key == Key.Backspace && it.type == KeyEventType.KeyUp -> {
-                                    if (textFieldIndex != 0) {
+                                it.key == Key.Backspace && it.type == KeyEventType.KeyDown -> {
+                                    if (textFieldIndex != 0 && values[textFieldIndex].selection.start == 0) {
+                                        values = values.mapIndexed { index, textFieldValue ->
+                                            if (index == textFieldIndex - 1) {
+                                                TextFieldValue()
+                                            } else {
+                                                textFieldValue.copy(selection = TextRange.Zero)
+                                            }
+                                        }
                                         focusManager.moveFocus(FocusDirection.Previous)
                                     }
                                     false
                                 }
                                 else -> {
-                                    if (it.type == KeyEventType.KeyUp) {
+                                    if (it.type == KeyEventType.KeyDown) {
                                         if (textFieldIndex != length - 1) {
                                             focusManager.moveFocus(FocusDirection.Next)
                                         }
