@@ -1,4 +1,4 @@
-@file:Suppress("MayBeConstant")
+@file:Suppress("MayBeConstant", "MemberVisibilityCanBePrivate")
 
 package com.processout.sdk.ui.core.component.field.code
 
@@ -26,6 +26,7 @@ import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.PORequestFocus
 import com.processout.sdk.ui.core.component.field.POField
+import com.processout.sdk.ui.core.component.field.code.POCodeField.validLength
 import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.component.texttoolbar.ProcessOutTextToolbar
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
@@ -38,7 +39,7 @@ fun POCodeField(
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
     style: POField.Style = POCodeField.default,
-    length: Int = POCodeField.DefaultLength,
+    length: Int = POCodeField.LengthMax,
     isError: Boolean = false,
     isFocused: Boolean = false,
     lifecycleEvent: Lifecycle.Event? = null,
@@ -49,7 +50,8 @@ fun POCodeField(
         modifier = Modifier.focusGroup(),
         horizontalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
     ) {
-        var values by remember { mutableStateOf(values(value, length)) }
+        val validLength by remember { mutableIntStateOf(validLength(length)) }
+        var values by remember { mutableStateOf(values(value, validLength)) }
         var focusedIndex by remember { mutableIntStateOf(values.focusedIndex()) }
         val clipboardManager = LocalClipboardManager.current
         CompositionLocalProvider(
@@ -57,7 +59,7 @@ fun POCodeField(
                 view = LocalView.current,
                 onPasteRequested = {
                     if (clipboardManager.hasText()) {
-                        values = values(TextFieldValue(text = clipboardManager.getText()?.text ?: String()), length)
+                        values = values(TextFieldValue(text = clipboardManager.getText()?.text ?: String()), validLength)
                         focusedIndex = values.focusedIndex()
                         onValueChange(values.textFieldValue())
                     }
@@ -202,8 +204,6 @@ private fun List<TextFieldValue>.textFieldValue() = TextFieldValue(
 @ProcessOutInternalApi
 object POCodeField {
 
-    internal val DefaultLength = 6
-
     val default: POField.Style
         @Composable get() = with(POField.default) {
             copy(
@@ -223,4 +223,14 @@ object POCodeField {
                 )
             )
         }
+
+    internal val LengthMin = 1
+    internal val LengthMax = 6
+
+    internal fun validLength(length: Int): Int {
+        if (length in LengthMin..LengthMax) {
+            return length
+        }
+        return LengthMax
+    }
 }
