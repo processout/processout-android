@@ -37,8 +37,8 @@ fun POCodeField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
-    length: Int = POCodeField.DefaultLength,
     style: POField.Style = POCodeField.default,
+    length: Int = POCodeField.DefaultLength,
     isFocused: Boolean = false,
     lifecycleEvent: Lifecycle.Event? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
@@ -65,7 +65,7 @@ fun POCodeField(
             )
         ) {
             val focusManager = LocalFocusManager.current
-            for (textFieldIndex in 0..<length) {
+            for (textFieldIndex in 0..values.lastIndex) {
                 val focusRequester = remember { FocusRequester() }
                 POTextField(
                     value = values.getOrNull(textFieldIndex) ?: TextFieldValue(),
@@ -122,10 +122,8 @@ fun POCodeField(
                                     false
                                 }
                                 else -> {
-                                    if (it.type == KeyEventType.KeyDown) {
-                                        if (textFieldIndex != length - 1) {
-                                            focusManager.moveFocus(FocusDirection.Next)
-                                        }
+                                    if (it.type == KeyEventType.KeyDown && textFieldIndex != values.lastIndex) {
+                                        focusManager.moveFocus(FocusDirection.Next)
                                     }
                                     false
                                 }
