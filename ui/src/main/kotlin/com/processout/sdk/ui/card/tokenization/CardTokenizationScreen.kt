@@ -22,10 +22,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.Item
-import com.processout.sdk.ui.core.component.POActionsContainer
-import com.processout.sdk.ui.core.component.POExpandableText
-import com.processout.sdk.ui.core.component.POHeader
-import com.processout.sdk.ui.core.component.POText
+import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
 import com.processout.sdk.ui.core.component.field.text.POTextField
@@ -35,7 +32,6 @@ import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.composable.AnimatedImage
-import com.processout.sdk.ui.shared.composable.RequestFocus
 import com.processout.sdk.ui.shared.composable.rememberLifecycleEvent
 
 @Composable
@@ -219,7 +215,7 @@ private fun TextField(
         )
     )
     if (state.id == focusedFieldId && lifecycleEvent == Lifecycle.Event.ON_RESUME) {
-        RequestFocus(focusRequester, lifecycleEvent)
+        PORequestFocus(focusRequester, lifecycleEvent)
     }
 }
 
