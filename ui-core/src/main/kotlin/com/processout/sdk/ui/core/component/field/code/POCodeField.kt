@@ -28,9 +28,11 @@ import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.PORequestFocus
 import com.processout.sdk.ui.core.component.field.POField
+import com.processout.sdk.ui.core.component.field.code.POCodeField.style
 import com.processout.sdk.ui.core.component.field.code.POCodeField.validLength
 import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.component.texttoolbar.ProcessOutTextToolbar
+import com.processout.sdk.ui.core.style.POFieldStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 
 /** @suppress */
@@ -148,7 +150,7 @@ fun POCodeField(
                                 focusedIndex = textFieldIndex
                             }
                         },
-                    style = style,
+                    style = style(style),
                     isError = isError,
                     keyboardOptions = keyboardOptions,
                     keyboardActions = keyboardActions
@@ -218,20 +220,38 @@ object POCodeField {
             copy(
                 normal = normal.copy(
                     text = normal.text.copy(
-                        textStyle = ProcessOutTheme.typography.medium.title.copy(
-                            textAlign = TextAlign.Center
-                        )
+                        textStyle = ProcessOutTheme.typography.medium.title
                     )
                 ),
                 error = error.copy(
                     text = error.text.copy(
-                        textStyle = ProcessOutTheme.typography.medium.title.copy(
-                            textAlign = TextAlign.Center
-                        )
+                        textStyle = ProcessOutTheme.typography.medium.title
                     )
                 )
             )
         }
+
+    @Composable
+    fun custom(style: POFieldStyle) = POField.custom(style)
+
+    internal fun style(style: POField.Style) = with(style) {
+        copy(
+            normal = normal.copy(
+                text = normal.text.copy(
+                    textStyle = normal.text.textStyle.copy(
+                        textAlign = TextAlign.Center
+                    )
+                )
+            ),
+            error = error.copy(
+                text = error.text.copy(
+                    textStyle = error.text.textStyle.copy(
+                        textAlign = TextAlign.Center
+                    )
+                )
+            )
+        )
+    }
 
     internal val LengthMin = 1
     internal val LengthMax = 6
