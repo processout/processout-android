@@ -70,9 +70,15 @@ fun POCodeField(
                 view = LocalView.current,
                 onPasteRequested = {
                     if (clipboardManager.hasText()) {
-                        values = values(TextFieldValue(text = clipboardManager.getText()?.text ?: String()), validLength)
-                        focusedIndex = values.focusedIndex()
-                        onValueChange(values.textFieldValue())
+                        val pastedValues = values(
+                            TextFieldValue(text = clipboardManager.getText()?.text ?: String()),
+                            validLength
+                        )
+                        if (!pastedValues.all { it.text.isEmpty() }) {
+                            values = pastedValues
+                            focusedIndex = values.focusedIndex()
+                            onValueChange(values.textFieldValue())
+                        }
                     }
                 },
                 hideUnspecifiedActions = true
