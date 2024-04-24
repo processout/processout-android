@@ -4,7 +4,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import com.processout.sdk.ui.core.component.POExpandableText
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
@@ -14,9 +16,12 @@ internal fun LabeledFieldLayout(
     title: String,
     description: String?,
     style: POFieldLabels.Style = POFieldLabels.default,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     content: @Composable () -> Unit
 ) {
-    Column {
+    Column(
+        horizontalAlignment = horizontalAlignment
+    ) {
         POText(
             text = title,
             modifier = Modifier.padding(bottom = ProcessOutTheme.spacing.small),
@@ -26,10 +31,23 @@ internal fun LabeledFieldLayout(
         content()
         POExpandableText(
             text = description,
-            style = style.description,
+            style = style.description.copy(
+                textStyle = style.description.textStyle.copy(
+                    textAlign = textAlign(horizontalAlignment)
+                )
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = ProcessOutTheme.spacing.small)
         )
     }
+}
+
+private fun textAlign(
+    horizontalAlignment: Alignment.Horizontal
+): TextAlign = when (horizontalAlignment) {
+    Alignment.Start -> TextAlign.Start
+    Alignment.CenterHorizontally -> TextAlign.Center
+    Alignment.End -> TextAlign.End
+    else -> TextAlign.Unspecified
 }

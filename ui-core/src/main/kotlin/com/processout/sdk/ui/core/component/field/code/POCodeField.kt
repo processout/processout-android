@@ -42,7 +42,7 @@ fun POCodeField(
     modifier: Modifier = Modifier,
     style: POField.Style = POCodeField.default,
     length: Int = POCodeField.LengthMax,
-    alignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     isError: Boolean = false,
     isFocused: Boolean = false,
     lifecycleEvent: Lifecycle.Event? = null,
@@ -55,7 +55,7 @@ fun POCodeField(
             .focusGroup(),
         horizontalArrangement = Arrangement.spacedBy(
             space = ProcessOutTheme.spacing.small,
-            alignment = alignment
+            alignment = horizontalAlignment
         ),
         verticalAlignment = Alignment.CenterVertically
     ) {

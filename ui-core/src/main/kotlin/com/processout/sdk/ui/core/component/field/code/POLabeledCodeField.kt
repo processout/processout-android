@@ -24,7 +24,7 @@ fun POLabeledCodeField(
     fieldStyle: POField.Style = POCodeField.default,
     labelsStyle: POFieldLabels.Style = POFieldLabels.default,
     length: Int = POCodeField.LengthMax,
-    alignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     isError: Boolean = false,
     isFocused: Boolean = false,
     lifecycleEvent: Lifecycle.Event? = null,
@@ -34,7 +34,8 @@ fun POLabeledCodeField(
     LabeledFieldLayout(
         title = title,
         description = description,
-        style = labelsStyle
+        style = labelsStyle,
+        horizontalAlignment = horizontalAlignment
     ) {
         POCodeField(
             value = value,
@@ -42,7 +43,7 @@ fun POLabeledCodeField(
             modifier = modifier,
             style = fieldStyle,
             length = length,
-            alignment = alignment,
+            horizontalAlignment = horizontalAlignment,
             isError = isError,
             isFocused = isFocused,
             lifecycleEvent = lifecycleEvent,
