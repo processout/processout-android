@@ -77,7 +77,7 @@ fun POCodeField(
             )
         ) {
             val focusManager = LocalFocusManager.current
-            for (textFieldIndex in 0..values.lastIndex) {
+            for (textFieldIndex in values.indices) {
                 val focusRequester = remember { FocusRequester() }
                 POTextField(
                     value = values.getOrNull(textFieldIndex) ?: TextFieldValue(),
