@@ -109,7 +109,7 @@ fun POCodeField(
                                             selection = TextRange(nextText.length)
                                         )
                                     } else {
-                                        textFieldValue.copy()
+                                        textFieldValue.copy(selection = TextRange.Zero)
                                     }
                                 }
                             }
@@ -126,7 +126,7 @@ fun POCodeField(
                                             if (index == textFieldIndex - 1) {
                                                 TextFieldValue()
                                             } else {
-                                                textFieldValue.copy()
+                                                textFieldValue.copy(selection = TextRange.Zero)
                                             }
                                         }
                                         focusManager.moveFocus(FocusDirection.Previous)
