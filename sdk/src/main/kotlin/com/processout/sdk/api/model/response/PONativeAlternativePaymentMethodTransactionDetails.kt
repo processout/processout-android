@@ -22,7 +22,9 @@ data class PONativeAlternativePaymentMethodTransactionDetails(
     val state: PONativeAlternativePaymentMethodState?,
     val gateway: Gateway,
     val invoice: Invoice,
-    val parameters: List<PONativeAlternativePaymentMethodParameter>?
+    val parameters: List<PONativeAlternativePaymentMethodParameter>?,
+    @Json(name = "parameter_values")
+    val parameterValues: PONativeAlternativePaymentMethodParameterValues?
 ) {
 
     /**
