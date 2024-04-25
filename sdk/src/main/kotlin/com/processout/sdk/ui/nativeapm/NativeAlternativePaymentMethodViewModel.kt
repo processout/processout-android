@@ -27,6 +27,7 @@ import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequ
 import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType.*
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodState.*
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.POFailure.Code.*
@@ -325,7 +326,7 @@ internal class NativeAlternativePaymentMethodViewModel(
         coroutineScope: CoroutineScope
     ) {
         when (success.value.state) {
-            PONativeAlternativePaymentMethodState.CUSTOMER_INPUT -> {
+            CUSTOMER_INPUT -> {
                 val parameters = success.value.parameterDefinitions
                 if (parameters.isNullOrEmpty()) {
                     _uiState.value = Failure(
@@ -339,10 +340,13 @@ internal class NativeAlternativePaymentMethodViewModel(
                 }
                 handleCustomerInput(parameters, uiModel)
             }
-            PONativeAlternativePaymentMethodState.PENDING_CAPTURE ->
-                handlePendingCapture(uiModel, coroutineScope, success.value.parameterValues)
-            PONativeAlternativePaymentMethodState.CAPTURED ->
-                handleCaptured(uiModel)
+            PENDING_CAPTURE -> handlePendingCapture(uiModel, coroutineScope, success.value.parameterValues)
+            CAPTURED -> handleCaptured(uiModel)
+            FAILED -> handlePaymentFailure(
+                ProcessOutResult.Failure(Generic(), "Payment has failed."),
+                uiModel,
+                replaceToLocalMessage = false
+            )
         }
     }
 
@@ -521,8 +525,7 @@ internal class NativeAlternativePaymentMethodViewModel(
     private fun isCaptureRetryable(
         result: ProcessOutResult<PONativeAlternativePaymentMethodCapture>
     ) = when (result) {
-        is ProcessOutResult.Success ->
-            result.value.state != PONativeAlternativePaymentMethodState.CAPTURED
+        is ProcessOutResult.Success -> result.value.state != CAPTURED
         is ProcessOutResult.Failure -> {
             val retryableCodes = listOf(
                 NetworkUnreachable,

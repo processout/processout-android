@@ -14,5 +14,8 @@ enum class PONativeAlternativePaymentMethodState {
     PENDING_CAPTURE,
 
     /** Invoice is captured. */
-    CAPTURED
+    CAPTURED,
+
+    /** Payment has failed. */
+    FAILED
 }
