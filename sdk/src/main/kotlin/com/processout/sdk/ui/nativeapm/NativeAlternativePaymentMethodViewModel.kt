@@ -247,7 +247,7 @@ internal class NativeAlternativePaymentMethodViewModel(
                     "Invalid fields.",
                     invalidFields
                 )
-                handlePaymentFailure(failure, uiModel, replaceToLocalMessage = false)
+                handlePaymentFailure(uiModel, failure, replaceToLocalMessage = false)
                 return@doWhenUserInput
             }
 
@@ -312,7 +312,7 @@ internal class NativeAlternativePaymentMethodViewModel(
                     )
                 }
                 is ProcessOutResult.Failure -> handlePaymentFailure(
-                    result, uiModel, replaceToLocalMessage = true
+                    uiModel, result, replaceToLocalMessage = true
                 )
             }
         }
@@ -328,11 +328,11 @@ internal class NativeAlternativePaymentMethodViewModel(
     ) {
         when (state) {
             CUSTOMER_INPUT, null -> handleCustomerInput(uiModel, parameters, isInitial)
-            PENDING_CAPTURE -> handlePendingCapture(uiModel, coroutineScope, parameterValues)
+            PENDING_CAPTURE -> handlePendingCapture(uiModel, parameterValues, coroutineScope)
             CAPTURED -> handleCaptured(uiModel)
             FAILED -> handlePaymentFailure(
-                ProcessOutResult.Failure(Generic(), "Payment has failed."),
                 uiModel,
+                ProcessOutResult.Failure(Generic(), "Payment has failed."),
                 replaceToLocalMessage = false
             )
         }
@@ -382,8 +382,8 @@ internal class NativeAlternativePaymentMethodViewModel(
 
     private suspend fun handlePendingCapture(
         uiModel: NativeAlternativePaymentMethodUiModel,
-        coroutineScope: CoroutineScope,
-        parameterValues: PONativeAlternativePaymentMethodParameterValues?
+        parameterValues: PONativeAlternativePaymentMethodParameterValues?,
+        coroutineScope: CoroutineScope
     ) {
         _uiState.value = Submitted(uiModel.copy(isSubmitting = false))
         dispatch(DidSubmitParameters(additionalParametersExpected = false))
@@ -403,7 +403,7 @@ internal class NativeAlternativePaymentMethodViewModel(
                     additionalActionExpected = updatedUiModel.showCustomerAction()
                 )
             )
-            preloadAllImages(coroutineScope, updatedUiModel)
+            preloadAllImages(updatedUiModel, coroutineScope)
 
             animateViewTransition = true
             _uiState.value = Capture(updatedUiModel)
@@ -434,8 +434,8 @@ internal class NativeAlternativePaymentMethodViewModel(
     }
 
     private fun handlePaymentFailure(
-        failure: ProcessOutResult.Failure,
         uiModel: NativeAlternativePaymentMethodUiModel,
+        failure: ProcessOutResult.Failure,
         replaceToLocalMessage: Boolean // TODO: Delete this when backend localisation is done.
     ) {
         if (failure.invalidFields.isNullOrEmpty()) {
@@ -543,8 +543,8 @@ internal class NativeAlternativePaymentMethodViewModel(
     }
 
     private suspend fun preloadAllImages(
-        coroutineScope: CoroutineScope,
-        uiModel: NativeAlternativePaymentMethodUiModel
+        uiModel: NativeAlternativePaymentMethodUiModel,
+        coroutineScope: CoroutineScope
     ) {
         val deferreds = mutableListOf<Deferred<ImageResult>>()
         uiModel.logoUrl?.let {
