@@ -120,26 +120,15 @@ internal class NativeAlternativePaymentMethodViewModel(
                 invoiceId, gatewayConfigurationId
             )
             when (result) {
-                is ProcessOutResult.Success -> {
-                    val parameters = result.value.parameters
-                    if (parameters.isNullOrEmpty()) {
-                        _uiState.value = Failure(
-                            ProcessOutResult.Failure(
-                                Internal(), "Input field parameters is missing in response."
-                            ).also {
-                                POLogger.warn("Invalid transaction details: %s", it, attributes = logAttributes)
-                            }
-                        )
-                        return@launch
-                    }
-                    if (handleInvalidInputParameters(parameters)) return@launch
-
-                    val uiModel = result.value.toUiModel()
-                    _uiState.value = Loaded(uiModel)
-
-                    if (eventDispatcher.subscribedForDefaultValuesRequest())
-                        requestDefaultValues(parameters)
-                    else startUserInput(uiModel)
+                is ProcessOutResult.Success -> with(result.value) {
+                    handleState(
+                        toUiModel(),
+                        state,
+                        parameters,
+                        parameterValues,
+                        isInitial = true,
+                        coroutineScope = this@launch
+                    )
                 }
                 is ProcessOutResult.Failure -> _uiState.value = Failure(
                     result.copy().also { POLogger.info("Failed to fetch transaction details: %s", it) }
@@ -312,7 +301,16 @@ internal class NativeAlternativePaymentMethodViewModel(
                 invoiceId, gatewayConfigurationId, data
             )
             when (val result = invoicesService.initiatePayment(request)) {
-                is ProcessOutResult.Success -> handlePaymentSuccess(result, uiModel, coroutineScope = this)
+                is ProcessOutResult.Success -> with(result.value) {
+                    handleState(
+                        uiModel,
+                        state,
+                        parameterDefinitions,
+                        parameterValues,
+                        isInitial = false,
+                        coroutineScope = this@launch
+                    )
+                }
                 is ProcessOutResult.Failure -> handlePaymentFailure(
                     result, uiModel, replaceToLocalMessage = true
                 )
@@ -320,27 +318,17 @@ internal class NativeAlternativePaymentMethodViewModel(
         }
     }
 
-    private suspend fun handlePaymentSuccess(
-        success: ProcessOutResult.Success<PONativeAlternativePaymentMethod>,
+    private suspend fun handleState(
         uiModel: NativeAlternativePaymentMethodUiModel,
+        state: PONativeAlternativePaymentMethodState?,
+        parameters: List<PONativeAlternativePaymentMethodParameter>?,
+        parameterValues: PONativeAlternativePaymentMethodParameterValues?,
+        isInitial: Boolean,
         coroutineScope: CoroutineScope
     ) {
-        when (success.value.state) {
-            CUSTOMER_INPUT -> {
-                val parameters = success.value.parameterDefinitions
-                if (parameters.isNullOrEmpty()) {
-                    _uiState.value = Failure(
-                        ProcessOutResult.Failure(
-                            Internal(), "Input field parameters is missing in response."
-                        ).also {
-                            POLogger.warn("Invalid customer input parameters: %s", it, attributes = logAttributes)
-                        }
-                    )
-                    return
-                }
-                handleCustomerInput(parameters, uiModel)
-            }
-            PENDING_CAPTURE -> handlePendingCapture(uiModel, coroutineScope, success.value.parameterValues)
+        when (state) {
+            CUSTOMER_INPUT, null -> handleCustomerInput(uiModel, parameters, isInitial)
+            PENDING_CAPTURE -> handlePendingCapture(uiModel, coroutineScope, parameterValues)
             CAPTURED -> handleCaptured(uiModel)
             FAILED -> handlePaymentFailure(
                 ProcessOutResult.Failure(Generic(), "Payment has failed."),
@@ -351,19 +339,37 @@ internal class NativeAlternativePaymentMethodViewModel(
     }
 
     private fun handleCustomerInput(
-        parameters: List<PONativeAlternativePaymentMethodParameter>,
-        uiModel: NativeAlternativePaymentMethodUiModel
+        uiModel: NativeAlternativePaymentMethodUiModel,
+        parameters: List<PONativeAlternativePaymentMethodParameter>?,
+        isInitial: Boolean
     ) {
-        if (handleInvalidInputParameters(parameters)) return
+        if (parameters.isNullOrEmpty()) {
+            _uiState.value = Failure(
+                ProcessOutResult.Failure(
+                    Internal(), "Customer input parameters is missing in response."
+                ).also { POLogger.warn("%s", it, attributes = logAttributes) }
+            )
+            return
+        }
+        if (handleInvalidInputParameters(parameters)) {
+            return
+        }
         val updatedUiModel = uiModel.copy(
             inputParameters = parameters.toInputParameters(),
             focusedInputId = View.NO_ID
         )
-        _uiState.value = Submitted(updatedUiModel)
-
-        if (eventDispatcher.subscribedForDefaultValuesRequest())
+        if (isInitial) {
+            _uiState.value = Loaded(updatedUiModel)
+        } else {
+            _uiState.value = Submitted(updatedUiModel)
+        }
+        if (eventDispatcher.subscribedForDefaultValuesRequest()) {
             requestDefaultValues(parameters)
-        else continueUserInput(updatedUiModel)
+        } else if (isInitial) {
+            startUserInput(updatedUiModel)
+        } else {
+            continueUserInput(updatedUiModel)
+        }
     }
 
     private fun continueUserInput(uiModel: NativeAlternativePaymentMethodUiModel) {
