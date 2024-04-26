@@ -137,13 +137,57 @@ internal class NativeAlternativePaymentMethodViewModel(
         }
     }
 
-    private fun startUserInput(uiModel: NativeAlternativePaymentMethodUiModel) {
-        _uiState.value = UserInput(uiModel.copy())
-        uiModel.secondaryAction?.let {
-            scheduleSecondaryActionEnabling(it) { enableSecondaryAction() }
+    private suspend fun handleState(
+        uiModel: NativeAlternativePaymentMethodUiModel,
+        state: PONativeAlternativePaymentMethodState?,
+        parameters: List<PONativeAlternativePaymentMethodParameter>?,
+        parameterValues: PONativeAlternativePaymentMethodParameterValues?,
+        isInitial: Boolean,
+        coroutineScope: CoroutineScope
+    ) {
+        when (state) {
+            CUSTOMER_INPUT, null -> handleCustomerInput(uiModel, parameters, isInitial)
+            PENDING_CAPTURE -> handlePendingCapture(uiModel, parameterValues, coroutineScope)
+            CAPTURED -> handleCaptured(uiModel)
+            FAILED -> _uiState.value = Failure(
+                ProcessOutResult.Failure(Generic(), "Payment has failed.")
+                    .also { POLogger.info("%s", it, attributes = logAttributes) }
+            )
         }
-        dispatch(DidStart)
-        POLogger.info("Started. Waiting for payment parameters.")
+    }
+
+    private fun handleCustomerInput(
+        uiModel: NativeAlternativePaymentMethodUiModel,
+        parameters: List<PONativeAlternativePaymentMethodParameter>?,
+        isInitial: Boolean
+    ) {
+        if (parameters.isNullOrEmpty()) {
+            _uiState.value = Failure(
+                ProcessOutResult.Failure(
+                    Internal(), "Customer input parameters is missing in response."
+                ).also { POLogger.warn("%s", it, attributes = logAttributes) }
+            )
+            return
+        }
+        if (handleInvalidInputParameters(parameters)) {
+            return
+        }
+        val updatedUiModel = uiModel.copy(
+            inputParameters = parameters.toInputParameters(),
+            focusedInputId = View.NO_ID
+        )
+        if (isInitial) {
+            _uiState.value = Loaded(updatedUiModel)
+        } else {
+            _uiState.value = Submitted(updatedUiModel)
+        }
+        if (eventDispatcher.subscribedForDefaultValuesRequest()) {
+            requestDefaultValues(parameters)
+        } else if (isInitial) {
+            startUserInput(updatedUiModel)
+        } else {
+            continueUserInput(updatedUiModel)
+        }
     }
 
     private fun handleInvalidInputParameters(
@@ -158,6 +202,23 @@ internal class NativeAlternativePaymentMethodViewModel(
             return true
         }
         return false
+    }
+
+    private fun startUserInput(uiModel: NativeAlternativePaymentMethodUiModel) {
+        _uiState.value = UserInput(uiModel.copy())
+        uiModel.secondaryAction?.let {
+            scheduleSecondaryActionEnabling(it) { enableSecondaryAction() }
+        }
+        dispatch(DidStart)
+        POLogger.info("Started. Waiting for payment parameters.")
+    }
+
+    private fun continueUserInput(uiModel: NativeAlternativePaymentMethodUiModel) {
+        _uiState.value = UserInput(
+            uiModel.copy(isSubmitting = false)
+        )
+        dispatch(DidSubmitParameters(additionalParametersExpected = true))
+        POLogger.info("Submitted. Waiting for additional payment parameters.")
     }
 
     private fun requestDefaultValues(parameters: List<PONativeAlternativePaymentMethodParameter>) {
@@ -316,67 +377,6 @@ internal class NativeAlternativePaymentMethodViewModel(
                 )
             }
         }
-    }
-
-    private suspend fun handleState(
-        uiModel: NativeAlternativePaymentMethodUiModel,
-        state: PONativeAlternativePaymentMethodState?,
-        parameters: List<PONativeAlternativePaymentMethodParameter>?,
-        parameterValues: PONativeAlternativePaymentMethodParameterValues?,
-        isInitial: Boolean,
-        coroutineScope: CoroutineScope
-    ) {
-        when (state) {
-            CUSTOMER_INPUT, null -> handleCustomerInput(uiModel, parameters, isInitial)
-            PENDING_CAPTURE -> handlePendingCapture(uiModel, parameterValues, coroutineScope)
-            CAPTURED -> handleCaptured(uiModel)
-            FAILED -> _uiState.value = Failure(
-                ProcessOutResult.Failure(Generic(), "Payment has failed.")
-                    .also { POLogger.info("%s", it, attributes = logAttributes) }
-            )
-        }
-    }
-
-    private fun handleCustomerInput(
-        uiModel: NativeAlternativePaymentMethodUiModel,
-        parameters: List<PONativeAlternativePaymentMethodParameter>?,
-        isInitial: Boolean
-    ) {
-        if (parameters.isNullOrEmpty()) {
-            _uiState.value = Failure(
-                ProcessOutResult.Failure(
-                    Internal(), "Customer input parameters is missing in response."
-                ).also { POLogger.warn("%s", it, attributes = logAttributes) }
-            )
-            return
-        }
-        if (handleInvalidInputParameters(parameters)) {
-            return
-        }
-        val updatedUiModel = uiModel.copy(
-            inputParameters = parameters.toInputParameters(),
-            focusedInputId = View.NO_ID
-        )
-        if (isInitial) {
-            _uiState.value = Loaded(updatedUiModel)
-        } else {
-            _uiState.value = Submitted(updatedUiModel)
-        }
-        if (eventDispatcher.subscribedForDefaultValuesRequest()) {
-            requestDefaultValues(parameters)
-        } else if (isInitial) {
-            startUserInput(updatedUiModel)
-        } else {
-            continueUserInput(updatedUiModel)
-        }
-    }
-
-    private fun continueUserInput(uiModel: NativeAlternativePaymentMethodUiModel) {
-        _uiState.value = UserInput(
-            uiModel.copy(isSubmitting = false)
-        )
-        dispatch(DidSubmitParameters(additionalParametersExpected = true))
-        POLogger.info("Submitted. Waiting for additional payment parameters.")
     }
 
     private suspend fun handlePendingCapture(
