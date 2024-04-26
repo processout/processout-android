@@ -70,7 +70,7 @@ internal abstract class BaseRepository(
             try {
                 val response = apiMethod()
                 val isRetryable = when (response.code()) {
-                    408,
+                    408, 409, 425, 429,
                     in 500..599 -> true
                     else -> false
                 }
