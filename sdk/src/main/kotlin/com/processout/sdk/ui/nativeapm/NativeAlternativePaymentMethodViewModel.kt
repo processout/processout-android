@@ -330,10 +330,9 @@ internal class NativeAlternativePaymentMethodViewModel(
             CUSTOMER_INPUT, null -> handleCustomerInput(uiModel, parameters, isInitial)
             PENDING_CAPTURE -> handlePendingCapture(uiModel, parameterValues, coroutineScope)
             CAPTURED -> handleCaptured(uiModel)
-            FAILED -> handlePaymentFailure(
-                uiModel,
-                ProcessOutResult.Failure(Generic(), "Payment has failed."),
-                replaceToLocalMessage = false
+            FAILED -> _uiState.value = Failure(
+                ProcessOutResult.Failure(Generic(), "Payment has failed.")
+                    .also { POLogger.info("%s", it, attributes = logAttributes) }
             )
         }
     }
