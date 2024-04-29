@@ -36,6 +36,7 @@ import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.util.escapedMarkdown
 import com.processout.sdk.ui.nativeapm.NativeAlternativePaymentMethodUiState.*
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options
+import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options.Companion.DEFAULT_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options.Companion.MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.SecondaryAction
 import com.processout.sdk.ui.shared.model.InputParameter
@@ -85,7 +86,7 @@ internal class NativeAlternativePaymentMethodViewModel(
         private fun Options.validate() = copy(
             paymentConfirmationTimeoutSeconds =
             if (paymentConfirmationTimeoutSeconds in 0..MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS)
-                paymentConfirmationTimeoutSeconds else MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
+                paymentConfirmationTimeoutSeconds else DEFAULT_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
         )
     }
 
