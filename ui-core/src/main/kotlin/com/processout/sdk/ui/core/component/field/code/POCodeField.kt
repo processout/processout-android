@@ -62,7 +62,7 @@ fun POCodeField(
         verticalAlignment = Alignment.CenterVertically
     ) {
         val validLength by remember { mutableIntStateOf(validLength(length)) }
-        var values by remember { mutableStateOf(values(value, validLength)) }
+        var values by remember { mutableStateOf(values(value.text, validLength)) }
         var focusedIndex by remember { mutableIntStateOf(values.focusedIndex()) }
         val clipboardManager = LocalClipboardManager.current
         CompositionLocalProvider(
@@ -71,8 +71,8 @@ fun POCodeField(
                 onPasteRequested = {
                     if (clipboardManager.hasText()) {
                         val pastedValues = values(
-                            TextFieldValue(text = clipboardManager.getText()?.text ?: String()),
-                            validLength
+                            text = clipboardManager.getText()?.text ?: String(),
+                            length = validLength
                         )
                         if (!pastedValues.all { it.text.isEmpty() }) {
                             values = pastedValues
@@ -89,9 +89,9 @@ fun POCodeField(
                 val focusRequester = remember { FocusRequester() }
                 POTextField(
                     value = values.getOrNull(textFieldIndex) ?: TextFieldValue(),
-                    onValueChange = {
-                        if (it.selection.length == 0) {
-                            val filteredText = it.text.replace(Regex("\\D"), String())
+                    onValueChange = { updatedValue ->
+                        if (updatedValue.selection.length == 0) {
+                            val filteredText = updatedValue.text.filter { it.isDigit() }
                             values = values.mapIndexed { valueIndex, textFieldValue ->
                                 if (valueIndex == textFieldIndex) {
                                     val updatedText = filteredText.firstOrNull()?.toString() ?: String()
@@ -101,14 +101,17 @@ fun POCodeField(
                                         selection = if (isTextChanged) {
                                             TextRange(updatedText.length)
                                         } else {
-                                            it.selection
+                                            updatedValue.selection
                                         }
                                     )
                                 } else {
                                     textFieldValue.copy(selection = TextRange.Zero)
                                 }
                             }
-                            if (textFieldIndex != values.lastIndex && filteredText.length == 2 && it.selection.start == 2) {
+                            if (textFieldIndex != values.lastIndex &&
+                                filteredText.length == 2 &&
+                                updatedValue.selection.start == 2
+                            ) {
                                 val nextText = filteredText.last().toString()
                                 values = values.mapIndexed { index, textFieldValue ->
                                     if (index == textFieldIndex + 1) {
@@ -174,32 +177,19 @@ fun POCodeField(
 }
 
 private fun values(
-    value: TextFieldValue,
+    text: String,
     length: Int
 ): List<TextFieldValue> {
-    val values = if (value.text.isEmpty()) {
-        val emptyValues = mutableListOf<TextFieldValue>()
-        while (emptyValues.size < length) {
-            emptyValues.add(TextFieldValue())
-        }
-        emptyValues
-    } else {
-        val filteredText = value.text.replace(Regex("\\D"), String()).take(length)
-        val values = filteredText.map {
-            val text = it.toString()
-            TextFieldValue(
-                text = text,
-                selection = TextRange(text.length)
-            )
-        }
-        val emptyValues = mutableListOf<TextFieldValue>()
-        if (values.size < length) {
-            val lengthDiff = length - values.size
-            while (emptyValues.size < lengthDiff) {
-                emptyValues.add(TextFieldValue())
-            }
-        }
-        values + emptyValues
+    val values = mutableListOf<TextFieldValue>()
+    while (values.size < length) {
+        values.add(TextFieldValue())
+    }
+    val filteredText = text.filter { it.isDigit() }.take(length)
+    filteredText.forEachIndexed { index, char ->
+        values[index] = TextFieldValue(
+            text = char.toString(),
+            selection = TextRange(char.toString().length)
+        )
     }
     return values
 }
