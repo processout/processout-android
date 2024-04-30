@@ -33,9 +33,12 @@ import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.POFailure.Code.*
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
+import com.processout.sdk.core.retry.RetryStrategy
+import com.processout.sdk.core.retry.RetryStrategy.Exponential
 import com.processout.sdk.core.util.escapedMarkdown
 import com.processout.sdk.ui.nativeapm.NativeAlternativePaymentMethodUiState.*
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options
+import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options.Companion.DEFAULT_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options.Companion.MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.SecondaryAction
 import com.processout.sdk.ui.shared.model.InputParameter
@@ -55,6 +58,7 @@ internal class NativeAlternativePaymentMethodViewModel(
     private val invoiceId: String,
     private val invoicesService: POInvoicesService,
     private val eventDispatcher: DefaultNativeAlternativePaymentMethodEventDispatcher,
+    private val captureRetryStrategy: RetryStrategy,
     val options: Options,
     val logAttributes: Map<String, String>
 ) : AndroidViewModel(app) {
@@ -74,6 +78,13 @@ internal class NativeAlternativePaymentMethodViewModel(
                     invoiceId = invoiceId,
                     invoicesService = invoices,
                     eventDispatcher = DefaultNativeAlternativePaymentMethodEventDispatcher,
+                    captureRetryStrategy = Exponential(
+                        maxRetries = Int.MAX_VALUE,
+                        initialDelay = 150,
+                        minDelay = 3 * 1000,
+                        maxDelay = 90 * 1000,
+                        factor = 1.45
+                    ),
                     options = options.validate(),
                     logAttributes = mapOf(
                         LOG_ATTRIBUTE_INVOICE_ID to invoiceId,
@@ -85,22 +96,22 @@ internal class NativeAlternativePaymentMethodViewModel(
         private fun Options.validate() = copy(
             paymentConfirmationTimeoutSeconds =
             if (paymentConfirmationTimeoutSeconds in 0..MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS)
-                paymentConfirmationTimeoutSeconds else MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
+                paymentConfirmationTimeoutSeconds else DEFAULT_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
         )
     }
 
     companion object {
-        private const val CAPTURE_POLLING_DELAY_MS = 3000L
         private const val LOG_ATTRIBUTE_INVOICE_ID = "InvoiceId"
         private const val LOG_ATTRIBUTE_GATEWAY_CONFIGURATION_ID = "GatewayConfigurationId"
     }
-
-    private var capturePollingStartTimestamp = 0L
 
     private val _uiState = MutableStateFlow<NativeAlternativePaymentMethodUiState>(Loading)
     val uiState = _uiState.asStateFlow()
 
     var animateViewTransition = true
+
+    private var captureStartTimestamp = 0L
+    private var capturePassedTimestamp = 0L
 
     private val handler by lazy { Handler(Looper.getMainLooper()) }
 
@@ -416,7 +427,7 @@ internal class NativeAlternativePaymentMethodViewModel(
                 scheduleSecondaryActionEnabling(it) { enablePaymentConfirmationSecondaryAction() }
             }
 
-            startCapturePolling()
+            capture()
             return
         }
         _uiState.value = Success(uiModel.copy())
@@ -480,50 +491,46 @@ internal class NativeAlternativePaymentMethodViewModel(
         }
     else originalMessage
 
-    private fun startCapturePolling() {
-        if (capturePollingStartTimestamp == 0L) {
-            capturePollingStartTimestamp = System.currentTimeMillis()
-            capture()
-        }
-    }
-
     private fun capture() {
+        if (captureStartTimestamp != 0L) {
+            return
+        }
         viewModelScope.launch {
-            val timePassed = System.currentTimeMillis() - capturePollingStartTimestamp
-            if (timePassed >= options.paymentConfirmationTimeoutSeconds * 1000) {
-                capturePollingStartTimestamp = 0L
-                _uiState.value = Failure(
-                    ProcessOutResult.Failure(
-                        Timeout(), "Payment confirmation timed out."
-                    ).also {
-                        POLogger.warn("Failed to capture invoice: %s", it, attributes = logAttributes)
-                    }
-                )
-                return@launch
-            }
-
-            val result = invoicesService.captureNativeAlternativePayment(invoiceId, gatewayConfigurationId)
-            POLogger.debug("Attempted to capture invoice.")
-            if (isCaptureRetryable(result)) {
-                delay(CAPTURE_POLLING_DELAY_MS)
-                capture()
-                return@launch
-            }
-
-            capturePollingStartTimestamp = 0L
-            when (result) {
-                is ProcessOutResult.Success ->
-                    _uiState.value.doWhenCapture { uiModel ->
-                        handleCaptured(uiModel)
-                    }
-                is ProcessOutResult.Failure ->
-                    _uiState.value = Failure(
-                        result.copy()
-                            .also {
-                                POLogger.error("Failed to capture invoice: %s", it, attributes = logAttributes)
+            captureStartTimestamp = System.currentTimeMillis()
+            val iterator = captureRetryStrategy.iterator
+            while (capturePassedTimestamp < options.paymentConfirmationTimeoutSeconds * 1000) {
+                val result = invoicesService.captureNativeAlternativePayment(invoiceId, gatewayConfigurationId)
+                POLogger.debug("Attempted to capture invoice.")
+                if (isCaptureRetryable(result)) {
+                    delay(iterator.next())
+                    capturePassedTimestamp = System.currentTimeMillis() - captureStartTimestamp
+                } else {
+                    captureStartTimestamp = 0L
+                    capturePassedTimestamp = 0L
+                    when (result) {
+                        is ProcessOutResult.Success ->
+                            _uiState.value.doWhenCapture { uiModel ->
+                                handleCaptured(uiModel)
                             }
-                    )
+                        is ProcessOutResult.Failure ->
+                            _uiState.value = Failure(
+                                result.also {
+                                    POLogger.error("Failed to capture invoice: %s", it, attributes = logAttributes)
+                                }
+                            )
+                    }
+                    return@launch
+                }
             }
+            captureStartTimestamp = 0L
+            capturePassedTimestamp = 0L
+            _uiState.value = Failure(
+                ProcessOutResult.Failure(
+                    Timeout(), "Payment confirmation timed out."
+                ).also {
+                    POLogger.warn("Failed to capture invoice: %s", it, attributes = logAttributes)
+                }
+            )
         }
     }
 

@@ -43,7 +43,7 @@ data class PONativeAlternativePaymentMethodConfiguration(
      * @param[waitsPaymentConfirmation] Specifies whether flow should wait for payment confirmation from PSP
      * or will complete right after all user’s input is submitted. Default value is _true_.
      * @param[paymentConfirmationTimeoutSeconds] Amount of time (in seconds) to wait for final payment confirmation.
-     * Maximum value is 180 seconds, this is a default.
+     * Default value is 3 minutes, while maximum value is 15 minutes.
      * @param[paymentConfirmationSecondaryAction] Action that could be optionally presented to user during payment confirmation stage.
      * To hide action use _null_, this is a default behaviour.
      * @param[showPaymentConfirmationProgressIndicatorAfterSeconds] Show progress indicator during payment confirmation after provided delay (in seconds).
@@ -59,12 +59,13 @@ data class PONativeAlternativePaymentMethodConfiguration(
         val successMessage: String? = null,
         val skipSuccessScreen: Boolean = false,
         val waitsPaymentConfirmation: Boolean = true,
-        val paymentConfirmationTimeoutSeconds: Int = MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS,
+        val paymentConfirmationTimeoutSeconds: Int = DEFAULT_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS,
         val paymentConfirmationSecondaryAction: SecondaryAction? = null,
         val showPaymentConfirmationProgressIndicatorAfterSeconds: Int? = null
     ) : Parcelable {
         companion object {
-            const val MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS = 180
+            const val MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS = 15 * 60
+            const val DEFAULT_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS = 3 * 60
         }
     }
 
