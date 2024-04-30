@@ -82,18 +82,30 @@
         android:layout_height="@dimen/po_borderWidth"
         android:layout_marginBottom="@dimen/button_marginVertical"
         android:background="@color/po_border_subtle"
-        app:layout_constraintBottom_toTopOf="@+id/create_invoice_button"
+        app:layout_constraintBottom_toTopOf="@id/launch_native_apm_button"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
 
     <Button
-        android:id="@+id/create_invoice_button"
+        android:id="@+id/launch_native_apm_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/content_padding"
+        android:layout_marginEnd="@dimen/content_padding"
+        android:layout_marginBottom="@dimen/button_space_vertical"
+        android:text="@string/launch_native_apm"
+        app:layout_constraintBottom_toTopOf="@id/launch_native_apm_compose_button"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <Button
+        android:id="@+id/launch_native_apm_compose_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/content_padding"
         android:layout_marginEnd="@dimen/content_padding"
         android:layout_marginBottom="@dimen/button_marginVertical"
-        android:text="@string/create_invoice"
+        android:text="@string/launch_native_apm_compose"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
