@@ -3,13 +3,19 @@
 
     <application>
         <activity
-            android:name=".card.update.CardUpdateActivity"
+            android:name=".napm.NativeAlternativePaymentActivity"
             android:exported="false"
             android:launchMode="singleTop"
             android:theme="@style/Theme.ProcessOut.BottomSheet" />
 
         <activity
             android:name=".card.tokenization.CardTokenizationActivity"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.ProcessOut.BottomSheet" />
+
+        <activity
+            android:name=".card.update.CardUpdateActivity"
             android:exported="false"
             android:launchMode="singleTop"
             android:theme="@style/Theme.ProcessOut.BottomSheet" />
