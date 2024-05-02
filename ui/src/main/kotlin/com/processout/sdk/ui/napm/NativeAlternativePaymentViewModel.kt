@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.processout.sdk.api.ProcessOut
+import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractor.Companion.LOG_ATTRIBUTE_GATEWAY_CONFIGURATION_ID
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractor.Companion.LOG_ATTRIBUTE_INVOICE_ID
 import com.processout.sdk.ui.shared.extension.map
@@ -49,7 +50,19 @@ internal class NativeAlternativePaymentViewModel(
 
     private fun map(state: NativeAlternativePaymentInteractorState) = with(configuration) {
         NativeAlternativePaymentViewModelState(
-            focusedFieldId = state.focusedFieldId
+            title = "Title",
+            focusedFieldId = state.focusedFieldId,
+            primaryAction = POActionState(
+                id = state.primaryActionId,
+                text = "Submit",
+                primary = true
+            ),
+            secondaryAction = POActionState(
+                id = state.secondaryActionId,
+                text = "Cancel",
+                primary = false
+            ),
+            draggable = true
         )
     }
 }

@@ -35,7 +35,9 @@ internal class NativeAlternativePaymentInteractor(
     val state = _state.asStateFlow()
 
     private fun initState() = NativeAlternativePaymentInteractorState(
-        focusedFieldId = null
+        focusedFieldId = null,
+        primaryActionId = ActionId.SUBMIT,
+        secondaryActionId = ActionId.CANCEL
     )
 
     fun onEvent(event: NativeAlternativePaymentEvent) {
