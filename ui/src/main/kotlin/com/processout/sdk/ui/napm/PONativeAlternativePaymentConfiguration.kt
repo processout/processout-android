@@ -2,11 +2,9 @@ package com.processout.sdk.ui.napm
 
 import android.os.Parcelable
 import androidx.annotation.ColorRes
+import androidx.annotation.DrawableRes
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
-import com.processout.sdk.ui.core.style.POActionsContainerStyle
-import com.processout.sdk.ui.core.style.PODropdownMenuStyle
-import com.processout.sdk.ui.core.style.POFieldStyle
-import com.processout.sdk.ui.core.style.POTextStyle
+import com.processout.sdk.ui.core.style.*
 import kotlinx.parcelize.Parcelize
 
 /**
@@ -110,15 +108,26 @@ data class PONativeAlternativePaymentConfiguration(
         }
     }
 
+    // TODO: KDoc
     @Parcelize
     data class Style(
         val title: POTextStyle? = null,
+        val label: POTextStyle? = null,
         val field: POFieldStyle? = null,
+        val codeField: POFieldStyle? = null,
+        val radioButton: PORadioButtonStyle? = null,
         val dropdownMenu: PODropdownMenuStyle? = null,
-        val errorMessage: POTextStyle? = null,
         val actionsContainer: POActionsContainerStyle? = null,
+        val background: POBackgroundStyle? = null,
+        val message: POTextStyle? = null,
+        val errorMessage: POTextStyle? = null,
+        val successMessage: POTextStyle? = null,
+        @DrawableRes
+        val successImageResId: Int? = null,
         @ColorRes
-        val backgroundColorResId: Int? = null,
+        val progressIndicatorColorResId: Int? = null,
+        @ColorRes
+        val controlsTintColorResId: Int? = null,
         @ColorRes
         val dividerColorResId: Int? = null,
         @ColorRes
