@@ -5,10 +5,13 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.Fragment
 import com.processout.sdk.core.POUnit
 import com.processout.sdk.core.ProcessOutActivityResult
+import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 
 /**
  * Launcher that starts [NativeAlternativePaymentActivity] and provides the result.
  */
+/** @suppress */
+@ProcessOutInternalApi
 class PONativeAlternativePaymentLauncher private constructor() {
 
     private lateinit var launcher: ActivityResultLauncher<PONativeAlternativePaymentConfiguration>
