@@ -5,7 +5,6 @@ import androidx.compose.runtime.Immutable
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.style.POTextStyle
-import com.processout.sdk.ui.core.theme.ProcessOutTheme
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -18,18 +17,10 @@ object POFieldLabels {
     )
 
     val default: Style
-        @Composable get() = with(ProcessOutTheme) {
-            Style(
-                title = POText.Style(
-                    color = colors.text.secondary,
-                    textStyle = typography.fixed.labelHeading
-                ),
-                description = POText.Style(
-                    color = colors.text.error,
-                    textStyle = typography.fixed.label
-                )
-            )
-        }
+        @Composable get() = Style(
+            title = POText.labelHeading,
+            description = POText.errorLabel
+        )
 
     @Composable
     fun custom(
