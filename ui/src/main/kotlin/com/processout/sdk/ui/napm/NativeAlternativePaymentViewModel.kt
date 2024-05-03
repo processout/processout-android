@@ -8,31 +8,35 @@ import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractor.Companion.LOG_ATTRIBUTE_GATEWAY_CONFIGURATION_ID
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractor.Companion.LOG_ATTRIBUTE_INVOICE_ID
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
 import com.processout.sdk.ui.shared.extension.map
 
 internal class NativeAlternativePaymentViewModel(
     private val app: Application,
-    private val configuration: PONativeAlternativePaymentConfiguration,
+    private val options: Options,
     private val interactor: NativeAlternativePaymentInteractor
 ) : ViewModel() {
 
     class Factory(
         private val app: Application,
-        private val configuration: PONativeAlternativePaymentConfiguration
+        private val invoiceId: String,
+        private val gatewayConfigurationId: String,
+        private val options: Options
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
             NativeAlternativePaymentViewModel(
                 app = app,
-                configuration = configuration,
+                options = options,
                 interactor = NativeAlternativePaymentInteractor(
                     app = app,
-                    gatewayConfigurationId = configuration.gatewayConfigurationId,
-                    invoiceId = configuration.invoiceId,
+                    invoiceId = invoiceId,
+                    gatewayConfigurationId = gatewayConfigurationId,
+                    options = options,
                     invoicesService = ProcessOut.instance.invoices,
                     logAttributes = mapOf(
-                        LOG_ATTRIBUTE_INVOICE_ID to configuration.invoiceId,
-                        LOG_ATTRIBUTE_GATEWAY_CONFIGURATION_ID to configuration.gatewayConfigurationId
+                        LOG_ATTRIBUTE_INVOICE_ID to invoiceId,
+                        LOG_ATTRIBUTE_GATEWAY_CONFIGURATION_ID to gatewayConfigurationId
                     )
                 )
             ) as T
@@ -48,7 +52,7 @@ internal class NativeAlternativePaymentViewModel(
 
     fun onEvent(event: NativeAlternativePaymentEvent) = interactor.onEvent(event)
 
-    private fun map(state: NativeAlternativePaymentInteractorState) = with(configuration) {
+    private fun map(state: NativeAlternativePaymentInteractorState) = with(options) {
         NativeAlternativePaymentViewModelState(
             title = "Title",
             focusedFieldId = state.focusedFieldId,

@@ -20,6 +20,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentActivityContract.Compa
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Failure
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Success
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.Dismiss
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
 import com.processout.sdk.ui.shared.composable.screenModeAsState
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import com.processout.sdk.ui.shared.extension.dpToPx
@@ -38,10 +39,9 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
     private val viewModel: NativeAlternativePaymentViewModel by viewModels {
         NativeAlternativePaymentViewModel.Factory(
             app = requireActivity().application,
-            configuration = configuration ?: PONativeAlternativePaymentConfiguration(
-                gatewayConfigurationId = String(),
-                invoiceId = String()
-            )
+            invoiceId = configuration?.invoiceId ?: String(),
+            gatewayConfigurationId = configuration?.gatewayConfigurationId ?: String(),
+            options = configuration?.options ?: Options()
         )
     }
 

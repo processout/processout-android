@@ -11,14 +11,16 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Awaiting
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Failure
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.ActionId
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 internal class NativeAlternativePaymentInteractor(
     private val app: Application,
-    private val gatewayConfigurationId: String,
     private val invoiceId: String,
+    private val gatewayConfigurationId: String,
+    private val options: Options,
     private val invoicesService: POInvoicesService,
     private val logAttributes: Map<String, String>
 ) : BaseInteractor() {
