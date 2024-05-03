@@ -1,5 +1,6 @@
 package com.processout.sdk.ui.napm
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,7 +20,9 @@ import com.processout.sdk.ui.core.component.POActionsContainer
 import com.processout.sdk.ui.core.component.POHeader
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
+import com.processout.sdk.ui.core.component.field.code.POCodeField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
+import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
@@ -36,7 +39,7 @@ internal fun NativeAlternativePaymentScreen(
         modifier = Modifier
             .nestedScroll(rememberNestedScrollInteropConnection())
             .clip(shape = ProcessOutTheme.shapes.topRoundedCornersLarge),
-        containerColor = style.backgroundColor,
+        containerColor = style.normalBackgroundColor,
         topBar = {
             POHeader(
                 modifier = Modifier.verticalScroll(rememberScrollState()),
@@ -95,11 +98,20 @@ internal object NativeAlternativePaymentScreen {
     @Immutable
     data class Style(
         val title: POText.Style,
+        val label: POText.Style,
         val field: POField.Style,
+        val codeField: POField.Style,
+        val radioGroup: PORadioGroup.Style,
         val dropdownMenu: PODropdownField.MenuStyle,
-        val errorMessage: POText.Style,
         val actionsContainer: POActionsContainer.Style,
-        val backgroundColor: Color,
+        val normalBackgroundColor: Color,
+        val successBackgroundColor: Color,
+        val message: POText.Style,
+        val errorMessage: POText.Style,
+        val successMessage: POText.Style,
+        @DrawableRes val successImageResId: Int?,
+        val progressIndicatorColor: Color,
+        val controlsTintColor: Color,
         val dividerColor: Color,
         val dragHandleColor: Color
     )
@@ -109,21 +121,52 @@ internal object NativeAlternativePaymentScreen {
         title = custom?.title?.let {
             POText.custom(style = it)
         } ?: POText.title,
+        label = custom?.label?.let {
+            POText.custom(style = it)
+        } ?: POText.labelHeading,
         field = custom?.field?.let {
             POField.custom(style = it)
         } ?: POField.default,
+        codeField = custom?.codeField?.let {
+            POField.custom(style = it)
+        } ?: POCodeField.default,
+        radioGroup = custom?.radioButton?.let {
+            PORadioGroup.custom(style = it)
+        } ?: PORadioGroup.default,
         dropdownMenu = custom?.dropdownMenu?.let {
             PODropdownField.custom(style = it)
         } ?: PODropdownField.defaultMenu,
-        errorMessage = custom?.errorMessage?.let {
-            POText.custom(style = it)
-        } ?: POText.errorLabel,
         actionsContainer = custom?.actionsContainer?.let {
             POActionsContainer.custom(style = it)
         } ?: POActionsContainer.default,
-        backgroundColor = custom?.backgroundColorResId?.let {
+        normalBackgroundColor = custom?.background?.normalColorResId?.let {
             colorResource(id = it)
         } ?: ProcessOutTheme.colors.surface.level1,
+        successBackgroundColor = custom?.background?.successColorResId?.let {
+            colorResource(id = it)
+        } ?: ProcessOutTheme.colors.surface.success,
+        message = custom?.message?.let {
+            POText.custom(style = it)
+        } ?: POText.Style(
+            color = ProcessOutTheme.colors.text.primary,
+            textStyle = ProcessOutTheme.typography.fixed.bodyCompact
+        ),
+        errorMessage = custom?.errorMessage?.let {
+            POText.custom(style = it)
+        } ?: POText.errorLabel,
+        successMessage = custom?.successMessage?.let {
+            POText.custom(style = it)
+        } ?: POText.Style(
+            color = ProcessOutTheme.colors.text.success,
+            textStyle = ProcessOutTheme.typography.fixed.body
+        ),
+        successImageResId = custom?.successImageResId,
+        progressIndicatorColor = custom?.progressIndicatorColorResId?.let {
+            colorResource(id = it)
+        } ?: ProcessOutTheme.colors.action.primaryDefault,
+        controlsTintColor = custom?.controlsTintColorResId?.let {
+            colorResource(id = it)
+        } ?: ProcessOutTheme.colors.action.primaryDefault,
         dividerColor = custom?.dividerColorResId?.let {
             colorResource(id = it)
         } ?: ProcessOutTheme.colors.border.subtle,
