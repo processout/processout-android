@@ -19,7 +19,7 @@ import coil.request.ImageRequest
 import coil.request.ImageResult
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
-import com.processout.sdk.api.dispatcher.nativeapm.DefaultNativeAlternativePaymentMethodEventDispatcher
+import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.*
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodDefaultValuesRequest
@@ -57,7 +57,7 @@ internal class NativeAlternativePaymentMethodViewModel(
     private val gatewayConfigurationId: String,
     private val invoiceId: String,
     private val invoicesService: POInvoicesService,
-    private val eventDispatcher: DefaultNativeAlternativePaymentMethodEventDispatcher,
+    private val eventDispatcher: PODefaultNativeAlternativePaymentMethodEventDispatcher,
     private val captureRetryStrategy: PORetryStrategy,
     val options: Options,
     val logAttributes: Map<String, String>
@@ -77,7 +77,7 @@ internal class NativeAlternativePaymentMethodViewModel(
                     gatewayConfigurationId = gatewayConfigurationId,
                     invoiceId = invoiceId,
                     invoicesService = invoices,
-                    eventDispatcher = DefaultNativeAlternativePaymentMethodEventDispatcher,
+                    eventDispatcher = PODefaultNativeAlternativePaymentMethodEventDispatcher,
                     captureRetryStrategy = Exponential(
                         maxRetries = Int.MAX_VALUE,
                         initialDelay = 150,
