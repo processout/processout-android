@@ -1,8 +1,11 @@
 package com.processout.sdk.core.retry
 
+import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import kotlin.math.roundToLong
 
-internal sealed class RetryStrategy(
+/** @suppress */
+@ProcessOutInternalApi
+sealed class PORetryStrategy(
     val maxRetries: Int,
     private val initialDelay: Long,
     private val minDelay: Long,
@@ -13,7 +16,7 @@ internal sealed class RetryStrategy(
     class Linear(
         maxRetries: Int,
         delay: Long
-    ) : RetryStrategy(
+    ) : PORetryStrategy(
         maxRetries = maxRetries,
         initialDelay = delay,
         minDelay = delay,
@@ -27,7 +30,7 @@ internal sealed class RetryStrategy(
         minDelay: Long = initialDelay,
         maxDelay: Long,
         factor: Double
-    ) : RetryStrategy(
+    ) : PORetryStrategy(
         maxRetries = maxRetries,
         initialDelay = initialDelay,
         minDelay = minDelay,

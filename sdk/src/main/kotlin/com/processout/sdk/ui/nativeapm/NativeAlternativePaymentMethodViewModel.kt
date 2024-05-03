@@ -33,8 +33,8 @@ import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.POFailure.Code.*
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
-import com.processout.sdk.core.retry.RetryStrategy
-import com.processout.sdk.core.retry.RetryStrategy.Exponential
+import com.processout.sdk.core.retry.PORetryStrategy
+import com.processout.sdk.core.retry.PORetryStrategy.Exponential
 import com.processout.sdk.core.util.escapedMarkdown
 import com.processout.sdk.ui.nativeapm.NativeAlternativePaymentMethodUiState.*
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options
@@ -58,7 +58,7 @@ internal class NativeAlternativePaymentMethodViewModel(
     private val invoiceId: String,
     private val invoicesService: POInvoicesService,
     private val eventDispatcher: DefaultNativeAlternativePaymentMethodEventDispatcher,
-    private val captureRetryStrategy: RetryStrategy,
+    private val captureRetryStrategy: PORetryStrategy,
     val options: Options,
     val logAttributes: Map<String, String>
 ) : AndroidViewModel(app) {

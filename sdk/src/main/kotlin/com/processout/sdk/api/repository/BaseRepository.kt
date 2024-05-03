@@ -7,8 +7,8 @@ import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.map
-import com.processout.sdk.core.retry.RetryStrategy
-import com.processout.sdk.core.retry.RetryStrategy.Exponential
+import com.processout.sdk.core.retry.PORetryStrategy
+import com.processout.sdk.core.retry.PORetryStrategy.Exponential
 import kotlinx.coroutines.*
 import retrofit2.Response
 import java.io.IOException
@@ -16,7 +16,7 @@ import java.net.SocketTimeoutException
 
 internal abstract class BaseRepository(
     private val failureMapper: ApiFailureMapper,
-    private val retryStrategy: RetryStrategy = Exponential(
+    private val retryStrategy: PORetryStrategy = Exponential(
         maxRetries = 4,
         initialDelay = 100,
         maxDelay = 1000,
@@ -63,7 +63,7 @@ internal abstract class BaseRepository(
 
     private suspend fun <T : Any> retry(
         apiMethod: suspend () -> Response<T>,
-        strategy: RetryStrategy
+        strategy: PORetryStrategy
     ): Response<T> {
         val iterator = strategy.iterator
         repeat(strategy.maxRetries - 1) {
