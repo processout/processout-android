@@ -12,10 +12,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.processout.sdk.core.POUnit
-import com.processout.sdk.core.ProcessOutActivityResult
-import com.processout.sdk.core.ProcessOutResult
-import com.processout.sdk.core.toActivityResult
+import com.processout.sdk.core.*
 import com.processout.sdk.ui.base.BaseBottomSheetDialogFragment
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.napm.NativeAlternativePaymentActivityContract.Companion.EXTRA_CONFIGURATION
@@ -52,6 +49,16 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
         super.onAttach(context)
         @Suppress("DEPRECATION")
         configuration = arguments?.getParcelable(EXTRA_CONFIGURATION)
+        configuration?.run {
+            if (invoiceId.isBlank() || gatewayConfigurationId.isBlank()) {
+                dismiss(
+                    ProcessOutResult.Failure(
+                        code = POFailure.Code.Generic(),
+                        message = "Invalid configuration."
+                    )
+                )
+            }
+        }
     }
 
     override fun onCreateView(
