@@ -24,6 +24,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Failure
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Success
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.Dismiss
 import com.processout.sdk.ui.shared.composable.screenModeAsState
+import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import com.processout.sdk.ui.shared.extension.dpToPx
 
 internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragment<POUnit>() {
@@ -75,6 +76,19 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
                     style = NativeAlternativePaymentScreen.style(custom = configuration?.style)
                 )
             }
+        }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        configuration?.options?.cancellation?.let {
+            apply(
+                POCancellationConfiguration(
+                    backPressed = it.backPressed,
+                    dragDown = it.dragDown,
+                    touchOutside = it.touchOutside
+                )
+            )
         }
     }
 
