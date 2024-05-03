@@ -8,12 +8,12 @@ import com.processout.sdk.api.dispatcher.card.update.POCardUpdateEventDispatcher
  */
 interface POEventDispatchers {
 
-    /** Dispatcher that allows to handle events during card updates. */
-    val cardUpdate: POCardUpdateEventDispatcher
+    /** Dispatcher that allows to handle events during native alternative payments. */
+    val nativeAlternativePaymentMethod: PONativeAlternativePaymentMethodEventDispatcher
 
     /** Dispatcher that allows to handle events during card tokenization. */
     val cardTokenization: POCardTokenizationEventDispatcher
 
-    /** Dispatcher that allows to handle events during native alternative payments. */
-    val nativeAlternativePaymentMethod: PONativeAlternativePaymentMethodEventDispatcher
+    /** Dispatcher that allows to handle events during card updates. */
+    val cardUpdate: POCardUpdateEventDispatcher
 }
