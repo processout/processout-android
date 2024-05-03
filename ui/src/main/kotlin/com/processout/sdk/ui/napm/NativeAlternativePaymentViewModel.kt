@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.processout.sdk.api.ProcessOut
+import com.processout.sdk.core.retry.PORetryStrategy.Exponential
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractor.Companion.LOG_ATTRIBUTE_GATEWAY_CONFIGURATION_ID
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractor.Companion.LOG_ATTRIBUTE_INVOICE_ID
@@ -36,6 +37,13 @@ internal class NativeAlternativePaymentViewModel(
                     gatewayConfigurationId = gatewayConfigurationId,
                     options = options.validated(),
                     invoicesService = ProcessOut.instance.invoices,
+                    captureRetryStrategy = Exponential(
+                        maxRetries = Int.MAX_VALUE,
+                        initialDelay = 150,
+                        minDelay = 3 * 1000,
+                        maxDelay = 90 * 1000,
+                        factor = 1.45
+                    ),
                     logAttributes = mapOf(
                         LOG_ATTRIBUTE_INVOICE_ID to invoiceId,
                         LOG_ATTRIBUTE_GATEWAY_CONFIGURATION_ID to gatewayConfigurationId

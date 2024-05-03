@@ -6,6 +6,7 @@ import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
+import com.processout.sdk.core.retry.PORetryStrategy
 import com.processout.sdk.ui.base.BaseInteractor
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Awaiting
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Failure
@@ -22,6 +23,7 @@ internal class NativeAlternativePaymentInteractor(
     private val gatewayConfigurationId: String,
     private val options: Options,
     private val invoicesService: POInvoicesService,
+    private val captureRetryStrategy: PORetryStrategy,
     private val logAttributes: Map<String, String>
 ) : BaseInteractor() {
 
