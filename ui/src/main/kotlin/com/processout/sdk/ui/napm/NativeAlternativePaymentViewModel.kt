@@ -76,7 +76,6 @@ internal class NativeAlternativePaymentViewModel(
     private fun map(state: NativeAlternativePaymentInteractorState) = with(options) {
         NativeAlternativePaymentViewModelState(
             title = "Title",
-            focusedFieldId = state.focusedFieldId,
             primaryAction = POActionState(
                 id = state.primaryActionId,
                 text = "Submit",
@@ -86,8 +85,7 @@ internal class NativeAlternativePaymentViewModel(
                 id = state.secondaryActionId,
                 text = "Cancel",
                 primary = false
-            ),
-            draggable = true
+            )
         )
     }
 }

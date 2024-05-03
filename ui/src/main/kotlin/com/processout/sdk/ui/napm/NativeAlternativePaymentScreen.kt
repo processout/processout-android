@@ -46,8 +46,7 @@ internal fun NativeAlternativePaymentScreen(
                 title = state.title,
                 style = style.title,
                 dividerColor = style.dividerColor,
-                dragHandleColor = style.dragHandleColor,
-                withDragHandle = state.draggable
+                dragHandleColor = style.dragHandleColor
             )
         },
         bottomBar = {
