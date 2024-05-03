@@ -2,6 +2,7 @@ package com.processout.sdk.ui.napm
 
 import android.app.Application
 import androidx.compose.ui.text.input.TextFieldValue
+import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
@@ -24,6 +25,7 @@ internal class NativeAlternativePaymentInteractor(
     private val options: Options,
     private val invoicesService: POInvoicesService,
     private val captureRetryStrategy: PORetryStrategy,
+    private val eventDispatcher: PODefaultNativeAlternativePaymentMethodEventDispatcher,
     private val logAttributes: Map<String, String>
 ) : BaseInteractor() {
 

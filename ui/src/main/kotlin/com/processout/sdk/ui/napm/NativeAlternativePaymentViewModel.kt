@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.processout.sdk.api.ProcessOut
+import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.core.retry.PORetryStrategy.Exponential
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractor.Companion.LOG_ATTRIBUTE_GATEWAY_CONFIGURATION_ID
@@ -44,6 +45,7 @@ internal class NativeAlternativePaymentViewModel(
                         maxDelay = 90 * 1000,
                         factor = 1.45
                     ),
+                    eventDispatcher = PODefaultNativeAlternativePaymentMethodEventDispatcher,
                     logAttributes = mapOf(
                         LOG_ATTRIBUTE_INVOICE_ID to invoiceId,
                         LOG_ATTRIBUTE_GATEWAY_CONFIGURATION_ID to gatewayConfigurationId
