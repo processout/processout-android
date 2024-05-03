@@ -9,6 +9,8 @@ import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractor.Companion.LOG_ATTRIBUTE_GATEWAY_CONFIGURATION_ID
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractor.Companion.LOG_ATTRIBUTE_INVOICE_ID
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.DEFAULT_TIMEOUT_SECONDS
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.MAX_TIMEOUT_SECONDS
 import com.processout.sdk.ui.shared.extension.map
 
 internal class NativeAlternativePaymentViewModel(
@@ -32,7 +34,7 @@ internal class NativeAlternativePaymentViewModel(
                     app = app,
                     invoiceId = invoiceId,
                     gatewayConfigurationId = gatewayConfigurationId,
-                    options = options,
+                    options = options.validated(),
                     invoicesService = ProcessOut.instance.invoices,
                     logAttributes = mapOf(
                         LOG_ATTRIBUTE_INVOICE_ID to invoiceId,
@@ -40,6 +42,15 @@ internal class NativeAlternativePaymentViewModel(
                     )
                 )
             ) as T
+
+        private fun Options.validated() = copy(
+            paymentConfirmation = with(paymentConfirmation) {
+                copy(
+                    timeoutSeconds = if (timeoutSeconds in 0..MAX_TIMEOUT_SECONDS)
+                        timeoutSeconds else DEFAULT_TIMEOUT_SECONDS
+                )
+            }
+        )
     }
 
     val completion = interactor.completion
