@@ -32,7 +32,6 @@ import com.processout.sdk.ui.core.component.field.code.POCodeField.style
 import com.processout.sdk.ui.core.component.field.code.POCodeField.validLength
 import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.component.texttoolbar.ProcessOutTextToolbar
-import com.processout.sdk.ui.core.style.POFieldStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 
 /** @suppress */
@@ -226,9 +225,6 @@ object POCodeField {
                 )
             )
         }
-
-    @Composable
-    fun custom(style: POFieldStyle) = POField.custom(style)
 
     internal fun style(style: POField.Style) = with(style) {
         copy(

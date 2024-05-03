@@ -5,7 +5,7 @@ import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodDefa
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodDefaultValuesResponse
 import kotlinx.coroutines.flow.SharedFlow
 
-// TODO: Move it to '.dispatcher.nativeapm' package before next major release.
+// TODO: Move it to '.dispatcher.napm' package before next major release.
 
 /**
  * Dispatcher that allows to handle events during native alternative payments.

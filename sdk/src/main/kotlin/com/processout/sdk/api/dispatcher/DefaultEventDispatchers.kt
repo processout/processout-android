@@ -4,19 +4,19 @@ import com.processout.sdk.api.dispatcher.card.tokenization.POCardTokenizationEve
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.dispatcher.card.update.POCardUpdateEventDispatcher
 import com.processout.sdk.api.dispatcher.card.update.PODefaultCardUpdateEventDispatcher
-import com.processout.sdk.api.dispatcher.nativeapm.DefaultNativeAlternativePaymentMethodEventDispatcher
+import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 
 internal object DefaultEventDispatchers : POEventDispatchers {
 
-    override val cardUpdate: POCardUpdateEventDispatcher by lazy {
-        PODefaultCardUpdateEventDispatcher
+    override val nativeAlternativePaymentMethod: PONativeAlternativePaymentMethodEventDispatcher by lazy {
+        PODefaultNativeAlternativePaymentMethodEventDispatcher
     }
 
     override val cardTokenization: POCardTokenizationEventDispatcher by lazy {
         PODefaultCardTokenizationEventDispatcher
     }
 
-    override val nativeAlternativePaymentMethod: PONativeAlternativePaymentMethodEventDispatcher by lazy {
-        DefaultNativeAlternativePaymentMethodEventDispatcher
+    override val cardUpdate: POCardUpdateEventDispatcher by lazy {
+        PODefaultCardUpdateEventDispatcher
     }
 }

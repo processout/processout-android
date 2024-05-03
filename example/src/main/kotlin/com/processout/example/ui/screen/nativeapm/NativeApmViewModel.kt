@@ -41,7 +41,11 @@ class NativeApmViewModel(
     private val _uiState = MutableStateFlow<NativeApmUiState>(Initial)
     val uiState = _uiState.asStateFlow()
 
-    fun createInvoice(amount: String, currency: String) {
+    fun createInvoice(
+        amount: String,
+        currency: String,
+        launchCompose: Boolean
+    ) {
         _uiState.value = Submitting
         viewModelScope.launch {
             val request = POCreateInvoiceRequest(
@@ -51,8 +55,14 @@ class NativeApmViewModel(
                 customerId = createCustomer()?.id
             )
             invoices.createInvoice(request)
-                .onSuccess {
-                    _uiState.value = Submitted(NativeApmUiModel(gatewayConfigurationId, it.id))
+                .onSuccess { invoice ->
+                    _uiState.value = Submitted(
+                        NativeApmUiModel(
+                            gatewayConfigurationId,
+                            invoice.id,
+                            launchCompose
+                        )
+                    )
                 }
                 .onFailure { _uiState.value = Failure(it) }
         }

@@ -19,7 +19,7 @@ import coil.request.ImageRequest
 import coil.request.ImageResult
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
-import com.processout.sdk.api.dispatcher.nativeapm.DefaultNativeAlternativePaymentMethodEventDispatcher
+import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.*
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodDefaultValuesRequest
@@ -33,8 +33,8 @@ import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.POFailure.Code.*
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
-import com.processout.sdk.core.retry.RetryStrategy
-import com.processout.sdk.core.retry.RetryStrategy.Exponential
+import com.processout.sdk.core.retry.PORetryStrategy
+import com.processout.sdk.core.retry.PORetryStrategy.Exponential
 import com.processout.sdk.core.util.escapedMarkdown
 import com.processout.sdk.ui.nativeapm.NativeAlternativePaymentMethodUiState.*
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options
@@ -57,8 +57,8 @@ internal class NativeAlternativePaymentMethodViewModel(
     private val gatewayConfigurationId: String,
     private val invoiceId: String,
     private val invoicesService: POInvoicesService,
-    private val eventDispatcher: DefaultNativeAlternativePaymentMethodEventDispatcher,
-    private val captureRetryStrategy: RetryStrategy,
+    private val eventDispatcher: PODefaultNativeAlternativePaymentMethodEventDispatcher,
+    private val captureRetryStrategy: PORetryStrategy,
     val options: Options,
     val logAttributes: Map<String, String>
 ) : AndroidViewModel(app) {
@@ -77,7 +77,7 @@ internal class NativeAlternativePaymentMethodViewModel(
                     gatewayConfigurationId = gatewayConfigurationId,
                     invoiceId = invoiceId,
                     invoicesService = invoices,
-                    eventDispatcher = DefaultNativeAlternativePaymentMethodEventDispatcher,
+                    eventDispatcher = PODefaultNativeAlternativePaymentMethodEventDispatcher,
                     captureRetryStrategy = Exponential(
                         maxRetries = Int.MAX_VALUE,
                         initialDelay = 150,

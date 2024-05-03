@@ -1,14 +1,16 @@
-package com.processout.sdk.api.dispatcher.nativeapm
+package com.processout.sdk.api.dispatcher.napm
 
 import com.processout.sdk.api.dispatcher.PONativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodDefaultValuesRequest
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodDefaultValuesResponse
+import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
-internal object DefaultNativeAlternativePaymentMethodEventDispatcher
-    : PONativeAlternativePaymentMethodEventDispatcher {
+/** @suppress */
+@ProcessOutInternalApi
+object PODefaultNativeAlternativePaymentMethodEventDispatcher : PONativeAlternativePaymentMethodEventDispatcher {
 
     private val _events = MutableSharedFlow<PONativeAlternativePaymentMethodEvent>()
     override val events = _events.asSharedFlow()
