@@ -108,7 +108,26 @@ data class PONativeAlternativePaymentConfiguration(
         }
     }
 
-    // TODO: KDoc
+    /**
+     * Allows to customize the look and feel.
+     *
+     * @param[title] Title style.
+     * @param[label] Field label style.
+     * @param[field] Field style.
+     * @param[codeField] Code field style.
+     * @param[radioButton] Radio button style.
+     * @param[dropdownMenu] Dropdown menu style.
+     * @param[actionsContainer] Style of action buttons and their container.
+     * @param[background] Background style.
+     * @param[message] Message style.
+     * @param[errorMessage] Error message style.
+     * @param[successMessage] Success message style.
+     * @param[successImageResId] Success image drawable resource ID.
+     * @param[progressIndicatorColorResId] Color resource ID for progress indicator.
+     * @param[controlsTintColorResId] Color resource ID for tint that applies to generic components (e.g. selectable text).
+     * @param[dividerColorResId] Color resource ID for title divider.
+     * @param[dragHandleColorResId] Color resource ID for bottom sheet drag handle.
+     */
     @Parcelize
     data class Style(
         val title: POTextStyle? = null,
