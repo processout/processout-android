@@ -27,7 +27,7 @@ internal abstract class BaseBottomSheetDialogFragment<T : Parcelable> : BottomSh
     private val bottomSheetDialog by lazy { requireDialog() as BottomSheetDialog }
     private val bottomSheetBehavior by lazy { bottomSheetDialog.behavior }
 
-    private val screenHeight by lazy { requireContext().screenSize().height }
+    protected val screenHeight by lazy { requireContext().screenSize().height }
     private var containerHeight: Int = ViewGroup.LayoutParams.WRAP_CONTENT
         set(value) {
             val bottomSheet: FrameLayout = requireDialog().findViewById(
