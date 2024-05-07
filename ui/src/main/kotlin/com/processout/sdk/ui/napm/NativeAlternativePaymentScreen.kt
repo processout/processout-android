@@ -10,24 +10,29 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.input.TextFieldValue
 import com.processout.sdk.ui.core.component.POActionsContainer
+import com.processout.sdk.ui.core.component.POCircularProgressIndicator
 import com.processout.sdk.ui.core.component.POHeader
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.code.POCodeField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
 import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
+import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.Action
+import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.*
 
 @Composable
 internal fun NativeAlternativePaymentScreen(
@@ -43,7 +48,7 @@ internal fun NativeAlternativePaymentScreen(
         topBar = {
             POHeader(
                 modifier = Modifier.verticalScroll(rememberScrollState()),
-                title = state.title,
+                title = if (state is UserInput) state.title else null,
                 style = style.title,
                 dividerColor = style.dividerColor,
                 dragHandleColor = style.dragHandleColor
@@ -51,8 +56,7 @@ internal fun NativeAlternativePaymentScreen(
         },
         bottomBar = {
             Actions(
-                primary = state.primaryAction,
-                secondary = state.secondaryAction,
+                state = state,
                 onEvent = onEvent,
                 style = style.actionsContainer
             )
@@ -67,20 +71,55 @@ internal fun NativeAlternativePaymentScreen(
                     horizontal = ProcessOutTheme.spacing.extraLarge,
                     vertical = ProcessOutTheme.spacing.large
                 ),
-            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
+            verticalArrangement = Arrangement.spacedBy(
+                space = ProcessOutTheme.spacing.small,
+                alignment = Alignment.CenterVertically
+            ),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // TODO
+            when (state) {
+                Loading -> POCircularProgressIndicator.Medium(color = style.progressIndicatorColor)
+                is UserInput -> UserInput(state)
+                is Capture -> Capture(state)
+            }
         }
     }
 }
 
 @Composable
+private fun UserInput(
+    state: UserInput
+) {
+    POTextField(value = TextFieldValue(), onValueChange = {})
+    POTextField(value = TextFieldValue(), onValueChange = {})
+    POTextField(value = TextFieldValue(), onValueChange = {})
+}
+
+@Composable
+private fun Capture(
+    state: Capture
+) {
+    POText(text = "111")
+    POText(text = "222")
+    POText(text = "333")
+}
+
+@Composable
 private fun Actions(
-    primary: POActionState?,
-    secondary: POActionState?,
+    state: NativeAlternativePaymentViewModelState,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
     style: POActionsContainer.Style
 ) {
+    var primary: POActionState? = null
+    var secondary: POActionState? = null
+    when (state) {
+        is UserInput -> {
+            primary = state.primaryAction
+            secondary = state.secondaryAction
+        }
+        is Capture -> secondary = state.secondaryAction
+        else -> {}
+    }
     val actions = mutableListOf<POActionState>()
     primary?.let { actions.add(it) }
     secondary?.let { actions.add(it) }

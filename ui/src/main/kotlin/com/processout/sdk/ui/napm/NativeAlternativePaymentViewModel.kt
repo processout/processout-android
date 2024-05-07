@@ -10,6 +10,7 @@ import com.processout.sdk.core.retry.PORetryStrategy.Exponential
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractor.Companion.LOG_ATTRIBUTE_GATEWAY_CONFIGURATION_ID
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractor.Companion.LOG_ATTRIBUTE_INVOICE_ID
+import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.DEFAULT_TIMEOUT_SECONDS
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.MAX_TIMEOUT_SECONDS
@@ -74,18 +75,32 @@ internal class NativeAlternativePaymentViewModel(
     fun onEvent(event: NativeAlternativePaymentEvent) = interactor.onEvent(event)
 
     private fun map(state: NativeAlternativePaymentInteractorState) = with(options) {
-        NativeAlternativePaymentViewModelState(
-            title = "Title",
-            primaryAction = POActionState(
-                id = state.primaryActionId,
-                text = "Submit",
-                primary = true
-            ),
-            secondaryAction = POActionState(
-                id = state.secondaryActionId,
-                text = "Cancel",
-                primary = false
-            )
-        )
+        if (state.loading) {
+            Loading
+        } else {
+            if (state.captured) {
+                Capture(
+                    secondaryAction = POActionState(
+                        id = state.secondaryActionId,
+                        text = "Cancel",
+                        primary = false
+                    )
+                )
+            } else {
+                UserInput(
+                    title = "Title",
+                    primaryAction = POActionState(
+                        id = state.primaryActionId,
+                        text = "Submit",
+                        primary = true
+                    ),
+                    secondaryAction = POActionState(
+                        id = state.secondaryActionId,
+                        text = "Cancel",
+                        primary = false
+                    )
+                )
+            }
+        }
     }
 }

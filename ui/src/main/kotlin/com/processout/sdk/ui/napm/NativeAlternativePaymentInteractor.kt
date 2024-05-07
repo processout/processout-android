@@ -14,9 +14,11 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Failure
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.ActionId
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 internal class NativeAlternativePaymentInteractor(
     private val app: Application,
@@ -40,9 +42,21 @@ internal class NativeAlternativePaymentInteractor(
     private val _state = MutableStateFlow(initState())
     val state = _state.asStateFlow()
 
+    init {
+        interactorScope.launch {
+            delay(3000)
+            _state.update {
+                it.copy(
+                    loading = false
+                )
+            }
+        }
+    }
+
     private fun initState() = NativeAlternativePaymentInteractorState(
         primaryActionId = ActionId.SUBMIT,
-        secondaryActionId = ActionId.CANCEL
+        secondaryActionId = ActionId.CANCEL,
+        loading = true
     )
 
     fun onEvent(event: NativeAlternativePaymentEvent) {
@@ -66,7 +80,11 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private fun submit() {
-        // TODO
+        _state.update {
+            it.copy(
+                captured = true
+            )
+        }
     }
 
     private fun cancel() {
