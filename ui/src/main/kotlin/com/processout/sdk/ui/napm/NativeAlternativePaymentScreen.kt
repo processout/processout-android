@@ -76,20 +76,23 @@ internal fun NativeAlternativePaymentScreen(
 
 @Composable
 private fun Actions(
-    primary: POActionState,
+    primary: POActionState?,
     secondary: POActionState?,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
     style: POActionsContainer.Style
 ) {
-    val actions = mutableListOf(primary)
+    val actions = mutableListOf<POActionState>()
+    primary?.let { actions.add(it) }
     secondary?.let { actions.add(it) }
-    POActionsContainer(
-        actions = POImmutableList(
-            if (style.axis == POAxis.Horizontal) actions.reversed() else actions
-        ),
-        onClick = { onEvent(Action(id = it)) },
-        style = style
-    )
+    if (actions.isNotEmpty()) {
+        POActionsContainer(
+            actions = POImmutableList(
+                if (style.axis == POAxis.Horizontal) actions.reversed() else actions
+            ),
+            onClick = { onEvent(Action(id = it)) },
+            style = style
+        )
+    }
 }
 
 internal object NativeAlternativePaymentScreen {
