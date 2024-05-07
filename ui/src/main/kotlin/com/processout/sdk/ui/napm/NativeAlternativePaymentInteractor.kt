@@ -44,7 +44,7 @@ internal class NativeAlternativePaymentInteractor(
 
     init {
         interactorScope.launch {
-            delay(3000)
+            delay(2000)
             _state.update {
                 it.copy(
                     loading = false

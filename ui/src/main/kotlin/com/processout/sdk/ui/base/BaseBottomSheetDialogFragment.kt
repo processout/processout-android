@@ -1,5 +1,6 @@
 package com.processout.sdk.ui.base
 
+import android.animation.ValueAnimator
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
@@ -23,6 +24,10 @@ import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import com.processout.sdk.ui.shared.extension.screenSize
 
 internal abstract class BaseBottomSheetDialogFragment<T : Parcelable> : BottomSheetDialogFragment() {
+
+    private companion object {
+        const val ANIMATION_DURATION_MS = 350L
+    }
 
     private val bottomSheetDialog by lazy { requireDialog() as BottomSheetDialog }
     private val bottomSheetBehavior by lazy { bottomSheetDialog.behavior }
@@ -52,7 +57,7 @@ internal abstract class BaseBottomSheetDialogFragment<T : Parcelable> : BottomSh
         dispatchBackPressed()
     }
 
-    protected fun apply(screenMode: ScreenMode) {
+    protected fun apply(screenMode: ScreenMode, animate: Boolean = false) {
         when (screenMode) {
             is ScreenMode.Window -> {
                 val viewHeight = if (expandable && bottomSheetBehavior.state == STATE_EXPANDED)
@@ -60,13 +65,15 @@ internal abstract class BaseBottomSheetDialogFragment<T : Parcelable> : BottomSh
                 setHeight(
                     peekHeight = screenMode.height,
                     viewHeight = viewHeight,
-                    expandable = expandable
+                    expandable = expandable,
+                    animate = animate
                 )
             }
             is ScreenMode.Fullscreen -> setHeight(
                 peekHeight = screenMode.screenHeight,
                 viewHeight = ViewGroup.LayoutParams.WRAP_CONTENT,
-                expandable = true
+                expandable = true,
+                animate = false
             )
         }
         this.screenMode = screenMode
@@ -75,12 +82,34 @@ internal abstract class BaseBottomSheetDialogFragment<T : Parcelable> : BottomSh
     private fun setHeight(
         peekHeight: Int,
         viewHeight: Int,
-        expandable: Boolean
+        expandable: Boolean,
+        animate: Boolean
     ) {
-        containerHeight = if (expandable) ViewGroup.LayoutParams.MATCH_PARENT else peekHeight
-        bottomSheetBehavior.peekHeight = peekHeight
-        view?.updateLayoutParams {
-            height = viewHeight
+        if (animate) {
+            ValueAnimator.ofInt(bottomSheetBehavior.peekHeight, peekHeight).apply {
+                addUpdateListener {
+                    val animatedValue = it.animatedValue as Int
+                    containerHeight = if (expandable) ViewGroup.LayoutParams.MATCH_PARENT else animatedValue
+                    bottomSheetBehavior.peekHeight = animatedValue
+                }
+                duration = ANIMATION_DURATION_MS
+                start()
+            }
+            view?.updateLayoutParams {
+                ValueAnimator.ofInt(height, viewHeight).apply {
+                    addUpdateListener {
+                        height = it.animatedValue as Int
+                    }
+                    duration = ANIMATION_DURATION_MS
+                    start()
+                }
+            }
+        } else {
+            containerHeight = if (expandable) ViewGroup.LayoutParams.MATCH_PARENT else peekHeight
+            bottomSheetBehavior.peekHeight = peekHeight
+            view?.updateLayoutParams {
+                height = viewHeight
+            }
         }
     }
 

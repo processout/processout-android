@@ -82,7 +82,7 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
                     else -> defaultViewHeight
                 }
                 with(screenModeAsState(viewHeight = viewHeight)) {
-                    LaunchedEffect(value) { apply(value) }
+                    LaunchedEffect(value) { apply(screenMode = value, animate = true) }
                 }
 
                 NativeAlternativePaymentScreen(
