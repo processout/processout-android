@@ -134,15 +134,14 @@ private fun Actions(
     val actions = mutableListOf<POActionState>()
     primary?.let { actions.add(it) }
     secondary?.let { actions.add(it) }
-    if (actions.isNotEmpty()) {
-        POActionsContainer(
-            actions = POImmutableList(
-                if (style.axis == POAxis.Horizontal) actions.reversed() else actions
-            ),
-            onClick = { onEvent(Action(id = it)) },
-            style = style
-        )
-    }
+    POActionsContainer(
+        actions = POImmutableList(
+            if (style.axis == POAxis.Horizontal) actions.reversed() else actions
+        ),
+        onClick = { onEvent(Action(id = it)) },
+        style = style,
+        animationDurationMillis = AnimationConstants.DefaultDurationMillis
+    )
 }
 
 internal object NativeAlternativePaymentScreen {

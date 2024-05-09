@@ -1,5 +1,9 @@
 package com.processout.sdk.ui.core.component
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.HorizontalDivider
@@ -23,41 +27,48 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme
 fun POActionsContainer(
     actions: POImmutableList<POActionState>,
     onClick: (ActionId) -> Unit,
-    style: POActionsContainer.Style = POActionsContainer.default
+    style: POActionsContainer.Style = POActionsContainer.default,
+    animationDurationMillis: Int = 0
 ) {
-    Column {
-        HorizontalDivider(thickness = 1.dp, color = style.dividerColor)
+    AnimatedVisibility(
+        visible = actions.elements.isNotEmpty(),
+        enter = fadeIn(animationSpec = tween(durationMillis = animationDurationMillis)),
+        exit = fadeOut(animationSpec = tween(durationMillis = animationDurationMillis)),
+    ) {
+        Column {
+            HorizontalDivider(thickness = 1.dp, color = style.dividerColor)
 
-        val padding = POActionsContainer.containerPadding
-        val spacing = POActionsContainer.actionSpacing
+            val padding = POActionsContainer.containerPadding
+            val spacing = POActionsContainer.actionSpacing
 
-        when (style.axis) {
-            POAxis.Vertical -> Column(
-                modifier = Modifier
-                    .background(color = style.backgroundColor)
-                    .padding(padding),
-                verticalArrangement = Arrangement.spacedBy(spacing)
-            ) {
-                Actions(
-                    actions = actions,
-                    onClick = onClick,
-                    primaryStyle = style.primary,
-                    secondaryStyle = style.secondary
-                )
-            }
-            POAxis.Horizontal -> Row(
-                modifier = Modifier
-                    .background(color = style.backgroundColor)
-                    .padding(padding),
-                horizontalArrangement = Arrangement.spacedBy(spacing)
-            ) {
-                Actions(
-                    actions = actions,
-                    onClick = onClick,
-                    modifier = Modifier.weight(1f),
-                    primaryStyle = style.primary,
-                    secondaryStyle = style.secondary
-                )
+            when (style.axis) {
+                POAxis.Vertical -> Column(
+                    modifier = Modifier
+                        .background(color = style.backgroundColor)
+                        .padding(padding),
+                    verticalArrangement = Arrangement.spacedBy(spacing)
+                ) {
+                    Actions(
+                        actions = actions,
+                        onClick = onClick,
+                        primaryStyle = style.primary,
+                        secondaryStyle = style.secondary
+                    )
+                }
+                POAxis.Horizontal -> Row(
+                    modifier = Modifier
+                        .background(color = style.backgroundColor)
+                        .padding(padding),
+                    horizontalArrangement = Arrangement.spacedBy(spacing)
+                ) {
+                    Actions(
+                        actions = actions,
+                        onClick = onClick,
+                        modifier = Modifier.weight(1f),
+                        primaryStyle = style.primary,
+                        secondaryStyle = style.secondary
+                    )
+                }
             }
         }
     }
