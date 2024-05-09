@@ -1,6 +1,7 @@
 package com.processout.sdk.ui.napm
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.core.AnimationConstants
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -51,7 +52,8 @@ internal fun NativeAlternativePaymentScreen(
                 title = if (state is UserInput) state.title else null,
                 style = style.title,
                 dividerColor = style.dividerColor,
-                dragHandleColor = style.dragHandleColor
+                dragHandleColor = style.dragHandleColor,
+                animationDurationMillis = AnimationConstants.DefaultDurationMillis
             )
         },
         bottomBar = {
