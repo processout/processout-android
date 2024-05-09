@@ -1,7 +1,11 @@
+@file:Suppress("CrossfadeLabel")
+
 package com.processout.sdk.ui.napm
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.AnimationConstants
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -64,25 +68,30 @@ internal fun NativeAlternativePaymentScreen(
             )
         }
     ) { scaffoldPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(scaffoldPadding)
-                .verticalScroll(rememberScrollState())
-                .padding(
-                    horizontal = ProcessOutTheme.spacing.extraLarge,
-                    vertical = ProcessOutTheme.spacing.large
+        Crossfade(
+            targetState = state,
+            animationSpec = tween(durationMillis = AnimationConstants.DefaultDurationMillis)
+        ) { state ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(scaffoldPadding)
+                    .verticalScroll(rememberScrollState())
+                    .padding(
+                        horizontal = ProcessOutTheme.spacing.extraLarge,
+                        vertical = ProcessOutTheme.spacing.large
+                    ),
+                verticalArrangement = Arrangement.spacedBy(
+                    space = ProcessOutTheme.spacing.small,
+                    alignment = Alignment.CenterVertically
                 ),
-            verticalArrangement = Arrangement.spacedBy(
-                space = ProcessOutTheme.spacing.small,
-                alignment = Alignment.CenterVertically
-            ),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            when (state) {
-                Loading -> POCircularProgressIndicator.Medium(color = style.progressIndicatorColor)
-                is UserInput -> UserInput(state)
-                is Capture -> Capture(state)
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                when (state) {
+                    Loading -> POCircularProgressIndicator.Medium(color = style.progressIndicatorColor)
+                    is UserInput -> UserInput(state)
+                    is Capture -> Capture(state)
+                }
             }
         }
     }
