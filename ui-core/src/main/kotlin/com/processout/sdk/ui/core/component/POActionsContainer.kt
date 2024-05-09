@@ -7,8 +7,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
@@ -30,6 +29,12 @@ fun POActionsContainer(
     style: POActionsContainer.Style = POActionsContainer.default,
     animationDurationMillis: Int = 0
 ) {
+    var currentActions by remember {
+        mutableStateOf<POImmutableList<POActionState>>(POImmutableList(emptyList()))
+    }
+    if (actions.elements.isNotEmpty()) {
+        currentActions = actions
+    }
     AnimatedVisibility(
         visible = actions.elements.isNotEmpty(),
         enter = fadeIn(animationSpec = tween(durationMillis = animationDurationMillis)),
@@ -49,7 +54,7 @@ fun POActionsContainer(
                     verticalArrangement = Arrangement.spacedBy(spacing)
                 ) {
                     Actions(
-                        actions = actions,
+                        actions = currentActions,
                         onClick = onClick,
                         primaryStyle = style.primary,
                         secondaryStyle = style.secondary
@@ -62,7 +67,7 @@ fun POActionsContainer(
                     horizontalArrangement = Arrangement.spacedBy(spacing)
                 ) {
                     Actions(
-                        actions = actions,
+                        actions = currentActions,
                         onClick = onClick,
                         modifier = Modifier.weight(1f),
                         primaryStyle = style.primary,
