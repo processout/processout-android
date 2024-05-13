@@ -20,10 +20,12 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentActivityContract.Compa
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Failure
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Success
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.Dismiss
+import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Capture
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
 import com.processout.sdk.ui.shared.composable.screenModeAsState
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import com.processout.sdk.ui.shared.extension.dpToPx
+import kotlin.math.roundToInt
 
 internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragment<POUnit>() {
 
@@ -31,8 +33,9 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
         val tag: String = NativeAlternativePaymentBottomSheet::class.java.simpleName
     }
 
-    override val defaultViewHeight by lazy { 440.dpToPx(requireContext()) }
     override val expandable = true
+    override val defaultViewHeight by lazy { 440.dpToPx(requireContext()) }
+    private val maxPeekHeight by lazy { (screenHeight * 0.75).roundToInt() }
 
     private var configuration: PONativeAlternativePaymentConfiguration? = null
 
@@ -73,12 +76,17 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
                     LaunchedEffect(value) { handle(value) }
                 }
 
-                with(screenModeAsState(viewHeight = defaultViewHeight)) {
-                    LaunchedEffect(value) { apply(value) }
+                val state = viewModel.state.collectAsStateWithLifecycle().value
+                val viewHeight = when (state) {
+                    is Capture -> maxPeekHeight
+                    else -> defaultViewHeight
+                }
+                with(screenModeAsState(viewHeight = viewHeight)) {
+                    LaunchedEffect(value) { apply(screenMode = value, animate = true) }
                 }
 
                 NativeAlternativePaymentScreen(
-                    state = viewModel.state.collectAsStateWithLifecycle().value,
+                    state = state,
                     onEvent = remember { viewModel::onEvent },
                     style = NativeAlternativePaymentScreen.style(custom = configuration?.style)
                 )

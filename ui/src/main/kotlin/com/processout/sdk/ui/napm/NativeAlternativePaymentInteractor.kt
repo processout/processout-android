@@ -12,11 +12,13 @@ import com.processout.sdk.ui.base.BaseInteractor
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Awaiting
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Failure
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.*
-import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.ActionId
+import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 internal class NativeAlternativePaymentInteractor(
     private val app: Application,
@@ -37,13 +39,23 @@ internal class NativeAlternativePaymentInteractor(
     private val _completion = MutableStateFlow<NativeAlternativePaymentCompletion>(Awaiting)
     val completion = _completion.asStateFlow()
 
-    private val _state = MutableStateFlow(initState())
+    private val _state = MutableStateFlow<NativeAlternativePaymentInteractorState>(Loading)
     val state = _state.asStateFlow()
 
-    private fun initState() = NativeAlternativePaymentInteractorState(
-        primaryActionId = ActionId.SUBMIT,
-        secondaryActionId = ActionId.CANCEL
-    )
+    init {
+        // TODO
+        interactorScope.launch {
+            delay(2000)
+            _state.update {
+                UserInput(
+                    UserInputStateValue(
+                        primaryActionId = ActionId.SUBMIT,
+                        secondaryActionId = ActionId.CANCEL
+                    )
+                )
+            }
+        }
+    }
 
     fun onEvent(event: NativeAlternativePaymentEvent) {
         when (event) {
@@ -67,6 +79,22 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun submit() {
         // TODO
+        interactorScope.launch {
+            _state.update {
+                Capturing(
+                    CaptureStateValue(
+                        logoUrl = null,
+                        secondaryActionId = ActionId.CANCEL
+                    )
+                )
+            }
+            delay(2000)
+            _state.whenCapturing { stateValue ->
+                _state.update {
+                    Captured(stateValue)
+                }
+            }
+        }
     }
 
     private fun cancel() {

@@ -1,10 +1,15 @@
 package com.processout.sdk.ui.core.component
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -16,27 +21,40 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme
 @ProcessOutInternalApi
 @Composable
 fun POHeader(
-    title: String,
+    title: String?,
     modifier: Modifier = Modifier,
     style: POText.Style = POText.title,
     dividerColor: Color = ProcessOutTheme.colors.border.subtle,
     dragHandleColor: Color = ProcessOutTheme.colors.border.disabled,
-    withDragHandle: Boolean = true
+    withDragHandle: Boolean = true,
+    animationDurationMillis: Int = 0
 ) {
-    Column(modifier = modifier) {
+    Column(modifier = modifier.fillMaxWidth()) {
         if (withDragHandle) {
             PODragHandle(
                 modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
                 color = dragHandleColor
             )
         }
-        POText(
-            text = title,
-            modifier = Modifier.padding(titlePadding(withDragHandle)),
-            color = style.color,
-            style = style.textStyle
-        )
-        HorizontalDivider(thickness = 1.dp, color = dividerColor)
+        AnimatedVisibility(
+            visible = !title.isNullOrBlank(),
+            enter = fadeIn(animationSpec = tween(durationMillis = animationDurationMillis)),
+            exit = fadeOut(animationSpec = tween(durationMillis = animationDurationMillis)),
+        ) {
+            Column {
+                var currentTitle by remember { mutableStateOf(String()) }
+                if (!title.isNullOrBlank()) {
+                    currentTitle = title
+                }
+                POText(
+                    text = currentTitle,
+                    modifier = Modifier.padding(titlePadding(withDragHandle)),
+                    color = style.color,
+                    style = style.textStyle
+                )
+                HorizontalDivider(thickness = 1.dp, color = dividerColor)
+            }
+        }
     }
 }
 
