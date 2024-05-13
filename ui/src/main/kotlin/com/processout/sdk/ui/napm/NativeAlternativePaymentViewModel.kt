@@ -74,33 +74,42 @@ internal class NativeAlternativePaymentViewModel(
 
     fun onEvent(event: NativeAlternativePaymentEvent) = interactor.onEvent(event)
 
-    private fun map(state: NativeAlternativePaymentInteractorState) = with(options) {
-        if (state.loading) {
-            Loading
-        } else {
-            if (state.captured) {
+    private fun map(
+        state: NativeAlternativePaymentInteractorState
+    ): NativeAlternativePaymentViewModelState = with(options) {
+        when (state) {
+            NativeAlternativePaymentInteractorState.Loading -> Loading
+            is NativeAlternativePaymentInteractorState.UserInput ->
+                with(state.value) {
+                    UserInput(
+                        title = "Title",
+                        primaryAction = POActionState(
+                            id = primaryActionId,
+                            text = "Submit",
+                            primary = true
+                        ),
+                        secondaryAction = POActionState(
+                            id = secondaryActionId,
+                            text = "Cancel",
+                            primary = false
+                        )
+                    )
+                }
+            is NativeAlternativePaymentInteractorState.Capturing ->
                 Capture(
                     secondaryAction = POActionState(
-                        id = state.secondaryActionId,
+                        id = state.value.secondaryActionId,
                         text = "Cancel",
                         primary = false
-                    )
-                )
-            } else {
-                UserInput(
-                    title = "Title",
-                    primaryAction = POActionState(
-                        id = state.primaryActionId,
-                        text = "Submit",
-                        primary = true
                     ),
-                    secondaryAction = POActionState(
-                        id = state.secondaryActionId,
-                        text = "Cancel",
-                        primary = false
-                    )
+                    isCaptured = false
                 )
-            }
+            is NativeAlternativePaymentInteractorState.Captured ->
+                Capture(
+                    secondaryAction = null,
+                    isCaptured = true
+                )
+            else -> this@NativeAlternativePaymentViewModel.state.value
         }
     }
 }

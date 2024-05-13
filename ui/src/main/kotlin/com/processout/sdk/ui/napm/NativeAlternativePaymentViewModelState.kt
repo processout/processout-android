@@ -17,6 +17,6 @@ internal sealed interface NativeAlternativePaymentViewModelState {
     @Immutable
     data class Capture(
         val secondaryAction: POActionState?,
-        val isSuccess: Boolean
+        val isCaptured: Boolean
     ) : NativeAlternativePaymentViewModelState
 }
