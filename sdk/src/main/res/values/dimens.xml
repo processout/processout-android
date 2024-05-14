@@ -7,7 +7,6 @@
     <dimen name="po_bottomSheet_buttons_marginHorizontal">20dp</dimen>
     <dimen name="po_bottomSheet_buttons_marginVertical">10dp</dimen>
     <dimen name="po_bottomSheet_cornerRadius">16dp</dimen>
-    <dimen name="po_alertDialog_cornerRadius">16dp</dimen>
 
     <dimen name="po_capture_content_margin">16dp</dimen>
     <dimen name="po_capture_logo_height">34dp</dimen>
@@ -40,4 +39,7 @@
     <dimen name="po_radioButton_minHeight">44dp</dimen>
     <dimen name="po_radioButton_paddingLeft">8dp</dimen>
     <dimen name="po_radioButton_marginBottom">4dp</dimen>
+
+    <dimen name="po_alertDialog_inset">13dp</dimen>
+    <dimen name="po_alertDialog_cornerRadius">16dp</dimen>
 </resources>
