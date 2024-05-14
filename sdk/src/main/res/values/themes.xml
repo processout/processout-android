@@ -44,6 +44,10 @@
         <item name="bottomSheetStyle">@style/Widget.ProcessOut.BottomSheet.Modal</item>
     </style>
 
+    <style name="ThemeOverlay.ProcessOut.AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="android:windowBackground">@drawable/po_alert_dialog_shape</item>
+    </style>
+
     <style name="ThemeOverlay.ProcessOut.MaterialAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="android:background">@color/po_surface_level1</item>
         <item name="android:dialogCornerRadius" tools:ignore="NewApi">16dp</item>
