@@ -7,6 +7,7 @@ import com.processout.sdk.ui.shared.style.POTextStyle
 import com.processout.sdk.ui.shared.style.background.POBackgroundDecorationStyle
 import com.processout.sdk.ui.shared.style.background.POBackgroundStyle
 import com.processout.sdk.ui.shared.style.button.POButtonStyle
+import com.processout.sdk.ui.shared.style.dialog.PODialogStyle
 import com.processout.sdk.ui.shared.style.input.POInputFieldStyle
 import com.processout.sdk.ui.shared.style.input.POInputStyle
 import com.processout.sdk.ui.shared.style.radio.PORadioButtonStyle
@@ -119,6 +120,7 @@ data class PONativeAlternativePaymentMethodConfiguration(
      * @param[successMessage] Success message style.
      * @param[successImageResId] Success image drawable resource ID.
      * @param[backgroundDecoration] __Deprecated.__ Background decoration style.
+     * @param[dialog] Dialog style.
      */
     @Parcelize
     data class Style(
@@ -142,6 +144,7 @@ data class PONativeAlternativePaymentMethodConfiguration(
         @DrawableRes
         val successImageResId: Int? = null,
         @Deprecated("Use property 'background: POBackgroundStyle'.")
-        val backgroundDecoration: POBackgroundDecorationStyle? = null
+        val backgroundDecoration: POBackgroundDecorationStyle? = null,
+        val dialog: PODialogStyle? = null
     ) : Parcelable
 }
