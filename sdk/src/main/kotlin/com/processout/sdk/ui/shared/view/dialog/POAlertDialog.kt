@@ -1,6 +1,7 @@
 package com.processout.sdk.ui.shared.view.dialog
 
 import android.content.Context
+import android.content.DialogInterface
 import android.view.LayoutInflater
 import android.view.View
 import androidx.appcompat.app.AlertDialog
@@ -32,6 +33,14 @@ internal class POAlertDialog(
         initContent()
     }
 
+    private fun PODialogStyle.apply() {
+        binding.root.setBackgroundColor(backgroundColor)
+        binding.poTitle.applyStyle(title)
+        binding.poMessage.applyStyle(message)
+        binding.poPositiveButton.applyStyle(positiveButton)
+        binding.poNegativeButton.applyStyle(negativeButton)
+    }
+
     private fun initContent() {
         binding.poTitle.text = title
         with(binding.poMessage) {
@@ -51,11 +60,17 @@ internal class POAlertDialog(
         }
     }
 
-    private fun PODialogStyle.apply() {
-        binding.root.setBackgroundColor(backgroundColor)
-        binding.poTitle.applyStyle(title)
-        binding.poMessage.applyStyle(message)
-        binding.poPositiveButton.applyStyle(positiveButton)
-        binding.poNegativeButton.applyStyle(negativeButton)
+    fun onPositiveButtonClick(action: (DialogInterface) -> Unit): POAlertDialog {
+        binding.poPositiveButton.setOnClickListener {
+            action(this)
+        }
+        return this
+    }
+
+    fun onNegativeButtonClick(action: (DialogInterface) -> Unit): POAlertDialog {
+        binding.poNegativeButton.setOnClickListener {
+            action(this)
+        }
+        return this
     }
 }
