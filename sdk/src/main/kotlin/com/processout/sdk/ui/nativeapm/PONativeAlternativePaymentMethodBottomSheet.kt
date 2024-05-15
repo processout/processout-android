@@ -43,6 +43,7 @@ import com.processout.sdk.databinding.PoBottomSheetNativeApmBinding
 import com.processout.sdk.ui.nativeapm.NativeAlternativePaymentMethodUiState.*
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityContract.Companion.EXTRA_CONFIGURATION
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityContract.Companion.EXTRA_RESULT
+import com.processout.sdk.ui.shared.model.ActionConfirmation
 import com.processout.sdk.ui.shared.model.InputParameter
 import com.processout.sdk.ui.shared.model.SecondaryActionUiModel
 import com.processout.sdk.ui.shared.style.POTextStyle
@@ -50,6 +51,7 @@ import com.processout.sdk.ui.shared.style.POTypography
 import com.processout.sdk.ui.shared.style.background.POBackgroundDecorationStateStyle
 import com.processout.sdk.ui.shared.style.dropdown.ExposedDropdownStyle
 import com.processout.sdk.ui.shared.view.button.POButton
+import com.processout.sdk.ui.shared.view.dialog.POAlertDialog
 import com.processout.sdk.ui.shared.view.extension.*
 import com.processout.sdk.ui.shared.view.input.Input
 import com.processout.sdk.ui.shared.view.input.InputComponent
@@ -368,7 +370,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             with(binding.poSecondaryButton) {
                 when (action) {
                     is SecondaryActionUiModel.Cancel -> {
-                        setOnClickListener { onCancelClick() }
+                        setOnClickListener { onCancelClick(action.confirmation) }
                         text = action.text
                         if (uiModel.isSubmitting) {
                             setState(POButton.State.DISABLED)
@@ -500,9 +502,32 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         viewModel.submitPayment()
     }
 
-    private fun onCancelClick() {
-        _binding?.let { it.poSecondaryButton.isClickable = false }
-        _bindingCapture?.let { it.poSecondaryButton.isClickable = false }
+    private fun onCancelClick(confirmation: ActionConfirmation) {
+        with(confirmation) {
+            if (!enabled) {
+                cancel()
+            }
+            _binding?.let { it.poSecondaryButton.isClickable = false }
+            _bindingCapture?.let { it.poSecondaryButton.isClickable = false }
+            POAlertDialog(
+                context = requireContext(),
+                title = title,
+                message = message,
+                positiveActionText = positiveActionText,
+                negativeActionText = negativeActionText,
+                style = configuration?.style?.dialog
+            ).onPositiveButtonClick { dialog ->
+                dialog.dismiss()
+                cancel()
+            }.onNegativeButtonClick { dialog ->
+                dialog.dismiss()
+                _binding?.let { it.poSecondaryButton.isClickable = true }
+                _bindingCapture?.let { it.poSecondaryButton.isClickable = true }
+            }.show()
+        }
+    }
+
+    private fun cancel() {
         finishWithActivityResult(
             PONativeAlternativePaymentMethodResult.Failure(
                 POFailure.Code.Cancelled,
@@ -634,7 +659,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             with(bindingCapture.poSecondaryButton) {
                 when (action) {
                     is SecondaryActionUiModel.Cancel -> {
-                        setOnClickListener { onCancelClick() }
+                        setOnClickListener { onCancelClick(action.confirmation) }
                         text = action.text
                         setState(action.state)
                         bindingCapture.poFooter.visibility = View.VISIBLE
