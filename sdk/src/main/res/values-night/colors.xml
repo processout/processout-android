@@ -37,6 +37,9 @@
     <color name="po_action_secondary_default">#121421</color>
     <color name="po_action_secondary_pressed">#181A2A</color>
 
+    <color name="po_action_alertDialog_default">@android:color/transparent</color>
+    <color name="po_action_alertDialog_pressed">#181A2A</color>
+
     <color name="po_action_border_selected">#BABAC5</color>
     <color name="po_action_border_disabled">#363945</color>
 

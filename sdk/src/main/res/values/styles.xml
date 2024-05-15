@@ -91,6 +91,13 @@
         <item name="android:elevation">0dp</item>
     </style>
 
+    <style name="Widget.ProcessOut.Button.AlertDialog">
+        <item name="backgroundTint">@color/po_button_alert_dialog_background_states</item>
+        <item name="android:textColor">@color/po_button_alert_dialog_text_states</item>
+        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Medium.Body</item>
+        <item name="android:elevation">0dp</item>
+    </style>
+
     <style name="Widget.ProcessOut.RadioButton" parent="Widget.Material3.CompoundButton.RadioButton">
         <item name="android:minWidth">0dp</item>
         <item name="android:minHeight">@dimen/po_radioButton_minHeight</item>
