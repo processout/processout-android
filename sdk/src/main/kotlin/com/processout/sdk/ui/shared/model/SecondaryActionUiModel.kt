@@ -7,7 +7,8 @@ internal sealed class SecondaryActionUiModel {
     internal data class Cancel(
         val text: String,
         val state: POButton.State,
-        val disabledForMillis: Long
+        val disabledForMillis: Long,
+        val confirmation: ActionConfirmation
     ) : SecondaryActionUiModel()
 
     fun copyWith(state: POButton.State) =

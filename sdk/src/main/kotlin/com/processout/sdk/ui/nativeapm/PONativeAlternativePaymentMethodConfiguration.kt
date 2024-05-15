@@ -84,9 +84,19 @@ data class PONativeAlternativePaymentMethodConfiguration(
         @Parcelize
         data class Cancel(
             val text: String? = null,
-            val disabledForSeconds: Int = 0
+            val disabledForSeconds: Int = 0,
+            val confirmation: ActionConfirmation = ActionConfirmation()
         ) : SecondaryAction()
     }
+
+    @Parcelize
+    data class ActionConfirmation(
+        val enabled: Boolean = false,
+        val title: String? = null,
+        val message: String? = null,
+        val positiveActionText: String? = null,
+        val negativeActionText: String? = null
+    ) : Parcelable
 
     /**
      * Specifies cancellation behaviour.

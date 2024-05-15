@@ -41,6 +41,7 @@ import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfigura
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options.Companion.DEFAULT_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options.Companion.MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.SecondaryAction
+import com.processout.sdk.ui.shared.model.ActionConfirmation
 import com.processout.sdk.ui.shared.model.InputParameter
 import com.processout.sdk.ui.shared.model.SecondaryActionUiModel
 import com.processout.sdk.ui.shared.view.button.POButton
@@ -680,7 +681,18 @@ internal class NativeAlternativePaymentMethodViewModel(
             SecondaryActionUiModel.Cancel(
                 text = text ?: app.getString(R.string.po_native_apm_cancel_button_default_text),
                 state = if (disabledForSeconds == 0) POButton.State.ENABLED else POButton.State.DISABLED,
-                disabledForMillis = TimeUnit.SECONDS.toMillis(disabledForSeconds.toLong())
+                disabledForMillis = TimeUnit.SECONDS.toMillis(disabledForSeconds.toLong()),
+                confirmation = with(confirmation) {
+                    ActionConfirmation(
+                        enabled = enabled,
+                        title = title ?: app.getString(R.string.po_native_apm_cancel_confirmation_title),
+                        message = message ?: app.getString(R.string.po_native_apm_cancel_confirmation_message),
+                        positiveActionText = positiveActionText
+                            ?: app.getString(R.string.po_native_apm_cancel_confirmation_positive),
+                        negativeActionText = negativeActionText
+                            ?: app.getString(R.string.po_native_apm_cancel_confirmation_negative)
+                    )
+                }
             )
     }
 
