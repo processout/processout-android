@@ -28,6 +28,7 @@ internal class POAlertDialog(
     )
 
     init {
+        setCancelable(false)
         setView(binding.root)
         style?.apply()
         initContent()
