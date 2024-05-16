@@ -7,7 +7,6 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.gms.wallet.Wallet.WalletOptions
 import com.google.android.gms.wallet.button.ButtonConstants
 import com.google.android.gms.wallet.button.ButtonOptions
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.processout.example.R
 import com.processout.example.databinding.FragmentFeaturesBinding
 import com.processout.example.service.googlepay.GooglePayConfiguration
@@ -24,6 +23,7 @@ import com.processout.sdk.ui.card.update.POCardUpdateConfiguration
 import com.processout.sdk.ui.card.update.POCardUpdateLauncher
 import com.processout.sdk.ui.googlepay.POGooglePayCardTokenizationLauncher
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
+import com.processout.sdk.ui.shared.view.dialog.POAlertDialog
 import kotlinx.coroutines.launch
 
 class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
@@ -116,8 +116,18 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
 
     private fun handleCardUpdateResult(result: ProcessOutActivityResult<POCard>) {
         result
-            .onSuccess { showAlert(getString(R.string.card_update_success_format, it.id)) }
-            .onFailure { showAlert(it.toMessage()) }
+            .onSuccess {
+                showAlert(
+                    title = getString(R.string.card_update),
+                    message = getString(R.string.card_update_success_format, it.id)
+                )
+            }
+            .onFailure {
+                showAlert(
+                    title = getString(R.string.card_update),
+                    message = it.toMessage()
+                )
+            }
     }
 
     private fun setupGooglePay() {
@@ -143,15 +153,32 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
 
     private fun handleGooglePayResult(result: ProcessOutResult<POGooglePayCardTokenizationData>) {
         result
-            .onSuccess { showAlert(getString(R.string.google_pay_success_format, it.card.id)) }
-            .onFailure { showAlert(it.toMessage()) }
+            .onSuccess {
+                showAlert(
+                    title = getString(R.string.google_pay),
+                    message = getString(R.string.google_pay_success_format, it.card.id)
+                )
+            }
+            .onFailure {
+                showAlert(
+                    title = getString(R.string.google_pay),
+                    message = it.toMessage()
+                )
+            }
     }
 
-    private fun showAlert(message: String) {
-        MaterialAlertDialogBuilder(requireContext())
-            .setMessage(message)
-            .setPositiveButton(R.string.ok) { dialog, _ ->
-                dialog.dismiss()
-            }.show()
+    private fun showAlert(title: String, message: String) {
+        POAlertDialog(
+            context = requireContext(),
+            title = title,
+            message = message,
+            positiveActionText = getString(R.string.ok),
+            negativeActionText = null
+        ).onPositiveButtonClick { dialog ->
+            dialog.dismiss()
+        }.also {
+            it.setCancelable(true)
+            it.show()
+        }
     }
 }
