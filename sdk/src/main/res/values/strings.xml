@@ -8,8 +8,8 @@
     <string name="po_native_apm_submit_button_text_format">Pay %s</string>
     <string name="po_native_apm_submit_button_default_text">Pay</string>
     <string name="po_native_apm_cancel_button_default_text">Cancel</string>
-    <string name="po_native_apm_cancel_confirmation_title">Cancel confirmation</string>
-    <string name="po_native_apm_cancel_confirmation_message">Do you really want to cancel?</string>
+    <string name="po_native_apm_cancel_confirmation_title">Cancel payment?</string>
+    <string name="po_native_apm_cancel_confirmation_message">Your payment will be cancelled.</string>
     <string name="po_native_apm_cancel_confirmation_positive">Cancel</string>
     <string name="po_native_apm_cancel_confirmation_negative">Back</string>
     <string name="po_native_apm_success_message">Success!\nPayment approved.</string>
