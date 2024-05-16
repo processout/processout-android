@@ -7,11 +7,13 @@ import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.ContextThemeWrapper
 import com.processout.sdk.R
+import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.databinding.PoAlertDialogBinding
 import com.processout.sdk.ui.nativeapm.applyStyle
 import com.processout.sdk.ui.shared.style.dialog.PODialogStyle
 
-internal class POAlertDialog(
+@ProcessOutInternalApi
+class POAlertDialog(
     context: Context,
     private val title: String,
     private val message: String?,
