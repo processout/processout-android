@@ -133,13 +133,4 @@
         <item name="android:paddingBottom">@dimen/po_dropdown_item_paddingVertical</item>
     </style>
 
-    <style name="Widget.ProcessOut.MaterialAlertDialog.Title" parent="MaterialAlertDialog.Material3.Title.Text">
-        <item name="android:textColor">@color/po_text_primary</item>
-        <item name="android:textAppearance">@style/TextAppearance.ProcessOut.Medium.Subtitle</item>
-    </style>
-
-    <style name="Widget.ProcessOut.MaterialAlertDialog.Button" parent="Widget.ProcessOut.Button.Secondary">
-        <item name="android:padding">0dp</item>
-    </style>
-
 </resources>
