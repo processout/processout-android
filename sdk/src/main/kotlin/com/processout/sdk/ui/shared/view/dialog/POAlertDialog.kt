@@ -47,18 +47,18 @@ class POAlertDialog(
     private fun initContent() {
         binding.poTitle.text = title
         with(binding.poMessage) {
-            if (message != null) {
-                text = message
-            } else {
+            if (message.isNullOrBlank()) {
                 visibility = View.GONE
+            } else {
+                text = message
             }
         }
         binding.poPositiveButton.text = positiveActionText
         with(binding.poNegativeButton) {
-            if (negativeActionText != null) {
-                text = negativeActionText
-            } else {
+            if (negativeActionText.isNullOrBlank()) {
                 visibility = View.GONE
+            } else {
+                text = negativeActionText
             }
         }
     }

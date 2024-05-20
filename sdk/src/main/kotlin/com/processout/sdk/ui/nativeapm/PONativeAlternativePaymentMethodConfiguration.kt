@@ -94,9 +94,9 @@ data class PONativeAlternativePaymentMethodConfiguration(
      *
      * @param[enabled] Enables action confirmation.
      * @param[title] Custom title. Pass _null_ to use default text.
-     * @param[message] Custom message. Pass _null_ to use default text.
+     * @param[message] Custom message. Pass _null_ to use default text. Pass empty string to hide.
      * @param[positiveActionText] Custom positive action text. Pass _null_ to use default text.
-     * @param[negativeActionText] Custom negative action text. Pass _null_ to use default text.
+     * @param[negativeActionText] Custom negative action text. Pass _null_ to use default text. Pass empty string to hide.
      */
     @Parcelize
     data class ActionConfirmation(
