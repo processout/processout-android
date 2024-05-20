@@ -163,6 +163,38 @@ object POButton {
             )
         }
 
+    val dialog: Style
+        @Composable get() = with(ProcessOutTheme) {
+            Style(
+                normal = StateStyle(
+                    text = POText.Style(
+                        color = colors.action.primaryDefault,
+                        textStyle = typography.medium.body
+                    ),
+                    shape = shapes.roundedCornersSmall,
+                    border = POBorderStroke(width = 0.dp, color = Color.Transparent),
+                    backgroundColor = Color.Transparent,
+                    elevation = 0.dp
+                ),
+                disabled = StateStyle(
+                    text = POText.Style(
+                        color = colors.text.disabled,
+                        textStyle = typography.medium.body
+                    ),
+                    shape = shapes.roundedCornersSmall,
+                    border = POBorderStroke(width = 0.dp, color = Color.Transparent),
+                    backgroundColor = Color.Transparent,
+                    elevation = 0.dp
+                ),
+                highlighted = HighlightedStyle(
+                    textColor = colors.action.primaryPressed,
+                    borderColor = Color.Transparent,
+                    backgroundColor = colors.action.secondaryPressed
+                ),
+                progressIndicatorColor = colors.text.secondary
+            )
+        }
+
     @Composable
     fun custom(style: POButtonStyle) = Style(
         normal = style.normal.toStateStyle(),
