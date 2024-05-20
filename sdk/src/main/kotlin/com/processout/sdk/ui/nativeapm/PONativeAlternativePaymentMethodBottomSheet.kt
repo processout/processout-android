@@ -100,6 +100,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     private val maxPeekHeight by lazy { (screenHeight * 0.75).roundToInt() }
     private val minPeekHeight by lazy { resources.getDimensionPixelSize(R.dimen.po_bottomSheet_minHeight) }
     private val handler by lazy { Handler(Looper.getMainLooper()) }
+    private var cancelConfirmationAlertDialog: DialogInterface? = null
 
     private lateinit var activityCallback: BottomSheetCallback
 
@@ -521,9 +522,15 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                 cancel()
             }.onNegativeButtonClick { dialog ->
                 dialog.dismiss()
-                _binding?.let { it.poSecondaryButton.isClickable = true }
-                _bindingCapture?.let { it.poSecondaryButton.isClickable = true }
-            }.show()
+            }.also { dialog ->
+                dialog.setOnDismissListener {
+                    cancelConfirmationAlertDialog = null
+                    _binding?.let { it.poSecondaryButton.isClickable = true }
+                    _bindingCapture?.let { it.poSecondaryButton.isClickable = true }
+                }
+                cancelConfirmationAlertDialog = dialog
+                dialog.show()
+            }
         }
     }
 
@@ -670,6 +677,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     }
 
     private fun handleSuccess(uiModel: NativeAlternativePaymentMethodUiModel) {
+        cancelConfirmationAlertDialog?.dismiss()
         if (viewModel.options.waitsPaymentConfirmation &&
             viewModel.options.skipSuccessScreen.not()
         ) {
