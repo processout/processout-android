@@ -172,9 +172,9 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
             context = requireContext(),
             title = title,
             message = message,
-            positiveActionText = getString(R.string.ok),
-            negativeActionText = null
-        ).onPositiveButtonClick { dialog ->
+            confirmActionText = getString(R.string.ok),
+            dismissActionText = null
+        ).onConfirmButtonClick { dialog ->
             dialog.dismiss()
         }.also {
             it.setCancelable(true)

@@ -192,9 +192,9 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
             context = requireContext(),
             title = getString(R.string.card_payment),
             message = message,
-            positiveActionText = getString(R.string.ok),
-            negativeActionText = null
-        ).onPositiveButtonClick { dialog ->
+            confirmActionText = getString(R.string.ok),
+            dismissActionText = null
+        ).onConfirmButtonClick { dialog ->
             dialog.dismiss()
         }.also {
             it.setCancelable(true)

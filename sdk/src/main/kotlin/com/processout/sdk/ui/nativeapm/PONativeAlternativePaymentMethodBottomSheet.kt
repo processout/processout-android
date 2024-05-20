@@ -514,13 +514,13 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                 context = requireContext(),
                 title = title,
                 message = message,
-                positiveActionText = positiveActionText,
-                negativeActionText = negativeActionText,
+                confirmActionText = confirmActionText,
+                dismissActionText = dismissActionText,
                 style = configuration?.style?.dialog
-            ).onPositiveButtonClick { dialog ->
+            ).onConfirmButtonClick { dialog ->
                 dialog.dismiss()
                 cancel()
-            }.onNegativeButtonClick { dialog ->
+            }.onDismissButtonClick { dialog ->
                 dialog.dismiss()
             }.also { dialog ->
                 dialog.setOnDismissListener {

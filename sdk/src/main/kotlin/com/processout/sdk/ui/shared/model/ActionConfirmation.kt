@@ -4,6 +4,6 @@ internal data class ActionConfirmation(
     val enabled: Boolean,
     val title: String,
     val message: String?,
-    val positiveActionText: String,
-    val negativeActionText: String?
+    val confirmActionText: String,
+    val dismissActionText: String?
 )

@@ -40,12 +40,12 @@ class POTest3DSService(
             context = activity,
             title = POTest3DSService::class.java.simpleName,
             message = "Authorize native 3DS2 challenge?",
-            positiveActionText = "Yes",
-            negativeActionText = "No"
-        ).onPositiveButtonClick { dialog ->
+            confirmActionText = "Yes",
+            dismissActionText = "No"
+        ).onConfirmButtonClick { dialog ->
             dialog.dismiss()
             callback(ProcessOutResult.Success(true))
-        }.onNegativeButtonClick { dialog ->
+        }.onDismissButtonClick { dialog ->
             dialog.dismiss()
             callback(ProcessOutResult.Success(false))
         }.show()

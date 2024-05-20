@@ -95,16 +95,16 @@ data class PONativeAlternativePaymentMethodConfiguration(
      * @param[enabled] Enables action confirmation.
      * @param[title] Custom title. Pass _null_ to use default text.
      * @param[message] Custom message. Pass _null_ to use default text. Pass empty string to hide.
-     * @param[positiveActionText] Custom positive action text. Pass _null_ to use default text.
-     * @param[negativeActionText] Custom negative action text. Pass _null_ to use default text. Pass empty string to hide.
+     * @param[confirmActionText] Custom confirm action text. Pass _null_ to use default text.
+     * @param[dismissActionText] Custom dismiss action text. Pass _null_ to use default text. Pass empty string to hide.
      */
     @Parcelize
     data class ActionConfirmation(
         val enabled: Boolean = false,
         val title: String? = null,
         val message: String? = null,
-        val positiveActionText: String? = null,
-        val negativeActionText: String? = null
+        val confirmActionText: String? = null,
+        val dismissActionText: String? = null
     ) : Parcelable
 
     /**

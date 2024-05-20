@@ -17,8 +17,8 @@ class POAlertDialog(
     context: Context,
     private val title: String,
     private val message: String?,
-    private val positiveActionText: String,
-    private val negativeActionText: String?,
+    private val confirmActionText: String,
+    private val dismissActionText: String?,
     style: PODialogStyle? = null
 ) : AlertDialog(
     context,
@@ -40,8 +40,8 @@ class POAlertDialog(
         binding.root.setBackgroundColor(backgroundColor)
         binding.poTitle.applyStyle(title)
         binding.poMessage.applyStyle(message)
-        binding.poPositiveButton.applyStyle(positiveButton)
-        binding.poNegativeButton.applyStyle(negativeButton)
+        binding.poConfirmButton.applyStyle(confirmButton)
+        binding.poDismissButton.applyStyle(dismissButton)
     }
 
     private fun initContent() {
@@ -53,25 +53,25 @@ class POAlertDialog(
                 text = message
             }
         }
-        binding.poPositiveButton.text = positiveActionText
-        with(binding.poNegativeButton) {
-            if (negativeActionText.isNullOrBlank()) {
+        binding.poConfirmButton.text = confirmActionText
+        with(binding.poDismissButton) {
+            if (dismissActionText.isNullOrBlank()) {
                 visibility = View.GONE
             } else {
-                text = negativeActionText
+                text = dismissActionText
             }
         }
     }
 
-    fun onPositiveButtonClick(action: (DialogInterface) -> Unit): POAlertDialog {
-        binding.poPositiveButton.setOnClickListener {
+    fun onConfirmButtonClick(action: (DialogInterface) -> Unit): POAlertDialog {
+        binding.poConfirmButton.setOnClickListener {
             action(this)
         }
         return this
     }
 
-    fun onNegativeButtonClick(action: (DialogInterface) -> Unit): POAlertDialog {
-        binding.poNegativeButton.setOnClickListener {
+    fun onDismissButtonClick(action: (DialogInterface) -> Unit): POAlertDialog {
+        binding.poDismissButton.setOnClickListener {
             action(this)
         }
         return this
