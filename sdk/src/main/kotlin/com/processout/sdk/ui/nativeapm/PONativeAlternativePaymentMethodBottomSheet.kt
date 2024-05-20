@@ -525,8 +525,10 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             }.also { dialog ->
                 dialog.setOnDismissListener {
                     cancelConfirmationAlertDialog = null
-                    _binding?.let { it.poSecondaryButton.isClickable = true }
-                    _bindingCapture?.let { it.poSecondaryButton.isClickable = true }
+                    if (viewModel.uiState.value !is Success) {
+                        _binding?.let { it.poSecondaryButton.isClickable = true }
+                        _bindingCapture?.let { it.poSecondaryButton.isClickable = true }
+                    }
                 }
                 cancelConfirmationAlertDialog = dialog
                 dialog.show()
