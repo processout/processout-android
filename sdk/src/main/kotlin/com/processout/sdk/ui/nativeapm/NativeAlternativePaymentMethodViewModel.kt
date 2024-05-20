@@ -686,7 +686,7 @@ internal class NativeAlternativePaymentMethodViewModel(
                     ActionConfirmation(
                         enabled = enabled,
                         title = title ?: app.getString(R.string.po_native_apm_cancel_confirmation_title),
-                        message = message ?: app.getString(R.string.po_native_apm_cancel_confirmation_message),
+                        message = message,
                         positiveActionText = positiveActionText
                             ?: app.getString(R.string.po_native_apm_cancel_confirmation_positive),
                         negativeActionText = negativeActionText
