@@ -68,8 +68,8 @@ object PODialog {
     data class Style(
         val title: POText.Style,
         val message: POText.Style,
-        val positiveButton: POButton.Style,
-        val negativeButton: POButton.Style,
+        val confirmButton: POButton.Style,
+        val dismissButton: POButton.Style,
         val backgroundColor: Color
     )
 
@@ -77,8 +77,8 @@ object PODialog {
         @Composable get() = Style(
             title = POText.title,
             message = POText.body,
-            positiveButton = POButton.primary,
-            negativeButton = POButton.secondary,
+            confirmButton = POButton.primary,
+            dismissButton = POButton.secondary,
             backgroundColor = ProcessOutTheme.colors.surface.level1
         )
 
@@ -87,8 +87,8 @@ object PODialog {
         Style(
             title = POText.custom(style = title),
             message = POText.custom(style = message),
-            positiveButton = POButton.custom(style = positiveButton),
-            negativeButton = POButton.custom(style = negativeButton),
+            confirmButton = POButton.custom(style = confirmButton),
+            dismissButton = POButton.custom(style = dismissButton),
             backgroundColor = colorResource(id = backgroundColorResId)
         )
     }

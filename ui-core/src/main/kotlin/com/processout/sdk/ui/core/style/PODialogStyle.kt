@@ -8,8 +8,8 @@ import kotlinx.parcelize.Parcelize
 data class PODialogStyle(
     val title: POTextStyle,
     val message: POTextStyle,
-    val positiveButton: POButtonStyle,
-    val negativeButton: POButtonStyle,
+    val confirmButton: POButtonStyle,
+    val dismissButton: POButtonStyle,
     @ColorRes
     val backgroundColorResId: Int
 ) : Parcelable
