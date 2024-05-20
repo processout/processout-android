@@ -1,10 +1,7 @@
 package com.processout.sdk.ui.core.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.runtime.Composable
@@ -16,7 +13,6 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
-import com.processout.sdk.ui.core.component.PODialog.ScrimColor
 import com.processout.sdk.ui.core.component.PODialog.cardColors
 import com.processout.sdk.ui.core.style.PODialogStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
@@ -44,17 +40,65 @@ fun PODialog(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = ScrimColor),
+                .background(color = PODialog.ScrimColor),
             contentAlignment = Alignment.Center
         ) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(ProcessOutTheme.spacing.extraLarge),
-                shape = ProcessOutTheme.shapes.roundedCornersLarge,
-                colors = cardColors(style.backgroundColor)
-            ) {
-
+            with(ProcessOutTheme) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(spacing.extraLarge),
+                    shape = shapes.roundedCornersLarge,
+                    colors = cardColors(style.backgroundColor)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start = spacing.extraLarge,
+                                top = spacing.extraLarge,
+                                end = spacing.extraLarge,
+                                bottom = spacing.large
+                            )
+                    ) {
+                        POText(
+                            text = title,
+                            color = style.title.color,
+                            style = style.title.textStyle
+                        )
+                        if (!message.isNullOrBlank()) {
+                            POText(
+                                text = message,
+                                modifier = Modifier.padding(top = spacing.large),
+                                color = style.message.color,
+                                style = style.message.textStyle
+                            )
+                        }
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = spacing.large),
+                            horizontalArrangement = Arrangement.spacedBy(
+                                space = spacing.small,
+                                alignment = Alignment.End
+                            ),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (!dismissActionText.isNullOrBlank()) {
+                                POButton(
+                                    text = dismissActionText,
+                                    onClick = onDismiss,
+                                    style = style.dismissButton
+                                )
+                            }
+                            POButton(
+                                text = confirmActionText,
+                                onClick = onConfirm,
+                                style = style.confirmButton
+                            )
+                        }
+                    }
+                }
             }
         }
     }
