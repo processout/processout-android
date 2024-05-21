@@ -32,7 +32,7 @@ fun PODialog(
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(
-            dismissOnBackPress = true,
+            dismissOnBackPress = false,
             dismissOnClickOutside = false,
             usePlatformDefaultWidth = false
         )
@@ -77,7 +77,7 @@ fun PODialog(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(top = spacing.large),
+                                .padding(top = spacing.extraLarge),
                             horizontalArrangement = Arrangement.spacedBy(
                                 space = spacing.small,
                                 alignment = Alignment.End

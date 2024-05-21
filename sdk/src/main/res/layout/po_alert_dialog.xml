@@ -28,7 +28,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="@dimen/po_alertDialog_content_padding">
+        android:layout_marginTop="18dp">
 
         <com.processout.sdk.ui.shared.view.button.POButton
             android:id="@+id/po_dismiss_button"

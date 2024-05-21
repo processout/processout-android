@@ -174,7 +174,8 @@ object POButton {
                     shape = shapes.roundedCornersSmall,
                     border = POBorderStroke(width = 0.dp, color = Color.Transparent),
                     backgroundColor = Color.Transparent,
-                    elevation = 0.dp
+                    elevation = 0.dp,
+                    paddingHorizontal = spacing.medium
                 ),
                 disabled = StateStyle(
                     text = POText.Style(
@@ -184,7 +185,8 @@ object POButton {
                     shape = shapes.roundedCornersSmall,
                     border = POBorderStroke(width = 0.dp, color = Color.Transparent),
                     backgroundColor = Color.Transparent,
-                    elevation = 0.dp
+                    elevation = 0.dp,
+                    paddingHorizontal = spacing.medium
                 ),
                 highlighted = HighlightedStyle(
                     textColor = colors.action.primaryPressed,
