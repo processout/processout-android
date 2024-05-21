@@ -670,13 +670,13 @@ internal class NativeAlternativePaymentMethodViewModel(
             }.format(amount.toDouble())
             app.getString(R.string.po_native_apm_submit_button_text_format, price)
         } catch (_: Exception) {
-            app.getString(R.string.po_native_apm_submit_button_default_text)
+            app.getString(R.string.po_native_apm_submit_button_text)
         }
 
     private fun SecondaryAction.toUiModel() = when (this) {
         is SecondaryAction.Cancel ->
             SecondaryActionUiModel.Cancel(
-                text = text ?: app.getString(R.string.po_native_apm_cancel_button_default_text),
+                text = text ?: app.getString(R.string.po_native_apm_cancel_button_text),
                 state = if (disabledForSeconds == 0) POButton.State.ENABLED else POButton.State.DISABLED,
                 disabledForMillis = TimeUnit.SECONDS.toMillis(disabledForSeconds.toLong()),
                 confirmation = with(confirmation) {

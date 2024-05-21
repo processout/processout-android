@@ -125,7 +125,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/po_bottomSheet_buttons_marginHorizontal"
                 android:layout_marginTop="@dimen/po_bottomSheet_buttons_marginVertical"
-                android:text="@string/po_native_apm_submit_button_default_text"
+                android:text="@string/po_native_apm_submit_button_text"
                 android:visibility="gone"
                 tools:visibility="visible" />
 
@@ -136,7 +136,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/po_bottomSheet_buttons_marginHorizontal"
                 android:layout_marginTop="@dimen/po_button_marginTop"
-                android:text="@string/po_native_apm_cancel_button_default_text"
+                android:text="@string/po_native_apm_cancel_button_text"
                 android:visibility="gone"
                 tools:visibility="visible" />
 
