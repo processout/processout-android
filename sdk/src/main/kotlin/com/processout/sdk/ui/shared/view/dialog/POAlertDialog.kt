@@ -36,12 +36,12 @@ class POAlertDialog(
         initContent()
     }
 
-    private fun PODialogStyle.apply() {
-        binding.root.setBackgroundColor(backgroundColor)
-        binding.poTitle.applyStyle(title)
-        binding.poMessage.applyStyle(message)
-        binding.poConfirmButton.applyStyle(confirmButton)
-        binding.poDismissButton.applyStyle(dismissButton)
+    private fun PODialogStyle.apply() = with(binding) {
+        root.setBackgroundColor(backgroundColor)
+        poTitle.applyStyle(title)
+        poMessage.applyStyle(message)
+        poConfirmButton.applyStyle(confirmButton)
+        poDismissButton.applyStyle(dismissButton)
     }
 
     private fun initContent() {
