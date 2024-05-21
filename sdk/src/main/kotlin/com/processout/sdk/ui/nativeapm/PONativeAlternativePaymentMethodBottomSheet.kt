@@ -35,6 +35,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.processout.sdk.R
+import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.DidRequestCancelConfirmation
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
@@ -531,6 +532,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                 }
                 cancelConfirmationAlertDialog = dialog
                 dialog.show()
+                viewModel.dispatch(DidRequestCancelConfirmation)
             }
         }
     }

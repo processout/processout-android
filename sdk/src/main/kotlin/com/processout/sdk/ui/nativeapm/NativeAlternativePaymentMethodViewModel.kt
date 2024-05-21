@@ -569,7 +569,7 @@ internal class NativeAlternativePaymentMethodViewModel(
         return app.imageLoader.execute(request)
     }
 
-    private fun dispatch(event: PONativeAlternativePaymentMethodEvent) {
+    fun dispatch(event: PONativeAlternativePaymentMethodEvent) {
         viewModelScope.launch {
             eventDispatcher.send(event)
             POLogger.debug("Event has been sent: %s", event)
