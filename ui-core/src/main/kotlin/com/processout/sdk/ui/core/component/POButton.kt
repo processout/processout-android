@@ -191,7 +191,7 @@ object POButton {
                     borderColor = Color.Transparent,
                     backgroundColor = colors.action.secondaryPressed
                 ),
-                progressIndicatorColor = colors.text.secondary
+                progressIndicatorColor = colors.action.primaryDefault
             )
         }
 
