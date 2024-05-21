@@ -37,11 +37,9 @@ import com.processout.sdk.core.retry.PORetryStrategy
 import com.processout.sdk.core.retry.PORetryStrategy.Exponential
 import com.processout.sdk.core.util.escapedMarkdown
 import com.processout.sdk.ui.nativeapm.NativeAlternativePaymentMethodUiState.*
-import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options
+import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.*
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options.Companion.DEFAULT_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options.Companion.MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
-import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.SecondaryAction
-import com.processout.sdk.ui.shared.model.ActionConfirmation
 import com.processout.sdk.ui.shared.model.InputParameter
 import com.processout.sdk.ui.shared.view.button.POButton
 import com.processout.sdk.ui.shared.view.input.Input

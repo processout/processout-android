@@ -43,7 +43,7 @@ import com.processout.sdk.databinding.PoBottomSheetNativeApmBinding
 import com.processout.sdk.ui.nativeapm.NativeAlternativePaymentMethodUiState.*
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityContract.Companion.EXTRA_CONFIGURATION
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityContract.Companion.EXTRA_RESULT
-import com.processout.sdk.ui.shared.model.ActionConfirmation
+import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.ActionConfirmation
 import com.processout.sdk.ui.shared.model.InputParameter
 import com.processout.sdk.ui.shared.style.POTextStyle
 import com.processout.sdk.ui.shared.style.POTypography
@@ -511,9 +511,9 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             _bindingCapture?.let { it.poSecondaryButton.isClickable = false }
             POAlertDialog(
                 context = requireContext(),
-                title = title,
+                title = title ?: String(),
                 message = message,
-                confirmActionText = confirmActionText,
+                confirmActionText = confirmActionText ?: String(),
                 dismissActionText = dismissActionText,
                 style = configuration?.style?.dialog
             ).onConfirmButtonClick { dialog ->

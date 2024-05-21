@@ -2,7 +2,7 @@ package com.processout.sdk.ui.nativeapm
 
 import android.view.View
 import com.processout.sdk.core.ProcessOutResult
-import com.processout.sdk.ui.shared.model.ActionConfirmation
+import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.ActionConfirmation
 import com.processout.sdk.ui.shared.model.InputParameter
 import com.processout.sdk.ui.shared.view.button.POButton
 import com.processout.sdk.ui.shared.view.input.Input
