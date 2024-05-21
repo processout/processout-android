@@ -86,6 +86,12 @@ data class POTypography(
             fontWeight = FontWeight.Medium,
             fontSize = 18.sp,
             lineHeight = 24.sp
+        ),
+        val body: TextStyle = TextStyle(
+            fontFamily = WorkSans,
+            fontWeight = FontWeight.Medium,
+            fontSize = 16.sp,
+            lineHeight = 24.sp
         )
     )
 }

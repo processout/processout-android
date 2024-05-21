@@ -35,6 +35,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.processout.sdk.R
+import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.DidRequestCancelConfirmation
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
@@ -43,13 +44,14 @@ import com.processout.sdk.databinding.PoBottomSheetNativeApmBinding
 import com.processout.sdk.ui.nativeapm.NativeAlternativePaymentMethodUiState.*
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityContract.Companion.EXTRA_CONFIGURATION
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityContract.Companion.EXTRA_RESULT
+import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.ActionConfirmation
 import com.processout.sdk.ui.shared.model.InputParameter
-import com.processout.sdk.ui.shared.model.SecondaryActionUiModel
 import com.processout.sdk.ui.shared.style.POTextStyle
 import com.processout.sdk.ui.shared.style.POTypography
 import com.processout.sdk.ui.shared.style.background.POBackgroundDecorationStateStyle
 import com.processout.sdk.ui.shared.style.dropdown.ExposedDropdownStyle
 import com.processout.sdk.ui.shared.view.button.POButton
+import com.processout.sdk.ui.shared.view.dialog.POAlertDialog
 import com.processout.sdk.ui.shared.view.extension.*
 import com.processout.sdk.ui.shared.view.input.Input
 import com.processout.sdk.ui.shared.view.input.InputComponent
@@ -98,6 +100,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     private val maxPeekHeight by lazy { (screenHeight * 0.75).roundToInt() }
     private val minPeekHeight by lazy { resources.getDimensionPixelSize(R.dimen.po_bottomSheet_minHeight) }
     private val handler by lazy { Handler(Looper.getMainLooper()) }
+    private var cancelConfirmationAlertDialog: DialogInterface? = null
 
     private lateinit var activityCallback: BottomSheetCallback
 
@@ -368,7 +371,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             with(binding.poSecondaryButton) {
                 when (action) {
                     is SecondaryActionUiModel.Cancel -> {
-                        setOnClickListener { onCancelClick() }
+                        setOnClickListener { onCancelClick(action.confirmation) }
                         text = action.text
                         if (uiModel.isSubmitting) {
                             setState(POButton.State.DISABLED)
@@ -500,9 +503,41 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         viewModel.submitPayment()
     }
 
-    private fun onCancelClick() {
-        _binding?.let { it.poSecondaryButton.isClickable = false }
-        _bindingCapture?.let { it.poSecondaryButton.isClickable = false }
+    private fun onCancelClick(confirmation: ActionConfirmation) {
+        with(confirmation) {
+            if (!enabled) {
+                cancel()
+            }
+            _binding?.let { it.poSecondaryButton.isClickable = false }
+            _bindingCapture?.let { it.poSecondaryButton.isClickable = false }
+            POAlertDialog(
+                context = requireContext(),
+                title = title ?: String(),
+                message = message,
+                confirmActionText = confirmActionText ?: String(),
+                dismissActionText = dismissActionText,
+                style = configuration?.style?.dialog
+            ).onConfirmButtonClick { dialog ->
+                dialog.dismiss()
+                cancel()
+            }.onDismissButtonClick { dialog ->
+                dialog.dismiss()
+            }.also { dialog ->
+                dialog.setOnDismissListener {
+                    cancelConfirmationAlertDialog = null
+                    if (viewModel.uiState.value !is Success) {
+                        _binding?.let { it.poSecondaryButton.isClickable = true }
+                        _bindingCapture?.let { it.poSecondaryButton.isClickable = true }
+                    }
+                }
+                cancelConfirmationAlertDialog = dialog
+                dialog.show()
+                viewModel.dispatch(DidRequestCancelConfirmation)
+            }
+        }
+    }
+
+    private fun cancel() {
         finishWithActivityResult(
             PONativeAlternativePaymentMethodResult.Failure(
                 POFailure.Code.Cancelled,
@@ -634,7 +669,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             with(bindingCapture.poSecondaryButton) {
                 when (action) {
                     is SecondaryActionUiModel.Cancel -> {
-                        setOnClickListener { onCancelClick() }
+                        setOnClickListener { onCancelClick(action.confirmation) }
                         text = action.text
                         setState(action.state)
                         bindingCapture.poFooter.visibility = View.VISIBLE
@@ -645,6 +680,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     }
 
     private fun handleSuccess(uiModel: NativeAlternativePaymentMethodUiModel) {
+        cancelConfirmationAlertDialog?.dismiss()
         if (viewModel.options.waitsPaymentConfirmation &&
             viewModel.options.skipSuccessScreen.not()
         ) {

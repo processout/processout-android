@@ -172,7 +172,7 @@
             android:layout_marginHorizontal="@dimen/po_bottomSheet_buttons_marginHorizontal"
             android:layout_marginTop="@dimen/po_bottomSheet_buttons_marginVertical"
             android:layout_marginBottom="@dimen/po_bottomSheet_buttons_marginVertical"
-            android:text="@string/po_native_apm_cancel_button_default_text" />
+            android:text="@string/po_native_apm_cancel_button_text" />
     </LinearLayout>
 
 </merge>

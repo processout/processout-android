@@ -6,8 +6,11 @@
     <!-- Native Alternative Payment Method -->
     <string name="po_native_apm_title_format">Pagar com %s</string>
     <string name="po_native_apm_submit_button_text_format">Pagar %s</string>
-    <string name="po_native_apm_submit_button_default_text">Pagar</string>
-    <string name="po_native_apm_cancel_button_default_text">Cancelar</string>
+    <string name="po_native_apm_submit_button_text">Pagar</string>
+    <string name="po_native_apm_cancel_button_text">Cancelar</string>
+    <string name="po_native_apm_cancel_confirmation_title">Cancelar pagamento?</string>
+    <string name="po_native_apm_cancel_confirmation_confirm">Cancelar pagamento</string>
+    <string name="po_native_apm_cancel_confirmation_dismiss">Agora não</string>
     <string name="po_native_apm_success_message">Successo!\nPagamento aprovado.</string>
     <string name="po_native_apm_input_hint_phone">Insira o seu número de telemóvel</string>
     <string name="po_native_apm_input_hint_email">nome@exemplo.pt</string>

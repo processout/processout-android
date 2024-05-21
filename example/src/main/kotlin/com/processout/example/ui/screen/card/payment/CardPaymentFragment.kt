@@ -9,7 +9,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.checkout.threeds.Environment
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.processout.example.R
 import com.processout.example.databinding.FragmentCardPaymentBinding
 import com.processout.example.service.threeds.Checkout3DSServiceDelegate
@@ -28,6 +27,7 @@ import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationLauncher
+import com.processout.sdk.ui.shared.view.dialog.POAlertDialog
 import com.processout.sdk.ui.threeds.PO3DSRedirectCustomTabLauncher
 import com.processout.sdk.ui.threeds.POTest3DSService
 import kotlinx.coroutines.launch
@@ -188,10 +188,17 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
     }
 
     private fun showAlert(message: String) {
-        MaterialAlertDialogBuilder(requireContext())
-            .setMessage(message)
-            .setPositiveButton(R.string.ok) { dialog, _ ->
-                dialog.dismiss()
-            }.show()
+        POAlertDialog(
+            context = requireContext(),
+            title = getString(R.string.card_payment),
+            message = message,
+            confirmActionText = getString(R.string.ok),
+            dismissActionText = null
+        ).onConfirmButtonClick { dialog ->
+            dialog.dismiss()
+        }.also {
+            it.setCancelable(true)
+            it.show()
+        }
     }
 }

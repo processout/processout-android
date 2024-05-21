@@ -55,6 +55,11 @@ sealed class PONativeAlternativePaymentMethodEvent {
     ) : PONativeAlternativePaymentMethodEvent()
 
     /**
+     * Event is sent when user asked to confirm cancellation, e.g. via dialog.
+     */
+    data object DidRequestCancelConfirmation : PONativeAlternativePaymentMethodEvent()
+
+    /**
      * Event is sent after payment was confirmed to be captured. This is a final event.
      */
     data object DidCompletePayment : PONativeAlternativePaymentMethodEvent()

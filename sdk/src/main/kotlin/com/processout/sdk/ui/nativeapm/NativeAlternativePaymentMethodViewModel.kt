@@ -37,12 +37,10 @@ import com.processout.sdk.core.retry.PORetryStrategy
 import com.processout.sdk.core.retry.PORetryStrategy.Exponential
 import com.processout.sdk.core.util.escapedMarkdown
 import com.processout.sdk.ui.nativeapm.NativeAlternativePaymentMethodUiState.*
-import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options
+import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.*
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options.Companion.DEFAULT_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options.Companion.MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
-import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.SecondaryAction
 import com.processout.sdk.ui.shared.model.InputParameter
-import com.processout.sdk.ui.shared.model.SecondaryActionUiModel
 import com.processout.sdk.ui.shared.view.button.POButton
 import com.processout.sdk.ui.shared.view.input.Input
 import kotlinx.coroutines.*
@@ -571,7 +569,7 @@ internal class NativeAlternativePaymentMethodViewModel(
         return app.imageLoader.execute(request)
     }
 
-    private fun dispatch(event: PONativeAlternativePaymentMethodEvent) {
+    fun dispatch(event: PONativeAlternativePaymentMethodEvent) {
         viewModelScope.launch {
             eventDispatcher.send(event)
             POLogger.debug("Event has been sent: %s", event)
@@ -672,15 +670,26 @@ internal class NativeAlternativePaymentMethodViewModel(
             }.format(amount.toDouble())
             app.getString(R.string.po_native_apm_submit_button_text_format, price)
         } catch (_: Exception) {
-            app.getString(R.string.po_native_apm_submit_button_default_text)
+            app.getString(R.string.po_native_apm_submit_button_text)
         }
 
     private fun SecondaryAction.toUiModel() = when (this) {
         is SecondaryAction.Cancel ->
             SecondaryActionUiModel.Cancel(
-                text = text ?: app.getString(R.string.po_native_apm_cancel_button_default_text),
+                text = text ?: app.getString(R.string.po_native_apm_cancel_button_text),
                 state = if (disabledForSeconds == 0) POButton.State.ENABLED else POButton.State.DISABLED,
-                disabledForMillis = TimeUnit.SECONDS.toMillis(disabledForSeconds.toLong())
+                disabledForMillis = TimeUnit.SECONDS.toMillis(disabledForSeconds.toLong()),
+                confirmation = with(confirmation) {
+                    ActionConfirmation(
+                        enabled = enabled,
+                        title = title ?: app.getString(R.string.po_native_apm_cancel_confirmation_title),
+                        message = message,
+                        confirmActionText = confirmActionText
+                            ?: app.getString(R.string.po_native_apm_cancel_confirmation_confirm),
+                        dismissActionText = dismissActionText
+                            ?: app.getString(R.string.po_native_apm_cancel_confirmation_dismiss)
+                    )
+                }
             )
     }
 

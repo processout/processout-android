@@ -39,4 +39,9 @@
     <dimen name="po_radioButton_minHeight">44dp</dimen>
     <dimen name="po_radioButton_paddingLeft">8dp</dimen>
     <dimen name="po_radioButton_marginBottom">4dp</dimen>
+
+    <dimen name="po_alertDialog_inset">13dp</dimen>
+    <dimen name="po_alertDialog_cornerRadius">16dp</dimen>
+    <dimen name="po_alertDialog_margin">24dp</dimen>
+    <dimen name="po_alertDialog_content_padding">16dp</dimen>
 </resources>

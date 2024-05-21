@@ -1,9 +1,6 @@
 package com.processout.sdk.ui.threeds
 
 import android.app.Activity
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.processout.sdk.R
-import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.threeds.PO3DS2AuthenticationRequest
 import com.processout.sdk.api.model.threeds.PO3DS2Challenge
 import com.processout.sdk.api.model.threeds.PO3DS2Configuration
@@ -11,6 +8,7 @@ import com.processout.sdk.api.model.threeds.PO3DSRedirect
 import com.processout.sdk.api.service.PO3DSService
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.ui.shared.view.dialog.POAlertDialog
 
 /**
  * Service that emulates the normal 3DS authentication flow
@@ -18,12 +16,10 @@ import com.processout.sdk.core.ProcessOutResult
  * Should be used only for testing purposes in sandbox environment.
  */
 class POTest3DSService(
-    activity: Activity,
+    private val activity: Activity,
     private val customTabLauncher: PO3DSRedirectCustomTabLauncher? = null,
     private val returnUrl: String = String()
 ) : PO3DSService {
-
-    private val dialogBuilder = MaterialAlertDialogBuilder(activity, R.style.ThemeOverlay_ProcessOut_MaterialAlertDialog)
 
     override fun authenticationRequest(
         configuration: PO3DS2Configuration,
@@ -40,19 +36,19 @@ class POTest3DSService(
     }
 
     override fun handle(challenge: PO3DS2Challenge, callback: (ProcessOutResult<Boolean>) -> Unit) {
-        with(dialogBuilder) {
-            setTitle(ProcessOut.NAME)
-            setMessage("Authorize mobile 3DS2 challenge?")
-            setPositiveButton("Yes") { dialog, _ ->
-                dialog.dismiss()
-                callback(ProcessOutResult.Success(true))
-            }
-            setNegativeButton("No") { dialog, _ ->
-                dialog.dismiss()
-                callback(ProcessOutResult.Success(false))
-            }
-            setCancelable(false)
-        }.also { it.show() }
+        POAlertDialog(
+            context = activity,
+            title = POTest3DSService::class.java.simpleName,
+            message = "Authorize native 3DS2 challenge?",
+            confirmActionText = "Yes",
+            dismissActionText = "No"
+        ).onConfirmButtonClick { dialog ->
+            dialog.dismiss()
+            callback(ProcessOutResult.Success(true))
+        }.onDismissButtonClick { dialog ->
+            dialog.dismiss()
+            callback(ProcessOutResult.Success(false))
+        }.show()
     }
 
     override fun handle(redirect: PO3DSRedirect, callback: (ProcessOutResult<String>) -> Unit) {

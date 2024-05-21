@@ -8,7 +8,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.processout.example.R
 import com.processout.example.databinding.FragmentNativeApmBinding
 import com.processout.example.shared.toMessage
@@ -19,6 +18,7 @@ import com.processout.sdk.ui.napm.PONativeAlternativePaymentLauncher
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodLauncher
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodResult
+import com.processout.sdk.ui.shared.view.dialog.POAlertDialog
 import kotlinx.coroutines.launch
 
 class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
@@ -136,10 +136,17 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
     }
 
     private fun showAlert(message: String) {
-        MaterialAlertDialogBuilder(requireContext())
-            .setMessage(message)
-            .setPositiveButton(R.string.ok) { dialog, _ ->
-                dialog.dismiss()
-            }.show()
+        POAlertDialog(
+            context = requireContext(),
+            title = getString(R.string.native_apm),
+            message = message,
+            confirmActionText = getString(R.string.ok),
+            dismissActionText = null
+        ).onConfirmButtonClick { dialog ->
+            dialog.dismiss()
+        }.also {
+            it.setCancelable(true)
+            it.show()
+        }
     }
 }
