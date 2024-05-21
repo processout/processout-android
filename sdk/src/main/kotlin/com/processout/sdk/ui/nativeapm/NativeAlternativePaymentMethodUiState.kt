@@ -2,8 +2,9 @@ package com.processout.sdk.ui.nativeapm
 
 import android.view.View
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.ui.shared.model.ActionConfirmation
 import com.processout.sdk.ui.shared.model.InputParameter
-import com.processout.sdk.ui.shared.model.SecondaryActionUiModel
+import com.processout.sdk.ui.shared.view.button.POButton
 import com.processout.sdk.ui.shared.view.input.Input
 
 internal sealed class NativeAlternativePaymentMethodUiState {
@@ -50,6 +51,20 @@ internal data class NativeAlternativePaymentMethodUiModel(
 ) {
     fun isSubmitAllowed() = inputParameters.all { it.state is Input.State.Default }
     fun showCustomerAction() = customerActionMessageMarkdown.isNullOrBlank().not()
+}
+
+internal sealed class SecondaryActionUiModel {
+    data class Cancel(
+        val text: String,
+        val state: POButton.State,
+        val disabledForMillis: Long,
+        val confirmation: ActionConfirmation
+    ) : SecondaryActionUiModel()
+
+    fun copyWith(state: POButton.State) =
+        when (this) {
+            is Cancel -> copy(state = state)
+        }
 }
 
 internal inline fun NativeAlternativePaymentMethodUiState.doWhenUserInput(

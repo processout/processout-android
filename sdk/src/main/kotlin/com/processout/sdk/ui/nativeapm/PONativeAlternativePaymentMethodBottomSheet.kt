@@ -45,7 +45,6 @@ import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityC
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodActivityContract.Companion.EXTRA_RESULT
 import com.processout.sdk.ui.shared.model.ActionConfirmation
 import com.processout.sdk.ui.shared.model.InputParameter
-import com.processout.sdk.ui.shared.model.SecondaryActionUiModel
 import com.processout.sdk.ui.shared.style.POTextStyle
 import com.processout.sdk.ui.shared.style.POTypography
 import com.processout.sdk.ui.shared.style.background.POBackgroundDecorationStateStyle

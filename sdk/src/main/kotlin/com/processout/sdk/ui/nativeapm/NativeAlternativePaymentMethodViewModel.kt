@@ -43,7 +43,6 @@ import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfigura
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.SecondaryAction
 import com.processout.sdk.ui.shared.model.ActionConfirmation
 import com.processout.sdk.ui.shared.model.InputParameter
-import com.processout.sdk.ui.shared.model.SecondaryActionUiModel
 import com.processout.sdk.ui.shared.view.button.POButton
 import com.processout.sdk.ui.shared.view.input.Input
 import kotlinx.coroutines.*
