@@ -3,8 +3,8 @@
 buildscript {
     ext {
         androidGradlePluginVersion = '8.4.0'
-        kotlinVersion = '1.9.23'
-        kspVersion = '1.9.23-1.0.19'
+        kotlinVersion = '1.9.24'
+        kspVersion = '1.9.24-1.0.20'
         dokkaVersion = '1.9.20'
         androidxNavigationVersion = '2.7.7'
         nexusPublishPluginVersion = '1.3.0'
@@ -45,8 +45,8 @@ ext {
     androidxSwipeRefreshLayoutVersion = '1.1.0'
     androidxBrowserVersion = '1.8.0'
 
-    androidxComposeBOMVersion = '2024.04.01'
-    androidxComposeCompilerVersion = '1.5.12'
+    androidxComposeBOMVersion = '2024.05.00'
+    androidxComposeCompilerVersion = '1.5.14'
 
     materialVersion = '1.11.0'
 
