@@ -3,10 +3,14 @@ package com.processout.sdk.ui.napm
 import android.app.Application
 import androidx.compose.ui.text.input.TextFieldValue
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
+import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
+import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.DidFail
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
+import com.processout.sdk.core.onFailure
+import com.processout.sdk.core.onSuccess
 import com.processout.sdk.core.retry.PORetryStrategy
 import com.processout.sdk.ui.base.BaseInteractor
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Awaiting
@@ -43,16 +47,23 @@ internal class NativeAlternativePaymentInteractor(
     val state = _state.asStateFlow()
 
     init {
-        // TODO
+        POLogger.info("Starting native alternative payment.", attributes = logAttributes)
+        dispatch(PONativeAlternativePaymentMethodEvent.WillStart)
+        dispatchFailure()
+//        collectDefaultValues() TODO
+        fetchTransactionDetails()
+    }
+
+    private fun fetchTransactionDetails() {
         interactorScope.launch {
-            delay(2000)
-            _state.update {
-                UserInput(
-                    UserInputStateValue(
-                        primaryActionId = ActionId.SUBMIT,
-                        secondaryActionId = ActionId.CANCEL
-                    )
-                )
+            invoicesService.fetchNativeAlternativePaymentMethodTransactionDetails(
+                invoiceId = invoiceId,
+                gatewayConfigurationId = gatewayConfigurationId
+            ).onSuccess { details ->
+                // TODO
+            }.onFailure { failure ->
+                POLogger.info("Failed to fetch transaction details: %s", failure)
+                _completion.update { Failure(failure) }
             }
         }
     }
@@ -105,6 +116,23 @@ internal class NativeAlternativePaymentInteractor(
                     message = "Cancelled by the user with secondary cancel action."
                 ).also { POLogger.info("Cancelled: %s", it, attributes = logAttributes) }
             )
+        }
+    }
+
+    private fun dispatch(event: PONativeAlternativePaymentMethodEvent) {
+        interactorScope.launch {
+            eventDispatcher.send(event)
+            POLogger.debug("Event has been sent: %s", event)
+        }
+    }
+
+    private fun dispatchFailure() {
+        interactorScope.launch {
+            _completion.collect {
+                if (it is Failure) {
+                    dispatch(DidFail(it.failure))
+                }
+            }
         }
     }
 }
