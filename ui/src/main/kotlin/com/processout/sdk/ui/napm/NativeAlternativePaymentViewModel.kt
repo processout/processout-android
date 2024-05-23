@@ -11,6 +11,7 @@ import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTra
 import com.processout.sdk.core.retry.PORetryStrategy.Exponential
 import com.processout.sdk.core.util.POMarkdownUtils.escapedMarkdown
 import com.processout.sdk.ui.core.state.POActionState
+import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractor.Companion.LOG_ATTRIBUTE_GATEWAY_CONFIGURATION_ID
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractor.Companion.LOG_ATTRIBUTE_INVOICE_ID
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
@@ -93,6 +94,8 @@ internal class NativeAlternativePaymentViewModel(
     private fun UserInput.userInput() = with(value) {
         NativeAlternativePaymentViewModelState.UserInput(
             title = options.title ?: app.getString(R.string.po_native_apm_title_format, gateway.displayName),
+            fields = fields.map(),
+            focusedFieldId = focusedFieldId,
             primaryAction = POActionState(
                 id = primaryActionId,
                 text = options.primaryActionText ?: invoice.formatPrimaryActionText(),
@@ -129,6 +132,10 @@ internal class NativeAlternativePaymentViewModel(
             secondaryAction = null,
             isCaptured = true
         )
+    }
+
+    private fun List<Field>.map(): POImmutableList<NativeAlternativePaymentViewModelState.Field> {
+        return POImmutableList(emptyList())
     }
 
     private fun Invoice.formatPrimaryActionText() =
