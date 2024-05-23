@@ -1,6 +1,7 @@
 package com.processout.sdk.ui.napm
 
 import android.app.Application
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
@@ -17,6 +18,7 @@ import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
 import com.processout.sdk.core.retry.PORetryStrategy
 import com.processout.sdk.ui.base.BaseInteractor
+import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Awaiting
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Failure
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.*
@@ -82,15 +84,42 @@ internal class NativeAlternativePaymentInteractor(
         }
     }
 
-    private fun PONativeAlternativePaymentMethodTransactionDetails.toStateValue() =
-        UserInputStateValue(
+    private fun PONativeAlternativePaymentMethodTransactionDetails.toStateValue(): UserInputStateValue {
+        val fields = parameters?.toFields() ?: emptyList()
+        return UserInputStateValue(
             invoice = invoice,
             gateway = gateway,
-            fields = emptyList(),
-            focusedFieldId = null,
+            fields = fields,
+            focusedFieldId = fields.firstOrNull()?.id,
             primaryActionId = ActionId.SUBMIT,
             secondaryActionId = ActionId.CANCEL
         )
+    }
+
+    private fun List<PONativeAlternativePaymentMethodParameter>.toFields() =
+        map { parameter ->
+            with(parameter) {
+                val defaultValue = availableValues?.find { it.default == true }?.value ?: String()
+                Field(
+                    id = key,
+                    value = TextFieldValue(
+                        text = defaultValue,
+                        selection = TextRange(defaultValue.length)
+                    ),
+                    availableValues = availableValues?.map {
+                        POAvailableValue(
+                            value = it.value,
+                            text = it.displayName
+                        )
+                    },
+                    type = type(),
+                    length = length,
+                    displayName = displayName,
+                    required = required,
+                    isValid = true
+                )
+            }
+        }
 
     private suspend fun handleState(
         stateValue: UserInputStateValue,

@@ -1,6 +1,7 @@
 package com.processout.sdk.ui.napm
 
 import androidx.compose.ui.text.input.TextFieldValue
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails.Gateway
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails.Invoice
 import com.processout.sdk.ui.core.state.POAvailableValue
@@ -54,9 +55,13 @@ internal sealed interface NativeAlternativePaymentInteractorState {
 
     data class Field(
         val id: String,
-        val value: TextFieldValue = TextFieldValue(),
-        val availableValues: List<POAvailableValue>? = null,
-        val isValid: Boolean = true
+        val value: TextFieldValue,
+        val availableValues: List<POAvailableValue>?,
+        val type: ParameterType,
+        val length: Int?,
+        val displayName: String,
+        val required: Boolean,
+        val isValid: Boolean
     )
 
     object ActionId {
