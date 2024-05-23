@@ -82,7 +82,7 @@ internal class NativeAlternativePaymentInteractor(
                     )
                 }
             }.onFailure { failure ->
-                POLogger.info("Failed to fetch transaction details: %s", failure)
+                POLogger.info("Failed to fetch transaction details: %s", failure, attributes = logAttributes)
                 _completion.update { Failure(failure) }
             }
         }
@@ -213,7 +213,7 @@ internal class NativeAlternativePaymentInteractor(
 //        }
 
         dispatch(DidStart)
-        POLogger.info("Started. Waiting for payment parameters.")
+        POLogger.info("Started. Waiting for payment parameters.", attributes = logAttributes)
     }
 
     private fun continueUserInput(stateValue: UserInputStateValue) {
@@ -226,7 +226,7 @@ internal class NativeAlternativePaymentInteractor(
             )
         }
         dispatch(DidSubmitParameters(additionalParametersExpected = true))
-        POLogger.info("Submitted. Waiting for additional payment parameters.")
+        POLogger.info("Submitted. Waiting for additional payment parameters.", attributes = logAttributes)
     }
 
     private fun requestDefaultValues(parameters: List<PONativeAlternativePaymentMethodParameter>) {
@@ -238,7 +238,10 @@ internal class NativeAlternativePaymentInteractor(
             )
             latestDefaultValuesRequest = request
             eventDispatcher.send(request)
-            POLogger.debug("Requested to provide default values for payment parameters: %s", request)
+            POLogger.debug(
+                "Requested to provide default values for payment parameters: %s", request,
+                attributes = logAttributes
+            )
         }
     }
 
@@ -247,7 +250,10 @@ internal class NativeAlternativePaymentInteractor(
             eventDispatcher.defaultValuesResponse.collect { response ->
                 if (response.uuid == latestDefaultValuesRequest?.uuid) {
                     latestDefaultValuesRequest = null
-                    POLogger.debug("Collected default values for payment parameters: %s", response)
+                    POLogger.debug(
+                        "Collected default values for payment parameters: %s", response,
+                        attributes = logAttributes
+                    )
                     _state.whenLoaded { stateValue ->
                         startUserInput(stateValue.withDefaultValues(response.defaultValues))
                     }
@@ -351,7 +357,7 @@ internal class NativeAlternativePaymentInteractor(
     private fun dispatch(event: PONativeAlternativePaymentMethodEvent) {
         interactorScope.launch {
             eventDispatcher.send(event)
-            POLogger.debug("Event has been sent: %s", event)
+            POLogger.debug("Event has been sent: %s", event, attributes = logAttributes)
         }
     }
 
