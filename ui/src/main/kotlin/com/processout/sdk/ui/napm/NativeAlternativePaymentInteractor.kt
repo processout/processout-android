@@ -86,6 +86,8 @@ internal class NativeAlternativePaymentInteractor(
         UserInputStateValue(
             invoice = invoice,
             gateway = gateway,
+            fields = emptyList(),
+            focusedFieldId = null,
             primaryActionId = ActionId.SUBMIT,
             secondaryActionId = ActionId.CANCEL
         )
@@ -118,7 +120,13 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private fun updateFieldFocus(id: String, isFocused: Boolean) {
-        // TODO
+        if (isFocused) {
+            _state.whenUserInput { stateValue ->
+                _state.update {
+                    UserInput(stateValue.copy(focusedFieldId = id))
+                }
+            }
+        }
     }
 
     private fun submit() {

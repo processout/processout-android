@@ -1,7 +1,9 @@
 package com.processout.sdk.ui.napm
 
+import androidx.compose.ui.text.input.TextFieldValue
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails.Gateway
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails.Invoice
+import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -36,6 +38,8 @@ internal sealed interface NativeAlternativePaymentInteractorState {
     data class UserInputStateValue(
         val invoice: Invoice,
         val gateway: Gateway,
+        val fields: List<Field>,
+        val focusedFieldId: String?,
         val primaryActionId: String,
         val secondaryActionId: String,
         val submitAllowed: Boolean = true,
@@ -46,6 +50,13 @@ internal sealed interface NativeAlternativePaymentInteractorState {
         val paymentProviderName: String?,
         val logoUrl: String?,
         val secondaryActionId: String
+    )
+
+    data class Field(
+        val id: String,
+        val value: TextFieldValue = TextFieldValue(),
+        val availableValues: List<POAvailableValue>? = null,
+        val isValid: Boolean = true
     )
 
     object ActionId {
