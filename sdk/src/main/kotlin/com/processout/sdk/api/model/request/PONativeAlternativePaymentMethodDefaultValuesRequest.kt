@@ -1,6 +1,7 @@
 package com.processout.sdk.api.model.request
 
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter
+import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import java.util.UUID
 
 /**
@@ -11,7 +12,7 @@ import java.util.UUID
  * @param[parameters] Collection of parameters that can be inspected to decide if default values should be provided.
  * @param[uuid] Unique identifier of request.
  */
-data class PONativeAlternativePaymentMethodDefaultValuesRequest internal constructor(
+data class PONativeAlternativePaymentMethodDefaultValuesRequest @ProcessOutInternalApi constructor(
     val gatewayConfigurationId: String,
     val invoiceId: String,
     val parameters: List<PONativeAlternativePaymentMethodParameter>,

@@ -5,10 +5,13 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
-import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.DidFail
+import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.*
+import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodDefaultValuesRequest
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType.UNKNOWN
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameterValues
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodState
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodState.*
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.POFailure
@@ -53,11 +56,13 @@ internal class NativeAlternativePaymentInteractor(
     private val _state = MutableStateFlow<NativeAlternativePaymentInteractorState>(Loading)
     val state = _state.asStateFlow()
 
+    private var latestDefaultValuesRequest: PONativeAlternativePaymentMethodDefaultValuesRequest? = null
+
     init {
         POLogger.info("Starting native alternative payment.", attributes = logAttributes)
-        dispatch(PONativeAlternativePaymentMethodEvent.WillStart)
+        dispatch(WillStart)
         dispatchFailure()
-//        collectDefaultValues() TODO
+        collectDefaultValues()
         fetchTransactionDetails()
     }
 
@@ -73,7 +78,6 @@ internal class NativeAlternativePaymentInteractor(
                         paymentState = state,
                         parameters = parameters,
                         parameterValues = parameterValues,
-                        isInitial = true,
                         coroutineScope = this@launch
                     )
                 }
@@ -84,18 +88,95 @@ internal class NativeAlternativePaymentInteractor(
         }
     }
 
-    private fun PONativeAlternativePaymentMethodTransactionDetails.toStateValue(): UserInputStateValue {
-        val fields = parameters?.toFields() ?: emptyList()
-        return UserInputStateValue(
+    private fun PONativeAlternativePaymentMethodTransactionDetails.toStateValue() =
+        UserInputStateValue(
             invoice = invoice,
             gateway = gateway,
-            fields = fields,
-            focusedFieldId = fields.firstOrNull()?.id,
+            fields = emptyList(),
+            focusedFieldId = null,
             primaryActionId = ActionId.SUBMIT,
             secondaryActionId = ActionId.CANCEL,
             submitAllowed = true,
             submitting = false
         )
+
+    private suspend fun handleState(
+        stateValue: UserInputStateValue,
+        paymentState: PONativeAlternativePaymentMethodState?,
+        parameters: List<PONativeAlternativePaymentMethodParameter>?,
+        parameterValues: PONativeAlternativePaymentMethodParameterValues?,
+        coroutineScope: CoroutineScope
+    ) {
+        when (paymentState) {
+            CUSTOMER_INPUT, null -> handleCustomerInput(stateValue, parameters)
+            PENDING_CAPTURE -> handlePendingCapture(stateValue, parameterValues, coroutineScope)
+            CAPTURED -> handleCaptured(stateValue)
+            FAILED -> _completion.update {
+                Failure(
+                    ProcessOutResult.Failure(
+                        code = POFailure.Code.Generic(),
+                        message = "Payment has failed."
+                    ).also { POLogger.info("%s", it, attributes = logAttributes) }
+                )
+            }
+        }
+    }
+
+    private fun handleCustomerInput(
+        stateValue: UserInputStateValue,
+        parameters: List<PONativeAlternativePaymentMethodParameter>?
+    ) {
+        if (parameters.isNullOrEmpty()) {
+            _completion.update {
+                Failure(
+                    ProcessOutResult.Failure(
+                        code = POFailure.Code.Internal(),
+                        message = "Input parameters is missing in response."
+                    ).also { POLogger.warn("%s", it, attributes = logAttributes) }
+                )
+            }
+            return
+        }
+        if (failWithUnknownInputParameter(parameters)) {
+            return
+        }
+        val fields = parameters.toFields()
+        val updatedStateValue = stateValue.copy(
+            fields = fields,
+            focusedFieldId = fields.firstOrNull()?.id
+        )
+        val isLoading = _state.value is Loading
+        if (eventDispatcher.subscribedForDefaultValuesRequest()) {
+            _state.update {
+                if (isLoading) {
+                    Loaded(updatedStateValue)
+                } else {
+                    Submitted(updatedStateValue)
+                }
+            }
+            requestDefaultValues(parameters)
+        } else if (isLoading) {
+            startUserInput(updatedStateValue)
+        } else {
+            continueUserInput(updatedStateValue)
+        }
+    }
+
+    private fun failWithUnknownInputParameter(
+        parameters: List<PONativeAlternativePaymentMethodParameter>
+    ): Boolean {
+        parameters.find { it.type() == UNKNOWN }?.let { parameter ->
+            _completion.update {
+                Failure(
+                    ProcessOutResult.Failure(
+                        code = POFailure.Code.Internal(),
+                        message = "Unknown input parameter type: ${parameter.rawType}"
+                    ).also { POLogger.error("%s", it, attributes = logAttributes) }
+                )
+            }
+            return true
+        }
+        return false
     }
 
     private fun List<PONativeAlternativePaymentMethodParameter>.toFields() =
@@ -123,14 +204,89 @@ internal class NativeAlternativePaymentInteractor(
             }
         }
 
-    private suspend fun handleState(
+    private fun startUserInput(stateValue: UserInputStateValue) {
+        _state.update { UserInput(stateValue) }
+
+        // TODO
+//        uiModel.secondaryAction?.let {
+//            scheduleSecondaryActionEnabling(it) { enableSecondaryAction() }
+//        }
+
+        dispatch(DidStart)
+        POLogger.info("Started. Waiting for payment parameters.")
+    }
+
+    private fun continueUserInput(stateValue: UserInputStateValue) {
+        _state.update {
+            UserInput(
+                stateValue.copy(
+                    submitAllowed = true,
+                    submitting = false
+                )
+            )
+        }
+        dispatch(DidSubmitParameters(additionalParametersExpected = true))
+        POLogger.info("Submitted. Waiting for additional payment parameters.")
+    }
+
+    private fun requestDefaultValues(parameters: List<PONativeAlternativePaymentMethodParameter>) {
+        interactorScope.launch {
+            val request = PONativeAlternativePaymentMethodDefaultValuesRequest(
+                gatewayConfigurationId = gatewayConfigurationId,
+                invoiceId = invoiceId,
+                parameters = parameters
+            )
+            latestDefaultValuesRequest = request
+            eventDispatcher.send(request)
+            POLogger.debug("Requested to provide default values for payment parameters: %s", request)
+        }
+    }
+
+    private fun collectDefaultValues() {
+        interactorScope.launch {
+            eventDispatcher.defaultValuesResponse.collect { response ->
+                if (response.uuid == latestDefaultValuesRequest?.uuid) {
+                    latestDefaultValuesRequest = null
+                    POLogger.debug("Collected default values for payment parameters: %s", response)
+                    _state.whenLoaded { stateValue ->
+                        startUserInput(stateValue.withDefaultValues(response.defaultValues))
+                    }
+                    _state.whenSubmitted { stateValue ->
+                        continueUserInput(stateValue.withDefaultValues(response.defaultValues))
+                    }
+                }
+            }
+        }
+    }
+
+    private fun UserInputStateValue.withDefaultValues(
+        defaultValues: Map<String, String>
+    ): UserInputStateValue {
+        val updatedFields = fields.map { field ->
+            defaultValues.entries.find { it.key == field.id }?.let {
+                val defaultValue = field.length?.let { length ->
+                    it.value.take(length)
+                } ?: it.value
+                field.copy(
+                    value = TextFieldValue(
+                        text = defaultValue,
+                        selection = TextRange(defaultValue.length)
+                    )
+                )
+            } ?: field
+        }
+        return copy(fields = updatedFields)
+    }
+
+    private fun handlePendingCapture(
         stateValue: UserInputStateValue,
-        paymentState: PONativeAlternativePaymentMethodState?,
-        parameters: List<PONativeAlternativePaymentMethodParameter>?,
         parameterValues: PONativeAlternativePaymentMethodParameterValues?,
-        isInitial: Boolean,
         coroutineScope: CoroutineScope
     ) {
+        // TODO
+    }
+
+    private fun handleCaptured(stateValue: UserInputStateValue) {
         // TODO
     }
 
