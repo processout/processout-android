@@ -14,7 +14,7 @@ import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodSta
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodState.*
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails
 import com.processout.sdk.api.service.POInvoicesService
-import com.processout.sdk.core.POFailure
+import com.processout.sdk.core.POFailure.Code.*
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
@@ -114,7 +114,7 @@ internal class NativeAlternativePaymentInteractor(
             FAILED -> _completion.update {
                 Failure(
                     ProcessOutResult.Failure(
-                        code = POFailure.Code.Generic(),
+                        code = Generic(),
                         message = "Payment has failed."
                     ).also { POLogger.info("%s", it, attributes = logAttributes) }
                 )
@@ -130,7 +130,7 @@ internal class NativeAlternativePaymentInteractor(
             _completion.update {
                 Failure(
                     ProcessOutResult.Failure(
-                        code = POFailure.Code.Internal(),
+                        code = Internal(),
                         message = "Input parameters is missing in response."
                     ).also { POLogger.warn("%s", it, attributes = logAttributes) }
                 )
@@ -169,7 +169,7 @@ internal class NativeAlternativePaymentInteractor(
             _completion.update {
                 Failure(
                     ProcessOutResult.Failure(
-                        code = POFailure.Code.Internal(),
+                        code = Internal(),
                         message = "Unknown input parameter type: ${parameter.rawType}"
                     ).also { POLogger.error("%s", it, attributes = logAttributes) }
                 )
@@ -341,7 +341,7 @@ internal class NativeAlternativePaymentInteractor(
         _completion.update {
             Failure(
                 ProcessOutResult.Failure(
-                    code = POFailure.Code.Cancelled,
+                    code = Cancelled,
                     message = "Cancelled by the user with secondary cancel action."
                 ).also { POLogger.info("Cancelled: %s", it, attributes = logAttributes) }
             )
