@@ -92,7 +92,9 @@ internal class NativeAlternativePaymentInteractor(
             fields = fields,
             focusedFieldId = fields.firstOrNull()?.id,
             primaryActionId = ActionId.SUBMIT,
-            secondaryActionId = ActionId.CANCEL
+            secondaryActionId = ActionId.CANCEL,
+            submitAllowed = true,
+            submitting = false
         )
     }
 

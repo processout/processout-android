@@ -43,8 +43,8 @@ internal sealed interface NativeAlternativePaymentInteractorState {
         val focusedFieldId: String?,
         val primaryActionId: String,
         val secondaryActionId: String,
-        val submitAllowed: Boolean = true,
-        val submitting: Boolean = false
+        val submitAllowed: Boolean,
+        val submitting: Boolean
     )
 
     data class CaptureStateValue(
