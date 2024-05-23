@@ -5,6 +5,10 @@ import androidx.compose.ui.text.input.TextFieldValue
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.DidFail
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameterValues
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodState
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
@@ -18,6 +22,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Failure
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -60,12 +65,40 @@ internal class NativeAlternativePaymentInteractor(
                 invoiceId = invoiceId,
                 gatewayConfigurationId = gatewayConfigurationId
             ).onSuccess { details ->
-                // TODO
+                with(details) {
+                    handleState(
+                        stateValue = toStateValue(),
+                        paymentState = state,
+                        parameters = parameters,
+                        parameterValues = parameterValues,
+                        isInitial = true,
+                        coroutineScope = this@launch
+                    )
+                }
             }.onFailure { failure ->
                 POLogger.info("Failed to fetch transaction details: %s", failure)
                 _completion.update { Failure(failure) }
             }
         }
+    }
+
+    private fun PONativeAlternativePaymentMethodTransactionDetails.toStateValue() =
+        UserInputStateValue(
+            invoice = invoice,
+            gateway = gateway,
+            primaryActionId = ActionId.SUBMIT,
+            secondaryActionId = ActionId.CANCEL
+        )
+
+    private suspend fun handleState(
+        stateValue: UserInputStateValue,
+        paymentState: PONativeAlternativePaymentMethodState?,
+        parameters: List<PONativeAlternativePaymentMethodParameter>?,
+        parameterValues: PONativeAlternativePaymentMethodParameterValues?,
+        isInitial: Boolean,
+        coroutineScope: CoroutineScope
+    ) {
+        // TODO
     }
 
     fun onEvent(event: NativeAlternativePaymentEvent) {
@@ -94,6 +127,7 @@ internal class NativeAlternativePaymentInteractor(
             _state.update {
                 Capturing(
                     CaptureStateValue(
+                        paymentProviderName = null,
                         logoUrl = null,
                         secondaryActionId = ActionId.CANCEL
                     )

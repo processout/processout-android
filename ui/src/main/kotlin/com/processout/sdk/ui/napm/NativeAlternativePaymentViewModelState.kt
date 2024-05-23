@@ -11,11 +11,16 @@ internal sealed interface NativeAlternativePaymentViewModelState {
     data class UserInput(
         val title: String,
         val primaryAction: POActionState,
-        val secondaryAction: POActionState?
+        val secondaryAction: POActionState?,
+        val actionMessageMarkdown: String?,
+        val actionImageUrl: String?,
+        val successMessage: String
     ) : NativeAlternativePaymentViewModelState
 
     @Immutable
     data class Capture(
+        val paymentProviderName: String?,
+        val logoUrl: String?,
         val secondaryAction: POActionState?,
         val isCaptured: Boolean
     ) : NativeAlternativePaymentViewModelState
