@@ -249,28 +249,28 @@ internal class NativeAlternativePaymentInteractor(
                     latestDefaultValuesRequest = null
                     POLogger.debug("Collected default values for payment parameters: %s", response)
                     _state.whenLoaded { stateValue ->
-                        startUserInput(stateValue.withDefaultValues(response.defaultValues))
+                        startUserInput(stateValue.updateFieldValues(response.defaultValues))
                     }
                     _state.whenSubmitted { stateValue ->
-                        continueUserInput(stateValue.withDefaultValues(response.defaultValues))
+                        continueUserInput(stateValue.updateFieldValues(response.defaultValues))
                     }
                 }
             }
         }
     }
 
-    private fun UserInputStateValue.withDefaultValues(
-        defaultValues: Map<String, String>
+    private fun UserInputStateValue.updateFieldValues(
+        values: Map<String, String>
     ): UserInputStateValue {
         val updatedFields = fields.map { field ->
-            defaultValues.entries.find { it.key == field.id }?.let {
-                val defaultValue = field.length?.let { length ->
+            values.entries.find { it.key == field.id }?.let {
+                val value = field.length?.let { length ->
                     it.value.take(length)
                 } ?: it.value
                 field.copy(
                     value = TextFieldValue(
-                        text = defaultValue,
-                        selection = TextRange(defaultValue.length)
+                        text = value,
+                        selection = TextRange(value.length)
                     )
                 )
             } ?: field
