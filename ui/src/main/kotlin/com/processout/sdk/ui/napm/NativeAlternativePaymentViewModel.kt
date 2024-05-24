@@ -7,14 +7,18 @@ import androidx.lifecycle.viewModelScope
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType.NUMERIC
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType.SINGLE_SELECT
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails.Invoice
 import com.processout.sdk.core.retry.PORetryStrategy.Exponential
 import com.processout.sdk.core.util.POMarkdownUtils.escapedMarkdown
 import com.processout.sdk.ui.core.state.POActionState
+import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractor.Companion.LOG_ATTRIBUTE_GATEWAY_CONFIGURATION_ID
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractor.Companion.LOG_ATTRIBUTE_INVOICE_ID
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
+import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Field.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.DEFAULT_TIMEOUT_SECONDS
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.MAX_TIMEOUT_SECONDS
@@ -69,6 +73,11 @@ internal class NativeAlternativePaymentViewModel(
                 )
             }
         )
+    }
+
+    private companion object {
+        const val CODE_FIELD_LENGTH_MIN = 1
+        const val CODE_FIELD_LENGTH_MAX = 6
     }
 
     val completion = interactor.completion
@@ -135,8 +144,69 @@ internal class NativeAlternativePaymentViewModel(
     }
 
     private fun List<Field>.map(): POImmutableList<NativeAlternativePaymentViewModelState.Field> {
-        return POImmutableList(emptyList())
+        val fields = map { field ->
+            when (field.type) {
+                NUMERIC -> if (field.length in CODE_FIELD_LENGTH_MIN..CODE_FIELD_LENGTH_MAX) {
+                    field.toCodeField()
+                } else {
+                    field.toTextField()
+                }
+                SINGLE_SELECT -> {
+                    val availableValuesCount = field.availableValues?.size ?: 0
+                    if (availableValuesCount <= options.inlineSingleSelectValuesLimit) {
+                        field.toRadioField()
+                    } else {
+                        field.toDropdownField()
+                    }
+                }
+                else -> field.toTextField()
+            }
+        }
+        return POImmutableList(fields)
     }
+
+    private fun Field.toTextField(): NativeAlternativePaymentViewModelState.Field =
+        TextField(
+            POFieldState(
+                id = id,
+                value = value,
+                title = displayName,
+                isError = !isValid
+            )
+        )
+
+    private fun Field.toCodeField(): NativeAlternativePaymentViewModelState.Field =
+        CodeField(
+            POFieldState(
+                id = id,
+                value = value,
+                length = length,
+                title = displayName,
+                isError = !isValid
+            )
+        )
+
+    private fun Field.toRadioField(): NativeAlternativePaymentViewModelState.Field =
+        RadioField(
+            POFieldState(
+                id = id,
+                value = value,
+                availableValues = availableValues?.let { POImmutableList(it) },
+                title = displayName,
+                isError = !isValid
+            )
+        )
+
+    private fun Field.toDropdownField(): NativeAlternativePaymentViewModelState.Field =
+        DropdownField(
+            POFieldState(
+                id = id,
+                value = value,
+                availableValues = availableValues?.let { POImmutableList(it) },
+                title = displayName,
+                isError = !isValid
+            )
+        )
 
     private fun Invoice.formatPrimaryActionText() =
         try {
