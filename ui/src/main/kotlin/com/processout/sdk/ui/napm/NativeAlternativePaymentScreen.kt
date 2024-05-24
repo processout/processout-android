@@ -8,10 +8,7 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
@@ -21,28 +18,34 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.R
-import com.processout.sdk.ui.core.component.POActionsContainer
-import com.processout.sdk.ui.core.component.POCircularProgressIndicator
-import com.processout.sdk.ui.core.component.POHeader
-import com.processout.sdk.ui.core.component.POText
+import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
+import com.processout.sdk.ui.core.component.field.POFieldLabels
 import com.processout.sdk.ui.core.component.field.code.POCodeField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
 import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
+import com.processout.sdk.ui.core.component.field.text.POLabeledTextField
 import com.processout.sdk.ui.core.state.POActionState
+import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
-import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.Action
+import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.AnimationDurationMillis
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.animatedBackgroundColor
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.*
+import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Field.*
+import com.processout.sdk.ui.shared.composable.rememberLifecycleEvent
 
 @Composable
 internal fun NativeAlternativePaymentScreen(
@@ -113,9 +116,131 @@ private fun UserInput(
 ) {
     AnimatedVisibility {
         Column {
-            // TODO
+            val lifecycleEvent = rememberLifecycleEvent()
+            val labelsStyle = remember {
+                POFieldLabels.Style(
+                    title = style.label,
+                    description = style.errorMessage
+                )
+            }
+            val isPrimaryActionEnabled = with(state.primaryAction) { enabled && !loading }
+            state.fields.elements.forEach { field ->
+                when (field) {
+                    is TextField -> TextField(
+                        state = field.state,
+                        onEvent = onEvent,
+                        lifecycleEvent = lifecycleEvent,
+                        focusedFieldId = state.focusedFieldId,
+                        isPrimaryActionEnabled = isPrimaryActionEnabled,
+                        fieldStyle = style.field,
+                        labelsStyle = labelsStyle,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    is CodeField -> CodeField(
+                        state = field.state,
+                        onEvent = onEvent,
+                        lifecycleEvent = lifecycleEvent,
+                        focusedFieldId = state.focusedFieldId,
+                        isPrimaryActionEnabled = isPrimaryActionEnabled,
+                        style = style.codeField
+                    )
+                    is RadioField -> RadioField(
+                        state = field.state,
+                        onEvent = onEvent
+                    )
+                    is DropdownField -> DropdownField(
+                        state = field.state,
+                        onEvent = onEvent
+                    )
+                }
+            }
         }
     }
+}
+
+@Composable
+private fun TextField(
+    state: POFieldState,
+    onEvent: (NativeAlternativePaymentEvent) -> Unit,
+    lifecycleEvent: Lifecycle.Event,
+    focusedFieldId: String?,
+    isPrimaryActionEnabled: Boolean,
+    fieldStyle: POField.Style,
+    labelsStyle: POFieldLabels.Style,
+    modifier: Modifier = Modifier
+) {
+    val focusRequester = remember { FocusRequester() }
+    POLabeledTextField(
+        value = state.value,
+        onValueChange = {
+            onEvent(
+                FieldValueChanged(
+                    id = state.id,
+                    value = state.inputFilter?.filter(it) ?: it
+                )
+            )
+        },
+        title = state.title ?: String(),
+        description = state.description,
+        modifier = modifier
+            .focusRequester(focusRequester)
+            .onFocusChanged {
+                onEvent(
+                    FieldFocusChanged(
+                        id = state.id,
+                        isFocused = it.isFocused
+                    )
+                )
+            },
+        fieldStyle = fieldStyle,
+        labelsStyle = labelsStyle,
+        enabled = state.enabled,
+        isError = state.isError,
+        forceTextDirectionLtr = state.forceTextDirectionLtr,
+        placeholderText = state.placeholder,
+        visualTransformation = state.visualTransformation,
+        keyboardOptions = state.keyboardOptions,
+        keyboardActions = POField.keyboardActions(
+            imeAction = state.keyboardOptions.imeAction,
+            actionId = state.keyboardActionId,
+            enabled = isPrimaryActionEnabled,
+            onClick = { onEvent(Action(id = it)) }
+        )
+    )
+    if (state.id == focusedFieldId && lifecycleEvent == Lifecycle.Event.ON_RESUME) {
+        PORequestFocus(focusRequester, lifecycleEvent)
+    }
+}
+
+@Composable
+private fun CodeField(
+    state: POFieldState,
+    onEvent: (NativeAlternativePaymentEvent) -> Unit,
+    lifecycleEvent: Lifecycle.Event,
+    focusedFieldId: String?,
+    isPrimaryActionEnabled: Boolean,
+    style: POField.Style,
+    modifier: Modifier = Modifier
+) {
+    // TODO
+}
+
+@Composable
+private fun RadioField(
+    state: POFieldState,
+    onEvent: (NativeAlternativePaymentEvent) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    // TODO
+}
+
+@Composable
+private fun DropdownField(
+    state: POFieldState,
+    onEvent: (NativeAlternativePaymentEvent) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    // TODO
 }
 
 @Composable
