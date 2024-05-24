@@ -85,13 +85,13 @@ internal class NativeAlternativePaymentViewModel(
         state: NativeAlternativePaymentInteractorState
     ): NativeAlternativePaymentViewModelState = when (state) {
         Loading -> NativeAlternativePaymentViewModelState.Loading
-        is UserInput -> state.userInput()
-        is Capturing -> state.capture()
-        is Captured -> state.capture()
+        is UserInput -> state.toUserInput()
+        is Capturing -> state.toCapture()
+        is Captured -> state.toCapture()
         else -> this@NativeAlternativePaymentViewModel.state.value
     }
 
-    private fun UserInput.userInput() = with(value) {
+    private fun UserInput.toUserInput() = with(value) {
         NativeAlternativePaymentViewModelState.UserInput(
             title = options.title ?: app.getString(R.string.po_native_apm_title_format, gateway.displayName),
             fields = fields.map(),
@@ -103,7 +103,7 @@ internal class NativeAlternativePaymentViewModel(
                 enabled = submitAllowed,
                 loading = submitting
             ),
-            secondaryAction = options.secondaryAction?.state(
+            secondaryAction = options.secondaryAction?.toActionState(
                 id = secondaryActionId,
                 enabled = !submitting
             ),
@@ -113,11 +113,11 @@ internal class NativeAlternativePaymentViewModel(
         )
     }
 
-    private fun Capturing.capture() = with(value) {
+    private fun Capturing.toCapture() = with(value) {
         NativeAlternativePaymentViewModelState.Capture(
             paymentProviderName = paymentProviderName,
             logoUrl = logoUrl,
-            secondaryAction = options.paymentConfirmation.secondaryAction?.state(
+            secondaryAction = options.paymentConfirmation.secondaryAction?.toActionState(
                 id = secondaryActionId,
                 enabled = true
             ),
@@ -125,7 +125,7 @@ internal class NativeAlternativePaymentViewModel(
         )
     }
 
-    private fun Captured.capture() = with(value) {
+    private fun Captured.toCapture() = with(value) {
         NativeAlternativePaymentViewModelState.Capture(
             paymentProviderName = paymentProviderName,
             logoUrl = logoUrl,
@@ -148,7 +148,7 @@ internal class NativeAlternativePaymentViewModel(
             app.getString(R.string.po_native_apm_submit_button_text)
         }
 
-    private fun SecondaryAction.state(
+    private fun SecondaryAction.toActionState(
         id: String,
         enabled: Boolean
     ): POActionState = when (this) {
