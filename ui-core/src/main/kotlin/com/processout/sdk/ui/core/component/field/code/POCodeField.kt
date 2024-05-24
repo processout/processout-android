@@ -245,8 +245,8 @@ object POCodeField {
         )
     }
 
-    internal val LengthMin = 1
-    internal val LengthMax = 6
+    val LengthMin = 1
+    val LengthMax = 6
 
     internal fun validLength(length: Int): Int {
         if (length in LengthMin..LengthMax) {

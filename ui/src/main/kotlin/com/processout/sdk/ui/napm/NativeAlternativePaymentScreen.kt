@@ -32,6 +32,7 @@ import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.POFieldLabels
 import com.processout.sdk.ui.core.component.field.code.POCodeField
+import com.processout.sdk.ui.core.component.field.code.POLabeledCodeField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
 import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
 import com.processout.sdk.ui.core.component.field.text.POLabeledTextField
@@ -142,7 +143,8 @@ private fun UserInput(
                         lifecycleEvent = lifecycleEvent,
                         focusedFieldId = state.focusedFieldId,
                         isPrimaryActionEnabled = isPrimaryActionEnabled,
-                        style = style.codeField
+                        fieldStyle = style.codeField,
+                        labelsStyle = labelsStyle
                     )
                     is RadioField -> RadioField(
                         state = field.state,
@@ -219,10 +221,45 @@ private fun CodeField(
     lifecycleEvent: Lifecycle.Event,
     focusedFieldId: String?,
     isPrimaryActionEnabled: Boolean,
-    style: POField.Style,
+    fieldStyle: POField.Style,
+    labelsStyle: POFieldLabels.Style,
     modifier: Modifier = Modifier
 ) {
-    // TODO
+    POLabeledCodeField(
+        value = state.value,
+        onValueChange = {
+            onEvent(
+                FieldValueChanged(
+                    id = state.id,
+                    value = it
+                )
+            )
+        },
+        title = state.title ?: String(),
+        description = state.description,
+        modifier = modifier
+            .onFocusChanged {
+                onEvent(
+                    FieldFocusChanged(
+                        id = state.id,
+                        isFocused = it.isFocused
+                    )
+                )
+            },
+        fieldStyle = fieldStyle,
+        labelsStyle = labelsStyle,
+        length = state.length ?: POCodeField.LengthMax,
+        isError = state.isError,
+        isFocused = state.id == focusedFieldId,
+        lifecycleEvent = lifecycleEvent,
+        keyboardOptions = state.keyboardOptions,
+        keyboardActions = POField.keyboardActions(
+            imeAction = state.keyboardOptions.imeAction,
+            actionId = state.keyboardActionId,
+            enabled = isPrimaryActionEnabled,
+            onClick = { onEvent(Action(id = it)) }
+        )
+    )
 }
 
 @Composable
