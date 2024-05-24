@@ -59,7 +59,7 @@ internal class NativeAlternativePaymentInteractor(
     private var latestDefaultValuesRequest: PONativeAlternativePaymentMethodDefaultValuesRequest? = null
 
     init {
-        POLogger.info("Starting native alternative payment.", attributes = logAttributes)
+        POLogger.info("Starting native alternative payment.")
         dispatch(WillStart)
         dispatchFailure()
         collectDefaultValues()
@@ -82,7 +82,7 @@ internal class NativeAlternativePaymentInteractor(
                     )
                 }
             }.onFailure { failure ->
-                POLogger.info("Failed to fetch transaction details: %s", failure, attributes = logAttributes)
+                POLogger.info("Failed to fetch transaction details: %s", failure)
                 _completion.update { Failure(failure) }
             }
         }
@@ -116,7 +116,7 @@ internal class NativeAlternativePaymentInteractor(
                     ProcessOutResult.Failure(
                         code = Generic(),
                         message = "Payment has failed."
-                    ).also { POLogger.info("%s", it, attributes = logAttributes) }
+                    ).also { POLogger.info("%s", it) }
                 )
             }
         }
@@ -132,7 +132,7 @@ internal class NativeAlternativePaymentInteractor(
                     ProcessOutResult.Failure(
                         code = Internal(),
                         message = "Input parameters is missing in response."
-                    ).also { POLogger.warn("%s", it, attributes = logAttributes) }
+                    ).also { POLogger.error("%s", it, attributes = logAttributes) }
                 )
             }
             return
@@ -213,7 +213,7 @@ internal class NativeAlternativePaymentInteractor(
 //        }
 
         dispatch(DidStart)
-        POLogger.info("Started. Waiting for payment parameters.", attributes = logAttributes)
+        POLogger.info("Started. Waiting for payment parameters.")
     }
 
     private fun continueUserInput(stateValue: UserInputStateValue) {
@@ -226,7 +226,7 @@ internal class NativeAlternativePaymentInteractor(
             )
         }
         dispatch(DidSubmitParameters(additionalParametersExpected = true))
-        POLogger.info("Submitted. Waiting for additional payment parameters.", attributes = logAttributes)
+        POLogger.info("Submitted. Waiting for additional payment parameters.")
     }
 
     private fun requestDefaultValues(parameters: List<PONativeAlternativePaymentMethodParameter>) {
@@ -238,10 +238,7 @@ internal class NativeAlternativePaymentInteractor(
             )
             latestDefaultValuesRequest = request
             eventDispatcher.send(request)
-            POLogger.debug(
-                "Requested to provide default values for payment parameters: %s", request,
-                attributes = logAttributes
-            )
+            POLogger.debug("Requested to provide default values for payment parameters: %s", request)
         }
     }
 
@@ -250,10 +247,7 @@ internal class NativeAlternativePaymentInteractor(
             eventDispatcher.defaultValuesResponse.collect { response ->
                 if (response.uuid == latestDefaultValuesRequest?.uuid) {
                     latestDefaultValuesRequest = null
-                    POLogger.debug(
-                        "Collected default values for payment parameters: %s", response,
-                        attributes = logAttributes
-                    )
+                    POLogger.debug("Collected default values for payment parameters: %s", response)
                     _state.whenLoaded { stateValue ->
                         startUserInput(stateValue.withDefaultValues(response.defaultValues))
                     }
@@ -304,7 +298,7 @@ internal class NativeAlternativePaymentInteractor(
                 ActionId.SUBMIT -> submit()
                 ActionId.CANCEL -> cancel()
             }
-            is Dismiss -> POLogger.info("Dismissed: %s", event.failure, attributes = logAttributes)
+            is Dismiss -> POLogger.info("Dismissed: %s", event.failure)
         }
     }
 
@@ -349,7 +343,7 @@ internal class NativeAlternativePaymentInteractor(
                 ProcessOutResult.Failure(
                     code = Cancelled,
                     message = "Cancelled by the user with secondary cancel action."
-                ).also { POLogger.info("Cancelled: %s", it, attributes = logAttributes) }
+                ).also { POLogger.info("Cancelled: %s", it) }
             )
         }
     }
@@ -357,7 +351,7 @@ internal class NativeAlternativePaymentInteractor(
     private fun dispatch(event: PONativeAlternativePaymentMethodEvent) {
         interactorScope.launch {
             eventDispatcher.send(event)
-            POLogger.debug("Event has been sent: %s", event, attributes = logAttributes)
+            POLogger.debug("Event has been sent: %s", event)
         }
     }
 
