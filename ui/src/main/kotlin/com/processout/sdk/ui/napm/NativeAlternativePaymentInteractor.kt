@@ -303,7 +303,41 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private fun updateFieldValue(id: String, value: TextFieldValue) {
-        // TODO
+        _state.whenUserInput { stateValue ->
+            val previousValue = stateValue.fields.find { it.id == id }?.value ?: TextFieldValue()
+            val isTextChanged = value.text != previousValue.text
+            _state.update {
+                UserInput(
+                    stateValue.copy(
+                        fields = stateValue.fields.map { field ->
+                            // TODO: remove field error message when edited?
+                            updatedField(id, value, field, isTextChanged)
+                        }
+                    )
+                )
+            }
+            if (isTextChanged) {
+                POLogger.debug("Field is edited by the user: %s", id)
+                dispatch(ParametersChanged)
+                // TODO: allow submit if all fields valid?
+            }
+        }
+    }
+
+    private fun updatedField(
+        id: String,
+        value: TextFieldValue,
+        field: Field,
+        isTextChanged: Boolean
+    ): Field {
+        if (field.id != id) {
+            return field
+        }
+        return if (isTextChanged) {
+            field.copy(value = value, isValid = true)
+        } else {
+            field.copy(value = value)
+        }
     }
 
     private fun updateFieldFocus(id: String, isFocused: Boolean) {
