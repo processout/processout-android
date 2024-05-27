@@ -7,6 +7,7 @@ import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentM
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.*
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodDefaultValuesRequest
+import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType.UNKNOWN
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameterValues
@@ -28,7 +29,6 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -351,22 +351,54 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private fun submit() {
-        // TODO
-        interactorScope.launch {
+        _state.whenUserInput { stateValue ->
+            POLogger.info("Will submit payment parameters.")
+            dispatch(WillSubmitParameters)
+
+            // TODO validate
+
             _state.update {
-                Capturing(
-                    CaptureStateValue(
-                        paymentProviderName = null,
-                        logoUrl = null,
-                        secondaryActionId = ActionId.CANCEL
+                UserInput(
+                    stateValue.copy(
+                        submitAllowed = true,
+                        submitting = true
                     )
                 )
             }
-            delay(2000)
-            _state.whenCapturing { stateValue ->
-                _state.update {
-                    Captured(stateValue)
+            initiatePayment()
+        }
+    }
+
+    private fun initiatePayment() {
+        _state.whenUserInput { stateValue ->
+            interactorScope.launch {
+                val parameters = mutableMapOf<String, String>()
+                stateValue.fields.forEach {
+                    parameters[it.id] = it.value.text
                 }
+                val request = PONativeAlternativePaymentMethodRequest(
+                    invoiceId = invoiceId,
+                    gatewayConfigurationId = gatewayConfigurationId,
+                    parameters = parameters
+                )
+                invoicesService.initiatePayment(request)
+                    .onSuccess { payment ->
+                        with(payment) {
+                            handleState(
+                                stateValue = stateValue,
+                                paymentState = state,
+                                parameters = parameterDefinitions,
+                                parameterValues = parameterValues,
+                                coroutineScope = this@launch
+                            )
+                        }
+                    }
+                    .onFailure { failure ->
+                        // TODO
+//                        handlePaymentFailure(
+//                            uiModel, result, replaceToLocalMessage = true
+//                        )
+                    }
             }
         }
     }
