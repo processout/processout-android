@@ -1,8 +1,11 @@
 package com.processout.sdk.ui.napm
 
 import android.app.Application
+import android.util.Patterns
+import androidx.annotation.StringRes
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.core.text.isDigitsOnly
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
@@ -18,6 +21,8 @@ import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodSta
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.POFailure.Code.*
+import com.processout.sdk.core.POFailure.InvalidField
+import com.processout.sdk.core.POFailure.ValidationCode
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
@@ -358,9 +363,19 @@ internal class NativeAlternativePaymentInteractor(
         _state.whenUserInput { stateValue ->
             POLogger.info("Will submit payment parameters.")
             dispatch(WillSubmitParameters)
-
-            // TODO validate
-
+            val invalidFields = stateValue.fields.mapNotNull { it.validate() }
+            if (invalidFields.isNotEmpty()) {
+                val failure = ProcessOutResult.Failure(
+                    code = Validation(ValidationCode.general),
+                    message = "Invalid fields.",
+                    invalidFields = invalidFields
+                )
+                handlePaymentFailure(
+                    failure = failure,
+                    replaceWithLocalMessage = false
+                )
+                return@whenUserInput
+            }
             _state.update {
                 UserInput(
                     stateValue.copy(
@@ -372,6 +387,40 @@ internal class NativeAlternativePaymentInteractor(
             initiatePayment()
         }
     }
+
+    private fun Field.validate(): InvalidField? {
+        val value = value.text
+        if (required && value.isBlank()) {
+            return invalidField(R.string.po_native_apm_error_required_parameter)
+        }
+        length?.let {
+            if (value.length != it) {
+                return InvalidField(
+                    name = id,
+                    message = app.resources.getQuantityString(
+                        R.plurals.po_native_apm_error_invalid_length, it, it
+                    )
+                )
+            }
+        }
+        when (type) {
+            NUMERIC -> if (!value.isDigitsOnly())
+                return invalidField(R.string.po_native_apm_error_invalid_number)
+            EMAIL -> if (!Patterns.EMAIL_ADDRESS.matcher(value).matches())
+                return invalidField(R.string.po_native_apm_error_invalid_email)
+            PHONE -> if (!Patterns.PHONE.matcher(value).matches())
+                return invalidField(R.string.po_native_apm_error_invalid_phone)
+            else -> {}
+        }
+        return null
+    }
+
+    private fun Field.invalidField(
+        @StringRes messageResId: Int
+    ) = InvalidField(
+        name = id,
+        message = app.getString(messageResId)
+    )
 
     private fun UserInputStateValue.areAllFieldsValid() = fields.all { it.isValid }
 
