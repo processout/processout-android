@@ -188,6 +188,7 @@ internal class NativeAlternativePaymentViewModel(
                 value = value,
                 title = displayName,
                 isError = !isValid,
+                forceTextDirectionLtr = setOf(NUMERIC, EMAIL, PHONE).contains(type),
                 inputFilter = if (type == PHONE) PhoneNumberInputFilter() else null,
                 visualTransformation = if (type == PHONE) PhoneNumberVisualTransformation() else VisualTransformation.None,
                 keyboardOptions = type.keyboardOptions(keyboardAction.imeAction),
