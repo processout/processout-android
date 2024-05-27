@@ -187,6 +187,7 @@ internal class NativeAlternativePaymentViewModel(
                 id = id,
                 value = value,
                 title = displayName,
+                placeholder = type.placeholder(),
                 isError = !isValid,
                 forceTextDirectionLtr = setOf(NUMERIC, EMAIL, PHONE).contains(type),
                 inputFilter = if (type == PHONE) PhoneNumberInputFilter() else null,
@@ -279,6 +280,12 @@ internal class NativeAlternativePaymentViewModel(
         UNKNOWN -> KeyboardOptions(
             imeAction = imeAction
         )
+    }
+
+    private fun ParameterType.placeholder(): String? = when (this) {
+        EMAIL -> app.getString(R.string.po_native_apm_email_placeholder)
+        PHONE -> app.getString(R.string.po_native_apm_phone_placeholder)
+        else -> null
     }
 
     private fun Invoice.formatPrimaryActionText() =

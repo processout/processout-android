@@ -658,8 +658,8 @@ internal class NativeAlternativePaymentMethodViewModel(
 
     private fun getInputHint(type: ParameterType) =
         when (type) {
-            PHONE -> app.getString(R.string.po_native_apm_input_hint_phone)
-            EMAIL -> app.getString(R.string.po_native_apm_input_hint_email)
+            EMAIL -> app.getString(R.string.po_native_apm_email_placeholder)
+            PHONE -> app.getString(R.string.po_native_apm_phone_placeholder)
             else -> null
         }
 

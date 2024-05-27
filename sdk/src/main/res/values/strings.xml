@@ -12,8 +12,8 @@
     <string name="po_native_apm_cancel_confirmation_confirm">Cancel payment</string>
     <string name="po_native_apm_cancel_confirmation_dismiss">Not now</string>
     <string name="po_native_apm_success_message">Success!\nPayment approved.</string>
-    <string name="po_native_apm_input_hint_phone">Enter phone number</string>
-    <string name="po_native_apm_input_hint_email">name@example.com</string>
+    <string name="po_native_apm_email_placeholder">name@example.com</string>
+    <string name="po_native_apm_phone_placeholder">Enter phone number</string>
     <string name="po_native_apm_error_required_parameter">Parameter is required.</string>
     <string name="po_native_apm_error_invalid_number">Number is not valid.</string>
     <string name="po_native_apm_error_invalid_text">Value is not valid.</string>
