@@ -116,7 +116,9 @@ private fun UserInput(
     style: NativeAlternativePaymentScreen.Style
 ) {
     AnimatedVisibility {
-        Column {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
+        ) {
             val lifecycleEvent = rememberLifecycleEvent()
             val labelsStyle = remember {
                 POFieldLabels.Style(
