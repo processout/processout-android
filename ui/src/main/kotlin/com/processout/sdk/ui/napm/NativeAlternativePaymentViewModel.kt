@@ -1,6 +1,10 @@
 package com.processout.sdk.ui.napm
 
 import android.app.Application
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -8,6 +12,7 @@ import androidx.lifecycle.viewModelScope
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType.*
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails.Invoice
 import com.processout.sdk.core.retry.PORetryStrategy.Exponential
@@ -82,6 +87,11 @@ internal class NativeAlternativePaymentViewModel(
         const val CODE_FIELD_LENGTH_MAX = 6
     }
 
+    private data class KeyboardAction(
+        val imeAction: ImeAction,
+        val actionId: String?
+    )
+
     val completion = interactor.completion
 
     val state = interactor.state.map(viewModelScope, ::map)
@@ -146,12 +156,14 @@ internal class NativeAlternativePaymentViewModel(
     }
 
     private fun List<Field>.map(): POImmutableList<NativeAlternativePaymentViewModelState.Field> {
+        val lastFocusableFieldId = lastFocusableFieldId()
         val fields = map { field ->
+            val keyboardAction = keyboardAction(field.id, lastFocusableFieldId)
             when (field.type) {
                 NUMERIC -> if (field.length in CODE_FIELD_LENGTH_MIN..CODE_FIELD_LENGTH_MAX) {
-                    field.toCodeField()
+                    field.toCodeField(keyboardAction)
                 } else {
-                    field.toTextField()
+                    field.toTextField(keyboardAction)
                 }
                 SINGLE_SELECT -> {
                     val availableValuesCount = field.availableValues?.size ?: 0
@@ -161,13 +173,15 @@ internal class NativeAlternativePaymentViewModel(
                         field.toDropdownField()
                     }
                 }
-                else -> field.toTextField()
+                else -> field.toTextField(keyboardAction)
             }
         }
         return POImmutableList(fields)
     }
 
-    private fun Field.toTextField(): NativeAlternativePaymentViewModelState.Field =
+    private fun Field.toTextField(
+        keyboardAction: KeyboardAction
+    ): NativeAlternativePaymentViewModelState.Field =
         TextField(
             POFieldState(
                 id = id,
@@ -175,18 +189,24 @@ internal class NativeAlternativePaymentViewModel(
                 title = displayName,
                 isError = !isValid,
                 inputFilter = if (type == PHONE) PhoneNumberInputFilter() else null,
-                visualTransformation = if (type == PHONE) PhoneNumberVisualTransformation() else VisualTransformation.None
+                visualTransformation = if (type == PHONE) PhoneNumberVisualTransformation() else VisualTransformation.None,
+                keyboardOptions = type.keyboardOptions(keyboardAction.imeAction),
+                keyboardActionId = keyboardAction.actionId
             )
         )
 
-    private fun Field.toCodeField(): NativeAlternativePaymentViewModelState.Field =
+    private fun Field.toCodeField(
+        keyboardAction: KeyboardAction
+    ): NativeAlternativePaymentViewModelState.Field =
         CodeField(
             POFieldState(
                 id = id,
                 value = value,
                 length = length,
                 title = displayName,
-                isError = !isValid
+                isError = !isValid,
+                keyboardOptions = type.keyboardOptions(keyboardAction.imeAction),
+                keyboardActionId = keyboardAction.actionId
             )
         )
 
@@ -211,6 +231,54 @@ internal class NativeAlternativePaymentViewModel(
                 isError = !isValid
             )
         )
+
+    private fun List<Field>.lastFocusableFieldId(): String? {
+        reversed().forEach { field ->
+            if (field.type != SINGLE_SELECT) {
+                return field.id
+            }
+        }
+        return null
+    }
+
+    private fun keyboardAction(fieldId: String, lastFocusableFieldId: String?) =
+        if (fieldId == lastFocusableFieldId) {
+            KeyboardAction(
+                imeAction = ImeAction.Done,
+                actionId = ActionId.SUBMIT
+            )
+        } else {
+            KeyboardAction(
+                imeAction = ImeAction.Next,
+                actionId = null
+            )
+        }
+
+    private fun ParameterType.keyboardOptions(
+        imeAction: ImeAction
+    ): KeyboardOptions = when (this) {
+        NUMERIC -> KeyboardOptions(
+            keyboardType = KeyboardType.NumberPassword,
+            imeAction = imeAction
+        )
+        TEXT -> KeyboardOptions(
+            capitalization = KeyboardCapitalization.Sentences,
+            keyboardType = KeyboardType.Text,
+            imeAction = imeAction
+        )
+        EMAIL -> KeyboardOptions(
+            keyboardType = KeyboardType.Email,
+            imeAction = imeAction
+        )
+        PHONE -> KeyboardOptions(
+            keyboardType = KeyboardType.Phone,
+            imeAction = imeAction
+        )
+        SINGLE_SELECT -> KeyboardOptions.Default
+        UNKNOWN -> KeyboardOptions(
+            imeAction = imeAction
+        )
+    }
 
     private fun Invoice.formatPrimaryActionText() =
         try {
