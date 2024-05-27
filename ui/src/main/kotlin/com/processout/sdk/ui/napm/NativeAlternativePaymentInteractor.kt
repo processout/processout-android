@@ -3,13 +3,15 @@ package com.processout.sdk.ui.napm
 import android.app.Application
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.*
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodDefaultValuesRequest
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType.UNKNOWN
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType.*
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameterValues
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodState
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodState.*
@@ -198,6 +200,7 @@ internal class NativeAlternativePaymentInteractor(
                     type = type(),
                     length = length,
                     displayName = displayName,
+                    description = null,
                     required = required,
                     isValid = true
                 )
@@ -310,7 +313,6 @@ internal class NativeAlternativePaymentInteractor(
                 UserInput(
                     stateValue.copy(
                         fields = stateValue.fields.map { field ->
-                            // TODO: remove field error message when edited?
                             updatedField(id, value, field, isTextChanged)
                         }
                     )
@@ -334,7 +336,7 @@ internal class NativeAlternativePaymentInteractor(
             return field
         }
         return if (isTextChanged) {
-            field.copy(value = value, isValid = true)
+            field.copy(value = value, description = null, isValid = true)
         } else {
             field.copy(value = value)
         }
@@ -394,14 +396,69 @@ internal class NativeAlternativePaymentInteractor(
                         }
                     }
                     .onFailure { failure ->
-                        // TODO
-//                        handlePaymentFailure(
-//                            uiModel, result, replaceToLocalMessage = true
-//                        )
+                        handlePaymentFailure(
+                            failure = failure,
+                            replaceWithLocalMessage = true
+                        )
                     }
             }
         }
     }
+
+    private fun handlePaymentFailure(
+        failure: ProcessOutResult.Failure,
+        replaceWithLocalMessage: Boolean // TODO: Delete this when backend localization is ready.
+    ) {
+        _state.whenUserInput { stateValue ->
+            val invalidFields = failure.invalidFields
+            if (invalidFields.isNullOrEmpty()) {
+                POLogger.info("Unrecoverable payment failure: %s", failure)
+                _completion.update { Failure(failure) }
+                return@whenUserInput
+            }
+            val updatedFields = stateValue.fields.map { field ->
+                invalidFields.find { it.name == field.id }?.let { invalidField ->
+                    field.copy(
+                        description = fieldErrorMessage(
+                            originalMessage = invalidField.message,
+                            replaceWithLocalMessage = replaceWithLocalMessage,
+                            type = field.type
+                        ),
+                        isValid = false
+                    )
+                } ?: field
+            }
+            val firstInvalidFieldId = updatedFields.find { !it.isValid }?.id
+            _state.update {
+                UserInput(
+                    stateValue.copy(
+                        fields = updatedFields,
+                        focusedFieldId = firstInvalidFieldId ?: stateValue.focusedFieldId,
+                        submitAllowed = updatedFields.all { it.isValid },
+                        submitting = false
+                    )
+                )
+            }
+            POLogger.info("Recovered after the failure: %s", failure)
+            dispatch(DidFailToSubmitParameters(failure))
+        }
+    }
+
+    // TODO: Delete this when backend localization is ready.
+    private fun fieldErrorMessage(
+        originalMessage: String?,
+        replaceWithLocalMessage: Boolean,
+        type: ParameterType
+    ): String? =
+        if (replaceWithLocalMessage)
+            when (type) {
+                NUMERIC -> app.getString(R.string.po_native_apm_error_invalid_number)
+                TEXT -> app.getString(R.string.po_native_apm_error_invalid_text)
+                EMAIL -> app.getString(R.string.po_native_apm_error_invalid_email)
+                PHONE -> app.getString(R.string.po_native_apm_error_invalid_phone)
+                else -> null
+            }
+        else originalMessage
 
     private fun cancel() {
         _completion.update {

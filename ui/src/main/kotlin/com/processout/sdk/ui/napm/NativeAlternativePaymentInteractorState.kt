@@ -60,6 +60,7 @@ internal sealed interface NativeAlternativePaymentInteractorState {
         val type: ParameterType,
         val length: Int?,
         val displayName: String,
+        val description: String?,
         val required: Boolean,
         val isValid: Boolean
     )

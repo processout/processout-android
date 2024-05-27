@@ -187,6 +187,7 @@ internal class NativeAlternativePaymentViewModel(
                 id = id,
                 value = value,
                 title = displayName,
+                description = description,
                 placeholder = type.placeholder(),
                 isError = !isValid,
                 forceTextDirectionLtr = setOf(NUMERIC, EMAIL, PHONE).contains(type),
@@ -206,6 +207,7 @@ internal class NativeAlternativePaymentViewModel(
                 value = value,
                 length = length,
                 title = displayName,
+                description = description,
                 isError = !isValid,
                 keyboardOptions = type.keyboardOptions(keyboardAction.imeAction),
                 keyboardActionId = keyboardAction.actionId
@@ -219,6 +221,7 @@ internal class NativeAlternativePaymentViewModel(
                 value = value,
                 availableValues = availableValues?.let { POImmutableList(it) },
                 title = displayName,
+                description = description,
                 isError = !isValid
             )
         )
@@ -230,6 +233,7 @@ internal class NativeAlternativePaymentViewModel(
                 value = value,
                 availableValues = availableValues?.let { POImmutableList(it) },
                 title = displayName,
+                description = description,
                 isError = !isValid
             )
         )
