@@ -1,14 +1,14 @@
 package com.processout.sdk.ui.napm
 
 import android.app.Application
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType.NUMERIC
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType.SINGLE_SELECT
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType.*
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails.Invoice
 import com.processout.sdk.core.retry.PORetryStrategy.Exponential
 import com.processout.sdk.core.util.POMarkdownUtils.escapedMarkdown
@@ -24,6 +24,8 @@ import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Paymen
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.MAX_TIMEOUT_SECONDS
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.SecondaryAction
 import com.processout.sdk.ui.shared.extension.map
+import com.processout.sdk.ui.shared.filter.PhoneNumberInputFilter
+import com.processout.sdk.ui.shared.transformation.PhoneNumberVisualTransformation
 import java.text.NumberFormat
 import java.util.Currency
 
@@ -171,7 +173,9 @@ internal class NativeAlternativePaymentViewModel(
                 id = id,
                 value = value,
                 title = displayName,
-                isError = !isValid
+                isError = !isValid,
+                inputFilter = if (type == PHONE) PhoneNumberInputFilter() else null,
+                visualTransformation = if (type == PHONE) PhoneNumberVisualTransformation() else VisualTransformation.None
             )
         )
 
