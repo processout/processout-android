@@ -44,6 +44,7 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.AnimationDurationMillis
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.animatedBackgroundColor
+import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.codeFieldHorizontalAlignment
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Field.*
 import com.processout.sdk.ui.shared.composable.rememberLifecycleEvent
@@ -146,7 +147,8 @@ private fun UserInput(
                         focusedFieldId = state.focusedFieldId,
                         isPrimaryActionEnabled = isPrimaryActionEnabled,
                         fieldStyle = style.codeField,
-                        labelsStyle = labelsStyle
+                        labelsStyle = labelsStyle,
+                        horizontalAlignment = codeFieldHorizontalAlignment(state.fields.elements)
                     )
                     is RadioField -> RadioField(
                         state = field.state,
@@ -225,6 +227,7 @@ private fun CodeField(
     isPrimaryActionEnabled: Boolean,
     fieldStyle: POField.Style,
     labelsStyle: POFieldLabels.Style,
+    horizontalAlignment: Alignment.Horizontal,
     modifier: Modifier = Modifier
 ) {
     POLabeledCodeField(
@@ -251,6 +254,7 @@ private fun CodeField(
         fieldStyle = fieldStyle,
         labelsStyle = labelsStyle,
         length = state.length ?: POCodeField.LengthMax,
+        horizontalAlignment = horizontalAlignment,
         isError = state.isError,
         isFocused = state.id == focusedFieldId,
         lifecycleEvent = lifecycleEvent,
@@ -459,4 +463,8 @@ internal object NativeAlternativePaymentScreen {
         },
         animationSpec = tween(durationMillis = AnimationDurationMillis, easing = LinearEasing)
     ).value
+
+    fun codeFieldHorizontalAlignment(fields: List<Field>): Alignment.Horizontal =
+        if (fields.size == 1 && fields[0] is CodeField)
+            Alignment.CenterHorizontally else Alignment.Start
 }
