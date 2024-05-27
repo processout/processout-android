@@ -143,9 +143,12 @@ internal class NativeAlternativePaymentInteractor(
             return
         }
         val fields = parameters.toFields()
+        val focusedFieldId = fields.getOrNull(0)?.let { field ->
+            if (field.type != SINGLE_SELECT) field.id else null
+        }
         val updatedStateValue = stateValue.copy(
             fields = fields,
-            focusedFieldId = fields.firstOrNull()?.id
+            focusedFieldId = focusedFieldId
         )
         val isLoading = _state.value is Loading
         if (eventDispatcher.subscribedForDefaultValuesRequest()) {
