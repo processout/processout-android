@@ -312,19 +312,18 @@ internal class NativeAlternativePaymentInteractor(
         _state.whenUserInput { stateValue ->
             val previousValue = stateValue.fields.find { it.id == id }?.value ?: TextFieldValue()
             val isTextChanged = value.text != previousValue.text
-            _state.update {
-                UserInput(
-                    stateValue.copy(
-                        fields = stateValue.fields.map { field ->
-                            updatedField(id, value, field, isTextChanged)
-                        }
-                    )
-                )
-            }
+            val updatedStateValue = stateValue.copy(
+                fields = stateValue.fields.map { field ->
+                    updatedField(id, value, field, isTextChanged)
+                }
+            )
+            _state.update { UserInput(updatedStateValue) }
             if (isTextChanged) {
                 POLogger.debug("Field is edited by the user: %s", id)
                 dispatch(ParametersChanged)
-                // TODO: allow submit if all fields valid?
+                if (updatedStateValue.areAllFieldsValid()) {
+                    _state.update { UserInput(updatedStateValue.copy(submitAllowed = true)) }
+                }
             }
         }
     }
@@ -373,6 +372,8 @@ internal class NativeAlternativePaymentInteractor(
             initiatePayment()
         }
     }
+
+    private fun UserInputStateValue.areAllFieldsValid() = fields.all { it.isValid }
 
     private fun initiatePayment() {
         _state.whenUserInput { stateValue ->
