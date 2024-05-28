@@ -65,7 +65,7 @@ private fun titlePadding(
     if (withDragHandle) PaddingValues(
         start = spacing.extraLarge,
         end = spacing.extraLarge,
-        top = spacing.small,
+        top = spacing.medium,
         bottom = spacing.large
     ) else PaddingValues(
         horizontal = spacing.extraLarge,
