@@ -34,6 +34,7 @@ import com.processout.sdk.ui.core.component.field.POFieldLabels
 import com.processout.sdk.ui.core.component.field.code.POCodeField
 import com.processout.sdk.ui.core.component.field.code.POLabeledCodeField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
+import com.processout.sdk.ui.core.component.field.radio.POLabeledRadioField
 import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
 import com.processout.sdk.ui.core.component.field.text.POLabeledTextField
 import com.processout.sdk.ui.core.state.POActionState
@@ -152,7 +153,9 @@ private fun UserInput(
                     )
                     is RadioField -> RadioField(
                         state = field.state,
-                        onEvent = onEvent
+                        onEvent = onEvent,
+                        radioGroupStyle = style.radioGroup,
+                        labelsStyle = labelsStyle
                     )
                     is DropdownField -> DropdownField(
                         state = field.state,
@@ -272,9 +275,28 @@ private fun CodeField(
 private fun RadioField(
     state: POFieldState,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
+    radioGroupStyle: PORadioGroup.Style,
+    labelsStyle: POFieldLabels.Style,
     modifier: Modifier = Modifier
 ) {
-    // TODO
+    POLabeledRadioField(
+        value = state.value,
+        onValueChange = {
+            onEvent(
+                FieldValueChanged(
+                    id = state.id,
+                    value = it
+                )
+            )
+        },
+        availableValues = state.availableValues ?: POImmutableList(emptyList()),
+        title = state.title ?: String(),
+        description = state.description,
+        modifier = modifier,
+        radioGroupStyle = radioGroupStyle,
+        labelsStyle = labelsStyle,
+        isError = state.isError
+    )
 }
 
 @Composable
