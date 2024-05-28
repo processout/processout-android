@@ -12,8 +12,8 @@
     <string name="po_native_apm_cancel_confirmation_confirm">Cancelar pagamento</string>
     <string name="po_native_apm_cancel_confirmation_dismiss">Agora não</string>
     <string name="po_native_apm_success_message">Successo!\nPagamento aprovado.</string>
-    <string name="po_native_apm_input_hint_phone">Insira o seu número de telemóvel</string>
-    <string name="po_native_apm_input_hint_email">nome@exemplo.pt</string>
+    <string name="po_native_apm_email_placeholder">nome@exemplo.pt</string>
+    <string name="po_native_apm_phone_placeholder">Insira o seu número de telemóvel</string>
     <string name="po_native_apm_error_required_parameter">Campo obrigatório.</string>
     <string name="po_native_apm_error_invalid_number">Número inválido.</string>
     <string name="po_native_apm_error_invalid_text">Texto inválido.</string>

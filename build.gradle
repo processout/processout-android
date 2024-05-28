@@ -2,7 +2,7 @@
 
 buildscript {
     ext {
-        androidGradlePluginVersion = '8.4.0'
+        androidGradlePluginVersion = '8.4.1'
         kotlinVersion = '1.9.24'
         kspVersion = '1.9.24-1.0.20'
         dokkaVersion = '1.9.20'
@@ -59,6 +59,7 @@ ext {
     okioVersion = '3.9.0'
     coilVersion = '2.6.0'
     commonMarkVersion = '0.22.0'
+    libphonenumberVersion = '8.13.37'
 
     checkout3dsSdkVersion = '3.2.2'
     adyen3dsSdkVersion = '2.2.15'

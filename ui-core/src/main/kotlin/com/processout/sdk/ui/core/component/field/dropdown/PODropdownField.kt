@@ -44,7 +44,6 @@ fun PODropdownField(
     modifier: Modifier = Modifier,
     fieldStyle: POField.Style = POField.default,
     menuStyle: PODropdownField.MenuStyle = PODropdownField.defaultMenu,
-    enabled: Boolean = true,
     isError: Boolean = false,
     placeholderText: String? = null
 ) {
@@ -63,7 +62,7 @@ fun PODropdownField(
                 onValueChange = {},
                 modifier = modifier.menuAnchor(),
                 style = fieldStyle,
-                enabled = enabled,
+                enabled = true,
                 readOnly = true,
                 isDropdown = true,
                 isError = isError,

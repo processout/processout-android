@@ -1,20 +1,38 @@
 package com.processout.sdk.ui.napm
 
 import android.app.Application
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType.*
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails.Invoice
 import com.processout.sdk.core.retry.PORetryStrategy.Exponential
+import com.processout.sdk.core.util.POMarkdownUtils.escapedMarkdown
 import com.processout.sdk.ui.core.state.POActionState
+import com.processout.sdk.ui.core.state.POFieldState
+import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractor.Companion.LOG_ATTRIBUTE_GATEWAY_CONFIGURATION_ID
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractor.Companion.LOG_ATTRIBUTE_INVOICE_ID
-import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.*
+import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
+import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Field.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.DEFAULT_TIMEOUT_SECONDS
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.MAX_TIMEOUT_SECONDS
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.SecondaryAction
 import com.processout.sdk.ui.shared.extension.map
+import com.processout.sdk.ui.shared.filter.PhoneNumberInputFilter
+import com.processout.sdk.ui.shared.transformation.PhoneNumberVisualTransformation
+import java.text.NumberFormat
+import java.util.Currency
 
 internal class NativeAlternativePaymentViewModel(
     private val app: Application,
@@ -64,6 +82,16 @@ internal class NativeAlternativePaymentViewModel(
         )
     }
 
+    private companion object {
+        const val CODE_FIELD_LENGTH_MIN = 1
+        const val CODE_FIELD_LENGTH_MAX = 6
+    }
+
+    private data class KeyboardAction(
+        val imeAction: ImeAction,
+        val actionId: String?
+    )
+
     val completion = interactor.completion
 
     val state = interactor.state.map(viewModelScope, ::map)
@@ -76,40 +104,213 @@ internal class NativeAlternativePaymentViewModel(
 
     private fun map(
         state: NativeAlternativePaymentInteractorState
-    ): NativeAlternativePaymentViewModelState = with(options) {
-        when (state) {
-            NativeAlternativePaymentInteractorState.Loading -> Loading
-            is NativeAlternativePaymentInteractorState.UserInput ->
-                with(state.value) {
-                    UserInput(
-                        title = "Title",
-                        primaryAction = POActionState(
-                            id = primaryActionId,
-                            text = "Submit",
-                            primary = true
-                        ),
-                        secondaryAction = POActionState(
-                            id = secondaryActionId,
-                            text = "Cancel",
-                            primary = false
-                        )
-                    )
+    ): NativeAlternativePaymentViewModelState = when (state) {
+        Loading -> NativeAlternativePaymentViewModelState.Loading
+        is UserInput -> state.toUserInput()
+        is Capturing -> state.toCapture()
+        is Captured -> state.toCapture()
+        else -> this@NativeAlternativePaymentViewModel.state.value
+    }
+
+    private fun UserInput.toUserInput() = with(value) {
+        NativeAlternativePaymentViewModelState.UserInput(
+            title = options.title ?: app.getString(R.string.po_native_apm_title_format, gateway.displayName),
+            fields = fields.map(),
+            focusedFieldId = focusedFieldId,
+            primaryAction = POActionState(
+                id = primaryActionId,
+                text = options.primaryActionText ?: invoice.formatPrimaryActionText(),
+                primary = true,
+                enabled = submitAllowed,
+                loading = submitting
+            ),
+            secondaryAction = options.secondaryAction?.toActionState(
+                id = secondaryActionId,
+                enabled = !submitting
+            ),
+            actionMessageMarkdown = gateway.customerActionMessage?.let { escapedMarkdown(it) },
+            actionImageUrl = gateway.customerActionImageUrl,
+            successMessage = options.successMessage ?: app.getString(R.string.po_native_apm_success_message)
+        )
+    }
+
+    private fun Capturing.toCapture() = with(value) {
+        NativeAlternativePaymentViewModelState.Capture(
+            paymentProviderName = paymentProviderName,
+            logoUrl = logoUrl,
+            secondaryAction = options.paymentConfirmation.secondaryAction?.toActionState(
+                id = secondaryActionId,
+                enabled = true
+            ),
+            isCaptured = false
+        )
+    }
+
+    private fun Captured.toCapture() = with(value) {
+        NativeAlternativePaymentViewModelState.Capture(
+            paymentProviderName = paymentProviderName,
+            logoUrl = logoUrl,
+            secondaryAction = null,
+            isCaptured = true
+        )
+    }
+
+    private fun List<Field>.map(): POImmutableList<NativeAlternativePaymentViewModelState.Field> {
+        val lastFocusableFieldId = lastFocusableFieldId()
+        val fields = map { field ->
+            val keyboardAction = keyboardAction(field.id, lastFocusableFieldId)
+            when (field.type) {
+                NUMERIC -> if (field.length in CODE_FIELD_LENGTH_MIN..CODE_FIELD_LENGTH_MAX) {
+                    field.toCodeField(keyboardAction)
+                } else {
+                    field.toTextField(keyboardAction)
                 }
-            is NativeAlternativePaymentInteractorState.Capturing ->
-                Capture(
-                    secondaryAction = POActionState(
-                        id = state.value.secondaryActionId,
-                        text = "Cancel",
-                        primary = false
-                    ),
-                    isCaptured = false
-                )
-            is NativeAlternativePaymentInteractorState.Captured ->
-                Capture(
-                    secondaryAction = null,
-                    isCaptured = true
-                )
-            else -> this@NativeAlternativePaymentViewModel.state.value
+                SINGLE_SELECT -> {
+                    val availableValuesCount = field.availableValues?.size ?: 0
+                    if (availableValuesCount <= options.inlineSingleSelectValuesLimit) {
+                        field.toRadioField()
+                    } else {
+                        field.toDropdownField()
+                    }
+                }
+                else -> field.toTextField(keyboardAction)
+            }
         }
+        return POImmutableList(fields)
+    }
+
+    private fun Field.toTextField(
+        keyboardAction: KeyboardAction
+    ): NativeAlternativePaymentViewModelState.Field =
+        TextField(
+            POFieldState(
+                id = id,
+                value = value,
+                title = displayName,
+                description = description,
+                placeholder = type.placeholder(),
+                isError = !isValid,
+                forceTextDirectionLtr = setOf(NUMERIC, EMAIL, PHONE).contains(type),
+                inputFilter = if (type == PHONE) PhoneNumberInputFilter() else null,
+                visualTransformation = if (type == PHONE) PhoneNumberVisualTransformation() else VisualTransformation.None,
+                keyboardOptions = type.keyboardOptions(keyboardAction.imeAction),
+                keyboardActionId = keyboardAction.actionId
+            )
+        )
+
+    private fun Field.toCodeField(
+        keyboardAction: KeyboardAction
+    ): NativeAlternativePaymentViewModelState.Field =
+        CodeField(
+            POFieldState(
+                id = id,
+                value = value,
+                length = length,
+                title = displayName,
+                description = description,
+                isError = !isValid,
+                keyboardOptions = type.keyboardOptions(keyboardAction.imeAction),
+                keyboardActionId = keyboardAction.actionId
+            )
+        )
+
+    private fun Field.toRadioField(): NativeAlternativePaymentViewModelState.Field =
+        RadioField(
+            POFieldState(
+                id = id,
+                value = value,
+                availableValues = availableValues?.let { POImmutableList(it) },
+                title = displayName,
+                description = description,
+                isError = !isValid
+            )
+        )
+
+    private fun Field.toDropdownField(): NativeAlternativePaymentViewModelState.Field =
+        DropdownField(
+            POFieldState(
+                id = id,
+                value = value,
+                availableValues = availableValues?.let { POImmutableList(it) },
+                title = displayName,
+                description = description,
+                isError = !isValid
+            )
+        )
+
+    private fun List<Field>.lastFocusableFieldId(): String? {
+        reversed().forEach { field ->
+            if (field.type != SINGLE_SELECT) {
+                return field.id
+            }
+        }
+        return null
+    }
+
+    private fun keyboardAction(fieldId: String, lastFocusableFieldId: String?) =
+        if (fieldId == lastFocusableFieldId) {
+            KeyboardAction(
+                imeAction = ImeAction.Done,
+                actionId = ActionId.SUBMIT
+            )
+        } else {
+            KeyboardAction(
+                imeAction = ImeAction.Next,
+                actionId = null
+            )
+        }
+
+    private fun ParameterType.keyboardOptions(
+        imeAction: ImeAction
+    ): KeyboardOptions = when (this) {
+        NUMERIC -> KeyboardOptions(
+            keyboardType = KeyboardType.NumberPassword,
+            imeAction = imeAction
+        )
+        TEXT -> KeyboardOptions(
+            capitalization = KeyboardCapitalization.Sentences,
+            keyboardType = KeyboardType.Text,
+            imeAction = imeAction
+        )
+        EMAIL -> KeyboardOptions(
+            keyboardType = KeyboardType.Email,
+            imeAction = imeAction
+        )
+        PHONE -> KeyboardOptions(
+            keyboardType = KeyboardType.Phone,
+            imeAction = imeAction
+        )
+        SINGLE_SELECT -> KeyboardOptions.Default
+        UNKNOWN -> KeyboardOptions(
+            imeAction = imeAction
+        )
+    }
+
+    private fun ParameterType.placeholder(): String? = when (this) {
+        EMAIL -> app.getString(R.string.po_native_apm_email_placeholder)
+        PHONE -> app.getString(R.string.po_native_apm_phone_placeholder)
+        else -> null
+    }
+
+    private fun Invoice.formatPrimaryActionText() =
+        try {
+            val price = NumberFormat.getCurrencyInstance().apply {
+                currency = Currency.getInstance(currencyCode)
+            }.format(amount.toDouble())
+            app.getString(R.string.po_native_apm_submit_button_text_format, price)
+        } catch (_: Exception) {
+            app.getString(R.string.po_native_apm_submit_button_text)
+        }
+
+    private fun SecondaryAction.toActionState(
+        id: String,
+        enabled: Boolean
+    ): POActionState = when (this) {
+        is SecondaryAction.Cancel -> POActionState(
+            id = id,
+            text = text ?: app.getString(R.string.po_native_apm_cancel_button_text),
+            primary = false,
+            enabled = enabled
+        )
     }
 }

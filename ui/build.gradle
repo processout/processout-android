@@ -94,6 +94,7 @@ dependencies {
 
     api "com.google.android.gms:play-services-wallet:$gmsWalletVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$kotlinxCoroutinesPlayServicesVersion"
+    implementation "com.googlecode.libphonenumber:libphonenumber:$libphonenumberVersion"
 
     ksp "com.squareup.moshi:moshi-kotlin-codegen:$moshiVersion"
 }

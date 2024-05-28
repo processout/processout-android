@@ -15,6 +15,7 @@ data class POFieldState(
     val id: String,
     val value: TextFieldValue = TextFieldValue(),
     val availableValues: POImmutableList<POAvailableValue>? = null,
+    val length: Int? = null,
     val title: String? = null,
     val description: String? = null,
     val placeholder: String? = null,

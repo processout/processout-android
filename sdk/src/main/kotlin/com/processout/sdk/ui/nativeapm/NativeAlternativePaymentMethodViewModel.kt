@@ -35,7 +35,7 @@ import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.retry.PORetryStrategy
 import com.processout.sdk.core.retry.PORetryStrategy.Exponential
-import com.processout.sdk.core.util.escapedMarkdown
+import com.processout.sdk.core.util.POMarkdownUtils.escapedMarkdown
 import com.processout.sdk.ui.nativeapm.NativeAlternativePaymentMethodUiState.*
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.*
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration.Options.Companion.DEFAULT_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
@@ -603,7 +603,7 @@ internal class NativeAlternativePaymentMethodViewModel(
             inputParameters = parameters?.toInputParameters() ?: emptyList(),
             successMessage = options.successMessage
                 ?: app.getString(R.string.po_native_apm_success_message),
-            customerActionMessageMarkdown = escapedMarkdown(gateway.customerActionMessage),
+            customerActionMessageMarkdown = gateway.customerActionMessage?.let { escapedMarkdown(it) },
             customerActionImageUrl = gateway.customerActionImageUrl,
             primaryActionText = options.primaryActionText ?: invoice.formatPrimaryActionText(),
             secondaryAction = options.secondaryAction?.toUiModel(),
@@ -658,8 +658,8 @@ internal class NativeAlternativePaymentMethodViewModel(
 
     private fun getInputHint(type: ParameterType) =
         when (type) {
-            PHONE -> app.getString(R.string.po_native_apm_input_hint_phone)
-            EMAIL -> app.getString(R.string.po_native_apm_input_hint_email)
+            EMAIL -> app.getString(R.string.po_native_apm_email_placeholder)
+            PHONE -> app.getString(R.string.po_native_apm_phone_placeholder)
             else -> null
         }
 
