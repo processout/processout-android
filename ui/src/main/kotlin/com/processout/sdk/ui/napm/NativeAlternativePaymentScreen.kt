@@ -34,6 +34,7 @@ import com.processout.sdk.ui.core.component.field.POFieldLabels
 import com.processout.sdk.ui.core.component.field.code.POCodeField
 import com.processout.sdk.ui.core.component.field.code.POLabeledCodeField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
+import com.processout.sdk.ui.core.component.field.dropdown.POLabeledDropdownField
 import com.processout.sdk.ui.core.component.field.radio.POLabeledRadioField
 import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
 import com.processout.sdk.ui.core.component.field.text.POLabeledTextField
@@ -159,7 +160,10 @@ private fun UserInput(
                     )
                     is DropdownField -> DropdownField(
                         state = field.state,
-                        onEvent = onEvent
+                        onEvent = onEvent,
+                        fieldStyle = style.field,
+                        menuStyle = style.dropdownMenu,
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             }
@@ -303,9 +307,38 @@ private fun RadioField(
 private fun DropdownField(
     state: POFieldState,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
+    fieldStyle: POField.Style,
+    menuStyle: PODropdownField.MenuStyle,
     modifier: Modifier = Modifier
 ) {
-    // TODO
+    POLabeledDropdownField(
+        value = state.value,
+        onValueChange = {
+            onEvent(
+                FieldValueChanged(
+                    id = state.id,
+                    value = it
+                )
+            )
+        },
+        availableValues = state.availableValues ?: POImmutableList(emptyList()),
+        title = state.title ?: String(),
+        description = state.description,
+        modifier = modifier
+            .onFocusChanged {
+                onEvent(
+                    FieldFocusChanged(
+                        id = state.id,
+                        isFocused = it.isFocused
+                    )
+                )
+            },
+        fieldStyle = fieldStyle,
+        menuStyle = menuStyle,
+        enabled = state.enabled,
+        isError = state.isError,
+        placeholderText = state.placeholder
+    )
 }
 
 @Composable
