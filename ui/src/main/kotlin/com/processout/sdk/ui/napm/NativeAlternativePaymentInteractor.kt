@@ -65,6 +65,8 @@ internal class NativeAlternativePaymentInteractor(
 
     private var latestDefaultValuesRequest: PONativeAlternativePaymentMethodDefaultValuesRequest? = null
 
+    //region Initialization
+
     init {
         POLogger.info("Starting native alternative payment.")
         dispatch(WillStart)
@@ -107,6 +109,8 @@ internal class NativeAlternativePaymentInteractor(
             submitting = false
         )
 
+    //endregion
+
     private suspend fun handleState(
         stateValue: UserInputStateValue,
         paymentState: PONativeAlternativePaymentMethodState?,
@@ -128,6 +132,8 @@ internal class NativeAlternativePaymentInteractor(
             }
         }
     }
+
+    //region User Input
 
     private fun handleCustomerInput(
         stateValue: UserInputStateValue,
@@ -240,6 +246,10 @@ internal class NativeAlternativePaymentInteractor(
         POLogger.info("Submitted. Waiting for additional payment parameters.")
     }
 
+    //endregion
+
+    //region Default Values
+
     private fun requestDefaultValues(parameters: List<PONativeAlternativePaymentMethodParameter>) {
         interactorScope.launch {
             val request = PONativeAlternativePaymentMethodDefaultValuesRequest(
@@ -289,17 +299,7 @@ internal class NativeAlternativePaymentInteractor(
         return copy(fields = updatedFields)
     }
 
-    private fun handlePendingCapture(
-        stateValue: UserInputStateValue,
-        parameterValues: PONativeAlternativePaymentMethodParameterValues?,
-        coroutineScope: CoroutineScope
-    ) {
-        // TODO
-    }
-
-    private fun handleCaptured(stateValue: UserInputStateValue) {
-        // TODO
-    }
+    //endregion
 
     fun onEvent(event: NativeAlternativePaymentEvent) {
         when (event) {
@@ -312,6 +312,8 @@ internal class NativeAlternativePaymentInteractor(
             is Dismiss -> POLogger.info("Dismissed: %s", event.failure)
         }
     }
+
+    //region Update Field
 
     private fun updateFieldValue(id: String, value: TextFieldValue) {
         _state.whenUserInput { stateValue ->
@@ -358,6 +360,10 @@ internal class NativeAlternativePaymentInteractor(
             }
         }
     }
+
+    //endregion
+
+    //region Submit & Validation
 
     private fun submit() {
         _state.whenUserInput { stateValue ->
@@ -458,6 +464,10 @@ internal class NativeAlternativePaymentInteractor(
         }
     }
 
+    //endregion
+
+    //region Handle Failure
+
     private fun handlePaymentFailure(
         failure: ProcessOutResult.Failure,
         replaceWithLocalMessage: Boolean // TODO: Delete this when backend localization is ready.
@@ -512,6 +522,24 @@ internal class NativeAlternativePaymentInteractor(
                 else -> null
             }
         else originalMessage
+
+    //endregion
+
+    //region Capture
+
+    private fun handlePendingCapture(
+        stateValue: UserInputStateValue,
+        parameterValues: PONativeAlternativePaymentMethodParameterValues?,
+        coroutineScope: CoroutineScope
+    ) {
+        // TODO
+    }
+
+    private fun handleCaptured(stateValue: UserInputStateValue) {
+        // TODO
+    }
+
+    //endregion
 
     private fun cancel() {
         _completion.update {
