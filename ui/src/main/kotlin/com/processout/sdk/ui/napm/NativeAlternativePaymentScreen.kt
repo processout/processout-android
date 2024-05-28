@@ -262,6 +262,7 @@ private fun CodeField(
         labelsStyle = labelsStyle,
         length = state.length ?: POCodeField.LengthMax,
         horizontalAlignment = horizontalAlignment,
+        enabled = state.enabled,
         isError = state.isError,
         isFocused = state.id == focusedFieldId,
         lifecycleEvent = lifecycleEvent,

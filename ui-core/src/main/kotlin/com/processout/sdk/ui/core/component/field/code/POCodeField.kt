@@ -42,6 +42,7 @@ fun POCodeField(
     style: POField.Style = POCodeField.default,
     length: Int = POCodeField.LengthMax,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+    enabled: Boolean = true,
     isError: Boolean = false,
     isFocused: Boolean = false,
     lifecycleEvent: Lifecycle.Event? = null,
@@ -158,6 +159,7 @@ fun POCodeField(
                                 }
                             },
                         style = style(style),
+                        enabled = enabled,
                         isError = isError,
                         keyboardOptions = keyboardOptions,
                         keyboardActions = keyboardActions
