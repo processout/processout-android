@@ -23,7 +23,6 @@ fun POLabeledDropdownField(
     fieldStyle: POField.Style = POField.default,
     menuStyle: PODropdownField.MenuStyle = PODropdownField.defaultMenu,
     labelsStyle: POFieldLabels.Style = POFieldLabels.default,
-    enabled: Boolean = true,
     isError: Boolean = false,
     placeholderText: String? = null
 ) {
@@ -39,7 +38,6 @@ fun POLabeledDropdownField(
             modifier = modifier,
             fieldStyle = fieldStyle,
             menuStyle = menuStyle,
-            enabled = enabled,
             isError = isError,
             placeholderText = placeholderText
         )

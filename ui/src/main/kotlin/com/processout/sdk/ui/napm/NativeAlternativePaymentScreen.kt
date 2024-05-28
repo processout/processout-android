@@ -336,7 +336,6 @@ private fun DropdownField(
             },
         fieldStyle = fieldStyle,
         menuStyle = menuStyle,
-        enabled = state.enabled,
         isError = state.isError,
         placeholderText = state.placeholder
     )
