@@ -105,14 +105,16 @@ internal class NativeAlternativePaymentViewModel(
     private fun map(
         state: NativeAlternativePaymentInteractorState
     ): NativeAlternativePaymentViewModelState = when (state) {
-        Loading -> NativeAlternativePaymentViewModelState.Loading
-        is UserInput -> state.toUserInput()
-        is Capturing -> state.toCapture()
-        is Captured -> state.toCapture()
+        Loading -> NativeAlternativePaymentViewModelState.Loading(
+            secondaryAction = null
+        )
+        is UserInput -> state.map()
+        is Capturing -> state.map()
+        is Captured -> state.map()
         else -> this@NativeAlternativePaymentViewModel.state.value
     }
 
-    private fun UserInput.toUserInput() = with(value) {
+    private fun UserInput.map() = with(value) {
         NativeAlternativePaymentViewModelState.UserInput(
             title = options.title ?: app.getString(R.string.po_native_apm_title_format, gateway.displayName),
             fields = fields.map(),
@@ -127,29 +129,37 @@ internal class NativeAlternativePaymentViewModel(
             secondaryAction = options.secondaryAction?.toActionState(
                 id = secondaryActionId,
                 enabled = !submitting
-            ),
-            actionMessageMarkdown = gateway.customerActionMessage?.let { escapedMarkdown(it) },
-            actionImageUrl = gateway.customerActionImageUrl,
-            successMessage = options.successMessage ?: app.getString(R.string.po_native_apm_success_message)
+            )
         )
     }
 
-    private fun Capturing.toCapture() = with(value) {
-        NativeAlternativePaymentViewModelState.Capture(
-            paymentProviderName = paymentProviderName,
-            logoUrl = logoUrl,
-            secondaryAction = options.paymentConfirmation.secondaryAction?.toActionState(
-                id = secondaryActionId,
-                enabled = true
-            ),
-            isCaptured = false
+    private fun Capturing.map() = with(value) {
+        val secondaryAction = options.paymentConfirmation.secondaryAction?.toActionState(
+            id = secondaryActionId,
+            enabled = true
         )
+        if (actionMessage.isNullOrBlank()) {
+            NativeAlternativePaymentViewModelState.Loading(
+                secondaryAction = secondaryAction
+            )
+        } else {
+            NativeAlternativePaymentViewModelState.Capture(
+                title = paymentProviderName,
+                logoUrl = logoUrl,
+                imageUrl = actionImageUrl,
+                message = escapedMarkdown(actionMessage),
+                secondaryAction = secondaryAction,
+                isCaptured = false
+            )
+        }
     }
 
-    private fun Captured.toCapture() = with(value) {
+    private fun Captured.map() = with(value) {
         NativeAlternativePaymentViewModelState.Capture(
-            paymentProviderName = paymentProviderName,
+            title = paymentProviderName,
             logoUrl = logoUrl,
+            imageUrl = null,
+            message = options.successMessage ?: app.getString(R.string.po_native_apm_success_message),
             secondaryAction = null,
             isCaptured = true
         )

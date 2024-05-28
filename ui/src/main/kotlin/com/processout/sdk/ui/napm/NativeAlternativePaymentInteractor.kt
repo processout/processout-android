@@ -6,6 +6,10 @@ import androidx.annotation.StringRes
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.core.text.isDigitsOnly
+import coil.imageLoader
+import coil.request.CachePolicy
+import coil.request.ImageRequest
+import coil.request.ImageResult
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
@@ -35,11 +39,10 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Failure
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
 internal class NativeAlternativePaymentInteractor(
     private val app: Application,
@@ -537,6 +540,33 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun handleCaptured(stateValue: UserInputStateValue) {
         // TODO
+    }
+
+    //endregion
+
+    //region Images
+
+    private suspend fun loadAllImages(
+        stateValue: CaptureStateValue,
+        coroutineScope: CoroutineScope
+    ) {
+        val deferredResults = mutableListOf<Deferred<ImageResult>>()
+        stateValue.logoUrl?.let {
+            deferredResults.add(coroutineScope.async { loadImage(it) })
+        }
+        stateValue.actionImageUrl?.let {
+            deferredResults.add(coroutineScope.async { loadImage(it) })
+        }
+        deferredResults.awaitAll()
+    }
+
+    private suspend fun loadImage(url: String): ImageResult {
+        val request = ImageRequest.Builder(app)
+            .data(url)
+            .memoryCachePolicy(CachePolicy.ENABLED)
+            .diskCachePolicy(CachePolicy.DISABLED)
+            .build()
+        return app.imageLoader.execute(request)
     }
 
     //endregion

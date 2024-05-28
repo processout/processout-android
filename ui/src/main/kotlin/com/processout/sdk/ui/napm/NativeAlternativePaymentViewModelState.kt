@@ -10,7 +10,10 @@ internal sealed interface NativeAlternativePaymentViewModelState {
 
     //region States
 
-    data object Loading : NativeAlternativePaymentViewModelState
+    @Immutable
+    data class Loading(
+        val secondaryAction: POActionState?
+    ) : NativeAlternativePaymentViewModelState
 
     @Immutable
     data class UserInput(
@@ -18,16 +21,15 @@ internal sealed interface NativeAlternativePaymentViewModelState {
         val fields: POImmutableList<Field>,
         val focusedFieldId: String?,
         val primaryAction: POActionState,
-        val secondaryAction: POActionState?,
-        val actionMessageMarkdown: String?,
-        val actionImageUrl: String?,
-        val successMessage: String
+        val secondaryAction: POActionState?
     ) : NativeAlternativePaymentViewModelState
 
     @Immutable
     data class Capture(
-        val paymentProviderName: String?,
+        val title: String?,
         val logoUrl: String?,
+        val imageUrl: String?,
+        val message: String,
         val secondaryAction: POActionState?,
         val isCaptured: Boolean
     ) : NativeAlternativePaymentViewModelState

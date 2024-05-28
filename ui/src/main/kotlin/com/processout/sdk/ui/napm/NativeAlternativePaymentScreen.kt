@@ -26,8 +26,9 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
-import com.processout.sdk.ui.R
+import com.processout.sdk.R
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.POFieldLabels
@@ -97,7 +98,7 @@ internal fun NativeAlternativePaymentScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             when (state) {
-                Loading -> Loading(style.progressIndicatorColor)
+                is Loading -> Loading(style.progressIndicatorColor)
                 is UserInput -> UserInput(state, onEvent, style)
                 is Capture -> Capture(state, onEvent, style)
             }
@@ -351,8 +352,9 @@ private fun Capture(
         Column {
             // TODO
             Image(
-                painter = painterResource(id = R.drawable.po_scheme_elo),
-                contentDescription = null
+                painter = painterResource(id = R.drawable.po_success_image),
+                contentDescription = null,
+                modifier = Modifier.requiredSize(48.dp)
             )
             Crossfade(
                 targetState = state.isCaptured,
@@ -379,12 +381,12 @@ private fun Actions(
     var primary: POActionState? = null
     var secondary: POActionState? = null
     when (state) {
+        is Loading -> secondary = state.secondaryAction
         is UserInput -> {
             primary = state.primaryAction
             secondary = state.secondaryAction
         }
         is Capture -> secondary = state.secondaryAction
-        else -> {}
     }
     val actions = mutableListOf<POActionState>()
     primary?.let { actions.add(it) }
@@ -489,7 +491,7 @@ internal object NativeAlternativePaymentScreen {
             color = ProcessOutTheme.colors.text.success,
             textStyle = ProcessOutTheme.typography.fixed.body
         ),
-        successImageResId = custom?.successImageResId,
+        successImageResId = custom?.successImageResId ?: R.drawable.po_success_image,
         progressIndicatorColor = custom?.progressIndicatorColorResId?.let {
             colorResource(id = it)
         } ?: ProcessOutTheme.colors.action.primaryDefault,

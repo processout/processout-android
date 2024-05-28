@@ -50,6 +50,8 @@ internal sealed interface NativeAlternativePaymentInteractorState {
     data class CaptureStateValue(
         val paymentProviderName: String?,
         val logoUrl: String?,
+        val actionImageUrl: String?,
+        val actionMessage: String?,
         val secondaryActionId: String
     )
 
