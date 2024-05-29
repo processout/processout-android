@@ -546,21 +546,21 @@ internal class NativeAlternativePaymentInteractor(
 
     //region Images
 
-    private suspend fun loadAllImages(
+    private suspend fun preloadAllImages(
         stateValue: CaptureStateValue,
         coroutineScope: CoroutineScope
     ) {
         val deferredResults = mutableListOf<Deferred<ImageResult>>()
         stateValue.logoUrl?.let {
-            deferredResults.add(coroutineScope.async { loadImage(it) })
+            deferredResults.add(coroutineScope.async { preloadImage(it) })
         }
         stateValue.actionImageUrl?.let {
-            deferredResults.add(coroutineScope.async { loadImage(it) })
+            deferredResults.add(coroutineScope.async { preloadImage(it) })
         }
         deferredResults.awaitAll()
     }
 
-    private suspend fun loadImage(url: String): ImageResult {
+    private suspend fun preloadImage(url: String): ImageResult {
         val request = ImageRequest.Builder(app)
             .data(url)
             .memoryCachePolicy(CachePolicy.ENABLED)
