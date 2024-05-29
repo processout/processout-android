@@ -65,8 +65,6 @@ internal class NativeAlternativePaymentInteractor(
 
     private var latestDefaultValuesRequest: PONativeAlternativePaymentMethodDefaultValuesRequest? = null
 
-    //region Initialization
-
     init {
         POLogger.info("Starting native alternative payment.")
         dispatch(WillStart)
@@ -83,7 +81,7 @@ internal class NativeAlternativePaymentInteractor(
             ).onSuccess { details ->
                 with(details) {
                     handleState(
-                        stateValue = toStateValue(),
+                        stateValue = toUserInputStateValue(),
                         paymentState = state,
                         parameters = parameters,
                         parameterValues = parameterValues
@@ -96,7 +94,28 @@ internal class NativeAlternativePaymentInteractor(
         }
     }
 
-    private fun PONativeAlternativePaymentMethodTransactionDetails.toStateValue() =
+    private fun handleState(
+        stateValue: UserInputStateValue,
+        paymentState: PONativeAlternativePaymentMethodState?,
+        parameters: List<PONativeAlternativePaymentMethodParameter>?,
+        parameterValues: PONativeAlternativePaymentMethodParameterValues?
+    ) {
+        when (paymentState) {
+            CUSTOMER_INPUT, null -> handleCustomerInput(stateValue, parameters)
+            PENDING_CAPTURE -> handlePendingCapture(stateValue.toCaptureStateValue(parameterValues))
+            CAPTURED -> handleCaptured(stateValue.toCaptureStateValue(parameterValues))
+            FAILED -> _completion.update {
+                Failure(
+                    ProcessOutResult.Failure(
+                        code = Generic(),
+                        message = "Payment has failed."
+                    ).also { POLogger.info("%s", it) }
+                )
+            }
+        }
+    }
+
+    private fun PONativeAlternativePaymentMethodTransactionDetails.toUserInputStateValue() =
         UserInputStateValue(
             invoice = invoice,
             gateway = gateway,
@@ -108,28 +127,16 @@ internal class NativeAlternativePaymentInteractor(
             submitting = false
         )
 
-    //endregion
-
-    private fun handleState(
-        stateValue: UserInputStateValue,
-        paymentState: PONativeAlternativePaymentMethodState?,
-        parameters: List<PONativeAlternativePaymentMethodParameter>?,
+    private fun UserInputStateValue.toCaptureStateValue(
         parameterValues: PONativeAlternativePaymentMethodParameterValues?
-    ) {
-        when (paymentState) {
-            CUSTOMER_INPUT, null -> handleCustomerInput(stateValue, parameters)
-            PENDING_CAPTURE -> handlePendingCapture(stateValue, parameterValues)
-            CAPTURED -> handleCaptured(stateValue)
-            FAILED -> _completion.update {
-                Failure(
-                    ProcessOutResult.Failure(
-                        code = Generic(),
-                        message = "Payment has failed."
-                    ).also { POLogger.info("%s", it) }
-                )
-            }
-        }
-    }
+    ) = CaptureStateValue(
+        paymentProviderName = parameterValues?.providerName,
+        logoUrl = if (parameterValues?.providerName != null)
+            parameterValues.providerLogoUrl else gateway.logoUrl,
+        actionImageUrl = gateway.customerActionImageUrl,
+        actionMessage = parameterValues?.customerActionMessage ?: gateway.customerActionMessage,
+        secondaryActionId = ActionId.CANCEL
+    )
 
     //region User Input
 
@@ -227,7 +234,7 @@ internal class NativeAlternativePaymentInteractor(
 //            scheduleSecondaryActionEnabling(it) { enableSecondaryAction() }
 //        }
 
-        POLogger.info("Started. Waiting for payment parameters.")
+        POLogger.info("Started: waiting for payment parameters.")
         dispatch(DidStart)
     }
 
@@ -240,7 +247,7 @@ internal class NativeAlternativePaymentInteractor(
                 )
             )
         }
-        POLogger.info("Submitted. Waiting for additional payment parameters.")
+        POLogger.info("Submitted: waiting for additional payment parameters.")
         dispatch(DidSubmitParameters(additionalParametersExpected = true))
     }
 
@@ -524,38 +531,26 @@ internal class NativeAlternativePaymentInteractor(
 
     //region Capture
 
-    private fun handlePendingCapture(
-        stateValue: UserInputStateValue,
-        parameterValues: PONativeAlternativePaymentMethodParameterValues?
-    ) {
+    private fun handlePendingCapture(stateValue: CaptureStateValue) {
         POLogger.info("All payment parameters has been submitted.")
         dispatch(DidSubmitParameters(additionalParametersExpected = false))
         if (!options.paymentConfirmation.waitsConfirmation) {
-            POLogger.info("Finished. Did not wait for capture confirmation.")
+            POLogger.info("Finished: did not wait for capture confirmation.")
             _completion.update { Success }
             return
         }
         interactorScope.launch {
-            val captureStateValue = CaptureStateValue(
-                paymentProviderName = parameterValues?.providerName,
-                logoUrl = if (parameterValues?.providerName != null)
-                    parameterValues.providerLogoUrl else stateValue.gateway.logoUrl,
-                actionImageUrl = stateValue.gateway.customerActionImageUrl,
-                actionMessage = parameterValues?.customerActionMessage
-                    ?: stateValue.gateway.customerActionMessage,
-                secondaryActionId = ActionId.CANCEL
-            )
             POLogger.info("Waiting for capture confirmation.")
             dispatch(
                 WillWaitForCaptureConfirmation(
-                    additionalActionExpected = !captureStateValue.actionMessage.isNullOrBlank()
+                    additionalActionExpected = !stateValue.actionMessage.isNullOrBlank()
                 )
             )
             preloadAllImages(
-                stateValue = captureStateValue,
+                stateValue = stateValue,
                 coroutineScope = this@launch
             )
-            _state.update { Capturing(captureStateValue) }
+            _state.update { Capturing(stateValue) }
 
             // TODO: schedule enabling of progress indicator
 
@@ -583,8 +578,18 @@ internal class NativeAlternativePaymentInteractor(
         }
     )
 
-    private fun handleCaptured(stateValue: UserInputStateValue) {
-        // TODO
+    private fun handleCaptured(stateValue: CaptureStateValue) {
+        POLogger.info("Success: capture confirmed.")
+        if (options.paymentConfirmation.waitsConfirmation) {
+            dispatch(DidCompletePayment)
+            if (options.skipSuccessScreen) {
+                _completion.update { Success }
+            } else {
+                _state.update { Captured(stateValue) }
+            }
+        } else {
+            _completion.update { Success }
+        }
     }
 
     //endregion
