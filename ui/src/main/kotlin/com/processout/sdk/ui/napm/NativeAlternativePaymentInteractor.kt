@@ -34,8 +34,7 @@ import com.processout.sdk.core.onSuccess
 import com.processout.sdk.core.retry.PORetryStrategy
 import com.processout.sdk.ui.base.BaseInteractor
 import com.processout.sdk.ui.core.state.POAvailableValue
-import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Awaiting
-import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Failure
+import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
@@ -89,8 +88,7 @@ internal class NativeAlternativePaymentInteractor(
                         stateValue = toStateValue(),
                         paymentState = state,
                         parameters = parameters,
-                        parameterValues = parameterValues,
-                        coroutineScope = this@launch
+                        parameterValues = parameterValues
                     )
                 }
             }.onFailure { failure ->
@@ -114,16 +112,15 @@ internal class NativeAlternativePaymentInteractor(
 
     //endregion
 
-    private suspend fun handleState(
+    private fun handleState(
         stateValue: UserInputStateValue,
         paymentState: PONativeAlternativePaymentMethodState?,
         parameters: List<PONativeAlternativePaymentMethodParameter>?,
-        parameterValues: PONativeAlternativePaymentMethodParameterValues?,
-        coroutineScope: CoroutineScope
+        parameterValues: PONativeAlternativePaymentMethodParameterValues?
     ) {
         when (paymentState) {
             CUSTOMER_INPUT, null -> handleCustomerInput(stateValue, parameters)
-            PENDING_CAPTURE -> handlePendingCapture(stateValue, parameterValues, coroutineScope)
+            PENDING_CAPTURE -> handlePendingCapture(stateValue, parameterValues)
             CAPTURED -> handleCaptured(stateValue)
             FAILED -> _completion.update {
                 Failure(
@@ -232,8 +229,8 @@ internal class NativeAlternativePaymentInteractor(
 //            scheduleSecondaryActionEnabling(it) { enableSecondaryAction() }
 //        }
 
-        dispatch(DidStart)
         POLogger.info("Started. Waiting for payment parameters.")
+        dispatch(DidStart)
     }
 
     private fun continueUserInput(stateValue: UserInputStateValue) {
@@ -245,8 +242,8 @@ internal class NativeAlternativePaymentInteractor(
                 )
             )
         }
-        dispatch(DidSubmitParameters(additionalParametersExpected = true))
         POLogger.info("Submitted. Waiting for additional payment parameters.")
+        dispatch(DidSubmitParameters(additionalParametersExpected = true))
     }
 
     //endregion
@@ -452,8 +449,7 @@ internal class NativeAlternativePaymentInteractor(
                                 stateValue = stateValue,
                                 paymentState = state,
                                 parameters = parameterDefinitions,
-                                parameterValues = parameterValues,
-                                coroutineScope = this@launch
+                                parameterValues = parameterValues
                             )
                         }
                     }
@@ -532,9 +528,46 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun handlePendingCapture(
         stateValue: UserInputStateValue,
-        parameterValues: PONativeAlternativePaymentMethodParameterValues?,
-        coroutineScope: CoroutineScope
+        parameterValues: PONativeAlternativePaymentMethodParameterValues?
     ) {
+        POLogger.info("All payment parameters has been submitted.")
+        dispatch(DidSubmitParameters(additionalParametersExpected = false))
+        if (!options.paymentConfirmation.waitsConfirmation) {
+            POLogger.info("Finished. Did not wait for capture confirmation.")
+            _completion.update { Success }
+            return
+        }
+        interactorScope.launch {
+            val captureStateValue = CaptureStateValue(
+                paymentProviderName = parameterValues?.providerName,
+                logoUrl = if (parameterValues?.providerName != null)
+                    parameterValues.providerLogoUrl else stateValue.gateway.logoUrl,
+                actionImageUrl = stateValue.gateway.customerActionImageUrl,
+                actionMessage = parameterValues?.customerActionMessage
+                    ?: stateValue.gateway.customerActionMessage,
+                secondaryActionId = ActionId.CANCEL
+            )
+            POLogger.info("Waiting for capture confirmation.")
+            dispatch(
+                WillWaitForCaptureConfirmation(
+                    additionalActionExpected = !captureStateValue.actionMessage.isNullOrBlank()
+                )
+            )
+            preloadAllImages(
+                stateValue = captureStateValue,
+                coroutineScope = this@launch
+            )
+            _state.update { Capturing(captureStateValue) }
+
+            // TODO: schedule enabling of progress indicator
+
+            // TODO: schedule enabling of secondary action
+
+            capture()
+        }
+    }
+
+    private fun capture() {
         // TODO
     }
 
