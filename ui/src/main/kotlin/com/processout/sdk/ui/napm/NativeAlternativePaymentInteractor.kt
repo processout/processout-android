@@ -619,15 +619,15 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun handleCaptured(stateValue: CaptureStateValue) {
         POLogger.info("Success: capture confirmed.")
-        if (options.paymentConfirmation.waitsConfirmation) {
-            dispatch(DidCompletePayment)
-            if (options.skipSuccessScreen) {
-                _completion.update { Success }
-            } else {
-                _state.update { Captured(stateValue) }
-            }
-        } else {
+        if (!options.paymentConfirmation.waitsConfirmation) {
             _completion.update { Success }
+            return
+        }
+        dispatch(DidCompletePayment)
+        if (options.skipSuccessScreen) {
+            _completion.update { Success }
+        } else {
+            _state.update { Captured(stateValue) }
         }
     }
 
