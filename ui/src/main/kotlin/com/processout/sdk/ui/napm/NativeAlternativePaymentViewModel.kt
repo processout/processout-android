@@ -105,14 +105,16 @@ internal class NativeAlternativePaymentViewModel(
     private fun map(
         state: NativeAlternativePaymentInteractorState
     ): NativeAlternativePaymentViewModelState = when (state) {
-        Loading -> NativeAlternativePaymentViewModelState.Loading(
-            secondaryAction = null
-        )
+        is Loading -> state.map()
         is UserInput -> state.map()
         is Capturing -> state.map()
         is Captured -> state.map()
         else -> this@NativeAlternativePaymentViewModel.state.value
     }
+
+    private fun Loading.map() = NativeAlternativePaymentViewModelState.Loading(
+        secondaryAction = null
+    )
 
     private fun UserInput.map() = with(value) {
         NativeAlternativePaymentViewModelState.UserInput(
