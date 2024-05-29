@@ -65,6 +65,9 @@ internal class NativeAlternativePaymentInteractor(
 
     private var latestDefaultValuesRequest: PONativeAlternativePaymentMethodDefaultValuesRequest? = null
 
+    private var captureStartTimestamp = 0L
+    private var capturePassedTimestamp = 0L
+
     init {
         POLogger.info("Starting native alternative payment.")
         dispatch(WillStart)
@@ -561,7 +564,43 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private fun capture() {
-        // TODO
+        if (captureStartTimestamp != 0L) {
+            return
+        }
+        interactorScope.launch {
+            captureStartTimestamp = System.currentTimeMillis()
+            val iterator = captureRetryStrategy.iterator
+            while (capturePassedTimestamp < options.paymentConfirmation.timeoutSeconds * 1000) {
+                val result = invoicesService.captureNativeAlternativePayment(invoiceId, gatewayConfigurationId)
+                POLogger.debug("Attempted to capture the payment.")
+                if (isCaptureRetryable(result)) {
+                    delay(iterator.next())
+                    capturePassedTimestamp = System.currentTimeMillis() - captureStartTimestamp
+                } else {
+                    captureStartTimestamp = 0L
+                    capturePassedTimestamp = 0L
+                    result.onSuccess {
+                        _state.whenCapturing { stateValue ->
+                            handleCaptured(stateValue)
+                        }
+                    }.onFailure { failure ->
+                        POLogger.warn("Failed to capture the payment: %s", failure, attributes = logAttributes)
+                        _completion.update { Failure(failure) }
+                    }
+                    return@launch
+                }
+            }
+            captureStartTimestamp = 0L
+            capturePassedTimestamp = 0L
+            _completion.update {
+                Failure(
+                    ProcessOutResult.Failure(
+                        code = Timeout(),
+                        message = "Payment confirmation timed out."
+                    ).also { POLogger.warn("Failed to capture the payment: %s", it, attributes = logAttributes) }
+                )
+            }
+        }
     }
 
     private fun isCaptureRetryable(
