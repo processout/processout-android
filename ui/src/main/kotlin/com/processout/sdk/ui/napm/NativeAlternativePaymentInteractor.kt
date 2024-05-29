@@ -16,18 +16,16 @@ import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.*
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodDefaultValuesRequest
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter
+import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType.*
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameterValues
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodState
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodState.*
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.POFailure.Code.*
 import com.processout.sdk.core.POFailure.InvalidField
 import com.processout.sdk.core.POFailure.ValidationCode
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.fold
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
@@ -570,6 +568,20 @@ internal class NativeAlternativePaymentInteractor(
     private fun capture() {
         // TODO
     }
+
+    private fun isCaptureRetryable(
+        result: ProcessOutResult<PONativeAlternativePaymentMethodCapture>
+    ): Boolean = result.fold(
+        onSuccess = { it.state != CAPTURED },
+        onFailure = {
+            val retryableCodes = listOf(
+                NetworkUnreachable,
+                Timeout(),
+                Internal()
+            )
+            retryableCodes.contains(it.code)
+        }
+    )
 
     private fun handleCaptured(stateValue: UserInputStateValue) {
         // TODO
