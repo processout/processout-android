@@ -7,14 +7,11 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,11 +20,12 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
+import coil.compose.AsyncImage
 import com.processout.sdk.R
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
@@ -349,22 +347,37 @@ private fun Capture(
     style: NativeAlternativePaymentScreen.Style
 ) {
     AnimatedVisibility(enterDelayMillis = AnimationDurationMillis) {
-        Column {
-            // TODO
-            Image(
-                painter = painterResource(id = R.drawable.po_success_image),
-                contentDescription = null,
-                modifier = Modifier.requiredSize(48.dp)
-            )
+        Column(
+            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.large),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            var showLogo by remember { mutableStateOf(true) }
+            if (showLogo) {
+                AsyncImage(
+                    model = state.logoUrl,
+                    contentDescription = null,
+                    modifier = Modifier.requiredHeight(34.dp),
+                    contentScale = ContentScale.FillHeight,
+                    onError = {
+                        showLogo = false
+                    }
+                )
+            } else if (state.title != null) {
+                POText(
+                    text = state.title,
+                    color = style.title.color,
+                    style = style.title.textStyle
+                )
+            }
             Crossfade(
                 targetState = state.isCaptured,
                 animationSpec = tween(durationMillis = AnimationDurationMillis, easing = LinearEasing)
             ) { isCaptured ->
                 Column {
                     if (isCaptured) {
-                        // TODO
+                        POText(text = state.message)
                     } else {
-                        // TODO
+                        POText(text = state.message)
                     }
                 }
             }
