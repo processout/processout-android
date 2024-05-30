@@ -30,6 +30,7 @@ import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
 import com.processout.sdk.core.retry.PORetryStrategy
+import com.processout.sdk.core.util.POMarkdownUtils.escapedMarkdown
 import com.processout.sdk.ui.base.BaseInteractor
 import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.*
@@ -137,7 +138,8 @@ internal class NativeAlternativePaymentInteractor(
         logoUrl = if (parameterValues?.providerName != null)
             parameterValues.providerLogoUrl else gateway.logoUrl,
         actionImageUrl = gateway.customerActionImageUrl,
-        actionMessage = parameterValues?.customerActionMessage ?: gateway.customerActionMessage,
+        actionMessage = parameterValues?.customerActionMessage
+            ?: gateway.customerActionMessage?.let { escapedMarkdown(it) },
         secondaryActionId = ActionId.CANCEL
     )
 

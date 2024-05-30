@@ -16,7 +16,6 @@ import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodPar
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType.*
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails.Invoice
 import com.processout.sdk.core.retry.PORetryStrategy.Exponential
-import com.processout.sdk.core.util.POMarkdownUtils.escapedMarkdown
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableList
@@ -149,7 +148,7 @@ internal class NativeAlternativePaymentViewModel(
                 title = paymentProviderName,
                 logoUrl = logoUrl,
                 imageUrl = actionImageUrl,
-                message = escapedMarkdown(actionMessage),
+                message = actionMessage,
                 secondaryAction = secondaryAction,
                 isCaptured = false
             )
