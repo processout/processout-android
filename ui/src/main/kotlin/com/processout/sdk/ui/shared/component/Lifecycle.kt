@@ -1,4 +1,4 @@
-package com.processout.sdk.ui.shared.composable
+package com.processout.sdk.ui.shared.component
 
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalLifecycleOwner

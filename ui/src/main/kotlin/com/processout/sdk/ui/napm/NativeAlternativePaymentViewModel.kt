@@ -17,7 +17,6 @@ import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodPar
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails.Invoice
 import com.processout.sdk.core.retry.PORetryStrategy.Exponential
 import com.processout.sdk.ui.core.state.POActionState
-import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractor.Companion.LOG_ATTRIBUTE_GATEWAY_CONFIGURATION_ID
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractor.Companion.LOG_ATTRIBUTE_INVOICE_ID
@@ -29,6 +28,7 @@ import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Paymen
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.SecondaryAction
 import com.processout.sdk.ui.shared.extension.map
 import com.processout.sdk.ui.shared.filter.PhoneNumberInputFilter
+import com.processout.sdk.ui.shared.state.FieldState
 import com.processout.sdk.ui.shared.transformation.PhoneNumberVisualTransformation
 import java.text.NumberFormat
 import java.util.Currency
@@ -194,7 +194,7 @@ internal class NativeAlternativePaymentViewModel(
         keyboardAction: KeyboardAction
     ): NativeAlternativePaymentViewModelState.Field =
         TextField(
-            POFieldState(
+            FieldState(
                 id = id,
                 value = value,
                 title = displayName,
@@ -213,7 +213,7 @@ internal class NativeAlternativePaymentViewModel(
         keyboardAction: KeyboardAction
     ): NativeAlternativePaymentViewModelState.Field =
         CodeField(
-            POFieldState(
+            FieldState(
                 id = id,
                 value = value,
                 length = length,
@@ -227,7 +227,7 @@ internal class NativeAlternativePaymentViewModel(
 
     private fun Field.toRadioField(): NativeAlternativePaymentViewModelState.Field =
         RadioField(
-            POFieldState(
+            FieldState(
                 id = id,
                 value = value,
                 availableValues = availableValues?.let { POImmutableList(it) },
@@ -239,7 +239,7 @@ internal class NativeAlternativePaymentViewModel(
 
     private fun Field.toDropdownField(): NativeAlternativePaymentViewModelState.Field =
         DropdownField(
-            POFieldState(
+            FieldState(
                 id = id,
                 value = value,
                 availableValues = availableValues?.let { POImmutableList(it) },

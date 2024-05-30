@@ -22,8 +22,8 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Success
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.Dismiss
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Capture
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
-import com.processout.sdk.ui.shared.composable.isImeVisibleAsState
-import com.processout.sdk.ui.shared.composable.screenModeAsState
+import com.processout.sdk.ui.shared.component.isImeVisibleAsState
+import com.processout.sdk.ui.shared.component.screenModeAsState
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import com.processout.sdk.ui.shared.extension.dpToPx
 import kotlin.math.roundToInt

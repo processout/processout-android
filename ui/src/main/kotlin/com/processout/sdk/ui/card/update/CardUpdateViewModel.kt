@@ -27,11 +27,11 @@ import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.card.update.CardUpdateCompletion.*
 import com.processout.sdk.ui.card.update.CardUpdateEvent.*
 import com.processout.sdk.ui.core.state.POActionState
-import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.shared.extension.orElse
 import com.processout.sdk.ui.shared.filter.CardSecurityCodeInputFilter
 import com.processout.sdk.ui.shared.provider.cardSchemeDrawableResId
+import com.processout.sdk.ui.shared.state.FieldState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -114,18 +114,18 @@ internal class CardUpdateViewModel(
         )
     }
 
-    private fun initFields(): List<POFieldState> {
-        val fields = mutableListOf<POFieldState>()
+    private fun initFields(): List<FieldState> {
+        val fields = mutableListOf<FieldState>()
         cardNumberField()?.let { fields.add(it) }
         fields.add(cvcField())
         return fields
     }
 
-    private fun cardNumberField(): POFieldState? =
+    private fun cardNumberField(): FieldState? =
         with(options.cardInformation) {
             this?.maskedNumber?.let { maskedNumber ->
                 if (maskedNumber.isBlank()) return null
-                POFieldState(
+                FieldState(
                     id = CardFieldId.NUMBER,
                     forceTextDirectionLtr = true,
                     value = TextFieldValue(text = maskedNumber),
@@ -137,7 +137,7 @@ internal class CardUpdateViewModel(
             }
         }
 
-    private fun cvcField() = POFieldState(
+    private fun cvcField() = FieldState(
         id = CardFieldId.CVC,
         placeholder = app.getString(R.string.po_card_update_cvc),
         forceTextDirectionLtr = true,
@@ -257,9 +257,9 @@ internal class CardUpdateViewModel(
     private fun updatedField(
         id: String,
         value: TextFieldValue,
-        field: POFieldState,
+        field: FieldState,
         isTextChanged: Boolean
-    ): POFieldState =
+    ): FieldState =
         if (field.id == id) {
             if (isTextChanged) {
                 field.copy(value = value, isError = false)
@@ -291,9 +291,9 @@ internal class CardUpdateViewModel(
         }
     }
 
-    private fun fields(): List<POFieldState> = _state.value.fields.elements
+    private fun fields(): List<FieldState> = _state.value.fields.elements
 
-    private fun field(id: String): POFieldState? = fields().find { it.id == id }
+    private fun field(id: String): FieldState? = fields().find { it.id == id }
 
     private fun isCvcValid(): Boolean = field(CardFieldId.CVC)?.let { !it.isError } ?: false
 
@@ -301,7 +301,7 @@ internal class CardUpdateViewModel(
         submitAllowed: Boolean,
         submitting: Boolean,
         errorMessage: String?,
-        fields: List<POFieldState>? = null
+        fields: List<FieldState>? = null
     ) {
         _state.update { state ->
             with(state) {
@@ -412,7 +412,7 @@ internal class CardUpdateViewModel(
         )
     }
 
-    private fun validatedField(invalidFieldIds: Set<String>, field: POFieldState): POFieldState =
+    private fun validatedField(invalidFieldIds: Set<String>, field: FieldState): FieldState =
         if (invalidFieldIds.contains(field.id)) {
             field.copy(
                 isError = true,

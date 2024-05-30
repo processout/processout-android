@@ -27,11 +27,11 @@ import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
 import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.state.POActionState
-import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
-import com.processout.sdk.ui.shared.composable.rememberLifecycleEvent
+import com.processout.sdk.ui.shared.component.rememberLifecycleEvent
+import com.processout.sdk.ui.shared.state.FieldState
 
 @Composable
 internal fun CardTokenizationScreen(
@@ -169,7 +169,7 @@ private fun Item(
 
 @Composable
 private fun TextField(
-    state: POFieldState,
+    state: FieldState,
     onEvent: (CardTokenizationEvent) -> Unit,
     lifecycleEvent: Lifecycle.Event,
     focusedFieldId: String?,
@@ -220,7 +220,7 @@ private fun TextField(
 
 @Composable
 private fun DropdownField(
-    state: POFieldState,
+    state: FieldState,
     onEvent: (CardTokenizationEvent) -> Unit,
     fieldStyle: POField.Style,
     menuStyle: PODropdownField.MenuStyle,

@@ -1,17 +1,16 @@
-package com.processout.sdk.ui.core.state
+package com.processout.sdk.ui.shared.state
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
-import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
-import com.processout.sdk.ui.core.filter.POInputFilter
+import com.processout.sdk.ui.core.state.POAvailableValue
+import com.processout.sdk.ui.core.state.POImmutableList
+import com.processout.sdk.ui.shared.filter.InputFilter
 
-/** @suppress */
-@ProcessOutInternalApi
 @Immutable
-data class POFieldState(
+internal data class FieldState(
     val id: String,
     val value: TextFieldValue = TextFieldValue(),
     val availableValues: POImmutableList<POAvailableValue>? = null,
@@ -23,7 +22,7 @@ data class POFieldState(
     val enabled: Boolean = true,
     val isError: Boolean = false,
     val forceTextDirectionLtr: Boolean = false,
-    val inputFilter: POInputFilter? = null,
+    val inputFilter: InputFilter? = null,
     val visualTransformation: VisualTransformation = VisualTransformation.None,
     val keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     val keyboardActionId: String? = null

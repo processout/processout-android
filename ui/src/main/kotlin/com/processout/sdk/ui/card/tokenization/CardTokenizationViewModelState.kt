@@ -2,8 +2,8 @@ package com.processout.sdk.ui.card.tokenization
 
 import androidx.compose.runtime.Immutable
 import com.processout.sdk.ui.core.state.POActionState
-import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableList
+import com.processout.sdk.ui.shared.state.FieldState
 
 @Immutable
 internal data class CardTokenizationViewModelState(
@@ -25,8 +25,8 @@ internal data class CardTokenizationViewModelState(
 
     @Immutable
     sealed interface Item {
-        data class TextField(val state: POFieldState) : Item
-        data class DropdownField(val state: POFieldState) : Item
+        data class TextField(val state: FieldState) : Item
+        data class DropdownField(val state: FieldState) : Item
         data class Group(val items: POImmutableList<Item>) : Item
     }
 

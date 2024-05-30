@@ -15,18 +15,18 @@ import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.ui.card.tokenization.CardTokenizationInteractorState.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.*
-import com.processout.sdk.ui.core.filter.POInputFilter
 import com.processout.sdk.ui.core.state.POActionState
-import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.shared.extension.map
 import com.processout.sdk.ui.shared.filter.CardExpirationInputFilter
 import com.processout.sdk.ui.shared.filter.CardNumberInputFilter
 import com.processout.sdk.ui.shared.filter.CardSecurityCodeInputFilter
+import com.processout.sdk.ui.shared.filter.InputFilter
 import com.processout.sdk.ui.shared.provider.CardSchemeProvider
 import com.processout.sdk.ui.shared.provider.address.AddressSpecificationProvider
 import com.processout.sdk.ui.shared.provider.address.stringResId
 import com.processout.sdk.ui.shared.provider.cardSchemeDrawableResId
+import com.processout.sdk.ui.shared.state.FieldState
 import com.processout.sdk.ui.shared.transformation.CardExpirationVisualTransformation
 import com.processout.sdk.ui.shared.transformation.CardNumberVisualTransformation
 
@@ -293,7 +293,7 @@ internal class CardTokenizationViewModel(
         placeholder: String? = null,
         @DrawableRes iconResId: Int? = null,
         forceTextDirectionLtr: Boolean = false,
-        inputFilter: POInputFilter? = null,
+        inputFilter: InputFilter? = null,
         visualTransformation: VisualTransformation = VisualTransformation.None,
         keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
         keyboardActionId: String? = null
@@ -318,7 +318,7 @@ internal class CardTokenizationViewModel(
 
     private fun dropdownField(field: Field): Item =
         Item.DropdownField(
-            POFieldState(
+            FieldState(
                 id = field.id,
                 value = field.value,
                 availableValues = POImmutableList(field.availableValues ?: emptyList())
@@ -330,12 +330,12 @@ internal class CardTokenizationViewModel(
         placeholder: String? = null,
         @DrawableRes iconResId: Int? = null,
         forceTextDirectionLtr: Boolean = false,
-        inputFilter: POInputFilter? = null,
+        inputFilter: InputFilter? = null,
         visualTransformation: VisualTransformation = VisualTransformation.None,
         keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
         keyboardActionId: String? = null
     ): Item = Item.TextField(
-        POFieldState(
+        FieldState(
             id = field.id,
             value = field.value,
             placeholder = placeholder,

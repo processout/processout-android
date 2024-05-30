@@ -38,7 +38,6 @@ import com.processout.sdk.ui.core.component.field.radio.POLabeledRadioField
 import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
 import com.processout.sdk.ui.core.component.field.text.POLabeledTextField
 import com.processout.sdk.ui.core.state.POActionState
-import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
@@ -48,8 +47,9 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.animatedBackgro
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.codeFieldHorizontalAlignment
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Field.*
-import com.processout.sdk.ui.shared.component.POTextAndroidView
-import com.processout.sdk.ui.shared.composable.rememberLifecycleEvent
+import com.processout.sdk.ui.shared.component.TextAndroidView
+import com.processout.sdk.ui.shared.component.rememberLifecycleEvent
+import com.processout.sdk.ui.shared.state.FieldState
 
 @Composable
 internal fun NativeAlternativePaymentScreen(
@@ -173,7 +173,7 @@ private fun UserInput(
 
 @Composable
 private fun TextField(
-    state: POFieldState,
+    state: FieldState,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
     lifecycleEvent: Lifecycle.Event,
     focusedFieldId: String?,
@@ -227,7 +227,7 @@ private fun TextField(
 
 @Composable
 private fun CodeField(
-    state: POFieldState,
+    state: FieldState,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
     lifecycleEvent: Lifecycle.Event,
     focusedFieldId: String?,
@@ -278,7 +278,7 @@ private fun CodeField(
 
 @Composable
 private fun RadioField(
-    state: POFieldState,
+    state: FieldState,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
     radioGroupStyle: PORadioGroup.Style,
     labelsStyle: POFieldLabels.Style,
@@ -306,7 +306,7 @@ private fun RadioField(
 
 @Composable
 private fun DropdownField(
-    state: POFieldState,
+    state: FieldState,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
     fieldStyle: POField.Style,
     menuStyle: PODropdownField.MenuStyle,
@@ -382,7 +382,7 @@ private fun Capture(
                     if (isCaptured) {
                         POText(text = state.message)
                     } else {
-                        POTextAndroidView(
+                        TextAndroidView(
                             text = state.message,
                             selectable = true
                         )

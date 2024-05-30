@@ -24,11 +24,11 @@ import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.state.POActionState
-import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
-import com.processout.sdk.ui.shared.composable.rememberLifecycleEvent
+import com.processout.sdk.ui.shared.component.rememberLifecycleEvent
+import com.processout.sdk.ui.shared.state.FieldState
 
 @Composable
 internal fun CardUpdateScreen(
@@ -89,7 +89,7 @@ internal fun CardUpdateScreen(
 
 @Composable
 private fun Fields(
-    fields: POImmutableList<POFieldState>,
+    fields: POImmutableList<FieldState>,
     onEvent: (CardUpdateEvent) -> Unit,
     focusedFieldId: String?,
     isPrimaryActionEnabled: Boolean,

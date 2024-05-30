@@ -1,9 +1,8 @@
 package com.processout.sdk.ui.shared.filter
 
 import androidx.compose.ui.text.input.TextFieldValue
-import com.processout.sdk.ui.core.filter.POInputFilter
 
-internal class CardNumberInputFilter : POInputFilter {
+internal class CardNumberInputFilter : InputFilter {
 
     private companion object {
         const val MAX_LENGTH = 19 // Maximum PAN length based on ISO/IEC 7812

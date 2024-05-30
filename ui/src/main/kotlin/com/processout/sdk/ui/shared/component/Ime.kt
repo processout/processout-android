@@ -1,4 +1,4 @@
-package com.processout.sdk.ui.shared.composable
+package com.processout.sdk.ui.shared.component
 
 import android.view.ViewTreeObserver
 import androidx.compose.runtime.*

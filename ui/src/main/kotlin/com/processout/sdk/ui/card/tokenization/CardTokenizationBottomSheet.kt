@@ -23,7 +23,7 @@ import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Failur
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Success
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.Dismiss
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
-import com.processout.sdk.ui.shared.composable.screenModeAsState
+import com.processout.sdk.ui.shared.component.screenModeAsState
 
 internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
 
