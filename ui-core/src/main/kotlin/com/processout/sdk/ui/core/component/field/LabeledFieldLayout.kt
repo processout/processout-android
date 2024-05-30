@@ -26,7 +26,9 @@ internal fun LabeledFieldLayout(
             text = title,
             modifier = Modifier.padding(bottom = ProcessOutTheme.spacing.small),
             color = style.title.color,
-            style = style.title.textStyle
+            style = style.title.textStyle.copy(
+                textAlign = textAlign(horizontalAlignment)
+            )
         )
         content()
         POExpandableText(
