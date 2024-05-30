@@ -655,7 +655,10 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
     }
 
     private fun bindCustomerActionMessage(markdown: String) {
-        bindingCapture.poMessage.setMarkdown(markdown)
+        POTextViewExtensions.setMarkdown(
+            textView = bindingCapture.poMessage,
+            markdown = markdown
+        )
         val isMessageCompact = markdown.length <= MAX_COMPACT_MESSAGE_LENGTH
         bindingCapture.poMessage.gravity = if (isMessageCompact) Gravity.CENTER_HORIZONTAL else Gravity.START
         bindingCapture.poMessage.movementMethod = LinkMovementMethod.getInstance()
