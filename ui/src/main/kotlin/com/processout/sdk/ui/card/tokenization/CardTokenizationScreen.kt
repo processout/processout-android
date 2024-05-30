@@ -31,7 +31,6 @@ import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
-import com.processout.sdk.ui.shared.composable.AnimatedImage
 import com.processout.sdk.ui.shared.composable.rememberLifecycleEvent
 
 @Composable
@@ -256,7 +255,7 @@ private fun DropdownField(
 
 @Composable
 private fun AnimatedIcon(@DrawableRes id: Int) {
-    AnimatedImage(
+    POAnimatedImage(
         id = id,
         modifier = Modifier
             .requiredHeight(ProcessOutTheme.dimensions.formComponentHeight)
