@@ -121,8 +121,8 @@ object PODialog {
         @Composable get() = Style(
             title = POText.title,
             message = POText.body,
-            confirmButton = POButton.dialog,
-            dismissButton = POButton.dialog,
+            confirmButton = POButton.tertiary,
+            dismissButton = POButton.tertiary,
             backgroundColor = ProcessOutTheme.colors.surface.level1
         )
 
