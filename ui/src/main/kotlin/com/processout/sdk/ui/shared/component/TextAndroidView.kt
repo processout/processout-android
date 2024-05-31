@@ -6,6 +6,7 @@ import android.annotation.SuppressLint
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
 import android.os.Build
+import android.text.method.LinkMovementMethod
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.compose.runtime.Composable
@@ -37,13 +38,24 @@ internal fun TextAndroidView(
     text: String,
     modifier: Modifier = Modifier,
     style: TextAndroidView.Style = TextAndroidView.default,
-    selectable: Boolean = false
+    selectable: Boolean = false,
+    linksClickable: Boolean = false
 ) {
     AndroidView(
         factory = { context ->
             TextView(context).apply {
+                if (selectable) {
+                    isEnabled = true
+                    isFocusable = true
+                    isFocusableInTouchMode = true
+                    isClickable = true
+                    isLongClickable = true
+                    setTextIsSelectable(true)
+                }
+                if (linksClickable) {
+                    movementMethod = LinkMovementMethod.getInstance()
+                }
                 apply(style)
-                setTextIsSelectable(selectable)
                 POTextViewExtensions.setMarkdown(
                     textView = this,
                     markdown = text
