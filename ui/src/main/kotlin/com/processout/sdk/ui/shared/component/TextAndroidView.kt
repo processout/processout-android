@@ -7,6 +7,7 @@ import android.content.res.Resources
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.text.method.LinkMovementMethod
+import android.view.Gravity
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.compose.runtime.Composable
@@ -30,8 +31,9 @@ import com.processout.sdk.ui.core.style.POTextType.Weight
 import com.processout.sdk.ui.core.style.POTextType.Weight.*
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.component.TextAndroidView.apply
+import com.processout.sdk.ui.shared.component.TextAndroidView.gravity
 import com.processout.sdk.ui.shared.extension.spToPx
-import com.processout.sdk.ui.shared.view.extension.POTextViewExtensions
+import com.processout.sdk.ui.shared.view.extension.POTextViewExtensions.setMarkdown
 
 @Composable
 internal fun TextAndroidView(
@@ -55,8 +57,9 @@ internal fun TextAndroidView(
                 if (linksClickable) {
                     movementMethod = LinkMovementMethod.getInstance()
                 }
+                gravity = gravity(text)
                 apply(style)
-                POTextViewExtensions.setMarkdown(
+                setMarkdown(
                     textView = this,
                     markdown = text
                 )
@@ -101,6 +104,12 @@ internal object TextAndroidView {
         color = colorResource(id = style.colorResId),
         controlsTintColor = controlsTintColor
     )
+
+    private val ShortMessageMaxLength = 150
+
+    internal fun gravity(text: String) =
+        if (text.length <= ShortMessageMaxLength)
+            Gravity.CENTER_HORIZONTAL else Gravity.START
 
     internal fun TextView.apply(style: Style) {
         apply(style.type)
