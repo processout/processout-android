@@ -378,7 +378,10 @@ private fun Capture(
                 targetState = state.isCaptured,
                 animationSpec = tween(durationMillis = AnimationDurationMillis, easing = LinearEasing)
             ) { isCaptured ->
-                Column {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.large),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     if (isCaptured) {
                         POText(text = state.message)
                     } else {
@@ -388,6 +391,23 @@ private fun Capture(
                             selectable = true,
                             linksClickable = true
                         )
+                        var showImage by remember { mutableStateOf(true) }
+                        if (showImage) {
+                            AsyncImage(
+                                model = state.imageUrl,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .requiredSize(
+                                        width = 220.dp,
+                                        height = 280.dp
+                                    ),
+                                alignment = Alignment.Center,
+                                contentScale = ContentScale.Fit,
+                                onError = {
+                                    showImage = false
+                                }
+                            )
+                        }
                     }
                 }
             }
