@@ -469,61 +469,64 @@ internal object NativeAlternativePaymentScreen {
     )
 
     @Composable
-    fun style(custom: PONativeAlternativePaymentConfiguration.Style? = null) = Style(
-        title = custom?.title?.let {
-            POText.custom(style = it)
-        } ?: POText.title,
-        label = custom?.label?.let {
-            POText.custom(style = it)
-        } ?: POText.labelHeading,
-        field = custom?.field?.let {
-            POField.custom(style = it)
-        } ?: POField.default,
-        codeField = custom?.codeField?.let {
-            POField.custom(style = it)
-        } ?: POCodeField.default,
-        radioGroup = custom?.radioButton?.let {
-            PORadioGroup.custom(style = it)
-        } ?: PORadioGroup.default,
-        dropdownMenu = custom?.dropdownMenu?.let {
-            PODropdownField.custom(style = it)
-        } ?: PODropdownField.defaultMenu,
-        actionsContainer = custom?.actionsContainer?.let {
-            POActionsContainer.custom(style = it)
-        } ?: POActionsContainer.default,
-        normalBackgroundColor = custom?.background?.normalColorResId?.let {
-            colorResource(id = it)
-        } ?: ProcessOutTheme.colors.surface.level1,
-        successBackgroundColor = custom?.background?.successColorResId?.let {
-            colorResource(id = it)
-        } ?: ProcessOutTheme.colors.surface.success,
-        message = custom?.message?.let { style ->
-            val controlsTintColor = custom.controlsTintColorResId?.let { colorResource(id = it) }
-            TextAndroidView.custom(
-                style = style,
-                controlsTintColor = controlsTintColor ?: ProcessOutTheme.colors.action.primaryDefault
+    fun style(custom: PONativeAlternativePaymentConfiguration.Style? = null) =
+        with(ProcessOutTheme) {
+            Style(
+                title = custom?.title?.let {
+                    POText.custom(style = it)
+                } ?: POText.title,
+                label = custom?.label?.let {
+                    POText.custom(style = it)
+                } ?: POText.labelHeading,
+                field = custom?.field?.let {
+                    POField.custom(style = it)
+                } ?: POField.default,
+                codeField = custom?.codeField?.let {
+                    POField.custom(style = it)
+                } ?: POCodeField.default,
+                radioGroup = custom?.radioButton?.let {
+                    PORadioGroup.custom(style = it)
+                } ?: PORadioGroup.default,
+                dropdownMenu = custom?.dropdownMenu?.let {
+                    PODropdownField.custom(style = it)
+                } ?: PODropdownField.defaultMenu,
+                actionsContainer = custom?.actionsContainer?.let {
+                    POActionsContainer.custom(style = it)
+                } ?: POActionsContainer.default,
+                normalBackgroundColor = custom?.background?.normalColorResId?.let {
+                    colorResource(id = it)
+                } ?: colors.surface.level1,
+                successBackgroundColor = custom?.background?.successColorResId?.let {
+                    colorResource(id = it)
+                } ?: colors.surface.success,
+                message = custom?.message?.let { style ->
+                    val controlsTintColor = custom.controlsTintColorResId?.let { colorResource(id = it) }
+                    TextAndroidView.custom(
+                        style = style,
+                        controlsTintColor = controlsTintColor ?: colors.action.primaryDefault
+                    )
+                } ?: TextAndroidView.default,
+                errorMessage = custom?.errorMessage?.let {
+                    POText.custom(style = it)
+                } ?: POText.errorLabel,
+                successMessage = custom?.successMessage?.let {
+                    POText.custom(style = it)
+                } ?: POText.Style(
+                    color = colors.text.success,
+                    textStyle = typography.fixed.body
+                ),
+                successImageResId = custom?.successImageResId ?: R.drawable.po_success_image,
+                progressIndicatorColor = custom?.progressIndicatorColorResId?.let {
+                    colorResource(id = it)
+                } ?: colors.action.primaryDefault,
+                dividerColor = custom?.dividerColorResId?.let {
+                    colorResource(id = it)
+                } ?: colors.border.subtle,
+                dragHandleColor = custom?.dragHandleColorResId?.let {
+                    colorResource(id = it)
+                } ?: colors.border.disabled
             )
-        } ?: TextAndroidView.default,
-        errorMessage = custom?.errorMessage?.let {
-            POText.custom(style = it)
-        } ?: POText.errorLabel,
-        successMessage = custom?.successMessage?.let {
-            POText.custom(style = it)
-        } ?: POText.Style(
-            color = ProcessOutTheme.colors.text.success,
-            textStyle = ProcessOutTheme.typography.fixed.body
-        ),
-        successImageResId = custom?.successImageResId ?: R.drawable.po_success_image,
-        progressIndicatorColor = custom?.progressIndicatorColorResId?.let {
-            colorResource(id = it)
-        } ?: ProcessOutTheme.colors.action.primaryDefault,
-        dividerColor = custom?.dividerColorResId?.let {
-            colorResource(id = it)
-        } ?: ProcessOutTheme.colors.border.subtle,
-        dragHandleColor = custom?.dragHandleColorResId?.let {
-            colorResource(id = it)
-        } ?: ProcessOutTheme.colors.border.disabled
-    )
+        }
 
     val AnimationDurationMillis = 300
 
