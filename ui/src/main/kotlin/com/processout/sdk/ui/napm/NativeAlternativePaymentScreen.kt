@@ -384,6 +384,7 @@ private fun Capture(
                     } else {
                         TextAndroidView(
                             text = state.message,
+                            style = style.message,
                             selectable = true
                         )
                     }
@@ -458,12 +459,11 @@ internal object NativeAlternativePaymentScreen {
         val actionsContainer: POActionsContainer.Style,
         val normalBackgroundColor: Color,
         val successBackgroundColor: Color,
-        val message: POText.Style,
+        val message: TextAndroidView.Style,
         val errorMessage: POText.Style,
         val successMessage: POText.Style,
         @DrawableRes val successImageResId: Int?,
         val progressIndicatorColor: Color,
-        val controlsTintColor: Color,
         val dividerColor: Color,
         val dragHandleColor: Color
     )
@@ -497,12 +497,13 @@ internal object NativeAlternativePaymentScreen {
         successBackgroundColor = custom?.background?.successColorResId?.let {
             colorResource(id = it)
         } ?: ProcessOutTheme.colors.surface.success,
-        message = custom?.message?.let {
-            POText.custom(style = it)
-        } ?: POText.Style(
-            color = ProcessOutTheme.colors.text.primary,
-            textStyle = ProcessOutTheme.typography.fixed.bodyCompact
-        ),
+        message = custom?.message?.let { style ->
+            val controlsTintColor = custom.controlsTintColorResId?.let { colorResource(id = it) }
+            TextAndroidView.custom(
+                style = style,
+                controlsTintColor = controlsTintColor ?: ProcessOutTheme.colors.action.primaryDefault
+            )
+        } ?: TextAndroidView.default,
         errorMessage = custom?.errorMessage?.let {
             POText.custom(style = it)
         } ?: POText.errorLabel,
@@ -514,9 +515,6 @@ internal object NativeAlternativePaymentScreen {
         ),
         successImageResId = custom?.successImageResId ?: R.drawable.po_success_image,
         progressIndicatorColor = custom?.progressIndicatorColorResId?.let {
-            colorResource(id = it)
-        } ?: ProcessOutTheme.colors.action.primaryDefault,
-        controlsTintColor = custom?.controlsTintColorResId?.let {
             colorResource(id = it)
         } ?: ProcessOutTheme.colors.action.primaryDefault,
         dividerColor = custom?.dividerColorResId?.let {
