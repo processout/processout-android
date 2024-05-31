@@ -88,7 +88,7 @@ internal object TextAndroidView {
                     )
                 },
                 color = colors.text.primary,
-                controlsTintColor = colors.action.primaryDefault
+                controlsTintColor = colors.text.primary
             )
         }
 

@@ -385,7 +385,8 @@ private fun Capture(
                         TextAndroidView(
                             text = state.message,
                             style = style.message,
-                            selectable = true
+                            selectable = true,
+                            linksClickable = true
                         )
                     }
                 }
@@ -503,7 +504,7 @@ internal object NativeAlternativePaymentScreen {
                     val controlsTintColor = custom.controlsTintColorResId?.let { colorResource(id = it) }
                     TextAndroidView.custom(
                         style = style,
-                        controlsTintColor = controlsTintColor ?: colors.action.primaryDefault
+                        controlsTintColor = controlsTintColor ?: colors.text.primary
                     )
                 } ?: TextAndroidView.default,
                 errorMessage = custom?.errorMessage?.let {
