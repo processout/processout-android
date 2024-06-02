@@ -23,6 +23,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import coil.compose.AsyncImage
@@ -383,11 +384,18 @@ private fun Capture(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     if (isCaptured) {
-                        POText(text = state.message)
+                        POText(
+                            text = state.message,
+                            modifier = Modifier.fillMaxWidth(),
+                            color = style.successMessage.color,
+                            style = style.successMessage.textStyle,
+                            textAlign = TextAlign.Center
+                        )
                     } else {
                         TextAndroidView(
                             text = state.message,
                             style = style.message,
+                            modifier = Modifier.fillMaxWidth(),
                             selectable = true,
                             linksClickable = true
                         )
