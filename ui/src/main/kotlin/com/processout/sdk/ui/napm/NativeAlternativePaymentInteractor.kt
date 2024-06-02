@@ -1,10 +1,13 @@
 package com.processout.sdk.ui.napm
 
 import android.app.Application
+import android.os.Handler
+import android.os.Looper
 import android.util.Patterns
 import androidx.annotation.StringRes
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.core.os.postDelayed
 import androidx.core.text.isDigitsOnly
 import coil.imageLoader
 import coil.request.CachePolicy
@@ -54,6 +57,7 @@ internal class NativeAlternativePaymentInteractor(
 ) : BaseInteractor() {
 
     companion object {
+        const val SUCCESS_DELAY_MS = 3000L
         const val LOG_ATTRIBUTE_INVOICE_ID = "InvoiceId"
         const val LOG_ATTRIBUTE_GATEWAY_CONFIGURATION_ID = "GatewayConfigurationId"
     }
@@ -63,6 +67,8 @@ internal class NativeAlternativePaymentInteractor(
 
     private val _state = MutableStateFlow<NativeAlternativePaymentInteractorState>(Loading)
     val state = _state.asStateFlow()
+
+    private val handler = Handler(Looper.getMainLooper())
 
     private var latestDefaultValuesRequest: PONativeAlternativePaymentMethodDefaultValuesRequest? = null
 
@@ -630,6 +636,9 @@ internal class NativeAlternativePaymentInteractor(
             _completion.update { Success }
         } else {
             _state.update { Captured(stateValue) }
+            handler.postDelayed(delayInMillis = SUCCESS_DELAY_MS) {
+                _completion.update { Success }
+            }
         }
     }
 
@@ -688,5 +697,9 @@ internal class NativeAlternativePaymentInteractor(
                 }
             }
         }
+    }
+
+    fun onCleared() {
+        handler.removeCallbacksAndMessages(null)
     }
 }

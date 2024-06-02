@@ -324,4 +324,8 @@ internal class NativeAlternativePaymentViewModel(
             enabled = enabled
         )
     }
+
+    override fun onCleared() {
+        interactor.onCleared()
+    }
 }
