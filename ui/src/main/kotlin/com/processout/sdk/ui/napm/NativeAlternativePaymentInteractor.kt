@@ -325,7 +325,10 @@ internal class NativeAlternativePaymentInteractor(
                 ActionId.SUBMIT -> submit()
                 ActionId.CANCEL -> cancel()
             }
-            is Dismiss -> POLogger.info("Dismissed: %s", event.failure)
+            is Dismiss -> {
+                POLogger.info("Dismissed: %s", event.failure)
+                dispatch(DidFail(event.failure))
+            }
         }
     }
 
