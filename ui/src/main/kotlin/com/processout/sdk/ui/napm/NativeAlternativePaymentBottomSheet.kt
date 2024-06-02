@@ -131,10 +131,21 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
 
     private fun dismiss(failure: ProcessOutResult.Failure) {
         viewModel.onEvent(Dismiss(failure))
-        finishWithActivityResult(
-            resultCode = Activity.RESULT_CANCELED,
-            result = failure.toActivityResult()
-        )
+        val isCaptured = when (val state = viewModel.state.value) {
+            is Capture -> state.isCaptured
+            else -> false
+        }
+        if (isCaptured) {
+            finishWithActivityResult(
+                resultCode = Activity.RESULT_OK,
+                result = ProcessOutActivityResult.Success(POUnit)
+            )
+        } else {
+            finishWithActivityResult(
+                resultCode = Activity.RESULT_CANCELED,
+                result = failure.toActivityResult()
+            )
+        }
     }
 
     private fun finishWithActivityResult(
