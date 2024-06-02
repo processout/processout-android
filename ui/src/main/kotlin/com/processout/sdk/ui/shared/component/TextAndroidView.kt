@@ -130,6 +130,7 @@ internal object TextAndroidView {
         typeface = TypefaceCompat.create(
             context, customTypeface ?: typeface, weight.value, italic
         )
+        includeFontPadding = false
     }
 
     private val Weight.value: Int
