@@ -81,7 +81,7 @@ internal object TextAndroidView {
     val default: Style
         @Composable get() = with(ProcessOutTheme) {
             Style(
-                type = with(typography.fixed.bodyCompact) {
+                type = with(typography.fixed.body) {
                     POTextType(
                         textSizeSp = fontSize.value.toInt(),
                         lineHeightSp = lineHeight.value.toInt(),

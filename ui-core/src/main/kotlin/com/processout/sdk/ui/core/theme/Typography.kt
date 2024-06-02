@@ -41,12 +41,6 @@ data class POTypography(
             fontSize = 16.sp,
             lineHeight = 24.sp
         ),
-        val bodyCompact: TextStyle = TextStyle(
-            fontFamily = WorkSans,
-            fontWeight = FontWeight.Normal,
-            fontSize = 16.sp,
-            lineHeight = 20.sp
-        ),
         val label: TextStyle = TextStyle(
             fontFamily = WorkSans,
             fontWeight = FontWeight.Normal,
@@ -138,10 +132,6 @@ private fun POTypographyPreview() {
         Text(
             text = "Typography Fixed Body",
             style = LocalPOTypography.current.fixed.body
-        )
-        Text(
-            text = "Typography Fixed Body Compact",
-            style = LocalPOTypography.current.fixed.bodyCompact
         )
         Text(
             text = "Typography Fixed Label",
