@@ -7,6 +7,7 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -23,6 +24,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -44,6 +46,8 @@ import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.AnimationDurationMillis
+import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.CaptureImageHeight
+import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.CaptureImageWidth
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.animatedBackgroundColor
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.codeFieldHorizontalAlignment
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.*
@@ -100,7 +104,7 @@ internal fun NativeAlternativePaymentScreen(
             when (state) {
                 is Loading -> Loading(style.progressIndicatorColor)
                 is UserInput -> UserInput(state, onEvent, style)
-                is Capture -> Capture(state, onEvent, style)
+                is Capture -> Capture(state, style)
             }
         }
     }
@@ -345,7 +349,6 @@ private fun DropdownField(
 @Composable
 private fun Capture(
     state: Capture,
-    onEvent: (NativeAlternativePaymentEvent) -> Unit,
     style: NativeAlternativePaymentScreen.Style
 ) {
     AnimatedVisibility(enterDelayMillis = AnimationDurationMillis) {
@@ -391,6 +394,16 @@ private fun Capture(
                             style = style.successMessage.textStyle,
                             textAlign = TextAlign.Center
                         )
+                        Image(
+                            painter = painterResource(id = style.successImageResId),
+                            contentDescription = null,
+                            modifier = Modifier.requiredSize(
+                                width = CaptureImageWidth,
+                                height = CaptureImageHeight
+                            ),
+                            alignment = Alignment.Center,
+                            contentScale = ContentScale.Fit
+                        )
                     } else {
                         TextAndroidView(
                             text = state.message,
@@ -404,11 +417,10 @@ private fun Capture(
                             AsyncImage(
                                 model = state.imageUrl,
                                 contentDescription = null,
-                                modifier = Modifier
-                                    .requiredSize(
-                                        width = 220.dp,
-                                        height = 280.dp
-                                    ),
+                                modifier = Modifier.requiredSize(
+                                    width = CaptureImageWidth,
+                                    height = CaptureImageHeight
+                                ),
                                 alignment = Alignment.Center,
                                 contentScale = ContentScale.Fit,
                                 onError = {
@@ -491,7 +503,7 @@ internal object NativeAlternativePaymentScreen {
         val message: TextAndroidView.Style,
         val errorMessage: POText.Style,
         val successMessage: POText.Style,
-        @DrawableRes val successImageResId: Int?,
+        @DrawableRes val successImageResId: Int,
         val progressIndicatorColor: Color,
         val dividerColor: Color,
         val dragHandleColor: Color
@@ -556,6 +568,9 @@ internal object NativeAlternativePaymentScreen {
                 } ?: colors.border.disabled
             )
         }
+
+    val CaptureImageWidth = 220.dp
+    val CaptureImageHeight = 280.dp
 
     val AnimationDurationMillis = 300
 
