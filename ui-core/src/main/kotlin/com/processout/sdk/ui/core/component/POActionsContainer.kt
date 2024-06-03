@@ -89,14 +89,38 @@ private fun Actions(
 ) {
     actions.elements.forEach {
         with(it) {
+            var requestConfirmation by remember { mutableStateOf(false) }
             POButton(
                 text = text,
-                onClick = { onClick(id) },
+                onClick = {
+                    if (confirmation != null) {
+                        requestConfirmation = true
+                    } else {
+                        onClick(id)
+                    }
+                },
                 modifier = modifier.fillMaxWidth(),
                 style = if (primary) primaryStyle else secondaryStyle,
                 enabled = enabled,
                 loading = loading
             )
+            if (requestConfirmation) {
+                confirmation?.run {
+                    PODialog(
+                        title = title,
+                        message = message,
+                        confirmActionText = confirmActionText,
+                        dismissActionText = dismissActionText,
+                        onConfirm = {
+                            requestConfirmation = false
+                            onClick(id)
+                        },
+                        onDismiss = {
+                            requestConfirmation = false
+                        }
+                    )
+                }
+            }
         }
     }
 }
