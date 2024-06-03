@@ -360,24 +360,7 @@ private fun Capture(
             verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.large),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            var showLogo by remember { mutableStateOf(true) }
-            if (showLogo) {
-                AsyncImage(
-                    model = state.logoUrl,
-                    contentDescription = null,
-                    modifier = Modifier.requiredHeight(34.dp),
-                    contentScale = ContentScale.FillHeight,
-                    onError = {
-                        showLogo = false
-                    }
-                )
-            } else if (state.title != null) {
-                POText(
-                    text = state.title,
-                    color = style.title.color,
-                    style = style.title.textStyle
-                )
-            }
+            CaptureHeader(state, style)
             Crossfade(
                 targetState = state.isCaptured,
                 animationSpec = tween(durationMillis = AnimationDurationMillis, easing = LinearEasing)
@@ -387,50 +370,9 @@ private fun Capture(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     if (isCaptured) {
-                        POText(
-                            text = state.message,
-                            modifier = Modifier.fillMaxWidth(),
-                            color = style.successMessage.color,
-                            style = style.successMessage.textStyle,
-                            textAlign = TextAlign.Center
-                        )
-                        Image(
-                            painter = painterResource(id = style.successImageResId),
-                            contentDescription = null,
-                            modifier = Modifier.requiredSize(
-                                width = CaptureImageWidth,
-                                height = CaptureImageHeight
-                            ),
-                            alignment = Alignment.Center,
-                            contentScale = ContentScale.Fit
-                        )
+                        SuccessContent(state, style)
                     } else {
-                        if (state.withProgressIndicator) {
-                            AnimatedProgressIndicator(style.progressIndicatorColor)
-                        }
-                        TextAndroidView(
-                            text = state.message,
-                            style = style.message,
-                            modifier = Modifier.fillMaxWidth(),
-                            selectable = true,
-                            linksClickable = true
-                        )
-                        var showImage by remember { mutableStateOf(true) }
-                        if (showImage) {
-                            AsyncImage(
-                                model = state.imageUrl,
-                                contentDescription = null,
-                                modifier = Modifier.requiredSize(
-                                    width = CaptureImageWidth,
-                                    height = CaptureImageHeight
-                                ),
-                                alignment = Alignment.Center,
-                                contentScale = ContentScale.Fit,
-                                onError = {
-                                    showImage = false
-                                }
-                            )
-                        }
+                        CaptureContent(state, style)
                     }
                 }
             }
@@ -439,7 +381,65 @@ private fun Capture(
 }
 
 @Composable
-private fun ColumnScope.AnimatedProgressIndicator(
+private fun CaptureHeader(
+    state: Capture,
+    style: NativeAlternativePaymentScreen.Style
+) {
+    var showLogo by remember { mutableStateOf(true) }
+    if (showLogo) {
+        AsyncImage(
+            model = state.logoUrl,
+            contentDescription = null,
+            modifier = Modifier.requiredHeight(34.dp),
+            contentScale = ContentScale.FillHeight,
+            onError = {
+                showLogo = false
+            }
+        )
+    } else if (state.title != null) {
+        POText(
+            text = state.title,
+            color = style.title.color,
+            style = style.title.textStyle
+        )
+    }
+}
+
+@Composable
+private fun CaptureContent(
+    state: Capture,
+    style: NativeAlternativePaymentScreen.Style
+) {
+    if (state.withProgressIndicator) {
+        AnimatedProgressIndicator(style.progressIndicatorColor)
+    }
+    TextAndroidView(
+        text = state.message,
+        style = style.message,
+        modifier = Modifier.fillMaxWidth(),
+        selectable = true,
+        linksClickable = true
+    )
+    var showImage by remember { mutableStateOf(true) }
+    if (showImage) {
+        AsyncImage(
+            model = state.imageUrl,
+            contentDescription = null,
+            modifier = Modifier.requiredSize(
+                width = CaptureImageWidth,
+                height = CaptureImageHeight
+            ),
+            alignment = Alignment.Center,
+            contentScale = ContentScale.Fit,
+            onError = {
+                showImage = false
+            }
+        )
+    }
+}
+
+@Composable
+private fun AnimatedProgressIndicator(
     progressIndicatorColor: Color
 ) {
     AnimatedVisibility(
@@ -452,6 +452,30 @@ private fun ColumnScope.AnimatedProgressIndicator(
     ) {
         POCircularProgressIndicator.Medium(color = progressIndicatorColor)
     }
+}
+
+@Composable
+private fun SuccessContent(
+    state: Capture,
+    style: NativeAlternativePaymentScreen.Style
+) {
+    POText(
+        text = state.message,
+        modifier = Modifier.fillMaxWidth(),
+        color = style.successMessage.color,
+        style = style.successMessage.textStyle,
+        textAlign = TextAlign.Center
+    )
+    Image(
+        painter = painterResource(id = style.successImageResId),
+        contentDescription = null,
+        modifier = Modifier.requiredSize(
+            width = CaptureImageWidth,
+            height = CaptureImageHeight
+        ),
+        alignment = Alignment.Center,
+        contentScale = ContentScale.Fit
+    )
 }
 
 @Composable
