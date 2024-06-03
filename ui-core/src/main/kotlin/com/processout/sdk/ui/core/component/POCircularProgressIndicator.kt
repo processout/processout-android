@@ -1,5 +1,6 @@
 package com.processout.sdk.ui.core.component
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
@@ -21,7 +22,9 @@ object POCircularProgressIndicator {
 
     @Composable
     fun Medium(color: Color) = CircularProgressIndicator(
-        modifier = Modifier.requiredSize(28.dp),
+        modifier = Modifier
+            .padding(4.dp)
+            .requiredSize(28.dp),
         strokeWidth = 3.dp,
         color = color
     )
