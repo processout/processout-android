@@ -677,8 +677,8 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun enablePaymentConfirmationProgressIndicator() {
         options.paymentConfirmation.showProgressIndicatorAfterSeconds?.let { afterSeconds ->
-            _state.whenCapturing { stateValue ->
-                handler.postDelayed(delayInMillis = TimeUnit.SECONDS.toMillis(afterSeconds.toLong())) {
+            handler.postDelayed(delayInMillis = TimeUnit.SECONDS.toMillis(afterSeconds.toLong())) {
+                _state.whenCapturing { stateValue ->
                     _state.update { Capturing(stateValue.copy(withProgressIndicator = true)) }
                 }
             }
