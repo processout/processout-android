@@ -17,6 +17,7 @@ import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodPar
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails.Invoice
 import com.processout.sdk.core.retry.PORetryStrategy.Exponential
 import com.processout.sdk.ui.core.state.POActionState
+import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractor.Companion.LOG_ATTRIBUTE_GATEWAY_CONFIGURATION_ID
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractor.Companion.LOG_ATTRIBUTE_INVOICE_ID
@@ -26,6 +27,7 @@ import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Option
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.DEFAULT_TIMEOUT_SECONDS
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.MAX_TIMEOUT_SECONDS
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.SecondaryAction
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.SecondaryAction.Cancel
 import com.processout.sdk.ui.shared.extension.map
 import com.processout.sdk.ui.shared.filter.PhoneNumberInputFilter
 import com.processout.sdk.ui.shared.state.FieldState
@@ -319,13 +321,13 @@ internal class NativeAlternativePaymentViewModel(
         id: String,
         enabled: Boolean
     ): POActionState = when (this) {
-        is SecondaryAction.Cancel -> POActionState(
+        is Cancel -> POActionState(
             id = id,
             text = text ?: app.getString(R.string.po_native_apm_cancel_button_text),
             primary = false,
             enabled = enabled,
             confirmation = confirmation?.run {
-                POActionState.Confirmation(
+                Confirmation(
                     title = title ?: app.getString(R.string.po_native_apm_cancel_confirmation_title),
                     message = message,
                     confirmActionText = confirmActionText
