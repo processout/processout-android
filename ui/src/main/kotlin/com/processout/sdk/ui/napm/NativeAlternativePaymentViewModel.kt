@@ -150,6 +150,7 @@ internal class NativeAlternativePaymentViewModel(
                 imageUrl = actionImageUrl,
                 message = actionMessage,
                 secondaryAction = secondaryAction,
+                withProgressIndicator = withProgressIndicator,
                 isCaptured = false
             )
         }
@@ -162,6 +163,7 @@ internal class NativeAlternativePaymentViewModel(
             imageUrl = null,
             message = options.successMessage ?: app.getString(R.string.po_native_apm_success_message),
             secondaryAction = null,
+            withProgressIndicator = false,
             isCaptured = true
         )
     }

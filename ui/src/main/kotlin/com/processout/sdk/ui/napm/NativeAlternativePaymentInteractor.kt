@@ -44,6 +44,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import java.util.concurrent.TimeUnit
 
 internal class NativeAlternativePaymentInteractor(
     private val app: Application,
@@ -146,7 +147,8 @@ internal class NativeAlternativePaymentInteractor(
         actionImageUrl = gateway.customerActionImageUrl,
         actionMessage = parameterValues?.customerActionMessage
             ?: gateway.customerActionMessage?.let { escapedMarkdown(it) },
-        secondaryActionId = ActionId.CANCEL
+        secondaryActionId = ActionId.CANCEL,
+        withProgressIndicator = false
     )
 
     //region User Input
@@ -565,8 +567,7 @@ internal class NativeAlternativePaymentInteractor(
                 coroutineScope = this@launch
             )
             _state.update { Capturing(stateValue) }
-
-            // TODO: schedule enabling of progress indicator
+            enablePaymentConfirmationProgressIndicator()
 
             // TODO: schedule enabling of secondary action
 
@@ -673,6 +674,16 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     //endregion
+
+    private fun enablePaymentConfirmationProgressIndicator() {
+        options.paymentConfirmation.showProgressIndicatorAfterSeconds?.let { afterSeconds ->
+            _state.whenCapturing { stateValue ->
+                handler.postDelayed(delayInMillis = TimeUnit.SECONDS.toMillis(afterSeconds.toLong())) {
+                    _state.update { Capturing(stateValue.copy(withProgressIndicator = true)) }
+                }
+            }
+        }
+    }
 
     private fun cancel() {
         _completion.update {

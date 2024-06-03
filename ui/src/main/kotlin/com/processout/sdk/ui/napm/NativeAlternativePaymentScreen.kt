@@ -405,6 +405,9 @@ private fun Capture(
                             contentScale = ContentScale.Fit
                         )
                     } else {
+                        if (state.withProgressIndicator) {
+                            AnimatedProgressIndicator(style.progressIndicatorColor)
+                        }
                         TextAndroidView(
                             text = state.message,
                             style = style.message,
@@ -432,6 +435,22 @@ private fun Capture(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun ColumnScope.AnimatedProgressIndicator(
+    progressIndicatorColor: Color
+) {
+    AnimatedVisibility(
+        visibleState = remember {
+            MutableTransitionState(initialState = false)
+                .apply { targetState = true }
+        },
+        enter = expandVertically() + fadeIn(animationSpec = tween(durationMillis = AnimationDurationMillis)),
+        exit = shrinkVertically() + fadeOut(animationSpec = tween(durationMillis = AnimationDurationMillis))
+    ) {
+        POCircularProgressIndicator.Medium(color = progressIndicatorColor)
     }
 }
 
