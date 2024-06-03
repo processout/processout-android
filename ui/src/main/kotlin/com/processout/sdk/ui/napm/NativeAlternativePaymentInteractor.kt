@@ -720,16 +720,7 @@ internal class NativeAlternativePaymentInteractor(
 
     //endregion
 
-    private fun cancel() {
-        _completion.update {
-            Failure(
-                ProcessOutResult.Failure(
-                    code = Cancelled,
-                    message = "Cancelled by the user with secondary cancel action."
-                ).also { POLogger.info("Cancelled: %s", it) }
-            )
-        }
-    }
+    //region Dispatch Events
 
     private fun dispatch(event: PONativeAlternativePaymentMethodEvent) {
         interactorScope.launch {
@@ -745,6 +736,19 @@ internal class NativeAlternativePaymentInteractor(
                     dispatch(DidFail(it.failure))
                 }
             }
+        }
+    }
+
+    //endregion
+
+    private fun cancel() {
+        _completion.update {
+            Failure(
+                ProcessOutResult.Failure(
+                    code = Cancelled,
+                    message = "Cancelled by the user with secondary cancel action."
+                ).also { POLogger.info("Cancelled: %s", it) }
+            )
         }
     }
 
