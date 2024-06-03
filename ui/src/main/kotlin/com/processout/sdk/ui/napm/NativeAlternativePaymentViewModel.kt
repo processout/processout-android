@@ -130,16 +130,16 @@ internal class NativeAlternativePaymentViewModel(
                 loading = submitting
             ),
             secondaryAction = options.secondaryAction?.toActionState(
-                id = secondaryActionId,
-                enabled = !submitting
+                id = secondaryAction.id,
+                enabled = secondaryAction.enabled && !submitting
             )
         )
     }
 
     private fun Capturing.map() = with(value) {
         val secondaryAction = options.paymentConfirmation.secondaryAction?.toActionState(
-            id = secondaryActionId,
-            enabled = true
+            id = secondaryAction.id,
+            enabled = secondaryAction.enabled
         )
         if (actionMessage.isNullOrBlank()) {
             NativeAlternativePaymentViewModelState.Loading(

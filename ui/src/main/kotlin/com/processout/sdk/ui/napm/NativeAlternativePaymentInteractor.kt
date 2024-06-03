@@ -38,13 +38,15 @@ import com.processout.sdk.ui.base.BaseInteractor
 import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.*
+import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.Action
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.SecondaryAction
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.SecondaryAction.Cancel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import java.util.concurrent.TimeUnit
 
 internal class NativeAlternativePaymentInteractor(
     private val app: Application,
@@ -133,7 +135,10 @@ internal class NativeAlternativePaymentInteractor(
             fields = emptyList(),
             focusedFieldId = null,
             primaryActionId = ActionId.SUBMIT,
-            secondaryActionId = ActionId.CANCEL,
+            secondaryAction = NativeAlternativePaymentInteractorState.Action(
+                id = ActionId.CANCEL,
+                enabled = false
+            ),
             submitAllowed = true,
             submitting = false
         )
@@ -147,7 +152,10 @@ internal class NativeAlternativePaymentInteractor(
         actionImageUrl = gateway.customerActionImageUrl,
         actionMessage = parameterValues?.customerActionMessage
             ?: gateway.customerActionMessage?.let { escapedMarkdown(it) },
-        secondaryActionId = ActionId.CANCEL,
+        secondaryAction = NativeAlternativePaymentInteractorState.Action(
+            id = ActionId.CANCEL,
+            enabled = false
+        ),
         withProgressIndicator = false
     )
 
@@ -241,12 +249,7 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun startUserInput(stateValue: UserInputStateValue) {
         _state.update { UserInput(stateValue) }
-
-        // TODO
-//        uiModel.secondaryAction?.let {
-//            scheduleSecondaryActionEnabling(it) { enableSecondaryAction() }
-//        }
-
+        enableUserInputSecondaryAction()
         POLogger.info("Started: waiting for payment parameters.")
         dispatch(DidStart)
     }
@@ -567,10 +570,8 @@ internal class NativeAlternativePaymentInteractor(
                 coroutineScope = this@launch
             )
             _state.update { Capturing(stateValue) }
-            enablePaymentConfirmationProgressIndicator()
-
-            // TODO: schedule enabling of secondary action
-
+            enableCapturingProgressIndicator()
+            enableCapturingSecondaryAction()
             capture()
         }
     }
@@ -675,15 +676,49 @@ internal class NativeAlternativePaymentInteractor(
 
     //endregion
 
-    private fun enablePaymentConfirmationProgressIndicator() {
+    //region Features
+
+    private val SecondaryAction?.disabledForMillis: Long
+        get() = when (this) {
+            is Cancel -> disabledForSeconds * 1000L
+            null -> 0
+        }
+
+    private fun enableUserInputSecondaryAction() {
+        handler.postDelayed(delayInMillis = options.secondaryAction.disabledForMillis) {
+            _state.whenUserInput { stateValue ->
+                _state.update {
+                    with(stateValue) {
+                        UserInput(copy(secondaryAction = secondaryAction.copy(enabled = true)))
+                    }
+                }
+            }
+        }
+    }
+
+    private fun enableCapturingSecondaryAction() {
+        handler.postDelayed(delayInMillis = options.paymentConfirmation.secondaryAction.disabledForMillis) {
+            _state.whenCapturing { stateValue ->
+                _state.update {
+                    with(stateValue) {
+                        Capturing(copy(secondaryAction = secondaryAction.copy(enabled = true)))
+                    }
+                }
+            }
+        }
+    }
+
+    private fun enableCapturingProgressIndicator() {
         options.paymentConfirmation.showProgressIndicatorAfterSeconds?.let { afterSeconds ->
-            handler.postDelayed(delayInMillis = TimeUnit.SECONDS.toMillis(afterSeconds.toLong())) {
+            handler.postDelayed(delayInMillis = afterSeconds * 1000L) {
                 _state.whenCapturing { stateValue ->
                     _state.update { Capturing(stateValue.copy(withProgressIndicator = true)) }
                 }
             }
         }
     }
+
+    //endregion
 
     private fun cancel() {
         _completion.update {
