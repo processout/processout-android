@@ -48,6 +48,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.AnimationDurationMillis
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.CaptureImageHeight
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.CaptureImageWidth
+import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.CaptureLogoHeight
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.animatedBackgroundColor
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.codeFieldHorizontalAlignment
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.*
@@ -391,7 +392,7 @@ private fun CaptureHeader(
         AsyncImage(
             model = state.logoUrl,
             contentDescription = null,
-            modifier = Modifier.requiredHeight(34.dp),
+            modifier = Modifier.requiredHeight(CaptureLogoHeight),
             contentScale = ContentScale.FillHeight,
             onError = {
                 showLogo = false
@@ -618,6 +619,8 @@ internal object NativeAlternativePaymentScreen {
                 } ?: colors.border.disabled
             )
         }
+
+    val CaptureLogoHeight = 34.dp
 
     val CaptureImageWidth = 220.dp
     val CaptureImageHeight = 280.dp
