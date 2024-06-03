@@ -139,6 +139,7 @@ data class PONativeAlternativePaymentConfiguration(
         val radioButton: PORadioButtonStyle? = null,
         val dropdownMenu: PODropdownMenuStyle? = null,
         val actionsContainer: POActionsContainerStyle? = null,
+        val dialog: PODialogStyle? = null,
         val background: POBackgroundStyle? = null,
         val message: POTextStyle? = null,
         val errorMessage: POTextStyle? = null,

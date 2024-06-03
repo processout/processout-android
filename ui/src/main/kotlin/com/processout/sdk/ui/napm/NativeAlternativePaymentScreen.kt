@@ -85,7 +85,8 @@ internal fun NativeAlternativePaymentScreen(
             Actions(
                 state = state,
                 onEvent = onEvent,
-                style = style.actionsContainer
+                containerStyle = style.actionsContainer,
+                dialogStyle = style.dialog
             )
         }
     ) { scaffoldPadding ->
@@ -482,7 +483,8 @@ private fun SuccessContent(
 private fun Actions(
     state: NativeAlternativePaymentViewModelState,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
-    style: POActionsContainer.Style
+    containerStyle: POActionsContainer.Style,
+    dialogStyle: PODialog.Style
 ) {
     var primary: POActionState? = null
     var secondary: POActionState? = null
@@ -499,10 +501,11 @@ private fun Actions(
     secondary?.let { actions.add(it) }
     POActionsContainer(
         actions = POImmutableList(
-            if (style.axis == POAxis.Horizontal) actions.reversed() else actions
+            if (containerStyle.axis == POAxis.Horizontal) actions.reversed() else actions
         ),
         onClick = { onEvent(Action(id = it)) },
-        style = style,
+        containerStyle = containerStyle,
+        dialogStyle = dialogStyle,
         animationDurationMillis = AnimationDurationMillis
     )
 }
@@ -541,6 +544,7 @@ internal object NativeAlternativePaymentScreen {
         val radioGroup: PORadioGroup.Style,
         val dropdownMenu: PODropdownField.MenuStyle,
         val actionsContainer: POActionsContainer.Style,
+        val dialog: PODialog.Style,
         val normalBackgroundColor: Color,
         val successBackgroundColor: Color,
         val message: TextAndroidView.Style,
@@ -577,6 +581,9 @@ internal object NativeAlternativePaymentScreen {
                 actionsContainer = custom?.actionsContainer?.let {
                     POActionsContainer.custom(style = it)
                 } ?: POActionsContainer.default,
+                dialog = custom?.dialog?.let {
+                    PODialog.custom(style = it)
+                } ?: PODialog.default,
                 normalBackgroundColor = custom?.background?.normalColorResId?.let {
                     colorResource(id = it)
                 } ?: colors.surface.level1,

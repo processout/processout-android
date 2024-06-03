@@ -167,7 +167,7 @@ private fun Actions(
             if (style.axis == POAxis.Horizontal) actions.reversed() else actions
         ),
         onClick = { onEvent(Action(id = it)) },
-        style = style
+        containerStyle = style
     )
 }
 

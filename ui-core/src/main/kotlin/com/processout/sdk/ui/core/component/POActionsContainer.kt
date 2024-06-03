@@ -26,7 +26,8 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme
 fun POActionsContainer(
     actions: POImmutableList<POActionState>,
     onClick: (ActionId) -> Unit,
-    style: POActionsContainer.Style = POActionsContainer.default,
+    containerStyle: POActionsContainer.Style = POActionsContainer.default,
+    dialogStyle: PODialog.Style = PODialog.default,
     animationDurationMillis: Int = 0
 ) {
     var currentActions by remember {
@@ -41,37 +42,39 @@ fun POActionsContainer(
         exit = fadeOut(animationSpec = tween(durationMillis = animationDurationMillis)),
     ) {
         Column {
-            HorizontalDivider(thickness = 1.dp, color = style.dividerColor)
+            HorizontalDivider(thickness = 1.dp, color = containerStyle.dividerColor)
 
             val padding = POActionsContainer.containerPadding
             val spacing = POActionsContainer.actionSpacing
 
-            when (style.axis) {
+            when (containerStyle.axis) {
                 POAxis.Vertical -> Column(
                     modifier = Modifier
-                        .background(color = style.backgroundColor)
+                        .background(color = containerStyle.backgroundColor)
                         .padding(padding),
                     verticalArrangement = Arrangement.spacedBy(spacing)
                 ) {
                     Actions(
                         actions = currentActions,
                         onClick = onClick,
-                        primaryStyle = style.primary,
-                        secondaryStyle = style.secondary
+                        primaryActionStyle = containerStyle.primary,
+                        secondaryActionStyle = containerStyle.secondary,
+                        dialogStyle = dialogStyle
                     )
                 }
                 POAxis.Horizontal -> Row(
                     modifier = Modifier
-                        .background(color = style.backgroundColor)
+                        .background(color = containerStyle.backgroundColor)
                         .padding(padding),
                     horizontalArrangement = Arrangement.spacedBy(spacing)
                 ) {
                     Actions(
                         actions = currentActions,
                         onClick = onClick,
-                        modifier = Modifier.weight(1f),
-                        primaryStyle = style.primary,
-                        secondaryStyle = style.secondary
+                        primaryActionStyle = containerStyle.primary,
+                        secondaryActionStyle = containerStyle.secondary,
+                        dialogStyle = dialogStyle,
+                        modifier = Modifier.weight(1f)
                     )
                 }
             }
@@ -83,9 +86,10 @@ fun POActionsContainer(
 private fun Actions(
     actions: POImmutableList<POActionState>,
     onClick: (ActionId) -> Unit,
-    modifier: Modifier = Modifier,
-    primaryStyle: POButton.Style = POButton.primary,
-    secondaryStyle: POButton.Style = POButton.secondary
+    primaryActionStyle: POButton.Style,
+    secondaryActionStyle: POButton.Style,
+    dialogStyle: PODialog.Style,
+    modifier: Modifier = Modifier
 ) {
     actions.elements.forEach {
         with(it) {
@@ -100,7 +104,7 @@ private fun Actions(
                     }
                 },
                 modifier = modifier.fillMaxWidth(),
-                style = if (primary) primaryStyle else secondaryStyle,
+                style = if (primary) primaryActionStyle else secondaryActionStyle,
                 enabled = enabled,
                 loading = loading
             )
@@ -117,7 +121,8 @@ private fun Actions(
                         },
                         onDismiss = {
                             requestConfirmation = false
-                        }
+                        },
+                        style = dialogStyle
                     )
                 }
             }
