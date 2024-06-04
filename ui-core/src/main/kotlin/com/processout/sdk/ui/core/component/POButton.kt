@@ -11,6 +11,7 @@ import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonElevation
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -46,7 +47,9 @@ fun POButton(
     CompositionLocalProvider(LocalRippleTheme provides NoRippleTheme) {
         Button(
             onClick = onClick,
-            modifier = modifier.requiredHeight(ProcessOutTheme.dimensions.formComponentHeight),
+            modifier = modifier.requiredHeightIn(
+                min = ProcessOutTheme.dimensions.formComponentHeight
+            ),
             enabled = enabled && !loading,
             colors = colors(style = style, enabled = enabled, loading = loading, pressed = pressed),
             shape = if (enabled) style.normal.shape else style.disabled.shape,
@@ -56,7 +59,14 @@ fun POButton(
             interactionSource = interactionSource
         ) {
             if (enabled && loading) {
-                POCircularProgressIndicator.Small(color = style.progressIndicatorColor)
+                Box(contentAlignment = Alignment.Center) {
+                    POCircularProgressIndicator.Small(color = style.progressIndicatorColor)
+                    // This empty POText ensures that button height matches with provided text style while loading.
+                    POText(
+                        text = String(),
+                        style = style.normal.text.textStyle
+                    )
+                }
             } else {
                 POText(
                     text = text,
