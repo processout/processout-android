@@ -7,6 +7,7 @@ internal sealed interface NativeAlternativePaymentEvent {
     data class FieldValueChanged(val id: String, val value: TextFieldValue) : NativeAlternativePaymentEvent
     data class FieldFocusChanged(val id: String, val isFocused: Boolean) : NativeAlternativePaymentEvent
     data class Action(val id: String) : NativeAlternativePaymentEvent
+    data class ActionConfirmationRequested(val id: String) : NativeAlternativePaymentEvent
     data class Dismiss(val failure: ProcessOutResult.Failure) : NativeAlternativePaymentEvent
 }
 

@@ -330,6 +330,12 @@ internal class NativeAlternativePaymentInteractor(
                 ActionId.SUBMIT -> submit()
                 ActionId.CANCEL -> cancel()
             }
+            is ActionConfirmationRequested -> {
+                POLogger.debug("Requested the user to confirm the action: %s", event.id)
+                if (event.id == ActionId.CANCEL) {
+                    dispatch(DidRequestCancelConfirmation)
+                }
+            }
             is Dismiss -> {
                 POLogger.info("Dismissed: %s", event.failure)
                 dispatch(DidFail(event.failure))

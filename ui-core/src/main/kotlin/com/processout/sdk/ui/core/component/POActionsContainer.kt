@@ -26,6 +26,7 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme
 fun POActionsContainer(
     actions: POImmutableList<POActionState>,
     onClick: (ActionId) -> Unit,
+    onConfirmationRequested: ((ActionId) -> Unit)? = null,
     containerStyle: POActionsContainer.Style = POActionsContainer.default,
     dialogStyle: PODialog.Style = PODialog.default,
     animationDurationMillis: Int = 0
@@ -57,6 +58,7 @@ fun POActionsContainer(
                     Actions(
                         actions = currentActions,
                         onClick = onClick,
+                        onConfirmationRequested = onConfirmationRequested,
                         primaryActionStyle = containerStyle.primary,
                         secondaryActionStyle = containerStyle.secondary,
                         dialogStyle = dialogStyle
@@ -71,6 +73,7 @@ fun POActionsContainer(
                     Actions(
                         actions = currentActions,
                         onClick = onClick,
+                        onConfirmationRequested = onConfirmationRequested,
                         primaryActionStyle = containerStyle.primary,
                         secondaryActionStyle = containerStyle.secondary,
                         dialogStyle = dialogStyle,
@@ -86,6 +89,7 @@ fun POActionsContainer(
 private fun Actions(
     actions: POImmutableList<POActionState>,
     onClick: (ActionId) -> Unit,
+    onConfirmationRequested: ((ActionId) -> Unit)?,
     primaryActionStyle: POButton.Style,
     secondaryActionStyle: POButton.Style,
     dialogStyle: PODialog.Style,
@@ -99,6 +103,7 @@ private fun Actions(
                 onClick = {
                     if (confirmation != null) {
                         requestConfirmation = true
+                        onConfirmationRequested?.invoke(id)
                     } else {
                         onClick(id)
                     }
@@ -116,8 +121,8 @@ private fun Actions(
                         confirmActionText = confirmActionText,
                         dismissActionText = dismissActionText,
                         onConfirm = {
-                            requestConfirmation = false
                             onClick(id)
+                            requestConfirmation = false
                         },
                         onDismiss = {
                             requestConfirmation = false

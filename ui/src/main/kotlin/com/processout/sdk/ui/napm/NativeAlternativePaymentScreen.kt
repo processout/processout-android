@@ -505,6 +505,7 @@ private fun Actions(
             if (containerStyle.axis == POAxis.Horizontal) actions.reversed() else actions
         ),
         onClick = { onEvent(Action(id = it)) },
+        onConfirmationRequested = { onEvent(ActionConfirmationRequested(id = it)) },
         containerStyle = containerStyle,
         dialogStyle = dialogStyle,
         animationDurationMillis = AnimationDurationMillis
