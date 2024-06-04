@@ -4,10 +4,9 @@ package com.processout.sdk.ui.shared.filter
 
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
-import com.processout.sdk.ui.core.filter.POInputFilter
 import kotlin.math.max
 
-internal class CardExpirationInputFilter : POInputFilter {
+internal class CardExpirationInputFilter : InputFilter {
 
     private companion object {
         val patternRegex = "^(0+$|0+[1-9]|1[0-2]{0,1}|[2-9])([0-9]{0,2})".toRegex()

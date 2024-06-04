@@ -2,9 +2,8 @@ package com.processout.sdk.ui.shared.filter
 
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
-import com.processout.sdk.ui.core.filter.POInputFilter
 
-internal class PhoneNumberInputFilter : POInputFilter {
+internal class PhoneNumberInputFilter : InputFilter {
 
     override fun filter(value: TextFieldValue): TextFieldValue {
         var filtered = value.text.filter { it.isDigit() }

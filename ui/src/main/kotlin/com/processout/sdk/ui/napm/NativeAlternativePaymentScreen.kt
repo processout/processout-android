@@ -12,9 +12,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,11 +21,15 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
-import com.processout.sdk.ui.R
+import coil.compose.AsyncImage
+import com.processout.sdk.R
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.POFieldLabels
@@ -39,17 +41,22 @@ import com.processout.sdk.ui.core.component.field.radio.POLabeledRadioField
 import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
 import com.processout.sdk.ui.core.component.field.text.POLabeledTextField
 import com.processout.sdk.ui.core.state.POActionState
-import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.AnimationDurationMillis
+import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.CaptureImageHeight
+import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.CaptureImageWidth
+import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.CaptureLogoHeight
+import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.CrossfadeAnimationDurationMillis
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.animatedBackgroundColor
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.codeFieldHorizontalAlignment
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Field.*
-import com.processout.sdk.ui.shared.composable.rememberLifecycleEvent
+import com.processout.sdk.ui.shared.component.TextAndroidView
+import com.processout.sdk.ui.shared.component.rememberLifecycleEvent
+import com.processout.sdk.ui.shared.state.FieldState
 
 @Composable
 internal fun NativeAlternativePaymentScreen(
@@ -80,7 +87,8 @@ internal fun NativeAlternativePaymentScreen(
             Actions(
                 state = state,
                 onEvent = onEvent,
-                style = style.actionsContainer
+                containerStyle = style.actionsContainer,
+                dialogStyle = style.dialog
             )
         }
     ) { scaffoldPadding ->
@@ -91,15 +99,15 @@ internal fun NativeAlternativePaymentScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(
                     horizontal = ProcessOutTheme.spacing.extraLarge,
-                    vertical = ProcessOutTheme.spacing.large
+                    vertical = if (state is Capture) 0.dp else ProcessOutTheme.spacing.large
                 ),
             verticalArrangement = if (state is Capture) Arrangement.Top else Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             when (state) {
-                Loading -> Loading(style.progressIndicatorColor)
+                is Loading -> Loading(style.progressIndicatorColor)
                 is UserInput -> UserInput(state, onEvent, style)
-                is Capture -> Capture(state, onEvent, style)
+                is Capture -> Capture(state, style)
             }
         }
     }
@@ -173,7 +181,7 @@ private fun UserInput(
 
 @Composable
 private fun TextField(
-    state: POFieldState,
+    state: FieldState,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
     lifecycleEvent: Lifecycle.Event,
     focusedFieldId: String?,
@@ -227,7 +235,7 @@ private fun TextField(
 
 @Composable
 private fun CodeField(
-    state: POFieldState,
+    state: FieldState,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
     lifecycleEvent: Lifecycle.Event,
     focusedFieldId: String?,
@@ -278,7 +286,7 @@ private fun CodeField(
 
 @Composable
 private fun RadioField(
-    state: POFieldState,
+    state: FieldState,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
     radioGroupStyle: PORadioGroup.Style,
     labelsStyle: POFieldLabels.Style,
@@ -306,7 +314,7 @@ private fun RadioField(
 
 @Composable
 private fun DropdownField(
-    state: POFieldState,
+    state: FieldState,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
     fieldStyle: POField.Style,
     menuStyle: PODropdownField.MenuStyle,
@@ -344,25 +352,33 @@ private fun DropdownField(
 @Composable
 private fun Capture(
     state: Capture,
-    onEvent: (NativeAlternativePaymentEvent) -> Unit,
     style: NativeAlternativePaymentScreen.Style
 ) {
     AnimatedVisibility(enterDelayMillis = AnimationDurationMillis) {
-        Column {
-            // TODO
-            Image(
-                painter = painterResource(id = R.drawable.po_scheme_elo),
-                contentDescription = null
-            )
+        Column(
+            modifier = Modifier.padding(
+                top = ProcessOutTheme.spacing.extraSmall,
+                bottom = ProcessOutTheme.spacing.extraLarge
+            ),
+            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.large),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            CaptureHeader(state, style)
             Crossfade(
                 targetState = state.isCaptured,
-                animationSpec = tween(durationMillis = AnimationDurationMillis, easing = LinearEasing)
+                animationSpec = tween(
+                    durationMillis = CrossfadeAnimationDurationMillis,
+                    easing = LinearEasing
+                )
             ) { isCaptured ->
-                Column {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.large),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     if (isCaptured) {
-                        // TODO
+                        SuccessContent(state, style)
                     } else {
-                        // TODO
+                        CaptureContent(state, style)
                     }
                 }
             }
@@ -371,30 +387,131 @@ private fun Capture(
 }
 
 @Composable
+private fun CaptureHeader(
+    state: Capture,
+    style: NativeAlternativePaymentScreen.Style
+) {
+    var showLogo by remember { mutableStateOf(true) }
+    if (showLogo) {
+        AsyncImage(
+            model = state.logoUrl,
+            contentDescription = null,
+            modifier = Modifier.requiredHeight(CaptureLogoHeight),
+            contentScale = ContentScale.FillHeight,
+            onError = {
+                showLogo = false
+            }
+        )
+    } else if (state.title != null) {
+        POText(
+            text = state.title,
+            color = style.title.color,
+            style = style.title.textStyle
+        )
+    }
+}
+
+@Composable
+private fun CaptureContent(
+    state: Capture,
+    style: NativeAlternativePaymentScreen.Style
+) {
+    if (state.withProgressIndicator) {
+        AnimatedProgressIndicator(style.progressIndicatorColor)
+    }
+    TextAndroidView(
+        text = state.message,
+        style = style.message,
+        modifier = Modifier.fillMaxWidth(),
+        selectable = true,
+        linksClickable = true
+    )
+    var showImage by remember { mutableStateOf(true) }
+    if (showImage) {
+        AsyncImage(
+            model = state.imageUrl,
+            contentDescription = null,
+            modifier = Modifier.requiredSize(
+                width = CaptureImageWidth,
+                height = CaptureImageHeight
+            ),
+            alignment = Alignment.Center,
+            contentScale = ContentScale.Fit,
+            onError = {
+                showImage = false
+            }
+        )
+    }
+}
+
+@Composable
+private fun AnimatedProgressIndicator(
+    progressIndicatorColor: Color
+) {
+    AnimatedVisibility(
+        visibleState = remember {
+            MutableTransitionState(initialState = false)
+                .apply { targetState = true }
+        },
+        enter = expandVertically() + fadeIn(animationSpec = tween(durationMillis = AnimationDurationMillis)),
+        exit = shrinkVertically() + fadeOut(animationSpec = tween(durationMillis = AnimationDurationMillis))
+    ) {
+        POCircularProgressIndicator.Medium(color = progressIndicatorColor)
+    }
+}
+
+@Composable
+private fun SuccessContent(
+    state: Capture,
+    style: NativeAlternativePaymentScreen.Style
+) {
+    POText(
+        text = state.message,
+        modifier = Modifier.fillMaxWidth(),
+        color = style.successMessage.color,
+        style = style.successMessage.textStyle,
+        textAlign = TextAlign.Center
+    )
+    Image(
+        painter = painterResource(id = style.successImageResId),
+        contentDescription = null,
+        modifier = Modifier.requiredSize(
+            width = CaptureImageWidth,
+            height = CaptureImageHeight
+        ),
+        alignment = Alignment.Center,
+        contentScale = ContentScale.Fit
+    )
+}
+
+@Composable
 private fun Actions(
     state: NativeAlternativePaymentViewModelState,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
-    style: POActionsContainer.Style
+    containerStyle: POActionsContainer.Style,
+    dialogStyle: PODialog.Style
 ) {
     var primary: POActionState? = null
     var secondary: POActionState? = null
     when (state) {
+        is Loading -> secondary = state.secondaryAction
         is UserInput -> {
             primary = state.primaryAction
             secondary = state.secondaryAction
         }
         is Capture -> secondary = state.secondaryAction
-        else -> {}
     }
     val actions = mutableListOf<POActionState>()
     primary?.let { actions.add(it) }
     secondary?.let { actions.add(it) }
     POActionsContainer(
         actions = POImmutableList(
-            if (style.axis == POAxis.Horizontal) actions.reversed() else actions
+            if (containerStyle.axis == POAxis.Horizontal) actions.reversed() else actions
         ),
         onClick = { onEvent(Action(id = it)) },
-        style = style,
+        onConfirmationRequested = { onEvent(ActionConfirmationRequested(id = it)) },
+        containerStyle = containerStyle,
+        dialogStyle = dialogStyle,
         animationDurationMillis = AnimationDurationMillis
     )
 }
@@ -433,78 +550,88 @@ internal object NativeAlternativePaymentScreen {
         val radioGroup: PORadioGroup.Style,
         val dropdownMenu: PODropdownField.MenuStyle,
         val actionsContainer: POActionsContainer.Style,
+        val dialog: PODialog.Style,
         val normalBackgroundColor: Color,
         val successBackgroundColor: Color,
-        val message: POText.Style,
+        val message: TextAndroidView.Style,
         val errorMessage: POText.Style,
         val successMessage: POText.Style,
-        @DrawableRes val successImageResId: Int?,
+        @DrawableRes val successImageResId: Int,
         val progressIndicatorColor: Color,
-        val controlsTintColor: Color,
         val dividerColor: Color,
         val dragHandleColor: Color
     )
 
     @Composable
-    fun style(custom: PONativeAlternativePaymentConfiguration.Style? = null) = Style(
-        title = custom?.title?.let {
-            POText.custom(style = it)
-        } ?: POText.title,
-        label = custom?.label?.let {
-            POText.custom(style = it)
-        } ?: POText.labelHeading,
-        field = custom?.field?.let {
-            POField.custom(style = it)
-        } ?: POField.default,
-        codeField = custom?.codeField?.let {
-            POField.custom(style = it)
-        } ?: POCodeField.default,
-        radioGroup = custom?.radioButton?.let {
-            PORadioGroup.custom(style = it)
-        } ?: PORadioGroup.default,
-        dropdownMenu = custom?.dropdownMenu?.let {
-            PODropdownField.custom(style = it)
-        } ?: PODropdownField.defaultMenu,
-        actionsContainer = custom?.actionsContainer?.let {
-            POActionsContainer.custom(style = it)
-        } ?: POActionsContainer.default,
-        normalBackgroundColor = custom?.background?.normalColorResId?.let {
-            colorResource(id = it)
-        } ?: ProcessOutTheme.colors.surface.level1,
-        successBackgroundColor = custom?.background?.successColorResId?.let {
-            colorResource(id = it)
-        } ?: ProcessOutTheme.colors.surface.success,
-        message = custom?.message?.let {
-            POText.custom(style = it)
-        } ?: POText.Style(
-            color = ProcessOutTheme.colors.text.primary,
-            textStyle = ProcessOutTheme.typography.fixed.bodyCompact
-        ),
-        errorMessage = custom?.errorMessage?.let {
-            POText.custom(style = it)
-        } ?: POText.errorLabel,
-        successMessage = custom?.successMessage?.let {
-            POText.custom(style = it)
-        } ?: POText.Style(
-            color = ProcessOutTheme.colors.text.success,
-            textStyle = ProcessOutTheme.typography.fixed.body
-        ),
-        successImageResId = custom?.successImageResId,
-        progressIndicatorColor = custom?.progressIndicatorColorResId?.let {
-            colorResource(id = it)
-        } ?: ProcessOutTheme.colors.action.primaryDefault,
-        controlsTintColor = custom?.controlsTintColorResId?.let {
-            colorResource(id = it)
-        } ?: ProcessOutTheme.colors.action.primaryDefault,
-        dividerColor = custom?.dividerColorResId?.let {
-            colorResource(id = it)
-        } ?: ProcessOutTheme.colors.border.subtle,
-        dragHandleColor = custom?.dragHandleColorResId?.let {
-            colorResource(id = it)
-        } ?: ProcessOutTheme.colors.border.disabled
-    )
+    fun style(custom: PONativeAlternativePaymentConfiguration.Style? = null) =
+        with(ProcessOutTheme) {
+            Style(
+                title = custom?.title?.let {
+                    POText.custom(style = it)
+                } ?: POText.title,
+                label = custom?.label?.let {
+                    POText.custom(style = it)
+                } ?: POText.labelHeading,
+                field = custom?.field?.let {
+                    POField.custom(style = it)
+                } ?: POField.default,
+                codeField = custom?.codeField?.let {
+                    POField.custom(style = it)
+                } ?: POCodeField.default,
+                radioGroup = custom?.radioButton?.let {
+                    PORadioGroup.custom(style = it)
+                } ?: PORadioGroup.default,
+                dropdownMenu = custom?.dropdownMenu?.let {
+                    PODropdownField.custom(style = it)
+                } ?: PODropdownField.defaultMenu,
+                actionsContainer = custom?.actionsContainer?.let {
+                    POActionsContainer.custom(style = it)
+                } ?: POActionsContainer.default,
+                dialog = custom?.dialog?.let {
+                    PODialog.custom(style = it)
+                } ?: PODialog.default,
+                normalBackgroundColor = custom?.background?.normalColorResId?.let {
+                    colorResource(id = it)
+                } ?: colors.surface.level1,
+                successBackgroundColor = custom?.background?.successColorResId?.let {
+                    colorResource(id = it)
+                } ?: colors.surface.success,
+                message = custom?.message?.let { style ->
+                    val controlsTintColor = custom.controlsTintColorResId?.let { colorResource(id = it) }
+                    TextAndroidView.custom(
+                        style = style,
+                        controlsTintColor = controlsTintColor ?: colors.text.primary
+                    )
+                } ?: TextAndroidView.default,
+                errorMessage = custom?.errorMessage?.let {
+                    POText.custom(style = it)
+                } ?: POText.errorLabel,
+                successMessage = custom?.successMessage?.let {
+                    POText.custom(style = it)
+                } ?: POText.Style(
+                    color = colors.text.success,
+                    textStyle = typography.fixed.body
+                ),
+                successImageResId = custom?.successImageResId ?: R.drawable.po_success_image,
+                progressIndicatorColor = custom?.progressIndicatorColorResId?.let {
+                    colorResource(id = it)
+                } ?: colors.action.primaryDefault,
+                dividerColor = custom?.dividerColorResId?.let {
+                    colorResource(id = it)
+                } ?: colors.border.subtle,
+                dragHandleColor = custom?.dragHandleColorResId?.let {
+                    colorResource(id = it)
+                } ?: colors.border.disabled
+            )
+        }
+
+    val CaptureLogoHeight = 34.dp
+
+    val CaptureImageWidth = 220.dp
+    val CaptureImageHeight = 280.dp
 
     val AnimationDurationMillis = 300
+    val CrossfadeAnimationDurationMillis = 400
 
     @Composable
     fun animatedBackgroundColor(
@@ -516,7 +643,10 @@ internal object NativeAlternativePaymentScreen {
             is Capture -> if (state.isCaptured) successColor else normalColor
             else -> normalColor
         },
-        animationSpec = tween(durationMillis = AnimationDurationMillis, easing = LinearEasing)
+        animationSpec = tween(
+            durationMillis = CrossfadeAnimationDurationMillis,
+            easing = LinearEasing
+        )
     ).value
 
     fun codeFieldHorizontalAlignment(fields: List<Field>): Alignment.Horizontal =

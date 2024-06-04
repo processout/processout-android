@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.extension.conditional
@@ -17,7 +18,8 @@ import com.processout.sdk.ui.core.extension.conditional
 fun POExpandableText(
     text: String?,
     style: POText.Style,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    textAlign: TextAlign? = null
 ) {
     val modifier = modifier
         .animateContentSize()
@@ -31,7 +33,8 @@ fun POExpandableText(
             text = text ?: String(),
             modifier = modifier,
             color = color,
-            style = textStyle
+            style = textStyle,
+            textAlign = textAlign
         )
     }
 }

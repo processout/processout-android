@@ -26,16 +26,14 @@ internal fun LabeledFieldLayout(
             text = title,
             modifier = Modifier.padding(bottom = ProcessOutTheme.spacing.small),
             color = style.title.color,
-            style = style.title.textStyle
+            style = style.title.textStyle,
+            textAlign = textAlign(horizontalAlignment)
         )
         content()
         POExpandableText(
             text = description,
-            style = style.description.copy(
-                textStyle = style.description.textStyle.copy(
-                    textAlign = textAlign(horizontalAlignment)
-                )
-            ),
+            style = style.description,
+            textAlign = textAlign(horizontalAlignment),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = ProcessOutTheme.spacing.small)

@@ -2,15 +2,18 @@ package com.processout.sdk.ui.napm
 
 import androidx.compose.runtime.Immutable
 import com.processout.sdk.ui.core.state.POActionState
-import com.processout.sdk.ui.core.state.POFieldState
 import com.processout.sdk.ui.core.state.POImmutableList
+import com.processout.sdk.ui.shared.state.FieldState
 
 @Immutable
 internal sealed interface NativeAlternativePaymentViewModelState {
 
     //region States
 
-    data object Loading : NativeAlternativePaymentViewModelState
+    @Immutable
+    data class Loading(
+        val secondaryAction: POActionState?
+    ) : NativeAlternativePaymentViewModelState
 
     @Immutable
     data class UserInput(
@@ -18,17 +21,17 @@ internal sealed interface NativeAlternativePaymentViewModelState {
         val fields: POImmutableList<Field>,
         val focusedFieldId: String?,
         val primaryAction: POActionState,
-        val secondaryAction: POActionState?,
-        val actionMessageMarkdown: String?,
-        val actionImageUrl: String?,
-        val successMessage: String
+        val secondaryAction: POActionState?
     ) : NativeAlternativePaymentViewModelState
 
     @Immutable
     data class Capture(
-        val paymentProviderName: String?,
+        val title: String?,
         val logoUrl: String?,
+        val imageUrl: String?,
+        val message: String,
         val secondaryAction: POActionState?,
+        val withProgressIndicator: Boolean,
         val isCaptured: Boolean
     ) : NativeAlternativePaymentViewModelState
 
@@ -36,9 +39,9 @@ internal sealed interface NativeAlternativePaymentViewModelState {
 
     @Immutable
     sealed interface Field {
-        data class TextField(val state: POFieldState) : Field
-        data class CodeField(val state: POFieldState) : Field
-        data class RadioField(val state: POFieldState) : Field
-        data class DropdownField(val state: POFieldState) : Field
+        data class TextField(val state: FieldState) : Field
+        data class CodeField(val state: FieldState) : Field
+        data class RadioField(val state: FieldState) : Field
+        data class DropdownField(val state: FieldState) : Field
     }
 }

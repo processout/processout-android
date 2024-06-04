@@ -5,6 +5,7 @@ import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.style.*
+import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
 import kotlinx.parcelize.Parcelize
 
 /**
@@ -65,7 +66,8 @@ data class PONativeAlternativePaymentConfiguration(
         @Parcelize
         data class Cancel(
             val text: String? = null,
-            val disabledForSeconds: Int = 0
+            val disabledForSeconds: Int = 0,
+            val confirmation: POActionConfirmationConfiguration? = null
         ) : SecondaryAction()
     }
 
@@ -137,6 +139,7 @@ data class PONativeAlternativePaymentConfiguration(
         val radioButton: PORadioButtonStyle? = null,
         val dropdownMenu: PODropdownMenuStyle? = null,
         val actionsContainer: POActionsContainerStyle? = null,
+        val dialog: PODialogStyle? = null,
         val background: POBackgroundStyle? = null,
         val message: POTextStyle? = null,
         val errorMessage: POTextStyle? = null,

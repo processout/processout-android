@@ -6,12 +6,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
 import com.processout.sdk.core.*
 import com.processout.sdk.ui.base.BaseBottomSheetDialogFragment
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
@@ -22,7 +22,8 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Success
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.Dismiss
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Capture
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
-import com.processout.sdk.ui.shared.composable.screenModeAsState
+import com.processout.sdk.ui.shared.component.isImeVisibleAsState
+import com.processout.sdk.ui.shared.component.screenModeAsState
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import com.processout.sdk.ui.shared.extension.dpToPx
 import kotlin.math.roundToInt
@@ -76,13 +77,19 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
                     LaunchedEffect(value) { handle(value) }
                 }
 
-                val state = viewModel.state.collectAsStateWithLifecycle().value
-                val viewHeight = when (state) {
-                    is Capture -> maxPeekHeight
-                    else -> defaultViewHeight
+                val state by viewModel.state.collectAsStateWithLifecycle()
+                val isImeVisible by isImeVisibleAsState()
+                var viewHeight by remember { mutableIntStateOf(defaultViewHeight) }
+                if (state is Capture && !isImeVisible) {
+                    viewHeight = maxPeekHeight
                 }
                 with(screenModeAsState(viewHeight = viewHeight)) {
-                    LaunchedEffect(value) { apply(screenMode = value, animate = true) }
+                    LaunchedEffect(value) {
+                        apply(
+                            screenMode = value,
+                            animate = state is Capture && bottomSheetBehavior.state == STATE_COLLAPSED
+                        )
+                    }
                 }
 
                 NativeAlternativePaymentScreen(
@@ -124,10 +131,21 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
 
     private fun dismiss(failure: ProcessOutResult.Failure) {
         viewModel.onEvent(Dismiss(failure))
-        finishWithActivityResult(
-            resultCode = Activity.RESULT_CANCELED,
-            result = failure.toActivityResult()
-        )
+        val isCaptured = when (val state = viewModel.state.value) {
+            is Capture -> state.isCaptured
+            else -> false
+        }
+        if (isCaptured) {
+            finishWithActivityResult(
+                resultCode = Activity.RESULT_OK,
+                result = ProcessOutActivityResult.Success(POUnit)
+            )
+        } else {
+            finishWithActivityResult(
+                resultCode = Activity.RESULT_CANCELED,
+                result = failure.toActivityResult()
+            )
+        }
     }
 
     private fun finishWithActivityResult(

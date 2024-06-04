@@ -22,7 +22,10 @@ fun PODragHandle(
 ) = with(ProcessOutTheme) {
     Box(
         modifier = modifier
-            .padding(top = spacing.medium)
+            .padding(
+                top = spacing.medium,
+                bottom = spacing.medium
+            )
             .requiredSize(
                 width = DragHandleWidth,
                 height = DragHandleHeight

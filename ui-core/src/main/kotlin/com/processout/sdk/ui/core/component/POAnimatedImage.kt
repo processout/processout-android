@@ -1,4 +1,4 @@
-package com.processout.sdk.ui.shared.composable
+package com.processout.sdk.ui.core.component
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
@@ -13,9 +13,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 
+/** @suppress */
+@ProcessOutInternalApi
 @Composable
-internal fun AnimatedImage(
+fun POAnimatedImage(
     @DrawableRes id: Int,
     modifier: Modifier = Modifier,
     alignment: Alignment = Alignment.Center,

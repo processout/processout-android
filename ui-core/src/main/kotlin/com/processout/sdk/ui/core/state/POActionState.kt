@@ -11,5 +11,15 @@ data class POActionState(
     val text: String,
     val primary: Boolean,
     val enabled: Boolean = true,
-    val loading: Boolean = false
-)
+    val loading: Boolean = false,
+    val confirmation: Confirmation? = null
+) {
+
+    @Immutable
+    data class Confirmation(
+        val title: String,
+        val message: String?,
+        val confirmActionText: String,
+        val dismissActionText: String?
+    )
+}

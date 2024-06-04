@@ -42,7 +42,7 @@ internal sealed interface NativeAlternativePaymentInteractorState {
         val fields: List<Field>,
         val focusedFieldId: String?,
         val primaryActionId: String,
-        val secondaryActionId: String,
+        val secondaryAction: Action,
         val submitAllowed: Boolean,
         val submitting: Boolean
     )
@@ -50,7 +50,10 @@ internal sealed interface NativeAlternativePaymentInteractorState {
     data class CaptureStateValue(
         val paymentProviderName: String?,
         val logoUrl: String?,
-        val secondaryActionId: String
+        val actionImageUrl: String?,
+        val actionMessage: String?,
+        val secondaryAction: Action,
+        val withProgressIndicator: Boolean
     )
 
     data class Field(
@@ -63,6 +66,11 @@ internal sealed interface NativeAlternativePaymentInteractorState {
         val description: String?,
         val required: Boolean,
         val isValid: Boolean
+    )
+
+    data class Action(
+        val id: String,
+        val enabled: Boolean
     )
 
     object ActionId {

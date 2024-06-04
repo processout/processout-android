@@ -163,7 +163,7 @@ object POButton {
             )
         }
 
-    val dialog: Style
+    val tertiary: Style
         @Composable get() = with(ProcessOutTheme) {
             Style(
                 normal = StateStyle(

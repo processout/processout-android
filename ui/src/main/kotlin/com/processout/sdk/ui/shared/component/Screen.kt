@@ -1,4 +1,4 @@
-package com.processout.sdk.ui.shared.composable
+package com.processout.sdk.ui.shared.component
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -9,8 +9,9 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.processout.sdk.ui.shared.composable.ScreenMode.Fullscreen
-import com.processout.sdk.ui.shared.composable.ScreenMode.Window
+import com.processout.sdk.ui.shared.component.ScreenMode.Fullscreen
+import com.processout.sdk.ui.shared.component.ScreenMode.Window
+import com.processout.sdk.ui.shared.extension.dpToPx
 
 internal sealed interface ScreenMode {
     data class Window(val height: Int, val availableHeight: Int) : ScreenMode

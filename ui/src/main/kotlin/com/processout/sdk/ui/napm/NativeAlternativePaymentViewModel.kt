@@ -16,9 +16,8 @@ import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodPar
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType.*
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails.Invoice
 import com.processout.sdk.core.retry.PORetryStrategy.Exponential
-import com.processout.sdk.core.util.POMarkdownUtils.escapedMarkdown
 import com.processout.sdk.ui.core.state.POActionState
-import com.processout.sdk.ui.core.state.POFieldState
+import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractor.Companion.LOG_ATTRIBUTE_GATEWAY_CONFIGURATION_ID
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractor.Companion.LOG_ATTRIBUTE_INVOICE_ID
@@ -28,8 +27,10 @@ import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Option
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.DEFAULT_TIMEOUT_SECONDS
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.MAX_TIMEOUT_SECONDS
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.SecondaryAction
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.SecondaryAction.Cancel
 import com.processout.sdk.ui.shared.extension.map
 import com.processout.sdk.ui.shared.filter.PhoneNumberInputFilter
+import com.processout.sdk.ui.shared.state.FieldState
 import com.processout.sdk.ui.shared.transformation.PhoneNumberVisualTransformation
 import java.text.NumberFormat
 import java.util.Currency
@@ -105,14 +106,18 @@ internal class NativeAlternativePaymentViewModel(
     private fun map(
         state: NativeAlternativePaymentInteractorState
     ): NativeAlternativePaymentViewModelState = when (state) {
-        Loading -> NativeAlternativePaymentViewModelState.Loading
-        is UserInput -> state.toUserInput()
-        is Capturing -> state.toCapture()
-        is Captured -> state.toCapture()
+        Loading -> loading()
+        is UserInput -> state.map()
+        is Capturing -> state.map()
+        is Captured -> state.map()
         else -> this@NativeAlternativePaymentViewModel.state.value
     }
 
-    private fun UserInput.toUserInput() = with(value) {
+    private fun loading() = NativeAlternativePaymentViewModelState.Loading(
+        secondaryAction = null
+    )
+
+    private fun UserInput.map() = with(value) {
         NativeAlternativePaymentViewModelState.UserInput(
             title = options.title ?: app.getString(R.string.po_native_apm_title_format, gateway.displayName),
             fields = fields.map(),
@@ -125,32 +130,42 @@ internal class NativeAlternativePaymentViewModel(
                 loading = submitting
             ),
             secondaryAction = options.secondaryAction?.toActionState(
-                id = secondaryActionId,
-                enabled = !submitting
-            ),
-            actionMessageMarkdown = gateway.customerActionMessage?.let { escapedMarkdown(it) },
-            actionImageUrl = gateway.customerActionImageUrl,
-            successMessage = options.successMessage ?: app.getString(R.string.po_native_apm_success_message)
+                id = secondaryAction.id,
+                enabled = secondaryAction.enabled && !submitting
+            )
         )
     }
 
-    private fun Capturing.toCapture() = with(value) {
-        NativeAlternativePaymentViewModelState.Capture(
-            paymentProviderName = paymentProviderName,
-            logoUrl = logoUrl,
-            secondaryAction = options.paymentConfirmation.secondaryAction?.toActionState(
-                id = secondaryActionId,
-                enabled = true
-            ),
-            isCaptured = false
+    private fun Capturing.map() = with(value) {
+        val secondaryAction = options.paymentConfirmation.secondaryAction?.toActionState(
+            id = secondaryAction.id,
+            enabled = secondaryAction.enabled
         )
+        if (actionMessage.isNullOrBlank()) {
+            NativeAlternativePaymentViewModelState.Loading(
+                secondaryAction = secondaryAction
+            )
+        } else {
+            NativeAlternativePaymentViewModelState.Capture(
+                title = paymentProviderName,
+                logoUrl = logoUrl,
+                imageUrl = actionImageUrl,
+                message = actionMessage,
+                secondaryAction = secondaryAction,
+                withProgressIndicator = withProgressIndicator,
+                isCaptured = false
+            )
+        }
     }
 
-    private fun Captured.toCapture() = with(value) {
+    private fun Captured.map() = with(value) {
         NativeAlternativePaymentViewModelState.Capture(
-            paymentProviderName = paymentProviderName,
+            title = paymentProviderName,
             logoUrl = logoUrl,
+            imageUrl = null,
+            message = options.successMessage ?: app.getString(R.string.po_native_apm_success_message),
             secondaryAction = null,
+            withProgressIndicator = false,
             isCaptured = true
         )
     }
@@ -183,7 +198,7 @@ internal class NativeAlternativePaymentViewModel(
         keyboardAction: KeyboardAction
     ): NativeAlternativePaymentViewModelState.Field =
         TextField(
-            POFieldState(
+            FieldState(
                 id = id,
                 value = value,
                 title = displayName,
@@ -202,7 +217,7 @@ internal class NativeAlternativePaymentViewModel(
         keyboardAction: KeyboardAction
     ): NativeAlternativePaymentViewModelState.Field =
         CodeField(
-            POFieldState(
+            FieldState(
                 id = id,
                 value = value,
                 length = length,
@@ -216,7 +231,7 @@ internal class NativeAlternativePaymentViewModel(
 
     private fun Field.toRadioField(): NativeAlternativePaymentViewModelState.Field =
         RadioField(
-            POFieldState(
+            FieldState(
                 id = id,
                 value = value,
                 availableValues = availableValues?.let { POImmutableList(it) },
@@ -228,7 +243,7 @@ internal class NativeAlternativePaymentViewModel(
 
     private fun Field.toDropdownField(): NativeAlternativePaymentViewModelState.Field =
         DropdownField(
-            POFieldState(
+            FieldState(
                 id = id,
                 value = value,
                 availableValues = availableValues?.let { POImmutableList(it) },
@@ -306,11 +321,25 @@ internal class NativeAlternativePaymentViewModel(
         id: String,
         enabled: Boolean
     ): POActionState = when (this) {
-        is SecondaryAction.Cancel -> POActionState(
+        is Cancel -> POActionState(
             id = id,
             text = text ?: app.getString(R.string.po_native_apm_cancel_button_text),
             primary = false,
-            enabled = enabled
+            enabled = enabled,
+            confirmation = confirmation?.run {
+                Confirmation(
+                    title = title ?: app.getString(R.string.po_native_apm_cancel_confirmation_title),
+                    message = message,
+                    confirmActionText = confirmActionText
+                        ?: app.getString(R.string.po_native_apm_cancel_confirmation_confirm),
+                    dismissActionText = dismissActionText
+                        ?: app.getString(R.string.po_native_apm_cancel_confirmation_dismiss)
+                )
+            }
         )
+    }
+
+    override fun onCleared() {
+        interactor.onCleared()
     }
 }
