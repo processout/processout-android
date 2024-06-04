@@ -49,6 +49,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.AnimationDurati
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.CaptureImageHeight
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.CaptureImageWidth
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.CaptureLogoHeight
+import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.CrossfadeAnimationDurationMillis
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.animatedBackgroundColor
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.codeFieldHorizontalAlignment
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.*
@@ -365,7 +366,10 @@ private fun Capture(
             CaptureHeader(state, style)
             Crossfade(
                 targetState = state.isCaptured,
-                animationSpec = tween(durationMillis = AnimationDurationMillis, easing = LinearEasing)
+                animationSpec = tween(
+                    durationMillis = CrossfadeAnimationDurationMillis,
+                    easing = LinearEasing
+                )
             ) { isCaptured ->
                 Column(
                     verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.large),
@@ -627,6 +631,7 @@ internal object NativeAlternativePaymentScreen {
     val CaptureImageHeight = 280.dp
 
     val AnimationDurationMillis = 300
+    val CrossfadeAnimationDurationMillis = 400
 
     @Composable
     fun animatedBackgroundColor(
@@ -638,7 +643,10 @@ internal object NativeAlternativePaymentScreen {
             is Capture -> if (state.isCaptured) successColor else normalColor
             else -> normalColor
         },
-        animationSpec = tween(durationMillis = AnimationDurationMillis, easing = LinearEasing)
+        animationSpec = tween(
+            durationMillis = CrossfadeAnimationDurationMillis,
+            easing = LinearEasing
+        )
     ).value
 
     fun codeFieldHorizontalAlignment(fields: List<Field>): Alignment.Horizontal =
