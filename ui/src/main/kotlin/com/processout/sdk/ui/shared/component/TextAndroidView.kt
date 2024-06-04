@@ -31,7 +31,6 @@ import com.processout.sdk.ui.core.style.POTextType.Weight
 import com.processout.sdk.ui.core.style.POTextType.Weight.*
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.component.TextAndroidView.apply
-import com.processout.sdk.ui.shared.component.TextAndroidView.gravity
 import com.processout.sdk.ui.shared.extension.spToPx
 import com.processout.sdk.ui.shared.view.extension.POTextViewExtensions.setMarkdown
 
@@ -40,12 +39,14 @@ internal fun TextAndroidView(
     text: String,
     modifier: Modifier = Modifier,
     style: TextAndroidView.Style = TextAndroidView.default,
+    gravity: Int = Gravity.START,
     selectable: Boolean = false,
     linksClickable: Boolean = false
 ) {
     AndroidView(
         factory = { context ->
             TextView(context).apply {
+                this.gravity = gravity
                 if (selectable) {
                     isEnabled = true
                     isFocusable = true
@@ -57,7 +58,6 @@ internal fun TextAndroidView(
                 if (linksClickable) {
                     movementMethod = LinkMovementMethod.getInstance()
                 }
-                gravity = gravity(text)
                 apply(style)
                 setMarkdown(
                     textView = this,
@@ -104,12 +104,6 @@ internal object TextAndroidView {
         color = colorResource(id = style.colorResId),
         controlsTintColor = controlsTintColor
     )
-
-    private val ShortMessageMaxLength = 150
-
-    internal fun gravity(text: String) =
-        if (text.length <= ShortMessageMaxLength)
-            Gravity.CENTER_HORIZONTAL else Gravity.START
 
     internal fun TextView.apply(style: Style) {
         apply(style.type)

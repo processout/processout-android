@@ -2,6 +2,7 @@
 
 package com.processout.sdk.ui.napm
 
+import android.view.Gravity
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.*
 import androidx.compose.animation.core.LinearEasing
@@ -52,6 +53,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.CaptureLogoHeig
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.CrossfadeAnimationDurationMillis
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.animatedBackgroundColor
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.codeFieldHorizontalAlignment
+import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.messageGravity
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Field.*
 import com.processout.sdk.ui.shared.component.TextAndroidView
@@ -423,6 +425,7 @@ private fun CaptureContent(
         text = state.message,
         style = style.message,
         modifier = Modifier.fillMaxWidth(),
+        gravity = messageGravity(state.message),
         selectable = true,
         linksClickable = true
     )
@@ -652,4 +655,10 @@ internal object NativeAlternativePaymentScreen {
     fun codeFieldHorizontalAlignment(fields: List<Field>): Alignment.Horizontal =
         if (fields.size == 1 && fields[0] is CodeField)
             Alignment.CenterHorizontally else Alignment.Start
+
+    private val ShortMessageMaxLength = 150
+
+    fun messageGravity(text: String): Int =
+        if (text.length <= ShortMessageMaxLength)
+            Gravity.CENTER_HORIZONTAL else Gravity.START
 }
