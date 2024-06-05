@@ -4,7 +4,7 @@
 
     <string name="native_apm" translatable="false">Native Alternative Payment</string>
     <string name="launch_native_apm" translatable="false">Launch Native APM</string>
-    <string name="launch_native_apm_compose" translatable="false">Launch Native APM (Compose WIP)</string>
+    <string name="launch_native_apm_compose" translatable="false">Launch Native APM (Compose)</string>
     <string name="authorize_invoice" translatable="false">Authorize Invoice</string>
     <string name="invoice_details" translatable="false">Invoice Details</string>
     <string name="amount" translatable="false">Amount</string>
