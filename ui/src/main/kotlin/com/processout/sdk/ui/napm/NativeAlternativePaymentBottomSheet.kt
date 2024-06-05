@@ -79,6 +79,7 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
 
                 val state by viewModel.state.collectAsStateWithLifecycle()
                 val isImeVisible by isImeVisibleAsState()
+                var isContentHeightIncreased by remember { mutableStateOf(false) }
                 var viewHeight by remember { mutableIntStateOf(defaultViewHeight) }
                 if (state is Capture && !isImeVisible) {
                     viewHeight = maxPeekHeight
@@ -87,14 +88,22 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
                     LaunchedEffect(value) {
                         apply(
                             screenMode = value,
-                            animate = state is Capture && bottomSheetBehavior.state == STATE_COLLAPSED
+                            animate = bottomSheetBehavior.state == STATE_COLLAPSED &&
+                                    (isContentHeightIncreased || state is Capture)
                         )
+                        isContentHeightIncreased = false
                     }
                 }
 
                 NativeAlternativePaymentScreen(
                     state = state,
                     onEvent = remember { viewModel::onEvent },
+                    onContentHeightChanged = { contentHeight ->
+                        if (contentHeight > viewHeight) {
+                            isContentHeightIncreased = true
+                            viewHeight = contentHeight
+                        }
+                    },
                     style = NativeAlternativePaymentScreen.style(custom = configuration?.style)
                 )
             }

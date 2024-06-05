@@ -23,6 +23,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -58,14 +59,18 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Field.*
 import com.processout.sdk.ui.shared.component.TextAndroidView
 import com.processout.sdk.ui.shared.component.rememberLifecycleEvent
+import com.processout.sdk.ui.shared.extension.dpToPx
 import com.processout.sdk.ui.shared.state.FieldState
 
 @Composable
 internal fun NativeAlternativePaymentScreen(
     state: NativeAlternativePaymentViewModelState,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
+    onContentHeightChanged: (Int) -> Unit,
     style: NativeAlternativePaymentScreen.Style = NativeAlternativePaymentScreen.style()
 ) {
+    var topBarHeight by remember { mutableIntStateOf(0) }
+    var bottomBarHeight by remember { mutableIntStateOf(0) }
     Scaffold(
         modifier = Modifier
             .nestedScroll(rememberNestedScrollInteropConnection())
@@ -77,7 +82,11 @@ internal fun NativeAlternativePaymentScreen(
         ),
         topBar = {
             POHeader(
-                modifier = Modifier.verticalScroll(rememberScrollState()),
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .onGloballyPositioned {
+                        topBarHeight = it.size.height
+                    },
                 title = if (state is UserInput) state.title else null,
                 style = style.title,
                 dividerColor = style.dividerColor,
@@ -87,6 +96,9 @@ internal fun NativeAlternativePaymentScreen(
         },
         bottomBar = {
             Actions(
+                modifier = Modifier.onGloballyPositioned {
+                    bottomBarHeight = it.size.height
+                },
                 state = state,
                 onEvent = onEvent,
                 containerStyle = style.actionsContainer,
@@ -94,6 +106,8 @@ internal fun NativeAlternativePaymentScreen(
             )
         }
     ) { scaffoldPadding ->
+        val verticalSpacing = ProcessOutTheme.spacing.large
+        val verticalSpacingPx = verticalSpacing.dpToPx()
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -101,14 +115,22 @@ internal fun NativeAlternativePaymentScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(
                     horizontal = ProcessOutTheme.spacing.extraLarge,
-                    vertical = if (state is Capture) 0.dp else ProcessOutTheme.spacing.large
+                    vertical = if (state is Capture) 0.dp else verticalSpacing
                 ),
             verticalArrangement = if (state is Capture) Arrangement.Top else Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             when (state) {
                 is Loading -> Loading(style.progressIndicatorColor)
-                is UserInput -> UserInput(state, onEvent, style)
+                is UserInput -> UserInput(
+                    modifier = Modifier.onGloballyPositioned {
+                        val contentHeight = it.size.height + topBarHeight + bottomBarHeight + verticalSpacingPx * 2
+                        onContentHeightChanged(contentHeight)
+                    },
+                    state = state,
+                    onEvent = onEvent,
+                    style = style
+                )
                 is Capture -> Capture(state, style)
             }
         }
@@ -126,10 +148,12 @@ private fun Loading(progressIndicatorColor: Color) {
 private fun UserInput(
     state: UserInput,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
-    style: NativeAlternativePaymentScreen.Style
+    style: NativeAlternativePaymentScreen.Style,
+    modifier: Modifier = Modifier
 ) {
     AnimatedVisibility {
         Column(
+            modifier = modifier,
             verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
         ) {
             val lifecycleEvent = rememberLifecycleEvent()
@@ -492,7 +516,8 @@ private fun Actions(
     state: NativeAlternativePaymentViewModelState,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
     containerStyle: POActionsContainer.Style,
-    dialogStyle: PODialog.Style
+    dialogStyle: PODialog.Style,
+    modifier: Modifier = Modifier
 ) {
     var primary: POActionState? = null
     var secondary: POActionState? = null
@@ -508,6 +533,7 @@ private fun Actions(
     primary?.let { actions.add(it) }
     secondary?.let { actions.add(it) }
     POActionsContainer(
+        modifier = modifier,
         actions = POImmutableList(
             if (containerStyle.axis == POAxis.Horizontal) actions.reversed() else actions
         ),
