@@ -48,7 +48,7 @@ fun POButton(
         Button(
             onClick = onClick,
             modifier = modifier.requiredHeightIn(
-                min = ProcessOutTheme.dimensions.formComponentHeight
+                min = ProcessOutTheme.dimensions.formComponentMinSize
             ),
             enabled = enabled && !loading,
             colors = colors(style = style, enabled = enabled, loading = loading, pressed = pressed),

@@ -147,7 +147,7 @@ private fun AnimatedIcon(@DrawableRes id: Int) {
     POAnimatedImage(
         id = id,
         modifier = Modifier
-            .requiredHeight(ProcessOutTheme.dimensions.formComponentHeight)
+            .requiredHeight(ProcessOutTheme.dimensions.formComponentMinSize)
             .padding(POField.contentPadding),
         contentScale = ContentScale.FillHeight
     )
