@@ -123,6 +123,7 @@ viewModelScope.launch {
                 is PONativeAlternativePaymentMethodEvent.DidSubmitParameters -> TODO()
                 is PONativeAlternativePaymentMethodEvent.DidFailToSubmitParameters -> TODO()
                 is PONativeAlternativePaymentMethodEvent.WillWaitForCaptureConfirmation -> TODO()
+                PONativeAlternativePaymentMethodEvent.DidRequestCancelConfirmation -> TODO()
                 PONativeAlternativePaymentMethodEvent.DidCompletePayment -> TODO()
                 is PONativeAlternativePaymentMethodEvent.DidFail -> TODO()
             }
