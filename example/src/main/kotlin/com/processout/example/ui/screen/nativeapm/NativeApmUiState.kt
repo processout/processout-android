@@ -11,7 +11,7 @@ sealed class NativeApmUiState {
 }
 
 data class NativeApmUiModel(
-    val gatewayConfigurationId: String,
     val invoiceId: String,
+    val gatewayConfigurationId: String,
     val launchCompose: Boolean
 )
