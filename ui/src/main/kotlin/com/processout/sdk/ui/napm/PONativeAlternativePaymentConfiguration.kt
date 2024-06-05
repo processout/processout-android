@@ -117,6 +117,7 @@ data class PONativeAlternativePaymentConfiguration(
      * @param[radioButton] Radio button style.
      * @param[dropdownMenu] Dropdown menu style.
      * @param[actionsContainer] Style of action buttons and their container.
+     * @param[dialog] Dialog style.
      * @param[background] Background style.
      * @param[message] Message style.
      * @param[errorMessage] Error message style.
