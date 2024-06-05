@@ -46,6 +46,9 @@ internal abstract class BaseBottomSheetDialogFragment<T : Parcelable> : BottomSh
             field = value
         }
 
+    private var peekHeightValueAnimator: ValueAnimator? = null
+    private var viewHeightValueAnimator: ValueAnimator? = null
+
     private var screenMode: ScreenMode? = null
     private var cancellationConfiguration = POCancellationConfiguration()
 
@@ -82,23 +85,25 @@ internal abstract class BaseBottomSheetDialogFragment<T : Parcelable> : BottomSh
         animate: Boolean
     ) {
         if (animate) {
-            ValueAnimator.ofInt(bottomSheetBehavior.peekHeight, peekHeight).apply {
-                addUpdateListener {
-                    val animatedValue = it.animatedValue as Int
-                    containerHeight = if (expandable) ViewGroup.LayoutParams.MATCH_PARENT else animatedValue
-                    bottomSheetBehavior.peekHeight = animatedValue
-                }
-                duration = animationDurationMillis
-                start()
-            }
-            view?.updateLayoutParams {
-                ValueAnimator.ofInt(height, viewHeight).apply {
+            peekHeightValueAnimator = ValueAnimator.ofInt(bottomSheetBehavior.peekHeight, peekHeight)
+                .apply {
                     addUpdateListener {
-                        height = it.animatedValue as Int
+                        val animatedValue = it.animatedValue as Int
+                        containerHeight = if (expandable) ViewGroup.LayoutParams.MATCH_PARENT else animatedValue
+                        bottomSheetBehavior.peekHeight = animatedValue
                     }
                     duration = animationDurationMillis
                     start()
                 }
+            view?.updateLayoutParams {
+                viewHeightValueAnimator = ValueAnimator.ofInt(height, viewHeight)
+                    .apply {
+                        addUpdateListener {
+                            height = it.animatedValue as Int
+                        }
+                        duration = animationDurationMillis
+                        start()
+                    }
             }
         } else {
             containerHeight = if (expandable) ViewGroup.LayoutParams.MATCH_PARENT else peekHeight
@@ -202,6 +207,19 @@ internal abstract class BaseBottomSheetDialogFragment<T : Parcelable> : BottomSh
         if (isAdded) {
             dismissAllowingStateLoss()
             requireActivity().finish()
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        cancelAnimations()
+    }
+
+    private fun cancelAnimations() {
+        listOf(peekHeightValueAnimator, viewHeightValueAnimator).forEach {
+            it?.removeAllListeners()
+            it?.removeAllUpdateListeners()
+            it?.cancel()
         }
     }
 }
