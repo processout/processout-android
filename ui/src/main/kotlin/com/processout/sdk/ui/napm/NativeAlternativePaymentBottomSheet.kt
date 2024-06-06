@@ -11,7 +11,6 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
 import com.processout.sdk.core.*
 import com.processout.sdk.ui.base.BaseBottomSheetDialogFragment
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
@@ -20,12 +19,14 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentActivityContract.Compa
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Failure
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Success
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.Dismiss
+import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.AnimationDurationMillis
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Capture
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
 import com.processout.sdk.ui.shared.component.isImeVisibleAsState
 import com.processout.sdk.ui.shared.component.screenModeAsState
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import com.processout.sdk.ui.shared.extension.dpToPx
+import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
 internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragment<POUnit>() {
@@ -82,14 +83,16 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
                 var isContentHeightIncreased by remember { mutableStateOf(false) }
                 var viewHeight by remember { mutableIntStateOf(defaultViewHeight) }
                 if (state is Capture && !isImeVisible) {
-                    viewHeight = maxPeekHeight
+                    LaunchedEffect(true) {
+                        delay(AnimationDurationMillis.toLong())
+                        viewHeight = maxPeekHeight
+                    }
                 }
                 with(screenModeAsState(viewHeight = viewHeight)) {
                     LaunchedEffect(value) {
                         apply(
                             screenMode = value,
-                            animate = bottomSheetBehavior.state == STATE_COLLAPSED &&
-                                    (isContentHeightIncreased || state is Capture)
+                            animate = isContentHeightIncreased || state is Capture
                         )
                         isContentHeightIncreased = false
                     }
