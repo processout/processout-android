@@ -17,10 +17,6 @@ internal class TelemetryService(
     private val contextGraph: ContextGraph
 ) : BaseLoggerService(minimumLevel) {
 
-    companion object {
-        private const val ATTRIBUTE_LINE = "Line"
-    }
-
     override fun log(event: LogEvent) {
         scope.launch {
             repository.send(event.toRequest(contextGraph.deviceData))

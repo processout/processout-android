@@ -5,6 +5,11 @@ import com.processout.sdk.core.annotation.ProcessOutInternalApi
 /** @suppress */
 @ProcessOutInternalApi
 object POLogAttribute {
+    // Generic
+    const val FILE = "File"
+    const val LINE = "Line"
+
+    // Specific
     const val IIN = "IIN"
     const val CARD_ID = "CardId"
     const val INVOICE_ID = "InvoiceId"
