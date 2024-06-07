@@ -60,6 +60,11 @@ internal class DefaultServiceGraph(
     }
 
     override val remoteLoggerService: POLoggerService by lazy {
-        RemoteLoggerService(minimumLevel = POLogLevel.WARN, repositoryGraph.logsRepository)
+        RemoteLoggerService(
+            minimumLevel = POLogLevel.WARN,
+            scope = mainCoroutineScope,
+            repository = repositoryGraph.telemetryRepository,
+            contextGraph = contextGraph
+        )
     }
 }

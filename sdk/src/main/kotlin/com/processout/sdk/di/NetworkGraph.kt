@@ -19,7 +19,7 @@ internal interface NetworkGraph {
     val invoicesApi: InvoicesApi
     val cardsApi: CardsApi
     val customerTokensApi: CustomerTokensApi
-    val logsApi: LogsApi
+    val telemetryApi: TelemetryApi
 }
 
 internal class DefaultNetworkGraph(
@@ -73,7 +73,7 @@ internal class DefaultNetworkGraph(
         retrofit.create(CustomerTokensApi::class.java)
     }
 
-    override val logsApi: LogsApi by lazy {
-        retrofit.create(LogsApi::class.java)
+    override val telemetryApi: TelemetryApi by lazy {
+        retrofit.create(TelemetryApi::class.java)
     }
 }

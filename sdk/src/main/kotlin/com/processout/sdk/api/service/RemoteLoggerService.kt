@@ -1,14 +1,20 @@
 package com.processout.sdk.api.service
 
-import com.processout.sdk.api.model.request.LogRequest
-import com.processout.sdk.api.repository.LogsRepository
+import com.processout.sdk.api.model.request.DeviceData
+import com.processout.sdk.api.model.request.TelemetryRequest
+import com.processout.sdk.api.repository.TelemetryRepository
 import com.processout.sdk.core.logger.BaseLoggerService
 import com.processout.sdk.core.logger.LogEvent
 import com.processout.sdk.core.logger.POLogLevel
+import com.processout.sdk.di.ContextGraph
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 internal class RemoteLoggerService(
     minimumLevel: POLogLevel,
-    private val repository: LogsRepository
+    private val scope: CoroutineScope,
+    private val repository: TelemetryRepository,
+    private val contextGraph: ContextGraph
 ) : BaseLoggerService(minimumLevel) {
 
     companion object {
@@ -16,16 +22,35 @@ internal class RemoteLoggerService(
     }
 
     override fun log(event: LogEvent) {
-        repository.send(event.toRequest())
+        scope.launch {
+            repository.send(event.toRequest(contextGraph.deviceData))
+        }
     }
 
-    private fun LogEvent.toRequest() = LogRequest(
-        level = level.name.lowercase(),
-        tag = simpleClassName,
-        message = message,
-        timestamp = timestamp,
-        attributes = mutableMapOf(
-            ATTRIBUTE_LINE to lineNumber.toString()
-        ).apply { attributes?.let { putAll(it) } }
+    private fun LogEvent.toRequest(deviceData: DeviceData) = TelemetryRequest(
+        events = listOf(
+            TelemetryRequest.Event(
+                timestamp = timestamp.toString(),
+                level = level.name.lowercase(),
+                message = message,
+                gatewayConfigurationId = null,
+                customerId = null,
+                customerTokenId = null,
+                cardId = null,
+                invoiceId = null,
+                attributes = emptyMap()
+            )
+        ),
+        metadata = TelemetryRequest.Metadata(
+            application = TelemetryRequest.ApplicationMetadata(
+                name = null,
+                version = null
+            ),
+            device = TelemetryRequest.DeviceMetadata(
+                language = deviceData.appLanguage,
+                model = null,
+                timeZone = deviceData.appTimeZoneOffset
+            )
+        )
     )
 }
