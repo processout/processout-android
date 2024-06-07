@@ -26,6 +26,7 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme
 fun POActionsContainer(
     actions: POImmutableList<POActionState>,
     onClick: (ActionId) -> Unit,
+    modifier: Modifier = Modifier,
     onConfirmationRequested: ((ActionId) -> Unit)? = null,
     containerStyle: POActionsContainer.Style = POActionsContainer.default,
     dialogStyle: PODialog.Style = PODialog.default,
@@ -42,7 +43,7 @@ fun POActionsContainer(
         enter = fadeIn(animationSpec = tween(durationMillis = animationDurationMillis)),
         exit = fadeOut(animationSpec = tween(durationMillis = animationDurationMillis)),
     ) {
-        Column {
+        Column(modifier = modifier) {
             HorizontalDivider(thickness = 1.dp, color = containerStyle.dividerColor)
 
             val padding = POActionsContainer.containerPadding

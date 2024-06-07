@@ -60,7 +60,7 @@ fun POTextField(
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
-            modifier = modifier.requiredHeight(ProcessOutTheme.dimensions.formComponentHeight),
+            modifier = modifier.requiredHeight(ProcessOutTheme.dimensions.formComponentMinSize),
             enabled = enabled,
             readOnly = readOnly,
             textStyle = textStyle(

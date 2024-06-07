@@ -15,6 +15,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -22,6 +23,8 @@ import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.shared.component.ScreenMode
+import com.processout.sdk.ui.shared.component.ScreenMode.Fullscreen
+import com.processout.sdk.ui.shared.component.ScreenMode.Window
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import com.processout.sdk.ui.shared.extension.screenSize
 
@@ -30,10 +33,10 @@ internal abstract class BaseBottomSheetDialogFragment<T : Parcelable> : BottomSh
     protected abstract val expandable: Boolean
     protected abstract val defaultViewHeight: Int
     protected val screenHeight by lazy { requireContext().screenSize().height }
-    protected var animationDurationMillis: Long = 450
+    protected var animationDurationMillis: Long = 400
 
-    protected val bottomSheetDialog by lazy { requireDialog() as BottomSheetDialog }
-    protected val bottomSheetBehavior by lazy { bottomSheetDialog.behavior }
+    private val bottomSheetDialog by lazy { requireDialog() as BottomSheetDialog }
+    private val bottomSheetBehavior by lazy { bottomSheetDialog.behavior }
 
     private var containerHeight: Int = ViewGroup.LayoutParams.WRAP_CONTENT
         set(value) {
@@ -46,26 +49,31 @@ internal abstract class BaseBottomSheetDialogFragment<T : Parcelable> : BottomSh
             field = value
         }
 
+    private var peekHeightValueAnimator: ValueAnimator? = null
+    private var viewHeightValueAnimator: ValueAnimator? = null
+
     private var screenMode: ScreenMode? = null
     private var cancellationConfiguration = POCancellationConfiguration()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        apply(ScreenMode.Window(height = defaultViewHeight, availableHeight = screenHeight))
+        apply(Window(height = defaultViewHeight, availableHeight = screenHeight))
         apply(cancellationConfiguration)
         dispatchBackPressed()
     }
 
     protected fun apply(screenMode: ScreenMode, animate: Boolean = false) {
         when (screenMode) {
-            is ScreenMode.Window -> setHeight(
+            is Window -> setHeight(
                 peekHeight = screenMode.height,
                 viewHeight = if (expandable && bottomSheetBehavior.state == STATE_EXPANDED)
                     screenMode.availableHeight else screenMode.height,
                 expandable = expandable,
-                animate = animate
+                animate = this.screenMode is Window &&
+                        bottomSheetBehavior.state == STATE_COLLAPSED &&
+                        animate
             )
-            is ScreenMode.Fullscreen -> setHeight(
+            is Fullscreen -> setHeight(
                 peekHeight = screenMode.screenHeight,
                 viewHeight = ViewGroup.LayoutParams.WRAP_CONTENT,
                 expandable = true,
@@ -82,23 +90,25 @@ internal abstract class BaseBottomSheetDialogFragment<T : Parcelable> : BottomSh
         animate: Boolean
     ) {
         if (animate) {
-            ValueAnimator.ofInt(bottomSheetBehavior.peekHeight, peekHeight).apply {
-                addUpdateListener {
-                    val animatedValue = it.animatedValue as Int
-                    containerHeight = if (expandable) ViewGroup.LayoutParams.MATCH_PARENT else animatedValue
-                    bottomSheetBehavior.peekHeight = animatedValue
-                }
-                duration = animationDurationMillis
-                start()
-            }
-            view?.updateLayoutParams {
-                ValueAnimator.ofInt(height, viewHeight).apply {
+            peekHeightValueAnimator = ValueAnimator.ofInt(bottomSheetBehavior.peekHeight, peekHeight)
+                .apply {
                     addUpdateListener {
-                        height = it.animatedValue as Int
+                        val animatedValue = it.animatedValue as Int
+                        containerHeight = if (expandable) ViewGroup.LayoutParams.MATCH_PARENT else animatedValue
+                        bottomSheetBehavior.peekHeight = animatedValue
                     }
                     duration = animationDurationMillis
                     start()
                 }
+            view?.updateLayoutParams {
+                viewHeightValueAnimator = ValueAnimator.ofInt(height, viewHeight)
+                    .apply {
+                        addUpdateListener {
+                            height = it.animatedValue as Int
+                        }
+                        duration = animationDurationMillis
+                        start()
+                    }
             }
         } else {
             containerHeight = if (expandable) ViewGroup.LayoutParams.MATCH_PARENT else peekHeight
@@ -111,7 +121,7 @@ internal abstract class BaseBottomSheetDialogFragment<T : Parcelable> : BottomSh
 
     private val bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
         override fun onSlide(bottomSheet: View, slideOffset: Float) {
-            if (expandable && screenMode is ScreenMode.Window) {
+            if (expandable && screenMode is Window) {
                 view?.run {
                     val viewCoordinateY = IntArray(2)
                         .also { getLocationOnScreen(it) }.let { it[1] }
@@ -202,6 +212,19 @@ internal abstract class BaseBottomSheetDialogFragment<T : Parcelable> : BottomSh
         if (isAdded) {
             dismissAllowingStateLoss()
             requireActivity().finish()
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        cancelAnimations()
+    }
+
+    private fun cancelAnimations() {
+        listOf(peekHeightValueAnimator, viewHeightValueAnimator).forEach {
+            it?.removeAllListeners()
+            it?.removeAllUpdateListeners()
+            it?.cancel()
         }
     }
 }

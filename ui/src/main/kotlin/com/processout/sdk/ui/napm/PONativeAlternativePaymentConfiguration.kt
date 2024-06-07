@@ -3,7 +3,6 @@ package com.processout.sdk.ui.napm
 import android.os.Parcelable
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
-import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.style.*
 import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
 import kotlinx.parcelize.Parcelize
@@ -16,8 +15,6 @@ import kotlinx.parcelize.Parcelize
  * @param[options] Allows to customize behaviour and pre-define the values.
  * @param[style] Allows to customize the look and feel.
  */
-/** @suppress */
-@ProcessOutInternalApi
 @Parcelize
 data class PONativeAlternativePaymentConfiguration(
     val invoiceId: String,
@@ -120,6 +117,7 @@ data class PONativeAlternativePaymentConfiguration(
      * @param[radioButton] Radio button style.
      * @param[dropdownMenu] Dropdown menu style.
      * @param[actionsContainer] Style of action buttons and their container.
+     * @param[dialog] Dialog style.
      * @param[background] Background style.
      * @param[message] Message style.
      * @param[errorMessage] Error message style.

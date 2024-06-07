@@ -58,13 +58,12 @@ class NativeApmViewModel(
                 .onSuccess { invoice ->
                     _uiState.value = Submitted(
                         NativeApmUiModel(
-                            gatewayConfigurationId,
-                            invoice.id,
-                            launchCompose
+                            invoiceId = invoice.id,
+                            gatewayConfigurationId = gatewayConfigurationId,
+                            launchCompose = launchCompose
                         )
                     )
-                }
-                .onFailure { _uiState.value = Failure(it) }
+                }.onFailure { _uiState.value = Failure(it) }
         }
     }
 

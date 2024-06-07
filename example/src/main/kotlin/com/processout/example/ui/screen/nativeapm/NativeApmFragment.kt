@@ -2,7 +2,6 @@ package com.processout.example.ui.screen.nativeapm
 
 import android.os.Bundle
 import android.view.View
-import android.view.inputmethod.EditorInfo
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -12,7 +11,8 @@ import com.processout.example.R
 import com.processout.example.databinding.FragmentNativeApmBinding
 import com.processout.example.shared.toMessage
 import com.processout.example.ui.screen.base.BaseFragment
-import com.processout.sdk.core.ProcessOutActivityResult
+import com.processout.sdk.core.onFailure
+import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentLauncher
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration
@@ -36,9 +36,7 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        launcher = PONativeAlternativePaymentMethodLauncher.create(
-            from = this
-        ) { result ->
+        launcher = PONativeAlternativePaymentMethodLauncher.create(from = this) { result ->
             viewModel.reset()
             when (result) {
                 PONativeAlternativePaymentMethodResult.Success ->
@@ -47,15 +45,12 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
                     showAlert(result.toMessage())
             }
         }
-        launcherCompose = PONativeAlternativePaymentLauncher.create(
-            from = this
-        ) { result ->
+        launcherCompose = PONativeAlternativePaymentLauncher.create(from = this) { result ->
             viewModel.reset()
-            when (result) {
-                is ProcessOutActivityResult.Success ->
-                    showAlert(getString(R.string.success))
-                is ProcessOutActivityResult.Failure ->
-                    showAlert(result.toMessage())
+            result.onSuccess {
+                showAlert(getString(R.string.success))
+            }.onFailure { failure ->
+                showAlert(failure.toMessage())
             }
         }
     }
@@ -71,15 +66,11 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
     }
 
     private fun setOnClickListeners() {
-        binding.launchNativeApmButton.setOnClickListener { onSubmitClick(launchCompose = false) }
-        binding.launchNativeApmComposeButton.setOnClickListener { onSubmitClick(launchCompose = true) }
-        binding.currencyInput.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                onSubmitClick(launchCompose = false)
-                return@setOnEditorActionListener true
-            } else {
-                return@setOnEditorActionListener false
-            }
+        binding.launchNativeApmButton.setOnClickListener {
+            onSubmitClick(launchCompose = false)
+        }
+        binding.launchNativeApmComposeButton.setOnClickListener {
+            onSubmitClick(launchCompose = true)
         }
     }
 
@@ -102,8 +93,8 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
         if (uiModel.launchCompose) {
             launcherCompose.launch(
                 PONativeAlternativePaymentConfiguration(
-                    gatewayConfigurationId = uiModel.gatewayConfigurationId,
-                    invoiceId = uiModel.invoiceId
+                    invoiceId = uiModel.invoiceId,
+                    gatewayConfigurationId = uiModel.gatewayConfigurationId
                 )
             )
         } else {

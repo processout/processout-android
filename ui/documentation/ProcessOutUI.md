@@ -5,3 +5,5 @@
 ### [Google Pay Card Tokenization](GooglePayCardTokenization.md)
 
 ### [Card Update](CardUpdate.md)
+
+### [Native Alternative Payment Methods](NativeAlternativePaymentMethods.md)
