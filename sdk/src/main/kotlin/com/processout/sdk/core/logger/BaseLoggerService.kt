@@ -20,8 +20,8 @@ internal abstract class BaseLoggerService(
         val formattedMessage = if (args.isNotEmpty()) message.format(*args) else message
 
         val stackTraceElement = Throwable().stackTrace.find { element ->
-            // Find first element in the stack trace that do not belongs to logger package.
-            // This element refers to the class that actually invoked logging.
+            // Find first element in the stack trace that do not belong to logger package.
+            // This element refers to the class that actually invoked the logging.
             loggerPackageName?.let {
                 element.className.startsWith(it).not()
             } ?: false
