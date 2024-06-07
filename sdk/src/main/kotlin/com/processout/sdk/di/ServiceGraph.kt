@@ -14,7 +14,7 @@ internal interface ServiceGraph {
     val alternativePaymentMethodsService: POAlternativePaymentMethodsService
     val browserCapabilitiesService: POBrowserCapabilitiesService
     val systemLoggerService: POLoggerService
-    val remoteLoggerService: POLoggerService
+    val telemetryService: POLoggerService
 }
 
 internal class DefaultServiceGraph(
@@ -59,8 +59,8 @@ internal class DefaultServiceGraph(
         SystemLoggerService(minimumLevel = POLogLevel.DEBUG)
     }
 
-    override val remoteLoggerService: POLoggerService by lazy {
-        RemoteLoggerService(
+    override val telemetryService: POLoggerService by lazy {
+        TelemetryService(
             minimumLevel = POLogLevel.WARN,
             scope = mainCoroutineScope,
             repository = repositoryGraph.telemetryRepository,

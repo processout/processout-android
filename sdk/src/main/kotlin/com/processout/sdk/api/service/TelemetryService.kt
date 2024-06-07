@@ -10,7 +10,7 @@ import com.processout.sdk.di.ContextGraph
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-internal class RemoteLoggerService(
+internal class TelemetryService(
     minimumLevel: POLogLevel,
     private val scope: CoroutineScope,
     private val repository: TelemetryRepository,
