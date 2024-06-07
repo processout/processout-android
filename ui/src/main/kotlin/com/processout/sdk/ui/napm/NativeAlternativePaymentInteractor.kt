@@ -61,8 +61,6 @@ internal class NativeAlternativePaymentInteractor(
 
     companion object {
         const val SUCCESS_DELAY_MS = 3000L
-        const val LOG_ATTRIBUTE_INVOICE_ID = "InvoiceId"
-        const val LOG_ATTRIBUTE_GATEWAY_CONFIGURATION_ID = "GatewayConfigurationId"
     }
 
     private val _completion = MutableStateFlow<NativeAlternativePaymentCompletion>(Awaiting)

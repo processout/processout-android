@@ -5,6 +5,7 @@ import com.processout.sdk.core.annotation.ProcessOutInternalApi
 /** @suppress */
 @ProcessOutInternalApi
 object POLogAttribute {
+    const val IIN = "IIN"
     const val CARD_ID = "CardId"
     const val INVOICE_ID = "InvoiceId"
     const val CUSTOMER_ID = "CustomerId"

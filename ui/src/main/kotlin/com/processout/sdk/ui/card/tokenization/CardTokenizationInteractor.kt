@@ -19,6 +19,7 @@ import com.processout.sdk.core.POFailure.Code.Generic
 import com.processout.sdk.core.POFailure.GenericCode.*
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.getOrNull
+import com.processout.sdk.core.logger.POLogAttribute
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
@@ -53,8 +54,6 @@ internal class CardTokenizationInteractor(
     private companion object {
         const val IIN_LENGTH = 6
         const val EXPIRATION_DATE_PART_LENGTH = 2
-        const val LOG_ATTRIBUTE_IIN = "IIN"
-        const val LOG_ATTRIBUTE_CARD_ID = "CardId"
     }
 
     private data class Expiration(
@@ -260,7 +259,7 @@ internal class CardTokenizationInteractor(
             .onFailure {
                 POLogger.info(
                     message = "Failed to fetch issuer information: %s", it,
-                    attributes = mapOf(LOG_ATTRIBUTE_IIN to iin)
+                    attributes = mapOf(POLogAttribute.IIN to iin)
                 )
             }.getOrNull()
 
@@ -533,7 +532,7 @@ internal class CardTokenizationInteractor(
                     _state.update { it.copy(tokenizedCard = card) }
                     POLogger.info(
                         message = "Card tokenized successfully.",
-                        attributes = mapOf(LOG_ATTRIBUTE_CARD_ID to card.id)
+                        attributes = mapOf(POLogAttribute.CARD_ID to card.id)
                     )
                     dispatch(DidTokenize(card))
                     if (eventDispatcher.subscribedForProcessTokenizedCard()) {
@@ -541,7 +540,7 @@ internal class CardTokenizationInteractor(
                     } else {
                         POLogger.info(
                             message = "Completed successfully.",
-                            attributes = mapOf(LOG_ATTRIBUTE_CARD_ID to card.id)
+                            attributes = mapOf(POLogAttribute.CARD_ID to card.id)
                         )
                         _completion.update { Success(card) }
                     }
@@ -561,7 +560,7 @@ internal class CardTokenizationInteractor(
             eventDispatcher.processTokenizedCard(card)
             POLogger.info(
                 message = "Requested to process tokenized card.",
-                attributes = mapOf(LOG_ATTRIBUTE_CARD_ID to card.id)
+                attributes = mapOf(POLogAttribute.CARD_ID to card.id)
             )
         }
     }
@@ -573,7 +572,7 @@ internal class CardTokenizationInteractor(
                     _state.value.tokenizedCard?.let { card ->
                         POLogger.info(
                             message = "Completed successfully.",
-                            attributes = mapOf(LOG_ATTRIBUTE_CARD_ID to card.id)
+                            attributes = mapOf(POLogAttribute.CARD_ID to card.id)
                         )
                         _completion.update { Success(card) }
                     }.orElse {
