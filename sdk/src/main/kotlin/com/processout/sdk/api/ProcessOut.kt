@@ -105,18 +105,21 @@ class ProcessOut private constructor(
          */
         fun configure(configuration: ProcessOutConfiguration, force: Boolean = false) {
             if (isConfigured) {
-                if (force) {
-                    with(instance.apiGraph) {
-                        contextGraph.configuration = configuration
-                        POLogger.clear()
-                        if (configuration.debug) {
-                            POLogger.add(serviceGraph.systemLoggerService)
-                            POLogger.info("Applied new ProcessOut configuration.")
-                        }
-                    }
-                } else {
+                if (!force) {
                     POLogger.info("ProcessOut is already configured.")
+                    return
                 }
+                with(instance.apiGraph) {
+                    contextGraph.configuration = configuration
+                    POLogger.clear()
+                    if (configuration.debug) {
+                        POLogger.add(serviceGraph.systemLoggerService)
+                    }
+                    if (configuration.enableTelemetry) {
+                        POLogger.add(serviceGraph.telemetryService)
+                    }
+                }
+                POLogger.info("Applied new ProcessOut configuration.")
             } else {
                 val contextGraph = DefaultContextGraph(
                     configuration = configuration
@@ -147,8 +150,11 @@ class ProcessOut private constructor(
 
                 if (configuration.debug) {
                     POLogger.add(serviceGraph.systemLoggerService)
-                    POLogger.info("ProcessOut configuration is complete.")
                 }
+                if (configuration.enableTelemetry) {
+                    POLogger.add(serviceGraph.telemetryService)
+                }
+                POLogger.info("ProcessOut configuration is complete.")
             }
         }
     }
