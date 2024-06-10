@@ -24,6 +24,7 @@ internal class UserAgentInterceptor(
             .header("Idempotency-Key", UUID.randomUUID().toString())
             .header("User-Agent", userAgentComponents.joinToString(separator = "/"))
             .header("Accept-Language", contextGraph.configuration.application.currentSdkLocale().toLanguageTag())
+            .header("Session-Id", contextGraph.configuration.sessionId)
             .build()
         return chain.proceed(userAgentRequest)
     }

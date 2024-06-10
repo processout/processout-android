@@ -3,6 +3,7 @@ package com.processout.sdk.api
 import android.app.Application
 import androidx.annotation.VisibleForTesting
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
+import java.util.UUID
 
 /**
  * Defines ProcessOut configuration.
@@ -31,6 +32,8 @@ data class ProcessOutConfiguration(
         val name: String? = null,
         val version: String? = null
     )
+
+    internal val sessionId = UUID.randomUUID().toString()
 
     /**
      * __Warning:__ Intended to be used only for testing purposes.
