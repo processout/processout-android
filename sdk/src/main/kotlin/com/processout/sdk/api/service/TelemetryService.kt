@@ -5,6 +5,13 @@ import com.processout.sdk.api.model.request.TelemetryRequest
 import com.processout.sdk.api.repository.TelemetryRepository
 import com.processout.sdk.core.logger.BaseLoggerService
 import com.processout.sdk.core.logger.LogEvent
+import com.processout.sdk.core.logger.POLogAttribute.CARD_ID
+import com.processout.sdk.core.logger.POLogAttribute.CUSTOMER_ID
+import com.processout.sdk.core.logger.POLogAttribute.CUSTOMER_TOKEN_ID
+import com.processout.sdk.core.logger.POLogAttribute.FILE
+import com.processout.sdk.core.logger.POLogAttribute.GATEWAY_CONFIGURATION_ID
+import com.processout.sdk.core.logger.POLogAttribute.INVOICE_ID
+import com.processout.sdk.core.logger.POLogAttribute.LINE
 import com.processout.sdk.core.logger.POLogLevel
 import com.processout.sdk.di.ContextGraph
 import kotlinx.coroutines.CoroutineScope
@@ -23,30 +30,40 @@ internal class TelemetryService(
         }
     }
 
-    private fun LogEvent.toRequest(deviceData: DeviceData) = TelemetryRequest(
-        events = listOf(
-            TelemetryRequest.Event(
-                timestamp = timestamp.toString(),
-                level = level.name.lowercase(),
-                message = message,
-                gatewayConfigurationId = null,
-                customerId = null,
-                customerTokenId = null,
-                cardId = null,
-                invoiceId = null,
-                attributes = emptyMap()
-            )
-        ),
-        metadata = TelemetryRequest.Metadata(
-            application = TelemetryRequest.ApplicationMetadata(
-                name = null,
-                version = null
+    private fun LogEvent.toRequest(deviceData: DeviceData): TelemetryRequest {
+        val additionalAttributes = mutableMapOf(
+            FILE to simpleClassName,
+            LINE to lineNumber.toString()
+        )
+        val standaloneAttributes = listOf(GATEWAY_CONFIGURATION_ID, CUSTOMER_ID, CUSTOMER_TOKEN_ID, CARD_ID, INVOICE_ID)
+        attributes?.filterKeys { !standaloneAttributes.contains(it) }?.let {
+            additionalAttributes.putAll(it)
+        }
+        return TelemetryRequest(
+            events = listOf(
+                TelemetryRequest.Event(
+                    timestamp = timestamp.toString(),
+                    level = level.name.lowercase(),
+                    message = message,
+                    gatewayConfigurationId = attributes?.get(GATEWAY_CONFIGURATION_ID),
+                    customerId = attributes?.get(CUSTOMER_ID),
+                    customerTokenId = attributes?.get(CUSTOMER_TOKEN_ID),
+                    cardId = attributes?.get(CARD_ID),
+                    invoiceId = attributes?.get(INVOICE_ID),
+                    attributes = additionalAttributes
+                )
             ),
-            device = TelemetryRequest.DeviceMetadata(
-                language = deviceData.appLanguage,
-                model = null,
-                timeZone = deviceData.appTimeZoneOffset
+            metadata = TelemetryRequest.Metadata(
+                application = TelemetryRequest.ApplicationMetadata(
+                    name = null,
+                    version = null
+                ),
+                device = TelemetryRequest.DeviceMetadata(
+                    language = deviceData.appLanguage,
+                    model = null,
+                    timeZone = deviceData.appTimeZoneOffset
+                )
             )
         )
-    )
+    }
 }
