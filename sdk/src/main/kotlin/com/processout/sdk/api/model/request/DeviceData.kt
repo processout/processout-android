@@ -13,5 +13,7 @@ internal data class DeviceData(
     val appScreenHeight: Int,
     @Json(name = "app_timezone_offset")
     val appTimeZoneOffset: Int,
-    val channel: String = "android"
+    val channel: String = "android",
+    @Json(ignore = true)
+    val model: String = ""
 )

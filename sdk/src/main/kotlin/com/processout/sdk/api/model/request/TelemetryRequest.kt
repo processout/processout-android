@@ -50,7 +50,7 @@ internal data class TelemetryRequest(
     @JsonClass(generateAdapter = true)
     data class DeviceMetadata(
         val language: String,
-        val model: String?,
+        val model: String,
         @Json(name = "time_zone")
         val timeZone: Int
     )

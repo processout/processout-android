@@ -2,6 +2,7 @@ package com.processout.sdk.api.service
 
 import com.processout.sdk.api.model.request.DeviceData
 import com.processout.sdk.api.model.request.TelemetryRequest
+import com.processout.sdk.api.model.request.TelemetryRequest.*
 import com.processout.sdk.api.repository.TelemetryRepository
 import com.processout.sdk.core.logger.BaseLoggerService
 import com.processout.sdk.core.logger.LogEvent
@@ -41,7 +42,7 @@ internal class TelemetryService(
         }
         return TelemetryRequest(
             events = listOf(
-                TelemetryRequest.Event(
+                Event(
                     timestamp = timestamp.toString(),
                     level = level.name.lowercase(),
                     message = message,
@@ -53,14 +54,14 @@ internal class TelemetryService(
                     attributes = additionalAttributes
                 )
             ),
-            metadata = TelemetryRequest.Metadata(
-                application = TelemetryRequest.ApplicationMetadata(
+            metadata = Metadata(
+                application = ApplicationMetadata(
                     name = null,
                     version = null
                 ),
-                device = TelemetryRequest.DeviceMetadata(
+                device = DeviceMetadata(
                     language = deviceData.appLanguage,
-                    model = null,
+                    model = deviceData.model,
                     timeZone = deviceData.appTimeZoneOffset
                 )
             )
