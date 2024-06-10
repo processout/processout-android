@@ -52,7 +52,7 @@ internal class TelemetryService(
         return TelemetryRequest(
             events = listOf(
                 Event(
-                    timestamp = timestamp.toString(),
+                    timestamp = timestamp,
                     level = level.name.lowercase(),
                     message = message,
                     gatewayConfigurationId = attributes?.get(GATEWAY_CONFIGURATION_ID),

@@ -2,6 +2,7 @@ package com.processout.sdk.api.model.request
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import java.util.Date
 
 @JsonClass(generateAdapter = true)
 internal data class TelemetryRequest(
@@ -15,7 +16,7 @@ internal data class TelemetryRequest(
      */
     @JsonClass(generateAdapter = true)
     data class Event(
-        val timestamp: String,
+        val timestamp: Date,
         val level: String,
         val message: String,
         @Json(name = "gateway_configuration_id")
