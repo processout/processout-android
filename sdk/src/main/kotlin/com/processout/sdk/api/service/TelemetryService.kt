@@ -1,5 +1,6 @@
 package com.processout.sdk.api.service
 
+import com.processout.sdk.api.ProcessOutConfiguration.ApplicationInformation
 import com.processout.sdk.api.model.request.DeviceData
 import com.processout.sdk.api.model.request.TelemetryRequest
 import com.processout.sdk.api.model.request.TelemetryRequest.*
@@ -27,11 +28,19 @@ internal class TelemetryService(
 
     override fun log(event: LogEvent) {
         scope.launch {
-            repository.send(event.toRequest(contextGraph.deviceData))
+            repository.send(
+                event.toRequest(
+                    deviceData = contextGraph.deviceData,
+                    appInfo = contextGraph.configuration.applicationInformation
+                )
+            )
         }
     }
 
-    private fun LogEvent.toRequest(deviceData: DeviceData): TelemetryRequest {
+    private fun LogEvent.toRequest(
+        deviceData: DeviceData,
+        appInfo: ApplicationInformation?,
+    ): TelemetryRequest {
         val additionalAttributes = mutableMapOf(
             FILE to simpleClassName,
             LINE to lineNumber.toString()
@@ -56,8 +65,8 @@ internal class TelemetryService(
             ),
             metadata = Metadata(
                 application = ApplicationMetadata(
-                    name = null,
-                    version = null
+                    name = appInfo?.name,
+                    version = appInfo?.version
                 ),
                 device = DeviceMetadata(
                     language = deviceData.appLanguage,
