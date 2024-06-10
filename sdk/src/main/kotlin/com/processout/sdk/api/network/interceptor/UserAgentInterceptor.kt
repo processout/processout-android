@@ -26,6 +26,7 @@ internal class UserAgentInterceptor(
             .header("Accept-Language", contextGraph.configuration.application.currentSdkLocale().toLanguageTag())
             .header("Session-Id", contextGraph.configuration.sessionId)
             .header("Device-System-Name", contextGraph.deviceData.channel)
+            .header("Device-System-Version", contextGraph.deviceData.systemApiLevel)
             .header("Product-Version", sdkVersion)
             .build()
         return chain.proceed(userAgentRequest)

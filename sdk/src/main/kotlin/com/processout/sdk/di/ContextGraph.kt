@@ -37,8 +37,7 @@ internal class DefaultContextGraph(
             appLanguage = configuration.application.currentAppLocale().toLanguageTag(),
             screenWidth = screenSize.width,
             screenHeight = screenSize.height,
-            timeZoneOffset = timeZoneOffset,
-            model = "${Build.MANUFACTURER} ${Build.MODEL}"
+            timeZoneOffset = timeZoneOffset
         )
     }
 

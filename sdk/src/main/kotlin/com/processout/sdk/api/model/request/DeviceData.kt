@@ -1,5 +1,6 @@
 package com.processout.sdk.api.model.request
 
+import android.os.Build
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -15,5 +16,7 @@ internal data class DeviceData(
     val timeZoneOffset: Int,
     val channel: String = "android",
     @Json(ignore = true)
-    val model: String = ""
+    val model: String = "${Build.MANUFACTURER} ${Build.MODEL}",
+    @Json(ignore = true)
+    val systemApiLevel: String = Build.VERSION.SDK_INT.toString()
 )
