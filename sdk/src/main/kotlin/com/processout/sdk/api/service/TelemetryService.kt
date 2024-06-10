@@ -62,7 +62,7 @@ internal class TelemetryService(
                 device = DeviceMetadata(
                     language = deviceData.appLanguage,
                     model = deviceData.model,
-                    timeZone = deviceData.appTimeZoneOffset
+                    timeZone = deviceData.timeZoneOffset
                 )
             )
         )

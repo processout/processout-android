@@ -8,11 +8,11 @@ internal data class DeviceData(
     @Json(name = "app_language")
     val appLanguage: String,
     @Json(name = "app_screen_width")
-    val appScreenWidth: Int,
+    val screenWidth: Int,
     @Json(name = "app_screen_height")
-    val appScreenHeight: Int,
+    val screenHeight: Int,
     @Json(name = "app_timezone_offset")
-    val appTimeZoneOffset: Int,
+    val timeZoneOffset: Int,
     val channel: String = "android",
     @Json(ignore = true)
     val model: String = ""
