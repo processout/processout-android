@@ -9,6 +9,7 @@ import com.processout.sdk.api.dispatcher.POEventDispatchers
 import com.processout.sdk.api.dispatcher.PONativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.network.ApiConstants
+import com.processout.sdk.api.preferences.Preferences
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.api.repository.POGatewayConfigurationsRepository
 import com.processout.sdk.api.service.POAlternativePaymentMethodsService
@@ -126,6 +127,7 @@ class ProcessOut private constructor(
                 )
                 val networkGraph = DefaultNetworkGraph(
                     contextGraph = contextGraph,
+                    preferences = Preferences(contextGraph),
                     baseUrl = ApiConstants.BASE_URL,
                     sdkVersion = VERSION
                 )
