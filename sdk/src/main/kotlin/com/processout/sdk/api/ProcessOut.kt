@@ -104,7 +104,10 @@ class ProcessOut private constructor(
          * the configuration applies only on first invocation and all subsequent calls are ignored.
          * When set to _true_, the existing instances will be reconfigured.
          */
-        fun configure(configuration: ProcessOutConfiguration, force: Boolean = false) {
+        fun configure(
+            configuration: ProcessOutConfiguration,
+            force: Boolean = false
+        ) {
             if (isConfigured) {
                 if (!force) {
                     POLogger.info("ProcessOut is already configured.")
@@ -112,13 +115,7 @@ class ProcessOut private constructor(
                 }
                 with(instance.apiGraph) {
                     contextGraph.configuration = configuration
-                    POLogger.clear()
-                    if (configuration.debug) {
-                        POLogger.add(serviceGraph.systemLoggerService)
-                    }
-                    if (configuration.enableTelemetry) {
-                        POLogger.add(serviceGraph.telemetryService)
-                    }
+                    configureLogger(configuration, serviceGraph)
                 }
                 POLogger.info("Applied new ProcessOut configuration.")
             } else {
@@ -150,13 +147,21 @@ class ProcessOut private constructor(
                 instance = lazy { ProcessOut(apiGraph) }.value
                 legacyInstance = lazy { ProcessOutLegacyAccessor.configure(contextGraph) }.value
 
-                if (configuration.debug) {
-                    POLogger.add(serviceGraph.systemLoggerService)
-                }
-                if (configuration.enableTelemetry) {
-                    POLogger.add(serviceGraph.telemetryService)
-                }
+                configureLogger(configuration, serviceGraph)
                 POLogger.info("ProcessOut configuration is complete.")
+            }
+        }
+
+        private fun configureLogger(
+            configuration: ProcessOutConfiguration,
+            serviceGraph: ServiceGraph
+        ) {
+            POLogger.clear()
+            if (configuration.debug) {
+                POLogger.add(serviceGraph.systemLoggerService)
+            }
+            if (configuration.enableTelemetry) {
+                POLogger.add(serviceGraph.telemetryService)
             }
         }
     }
