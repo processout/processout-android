@@ -59,6 +59,9 @@ class ProcessOut private constructor(
         apiGraph.serviceGraph.browserCapabilitiesService
     }
 
+    /** Dispatchers that allows to handle events during various payment flows. */
+    val dispatchers: POEventDispatchers by lazy { DefaultEventDispatchers }
+
     /** Dispatcher that allows to handle events during native alternative payments. */
     @Deprecated(
         message = "Use replacement property.",
@@ -67,9 +70,6 @@ class ProcessOut private constructor(
     val nativeAlternativePaymentMethodEventDispatcher: PONativeAlternativePaymentMethodEventDispatcher by lazy {
         PODefaultNativeAlternativePaymentMethodEventDispatcher
     }
-
-    /** Dispatchers that allows to handle events during various payment flows. */
-    val dispatchers: POEventDispatchers by lazy { DefaultEventDispatchers }
 
     /**
      * Entry point to ProcessOut Android SDK.
