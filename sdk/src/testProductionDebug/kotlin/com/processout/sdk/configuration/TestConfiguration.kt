@@ -1,3 +1,5 @@
+@file:Suppress("RestrictedApi")
+
 package com.processout.sdk.configuration
 
 import com.processout.sdk.BuildConfig
