@@ -9,6 +9,7 @@ import com.processout.sdk.api.dispatcher.POEventDispatchers
 import com.processout.sdk.api.dispatcher.PONativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.network.ApiConstants
+import com.processout.sdk.api.preferences.Preferences
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.api.repository.POGatewayConfigurationsRepository
 import com.processout.sdk.api.service.POAlternativePaymentMethodsService
@@ -58,6 +59,9 @@ class ProcessOut private constructor(
         apiGraph.serviceGraph.browserCapabilitiesService
     }
 
+    /** Dispatchers that allows to handle events during various payment flows. */
+    val dispatchers: POEventDispatchers by lazy { DefaultEventDispatchers }
+
     /** Dispatcher that allows to handle events during native alternative payments. */
     @Deprecated(
         message = "Use replacement property.",
@@ -66,9 +70,6 @@ class ProcessOut private constructor(
     val nativeAlternativePaymentMethodEventDispatcher: PONativeAlternativePaymentMethodEventDispatcher by lazy {
         PODefaultNativeAlternativePaymentMethodEventDispatcher
     }
-
-    /** Dispatchers that allows to handle events during various payment flows. */
-    val dispatchers: POEventDispatchers by lazy { DefaultEventDispatchers }
 
     /**
      * Entry point to ProcessOut Android SDK.
@@ -103,26 +104,27 @@ class ProcessOut private constructor(
          * the configuration applies only on first invocation and all subsequent calls are ignored.
          * When set to _true_, the existing instances will be reconfigured.
          */
-        fun configure(configuration: ProcessOutConfiguration, force: Boolean = false) {
+        fun configure(
+            configuration: ProcessOutConfiguration,
+            force: Boolean = false
+        ) {
             if (isConfigured) {
-                if (force) {
-                    with(instance.apiGraph) {
-                        contextGraph.configuration = configuration
-                        POLogger.clear()
-                        if (configuration.debug) {
-                            POLogger.add(serviceGraph.systemLoggerService)
-                            POLogger.info("Applied new ProcessOut configuration.")
-                        }
-                    }
-                } else {
+                if (!force) {
                     POLogger.info("ProcessOut is already configured.")
+                    return
                 }
+                with(instance.apiGraph) {
+                    contextGraph.configuration = configuration
+                    configureLogger(configuration, serviceGraph)
+                }
+                POLogger.info("Applied new ProcessOut configuration.")
             } else {
                 val contextGraph = DefaultContextGraph(
                     configuration = configuration
                 )
                 val networkGraph = DefaultNetworkGraph(
                     contextGraph = contextGraph,
+                    preferences = Preferences(contextGraph),
                     baseUrl = ApiConstants.BASE_URL,
                     sdkVersion = VERSION
                 )
@@ -145,10 +147,21 @@ class ProcessOut private constructor(
                 instance = lazy { ProcessOut(apiGraph) }.value
                 legacyInstance = lazy { ProcessOutLegacyAccessor.configure(contextGraph) }.value
 
-                if (configuration.debug) {
-                    POLogger.add(serviceGraph.systemLoggerService)
-                    POLogger.info("ProcessOut configuration is complete.")
-                }
+                configureLogger(configuration, serviceGraph)
+                POLogger.info("ProcessOut configuration is complete.")
+            }
+        }
+
+        private fun configureLogger(
+            configuration: ProcessOutConfiguration,
+            serviceGraph: ServiceGraph
+        ) {
+            POLogger.clear()
+            if (configuration.debug) {
+                POLogger.add(serviceGraph.systemLoggerService)
+            }
+            if (configuration.enableTelemetry) {
+                POLogger.add(serviceGraph.telemetryService)
             }
         }
     }

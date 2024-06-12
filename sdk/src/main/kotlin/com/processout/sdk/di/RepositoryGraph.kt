@@ -8,7 +8,7 @@ internal interface RepositoryGraph {
     val invoicesRepository: InvoicesRepository
     val cardsRepository: POCardsRepository
     val customerTokensRepository: CustomerTokensRepository
-    val logsRepository: LogsRepository
+    val telemetryRepository: TelemetryRepository
 }
 
 internal class DefaultRepositoryGraph(
@@ -35,7 +35,7 @@ internal class DefaultRepositoryGraph(
         DefaultCustomerTokensRepository(failureMapper, networkGraph.customerTokensApi, contextGraph)
     }
 
-    override val logsRepository: LogsRepository by lazy {
-        DefaultLogsRepository(failureMapper, networkGraph.logsApi)
+    override val telemetryRepository: TelemetryRepository by lazy {
+        DefaultTelemetryRepository(failureMapper, networkGraph.telemetryApi)
     }
 }

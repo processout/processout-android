@@ -1,6 +1,9 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'org.jetbrains.kotlin.plugin.compose'
     id 'org.jetbrains.dokka'
     id 'kotlin-parcelize'
     id 'com.google.devtools.ksp'
@@ -49,24 +52,10 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = '17'
-        freeCompilerArgs += '-opt-in=com.processout.sdk.core.annotation.ProcessOutInternalApi'
-        freeCompilerArgs += '-opt-in=com.processout.sdk.ui.core.annotation.ProcessOutInternalApi'
-        if (project.findProperty("composeCompilerReports") == "true") {
-            freeCompilerArgs += [
-                    "-P", "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=" +
-                    project.buildDir.absolutePath + "/compose"
-            ]
-        }
-    }
 
     buildFeatures {
         buildConfig true
         compose true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = rootProject.ext.androidxComposeCompilerVersion
     }
 
     publishing {
@@ -77,6 +66,18 @@ android {
 //            withJavadocJar()
         }
     }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
+        optIn.add("com.processout.sdk.core.annotation.ProcessOutInternalApi")
+        optIn.add("com.processout.sdk.ui.core.annotation.ProcessOutInternalApi")
+    }
+}
+
+composeCompiler {
+    reportsDestination = layout.buildDirectory.dir("compose")
 }
 
 @SuppressWarnings('GrMethodMayBeStatic')

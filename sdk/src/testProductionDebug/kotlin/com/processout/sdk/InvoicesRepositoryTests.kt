@@ -1,14 +1,17 @@
 package com.processout.sdk
 
 import com.processout.sdk.api.ProcessOut
-import com.processout.sdk.api.model.request.*
+import com.processout.sdk.api.model.request.POCardTokenizationRequest
+import com.processout.sdk.api.model.request.POCreateInvoiceRequest
+import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
+import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.CustomerAction
 import com.processout.sdk.api.repository.InvoicesRepository
 import com.processout.sdk.api.repository.POCardsRepository
-import com.processout.sdk.config.PROCESSOUT_GATEWAY_CONFIGURATION_ID
-import com.processout.sdk.config.SetupRule
-import com.processout.sdk.config.TestApplication
-import com.processout.sdk.config.assertFailure
+import com.processout.sdk.configuration.PROCESSOUT_GATEWAY_CONFIGURATION_ID
+import com.processout.sdk.configuration.TestApplication
+import com.processout.sdk.configuration.TestSetupRule
+import com.processout.sdk.configuration.assertFailure
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
@@ -27,7 +30,7 @@ class InvoicesRepositoryTests {
 
     @Rule
     @JvmField
-    val setupRule = SetupRule()
+    val setupRule = TestSetupRule()
 
     private lateinit var invoices: InvoicesRepository
     private lateinit var cards: POCardsRepository

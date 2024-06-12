@@ -5,9 +5,9 @@ import com.processout.sdk.api.model.request.POCardTokenizationRequest
 import com.processout.sdk.api.model.request.POCardUpdateCVCRequest
 import com.processout.sdk.api.model.request.POCardUpdateRequest
 import com.processout.sdk.api.repository.POCardsRepository
-import com.processout.sdk.config.SetupRule
-import com.processout.sdk.config.TestApplication
-import com.processout.sdk.config.assertFailure
+import com.processout.sdk.configuration.TestApplication
+import com.processout.sdk.configuration.TestSetupRule
+import com.processout.sdk.configuration.assertFailure
 import com.processout.sdk.core.onSuccess
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -23,7 +23,7 @@ class CardsRepositoryTests {
 
     @Rule
     @JvmField
-    val setupRule = SetupRule()
+    val setupRule = TestSetupRule()
 
     private lateinit var cards: POCardsRepository
 

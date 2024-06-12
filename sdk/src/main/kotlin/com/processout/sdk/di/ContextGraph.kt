@@ -35,9 +35,9 @@ internal class DefaultContextGraph(
         }
         return DeviceData(
             appLanguage = configuration.application.currentAppLocale().toLanguageTag(),
-            appScreenWidth = screenSize.width,
-            appScreenHeight = screenSize.height,
-            appTimeZoneOffset = timeZoneOffset
+            screenWidth = screenSize.width,
+            screenHeight = screenSize.height,
+            timeZoneOffset = timeZoneOffset
         )
     }
 

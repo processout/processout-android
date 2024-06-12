@@ -32,6 +32,7 @@ import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.POFailure.Code.*
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.logger.POLogAttribute
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.retry.PORetryStrategy
 import com.processout.sdk.core.retry.PORetryStrategy.Exponential
@@ -85,8 +86,8 @@ internal class NativeAlternativePaymentMethodViewModel(
                     ),
                     options = options.validate(),
                     logAttributes = mapOf(
-                        LOG_ATTRIBUTE_INVOICE_ID to invoiceId,
-                        LOG_ATTRIBUTE_GATEWAY_CONFIGURATION_ID to gatewayConfigurationId
+                        POLogAttribute.INVOICE_ID to invoiceId,
+                        POLogAttribute.GATEWAY_CONFIGURATION_ID to gatewayConfigurationId
                     )
                 )
             } as T
@@ -96,11 +97,6 @@ internal class NativeAlternativePaymentMethodViewModel(
             if (paymentConfirmationTimeoutSeconds in 0..MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS)
                 paymentConfirmationTimeoutSeconds else DEFAULT_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
         )
-    }
-
-    companion object {
-        private const val LOG_ATTRIBUTE_INVOICE_ID = "InvoiceId"
-        private const val LOG_ATTRIBUTE_GATEWAY_CONFIGURATION_ID = "GatewayConfigurationId"
     }
 
     private val _uiState = MutableStateFlow<NativeAlternativePaymentMethodUiState>(Loading)

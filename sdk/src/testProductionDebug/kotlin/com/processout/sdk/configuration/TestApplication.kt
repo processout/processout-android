@@ -1,4 +1,4 @@
-package com.processout.sdk.config
+package com.processout.sdk.configuration
 
 import android.app.Application
 

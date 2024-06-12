@@ -15,12 +15,11 @@ import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentM
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType.*
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails.Invoice
+import com.processout.sdk.core.logger.POLogAttribute
 import com.processout.sdk.core.retry.PORetryStrategy.Exponential
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.core.state.POImmutableList
-import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractor.Companion.LOG_ATTRIBUTE_GATEWAY_CONFIGURATION_ID
-import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractor.Companion.LOG_ATTRIBUTE_INVOICE_ID
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Field.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
@@ -67,8 +66,8 @@ internal class NativeAlternativePaymentViewModel(
                     ),
                     eventDispatcher = PODefaultNativeAlternativePaymentMethodEventDispatcher,
                     logAttributes = mapOf(
-                        LOG_ATTRIBUTE_INVOICE_ID to invoiceId,
-                        LOG_ATTRIBUTE_GATEWAY_CONFIGURATION_ID to gatewayConfigurationId
+                        POLogAttribute.INVOICE_ID to invoiceId,
+                        POLogAttribute.GATEWAY_CONFIGURATION_ID to gatewayConfigurationId
                     )
                 )
             ) as T

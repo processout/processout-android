@@ -21,6 +21,7 @@ import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.POFailure.Code.Generic
 import com.processout.sdk.core.POFailure.GenericCode.*
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.logger.POLogAttribute
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
@@ -59,12 +60,8 @@ internal class CardUpdateViewModel(
                 options = options,
                 cardsRepository = ProcessOut.instance.cards,
                 eventDispatcher = PODefaultCardUpdateEventDispatcher,
-                logAttributes = mapOf(LOG_ATTRIBUTE_CARD_ID to cardId)
+                logAttributes = mapOf(POLogAttribute.CARD_ID to cardId)
             ) as T
-    }
-
-    private companion object {
-        const val LOG_ATTRIBUTE_CARD_ID = "CardId"
     }
 
     private object CardFieldId {
