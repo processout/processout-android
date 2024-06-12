@@ -3,8 +3,8 @@
 buildscript {
     ext {
         androidGradlePluginVersion = '8.4.2'
-        kotlinVersion = '1.9.24'
-        kspVersion = '1.9.24-1.0.20'
+        kotlinVersion = '2.0.0'
+        kspVersion = '2.0.0-1.0.22'
         dokkaVersion = '1.9.20'
         androidxNavigationVersion = '2.7.7'
         nexusPublishPluginVersion = '2.0.0'
@@ -18,6 +18,7 @@ plugins {
     id 'com.android.application' version "$androidGradlePluginVersion" apply false
     id 'com.android.library' version "$androidGradlePluginVersion" apply false
     id 'org.jetbrains.kotlin.android' version "$kotlinVersion" apply false
+    id 'org.jetbrains.kotlin.plugin.compose' version "$kotlinVersion" apply false
     id 'org.jetbrains.dokka' version "$dokkaVersion" apply true
     id 'com.google.devtools.ksp' version "$kspVersion" apply false
     id 'io.github.gradle-nexus.publish-plugin' version "$nexusPublishPluginVersion" apply true
@@ -46,7 +47,6 @@ ext {
     androidxBrowserVersion = '1.8.0'
 
     androidxComposeBOMVersion = '2024.05.00'
-    androidxComposeCompilerVersion = '1.5.14'
 
     materialVersion = '1.12.0'
 

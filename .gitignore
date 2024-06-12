@@ -90,3 +90,6 @@ lint/reports/
 
 # Sandbox stuff
 _sandbox
+
+# Since Kotlin 2.0.0
+.kotlin/
