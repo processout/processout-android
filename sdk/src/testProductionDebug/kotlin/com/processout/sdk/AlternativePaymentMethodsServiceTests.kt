@@ -6,7 +6,7 @@ import com.processout.sdk.api.model.request.POAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.api.service.POAlternativePaymentMethodsService
-import com.processout.sdk.configuration.SetupRule
+import com.processout.sdk.configuration.TestSetupRule
 import com.processout.sdk.configuration.TestApplication
 import com.processout.sdk.configuration.assertFailure
 import com.processout.sdk.core.onSuccess
@@ -23,7 +23,7 @@ class AlternativePaymentMethodsServiceTests {
 
     @Rule
     @JvmField
-    val setupRule = SetupRule()
+    val setupRule = TestSetupRule()
 
     private lateinit var apmService: POAlternativePaymentMethodsService
 

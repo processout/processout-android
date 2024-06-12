@@ -5,8 +5,8 @@ import com.processout.sdk.api.model.request.POAllGatewayConfigurationsRequest
 import com.processout.sdk.api.model.request.POGatewayConfigurationRequest
 import com.processout.sdk.api.repository.POGatewayConfigurationsRepository
 import com.processout.sdk.configuration.PROCESSOUT_GATEWAY_CONFIGURATION_ID
-import com.processout.sdk.configuration.SetupRule
 import com.processout.sdk.configuration.TestApplication
+import com.processout.sdk.configuration.TestSetupRule
 import com.processout.sdk.configuration.assertFailure
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -22,7 +22,7 @@ class GatewayConfigurationsRepositoryTests {
 
     @Rule
     @JvmField
-    val setupRule = SetupRule()
+    val setupRule = TestSetupRule()
 
     private lateinit var gatewayConfigurations: POGatewayConfigurationsRepository
 
