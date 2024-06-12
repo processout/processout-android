@@ -51,4 +51,9 @@
     <string name="po_address_spec_suburb">المنطقة</string>
     <string name="po_address_spec_zip">الرمز البريدي</string>
 
+    <!-- Cancel Payment Confirmation -->
+    <string name="po_cancel_payment_confirmation_title">إلغاء الدفع؟</string>
+    <string name="po_cancel_payment_confirmation_confirm">إلغاء الدفع</string>
+    <string name="po_cancel_payment_confirmation_dismiss">ليس الآن</string>
+
 </resources>

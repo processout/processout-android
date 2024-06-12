@@ -8,9 +8,6 @@
     <string name="po_native_apm_submit_button_text_format">Zapłać %s</string>
     <string name="po_native_apm_submit_button_text">Zapłać</string>
     <string name="po_native_apm_cancel_button_text">Anuluj</string>
-    <string name="po_native_apm_cancel_confirmation_title">Anulować płatność?</string>
-    <string name="po_native_apm_cancel_confirmation_confirm">Anuluj płatność</string>
-    <string name="po_native_apm_cancel_confirmation_dismiss">Nie teraz</string>
     <string name="po_native_apm_success_message">Sukces!\nPłatność przyjęta.</string>
     <string name="po_native_apm_email_placeholder">imię@przykład.pl</string>
     <string name="po_native_apm_phone_placeholder">Twój numer telefonu</string>
@@ -46,5 +43,10 @@
     <string name="po_address_spec_state">Stan</string>
     <string name="po_address_spec_suburb">Przedmieścia</string>
     <string name="po_address_spec_zip">Kod p</string>
+
+    <!-- Cancel Payment Confirmation -->
+    <string name="po_cancel_payment_confirmation_title">Anulować płatność?</string>
+    <string name="po_cancel_payment_confirmation_confirm">Anuluj płatność</string>
+    <string name="po_cancel_payment_confirmation_dismiss">Nie teraz</string>
 
 </resources>

@@ -327,12 +327,12 @@ internal class NativeAlternativePaymentViewModel(
             enabled = enabled,
             confirmation = confirmation?.run {
                 Confirmation(
-                    title = title ?: app.getString(R.string.po_native_apm_cancel_confirmation_title),
+                    title = title ?: app.getString(R.string.po_cancel_payment_confirmation_title),
                     message = message,
                     confirmActionText = confirmActionText
-                        ?: app.getString(R.string.po_native_apm_cancel_confirmation_confirm),
+                        ?: app.getString(R.string.po_cancel_payment_confirmation_confirm),
                     dismissActionText = dismissActionText
-                        ?: app.getString(R.string.po_native_apm_cancel_confirmation_dismiss)
+                        ?: app.getString(R.string.po_cancel_payment_confirmation_dismiss)
                 )
             }
         )

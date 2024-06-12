@@ -51,4 +51,9 @@
     <string name="po_address_spec_suburb">Localité</string>
     <string name="po_address_spec_zip">Code postal</string>
 
+    <!-- Cancel Payment Confirmation -->
+    <string name="po_cancel_payment_confirmation_title">Annuler le paiement ?</string>
+    <string name="po_cancel_payment_confirmation_confirm">Annuler le paiement</string>
+    <string name="po_cancel_payment_confirmation_dismiss">Pas maintenant</string>
+
 </resources>
