@@ -18,6 +18,7 @@
     <string name="po_native_apm_error_invalid_phone">Número de telemóvel inválido.</string>
     <plurals name="po_native_apm_error_invalid_length">
         <item quantity="one">Quantidade de caracteres incorreta, espera-se %d caractere.</item>
+        <item quantity="many">Quantidade de caracteres incorreta, espera-se %d caracteres.</item>
         <item quantity="other">Quantidade de caracteres incorreta, espera-se %d caracteres.</item>
     </plurals>
 
