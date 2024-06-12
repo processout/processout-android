@@ -1,4 +1,4 @@
-package com.processout.sdk.config
+package com.processout.sdk.configuration
 
 import androidx.test.core.app.ApplicationProvider
 import org.junit.rules.TestRule

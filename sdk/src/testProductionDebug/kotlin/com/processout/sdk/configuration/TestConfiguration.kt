@@ -1,4 +1,4 @@
-package com.processout.sdk.config
+package com.processout.sdk.configuration
 
 import com.processout.sdk.BuildConfig
 import com.processout.sdk.api.ProcessOut

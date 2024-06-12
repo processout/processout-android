@@ -5,9 +5,9 @@ import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.repository.CustomerTokensRepository
 import com.processout.sdk.api.repository.InvoicesRepository
 import com.processout.sdk.api.repository.POCardsRepository
-import com.processout.sdk.config.SetupRule
-import com.processout.sdk.config.TestApplication
-import com.processout.sdk.config.assertFailure
+import com.processout.sdk.configuration.SetupRule
+import com.processout.sdk.configuration.TestApplication
+import com.processout.sdk.configuration.assertFailure
 import com.processout.sdk.core.onSuccess
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
