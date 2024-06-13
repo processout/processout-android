@@ -3,6 +3,25 @@
 
     <string name="po_locale_language_code">fr</string>
 
+    <!-- Native Alternative Payment Method -->
+    <string name="po_native_apm_title_format">Payer avec %s</string>
+    <string name="po_native_apm_submit_button_text_format">Payer %s</string>
+    <string name="po_native_apm_submit_button_text">Payer</string>
+    <string name="po_native_apm_cancel_button_text">Annuler</string>
+    <string name="po_native_apm_email_placeholder">nom@exemple.fr</string>
+    <string name="po_native_apm_phone_placeholder">Entrez votre numéro de téléphone</string>
+    <string name="po_native_apm_success_message">Succès !\nPaiement confirmé.</string>
+    <string name="po_native_apm_error_required_parameter">Paramètre requis.</string>
+    <string name="po_native_apm_error_invalid_number">Numéro invalide.</string>
+    <string name="po_native_apm_error_invalid_text">Valeur invalide.</string>
+    <string name="po_native_apm_error_invalid_email">Votre adresse e-mail est invalide.</string>
+    <string name="po_native_apm_error_invalid_phone">Votre numéro de téléphone est invalide.</string>
+    <plurals name="po_native_apm_error_invalid_length">
+        <item quantity="one">Longueur incorrecte, %d caractère est attendu.</item>
+        <item quantity="many">Longueur incorrecte, %d caractères sont attendus.</item>
+        <item quantity="other">Longueur incorrecte, %d caractères sont attendus.</item>
+    </plurals>
+
     <!-- Card Update -->
     <string name="po_card_update_title">Informations de Paiement</string>
     <string name="po_card_update_cvc">CVV</string>
@@ -50,5 +69,10 @@
     <string name="po_address_spec_state">État</string>
     <string name="po_address_spec_suburb">Localité</string>
     <string name="po_address_spec_zip">Code postal</string>
+
+    <!-- Cancel Payment Confirmation -->
+    <string name="po_cancel_payment_confirmation_title">Annuler le paiement ?</string>
+    <string name="po_cancel_payment_confirmation_confirm">Annuler le paiement</string>
+    <string name="po_cancel_payment_confirmation_dismiss">Pas maintenant</string>
 
 </resources>

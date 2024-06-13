@@ -3,17 +3,21 @@
 
     <string name="po_locale_language_code">en</string>
 
+    <!-- Dynamic Checkout -->
+    <string name="po_dynamic_checkout_button_pay">Pay</string>
+    <string name="po_dynamic_checkout_warning_redirect">You will be redirected to finalise this payment.</string>
+    <string name="po_dynamic_checkout_warning_unavailable_method">This payment method is unavailable.</string>
+    <string name="po_dynamic_checkout_error_generic">We were unable to process your payment. Please check your payment details or try another payment method.</string>
+    <string name="po_dynamic_checkout_error_unavailable_method">The requested payment method is not available, please try another payment method.</string>
+
     <!-- Native Alternative Payment Method -->
     <string name="po_native_apm_title_format">Pay with %s</string>
     <string name="po_native_apm_submit_button_text_format">Pay %s</string>
     <string name="po_native_apm_submit_button_text">Pay</string>
     <string name="po_native_apm_cancel_button_text">Cancel</string>
-    <string name="po_native_apm_cancel_confirmation_title">Cancel payment?</string>
-    <string name="po_native_apm_cancel_confirmation_confirm">Cancel payment</string>
-    <string name="po_native_apm_cancel_confirmation_dismiss">Not now</string>
-    <string name="po_native_apm_success_message">Success!\nPayment approved.</string>
     <string name="po_native_apm_email_placeholder">name@example.com</string>
     <string name="po_native_apm_phone_placeholder">Enter phone number</string>
+    <string name="po_native_apm_success_message">Success!\nPayment approved.</string>
     <string name="po_native_apm_error_required_parameter">Parameter is required.</string>
     <string name="po_native_apm_error_invalid_number">Number is not valid.</string>
     <string name="po_native_apm_error_invalid_text">Value is not valid.</string>
@@ -71,5 +75,10 @@
     <string name="po_address_spec_state">State</string>
     <string name="po_address_spec_suburb">Suburb</string>
     <string name="po_address_spec_zip">ZIP</string>
+
+    <!-- Cancel Payment Confirmation -->
+    <string name="po_cancel_payment_confirmation_title">Cancel payment?</string>
+    <string name="po_cancel_payment_confirmation_confirm">Cancel payment</string>
+    <string name="po_cancel_payment_confirmation_dismiss">Not now</string>
 
 </resources>

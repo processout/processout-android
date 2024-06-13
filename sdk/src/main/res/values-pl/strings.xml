@@ -3,17 +3,21 @@
 
     <string name="po_locale_language_code">pl</string>
 
+    <!-- Dynamic Checkout -->
+    <string name="po_dynamic_checkout_button_pay">Zapłać</string>
+    <string name="po_dynamic_checkout_warning_redirect">Zostaniesz przekierowany, aby sfinalizować tę płatność.</string>
+    <string name="po_dynamic_checkout_warning_unavailable_method">Ta metoda płatności nie jest obsługiwana.</string>
+    <string name="po_dynamic_checkout_error_generic">Nie byliśmy w stanie sfinalizować Twojej płatności. Zweryfikuj swoje dane lub wybierz inną metody płatności.</string>
+    <string name="po_dynamic_checkout_error_unavailable_method">Wybrana metoda płatności nie jest obsługiwana. Proszę wybierz inną metodę.</string>
+
     <!-- Native Alternative Payment Method -->
     <string name="po_native_apm_title_format">Zapłać przy pomocy %s</string>
     <string name="po_native_apm_submit_button_text_format">Zapłać %s</string>
     <string name="po_native_apm_submit_button_text">Zapłać</string>
     <string name="po_native_apm_cancel_button_text">Anuluj</string>
-    <string name="po_native_apm_cancel_confirmation_title">Anulować płatność?</string>
-    <string name="po_native_apm_cancel_confirmation_confirm">Anuluj płatność</string>
-    <string name="po_native_apm_cancel_confirmation_dismiss">Nie teraz</string>
-    <string name="po_native_apm_success_message">Sukces!\nPłatność przyjęta.</string>
     <string name="po_native_apm_email_placeholder">imię@przykład.pl</string>
     <string name="po_native_apm_phone_placeholder">Twój numer telefonu</string>
+    <string name="po_native_apm_success_message">Sukces!\nPłatność przyjęta.</string>
     <string name="po_native_apm_error_required_parameter">Parametr jest wmagany.</string>
     <string name="po_native_apm_error_invalid_number">Niepoprawny numer.</string>
     <string name="po_native_apm_error_invalid_text">Niepoprawna wartość.</string>
@@ -25,6 +29,33 @@
         <item quantity="many">Nieprawidłowa długość. Oczekiwano %d znaków.</item>
         <item quantity="other">Nieprawidłowa długość. Oczekiwano %d znaków.</item>
     </plurals>
+
+    <!-- Card Update -->
+    <string name="po_card_update_title">Szczegóły Płatności</string>
+    <string name="po_card_update_cvc">CVC</string>
+    <string name="po_card_update_button_submit">Zatwierdź</string>
+    <string name="po_card_update_button_cancel">Anuluj</string>
+    <string name="po_card_update_error_cvc">Nieprawidłowy numer CVC.</string>
+    <string name="po_card_update_error_generic">Coś poszło nie tak, spróbuj ponownie.</string>
+
+    <!-- Card Tokenization -->
+    <string name="po_card_tokenization_title">Dodaj nową kartę</string>
+    <string name="po_card_tokenization_button_submit">Zatwierdź</string>
+    <string name="po_card_tokenization_button_cancel">Anuluj</string>
+    <string name="po_card_tokenization_preferred_scheme">Preferowany Schemat</string>
+    <string name="po_card_tokenization_card_details_cardholder_placeholder">Imię i nazwisko na karcie</string>
+    <string name="po_card_tokenization_card_details_cvc_placeholder">CVC</string>
+    <string name="po_card_tokenization_card_details_expiration_placeholder">MM / RR</string>
+    <string name="po_card_tokenization_card_details_number_placeholder">4242 4242 4242 4242</string>
+    <string name="po_card_tokenization_billing_address_title">Adres do Faktury</string>
+    <string name="po_card_tokenization_billing_address_street">Linia adresu %d</string>
+    <string name="po_card_tokenization_error_card">Niepoprawne dane karty.</string>
+    <string name="po_card_tokenization_error_card_expiration">Data ważności karty jest nieprawidłowa.</string>
+    <string name="po_card_tokenization_error_card_number">Nieprawidłowy numer karty.</string>
+    <string name="po_card_tokenization_error_cardholder">Nieprawidłowe imię i nazwisko na karcie.</string>
+    <string name="po_card_tokenization_error_cvc">Nieprawidłowy numer CVC.</string>
+    <string name="po_card_tokenization_error_generic">Coś poszło nie tak, spróbuj ponownie.</string>
+    <string name="po_card_tokenization_error_track_data">Data ważności karty oraz/lub kod CVC są nieprawidłowe.</string>
 
     <!-- Address Specification -->
     <string name="po_address_spec_area">Obszar</string>
@@ -46,5 +77,10 @@
     <string name="po_address_spec_state">Stan</string>
     <string name="po_address_spec_suburb">Przedmieścia</string>
     <string name="po_address_spec_zip">Kod p</string>
+
+    <!-- Cancel Payment Confirmation -->
+    <string name="po_cancel_payment_confirmation_title">Anulować płatność?</string>
+    <string name="po_cancel_payment_confirmation_confirm">Anuluj płatność</string>
+    <string name="po_cancel_payment_confirmation_dismiss">Nie teraz</string>
 
 </resources>
