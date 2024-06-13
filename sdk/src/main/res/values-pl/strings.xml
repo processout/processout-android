@@ -23,6 +23,14 @@
         <item quantity="other">Nieprawidłowa długość. Oczekiwano %d znaków.</item>
     </plurals>
 
+    <!-- Card Update -->
+    <string name="po_card_update_title">Szczegóły Płatności</string>
+    <string name="po_card_update_cvc">CVC</string>
+    <string name="po_card_update_button_submit">Zatwierdź</string>
+    <string name="po_card_update_button_cancel">Anuluj</string>
+    <string name="po_card_update_error_cvc">Nieprawidłowy numer CVC.</string>
+    <string name="po_card_update_error_generic">Coś poszło nie tak, spróbuj ponownie.</string>
+
     <!-- Address Specification -->
     <string name="po_address_spec_area">Obszar</string>
     <string name="po_address_spec_city">Miejscowość</string>
