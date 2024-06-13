@@ -46,7 +46,7 @@ ext {
     androidxSwipeRefreshLayoutVersion = '1.1.0'
     androidxBrowserVersion = '1.8.0'
 
-    androidxComposeBOMVersion = '2024.05.00'
+    androidxComposeBOMVersion = '2024.06.00'
 
     materialVersion = '1.12.0'
 
