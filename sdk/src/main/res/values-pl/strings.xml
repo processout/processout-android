@@ -8,9 +8,9 @@
     <string name="po_native_apm_submit_button_text_format">Zapłać %s</string>
     <string name="po_native_apm_submit_button_text">Zapłać</string>
     <string name="po_native_apm_cancel_button_text">Anuluj</string>
-    <string name="po_native_apm_success_message">Sukces!\nPłatność przyjęta.</string>
     <string name="po_native_apm_email_placeholder">imię@przykład.pl</string>
     <string name="po_native_apm_phone_placeholder">Twój numer telefonu</string>
+    <string name="po_native_apm_success_message">Sukces!\nPłatność przyjęta.</string>
     <string name="po_native_apm_error_required_parameter">Parametr jest wmagany.</string>
     <string name="po_native_apm_error_invalid_number">Niepoprawny numer.</string>
     <string name="po_native_apm_error_invalid_text">Niepoprawna wartość.</string>

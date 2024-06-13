@@ -8,9 +8,9 @@
     <string name="po_native_apm_submit_button_text_format">الدفع %s</string>
     <string name="po_native_apm_submit_button_text">الدفع</string>
     <string name="po_native_apm_cancel_button_text">إلغاء</string>
-    <string name="po_native_apm_success_message">نجاح! تمت الموافقة على الدفع</string>
     <string name="po_native_apm_email_placeholder">name@example.com</string>
     <string name="po_native_apm_phone_placeholder">أدخل رقم الهاتف</string>
+    <string name="po_native_apm_success_message">نجاح! تمت الموافقة على الدفع</string>
     <string name="po_native_apm_error_required_parameter">البيانات مطلوبة</string>
     <string name="po_native_apm_error_invalid_number">الرقم غير صحيح</string>
     <string name="po_native_apm_error_invalid_text">القيمة غير صحيحة</string>
