@@ -31,6 +31,7 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
 ) {
 
     private val cardsRepository = ProcessOut.instance.cards
+
     private lateinit var cardUpdateLauncher: POCardUpdateLauncher
     private lateinit var googlePayLauncher: POGooglePayCardTokenizationLauncher
 

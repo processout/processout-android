@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name" translatable="false">ProcessOut SDK Example</string>
 
+    <string name="dynamic_checkout" translatable="false">Dynamic Checkout (WIP)</string>
     <string name="native_apm" translatable="false">Native Alternative Payment</string>
     <string name="launch_native_apm" translatable="false">Launch Native APM</string>
     <string name="launch_native_apm_compose" translatable="false">Launch Native APM (Compose)</string>
