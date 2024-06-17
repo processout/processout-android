@@ -54,6 +54,11 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
         super.onViewCreated(view, savedInstanceState)
         val navController = findNavController()
         with(binding) {
+            dynamicCheckoutButton.setOnClickListener {
+                navController.navigate(
+                    FeaturesFragmentDirections.actionFeaturesFragmentToDynamicCheckoutFragment()
+                )
+            }
             nativeApmButton.setOnClickListener {
                 navController.navigate(
                     FeaturesFragmentDirections.actionFeaturesFragmentToAlternativePaymentMethodsFragment(
