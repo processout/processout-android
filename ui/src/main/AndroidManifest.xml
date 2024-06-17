@@ -3,6 +3,12 @@
 
     <application>
         <activity
+            android:name=".checkout.DynamicCheckoutActivity"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.Material3.DayNight.NoActionBar" />
+
+        <activity
             android:name=".napm.NativeAlternativePaymentActivity"
             android:exported="false"
             android:launchMode="singleTop"
