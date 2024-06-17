@@ -1,11 +1,14 @@
 package com.processout.sdk.di
 
+import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
+import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.*
 import com.processout.sdk.api.network.*
 import com.processout.sdk.api.network.interceptor.BasicAuthInterceptor
 import com.processout.sdk.api.network.interceptor.UserAgentInterceptor
 import com.processout.sdk.api.preferences.Preferences
 import com.processout.sdk.core.logger.POLogger
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -48,6 +51,13 @@ internal class DefaultNetworkGraph(
     override val moshi: Moshi by lazy {
         Moshi.Builder()
             .add(Date::class.java, Rfc3339DateJsonAdapter())
+            .add(
+                PolymorphicJsonAdapterFactory.of(PODynamicCheckoutPaymentMethod::class.java, "type")
+                    .withSubtype(Card::class.java, "card")
+                    .withSubtype(GooglePay::class.java, "googlepay")
+                    .withSubtype(AlternativePayment::class.java, "apm")
+                    .withDefaultValue(Unknown)
+            )
             .build()
     }
 

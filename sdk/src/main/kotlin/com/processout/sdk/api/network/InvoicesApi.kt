@@ -37,8 +37,13 @@ internal interface InvoicesApi {
         @Body request: NativeAlternativePaymentCaptureRequest
     ): Response<CaptureResponse>
 
+    @GET("/invoices/{id}")
+    suspend fun invoice(
+        @Path("id") invoiceId: String
+    ): Response<InvoiceResponse>
+
     @POST("/invoices")
     suspend fun createInvoice(
         @Body request: POCreateInvoiceRequest
-    ): Response<CreateInvoiceResponse>
+    ): Response<InvoiceResponse>
 }
