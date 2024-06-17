@@ -10,7 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.checkout.threeds.Environment
 import com.processout.example.R
-import com.processout.example.databinding.FragmentCardPaymentBinding
+import com.processout.example.databinding.FragmentAuthorizeInvoiceBinding
 import com.processout.example.service.threeds.Checkout3DSServiceDelegate
 import com.processout.example.service.threeds.POAdyen3DSService
 import com.processout.example.shared.Constants
@@ -32,8 +32,8 @@ import com.processout.sdk.ui.threeds.PO3DSRedirectCustomTabLauncher
 import com.processout.sdk.ui.threeds.POTest3DSService
 import kotlinx.coroutines.launch
 
-class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
-    FragmentCardPaymentBinding::inflate
+class CardPaymentFragment : BaseFragment<FragmentAuthorizeInvoiceBinding>(
+    FragmentAuthorizeInvoiceBinding::inflate
 ) {
 
     private val viewModel: CardPaymentViewModel by viewModels {
