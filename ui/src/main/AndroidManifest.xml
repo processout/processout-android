@@ -6,7 +6,7 @@
             android:name=".checkout.DynamicCheckoutActivity"
             android:exported="false"
             android:launchMode="singleTop"
-            android:theme="@style/Theme.ProcessOut.Transparent" />
+            android:theme="@style/Theme.ProcessOut.Compose" />
 
         <activity
             android:name=".napm.NativeAlternativePaymentActivity"
