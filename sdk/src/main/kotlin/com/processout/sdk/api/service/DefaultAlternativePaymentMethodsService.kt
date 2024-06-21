@@ -17,21 +17,27 @@ internal class DefaultAlternativePaymentMethodsService(
 
     override fun alternativePaymentMethodUri(request: POAlternativePaymentMethodRequest): ProcessOutResult<Uri> {
         val projectId = contextGraph.configuration.projectId
-        val pathComponents = if (request.customerId != null && request.tokenId != null) {
+        val customerId = request.customerId
+        val tokenId = request.tokenId
+        val pathComponents = if (customerId != null && tokenId != null) {
             arrayListOf(
                 projectId,
-                request.customerId,
-                request.tokenId,
+                customerId,
+                tokenId,
                 "redirect",
                 request.gatewayConfigurationId
             )
         } else {
-            arrayListOf(
+            val arrayList = arrayListOf(
                 projectId,
                 request.invoiceId,
                 "redirect",
                 request.gatewayConfigurationId
             )
+            if (tokenId != null) {
+                arrayList.addAll(arrayListOf("tokenized", tokenId))
+            }
+            arrayList
         }
         val uriBuilder = Uri.parse(baseUrl).buildUpon()
         pathComponents.forEach { uriBuilder.appendPath(it) }

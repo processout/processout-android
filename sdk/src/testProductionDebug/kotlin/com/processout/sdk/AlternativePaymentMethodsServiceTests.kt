@@ -52,6 +52,25 @@ class AlternativePaymentMethodsServiceTests {
     }
 
     @Test
+    fun alternativePaymentMethodURLWithToken() {
+        val request = POAlternativePaymentMethodRequest(
+            invoiceId = "iv_test",
+            gatewayConfigurationId = "gway_conf_test",
+            tokenId = "tok_test"
+        )
+
+        val expectedUrl = "${ApiConstants.CHECKOUT_URL}/${BuildConfig.PROJECT_ID}/" +
+                "iv_test/redirect/gway_conf_test/tokenized/tok_test"
+
+        apmService.alternativePaymentMethodUri(request).let { result ->
+            result.assertFailure()
+            result.onSuccess { response ->
+                assert(response.toString() == expectedUrl)
+            }
+        }
+    }
+
+    @Test
     fun alternativePaymentMethodURLWithCustomerToken() {
         val request = POAlternativePaymentMethodRequest(
             invoiceId = "iv_test",
