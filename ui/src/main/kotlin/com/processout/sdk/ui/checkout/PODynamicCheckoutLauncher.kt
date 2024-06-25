@@ -1,17 +1,21 @@
 package com.processout.sdk.ui.checkout
 
+import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
+import androidx.core.app.ActivityOptionsCompat
 import androidx.fragment.app.Fragment
 import com.processout.sdk.core.POUnit
 import com.processout.sdk.core.ProcessOutActivityResult
+import com.processout.sdk.ui.R
 
 /**
  * Launcher that starts [DynamicCheckoutActivity] and provides the result.
  */
-class PODynamicCheckoutLauncher private constructor() {
-
-    private lateinit var launcher: ActivityResultLauncher<PODynamicCheckoutConfiguration>
+class PODynamicCheckoutLauncher private constructor(
+    private val launcher: ActivityResultLauncher<PODynamicCheckoutConfiguration>,
+    private val activityOptions: ActivityOptionsCompat
+) {
 
     companion object {
         /**
@@ -21,12 +25,13 @@ class PODynamicCheckoutLauncher private constructor() {
         fun create(
             from: Fragment,
             callback: (ProcessOutActivityResult<POUnit>) -> Unit
-        ) = PODynamicCheckoutLauncher().apply {
+        ) = PODynamicCheckoutLauncher(
             launcher = from.registerForActivityResult(
                 DynamicCheckoutActivityContract(),
                 callback
-            )
-        }
+            ),
+            activityOptions = createActivityOptions(from.requireContext())
+        )
 
         /**
          * Creates the launcher from Activity.
@@ -35,19 +40,25 @@ class PODynamicCheckoutLauncher private constructor() {
         fun create(
             from: ComponentActivity,
             callback: (ProcessOutActivityResult<POUnit>) -> Unit
-        ) = PODynamicCheckoutLauncher().apply {
+        ) = PODynamicCheckoutLauncher(
             launcher = from.registerForActivityResult(
                 DynamicCheckoutActivityContract(),
                 from.activityResultRegistry,
                 callback
+            ),
+            activityOptions = createActivityOptions(from)
+        )
+
+        private fun createActivityOptions(context: Context) =
+            ActivityOptionsCompat.makeCustomAnimation(
+                context, R.anim.po_slide_in_vertical, 0
             )
-        }
     }
 
     /**
      * Launches the activity.
      */
     fun launch(configuration: PODynamicCheckoutConfiguration) {
-        launcher.launch(configuration)
+        launcher.launch(configuration, activityOptions)
     }
 }
