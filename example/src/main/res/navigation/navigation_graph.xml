@@ -13,24 +13,24 @@
         <action
             android:id="@+id/action_featuresFragment_to_dynamicCheckoutFragment"
             app:destination="@id/dynamicCheckoutFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
+            app:enterAnim="@anim/po_slide_in_right"
+            app:exitAnim="@anim/po_slide_out_left"
+            app:popEnterAnim="@anim/po_slide_in_left"
+            app:popExitAnim="@anim/po_slide_out_right" />
         <action
             android:id="@+id/action_featuresFragment_to_alternativePaymentMethodsFragment"
             app:destination="@id/alternativePaymentMethodsFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
+            app:enterAnim="@anim/po_slide_in_right"
+            app:exitAnim="@anim/po_slide_out_left"
+            app:popEnterAnim="@anim/po_slide_in_left"
+            app:popExitAnim="@anim/po_slide_out_right" />
         <action
             android:id="@+id/action_featuresFragment_to_cardPaymentFragment"
             app:destination="@id/cardPaymentFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
+            app:enterAnim="@anim/po_slide_in_right"
+            app:exitAnim="@anim/po_slide_out_left"
+            app:popEnterAnim="@anim/po_slide_in_left"
+            app:popExitAnim="@anim/po_slide_out_right" />
     </fragment>
 
     <fragment
@@ -47,10 +47,10 @@
         <action
             android:id="@+id/action_alternativePaymentMethodsFragment_to_nativeApmFragment"
             app:destination="@id/nativeApmFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
+            app:enterAnim="@anim/po_slide_in_right"
+            app:exitAnim="@anim/po_slide_out_left"
+            app:popEnterAnim="@anim/po_slide_in_left"
+            app:popExitAnim="@anim/po_slide_out_right" />
         <argument
             android:name="title"
             app:argType="string" />
