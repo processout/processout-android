@@ -9,7 +9,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.processout.sdk.ui.R
 import com.processout.sdk.ui.base.BaseTransparentPortraitActivity
-import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 
 internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
@@ -22,7 +21,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         )
         setContent {
             ProcessOutTheme {
-                POText(text = "DynamicCheckoutActivity")
+                DynamicCheckoutScreen()
             }
         }
     }
