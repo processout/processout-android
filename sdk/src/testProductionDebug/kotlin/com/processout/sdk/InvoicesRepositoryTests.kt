@@ -153,4 +153,16 @@ class InvoicesRepositoryTests {
             }
         }
     }
+
+    @Test
+    fun invoice(): Unit = runBlocking {
+        invoices.createInvoice(
+            POCreateInvoiceRequest("sandbox", "5", "USD")
+        ).let { invoiceResult ->
+            invoiceResult.assertFailure()
+            invoiceResult.onSuccess { invoice ->
+                invoices.invoice(invoice.id).assertFailure()
+            }
+        }
+    }
 }
