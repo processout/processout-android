@@ -77,7 +77,11 @@ class POWebViewAuthorizationActivity : AppCompatActivity() {
     override fun finish() {
         super.finish()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            overrideActivityTransition(Activity.OVERRIDE_TRANSITION_CLOSE, R.anim.po_slide_in_left, R.anim.po_slide_out_right)
+            overrideActivityTransition(
+                Activity.OVERRIDE_TRANSITION_CLOSE,
+                R.anim.po_slide_in_left,
+                R.anim.po_slide_out_right
+            )
         } else {
             @Suppress("DEPRECATION")
             overridePendingTransition(R.anim.po_slide_in_left, R.anim.po_slide_out_right)
