@@ -179,7 +179,7 @@ object POButton {
                 normal = StateStyle(
                     text = POText.Style(
                         color = colors.action.primaryDefault,
-                        textStyle = typography.medium.body
+                        textStyle = typography.body1
                     ),
                     shape = shapes.roundedCornersSmall,
                     border = POBorderStroke(width = 0.dp, color = Color.Transparent),
@@ -190,7 +190,7 @@ object POButton {
                 disabled = StateStyle(
                     text = POText.Style(
                         color = colors.text.disabled,
-                        textStyle = typography.medium.body
+                        textStyle = typography.body1
                     ),
                     shape = shapes.roundedCornersSmall,
                     border = POBorderStroke(width = 0.dp, color = Color.Transparent),

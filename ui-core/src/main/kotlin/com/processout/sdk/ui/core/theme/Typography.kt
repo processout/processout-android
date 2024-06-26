@@ -64,8 +64,7 @@ data class POTypography(
         fontSize = 14.sp,
         lineHeight = 18.sp
     ),
-    val fixed: Fixed = Fixed(),
-    val medium: Medium = Medium()
+    val fixed: Fixed = Fixed()
 ) {
     @Immutable
     data class Fixed(
@@ -92,16 +91,6 @@ data class POTypography(
             fontWeight = FontWeight.Medium,
             fontSize = 14.sp,
             lineHeight = 14.sp
-        )
-    )
-
-    @Immutable
-    data class Medium(
-        val body: TextStyle = TextStyle(
-            fontFamily = WorkSans,
-            fontWeight = FontWeight.Medium,
-            fontSize = 16.sp,
-            lineHeight = 24.sp
         )
     )
 }
