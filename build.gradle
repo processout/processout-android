@@ -2,7 +2,7 @@
 
 buildscript {
     ext {
-        androidGradlePluginVersion = '8.4.2'
+        androidGradlePluginVersion = '8.5.0'
         kotlinVersion = '2.0.0'
         kspVersion = '2.0.0-1.0.22'
         dokkaVersion = '1.9.20'
@@ -46,7 +46,7 @@ ext {
     androidxSwipeRefreshLayoutVersion = '1.1.0'
     androidxBrowserVersion = '1.8.0'
 
-    androidxComposeBOMVersion = '2024.05.00'
+    androidxComposeBOMVersion = '2024.06.00'
 
     materialVersion = '1.12.0'
 

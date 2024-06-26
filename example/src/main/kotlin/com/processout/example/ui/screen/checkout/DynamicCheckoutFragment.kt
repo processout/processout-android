@@ -1,4 +1,4 @@
-package com.processout.example.ui.screen.card.payment
+package com.processout.example.ui.screen.checkout
 
 import android.os.Bundle
 import android.view.View
@@ -8,7 +8,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.checkout.threeds.Environment
 import com.processout.example.R
 import com.processout.example.databinding.FragmentAuthorizeInvoiceBinding
 import com.processout.example.service.threeds.Checkout3DSServiceDelegate
@@ -16,38 +15,33 @@ import com.processout.example.service.threeds.POAdyen3DSService
 import com.processout.example.shared.Constants
 import com.processout.example.shared.toMessage
 import com.processout.example.ui.screen.base.BaseFragment
-import com.processout.example.ui.screen.card.payment.CardPaymentUiState.*
-import com.processout.sdk.api.ProcessOut
-import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
-import com.processout.sdk.api.model.response.POCard
+import com.processout.example.ui.screen.checkout.DynamicCheckoutUiState.*
 import com.processout.sdk.api.service.PO3DSService
 import com.processout.sdk.checkout.threeds.POCheckout3DSService
+import com.processout.sdk.core.POUnit
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
-import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
-import com.processout.sdk.ui.card.tokenization.POCardTokenizationLauncher
+import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration
+import com.processout.sdk.ui.checkout.PODynamicCheckoutLauncher
 import com.processout.sdk.ui.shared.view.dialog.POAlertDialog
 import com.processout.sdk.ui.threeds.PO3DSRedirectCustomTabLauncher
-import com.processout.sdk.ui.threeds.POTest3DSService
 import kotlinx.coroutines.launch
 
-class CardPaymentFragment : BaseFragment<FragmentAuthorizeInvoiceBinding>(
+class DynamicCheckoutFragment : BaseFragment<FragmentAuthorizeInvoiceBinding>(
     FragmentAuthorizeInvoiceBinding::inflate
 ) {
 
-    private val viewModel: CardPaymentViewModel by viewModels {
-        CardPaymentViewModel.Factory()
+    private val viewModel: DynamicCheckoutViewModel by viewModels {
+        DynamicCheckoutViewModel.Factory()
     }
 
-    private val invoices = ProcessOut.instance.invoices
-    private val dispatcher = ProcessOut.instance.dispatchers.cardTokenization
-    private lateinit var launcher: POCardTokenizationLauncher
+    private lateinit var launcher: PODynamicCheckoutLauncher
     private lateinit var customTabLauncher: PO3DSRedirectCustomTabLauncher
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        launcher = POCardTokenizationLauncher.create(
+        launcher = PODynamicCheckoutLauncher.create(
             from = this,
             callback = ::handle
         )
@@ -62,72 +56,43 @@ class CardPaymentFragment : BaseFragment<FragmentAuthorizeInvoiceBinding>(
                 viewModel.uiState.collect { handle(it) }
             }
         }
-        viewLifecycleOwner.lifecycleScope.launch {
-            dispatcher.processTokenizedCard.collect { card ->
-                viewModel.onTokenized(card)
-            }
-        }
-        viewLifecycleOwner.lifecycleScope.launch {
-            invoices.authorizeInvoiceResult.collect { result ->
-                dispatcher.complete(result)
-            }
-        }
     }
 
-    private fun handle(result: ProcessOutActivityResult<POCard>) {
-        val uiState = viewModel.uiState.value
-        val invoiceId = if (uiState is Authorizing) uiState.uiModel.invoiceId else null
+    private fun handle(result: ProcessOutActivityResult<POUnit>) {
         viewModel.reset()
-        result.onSuccess { card ->
-            showAlert(getString(R.string.authorize_invoice_success_format, invoiceId, card.id))
+        result.onSuccess {
+            // TODO
         }.onFailure { showAlert(it.toMessage()) }
     }
 
-    private fun handle(uiState: CardPaymentUiState) {
+    private fun handle(uiState: DynamicCheckoutUiState) {
         handleControls(uiState)
         when (uiState) {
-            is Submitted -> launchCardTokenization()
-            is Tokenized -> with(uiState.uiModel) {
-                authorizeInvoice(invoiceId, cardId)
-            }
+            is Submitted -> launchDynamicCheckout(uiState.uiModel.invoiceId)
             is Failure -> showAlert(uiState.failure.toMessage())
             else -> {}
         }
     }
 
-    private fun launchCardTokenization() {
-        viewModel.onTokenizing()
-        launcher.launch(POCardTokenizationConfiguration())
-    }
-
-    private fun authorizeInvoice(invoiceId: String, cardId: String) {
-        invoices.authorizeInvoice(
-            request = POInvoiceAuthorizationRequest(
-                invoiceId = invoiceId,
-                source = cardId
-            ),
-            threeDSService = create3DSService()
+    private fun launchDynamicCheckout(invoiceId: String) {
+        launcher.launch(
+            PODynamicCheckoutConfiguration(
+                invoiceId = invoiceId
+            )
         )
-        viewModel.onAuthorizing()
+        viewModel.onLaunched()
     }
 
-    private fun create3DSService(): PO3DSService {
+    private fun create3DSService(): PO3DSService? {
         val selected3DSService = with(binding.threedsServiceRadioGroup) {
             findViewById<RadioButton>(checkedRadioButtonId).text.toString()
         }
         return when (selected3DSService) {
             getString(R.string.threeds_service_checkout) -> createCheckout3DSService()
             getString(R.string.threeds_service_adyen) -> createAdyen3DSService()
-            else -> createTest3DSService()
+            else -> null
         }
     }
-
-    private fun createTest3DSService(): PO3DSService =
-        POTest3DSService(
-            activity = requireActivity(),
-            customTabLauncher = customTabLauncher,
-            returnUrl = Constants.RETURN_URL
-        )
 
     private fun createCheckout3DSService(): PO3DSService =
         POCheckout3DSService.Builder(
@@ -137,9 +102,7 @@ class CardPaymentFragment : BaseFragment<FragmentAuthorizeInvoiceBinding>(
                 customTabLauncher = customTabLauncher,
                 returnUrl = Constants.RETURN_URL
             )
-        )   // Optional parameter, by default Environment.PRODUCTION
-            .with(environment = Environment.PRODUCTION)
-            .build()
+        ).build()
 
     private fun createAdyen3DSService(): PO3DSService =
         POAdyen3DSService(
@@ -170,7 +133,7 @@ class CardPaymentFragment : BaseFragment<FragmentAuthorizeInvoiceBinding>(
         }
     }
 
-    private fun handleControls(uiState: CardPaymentUiState) {
+    private fun handleControls(uiState: DynamicCheckoutUiState) {
         when (uiState) {
             Submitting -> enableControls(false)
             else -> enableControls(true)
@@ -190,7 +153,7 @@ class CardPaymentFragment : BaseFragment<FragmentAuthorizeInvoiceBinding>(
     private fun showAlert(message: String) {
         POAlertDialog(
             context = requireContext(),
-            title = getString(R.string.card_payment),
+            title = getString(R.string.dynamic_checkout),
             message = message,
             confirmActionText = getString(R.string.ok),
             dismissActionText = null

@@ -149,6 +149,18 @@ internal class DefaultInvoicesService(
         repository.captureNativeAlternativePayment(invoiceId, gatewayConfigurationId, callback)
     }
 
+    override suspend fun invoice(
+        invoiceId: String
+    ): ProcessOutResult<POInvoice> =
+        repository.invoice(invoiceId)
+
+    override fun invoice(
+        invoiceId: String,
+        callback: ProcessOutCallback<POInvoice>
+    ) {
+        repository.invoice(invoiceId, callback)
+    }
+
     override suspend fun createInvoice(
         request: POCreateInvoiceRequest
     ): ProcessOutResult<POInvoice> =

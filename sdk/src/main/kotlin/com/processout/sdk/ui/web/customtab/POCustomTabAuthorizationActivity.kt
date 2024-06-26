@@ -103,8 +103,8 @@ class POCustomTabAuthorizationActivity : AppCompatActivity() {
 
     private fun launchCustomTab(uri: Uri) {
         CustomTabsIntent.Builder()
-            .setStartAnimations(this, R.anim.slide_in_right, R.anim.slide_out_left)
-            .setExitAnimations(this, R.anim.slide_in_left, R.anim.slide_out_right)
+            .setStartAnimations(this, R.anim.po_slide_in_right, R.anim.po_slide_out_left)
+            .setExitAnimations(this, R.anim.po_slide_in_left, R.anim.po_slide_out_right)
             .setShareState(CustomTabsIntent.SHARE_STATE_OFF)
             .build()
             .also {

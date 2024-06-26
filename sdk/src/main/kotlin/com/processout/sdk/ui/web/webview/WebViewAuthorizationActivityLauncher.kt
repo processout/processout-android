@@ -49,7 +49,7 @@ internal class WebViewAuthorizationActivityLauncher private constructor(
 
         private fun createActivityOptions(context: Context): ActivityOptionsCompat =
             ActivityOptionsCompat.makeCustomAnimation(
-                context, R.anim.slide_in_right, R.anim.slide_out_left
+                context, R.anim.po_slide_in_right, R.anim.po_slide_out_left
             )
     }
 

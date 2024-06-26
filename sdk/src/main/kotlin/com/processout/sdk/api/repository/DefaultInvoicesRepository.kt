@@ -72,6 +72,16 @@ internal class DefaultInvoicesRepository(
         )
     }
 
+    override suspend fun invoice(invoiceId: String) =
+        apiCall { api.invoice(invoiceId) }.map { it.invoice }
+
+    override fun invoice(
+        invoiceId: String,
+        callback: ProcessOutCallback<POInvoice>
+    ) = apiCallScoped(callback, InvoiceResponse::toModel) {
+        api.invoice(invoiceId)
+    }
+
     override suspend fun createInvoice(request: POCreateInvoiceRequest) =
         apiCall { api.createInvoice(request) }.map { it.invoice }
 
@@ -105,3 +115,5 @@ private fun NativeAlternativePaymentMethodResponse.toModel() = nativeApm
 private fun NativeAlternativePaymentMethodTransactionDetailsResponse.toModel() = nativeApm
 
 private fun CaptureResponse.toModel() = nativeApm
+
+private fun InvoiceResponse.toModel() = invoice

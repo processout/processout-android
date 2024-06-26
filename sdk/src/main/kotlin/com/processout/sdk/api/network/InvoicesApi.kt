@@ -1,6 +1,9 @@
 package com.processout.sdk.api.network
 
-import com.processout.sdk.api.model.request.*
+import com.processout.sdk.api.model.request.InvoiceAuthorizationRequestWithDeviceData
+import com.processout.sdk.api.model.request.NativeAPMRequestBody
+import com.processout.sdk.api.model.request.NativeAlternativePaymentCaptureRequest
+import com.processout.sdk.api.model.request.POCreateInvoiceRequest
 import com.processout.sdk.api.model.response.*
 import retrofit2.Response
 import retrofit2.http.Body
@@ -34,6 +37,13 @@ internal interface InvoicesApi {
         @Body request: NativeAlternativePaymentCaptureRequest
     ): Response<CaptureResponse>
 
+    @GET("/invoices/{id}")
+    suspend fun invoice(
+        @Path("id") invoiceId: String
+    ): Response<InvoiceResponse>
+
     @POST("/invoices")
-    suspend fun createInvoice(@Body request: POCreateInvoiceRequest): Response<InvoiceResponse>
+    suspend fun createInvoice(
+        @Body request: POCreateInvoiceRequest
+    ): Response<InvoiceResponse>
 }

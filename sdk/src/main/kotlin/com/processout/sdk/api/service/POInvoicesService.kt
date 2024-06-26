@@ -91,6 +91,19 @@ interface POInvoicesService {
         callback: ProcessOutCallback<PONativeAlternativePaymentMethodCapture>
     )
 
+    /**
+     * Fetch invoice details.
+     */
+    suspend fun invoice(invoiceId: String): ProcessOutResult<POInvoice>
+
+    /**
+     * Fetch invoice details.
+     */
+    fun invoice(
+        invoiceId: String,
+        callback: ProcessOutCallback<POInvoice>
+    )
+
     /** @suppress */
     @ProcessOutInternalApi
     suspend fun createInvoice(request: POCreateInvoiceRequest): ProcessOutResult<POInvoice>

@@ -9,5 +9,5 @@ import com.squareup.moshi.JsonClass
  */
 @JsonClass(generateAdapter = true)
 data class POCardUpdateCVCRequest(
-    val cvc: String,
+    val cvc: String
 )
