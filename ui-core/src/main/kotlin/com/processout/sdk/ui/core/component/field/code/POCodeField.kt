@@ -217,12 +217,12 @@ object POCodeField {
             copy(
                 normal = normal.copy(
                     text = normal.text.copy(
-                        textStyle = ProcessOutTheme.typography.medium.title
+                        textStyle = ProcessOutTheme.typography.title
                     )
                 ),
                 error = error.copy(
                     text = error.text.copy(
-                        textStyle = ProcessOutTheme.typography.medium.title
+                        textStyle = ProcessOutTheme.typography.title
                     )
                 )
             )

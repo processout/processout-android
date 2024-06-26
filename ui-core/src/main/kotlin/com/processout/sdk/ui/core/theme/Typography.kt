@@ -97,12 +97,6 @@ data class POTypography(
 
     @Immutable
     data class Medium(
-        val title: TextStyle = TextStyle(
-            fontFamily = WorkSans,
-            fontWeight = FontWeight.Medium,
-            fontSize = 20.sp,
-            lineHeight = 28.sp
-        ),
         val body: TextStyle = TextStyle(
             fontFamily = WorkSans,
             fontWeight = FontWeight.Medium,

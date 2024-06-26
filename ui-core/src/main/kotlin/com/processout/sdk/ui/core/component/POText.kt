@@ -59,7 +59,7 @@ object POText {
     val title: Style
         @Composable get() = Style(
             color = ProcessOutTheme.colors.text.primary,
-            textStyle = ProcessOutTheme.typography.medium.title
+            textStyle = ProcessOutTheme.typography.title
         )
 
     val body: Style
