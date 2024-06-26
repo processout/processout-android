@@ -18,10 +18,9 @@ data class POColors(
     @Immutable
     data class Text(
         val primary: Color,
-        val secondary: Color,
+        val inverse: Color,
         val muted: Color,
         val disabled: Color,
-        val inverse: Color,
         val success: Color,
         val error: Color
     )

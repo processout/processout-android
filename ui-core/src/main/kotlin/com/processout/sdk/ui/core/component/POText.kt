@@ -70,7 +70,7 @@ object POText {
 
     val label1: Style
         @Composable get() = Style(
-            color = ProcessOutTheme.colors.text.secondary,
+            color = ProcessOutTheme.colors.text.primary,
             textStyle = ProcessOutTheme.typography.label1
         )
 
