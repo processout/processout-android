@@ -24,7 +24,6 @@ data class POColors(
         val disabled: Color,
         val onColor: Color,
         val success: Color,
-        val warning: Color,
         val error: Color
     )
 
@@ -42,9 +41,7 @@ data class POColors(
         val background: Color,
         val level1: Color,
         val neutral: Color,
-        val success: Color,
-        val warning: Color,
-        val error: Color
+        val success: Color
     )
 
     @Immutable
