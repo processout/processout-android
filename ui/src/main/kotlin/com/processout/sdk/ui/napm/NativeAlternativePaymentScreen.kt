@@ -644,7 +644,7 @@ internal object NativeAlternativePaymentScreen {
                 successImageResId = custom?.successImageResId ?: R.drawable.po_success_image,
                 progressIndicatorColor = custom?.progressIndicatorColorResId?.let {
                     colorResource(id = it)
-                } ?: colors.action.primaryDefault,
+                } ?: colors.button.primaryBackgroundDefault,
                 dividerColor = custom?.dividerColorResId?.let {
                     colorResource(id = it)
                 } ?: colors.border.subtle,

@@ -107,7 +107,7 @@ object PORadioGroup {
                     )
                 ),
                 selected = StateStyle(
-                    buttonColor = colors.action.primaryDefault,
+                    buttonColor = colors.button.primaryBackgroundDefault,
                     text = POText.Style(
                         color = colors.text.primary,
                         textStyle = typography.label2

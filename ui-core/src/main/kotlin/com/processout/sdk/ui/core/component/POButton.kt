@@ -119,7 +119,7 @@ object POButton {
                     ),
                     shape = shapes.roundedCornersSmall,
                     border = POBorderStroke(width = 0.dp, color = Color.Transparent),
-                    backgroundColor = colors.action.primaryDefault,
+                    backgroundColor = colors.button.primaryBackgroundDefault,
                     elevation = 2.dp
                 ),
                 disabled = StateStyle(
@@ -129,13 +129,13 @@ object POButton {
                     ),
                     shape = shapes.roundedCornersSmall,
                     border = POBorderStroke(width = 0.dp, color = Color.Transparent),
-                    backgroundColor = colors.action.primaryDisabled,
+                    backgroundColor = colors.button.primaryBackgroundDisabled,
                     elevation = 0.dp
                 ),
                 highlighted = HighlightedStyle(
                     textColor = colors.text.onColor,
                     borderColor = Color.Transparent,
-                    backgroundColor = colors.action.primaryPressed
+                    backgroundColor = colors.button.primaryBackgroundPressed
                 ),
                 progressIndicatorColor = colors.text.onColor
             )
@@ -151,7 +151,7 @@ object POButton {
                     ),
                     shape = shapes.roundedCornersSmall,
                     border = POBorderStroke(width = 1.dp, color = colors.border.default),
-                    backgroundColor = colors.action.secondaryDefault,
+                    backgroundColor = colors.button.secondaryBackgroundDefault,
                     elevation = 0.dp
                 ),
                 disabled = StateStyle(
@@ -161,13 +161,13 @@ object POButton {
                     ),
                     shape = shapes.roundedCornersSmall,
                     border = POBorderStroke(width = 1.dp, color = colors.border.disabled),
-                    backgroundColor = colors.action.secondaryDefault,
+                    backgroundColor = colors.button.secondaryBackgroundDefault,
                     elevation = 0.dp
                 ),
                 highlighted = HighlightedStyle(
                     textColor = colors.text.secondary,
                     borderColor = colors.border.default,
-                    backgroundColor = colors.action.secondaryPressed
+                    backgroundColor = colors.button.secondaryBackgroundPressed
                 ),
                 progressIndicatorColor = colors.text.secondary
             )
@@ -178,7 +178,7 @@ object POButton {
             Style(
                 normal = StateStyle(
                     text = POText.Style(
-                        color = colors.action.primaryDefault,
+                        color = colors.button.primaryBackgroundDefault,
                         textStyle = typography.body1
                     ),
                     shape = shapes.roundedCornersSmall,
@@ -199,11 +199,11 @@ object POButton {
                     paddingHorizontal = spacing.medium
                 ),
                 highlighted = HighlightedStyle(
-                    textColor = colors.action.primaryPressed,
+                    textColor = colors.button.primaryBackgroundPressed,
                     borderColor = Color.Transparent,
-                    backgroundColor = colors.action.secondaryPressed
+                    backgroundColor = colors.button.secondaryBackgroundPressed
                 ),
-                progressIndicatorColor = colors.action.primaryDefault
+                progressIndicatorColor = colors.button.primaryBackgroundDefault
             )
         }
 

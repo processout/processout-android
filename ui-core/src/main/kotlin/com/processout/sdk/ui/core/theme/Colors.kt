@@ -11,7 +11,7 @@ import com.processout.sdk.ui.core.theme.POColors2.*
 @Immutable
 data class POColors(
     val text: Text,
-    val action: Action,
+    val button: Button,
     val surface: Surface,
     val border: Border
 ) {
@@ -28,12 +28,16 @@ data class POColors(
     )
 
     @Immutable
-    data class Action(
-        val primaryDefault: Color,
-        val primaryPressed: Color,
-        val primaryDisabled: Color,
-        val secondaryDefault: Color,
-        val secondaryPressed: Color
+    data class Button(
+        val primaryBackgroundDefault: Color,
+        val primaryBackgroundPressed: Color,
+        val primaryBackgroundDisabled: Color,
+        val secondaryBackgroundDefault: Color,
+        val secondaryBackgroundPressed: Color,
+        val secondaryBackgroundDisabled: Color,
+        val secondaryBorderDefault: Color,
+        val secondaryBorderPressed: Color,
+        val secondaryBorderDisabled: Color
     )
 
     @Immutable
