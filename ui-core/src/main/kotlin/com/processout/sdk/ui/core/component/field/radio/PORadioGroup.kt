@@ -103,21 +103,21 @@ object PORadioGroup {
                     buttonColor = colors.border.default,
                     text = POText.Style(
                         color = colors.text.primary,
-                        textStyle = typography.fixed.label
+                        textStyle = typography.label2
                     )
                 ),
                 selected = StateStyle(
                     buttonColor = colors.action.primaryDefault,
                     text = POText.Style(
                         color = colors.text.primary,
-                        textStyle = typography.fixed.label
+                        textStyle = typography.label2
                     )
                 ),
                 error = StateStyle(
                     buttonColor = colors.text.error,
                     text = POText.Style(
                         color = colors.text.primary,
-                        textStyle = typography.fixed.label
+                        textStyle = typography.label2
                     )
                 )
             )

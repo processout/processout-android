@@ -77,7 +77,7 @@ object POText {
     val errorLabel: Style
         @Composable get() = Style(
             color = ProcessOutTheme.colors.text.error,
-            textStyle = ProcessOutTheme.typography.fixed.label
+            textStyle = ProcessOutTheme.typography.label2
         )
 
     @Composable

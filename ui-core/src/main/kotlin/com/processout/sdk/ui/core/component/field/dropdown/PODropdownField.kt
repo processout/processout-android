@@ -160,7 +160,7 @@ object PODropdownField {
             MenuStyle(
                 text = POText.Style(
                     color = colors.text.primary,
-                    textStyle = typography.fixed.label
+                    textStyle = typography.label2
                 ),
                 backgroundColor = colors.surface.neutral,
                 rippleColor = colors.text.muted,

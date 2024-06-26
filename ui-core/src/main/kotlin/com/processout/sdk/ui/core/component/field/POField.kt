@@ -62,7 +62,7 @@ object POField {
                 normal = StateStyle(
                     text = POText.Style(
                         color = colors.text.primary,
-                        textStyle = typography.fixed.label
+                        textStyle = typography.label2
                     ),
                     placeholderTextColor = colors.text.muted,
                     backgroundColor = colors.surface.background,
@@ -74,7 +74,7 @@ object POField {
                 error = StateStyle(
                     text = POText.Style(
                         color = colors.text.primary,
-                        textStyle = typography.fixed.label
+                        textStyle = typography.label2
                     ),
                     placeholderTextColor = colors.text.muted,
                     backgroundColor = colors.surface.background,
