@@ -4,13 +4,14 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
-import com.processout.sdk.ui.core.theme.POColors2.*
+import com.processout.sdk.ui.core.theme.POColors.*
 
 /** @suppress */
 @ProcessOutInternalApi
 @Immutable
 data class POColors(
     val text: Text,
+    val input: Input,
     val button: Button,
     val surface: Surface,
     val border: Border
@@ -23,6 +24,16 @@ data class POColors(
         val disabled: Color,
         val success: Color,
         val error: Color
+    )
+
+    @Immutable
+    data class Input(
+        val backgroundDefault: Color,
+        val backgroundDisabled: Color,
+        val borderDefault: Color,
+        val borderDisabled: Color,
+        val borderFocused: Color,
+        val borderError: Color
     )
 
     @Immutable
@@ -54,7 +65,7 @@ data class POColors(
     )
 }
 
-internal val LightColorPalette = POColors2(
+internal val LightColorPalette = POColors(
     text = Text(
         primary = Color(0xFF121821),
         inverse = Color(0xFFFAFAFA),
@@ -95,7 +106,7 @@ internal val LightColorPalette = POColors2(
     )
 )
 
-internal val DarkColorPalette = POColors2(
+internal val DarkColorPalette = POColors(
     text = Text(
         primary = Color(0xFFFAFAFA),
         inverse = Color(0xFF121821),
