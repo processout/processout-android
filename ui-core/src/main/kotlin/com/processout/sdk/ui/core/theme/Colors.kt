@@ -22,7 +22,7 @@ data class POColors(
         val tertiary: Color,
         val muted: Color,
         val disabled: Color,
-        val onColor: Color,
+        val inverse: Color,
         val success: Color,
         val error: Color
     )
