@@ -24,7 +24,7 @@ fun POText(
     text: String,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
-    style: TextStyle = ProcessOutTheme.typography.fixed.body,
+    style: TextStyle = ProcessOutTheme.typography.body2,
     fontStyle: FontStyle? = null,
     textAlign: TextAlign? = null,
     onTextLayout: (TextLayoutResult) -> Unit = {},
@@ -65,7 +65,7 @@ object POText {
     val body: Style
         @Composable get() = Style(
             color = ProcessOutTheme.colors.text.primary,
-            textStyle = ProcessOutTheme.typography.fixed.body
+            textStyle = ProcessOutTheme.typography.body2
         )
 
     val label1: Style

@@ -23,7 +23,7 @@ fun ProcessOutTheme(
         LocalPODimensions provides ProcessOutTheme.dimensions
     ) {
         ProvideTextStyle(
-            value = ProcessOutTheme.typography.fixed.body,
+            value = ProcessOutTheme.typography.body2,
             content = content
         )
     }

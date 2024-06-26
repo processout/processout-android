@@ -639,7 +639,7 @@ internal object NativeAlternativePaymentScreen {
                     POText.custom(style = it)
                 } ?: POText.Style(
                     color = colors.text.success,
-                    textStyle = typography.fixed.body
+                    textStyle = typography.body2
                 ),
                 successImageResId = custom?.successImageResId ?: R.drawable.po_success_image,
                 progressIndicatorColor = custom?.progressIndicatorColorResId?.let {

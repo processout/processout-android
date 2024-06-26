@@ -63,19 +63,8 @@ data class POTypography(
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
         lineHeight = 18.sp
-    ),
-    val fixed: Fixed = Fixed()
-) {
-    @Immutable
-    data class Fixed(
-        val body: TextStyle = TextStyle(
-            fontFamily = WorkSans,
-            fontWeight = FontWeight.Normal,
-            fontSize = 16.sp,
-            lineHeight = 24.sp
-        )
     )
-}
+)
 
 internal val LocalPOTypography = staticCompositionLocalOf { POTypography() }
 
