@@ -19,7 +19,6 @@ data class POColors(
     data class Text(
         val primary: Color,
         val secondary: Color,
-        val tertiary: Color,
         val muted: Color,
         val disabled: Color,
         val inverse: Color,

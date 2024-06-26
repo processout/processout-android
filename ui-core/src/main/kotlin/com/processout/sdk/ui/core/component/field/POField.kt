@@ -67,7 +67,7 @@ object POField {
                     placeholderTextColor = colors.text.muted,
                     backgroundColor = colors.surface.default,
                     controlsTintColor = colors.text.primary,
-                    dropdownRippleColor = colors.text.tertiary,
+                    dropdownRippleColor = colors.text.muted,
                     shape = shapes.roundedCornersSmall,
                     border = POBorderStroke(width = 1.dp, color = colors.border.default)
                 ),
@@ -79,7 +79,7 @@ object POField {
                     placeholderTextColor = colors.text.muted,
                     backgroundColor = colors.surface.default,
                     controlsTintColor = colors.text.error,
-                    dropdownRippleColor = colors.text.tertiary,
+                    dropdownRippleColor = colors.text.muted,
                     shape = shapes.roundedCornersSmall,
                     border = POBorderStroke(width = 1.dp, color = colors.text.error)
                 )
@@ -99,7 +99,7 @@ object POField {
         backgroundColor = colorResource(id = backgroundColorResId),
         controlsTintColor = colorResource(id = controlsTintColorResId),
         dropdownRippleColor = dropdownRippleColorResId?.let { colorResource(id = it) }
-            ?: ProcessOutTheme.colors.text.tertiary,
+            ?: ProcessOutTheme.colors.text.muted,
         shape = RoundedCornerShape(size = border.radiusDp.dp),
         border = POBorderStroke(
             width = border.widthDp.dp,
