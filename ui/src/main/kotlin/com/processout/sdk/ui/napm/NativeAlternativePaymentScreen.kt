@@ -600,7 +600,7 @@ internal object NativeAlternativePaymentScreen {
                 } ?: POText.title,
                 label = custom?.label?.let {
                     POText.custom(style = it)
-                } ?: POText.labelHeading,
+                } ?: POText.label1,
                 field = custom?.field?.let {
                     POField.custom(style = it)
                 } ?: POField.default,

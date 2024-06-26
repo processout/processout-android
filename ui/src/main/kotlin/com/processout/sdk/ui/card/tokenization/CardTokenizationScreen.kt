@@ -304,7 +304,7 @@ internal object CardTokenizationScreen {
         } ?: POText.title,
         sectionTitle = custom?.sectionTitle?.let {
             POText.custom(style = it)
-        } ?: POText.labelHeading,
+        } ?: POText.label1,
         field = custom?.field?.let {
             POField.custom(style = it)
         } ?: POField.default,
