@@ -38,10 +38,10 @@ data class POColors(
 
     @Immutable
     data class Surface(
-        val background: Color,
-        val level1: Color,
+        val default: Color,
         val neutral: Color,
-        val success: Color
+        val success: Color,
+        val error: Color
     )
 
     @Immutable

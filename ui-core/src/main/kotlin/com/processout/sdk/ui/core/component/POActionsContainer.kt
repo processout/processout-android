@@ -155,7 +155,7 @@ object POActionsContainer {
                 primary = POButton.primary,
                 secondary = POButton.secondary,
                 dividerColor = colors.border.subtle,
-                backgroundColor = colors.surface.level1,
+                backgroundColor = colors.surface.default,
                 axis = POAxis.Vertical
             )
         }

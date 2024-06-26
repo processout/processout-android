@@ -621,7 +621,7 @@ internal object NativeAlternativePaymentScreen {
                 } ?: PODialog.default,
                 normalBackgroundColor = custom?.background?.normalColorResId?.let {
                     colorResource(id = it)
-                } ?: colors.surface.level1,
+                } ?: colors.surface.default,
                 successBackgroundColor = custom?.background?.successColorResId?.let {
                     colorResource(id = it)
                 } ?: colors.surface.success,

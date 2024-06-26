@@ -123,7 +123,7 @@ object PODialog {
             message = POText.body,
             confirmButton = POButton.tertiary,
             dismissButton = POButton.tertiary,
-            backgroundColor = ProcessOutTheme.colors.surface.level1
+            backgroundColor = ProcessOutTheme.colors.surface.default
         )
 
     @Composable

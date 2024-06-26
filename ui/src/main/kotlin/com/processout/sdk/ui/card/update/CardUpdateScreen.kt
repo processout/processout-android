@@ -200,7 +200,7 @@ internal object CardUpdateScreen {
         } ?: POActionsContainer.default,
         backgroundColor = custom?.backgroundColorResId?.let {
             colorResource(id = it)
-        } ?: ProcessOutTheme.colors.surface.level1,
+        } ?: ProcessOutTheme.colors.surface.default,
         dividerColor = custom?.dividerColorResId?.let {
             colorResource(id = it)
         } ?: ProcessOutTheme.colors.border.subtle,

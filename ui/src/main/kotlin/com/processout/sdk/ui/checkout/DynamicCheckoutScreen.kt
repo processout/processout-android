@@ -18,7 +18,7 @@ internal fun DynamicCheckoutScreen() {
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.systemBars))
         Scaffold(
             modifier = Modifier.clip(shape = ProcessOutTheme.shapes.topRoundedCornersLarge),
-            containerColor = ProcessOutTheme.colors.surface.level1,
+            containerColor = ProcessOutTheme.colors.surface.default,
             topBar = { Header() },
             bottomBar = { Footer() }
         ) { scaffoldPadding ->

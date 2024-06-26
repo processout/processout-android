@@ -65,7 +65,7 @@ object POField {
                         textStyle = typography.label2
                     ),
                     placeholderTextColor = colors.text.muted,
-                    backgroundColor = colors.surface.background,
+                    backgroundColor = colors.surface.default,
                     controlsTintColor = colors.text.primary,
                     dropdownRippleColor = colors.text.tertiary,
                     shape = shapes.roundedCornersSmall,
@@ -77,7 +77,7 @@ object POField {
                         textStyle = typography.label2
                     ),
                     placeholderTextColor = colors.text.muted,
-                    backgroundColor = colors.surface.background,
+                    backgroundColor = colors.surface.default,
                     controlsTintColor = colors.text.error,
                     dropdownRippleColor = colors.text.tertiary,
                     shape = shapes.roundedCornersSmall,
