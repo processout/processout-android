@@ -154,7 +154,7 @@ private fun UserInput(
     AnimatedVisibility {
         Column(
             modifier = modifier,
-            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
+            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.large)
         ) {
             val lifecycleEvent = rememberLifecycleEvent()
             val labelsStyle = remember {
