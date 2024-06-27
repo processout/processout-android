@@ -137,7 +137,7 @@ object PORadioGroup {
     )
 
     private val MaterialRadioButtonSize = 20.dp
-    internal val RadioButtonSize = 18.dp
+    internal val RadioButtonSize = 22.dp
     internal val RadioButtonScale = RadioButtonSize.value / MaterialRadioButtonSize.value
 
     @Composable
