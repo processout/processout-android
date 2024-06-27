@@ -186,7 +186,7 @@ object POButton {
                     border = POBorderStroke(width = 0.dp, color = Color.Transparent),
                     backgroundColor = Color.Transparent,
                     elevation = 0.dp,
-                    paddingHorizontal = spacing.medium
+                    paddingHorizontal = spacing.large
                 ),
                 disabled = StateStyle(
                     text = POText.Style(
@@ -197,7 +197,7 @@ object POButton {
                     border = POBorderStroke(width = 0.dp, color = Color.Transparent),
                     backgroundColor = Color.Transparent,
                     elevation = 0.dp,
-                    paddingHorizontal = spacing.medium
+                    paddingHorizontal = spacing.large
                 ),
                 highlighted = HighlightedStyle(
                     textColor = colors.button.primaryBackgroundPressed,

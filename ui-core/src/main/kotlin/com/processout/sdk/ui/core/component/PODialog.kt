@@ -54,12 +54,7 @@ fun PODialog(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(
-                                start = spacing.extraLarge,
-                                top = spacing.extraLarge,
-                                end = spacing.extraLarge,
-                                bottom = spacing.large
-                            )
+                            .padding(spacing.extraLarge)
                     ) {
                         POText(
                             text = title,
