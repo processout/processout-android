@@ -11,7 +11,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.state.POActionState
@@ -45,10 +44,8 @@ fun POActionsContainer(
     ) {
         Column(modifier = modifier) {
             HorizontalDivider(thickness = 1.dp, color = containerStyle.dividerColor)
-
-            val padding = POActionsContainer.containerPadding
-            val spacing = POActionsContainer.actionSpacing
-
+            val padding = ProcessOutTheme.spacing.extraLarge
+            val spacing = ProcessOutTheme.spacing.small
             when (containerStyle.axis) {
                 POAxis.Vertical -> Column(
                     modifier = Modifier
@@ -170,13 +167,4 @@ object POActionsContainer {
             axis = axis
         )
     }
-
-    internal val containerPadding: PaddingValues
-        @Composable get() = PaddingValues(
-            horizontal = ProcessOutTheme.spacing.extraLarge,
-            vertical = ProcessOutTheme.spacing.large
-        )
-
-    internal val actionSpacing: Dp
-        @Composable get() = ProcessOutTheme.spacing.large
 }

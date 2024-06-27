@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.processout.sdk.ui.core.component
 
 import androidx.compose.foundation.BorderStroke
@@ -6,10 +8,7 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ripple.LocalRippleTheme
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ButtonElevation
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.core.component.POButton.MinHeight
 import com.processout.sdk.ui.core.component.POButton.border
 import com.processout.sdk.ui.core.component.POButton.colors
 import com.processout.sdk.ui.core.component.POButton.contentPadding
@@ -44,12 +44,13 @@ fun POButton(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
     val pressed by interactionSource.collectIsPressedAsState()
-    CompositionLocalProvider(LocalRippleTheme provides NoRippleTheme) {
+    CompositionLocalProvider(
+        LocalRippleTheme provides NoRippleTheme,
+        LocalMinimumInteractiveComponentEnforcement provides false
+    ) {
         Button(
             onClick = onClick,
-            modifier = modifier.requiredHeightIn(
-                min = ProcessOutTheme.dimensions.formComponentMinSize
-            ),
+            modifier = modifier.requiredHeightIn(min = MinHeight),
             enabled = enabled && !loading,
             colors = colors(style = style, enabled = enabled, loading = loading, pressed = pressed),
             shape = if (enabled) style.normal.shape else style.disabled.shape,
@@ -120,7 +121,7 @@ object POButton {
                     shape = shapes.roundedCornersSmall,
                     border = POBorderStroke(width = 0.dp, color = Color.Transparent),
                     backgroundColor = colors.button.primaryBackgroundDefault,
-                    elevation = 2.dp
+                    elevation = 0.dp
                 ),
                 disabled = StateStyle(
                     text = POText.Style(
@@ -231,6 +232,8 @@ object POButton {
         paddingHorizontal = paddingHorizontalDp.dp,
         paddingVertical = paddingVerticalDp.dp
     )
+
+    internal val MinHeight = 44.dp
 
     @Composable
     internal fun colors(
