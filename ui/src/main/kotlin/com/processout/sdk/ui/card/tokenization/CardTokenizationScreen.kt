@@ -114,7 +114,9 @@ private fun Sections(
         POExpandableText(
             text = section.errorMessage,
             style = style.errorMessage,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = ProcessOutTheme.spacing.small)
         )
     }
 }
