@@ -109,8 +109,8 @@ object POField {
 
     val contentPadding: PaddingValues
         @Composable get() = PaddingValues(
-            horizontal = ProcessOutTheme.spacing.medium,
-            vertical = ProcessOutTheme.spacing.small
+            horizontal = ProcessOutTheme.spacing.large,
+            vertical = ProcessOutTheme.spacing.medium
         )
 
     @Composable

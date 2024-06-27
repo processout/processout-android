@@ -129,7 +129,7 @@ private fun MenuItem(
                 indication = rememberRipple(color = style.rippleColor)
             )
             .fillMaxWidth()
-            .padding(horizontal = ProcessOutTheme.spacing.medium),
+            .padding(horizontal = ProcessOutTheme.spacing.large),
         contentAlignment = Alignment.CenterStart
     ) {
         POText(
