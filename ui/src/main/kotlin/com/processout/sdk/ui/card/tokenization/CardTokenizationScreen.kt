@@ -202,7 +202,7 @@ private fun TextField(
         isError = state.isError,
         forceTextDirectionLtr = state.forceTextDirectionLtr,
         placeholderText = state.placeholder,
-        trailingIcon = { state.iconResId?.let { AnimatedIcon(id = it) } },
+        trailingIcon = { state.iconResId?.let { AnimatedFieldIcon(id = it) } },
         visualTransformation = state.visualTransformation,
         keyboardOptions = state.keyboardOptions,
         keyboardActions = POField.keyboardActions(
@@ -253,7 +253,7 @@ private fun DropdownField(
 }
 
 @Composable
-private fun AnimatedIcon(@DrawableRes id: Int) {
+private fun AnimatedFieldIcon(@DrawableRes id: Int) {
     POAnimatedImage(
         id = id,
         modifier = Modifier

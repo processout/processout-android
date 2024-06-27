@@ -124,7 +124,7 @@ private fun Fields(
             isError = state.isError,
             forceTextDirectionLtr = state.forceTextDirectionLtr,
             placeholderText = state.placeholder,
-            trailingIcon = { state.iconResId?.let { AnimatedIcon(id = it) } },
+            trailingIcon = { state.iconResId?.let { AnimatedFieldIcon(id = it) } },
             keyboardOptions = state.keyboardOptions,
             keyboardActions = POField.keyboardActions(
                 imeAction = state.keyboardOptions.imeAction,
@@ -140,7 +140,7 @@ private fun Fields(
 }
 
 @Composable
-private fun AnimatedIcon(@DrawableRes id: Int) {
+private fun AnimatedFieldIcon(@DrawableRes id: Int) {
     POAnimatedImage(
         id = id,
         modifier = Modifier
