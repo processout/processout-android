@@ -50,7 +50,7 @@ fun PORadioGroup(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .requiredHeightIn(min = ProcessOutTheme.dimensions.formComponentMinSize)
+                    .requiredHeightIn(min = ProcessOutTheme.dimensions.formComponentMinHeight)
                     .clickable(
                         onClick = onClick,
                         interactionSource = interactionSource,
@@ -64,7 +64,7 @@ fun PORadioGroup(
                     modifier = Modifier
                         .scale(RadioButtonScale)
                         .requiredWidth(RadioButtonSize)
-                        .requiredHeight(ProcessOutTheme.dimensions.formComponentMinSize),
+                        .requiredHeight(ProcessOutTheme.dimensions.formComponentMinHeight),
                     colors = buttonColors(style = style, isError = isError)
                 )
                 val textStyle = textStyle(style = style, selected = selected, isError = isError)
@@ -176,7 +176,7 @@ object PORadioGroup {
             textMeasurer.measure(text = String(), style = style.textStyle)
         }
         val density = LocalDensity.current
-        val formComponentHeight = ProcessOutTheme.dimensions.formComponentMinSize
+        val formComponentHeight = ProcessOutTheme.dimensions.formComponentMinHeight
         return remember(singleLineTextMeasurement) {
             with(density) {
                 val formComponentCenter = formComponentHeight / 2

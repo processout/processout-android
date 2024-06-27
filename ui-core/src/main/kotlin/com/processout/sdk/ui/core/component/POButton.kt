@@ -20,7 +20,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
-import com.processout.sdk.ui.core.component.POButton.MinHeight
 import com.processout.sdk.ui.core.component.POButton.border
 import com.processout.sdk.ui.core.component.POButton.colors
 import com.processout.sdk.ui.core.component.POButton.contentPadding
@@ -50,7 +49,9 @@ fun POButton(
     ) {
         Button(
             onClick = onClick,
-            modifier = modifier.requiredHeightIn(min = MinHeight),
+            modifier = modifier.requiredHeightIn(
+                min = ProcessOutTheme.dimensions.interactiveComponentMinSize
+            ),
             enabled = enabled && !loading,
             colors = colors(style = style, enabled = enabled, loading = loading, pressed = pressed),
             shape = if (enabled) style.normal.shape else style.disabled.shape,
@@ -232,8 +233,6 @@ object POButton {
         paddingHorizontal = paddingHorizontalDp.dp,
         paddingVertical = paddingVerticalDp.dp
     )
-
-    internal val MinHeight = 44.dp
 
     @Composable
     internal fun colors(

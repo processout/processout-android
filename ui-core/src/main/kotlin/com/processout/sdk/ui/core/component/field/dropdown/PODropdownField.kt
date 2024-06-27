@@ -76,7 +76,7 @@ fun PODropdownField(
                     )
                 }
             )
-            val menuItemHeight = ProcessOutTheme.dimensions.formComponentMinSize
+            val menuItemHeight = ProcessOutTheme.dimensions.formComponentMinHeight
             val menuVerticalPaddings = ProcessOutTheme.spacing.large
             val maxMenuHeight = remember { menuItemHeight * PODropdownField.MaxVisibleMenuItems + menuVerticalPaddings }
             DropdownMenu(

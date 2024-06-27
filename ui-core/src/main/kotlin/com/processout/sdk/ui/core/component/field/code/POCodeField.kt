@@ -127,7 +127,7 @@ fun POCodeField(
                             }
                         },
                         modifier = modifier
-                            .requiredWidth(ProcessOutTheme.dimensions.formComponentMinSize)
+                            .requiredWidth(ProcessOutTheme.dimensions.interactiveComponentMinSize)
                             .onPreviewKeyEvent {
                                 when {
                                     it.key == Key.Backspace && it.type == KeyEventType.KeyDown -> {
