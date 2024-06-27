@@ -106,7 +106,7 @@ internal fun NativeAlternativePaymentScreen(
             )
         }
     ) { scaffoldPadding ->
-        val verticalSpacing = ProcessOutTheme.spacing.large
+        val verticalSpacing = ProcessOutTheme.spacing.extraLarge
         val verticalSpacingPx = verticalSpacing.dpToPx()
         Column(
             modifier = Modifier

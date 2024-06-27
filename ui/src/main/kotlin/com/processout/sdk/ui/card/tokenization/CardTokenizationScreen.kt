@@ -68,10 +68,7 @@ internal fun CardTokenizationScreen(
                 .fillMaxSize()
                 .padding(scaffoldPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(
-                    horizontal = ProcessOutTheme.spacing.extraLarge,
-                    vertical = ProcessOutTheme.spacing.large
-                ),
+                .padding(ProcessOutTheme.spacing.extraLarge),
             verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
         ) {
             Sections(
