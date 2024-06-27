@@ -2,6 +2,7 @@ package com.processout.sdk.ui.core.component.field.text
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
@@ -27,6 +28,7 @@ fun POLabeledTextField(
     title: String,
     description: String?,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = POField.contentPadding,
     fieldStyle: POField.Style = POField.default,
     labelsStyle: POFieldLabels.Style = POFieldLabels.default,
     enabled: Boolean = true,
@@ -54,6 +56,7 @@ fun POLabeledTextField(
             value = value,
             onValueChange = onValueChange,
             modifier = modifier,
+            contentPadding = contentPadding,
             style = fieldStyle,
             enabled = enabled,
             readOnly = readOnly,

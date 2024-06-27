@@ -3,10 +3,7 @@
 package com.processout.sdk.ui.core.component.field.text
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -37,6 +34,7 @@ fun POTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = POField.contentPadding,
     style: POField.Style = POField.default,
     enabled: Boolean = true,
     readOnly: Boolean = false,
@@ -94,7 +92,7 @@ fun POTextField(
                     singleLine = singleLine,
                     visualTransformation = visualTransformation,
                     interactionSource = interactionSource,
-                    contentPadding = POField.contentPadding,
+                    contentPadding = contentPadding,
                     container = {
                         ContainerBox(
                             style = style,
