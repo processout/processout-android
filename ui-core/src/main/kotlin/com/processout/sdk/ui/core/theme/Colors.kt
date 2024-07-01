@@ -137,8 +137,8 @@ internal val DarkColorPalette = POColors(
     surface = Surface(
         default = Color(0xFF121821),
         neutral = Color(0xFF242C38),
-        success = Color(0xFFBEFAE9),
-        error = Color(0xFFFFC2C8)
+        success = Color(0xFF1DA37D),
+        error = Color(0xFFD11D2F)
     ),
     border = Border(
         default = Color(0xFF93949F),
