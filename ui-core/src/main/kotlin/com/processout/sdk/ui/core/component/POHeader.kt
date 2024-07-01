@@ -66,9 +66,6 @@ private fun titlePadding(
         start = spacing.extraLarge,
         end = spacing.extraLarge,
         top = 0.dp,
-        bottom = spacing.large
-    ) else PaddingValues(
-        horizontal = spacing.extraLarge,
-        vertical = spacing.large
-    )
+        bottom = spacing.extraLarge
+    ) else PaddingValues(spacing.extraLarge)
 }
