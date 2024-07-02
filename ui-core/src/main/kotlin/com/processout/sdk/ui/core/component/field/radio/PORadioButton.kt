@@ -52,9 +52,9 @@ object PORadioButton {
     val default: Style
         @Composable get() = with(ProcessOutTheme) {
             Style(
-                normalColor = colors.border.default,
+                normalColor = colors.input.borderDefault,
                 selectedColor = colors.button.primaryBackgroundDefault,
-                errorColor = colors.text.error
+                errorColor = colors.input.borderError
             )
         }
 

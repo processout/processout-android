@@ -91,7 +91,7 @@ object PORadioGroup {
         @Composable get() = with(ProcessOutTheme) {
             Style(
                 normal = StateStyle(
-                    buttonColor = colors.border.default,
+                    buttonColor = colors.input.borderDefault,
                     text = POText.Style(
                         color = colors.text.primary,
                         textStyle = typography.label2
@@ -105,7 +105,7 @@ object PORadioGroup {
                     )
                 ),
                 error = StateStyle(
-                    buttonColor = colors.text.error,
+                    buttonColor = colors.input.borderError,
                     text = POText.Style(
                         color = colors.text.primary,
                         textStyle = typography.label2
