@@ -65,11 +65,11 @@ object POField {
                         textStyle = typography.label2
                     ),
                     placeholderTextColor = colors.text.muted,
-                    backgroundColor = colors.surface.default,
+                    backgroundColor = colors.input.backgroundDefault,
                     controlsTintColor = colors.text.primary,
                     dropdownRippleColor = colors.text.muted,
                     shape = shapes.roundedCornersSmall,
-                    border = POBorderStroke(width = 1.dp, color = colors.border.default)
+                    border = POBorderStroke(width = 1.dp, color = colors.input.borderDefault)
                 ),
                 error = StateStyle(
                     text = POText.Style(
@@ -77,11 +77,11 @@ object POField {
                         textStyle = typography.label2
                     ),
                     placeholderTextColor = colors.text.muted,
-                    backgroundColor = colors.surface.default,
+                    backgroundColor = colors.input.backgroundDefault,
                     controlsTintColor = colors.text.error,
                     dropdownRippleColor = colors.text.muted,
                     shape = shapes.roundedCornersSmall,
-                    border = POBorderStroke(width = 1.dp, color = colors.text.error)
+                    border = POBorderStroke(width = 1.dp, color = colors.input.borderError)
                 )
             )
         }
