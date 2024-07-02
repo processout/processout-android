@@ -650,7 +650,7 @@ internal object NativeAlternativePaymentScreen {
                 } ?: colors.border.subtle,
                 dragHandleColor = custom?.dragHandleColorResId?.let {
                     colorResource(id = it)
-                } ?: colors.border.disabled
+                } ?: colors.border.subtle
             )
         }
 

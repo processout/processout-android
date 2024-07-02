@@ -25,7 +25,7 @@ fun POHeader(
     modifier: Modifier = Modifier,
     style: POText.Style = POText.title,
     dividerColor: Color = ProcessOutTheme.colors.border.subtle,
-    dragHandleColor: Color = ProcessOutTheme.colors.border.disabled,
+    dragHandleColor: Color = ProcessOutTheme.colors.border.subtle,
     withDragHandle: Boolean = true,
     animationDurationMillis: Int = 0
 ) {

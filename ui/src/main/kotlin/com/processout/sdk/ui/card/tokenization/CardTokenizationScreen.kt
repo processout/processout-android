@@ -324,6 +324,6 @@ internal object CardTokenizationScreen {
         } ?: ProcessOutTheme.colors.border.subtle,
         dragHandleColor = custom?.dragHandleColorResId?.let {
             colorResource(id = it)
-        } ?: ProcessOutTheme.colors.border.disabled
+        } ?: ProcessOutTheme.colors.border.subtle
     )
 }
