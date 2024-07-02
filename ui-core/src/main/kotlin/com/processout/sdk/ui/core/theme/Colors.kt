@@ -60,7 +60,6 @@ data class POColors(
 
     @Immutable
     data class Border(
-        val default: Color,
         val disabled: Color,
         val subtle: Color
     )
@@ -102,7 +101,6 @@ internal val LightColorPalette = POColors(
         error = Color(0xFFFFC2C8)
     ),
     border = Border(
-        default = Color(0xFF8D8D95),
         disabled = Color(0xFFC4C4C8),
         subtle = Color(0xFFDDE0E3)
     )
@@ -144,7 +142,6 @@ internal val DarkColorPalette = POColors(
         error = Color(0xFFD11D2F)
     ),
     border = Border(
-        default = Color(0xFF93949F),
         disabled = Color(0xFF363945),
         subtle = Color(0xFF5B6576)
     )
