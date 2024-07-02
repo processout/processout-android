@@ -46,7 +46,8 @@ data class POColors(
         val secondaryBackgroundPressed: Color,
         val secondaryBorderDefault: Color,
         val secondaryBorderDisabled: Color,
-        val secondaryBorderPressed: Color
+        val secondaryBorderPressed: Color,
+        val tertiaryBackgroundPressed: Color
     )
 
     @Immutable
@@ -91,7 +92,8 @@ internal val LightColorPalette = POColors(
         secondaryBackgroundPressed = Color(0xFFCCD1D6),
         secondaryBorderDefault = Color(0xFF121821),
         secondaryBorderDisabled = Color(0xFFEDEEEF),
-        secondaryBorderPressed = Color(0xFF242C38)
+        secondaryBorderPressed = Color(0xFF242C38),
+        tertiaryBackgroundPressed = Color(0xFFCCD1D6)
     ),
     surface = Surface(
         default = Color(0xFFFFFFFF),
@@ -132,7 +134,8 @@ internal val DarkColorPalette = POColors(
         secondaryBackgroundPressed = Color(0xFF7C8593),
         secondaryBorderDefault = Color(0xFFFFFFFF),
         secondaryBorderDisabled = Color(0xFF242C38),
-        secondaryBorderPressed = Color(0xFFCCD1D6)
+        secondaryBorderPressed = Color(0xFFCCD1D6),
+        tertiaryBackgroundPressed = Color(0xFF7C8593)
     ),
     surface = Surface(
         default = Color(0xFF121821),
