@@ -25,6 +25,7 @@ fun PORadioButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     style: PORadioButton.Style = PORadioButton.default,
+    enabled: Boolean = true,
     isError: Boolean = false
 ) {
     RadioButton(
@@ -34,6 +35,7 @@ fun PORadioButton(
             .scale(RadioButtonScale)
             .requiredWidth(RadioButtonSize)
             .requiredHeight(ProcessOutTheme.dimensions.formComponentMinHeight),
+        enabled = enabled,
         colors = colors(style = style, isError = isError)
     )
 }
@@ -46,7 +48,8 @@ object PORadioButton {
     data class Style(
         val normalColor: Color,
         val selectedColor: Color,
-        val errorColor: Color
+        val errorColor: Color,
+        val disabledColor: Color
     )
 
     val default: Style
@@ -54,7 +57,8 @@ object PORadioButton {
             Style(
                 normalColor = colors.input.borderDefault,
                 selectedColor = colors.button.primaryBackgroundDefault,
-                errorColor = colors.input.borderError
+                errorColor = colors.input.borderError,
+                disabledColor = colors.input.borderDisabled
             )
         }
 
@@ -78,7 +82,9 @@ object PORadioButton {
         }
         return RadioButtonDefaults.colors(
             selectedColor = selectedColor,
-            unselectedColor = unselectedColor
+            unselectedColor = unselectedColor,
+            disabledSelectedColor = style.disabledColor,
+            disabledUnselectedColor = style.disabledColor
         )
     }
 }

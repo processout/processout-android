@@ -78,7 +78,8 @@ object PORadioGroup {
     data class Style(
         val normal: StateStyle,
         val selected: StateStyle,
-        val error: StateStyle
+        val error: StateStyle,
+        val disabled: StateStyle
     )
 
     @Immutable
@@ -110,6 +111,13 @@ object PORadioGroup {
                         color = colors.text.primary,
                         textStyle = typography.label2
                     )
+                ),
+                disabled = StateStyle(
+                    buttonColor = colors.input.borderDisabled,
+                    text = POText.Style(
+                        color = colors.text.primary,
+                        textStyle = typography.label2
+                    )
                 )
             )
         }
@@ -118,7 +126,8 @@ object PORadioGroup {
     fun custom(style: PORadioButtonStyle) = Style(
         normal = style.normal.toStateStyle(),
         selected = style.selected.toStateStyle(),
-        error = style.error.toStateStyle()
+        error = style.error.toStateStyle(),
+        disabled = style.disabled?.toStateStyle() ?: style.normal.toStateStyle()
     )
 
     @Composable
@@ -130,7 +139,8 @@ object PORadioGroup {
     internal fun Style.toRadioButtonStyle() = PORadioButton.Style(
         normalColor = normal.buttonColor,
         selectedColor = selected.buttonColor,
-        errorColor = error.buttonColor
+        errorColor = error.buttonColor,
+        disabledColor = disabled.buttonColor
     )
 
     internal fun textStyle(
