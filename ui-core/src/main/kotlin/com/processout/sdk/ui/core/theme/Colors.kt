@@ -39,14 +39,14 @@ data class POColors(
     @Immutable
     data class Button(
         val primaryBackgroundDefault: Color,
-        val primaryBackgroundPressed: Color,
         val primaryBackgroundDisabled: Color,
+        val primaryBackgroundPressed: Color,
         val secondaryBackgroundDefault: Color,
-        val secondaryBackgroundPressed: Color,
         val secondaryBackgroundDisabled: Color,
+        val secondaryBackgroundPressed: Color,
         val secondaryBorderDefault: Color,
-        val secondaryBorderPressed: Color,
-        val secondaryBorderDisabled: Color
+        val secondaryBorderDisabled: Color,
+        val secondaryBorderPressed: Color
     )
 
     @Immutable
@@ -84,14 +84,14 @@ internal val LightColorPalette = POColors(
     ),
     button = Button(
         primaryBackgroundDefault = Color(0xFF121821),
-        primaryBackgroundPressed = Color(0xFF242C38),
         primaryBackgroundDisabled = Color(0xFFEDEEEF),
+        primaryBackgroundPressed = Color(0xFF242C38),
         secondaryBackgroundDefault = Color(0xFFFFFFFF),
-        secondaryBackgroundPressed = Color(0xFFCCD1D6),
         secondaryBackgroundDisabled = Color(0xFFFFFFFF),
+        secondaryBackgroundPressed = Color(0xFFCCD1D6),
         secondaryBorderDefault = Color(0xFF121821),
-        secondaryBorderPressed = Color(0xFF242C38),
-        secondaryBorderDisabled = Color(0xFFEDEEEF)
+        secondaryBorderDisabled = Color(0xFFEDEEEF),
+        secondaryBorderPressed = Color(0xFF242C38)
     ),
     surface = Surface(
         default = Color(0xFFFFFFFF),
@@ -125,14 +125,14 @@ internal val DarkColorPalette = POColors(
     ),
     button = Button(
         primaryBackgroundDefault = Color(0xFFFFFFFF),
-        primaryBackgroundPressed = Color(0xFFCCD1D6),
         primaryBackgroundDisabled = Color(0xFF242C38),
+        primaryBackgroundPressed = Color(0xFFCCD1D6),
         secondaryBackgroundDefault = Color(0xFF121821),
-        secondaryBackgroundPressed = Color(0xFF7C8593),
         secondaryBackgroundDisabled = Color(0xFF121821),
+        secondaryBackgroundPressed = Color(0xFF7C8593),
         secondaryBorderDefault = Color(0xFFFFFFFF),
-        secondaryBorderPressed = Color(0xFFCCD1D6),
-        secondaryBorderDisabled = Color(0xFF242C38)
+        secondaryBorderDisabled = Color(0xFF242C38),
+        secondaryBorderPressed = Color(0xFFCCD1D6)
     ),
     surface = Surface(
         default = Color(0xFF121821),

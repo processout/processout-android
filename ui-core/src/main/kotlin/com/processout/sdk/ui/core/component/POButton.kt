@@ -152,7 +152,7 @@ object POButton {
                         textStyle = typography.button
                     ),
                     shape = shapes.roundedCornersSmall,
-                    border = POBorderStroke(width = 1.dp, color = colors.border.default),
+                    border = POBorderStroke(width = 1.dp, color = colors.button.secondaryBorderDefault),
                     backgroundColor = colors.button.secondaryBackgroundDefault,
                     elevation = 0.dp
                 ),
@@ -162,13 +162,13 @@ object POButton {
                         textStyle = typography.button
                     ),
                     shape = shapes.roundedCornersSmall,
-                    border = POBorderStroke(width = 1.dp, color = colors.border.disabled),
-                    backgroundColor = colors.button.secondaryBackgroundDefault,
+                    border = POBorderStroke(width = 1.dp, color = colors.button.secondaryBorderDisabled),
+                    backgroundColor = colors.button.secondaryBackgroundDisabled,
                     elevation = 0.dp
                 ),
                 highlighted = HighlightedStyle(
                     textColor = colors.text.primary,
-                    borderColor = colors.border.default,
+                    borderColor = colors.button.secondaryBorderPressed,
                     backgroundColor = colors.button.secondaryBackgroundPressed
                 ),
                 progressIndicatorColor = colors.text.primary
