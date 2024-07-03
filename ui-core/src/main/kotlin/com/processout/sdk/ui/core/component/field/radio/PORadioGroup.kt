@@ -123,12 +123,15 @@ object PORadioGroup {
         }
 
     @Composable
-    fun custom(style: PORadioButtonStyle) = Style(
-        normal = style.normal.toStateStyle(),
-        selected = style.selected.toStateStyle(),
-        error = style.error.toStateStyle(),
-        disabled = style.disabled?.toStateStyle() ?: style.normal.toStateStyle()
-    )
+    fun custom(style: PORadioButtonStyle): Style {
+        val normal = style.normal.toStateStyle()
+        return Style(
+            normal = normal,
+            selected = style.selected.toStateStyle(),
+            error = style.error.toStateStyle(),
+            disabled = style.disabled?.toStateStyle() ?: normal
+        )
+    }
 
     @Composable
     private fun PORadioButtonStateStyle.toStateStyle() = StateStyle(
