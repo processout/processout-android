@@ -223,6 +223,11 @@ object POCodeField {
                     text = error.text.copy(
                         textStyle = ProcessOutTheme.typography.title
                     )
+                ),
+                focused = focused.copy(
+                    text = focused.text.copy(
+                        textStyle = ProcessOutTheme.typography.title
+                    )
                 )
             )
         }
@@ -239,6 +244,13 @@ object POCodeField {
             error = error.copy(
                 text = error.text.copy(
                     textStyle = error.text.textStyle.copy(
+                        textAlign = TextAlign.Center
+                    )
+                )
+            ),
+            focused = focused.copy(
+                text = focused.text.copy(
+                    textStyle = focused.text.textStyle.copy(
                         textAlign = TextAlign.Center
                     )
                 )

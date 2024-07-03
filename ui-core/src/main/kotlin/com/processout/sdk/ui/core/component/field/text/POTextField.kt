@@ -10,19 +10,19 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.POField.ContainerBox
-import com.processout.sdk.ui.core.component.field.POField.Placeholder
-import com.processout.sdk.ui.core.component.field.POField.cursorBrush
+import com.processout.sdk.ui.core.component.field.POField.stateStyle
 import com.processout.sdk.ui.core.component.field.POField.textSelectionColors
 import com.processout.sdk.ui.core.component.field.POField.textStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
@@ -52,21 +52,26 @@ fun POTextField(
     minLines: Int = 1,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
+    var isFocused by remember { mutableStateOf(false) }
+    val stateStyle = style.stateStyle(isError = isError, isFocused = isFocused)
     CompositionLocalProvider(
-        LocalTextSelectionColors provides textSelectionColors(style = style, isError = isError)
+        LocalTextSelectionColors provides textSelectionColors(stateStyle.controlsTintColor)
     ) {
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
-            modifier = modifier.requiredHeight(ProcessOutTheme.dimensions.formComponentMinHeight),
+            modifier = modifier
+                .requiredHeight(ProcessOutTheme.dimensions.formComponentMinHeight)
+                .onFocusChanged {
+                    isFocused = it.isFocused
+                },
             enabled = enabled,
             readOnly = readOnly,
             textStyle = textStyle(
-                style = style,
-                isError = isError,
+                style = stateStyle.text,
                 forceTextDirectionLtr = forceTextDirectionLtr
             ),
-            cursorBrush = cursorBrush(style = style, isError = isError),
+            cursorBrush = SolidColor(stateStyle.controlsTintColor),
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
             singleLine = singleLine,
@@ -81,11 +86,13 @@ fun POTextField(
                     enabled = enabled,
                     isError = isError,
                     placeholder = {
-                        if (!placeholderText.isNullOrBlank()) Placeholder(
-                            style = style,
-                            text = placeholderText,
-                            isError = isError
-                        )
+                        if (!placeholderText.isNullOrBlank()) {
+                            POText(
+                                text = placeholderText,
+                                color = stateStyle.placeholderTextColor,
+                                style = stateStyle.text.textStyle
+                            )
+                        }
                     },
                     leadingIcon = leadingIcon,
                     trailingIcon = trailingIcon,
@@ -95,9 +102,8 @@ fun POTextField(
                     contentPadding = contentPadding,
                     container = {
                         ContainerBox(
-                            style = style,
-                            isDropdown = isDropdown,
-                            isError = isError
+                            style = stateStyle,
+                            isDropdown = isDropdown
                         )
                     }
                 )
