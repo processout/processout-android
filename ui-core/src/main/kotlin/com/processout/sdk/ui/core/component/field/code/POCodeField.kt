@@ -214,49 +214,28 @@ object POCodeField {
     val default: POField.Style
         @Composable get() = with(POField.default) {
             copy(
-                normal = normal.copy(
-                    text = normal.text.copy(
-                        textStyle = ProcessOutTheme.typography.title
-                    )
-                ),
-                error = error.copy(
-                    text = error.text.copy(
-                        textStyle = ProcessOutTheme.typography.title
-                    )
-                ),
-                focused = focused.copy(
-                    text = focused.text.copy(
-                        textStyle = ProcessOutTheme.typography.title
-                    )
-                )
+                normal = normal.default(),
+                error = error.default(),
+                focused = focused.default()
             )
         }
 
     internal fun style(style: POField.Style) = with(style) {
         copy(
-            normal = normal.copy(
-                text = normal.text.copy(
-                    textStyle = normal.text.textStyle.copy(
-                        textAlign = TextAlign.Center
-                    )
-                )
-            ),
-            error = error.copy(
-                text = error.text.copy(
-                    textStyle = error.text.textStyle.copy(
-                        textAlign = TextAlign.Center
-                    )
-                )
-            ),
-            focused = focused.copy(
-                text = focused.text.copy(
-                    textStyle = focused.text.textStyle.copy(
-                        textAlign = TextAlign.Center
-                    )
-                )
-            )
+            normal = normal.textAlignCenter(),
+            error = error.textAlignCenter(),
+            focused = focused.textAlignCenter()
         )
     }
+
+    @Composable
+    private fun POField.StateStyle.default() = copy(
+        text = text.copy(textStyle = ProcessOutTheme.typography.title)
+    )
+
+    private fun POField.StateStyle.textAlignCenter() = copy(
+        text = text.copy(textStyle = text.textStyle.copy(textAlign = TextAlign.Center))
+    )
 
     val LengthMin = 1
     val LengthMax = 6
