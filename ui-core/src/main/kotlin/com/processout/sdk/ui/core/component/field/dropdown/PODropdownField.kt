@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -28,6 +29,7 @@ import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.POBorderStroke
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
+import com.processout.sdk.ui.core.component.field.POField.stateStyle
 import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.core.state.POImmutableList
@@ -56,11 +58,17 @@ fun PODropdownField(
             expanded = expanded,
             onExpandedChange = { expanded = it }
         ) {
+            var isFocused by remember { mutableStateOf(false) }
+            val fieldStateStyle = fieldStyle.stateStyle(isError = isError, isFocused = isFocused)
             POTextField(
                 value = availableValues.elements.find { it.value == value.text }
                     ?.let { TextFieldValue(it.text) } ?: TextFieldValue(),
                 onValueChange = {},
-                modifier = modifier.menuAnchor(),
+                modifier = modifier
+                    .menuAnchor()
+                    .onFocusChanged {
+                        isFocused = it.isFocused
+                    },
                 style = fieldStyle,
                 enabled = true,
                 readOnly = true,
@@ -72,7 +80,7 @@ fun PODropdownField(
                         painter = painterResource(id = R.drawable.po_dropdown_arrow),
                         contentDescription = null,
                         modifier = Modifier.rotate(if (expanded) 180f else 0f),
-                        tint = if (isError) fieldStyle.error.controlsTintColor else fieldStyle.normal.controlsTintColor
+                        tint = fieldStateStyle.text.color
                     )
                 }
             )
