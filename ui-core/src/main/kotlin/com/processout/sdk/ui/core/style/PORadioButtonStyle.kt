@@ -8,7 +8,8 @@ import kotlinx.parcelize.Parcelize
 data class PORadioButtonStyle(
     val normal: PORadioButtonStateStyle,
     val selected: PORadioButtonStateStyle,
-    val error: PORadioButtonStateStyle
+    val error: PORadioButtonStateStyle,
+    val disabled: PORadioButtonStateStyle? = null
 ) : Parcelable
 
 @Parcelize

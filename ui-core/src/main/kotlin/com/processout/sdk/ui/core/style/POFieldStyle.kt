@@ -7,7 +7,8 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class POFieldStyle(
     val normal: POFieldStateStyle,
-    val error: POFieldStateStyle
+    val error: POFieldStateStyle,
+    val focused: POFieldStateStyle? = null
 ) : Parcelable
 
 @Parcelize

@@ -10,7 +10,8 @@ import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 @ProcessOutInternalApi
 @Immutable
 data class PODimensions(
-    val formComponentMinSize: Dp = 44.dp
+    val formComponentMinHeight: Dp = 48.dp,
+    val interactiveComponentMinSize: Dp = 44.dp
 )
 
 internal val LocalPODimensions = staticCompositionLocalOf { PODimensions() }

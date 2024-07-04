@@ -17,7 +17,7 @@ object POFieldLabels {
 
     val default: Style
         @Composable get() = Style(
-            title = POText.labelHeading,
+            title = POText.label1,
             description = POText.errorLabel
         )
 }

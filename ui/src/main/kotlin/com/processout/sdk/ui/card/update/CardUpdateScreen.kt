@@ -65,10 +65,7 @@ internal fun CardUpdateScreen(
                 .fillMaxSize()
                 .padding(scaffoldPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(
-                    horizontal = ProcessOutTheme.spacing.extraLarge,
-                    vertical = ProcessOutTheme.spacing.large
-                ),
+                .padding(ProcessOutTheme.spacing.extraLarge),
             verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
         ) {
             Fields(
@@ -127,7 +124,7 @@ private fun Fields(
             isError = state.isError,
             forceTextDirectionLtr = state.forceTextDirectionLtr,
             placeholderText = state.placeholder,
-            trailingIcon = { state.iconResId?.let { AnimatedIcon(id = it) } },
+            trailingIcon = { state.iconResId?.let { AnimatedFieldIcon(id = it) } },
             keyboardOptions = state.keyboardOptions,
             keyboardActions = POField.keyboardActions(
                 imeAction = state.keyboardOptions.imeAction,
@@ -143,11 +140,11 @@ private fun Fields(
 }
 
 @Composable
-private fun AnimatedIcon(@DrawableRes id: Int) {
+private fun AnimatedFieldIcon(@DrawableRes id: Int) {
     POAnimatedImage(
         id = id,
         modifier = Modifier
-            .requiredHeight(ProcessOutTheme.dimensions.formComponentMinSize)
+            .requiredHeight(ProcessOutTheme.dimensions.formComponentMinHeight)
             .padding(POField.contentPadding),
         contentScale = ContentScale.FillHeight
     )
@@ -200,12 +197,12 @@ internal object CardUpdateScreen {
         } ?: POActionsContainer.default,
         backgroundColor = custom?.backgroundColorResId?.let {
             colorResource(id = it)
-        } ?: ProcessOutTheme.colors.surface.level1,
+        } ?: ProcessOutTheme.colors.surface.default,
         dividerColor = custom?.dividerColorResId?.let {
             colorResource(id = it)
         } ?: ProcessOutTheme.colors.border.subtle,
         dragHandleColor = custom?.dragHandleColorResId?.let {
             colorResource(id = it)
-        } ?: ProcessOutTheme.colors.border.disabled
+        } ?: ProcessOutTheme.colors.border.subtle
     )
 }

@@ -54,12 +54,7 @@ fun PODialog(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(
-                                start = spacing.extraLarge,
-                                top = spacing.extraLarge,
-                                end = spacing.extraLarge,
-                                bottom = spacing.large
-                            )
+                            .padding(spacing.extraLarge)
                     ) {
                         POText(
                             text = title,
@@ -123,7 +118,7 @@ object PODialog {
             message = POText.body,
             confirmButton = POButton.tertiary,
             dismissButton = POButton.tertiary,
-            backgroundColor = ProcessOutTheme.colors.surface.level1
+            backgroundColor = ProcessOutTheme.colors.surface.default
         )
 
     @Composable

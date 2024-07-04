@@ -17,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
@@ -42,7 +41,8 @@ object POField {
     @Immutable
     data class Style(
         val normal: StateStyle,
-        val error: StateStyle
+        val error: StateStyle,
+        val focused: StateStyle
     )
 
     @Immutable
@@ -62,35 +62,51 @@ object POField {
                 normal = StateStyle(
                     text = POText.Style(
                         color = colors.text.primary,
-                        textStyle = typography.fixed.label
+                        textStyle = typography.label2
                     ),
                     placeholderTextColor = colors.text.muted,
-                    backgroundColor = colors.surface.background,
+                    backgroundColor = colors.input.backgroundDefault,
                     controlsTintColor = colors.text.primary,
-                    dropdownRippleColor = colors.text.tertiary,
+                    dropdownRippleColor = colors.text.muted,
                     shape = shapes.roundedCornersSmall,
-                    border = POBorderStroke(width = 1.dp, color = colors.border.default)
+                    border = POBorderStroke(width = 1.dp, color = colors.input.borderDefault)
                 ),
                 error = StateStyle(
                     text = POText.Style(
                         color = colors.text.primary,
-                        textStyle = typography.fixed.label
+                        textStyle = typography.label2
                     ),
                     placeholderTextColor = colors.text.muted,
-                    backgroundColor = colors.surface.background,
-                    controlsTintColor = colors.text.error,
-                    dropdownRippleColor = colors.text.tertiary,
+                    backgroundColor = colors.input.backgroundDefault,
+                    controlsTintColor = colors.text.primary,
+                    dropdownRippleColor = colors.text.muted,
                     shape = shapes.roundedCornersSmall,
-                    border = POBorderStroke(width = 1.dp, color = colors.text.error)
+                    border = POBorderStroke(width = 1.dp, color = colors.input.borderError)
+                ),
+                focused = StateStyle(
+                    text = POText.Style(
+                        color = colors.text.primary,
+                        textStyle = typography.label2
+                    ),
+                    placeholderTextColor = colors.text.muted,
+                    backgroundColor = colors.input.backgroundDefault,
+                    controlsTintColor = colors.text.primary,
+                    dropdownRippleColor = colors.text.muted,
+                    shape = shapes.roundedCornersSmall,
+                    border = POBorderStroke(width = 1.dp, color = colors.input.borderFocused)
                 )
             )
         }
 
     @Composable
-    fun custom(style: POFieldStyle) = Style(
-        normal = style.normal.toStateStyle(),
-        error = style.error.toStateStyle()
-    )
+    fun custom(style: POFieldStyle): Style {
+        val normal = style.normal.toStateStyle()
+        return Style(
+            normal = normal,
+            error = style.error.toStateStyle(),
+            focused = style.focused?.toStateStyle() ?: normal
+        )
+    }
 
     @Composable
     private fun POFieldStateStyle.toStateStyle() = StateStyle(
@@ -99,7 +115,7 @@ object POField {
         backgroundColor = colorResource(id = backgroundColorResId),
         controlsTintColor = colorResource(id = controlsTintColorResId),
         dropdownRippleColor = dropdownRippleColorResId?.let { colorResource(id = it) }
-            ?: ProcessOutTheme.colors.text.tertiary,
+            ?: ProcessOutTheme.colors.text.muted,
         shape = RoundedCornerShape(size = border.radiusDp.dp),
         border = POBorderStroke(
             width = border.widthDp.dp,
@@ -109,20 +125,28 @@ object POField {
 
     val contentPadding: PaddingValues
         @Composable get() = PaddingValues(
-            horizontal = ProcessOutTheme.spacing.medium,
-            vertical = ProcessOutTheme.spacing.small
+            horizontal = ProcessOutTheme.spacing.large,
+            vertical = ProcessOutTheme.spacing.medium
         )
+
+    internal fun Style.stateStyle(
+        isError: Boolean,
+        isFocused: Boolean
+    ): StateStyle =
+        if (isError) {
+            error
+        } else if (isFocused) {
+            focused
+        } else {
+            normal
+        }
 
     @Composable
     internal fun textStyle(
-        style: Style,
-        isError: Boolean,
+        style: POText.Style,
         forceTextDirectionLtr: Boolean
     ): TextStyle {
-        val textStyle = when (isError) {
-            true -> with(style.error.text) { textStyle.copy(color = color) }
-            false -> with(style.normal.text) { textStyle.copy(color = color) }
-        }
+        val textStyle = with(style) { textStyle.copy(color = color) }
         if (forceTextDirectionLtr && LocalLayoutDirection.current == LayoutDirection.Rtl) {
             return textStyle.copy(
                 textDirection = TextDirection.Ltr,
@@ -132,63 +156,36 @@ object POField {
         return textStyle
     }
 
-    internal fun textSelectionColors(
-        style: Style,
-        isError: Boolean
-    ): TextSelectionColors {
-        val color = if (isError) style.error.controlsTintColor else style.normal.controlsTintColor
-        return TextSelectionColors(
+    internal fun textSelectionColors(color: Color) =
+        TextSelectionColors(
             handleColor = color,
             backgroundColor = color.copy(alpha = 0.4f)
         )
-    }
-
-    internal fun cursorBrush(
-        style: Style,
-        isError: Boolean
-    ) = SolidColor(value = if (isError) style.error.controlsTintColor else style.normal.controlsTintColor)
 
     @Composable
     internal fun ContainerBox(
-        style: Style,
-        isDropdown: Boolean,
-        isError: Boolean
+        style: StateStyle,
+        isDropdown: Boolean
     ) {
-        val shape = if (isError) style.error.shape else style.normal.shape
         Box(
             Modifier
                 .border(
-                    width = if (isError) style.error.border.width else style.normal.border.width,
-                    color = if (isError) style.error.border.color else style.normal.border.color,
-                    shape = shape
+                    width = style.border.width,
+                    color = style.border.color,
+                    shape = style.shape
                 )
                 .background(
-                    color = if (isError) style.error.backgroundColor else style.normal.backgroundColor,
-                    shape = shape
+                    color = style.backgroundColor,
+                    shape = style.shape
                 )
-                .clip(shape)
+                .clip(style.shape)
                 .conditional(isDropdown) {
                     clickable(
                         onClick = {},
                         interactionSource = remember { MutableInteractionSource() },
-                        indication = rememberRipple(
-                            color = if (isError) style.error.dropdownRippleColor else style.normal.dropdownRippleColor
-                        )
+                        indication = rememberRipple(color = style.dropdownRippleColor)
                     )
                 }
-        )
-    }
-
-    @Composable
-    internal fun Placeholder(
-        style: Style,
-        text: String,
-        isError: Boolean
-    ) {
-        POText(
-            text = text,
-            color = if (isError) style.error.placeholderTextColor else style.normal.placeholderTextColor,
-            style = if (isError) style.error.text.textStyle else style.normal.text.textStyle
         )
     }
 

@@ -25,7 +25,7 @@ fun POHeader(
     modifier: Modifier = Modifier,
     style: POText.Style = POText.title,
     dividerColor: Color = ProcessOutTheme.colors.border.subtle,
-    dragHandleColor: Color = ProcessOutTheme.colors.border.disabled,
+    dragHandleColor: Color = ProcessOutTheme.colors.border.subtle,
     withDragHandle: Boolean = true,
     animationDurationMillis: Int = 0
 ) {
@@ -66,9 +66,6 @@ private fun titlePadding(
         start = spacing.extraLarge,
         end = spacing.extraLarge,
         top = 0.dp,
-        bottom = spacing.large
-    ) else PaddingValues(
-        horizontal = spacing.extraLarge,
-        vertical = spacing.large
-    )
+        bottom = spacing.extraLarge
+    ) else PaddingValues(spacing.extraLarge)
 }

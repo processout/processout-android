@@ -68,10 +68,7 @@ internal fun CardTokenizationScreen(
                 .fillMaxSize()
                 .padding(scaffoldPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(
-                    horizontal = ProcessOutTheme.spacing.extraLarge,
-                    vertical = ProcessOutTheme.spacing.large
-                ),
+                .padding(ProcessOutTheme.spacing.extraLarge),
             verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
         ) {
             Sections(
@@ -117,7 +114,9 @@ private fun Sections(
         POExpandableText(
             text = section.errorMessage,
             style = style.errorMessage,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = ProcessOutTheme.spacing.small)
         )
     }
 }
@@ -203,7 +202,7 @@ private fun TextField(
         isError = state.isError,
         forceTextDirectionLtr = state.forceTextDirectionLtr,
         placeholderText = state.placeholder,
-        trailingIcon = { state.iconResId?.let { AnimatedIcon(id = it) } },
+        trailingIcon = { state.iconResId?.let { AnimatedFieldIcon(id = it) } },
         visualTransformation = state.visualTransformation,
         keyboardOptions = state.keyboardOptions,
         keyboardActions = POField.keyboardActions(
@@ -254,11 +253,11 @@ private fun DropdownField(
 }
 
 @Composable
-private fun AnimatedIcon(@DrawableRes id: Int) {
+private fun AnimatedFieldIcon(@DrawableRes id: Int) {
     POAnimatedImage(
         id = id,
         modifier = Modifier
-            .requiredHeight(ProcessOutTheme.dimensions.formComponentMinSize)
+            .requiredHeight(ProcessOutTheme.dimensions.formComponentMinHeight)
             .padding(POField.contentPadding),
         contentScale = ContentScale.FillHeight
     )
@@ -304,7 +303,7 @@ internal object CardTokenizationScreen {
         } ?: POText.title,
         sectionTitle = custom?.sectionTitle?.let {
             POText.custom(style = it)
-        } ?: POText.labelHeading,
+        } ?: POText.label1,
         field = custom?.field?.let {
             POField.custom(style = it)
         } ?: POField.default,
@@ -319,12 +318,12 @@ internal object CardTokenizationScreen {
         } ?: POActionsContainer.default,
         backgroundColor = custom?.backgroundColorResId?.let {
             colorResource(id = it)
-        } ?: ProcessOutTheme.colors.surface.level1,
+        } ?: ProcessOutTheme.colors.surface.default,
         dividerColor = custom?.dividerColorResId?.let {
             colorResource(id = it)
         } ?: ProcessOutTheme.colors.border.subtle,
         dragHandleColor = custom?.dragHandleColorResId?.let {
             colorResource(id = it)
-        } ?: ProcessOutTheme.colors.border.disabled
+        } ?: ProcessOutTheme.colors.border.subtle
     )
 }

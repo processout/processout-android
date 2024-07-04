@@ -31,7 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import coil.compose.AsyncImage
-import com.processout.sdk.R
+import com.processout.sdk.ui.R
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.POFieldLabels
@@ -106,7 +106,7 @@ internal fun NativeAlternativePaymentScreen(
             )
         }
     ) { scaffoldPadding ->
-        val verticalSpacing = ProcessOutTheme.spacing.large
+        val verticalSpacing = ProcessOutTheme.spacing.extraLarge
         val verticalSpacingPx = verticalSpacing.dpToPx()
         Column(
             modifier = Modifier
@@ -154,7 +154,7 @@ private fun UserInput(
     AnimatedVisibility {
         Column(
             modifier = modifier,
-            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
+            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.large)
         ) {
             val lifecycleEvent = rememberLifecycleEvent()
             val labelsStyle = remember {
@@ -600,7 +600,7 @@ internal object NativeAlternativePaymentScreen {
                 } ?: POText.title,
                 label = custom?.label?.let {
                     POText.custom(style = it)
-                } ?: POText.labelHeading,
+                } ?: POText.label1,
                 field = custom?.field?.let {
                     POField.custom(style = it)
                 } ?: POField.default,
@@ -621,7 +621,7 @@ internal object NativeAlternativePaymentScreen {
                 } ?: PODialog.default,
                 normalBackgroundColor = custom?.background?.normalColorResId?.let {
                     colorResource(id = it)
-                } ?: colors.surface.level1,
+                } ?: colors.surface.default,
                 successBackgroundColor = custom?.background?.successColorResId?.let {
                     colorResource(id = it)
                 } ?: colors.surface.success,
@@ -639,18 +639,18 @@ internal object NativeAlternativePaymentScreen {
                     POText.custom(style = it)
                 } ?: POText.Style(
                     color = colors.text.success,
-                    textStyle = typography.fixed.body
+                    textStyle = typography.body2
                 ),
                 successImageResId = custom?.successImageResId ?: R.drawable.po_success_image,
                 progressIndicatorColor = custom?.progressIndicatorColorResId?.let {
                     colorResource(id = it)
-                } ?: colors.action.primaryDefault,
+                } ?: colors.button.primaryBackgroundDefault,
                 dividerColor = custom?.dividerColorResId?.let {
                     colorResource(id = it)
                 } ?: colors.border.subtle,
                 dragHandleColor = custom?.dragHandleColorResId?.let {
                     colorResource(id = it)
-                } ?: colors.border.disabled
+                } ?: colors.border.subtle
             )
         }
 
