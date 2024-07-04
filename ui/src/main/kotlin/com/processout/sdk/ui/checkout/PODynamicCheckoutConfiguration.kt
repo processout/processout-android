@@ -9,8 +9,15 @@ import kotlinx.parcelize.Parcelize
 @ProcessOutInternalApi
 @Parcelize
 data class PODynamicCheckoutConfiguration(
-    val invoiceId: String
+    val invoiceId: String,
+    val options: Options = Options(),
+    val style: Style? = null
 ) : Parcelable {
+
+    @Parcelize
+    data class Options(
+        val title: String? = null
+    ) : Parcelable
 
     @Parcelize
     data class Style(

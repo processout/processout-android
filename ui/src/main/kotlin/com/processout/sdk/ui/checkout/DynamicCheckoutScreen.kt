@@ -5,15 +5,21 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.component.isImeVisibleAsState
 
 @Composable
-internal fun DynamicCheckoutScreen() {
+internal fun DynamicCheckoutScreen(
+    state: DynamicCheckoutViewModelState,
+    onEvent: (DynamicCheckoutEvent) -> Unit,
+    style: DynamicCheckoutScreen.Style = DynamicCheckoutScreen.style()
+) {
     Column {
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.systemBars))
         Scaffold(
@@ -70,4 +76,19 @@ private fun Footer() {
             )
         )
     }
+}
+
+internal object DynamicCheckoutScreen {
+
+    @Immutable
+    data class Style(
+        val field: POField.Style
+    )
+
+    @Composable
+    fun style(custom: PODynamicCheckoutConfiguration.Style? = null) = Style(
+        field = custom?.field?.let {
+            POField.custom(style = it)
+        } ?: POField.default
+    )
 }
