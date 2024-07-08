@@ -47,31 +47,30 @@ internal class NativeAlternativePaymentViewModel private constructor(
         private val options: Options
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T = create() as T
-
-        fun create() = NativeAlternativePaymentViewModel(
-            app = app,
-            options = options,
-            interactor = NativeAlternativePaymentInteractor(
+        override fun <T : ViewModel> create(modelClass: Class<T>): T =
+            NativeAlternativePaymentViewModel(
                 app = app,
-                invoiceId = invoiceId,
-                gatewayConfigurationId = gatewayConfigurationId,
-                options = options.validated(),
-                invoicesService = ProcessOut.instance.invoices,
-                captureRetryStrategy = Exponential(
-                    maxRetries = Int.MAX_VALUE,
-                    initialDelay = 150,
-                    minDelay = 3 * 1000,
-                    maxDelay = 90 * 1000,
-                    factor = 1.45
-                ),
-                eventDispatcher = PODefaultNativeAlternativePaymentMethodEventDispatcher,
-                logAttributes = mapOf(
-                    POLogAttribute.INVOICE_ID to invoiceId,
-                    POLogAttribute.GATEWAY_CONFIGURATION_ID to gatewayConfigurationId
+                options = options,
+                interactor = NativeAlternativePaymentInteractor(
+                    app = app,
+                    invoiceId = invoiceId,
+                    gatewayConfigurationId = gatewayConfigurationId,
+                    options = options.validated(),
+                    invoicesService = ProcessOut.instance.invoices,
+                    captureRetryStrategy = Exponential(
+                        maxRetries = Int.MAX_VALUE,
+                        initialDelay = 150,
+                        minDelay = 3 * 1000,
+                        maxDelay = 90 * 1000,
+                        factor = 1.45
+                    ),
+                    eventDispatcher = PODefaultNativeAlternativePaymentMethodEventDispatcher,
+                    logAttributes = mapOf(
+                        POLogAttribute.INVOICE_ID to invoiceId,
+                        POLogAttribute.GATEWAY_CONFIGURATION_ID to gatewayConfigurationId
+                    )
                 )
-            )
-        )
+            ) as T
 
         private fun Options.validated() = copy(
             paymentConfirmation = with(paymentConfirmation) {

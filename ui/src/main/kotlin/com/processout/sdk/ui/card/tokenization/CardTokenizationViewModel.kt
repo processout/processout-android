@@ -41,20 +41,19 @@ internal class CardTokenizationViewModel private constructor(
         private val configuration: POCardTokenizationConfiguration
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T = create() as T
-
-        fun create() = CardTokenizationViewModel(
-            app = app,
-            configuration = configuration,
-            interactor = CardTokenizationInteractor(
+        override fun <T : ViewModel> create(modelClass: Class<T>): T =
+            CardTokenizationViewModel(
                 app = app,
                 configuration = configuration,
-                cardsRepository = ProcessOut.instance.cards,
-                cardSchemeProvider = CardSchemeProvider(),
-                addressSpecificationProvider = AddressSpecificationProvider(app),
-                eventDispatcher = PODefaultCardTokenizationEventDispatcher
-            )
-        )
+                interactor = CardTokenizationInteractor(
+                    app = app,
+                    configuration = configuration,
+                    cardsRepository = ProcessOut.instance.cards,
+                    cardSchemeProvider = CardSchemeProvider(),
+                    addressSpecificationProvider = AddressSpecificationProvider(app),
+                    eventDispatcher = PODefaultCardTokenizationEventDispatcher
+                )
+            ) as T
     }
 
     private data class KeyboardAction(
