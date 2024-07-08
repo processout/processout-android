@@ -171,15 +171,12 @@ sealed class PODynamicCheckoutPaymentMethod {
      * Alternative payment configuration.
      *
      * @param[gatewayConfigurationId] Gateway configuration ID.
-     * @param[gatewayName] Gateway name.
      * @param[redirectUrl] Redirect URL. If it's _null_, then payment should go through the native flow.
      */
     @JsonClass(generateAdapter = true)
     data class AlternativePaymentConfiguration(
-        @Json(name = "gateway_configuration_uid")
+        @Json(name = "gateway_configuration_id")
         val gatewayConfigurationId: String,
-        @Json(name = "gateway_name")
-        val gatewayName: String,
         @Json(name = "redirect_url")
         val redirectUrl: String?
     )
