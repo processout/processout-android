@@ -30,7 +30,7 @@ import com.processout.sdk.ui.shared.state.FieldState
 import com.processout.sdk.ui.shared.transformation.CardExpirationVisualTransformation
 import com.processout.sdk.ui.shared.transformation.CardNumberVisualTransformation
 
-internal class CardTokenizationViewModel(
+internal class CardTokenizationViewModel private constructor(
     private val app: Application,
     private val configuration: POCardTokenizationConfiguration,
     private val interactor: CardTokenizationInteractor

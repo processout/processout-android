@@ -50,7 +50,7 @@ import java.text.NumberFormat
 import java.util.Currency
 import java.util.concurrent.TimeUnit
 
-internal class NativeAlternativePaymentMethodViewModel(
+internal class NativeAlternativePaymentMethodViewModel private constructor(
     private val app: Application,
     private val gatewayConfigurationId: String,
     private val invoiceId: String,

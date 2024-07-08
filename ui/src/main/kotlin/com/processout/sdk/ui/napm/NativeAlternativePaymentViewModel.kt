@@ -34,7 +34,7 @@ import com.processout.sdk.ui.shared.transformation.PhoneNumberVisualTransformati
 import java.text.NumberFormat
 import java.util.Currency
 
-internal class NativeAlternativePaymentViewModel(
+internal class NativeAlternativePaymentViewModel private constructor(
     private val app: Application,
     private val options: Options,
     private val interactor: NativeAlternativePaymentInteractor

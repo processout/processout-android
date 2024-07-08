@@ -8,7 +8,7 @@ import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.Options
 import com.processout.sdk.ui.shared.extension.map
 
-internal class DynamicCheckoutViewModel(
+internal class DynamicCheckoutViewModel private constructor(
     private val app: Application,
     private val options: Options,
     private val interactor: DynamicCheckoutInteractor
