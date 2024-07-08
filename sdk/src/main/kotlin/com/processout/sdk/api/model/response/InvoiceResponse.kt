@@ -1,5 +1,6 @@
 package com.processout.sdk.api.model.response
 
+import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -25,7 +26,7 @@ data class POInvoice(
     @Json(name = "return_url")
     val returnUrl: String?,
     @Json(name = "payment_methods")
-    internal val paymentMethods: List<PODynamicCheckoutPaymentMethod>?
+    @ProcessOutInternalApi val paymentMethods: List<PODynamicCheckoutPaymentMethod>?
 )
 
 /**
