@@ -76,7 +76,7 @@ internal class NativeAlternativePaymentInteractor(
     private var captureStartTimestamp = 0L
     private var capturePassedTimestamp = 0L
 
-    init {
+    fun start() {
         POLogger.info("Starting native alternative payment.")
         dispatch(WillStart)
         dispatchFailure()

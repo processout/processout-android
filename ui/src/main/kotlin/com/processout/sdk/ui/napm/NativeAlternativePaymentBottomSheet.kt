@@ -62,8 +62,10 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
                         message = "Invalid configuration."
                     )
                 )
+                return
             }
         }
+        viewModel.start()
     }
 
     override fun onCreateView(

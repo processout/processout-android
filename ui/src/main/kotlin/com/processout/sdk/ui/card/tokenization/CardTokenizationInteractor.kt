@@ -74,7 +74,7 @@ internal class CardTokenizationInteractor(
 
     //region Initialization
 
-    init {
+    fun start() {
         interactorScope.launch {
             POLogger.info("Starting card tokenization.")
             dispatch(WillStart)

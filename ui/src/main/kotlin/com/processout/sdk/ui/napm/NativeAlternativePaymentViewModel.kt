@@ -100,6 +100,10 @@ internal class NativeAlternativePaymentViewModel private constructor(
         addCloseable(interactor.interactorScope)
     }
 
+    fun start() {
+        interactor.start()
+    }
+
     fun onEvent(event: NativeAlternativePaymentEvent) = interactor.onEvent(event)
 
     private fun map(
