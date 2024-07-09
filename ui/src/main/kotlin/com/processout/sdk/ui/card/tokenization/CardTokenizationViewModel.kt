@@ -32,7 +32,7 @@ import com.processout.sdk.ui.shared.transformation.CardNumberVisualTransformatio
 
 internal class CardTokenizationViewModel private constructor(
     private val app: Application,
-    private val configuration: POCardTokenizationConfiguration,
+    private var configuration: POCardTokenizationConfiguration,
     private val interactor: CardTokenizationInteractor
 ) : ViewModel() {
 
@@ -70,6 +70,11 @@ internal class CardTokenizationViewModel private constructor(
     }
 
     fun start() = interactor.start()
+
+    fun reset(configuration: POCardTokenizationConfiguration) {
+        this.configuration = configuration
+        interactor.reset(configuration)
+    }
 
     fun onEvent(event: CardTokenizationEvent) = interactor.onEvent(event)
 
