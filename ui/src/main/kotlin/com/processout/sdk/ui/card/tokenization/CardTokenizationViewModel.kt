@@ -69,9 +69,7 @@ internal class CardTokenizationViewModel private constructor(
         addCloseable(interactor.interactorScope)
     }
 
-    fun start() {
-        interactor.start()
-    }
+    fun start() = interactor.start()
 
     fun onEvent(event: CardTokenizationEvent) = interactor.onEvent(event)
 

@@ -15,7 +15,6 @@ import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentM
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType.*
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails.Invoice
-import com.processout.sdk.core.logger.POLogAttribute
 import com.processout.sdk.core.retry.PORetryStrategy.Exponential
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POActionState.Confirmation
@@ -64,11 +63,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                         maxDelay = 90 * 1000,
                         factor = 1.45
                     ),
-                    eventDispatcher = PODefaultNativeAlternativePaymentMethodEventDispatcher,
-                    logAttributes = mapOf(
-                        POLogAttribute.INVOICE_ID to invoiceId,
-                        POLogAttribute.GATEWAY_CONFIGURATION_ID to gatewayConfigurationId
-                    )
+                    eventDispatcher = PODefaultNativeAlternativePaymentMethodEventDispatcher
                 )
             ) as T
 
@@ -100,9 +95,15 @@ internal class NativeAlternativePaymentViewModel private constructor(
         addCloseable(interactor.interactorScope)
     }
 
-    fun start() {
-        interactor.start()
-    }
+    fun start() = interactor.start()
+
+    fun reset(
+        invoiceId: String,
+        gatewayConfigurationId: String
+    ) = interactor.reset(
+        invoiceId = invoiceId,
+        gatewayConfigurationId = gatewayConfigurationId
+    )
 
     fun onEvent(event: NativeAlternativePaymentEvent) = interactor.onEvent(event)
 
