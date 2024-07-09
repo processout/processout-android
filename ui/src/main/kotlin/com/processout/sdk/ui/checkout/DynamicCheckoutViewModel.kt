@@ -6,9 +6,14 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
+import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.Started
+import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.Starting
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.Options
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
-import com.processout.sdk.ui.shared.extension.map
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 
 internal class DynamicCheckoutViewModel private constructor(
     private val app: Application,
@@ -42,14 +47,22 @@ internal class DynamicCheckoutViewModel private constructor(
 
     val completion = interactor.completion
 
-    val state = interactor.state.map(viewModelScope, ::map)
+    val state: StateFlow<DynamicCheckoutViewModelState> = combine(
+        interactor.state,
+        cardTokenization.state,
+        nativeAlternativePayment.state
+    ) { interactorState, cardTokenizationState, nativeAlternativePaymentState ->
+        // TODO
+        Started
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = Starting
+    )
 
     init {
         addCloseable(interactor.interactorScope)
     }
 
     fun onEvent(event: DynamicCheckoutEvent) = interactor.onEvent(event)
-
-    private fun map(state: DynamicCheckoutInteractorState): DynamicCheckoutViewModelState =
-        DynamicCheckoutViewModelState.Starting
 }
