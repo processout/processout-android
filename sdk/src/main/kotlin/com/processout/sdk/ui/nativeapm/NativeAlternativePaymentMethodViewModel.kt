@@ -734,7 +734,6 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
     }
 
     override fun onCleared() {
-        super.onCleared()
         handler.removeCallbacksAndMessages(null)
     }
 }

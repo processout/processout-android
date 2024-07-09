@@ -100,7 +100,6 @@ internal class CustomTabAuthorizationViewModel private constructor(
     }
 
     override fun onCleared() {
-        super.onCleared()
         timeoutHandler.removeCallbacksAndMessages(null)
     }
 }
