@@ -71,10 +71,12 @@ internal class CardTokenizationViewModel private constructor(
 
     fun start() = interactor.start()
 
-    fun reset(configuration: POCardTokenizationConfiguration) {
+    fun start(configuration: POCardTokenizationConfiguration) {
         this.configuration = configuration
-        interactor.reset(configuration)
+        interactor.start(configuration)
     }
+
+    fun reset() = interactor.reset()
 
     fun onEvent(event: CardTokenizationEvent) = interactor.onEvent(event)
 

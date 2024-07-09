@@ -88,12 +88,17 @@ internal class CardTokenizationInteractor(
         }
     }
 
-    fun reset(configuration: POCardTokenizationConfiguration) {
+    fun start(configuration: POCardTokenizationConfiguration) {
+        this.configuration = configuration
+        _state.update { initState() }
+        start()
+    }
+
+    fun reset() {
         interactorScope.coroutineContext.cancelChildren()
         issuerInformationJob = null
         latestPreferredSchemeRequest = null
         latestShouldContinueRequest = null
-        this.configuration = configuration
         _completion.update { Awaiting }
         _state.update { initState() }
     }

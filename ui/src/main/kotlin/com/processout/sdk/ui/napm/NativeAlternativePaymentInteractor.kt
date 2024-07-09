@@ -96,21 +96,25 @@ internal class NativeAlternativePaymentInteractor(
         fetchTransactionDetails()
     }
 
-    fun reset(
+    fun start(
         invoiceId: String,
         gatewayConfigurationId: String
     ) {
-        onCleared()
-        interactorScope.coroutineContext.cancelChildren()
-        latestDefaultValuesRequest = null
-        captureStartTimestamp = 0L
-        capturePassedTimestamp = 0L
         this.invoiceId = invoiceId
         this.gatewayConfigurationId = gatewayConfigurationId
         logAttributes = logAttributes(
             invoiceId = invoiceId,
             gatewayConfigurationId = gatewayConfigurationId
         )
+        start()
+    }
+
+    fun reset() {
+        onCleared()
+        interactorScope.coroutineContext.cancelChildren()
+        latestDefaultValuesRequest = null
+        captureStartTimestamp = 0L
+        capturePassedTimestamp = 0L
         _completion.update { Awaiting }
         _state.update { Loading }
     }

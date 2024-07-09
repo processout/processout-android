@@ -97,13 +97,15 @@ internal class NativeAlternativePaymentViewModel private constructor(
 
     fun start() = interactor.start()
 
-    fun reset(
+    fun start(
         invoiceId: String,
         gatewayConfigurationId: String
-    ) = interactor.reset(
+    ) = interactor.start(
         invoiceId = invoiceId,
         gatewayConfigurationId = gatewayConfigurationId
     )
+
+    fun reset() = interactor.reset()
 
     fun onEvent(event: NativeAlternativePaymentEvent) = interactor.onEvent(event)
 
