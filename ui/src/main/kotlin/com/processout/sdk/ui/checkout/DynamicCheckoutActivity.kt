@@ -19,22 +19,41 @@ import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.toActivityResult
 import com.processout.sdk.ui.R
 import com.processout.sdk.ui.base.BaseTransparentPortraitActivity
+import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
 import com.processout.sdk.ui.checkout.DynamicCheckoutActivityContract.Companion.EXTRA_CONFIGURATION
 import com.processout.sdk.ui.checkout.DynamicCheckoutActivityContract.Companion.EXTRA_RESULT
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Failure
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Success
-import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.Options
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 
 internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
 
     private var configuration: PODynamicCheckoutConfiguration? = null
 
     private val viewModel: DynamicCheckoutViewModel by viewModels {
+        val cardTokenization: CardTokenizationViewModel by viewModels {
+            CardTokenizationViewModel.Factory(
+                app = application,
+                configuration = POCardTokenizationConfiguration()
+            )
+        }
+        val nativeAlternativePayment: NativeAlternativePaymentViewModel by viewModels {
+            NativeAlternativePaymentViewModel.Factory(
+                app = application,
+                invoiceId = configuration?.invoiceId ?: String(),
+                gatewayConfigurationId = String(),
+                options = PONativeAlternativePaymentConfiguration.Options()
+            )
+        }
         DynamicCheckoutViewModel.Factory(
             app = application,
             invoiceId = configuration?.invoiceId ?: String(),
-            options = configuration?.options ?: Options()
+            options = configuration?.options ?: PODynamicCheckoutConfiguration.Options(),
+            cardTokenization = cardTokenization,
+            nativeAlternativePayment = nativeAlternativePayment
         )
     }
 
