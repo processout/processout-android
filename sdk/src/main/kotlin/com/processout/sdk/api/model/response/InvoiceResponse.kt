@@ -96,19 +96,7 @@ sealed class PODynamicCheckoutPaymentMethod {
         val name: String,
         val logo: POImageResource,
         @Json(name = "brand_color")
-        val brandColor: BrandColor
-    )
-
-    /**
-     * Brand color for light/dark themes.
-     *
-     * @param[light] Light color HEX.
-     * @param[dark] Dark color HEX.
-     */
-    @JsonClass(generateAdapter = true)
-    data class BrandColor(
-        val light: String,
-        val dark: String
+        val brandColor: POColor
     )
 
     /**
