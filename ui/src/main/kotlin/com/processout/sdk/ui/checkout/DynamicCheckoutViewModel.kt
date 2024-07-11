@@ -108,10 +108,29 @@ internal class DynamicCheckoutViewModel private constructor(
             Starting
         } else {
             Started(
-                expressPayments = POImmutableList(emptyList()),
+                expressPayments = expressPayments(interactorState),
                 regularPayments = regularPayments(interactorState, cardTokenizationState, nativeAlternativePaymentState)
             )
         }
+
+    private fun expressPayments(
+        interactorState: DynamicCheckoutInteractorState
+    ): POImmutableList<ExpressPayment> =
+        interactorState.paymentMethods.mapNotNull { paymentMethod ->
+            val id = paymentMethod.id
+            when (paymentMethod) {
+                is GooglePay -> ExpressPayment.GooglePay(id = id)
+                is AlternativePayment -> if (paymentMethod.isExpress) {
+                    ExpressPayment.Express(
+                        id = id,
+                        name = paymentMethod.display.name,
+                        logoResource = paymentMethod.display.logo,
+                        brandColor = paymentMethod.display.brandColor
+                    )
+                } else null
+                else -> null
+            }
+        }.let { POImmutableList(it) }
 
     private fun regularPayments(
         interactorState: DynamicCheckoutInteractorState,
