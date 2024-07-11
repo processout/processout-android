@@ -10,7 +10,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.PaymentMethodSelected
+import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.Started
 import com.processout.sdk.ui.core.component.field.POField
+import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
+import com.processout.sdk.ui.core.state.POAvailableValue
+import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.component.isImeVisibleAsState
 
@@ -34,7 +39,13 @@ internal fun DynamicCheckoutScreen(
                     .padding(scaffoldPadding)
                     .verticalScroll(rememberScrollState())
             ) {
-                Content()
+                when (state) {
+                    is Started -> Content(
+                        state = state,
+                        onEvent = onEvent
+                    )
+                    else -> {}
+                }
             }
         }
     }
@@ -52,8 +63,27 @@ private fun Header() {
 }
 
 @Composable
-private fun Content() {
+private fun Content(
+    state: Started,
+    onEvent: (DynamicCheckoutEvent) -> Unit
+) {
     // TODO
+    val selectedPaymentId = state.regularPayments.elements
+        .find { it.state.selected }?.id ?: String()
+    val regularPayments = state.regularPayments.elements
+        .map { regularPayment ->
+            POAvailableValue(
+                value = regularPayment.id,
+                text = regularPayment.state.name
+            )
+        }
+    PORadioGroup(
+        value = selectedPaymentId,
+        onValueChange = {
+            onEvent(PaymentMethodSelected(id = it))
+        },
+        availableValues = POImmutableList(regularPayments)
+    )
 }
 
 @Composable
