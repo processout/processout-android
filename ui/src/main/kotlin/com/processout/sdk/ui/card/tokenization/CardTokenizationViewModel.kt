@@ -32,7 +32,7 @@ import com.processout.sdk.ui.shared.transformation.CardNumberVisualTransformatio
 
 internal class CardTokenizationViewModel private constructor(
     private val app: Application,
-    private var configuration: POCardTokenizationConfiguration,
+    configuration: POCardTokenizationConfiguration,
     private val interactor: CardTokenizationInteractor
 ) : ViewModel() {
 
@@ -60,6 +60,9 @@ internal class CardTokenizationViewModel private constructor(
         val imeAction: ImeAction,
         val actionId: String?
     )
+
+    var configuration = configuration
+        private set
 
     val completion = interactor.completion
 

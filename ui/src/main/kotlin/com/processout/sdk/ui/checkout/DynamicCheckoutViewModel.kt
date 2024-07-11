@@ -5,10 +5,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.processout.sdk.api.ProcessOut
+import com.processout.sdk.api.model.response.POBillingAddressCollectionMode
+import com.processout.sdk.api.model.response.POBillingAddressCollectionMode.*
+import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.CardConfiguration
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Display
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.PaymentMethodSelected
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.*
@@ -87,7 +91,9 @@ internal class DynamicCheckoutViewModel private constructor(
                 cardTokenization.reset()
                 nativeAlternativePayment.reset()
                 when (paymentMethod) {
-                    is Card -> cardTokenization.start(POCardTokenizationConfiguration()) // TODO: apply config
+                    is Card -> cardTokenization.start(
+                        configuration = cardTokenization.configuration.apply(paymentMethod.configuration)
+                    )
                     is NativeAlternativePayment -> nativeAlternativePayment.start(
                         invoiceId = invoiceId,
                         gatewayConfigurationId = paymentMethod.gatewayConfigurationId
@@ -97,6 +103,22 @@ internal class DynamicCheckoutViewModel private constructor(
                 interactor.onEvent(event)
             }
         }
+    }
+
+    private fun POCardTokenizationConfiguration.apply(
+        configuration: CardConfiguration
+    ) = copy(
+        isCardholderNameFieldVisible = configuration.requireCardholderName,
+        billingAddress = billingAddress.copy(
+            mode = configuration.billingAddress.collectionMode.map(),
+            countryCodes = configuration.billingAddress.restrictToCountryCodes
+        )
+    )
+
+    private fun POBillingAddressCollectionMode.map() = when (this) {
+        full -> CollectionMode.Full
+        automatic -> CollectionMode.Automatic
+        never -> CollectionMode.Never
     }
 
     private fun combine(
