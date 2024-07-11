@@ -124,7 +124,7 @@ sealed class PODynamicCheckoutPaymentMethod {
      *
      * @param[collectionMode] Billing address collection mode.
      * @param[restrictToCountryCodes] Set of ISO country codes that is supported for the billing address.
-     * When _null_, all countries are supported.
+     * When _null_, all countries are provided.
      */
     @JsonClass(generateAdapter = true)
     data class BillingAddressConfiguration(
