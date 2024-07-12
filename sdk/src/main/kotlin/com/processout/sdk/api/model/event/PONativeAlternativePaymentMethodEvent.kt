@@ -21,6 +21,9 @@ sealed class PONativeAlternativePaymentMethodEvent {
 
     /**
      * Event is sent when user changes any editable value.
+     *
+     * @param[parameter] Parameter definition.
+     * @param[value] Parameter plain value. __Warning:__ may contain sensitive information.
      */
     data class ParametersChanged(
         val parameter: PONativeAlternativePaymentMethodParameter,
@@ -30,6 +33,9 @@ sealed class PONativeAlternativePaymentMethodEvent {
     /**
      * Event is sent just before submitting user input.
      * This is usually a result of a user action, e.g. button press.
+     *
+     * @param[parameters] Parameter definitions.
+     * @param[values] Parameter plain values. __Warning:__ may contain sensitive information.
      */
     data class WillSubmitParameters(
         val parameters: List<PONativeAlternativePaymentMethodParameter>,
