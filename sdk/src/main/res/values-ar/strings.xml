@@ -6,9 +6,7 @@
     <!-- Dynamic Checkout -->
     <string name="po_dynamic_checkout_button_pay">ادفع</string>
     <string name="po_dynamic_checkout_warning_redirect">سيتم إعادة توجيهك لإتمام هذه الدفعة.</string>
-    <string name="po_dynamic_checkout_warning_unavailable_method">طريقة الدفع هذه غير متاحة.</string>
     <string name="po_dynamic_checkout_error_generic">لم نتمكن من إتمام دفعتك. يرجى التحقق من التفاصيل أو تجربة طريقة دفع أخرى.</string>
-    <string name="po_dynamic_checkout_error_unavailable_method">طريقة الدفع المطلوبة غير متاحة، يرجى تجربة طريقة دفع أخرى.</string>
 
     <!-- Native Alternative Payment Method -->
     <string name="po_native_apm_title_format">الدفع بواسطة %s</string>
