@@ -14,6 +14,7 @@ import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode
+import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Awaiting
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.FieldFocusChanged
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.FieldValueChanged
 import com.processout.sdk.ui.checkout.DynamicCheckoutExtendedEvent.PaymentMethodSelected
@@ -64,7 +65,18 @@ internal class DynamicCheckoutViewModel private constructor(
             ) as T
     }
 
-    val completion = interactor.completion
+    val completion: StateFlow<DynamicCheckoutCompletion> = combine(
+        interactor.completion,
+        cardTokenization.completion,
+        nativeAlternativePayment.completion
+    ) { interactorCompletion, cardTokenizationCompletion, nativeAlternativePaymentCompletion ->
+        // TODO: combine completions
+        interactorCompletion
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = Awaiting
+    )
 
     val state: StateFlow<DynamicCheckoutViewModelState> = combine(
         interactor.state,
