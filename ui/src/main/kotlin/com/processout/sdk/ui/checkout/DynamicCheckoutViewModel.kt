@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.response.POBillingAddressCollectionMode
 import com.processout.sdk.api.model.response.POBillingAddressCollectionMode.*
@@ -224,13 +225,13 @@ internal class DynamicCheckoutViewModel private constructor(
                         id = id,
                         state = regularPaymentState(
                             display = paymentMethod.display,
-                            description = "This is redirect.",
+                            description = app.getString(R.string.po_dynamic_checkout_warning_redirect),
                             selected = selected
                         ),
                         content = null,
                         action = POActionState(
                             id = id,
-                            text = "Pay",
+                            text = app.getString(R.string.po_dynamic_checkout_button_pay),
                             primary = true
                         )
                     ) else null
