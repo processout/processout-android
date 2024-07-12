@@ -11,7 +11,8 @@ import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.base.BaseInteractor
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Awaiting
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Failure
-import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.PaymentMethodSelected
+import com.processout.sdk.ui.checkout.DynamicCheckoutExtendedEvent.Dismiss
+import com.processout.sdk.ui.checkout.DynamicCheckoutExtendedEvent.PaymentMethodSelected
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -101,13 +102,13 @@ internal class DynamicCheckoutInteractor(
     fun paymentMethod(id: String): PaymentMethod? =
         _state.value.paymentMethods.find { it.id == id }
 
-    fun onEvent(event: DynamicCheckoutEvent) {
+    fun onEvent(event: DynamicCheckoutExtendedEvent) {
         when (event) {
             is PaymentMethodSelected ->
                 _state.update {
                     it.copy(selectedPaymentMethodId = event.id)
                 }
-            else -> {} // TODO
+            is Dismiss -> {} // TODO
         }
     }
 }

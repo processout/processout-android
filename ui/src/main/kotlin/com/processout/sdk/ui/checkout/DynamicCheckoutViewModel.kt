@@ -9,17 +9,21 @@ import com.processout.sdk.api.model.response.POBillingAddressCollectionMode
 import com.processout.sdk.api.model.response.POBillingAddressCollectionMode.*
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.CardConfiguration
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Display
+import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode
-import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.PaymentMethodSelected
+import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.FieldFocusChanged
+import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.FieldValueChanged
+import com.processout.sdk.ui.checkout.DynamicCheckoutExtendedEvent.PaymentMethodSelected
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment.Content
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.Options
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
+import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Loading
@@ -80,19 +84,25 @@ internal class DynamicCheckoutViewModel private constructor(
 
     fun onEvent(event: DynamicCheckoutEvent) {
         when (event) {
-            is PaymentMethodSelected -> select(event)
-            else -> {} // TODO
+            is PaymentMethodSelected -> onPaymentMethodSelected(event)
+            is FieldValueChanged -> onFieldValueChanged(event)
+            is FieldFocusChanged -> onFieldFocusChanged(event)
+            else -> {}
+        }
+        if (event is DynamicCheckoutExtendedEvent) {
+            interactor.onEvent(event)
         }
     }
 
-    private fun select(event: PaymentMethodSelected) {
+    private fun onPaymentMethodSelected(event: PaymentMethodSelected) {
         if (event.id != interactor.state.value.selectedPaymentMethodId) {
             interactor.paymentMethod(event.id)?.let { paymentMethod ->
                 cardTokenization.reset()
                 nativeAlternativePayment.reset()
                 when (paymentMethod) {
                     is Card -> cardTokenization.start(
-                        configuration = cardTokenization.configuration.apply(paymentMethod.configuration)
+                        configuration = cardTokenization.configuration
+                            .apply(paymentMethod.configuration)
                     )
                     is NativeAlternativePayment -> nativeAlternativePayment.start(
                         invoiceId = invoiceId,
@@ -100,7 +110,6 @@ internal class DynamicCheckoutViewModel private constructor(
                     )
                     else -> {}
                 }
-                interactor.onEvent(event)
             }
         }
     }
@@ -119,6 +128,32 @@ internal class DynamicCheckoutViewModel private constructor(
         full -> CollectionMode.Full
         automatic -> CollectionMode.Automatic
         never -> CollectionMode.Never
+    }
+
+    private fun onFieldValueChanged(event: FieldValueChanged) {
+        val paymentMethod = interactor.paymentMethod(event.paymentMethodId)
+        when (paymentMethod) {
+            is Card -> cardTokenization.onEvent(
+                CardTokenizationEvent.FieldValueChanged(event.fieldId, event.value)
+            )
+            is NativeAlternativePayment -> nativeAlternativePayment.onEvent(
+                NativeAlternativePaymentEvent.FieldValueChanged(event.fieldId, event.value)
+            )
+            else -> {}
+        }
+    }
+
+    private fun onFieldFocusChanged(event: FieldFocusChanged) {
+        val paymentMethod = interactor.paymentMethod(event.paymentMethodId)
+        when (paymentMethod) {
+            is Card -> cardTokenization.onEvent(
+                CardTokenizationEvent.FieldFocusChanged(event.fieldId, event.isFocused)
+            )
+            is NativeAlternativePayment -> nativeAlternativePayment.onEvent(
+                NativeAlternativePaymentEvent.FieldFocusChanged(event.fieldId, event.isFocused)
+            )
+            else -> {}
+        }
     }
 
     private fun combine(

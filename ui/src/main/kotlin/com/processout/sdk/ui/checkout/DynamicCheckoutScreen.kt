@@ -10,7 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.PaymentMethodSelected
+import com.processout.sdk.ui.checkout.DynamicCheckoutExtendedEvent.PaymentMethodSelected
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.Started
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
