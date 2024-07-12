@@ -60,6 +60,7 @@ internal sealed interface NativeAlternativePaymentInteractorState {
         val id: String,
         val value: TextFieldValue,
         val availableValues: List<POAvailableValue>?,
+        val rawType: String,
         val type: ParameterType,
         val length: Int?,
         val displayName: String,

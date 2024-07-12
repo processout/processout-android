@@ -22,6 +22,7 @@ import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequ
 import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType.*
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterValue
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodState.*
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.POFailure.Code.*
@@ -270,6 +271,7 @@ internal class NativeAlternativePaymentInteractor(
                             text = it.displayName
                         )
                     },
+                    rawType = rawType,
                     type = type(),
                     length = length,
                     displayName = displayName,
@@ -279,6 +281,21 @@ internal class NativeAlternativePaymentInteractor(
                 )
             }
         }
+
+    private fun Field.toParameter() = PONativeAlternativePaymentMethodParameter(
+        key = id,
+        length = length,
+        required = required,
+        rawType = rawType,
+        displayName = displayName,
+        availableValues = availableValues?.map {
+            ParameterValue(
+                value = it.value,
+                displayName = it.text,
+                default = null
+            )
+        }
+    )
 
     private fun startUserInput(stateValue: UserInputStateValue) {
         _state.update { UserInput(stateValue) }
@@ -390,7 +407,14 @@ internal class NativeAlternativePaymentInteractor(
             _state.update { UserInput(updatedStateValue) }
             if (isTextChanged) {
                 POLogger.debug("Field is edited by the user: %s", id)
-                dispatch(ParametersChanged)
+                updatedStateValue.fields.find { it.id == id }?.let {
+                    dispatch(
+                        ParametersChanged(
+                            parameter = it.toParameter(),
+                            value = it.value.text
+                        )
+                    )
+                }
                 if (updatedStateValue.areAllFieldsValid()) {
                     _state.update { UserInput(updatedStateValue.copy(submitAllowed = true)) }
                 }
@@ -431,7 +455,12 @@ internal class NativeAlternativePaymentInteractor(
     private fun submit() {
         _state.whenUserInput { stateValue ->
             POLogger.info("Will submit payment parameters.")
-            dispatch(WillSubmitParameters)
+            dispatch(
+                WillSubmitParameters(
+                    parameters = stateValue.fields.map { it.toParameter() },
+                    values = stateValue.fields.values()
+                )
+            )
             val invalidFields = stateValue.fields.mapNotNull { it.validate() }
             if (invalidFields.isNotEmpty()) {
                 val failure = ProcessOutResult.Failure(
@@ -455,6 +484,14 @@ internal class NativeAlternativePaymentInteractor(
             }
             initiatePayment()
         }
+    }
+
+    private fun List<Field>.values(): Map<String, String> {
+        val values = mutableMapOf<String, String>()
+        forEach {
+            values[it.id] = it.value.text
+        }
+        return values
     }
 
     private fun Field.validate(): InvalidField? {
@@ -496,14 +533,10 @@ internal class NativeAlternativePaymentInteractor(
     private fun initiatePayment() {
         _state.whenUserInput { stateValue ->
             interactorScope.launch {
-                val parameters = mutableMapOf<String, String>()
-                stateValue.fields.forEach {
-                    parameters[it.id] = it.value.text
-                }
                 val request = PONativeAlternativePaymentMethodRequest(
                     invoiceId = invoiceId,
                     gatewayConfigurationId = gatewayConfigurationId,
-                    parameters = parameters
+                    parameters = stateValue.fields.values()
                 )
                 invoicesService.initiatePayment(request)
                     .onSuccess { payment ->

@@ -285,7 +285,14 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
                     inputParameters = updatedInputParameters
                 )
             )
-            dispatch(ParametersChanged)
+            updatedInputParameters.find { it.parameter.key == key }?.let {
+                dispatch(
+                    ParametersChanged(
+                        parameter = it.parameter,
+                        value = it.plainValue()
+                    )
+                )
+            }
             POLogger.debug("Payment parameters updated: %s", updatedInputParameters)
         }
     }
@@ -303,7 +310,12 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
     fun submitPayment() {
         _uiState.value.doWhenUserInput { uiModel ->
             POLogger.info("Will submit payment parameters.")
-            dispatch(WillSubmitParameters)
+            dispatch(
+                WillSubmitParameters(
+                    parameters = uiModel.inputParameters.map { it.parameter },
+                    values = uiModel.inputParameters.values()
+                )
+            )
 
             val invalidFields = uiModel.inputParameters.mapNotNull { it.validate() }
             if (invalidFields.isNotEmpty()) {
@@ -320,6 +332,14 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
             _uiState.value = UserInput(updatedUiModel)
             initiatePayment(updatedUiModel)
         }
+    }
+
+    private fun List<InputParameter>.values(): Map<String, String> {
+        val values = mutableMapOf<String, String>()
+        forEach {
+            values[it.parameter.key] = it.plainValue()
+        }
+        return values
     }
 
     private fun InputParameter.validate(): POFailure.InvalidField? {
@@ -358,12 +378,10 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
 
     private fun initiatePayment(uiModel: NativeAlternativePaymentMethodUiModel) {
         viewModelScope.launch {
-            val data = mutableMapOf<String, String>()
-            uiModel.inputParameters.forEach {
-                data[it.parameter.key] = it.plainValue()
-            }
             val request = PONativeAlternativePaymentMethodRequest(
-                invoiceId, gatewayConfigurationId, data
+                invoiceId = invoiceId,
+                gatewayConfigurationId = gatewayConfigurationId,
+                parameters = uiModel.inputParameters.values()
             )
             when (val result = invoicesService.initiatePayment(request)) {
                 is ProcessOutResult.Success -> with(result.value) {

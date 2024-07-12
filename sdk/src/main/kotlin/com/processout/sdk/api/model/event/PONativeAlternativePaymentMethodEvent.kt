@@ -1,5 +1,6 @@
 package com.processout.sdk.api.model.event
 
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter
 import com.processout.sdk.core.ProcessOutResult
 
 /**
@@ -21,13 +22,19 @@ sealed class PONativeAlternativePaymentMethodEvent {
     /**
      * Event is sent when user changes any editable value.
      */
-    data object ParametersChanged : PONativeAlternativePaymentMethodEvent()
+    data class ParametersChanged(
+        val parameter: PONativeAlternativePaymentMethodParameter,
+        val value: String
+    ) : PONativeAlternativePaymentMethodEvent()
 
     /**
      * Event is sent just before submitting user input.
      * This is usually a result of a user action, e.g. button press.
      */
-    data object WillSubmitParameters : PONativeAlternativePaymentMethodEvent()
+    data class WillSubmitParameters(
+        val parameters: List<PONativeAlternativePaymentMethodParameter>,
+        val values: Map<String, String>
+    ) : PONativeAlternativePaymentMethodEvent()
 
     /**
      * Event is sent when parameters were submitted successfully.
