@@ -9,7 +9,6 @@ import android.view.inputmethod.EditorInfo
 import androidx.annotation.StringRes
 import androidx.core.os.postDelayed
 import androidx.core.text.isDigitsOnly
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -51,7 +50,7 @@ import java.text.NumberFormat
 import java.util.Currency
 import java.util.concurrent.TimeUnit
 
-internal class NativeAlternativePaymentMethodViewModel(
+internal class NativeAlternativePaymentMethodViewModel private constructor(
     private val app: Application,
     private val gatewayConfigurationId: String,
     private val invoiceId: String,
@@ -60,7 +59,7 @@ internal class NativeAlternativePaymentMethodViewModel(
     private val captureRetryStrategy: PORetryStrategy,
     val options: Options,
     val logAttributes: Map<String, String>
-) : AndroidViewModel(app) {
+) : ViewModel() {
 
     class Factory(
         private val app: Application,
@@ -735,7 +734,6 @@ internal class NativeAlternativePaymentMethodViewModel(
     }
 
     override fun onCleared() {
-        super.onCleared()
         handler.removeCallbacksAndMessages(null)
     }
 }

@@ -69,7 +69,7 @@ ext {
     mockitoInlineVersion = '5.2.0'
     mockitoKotlinVersion = '5.2.1'
     robolectricVersion = '4.11.1'
-    androidxTestCoreVersion = '1.5.0'
+    androidxTestCoreVersion = '1.6.1'
 
     // Legacy
     volleyVersion = '1.2.1'

@@ -1,5 +1,6 @@
 package com.processout.sdk.api.model.response
 
+import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -25,7 +26,7 @@ data class POInvoice(
     @Json(name = "return_url")
     val returnUrl: String?,
     @Json(name = "payment_methods")
-    internal val paymentMethods: List<PODynamicCheckoutPaymentMethod>?
+    @ProcessOutInternalApi val paymentMethods: List<PODynamicCheckoutPaymentMethod>?
 )
 
 /**
@@ -95,19 +96,7 @@ sealed class PODynamicCheckoutPaymentMethod {
         val name: String,
         val logo: POImageResource,
         @Json(name = "brand_color")
-        val brandColor: BrandColor
-    )
-
-    /**
-     * Brand color for light/dark themes.
-     *
-     * @param[light] Light color HEX.
-     * @param[dark] Dark color HEX.
-     */
-    @JsonClass(generateAdapter = true)
-    data class BrandColor(
-        val light: String,
-        val dark: String
+        val brandColor: POColor
     )
 
     /**
@@ -135,7 +124,7 @@ sealed class PODynamicCheckoutPaymentMethod {
      *
      * @param[collectionMode] Billing address collection mode.
      * @param[restrictToCountryCodes] Set of ISO country codes that is supported for the billing address.
-     * When _null_, all countries are supported.
+     * When _null_, all countries are provided.
      */
     @JsonClass(generateAdapter = true)
     data class BillingAddressConfiguration(
@@ -170,15 +159,12 @@ sealed class PODynamicCheckoutPaymentMethod {
      * Alternative payment configuration.
      *
      * @param[gatewayConfigurationId] Gateway configuration ID.
-     * @param[gatewayName] Gateway name.
      * @param[redirectUrl] Redirect URL. If it's _null_, then payment should go through the native flow.
      */
     @JsonClass(generateAdapter = true)
     data class AlternativePaymentConfiguration(
-        @Json(name = "gateway_configuration_uid")
+        @Json(name = "gateway_configuration_id")
         val gatewayConfigurationId: String,
-        @Json(name = "gateway_name")
-        val gatewayName: String,
         @Json(name = "redirect_url")
         val redirectUrl: String?
     )

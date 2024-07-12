@@ -47,6 +47,7 @@ internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCar
         super.onAttach(context)
         @Suppress("DEPRECATION")
         configuration = arguments?.getParcelable(EXTRA_CONFIGURATION)
+        viewModel.start()
     }
 
     override fun onCreateView(

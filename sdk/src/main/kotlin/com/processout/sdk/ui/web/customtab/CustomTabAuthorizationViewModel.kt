@@ -14,7 +14,7 @@ import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationActivityContrac
 import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationUiState.*
 import java.util.concurrent.TimeUnit
 
-internal class CustomTabAuthorizationViewModel(
+internal class CustomTabAuthorizationViewModel private constructor(
     private val savedState: SavedStateHandle,
     private val configuration: CustomTabConfiguration
 ) : ViewModel() {
@@ -100,7 +100,6 @@ internal class CustomTabAuthorizationViewModel(
     }
 
     override fun onCleared() {
-        super.onCleared()
         timeoutHandler.removeCallbacksAndMessages(null)
     }
 }

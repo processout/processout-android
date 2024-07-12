@@ -6,9 +6,7 @@
     <!-- Dynamic Checkout -->
     <string name="po_dynamic_checkout_button_pay">Zapłać</string>
     <string name="po_dynamic_checkout_warning_redirect">Zostaniesz przekierowany, aby sfinalizować tę płatność.</string>
-    <string name="po_dynamic_checkout_warning_unavailable_method">Ta metoda płatności nie jest obsługiwana.</string>
     <string name="po_dynamic_checkout_error_generic">Nie byliśmy w stanie sfinalizować Twojej płatności. Zweryfikuj swoje dane lub wybierz inną metody płatności.</string>
-    <string name="po_dynamic_checkout_error_unavailable_method">Wybrana metoda płatności nie jest obsługiwana. Proszę wybierz inną metodę.</string>
 
     <!-- Native Alternative Payment Method -->
     <string name="po_native_apm_title_format">Zapłać przy pomocy %s</string>

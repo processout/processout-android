@@ -15,7 +15,6 @@ import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentM
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType.*
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails.Invoice
-import com.processout.sdk.core.logger.POLogAttribute
 import com.processout.sdk.core.retry.PORetryStrategy.Exponential
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POActionState.Confirmation
@@ -34,7 +33,7 @@ import com.processout.sdk.ui.shared.transformation.PhoneNumberVisualTransformati
 import java.text.NumberFormat
 import java.util.Currency
 
-internal class NativeAlternativePaymentViewModel(
+internal class NativeAlternativePaymentViewModel private constructor(
     private val app: Application,
     private val options: Options,
     private val interactor: NativeAlternativePaymentInteractor
@@ -64,11 +63,7 @@ internal class NativeAlternativePaymentViewModel(
                         maxDelay = 90 * 1000,
                         factor = 1.45
                     ),
-                    eventDispatcher = PODefaultNativeAlternativePaymentMethodEventDispatcher,
-                    logAttributes = mapOf(
-                        POLogAttribute.INVOICE_ID to invoiceId,
-                        POLogAttribute.GATEWAY_CONFIGURATION_ID to gatewayConfigurationId
-                    )
+                    eventDispatcher = PODefaultNativeAlternativePaymentMethodEventDispatcher
                 )
             ) as T
 
@@ -99,6 +94,18 @@ internal class NativeAlternativePaymentViewModel(
     init {
         addCloseable(interactor.interactorScope)
     }
+
+    fun start() = interactor.start()
+
+    fun start(
+        invoiceId: String,
+        gatewayConfigurationId: String
+    ) = interactor.start(
+        invoiceId = invoiceId,
+        gatewayConfigurationId = gatewayConfigurationId
+    )
+
+    fun reset() = interactor.reset()
 
     fun onEvent(event: NativeAlternativePaymentEvent) = interactor.onEvent(event)
 

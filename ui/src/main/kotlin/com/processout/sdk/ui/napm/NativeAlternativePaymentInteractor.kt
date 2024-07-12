@@ -29,6 +29,7 @@ import com.processout.sdk.core.POFailure.InvalidField
 import com.processout.sdk.core.POFailure.ValidationCode
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.fold
+import com.processout.sdk.core.logger.POLogAttribute
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
@@ -50,17 +51,28 @@ import kotlinx.coroutines.flow.update
 
 internal class NativeAlternativePaymentInteractor(
     private val app: Application,
-    private val invoiceId: String,
-    private val gatewayConfigurationId: String,
+    private var invoiceId: String,
+    private var gatewayConfigurationId: String,
     private val options: Options,
     private val invoicesService: POInvoicesService,
     private val captureRetryStrategy: PORetryStrategy,
     private val eventDispatcher: PODefaultNativeAlternativePaymentMethodEventDispatcher,
-    private val logAttributes: Map<String, String>
+    private var logAttributes: Map<String, String> = logAttributes(
+        invoiceId = invoiceId,
+        gatewayConfigurationId = gatewayConfigurationId
+    )
 ) : BaseInteractor() {
 
-    companion object {
+    private companion object {
         const val SUCCESS_DELAY_MS = 3000L
+
+        fun logAttributes(
+            invoiceId: String,
+            gatewayConfigurationId: String
+        ): Map<String, String> = mapOf(
+            POLogAttribute.INVOICE_ID to invoiceId,
+            POLogAttribute.GATEWAY_CONFIGURATION_ID to gatewayConfigurationId
+        )
     }
 
     private val _completion = MutableStateFlow<NativeAlternativePaymentCompletion>(Awaiting)
@@ -76,12 +88,35 @@ internal class NativeAlternativePaymentInteractor(
     private var captureStartTimestamp = 0L
     private var capturePassedTimestamp = 0L
 
-    init {
+    fun start() {
         POLogger.info("Starting native alternative payment.")
         dispatch(WillStart)
         dispatchFailure()
         collectDefaultValues()
         fetchTransactionDetails()
+    }
+
+    fun start(
+        invoiceId: String,
+        gatewayConfigurationId: String
+    ) {
+        this.invoiceId = invoiceId
+        this.gatewayConfigurationId = gatewayConfigurationId
+        logAttributes = logAttributes(
+            invoiceId = invoiceId,
+            gatewayConfigurationId = gatewayConfigurationId
+        )
+        start()
+    }
+
+    fun reset() {
+        onCleared()
+        interactorScope.coroutineContext.cancelChildren()
+        latestDefaultValuesRequest = null
+        captureStartTimestamp = 0L
+        capturePassedTimestamp = 0L
+        _completion.update { Awaiting }
+        _state.update { Loading }
     }
 
     private fun fetchTransactionDetails() {

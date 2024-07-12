@@ -36,6 +36,7 @@ import com.processout.sdk.ui.shared.provider.address.AddressSpecification
 import com.processout.sdk.ui.shared.provider.address.AddressSpecification.AddressUnit
 import com.processout.sdk.ui.shared.provider.address.AddressSpecificationProvider
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -44,7 +45,7 @@ import java.util.Locale
 
 internal class CardTokenizationInteractor(
     private val app: Application,
-    private val configuration: POCardTokenizationConfiguration,
+    private var configuration: POCardTokenizationConfiguration,
     private val cardsRepository: POCardsRepository,
     private val cardSchemeProvider: CardSchemeProvider,
     private val addressSpecificationProvider: AddressSpecificationProvider,
@@ -74,7 +75,7 @@ internal class CardTokenizationInteractor(
 
     //region Initialization
 
-    init {
+    fun start() {
         interactorScope.launch {
             POLogger.info("Starting card tokenization.")
             dispatch(WillStart)
@@ -85,6 +86,21 @@ internal class CardTokenizationInteractor(
             POLogger.info("Card tokenization is started: waiting for user input.")
             dispatch(DidStart)
         }
+    }
+
+    fun start(configuration: POCardTokenizationConfiguration) {
+        this.configuration = configuration
+        _state.update { initState() }
+        start()
+    }
+
+    fun reset() {
+        interactorScope.coroutineContext.cancelChildren()
+        issuerInformationJob = null
+        latestPreferredSchemeRequest = null
+        latestShouldContinueRequest = null
+        _completion.update { Awaiting }
+        _state.update { initState() }
     }
 
     private fun initState() = CardTokenizationInteractorState(

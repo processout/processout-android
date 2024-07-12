@@ -30,9 +30,9 @@ import com.processout.sdk.ui.shared.state.FieldState
 import com.processout.sdk.ui.shared.transformation.CardExpirationVisualTransformation
 import com.processout.sdk.ui.shared.transformation.CardNumberVisualTransformation
 
-internal class CardTokenizationViewModel(
+internal class CardTokenizationViewModel private constructor(
     private val app: Application,
-    private val configuration: POCardTokenizationConfiguration,
+    configuration: POCardTokenizationConfiguration,
     private val interactor: CardTokenizationInteractor
 ) : ViewModel() {
 
@@ -61,6 +61,9 @@ internal class CardTokenizationViewModel(
         val actionId: String?
     )
 
+    var configuration = configuration
+        private set
+
     val completion = interactor.completion
 
     val state = interactor.state.map(viewModelScope, ::map)
@@ -68,6 +71,15 @@ internal class CardTokenizationViewModel(
     init {
         addCloseable(interactor.interactorScope)
     }
+
+    fun start() = interactor.start()
+
+    fun start(configuration: POCardTokenizationConfiguration) {
+        this.configuration = configuration
+        interactor.start(configuration)
+    }
+
+    fun reset() = interactor.reset()
 
     fun onEvent(event: CardTokenizationEvent) = interactor.onEvent(event)
 

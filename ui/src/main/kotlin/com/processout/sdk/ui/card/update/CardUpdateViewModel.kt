@@ -38,7 +38,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-internal class CardUpdateViewModel(
+internal class CardUpdateViewModel private constructor(
     private val app: Application,
     private val cardId: String,
     private val options: POCardUpdateConfiguration.Options,
