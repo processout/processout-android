@@ -6,6 +6,7 @@ import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Flow
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.POFailure.Code.Generic
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.base.BaseInteractor
@@ -108,7 +109,10 @@ internal class DynamicCheckoutInteractor(
                 _state.update {
                     it.copy(selectedPaymentMethodId = event.id)
                 }
-            is Dismiss -> {} // TODO
+            is Dismiss -> {
+                POLogger.info("Dismissed: %s", event.failure)
+                _completion.update { Failure(event.failure) }
+            }
         }
     }
 }

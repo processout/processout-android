@@ -6,12 +6,14 @@ import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.SystemBarStyle
+import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.POFailure.Code.Generic
 import com.processout.sdk.core.POUnit
 import com.processout.sdk.core.ProcessOutActivityResult
@@ -25,6 +27,7 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutActivityContract.Companion.
 import com.processout.sdk.ui.checkout.DynamicCheckoutActivityContract.Companion.EXTRA_RESULT
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Failure
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Success
+import com.processout.sdk.ui.checkout.DynamicCheckoutExtendedEvent.Dismiss
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
@@ -66,6 +69,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         if (savedInstanceState == null) {
             initConfiguration()
         }
+        dispatchBackPressed()
         setContent {
             ProcessOutTheme {
                 with(viewModel.completion.collectAsStateWithLifecycle()) {
@@ -85,13 +89,28 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         configuration = intent.getParcelableExtra(EXTRA_CONFIGURATION)
         configuration?.run {
             if (invoiceId.isBlank()) {
-                dismiss(
-                    ProcessOutResult.Failure(
-                        code = Generic(),
-                        message = "Invalid configuration."
+                viewModel.onEvent(
+                    Dismiss(
+                        ProcessOutResult.Failure(
+                            code = Generic(),
+                            message = "Invalid configuration."
+                        )
                     )
                 )
             }
+        }
+    }
+
+    private fun dispatchBackPressed() {
+        onBackPressedDispatcher.addCallback(this) {
+            viewModel.onEvent(
+                Dismiss(
+                    ProcessOutResult.Failure(
+                        code = Cancelled,
+                        message = "Cancelled by the user with back press or gesture."
+                    )
+                )
+            )
         }
     }
 
@@ -107,14 +126,6 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
             )
             else -> {}
         }
-
-    private fun dismiss(failure: ProcessOutResult.Failure) {
-        // TODO: notify VM
-        finishWithActivityResult(
-            resultCode = Activity.RESULT_CANCELED,
-            result = failure.toActivityResult()
-        )
-    }
 
     private fun finishWithActivityResult(
         resultCode: Int,
