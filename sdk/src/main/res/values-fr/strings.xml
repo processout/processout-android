@@ -3,6 +3,11 @@
 
     <string name="po_locale_language_code">fr</string>
 
+    <!-- Dynamic Checkout -->
+    <string name="po_dynamic_checkout_button_pay">Payer</string>
+    <string name="po_dynamic_checkout_warning_redirect">Vous serez redirigé pour finaliser ce paiement.</string>
+    <string name="po_dynamic_checkout_error_generic">Nous n’avons pas pu finaliser votre paiement. Veuillez vérifier vos informations ou essayer un autre mode de paiement.</string>
+
     <!-- Native Alternative Payment Method -->
     <string name="po_native_apm_title_format">Payer avec %s</string>
     <string name="po_native_apm_submit_button_text_format">Payer %s</string>
