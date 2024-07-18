@@ -1,20 +1,31 @@
+@file:Suppress("MayBeConstant")
+
 package com.processout.sdk.ui.checkout
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.checkout.DynamicCheckoutExtendedEvent.PaymentMethodSelected
+import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.FadeAnimationDurationMillis
+import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.ResizeAnimationDurationMillis
+import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.Started
+import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
-import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
-import com.processout.sdk.ui.core.state.POAvailableValue
+import com.processout.sdk.ui.core.component.field.radio.PORadioButton
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.component.isImeVisibleAsState
@@ -67,23 +78,96 @@ private fun Content(
     state: Started,
     onEvent: (DynamicCheckoutEvent) -> Unit
 ) {
-    // TODO
-    val selectedPaymentId = state.regularPayments.elements
-        .find { it.state.selected }?.id ?: String()
-    val regularPayments = state.regularPayments.elements
-        .map { regularPayment ->
-            POAvailableValue(
-                value = regularPayment.id,
-                text = regularPayment.state.name
+    Column(
+        modifier = Modifier.padding(ProcessOutTheme.spacing.extraLarge)
+    ) {
+        RegularPayments(
+            payments = state.regularPayments,
+            onEvent = onEvent
+        )
+    }
+}
+
+@Composable
+private fun RegularPayments(
+    payments: POImmutableList<RegularPayment>,
+    onEvent: (DynamicCheckoutEvent) -> Unit
+) {
+    val borderWidth = 1.dp
+    val containerShape = ProcessOutTheme.shapes.roundedCornersSmall
+    Column(
+        modifier = Modifier
+            .border(
+                width = borderWidth,
+                color = ProcessOutTheme.colors.border.subtle,
+                shape = containerShape
             )
+            .clip(shape = containerShape)
+            .padding(borderWidth),
+    ) {
+        payments.elements.forEachIndexed { index, payment ->
+            Row(
+                modifier = Modifier
+                    .clickable(
+                        onClick = { onEvent(PaymentMethodSelected(id = payment.id)) },
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    )
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = ProcessOutTheme.spacing.extraLarge,
+                        vertical = ProcessOutTheme.spacing.small
+                    ),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .requiredSize(24.dp)
+                        .background(Color.Black)
+                )
+                POText(
+                    text = payment.state.name,
+                    modifier = Modifier.weight(1f),
+                    style = ProcessOutTheme.typography.subheading,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1
+                )
+                PORadioButton(
+                    selected = payment.state.selected,
+                    onClick = { onEvent(PaymentMethodSelected(id = payment.id)) }
+                )
+            }
+            AnimatedVisibility(
+                visible = payment.state.selected,
+                enter = fadeIn(animationSpec = tween(durationMillis = FadeAnimationDurationMillis)) +
+                        expandVertically(animationSpec = tween(durationMillis = ResizeAnimationDurationMillis)),
+                exit = fadeOut(animationSpec = tween(durationMillis = FadeAnimationDurationMillis)) +
+                        shrinkVertically(animationSpec = tween(durationMillis = ResizeAnimationDurationMillis))
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            start = ProcessOutTheme.spacing.extraLarge,
+                            end = ProcessOutTheme.spacing.extraLarge,
+                            top = 0.dp,
+                            bottom = ProcessOutTheme.spacing.extraLarge
+                        )
+                ) {
+                    // TODO
+                }
+            }
+            if (index != payments.elements.lastIndex) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .requiredHeight(borderWidth)
+                        .background(color = ProcessOutTheme.colors.border.subtle)
+                )
+            }
         }
-    PORadioGroup(
-        value = selectedPaymentId,
-        onValueChange = {
-            onEvent(PaymentMethodSelected(id = it))
-        },
-        availableValues = POImmutableList(regularPayments)
-    )
+    }
 }
 
 @Composable
@@ -121,4 +205,7 @@ internal object DynamicCheckoutScreen {
             POField.custom(style = it)
         } ?: POField.default
     )
+
+    val FadeAnimationDurationMillis = 500
+    val ResizeAnimationDurationMillis = 300
 }
