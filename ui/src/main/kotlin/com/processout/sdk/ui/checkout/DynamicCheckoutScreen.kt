@@ -106,58 +106,14 @@ private fun RegularPayments(
             .padding(borderWidth),
     ) {
         payments.elements.forEachIndexed { index, payment ->
-            Row(
-                modifier = Modifier
-                    .clickable(
-                        onClick = { onEvent(PaymentMethodSelected(id = payment.id)) },
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null
-                    )
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = ProcessOutTheme.spacing.extraLarge,
-                        vertical = ProcessOutTheme.spacing.small
-                    ),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .requiredSize(24.dp)
-                        .background(Color.Black)
-                )
-                POText(
-                    text = payment.state.name,
-                    modifier = Modifier.weight(1f),
-                    style = ProcessOutTheme.typography.subheading,
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 1
-                )
-                PORadioButton(
-                    selected = payment.state.selected,
-                    onClick = { onEvent(PaymentMethodSelected(id = payment.id)) }
-                )
-            }
-            AnimatedVisibility(
-                visible = payment.state.selected,
-                enter = fadeIn(animationSpec = tween(durationMillis = FadeAnimationDurationMillis)) +
-                        expandVertically(animationSpec = tween(durationMillis = ResizeAnimationDurationMillis)),
-                exit = fadeOut(animationSpec = tween(durationMillis = FadeAnimationDurationMillis)) +
-                        shrinkVertically(animationSpec = tween(durationMillis = ResizeAnimationDurationMillis))
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            start = ProcessOutTheme.spacing.extraLarge,
-                            end = ProcessOutTheme.spacing.extraLarge,
-                            top = 0.dp,
-                            bottom = ProcessOutTheme.spacing.extraLarge
-                        )
-                ) {
-                    // TODO
-                }
-            }
+            RegularPayment(
+                payment = payment,
+                onEvent = onEvent
+            )
+            RegularPaymentContent(
+                payment = payment,
+                onEvent = onEvent
+            )
             if (index != payments.elements.lastIndex) {
                 Box(
                     modifier = Modifier
@@ -166,6 +122,72 @@ private fun RegularPayments(
                         .background(color = ProcessOutTheme.colors.border.subtle)
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun RegularPayment(
+    payment: RegularPayment,
+    onEvent: (DynamicCheckoutEvent) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .clickable(
+                onClick = { onEvent(PaymentMethodSelected(id = payment.id)) },
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            )
+            .fillMaxWidth()
+            .padding(
+                horizontal = ProcessOutTheme.spacing.extraLarge,
+                vertical = ProcessOutTheme.spacing.small
+            ),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .requiredSize(24.dp)
+                .background(Color.Black)
+        )
+        POText(
+            text = payment.state.name,
+            modifier = Modifier.weight(1f),
+            style = ProcessOutTheme.typography.subheading,
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1
+        )
+        PORadioButton(
+            selected = payment.state.selected,
+            onClick = { onEvent(PaymentMethodSelected(id = payment.id)) }
+        )
+    }
+}
+
+@Composable
+private fun RegularPaymentContent(
+    payment: RegularPayment,
+    onEvent: (DynamicCheckoutEvent) -> Unit
+) {
+    AnimatedVisibility(
+        visible = payment.state.selected,
+        enter = fadeIn(animationSpec = tween(durationMillis = FadeAnimationDurationMillis)) +
+                expandVertically(animationSpec = tween(durationMillis = ResizeAnimationDurationMillis)),
+        exit = fadeOut(animationSpec = tween(durationMillis = FadeAnimationDurationMillis)) +
+                shrinkVertically(animationSpec = tween(durationMillis = ResizeAnimationDurationMillis))
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = ProcessOutTheme.spacing.extraLarge,
+                    end = ProcessOutTheme.spacing.extraLarge,
+                    top = 0.dp,
+                    bottom = ProcessOutTheme.spacing.extraLarge
+                )
+        ) {
+            // TODO
         }
     }
 }
