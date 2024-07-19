@@ -16,11 +16,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.processout.sdk.ui.R
 import com.processout.sdk.ui.checkout.DynamicCheckoutExtendedEvent.PaymentMethodSelected
 import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.FadeAnimationDurationMillis
+import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.InfoIconSize
 import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.ResizeAnimationDurationMillis
+import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.infoPaddingValues
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.Started
 import com.processout.sdk.ui.core.component.POText
@@ -183,12 +192,48 @@ private fun RegularPaymentContent(
                 .padding(
                     start = ProcessOutTheme.spacing.extraLarge,
                     end = ProcessOutTheme.spacing.extraLarge,
-                    top = 0.dp,
                     bottom = ProcessOutTheme.spacing.extraLarge
                 )
         ) {
-            // TODO
+            payment.state.description?.let { description ->
+                Info(
+                    text = description,
+                    style = POText.Style(
+                        color = ProcessOutTheme.colors.text.muted,
+                        textStyle = ProcessOutTheme.typography.body2
+                    )
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun Info(
+    text: String,
+    style: POText.Style
+) {
+    Row {
+        val infoPaddingValues = infoPaddingValues(textStyle = style.textStyle)
+        Image(
+            painter = painterResource(id = R.drawable.po_info_icon),
+            contentDescription = null,
+            modifier = Modifier
+                .padding(
+                    top = infoPaddingValues.iconPaddingTop,
+                    end = 10.dp
+                )
+                .requiredSize(InfoIconSize),
+            colorFilter = ColorFilter.tint(color = style.color)
+        )
+        POText(
+            text = text,
+            color = style.color,
+            style = style.textStyle,
+            modifier = Modifier.padding(
+                top = infoPaddingValues.textPaddingTop
+            )
+        )
     }
 }
 
@@ -230,4 +275,32 @@ internal object DynamicCheckoutScreen {
 
     val FadeAnimationDurationMillis = 500
     val ResizeAnimationDurationMillis = 300
+
+    val InfoIconSize = 14.dp
+
+    @Immutable
+    data class InfoPaddingValues(
+        val iconPaddingTop: Dp,
+        val textPaddingTop: Dp
+    )
+
+    @Composable
+    fun infoPaddingValues(textStyle: TextStyle): InfoPaddingValues {
+        val textMeasurer = rememberTextMeasurer()
+        val singleLineTextMeasurement = remember(textStyle) {
+            textMeasurer.measure(text = String(), style = textStyle)
+        }
+        val density = LocalDensity.current
+        return remember(singleLineTextMeasurement) {
+            with(density) {
+                val infoIconCenterVertical = InfoIconSize / 2
+                val singleLineTextCenterVertical = singleLineTextMeasurement.size.height.toDp() / 2
+                val paddingTop = singleLineTextCenterVertical - infoIconCenterVertical
+                InfoPaddingValues(
+                    iconPaddingTop = if (paddingTop > 0.dp) paddingTop else 0.dp,
+                    textPaddingTop = if (paddingTop < 0.dp) paddingTop.unaryMinus() else 0.dp
+                )
+            }
+        }
+    }
 }
