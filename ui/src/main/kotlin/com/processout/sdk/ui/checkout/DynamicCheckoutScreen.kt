@@ -29,6 +29,7 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutExtendedEvent.PaymentMethod
 import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.FadeAnimationDurationMillis
 import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.InfoIconSize
 import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.ResizeAnimationDurationMillis
+import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.RowComponentSpacing
 import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.infoPaddingValues
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.Started
@@ -152,7 +153,7 @@ private fun RegularPayment(
                 horizontal = ProcessOutTheme.spacing.extraLarge,
                 vertical = ProcessOutTheme.spacing.small
             ),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
@@ -220,8 +221,7 @@ private fun Info(
             contentDescription = null,
             modifier = Modifier
                 .padding(
-                    top = infoPaddingValues.iconPaddingTop,
-                    end = 10.dp
+                    top = infoPaddingValues.iconPaddingTop
                 )
                 .requiredSize(InfoIconSize),
             colorFilter = ColorFilter.tint(color = style.color)
@@ -231,7 +231,8 @@ private fun Info(
             color = style.color,
             style = style.textStyle,
             modifier = Modifier.padding(
-                top = infoPaddingValues.textPaddingTop
+                top = infoPaddingValues.textPaddingTop,
+                start = RowComponentSpacing
             )
         )
     }
@@ -275,6 +276,8 @@ internal object DynamicCheckoutScreen {
 
     val FadeAnimationDurationMillis = 500
     val ResizeAnimationDurationMillis = 300
+
+    val RowComponentSpacing = 10.dp
 
     val InfoIconSize = 14.dp
 
