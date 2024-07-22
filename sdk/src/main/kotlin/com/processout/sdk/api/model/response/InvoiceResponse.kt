@@ -145,6 +145,9 @@ sealed class PODynamicCheckoutPaymentMethod {
      */
     @JsonClass(generateAdapter = true)
     data class GooglePayConfiguration(
+        val gateway: String,
+        @Json(name = "gateway_merchant_id")
+        val gatewayMerchantId: String,
         @Json(name = "allowed_auth_methods")
         val allowedAuthMethods: Set<String>,
         @Json(name = "allowed_card_networks")
