@@ -54,6 +54,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         DynamicCheckoutViewModel.Factory(
             app = application,
             invoiceId = configuration?.invoiceId ?: String(),
+            clientSecret = configuration?.clientSecret,
             options = configuration?.options ?: PODynamicCheckoutConfiguration.Options(),
             cardTokenization = cardTokenization,
             nativeAlternativePayment = nativeAlternativePayment

@@ -72,14 +72,17 @@ internal class DefaultInvoicesRepository(
         )
     }
 
-    override suspend fun invoice(invoiceId: String) =
-        apiCall { api.invoice(invoiceId) }.map { it.invoice }
+    override suspend fun invoice(
+        invoiceId: String,
+        clientSecret: String?
+    ) = apiCall { api.invoice(invoiceId, clientSecret) }.map { it.invoice }
 
     override fun invoice(
         invoiceId: String,
+        clientSecret: String?,
         callback: ProcessOutCallback<POInvoice>
     ) = apiCallScoped(callback, InvoiceResponse::toModel) {
-        api.invoice(invoiceId)
+        api.invoice(invoiceId, clientSecret)
     }
 
     override suspend fun createInvoice(request: POCreateInvoiceRequest) =

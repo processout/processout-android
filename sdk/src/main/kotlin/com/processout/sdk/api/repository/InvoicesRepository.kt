@@ -45,10 +45,14 @@ internal interface InvoicesRepository {
         callback: ProcessOutCallback<PONativeAlternativePaymentMethodCapture>
     )
 
-    suspend fun invoice(invoiceId: String): ProcessOutResult<POInvoice>
+    suspend fun invoice(
+        invoiceId: String,
+        clientSecret: String?
+    ): ProcessOutResult<POInvoice>
 
     fun invoice(
         invoiceId: String,
+        clientSecret: String?,
         callback: ProcessOutCallback<POInvoice>
     )
 

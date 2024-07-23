@@ -50,16 +50,28 @@ sealed class PODynamicCheckoutPaymentMethod {
     ) : PODynamicCheckoutPaymentMethod()
 
     /**
+     * Dynamic checkout tokenized card configuration.
+     * This payment method was previously saved by the customer.
+     *
+     * @param[display] UI configuration.
+     * @param[configuration] Tokenized card payment configuration.
+     */
+    @JsonClass(generateAdapter = true)
+    data class TokenizedCard(
+        val display: Display,
+        @Json(name = "card_customer_token")
+        val configuration: TokenizedCardConfiguration
+    ) : PODynamicCheckoutPaymentMethod()
+
+    /**
      * Dynamic checkout Google Pay configuration.
      *
      * @param[configuration] Google Pay configuration.
-     * @param[flow] Payment flow type.
      */
     @JsonClass(generateAdapter = true)
     data class GooglePay(
         @Json(name = "googlepay")
-        val configuration: GooglePayConfiguration,
-        val flow: Flow?
+        val configuration: GooglePayConfiguration
     ) : PODynamicCheckoutPaymentMethod()
 
     /**
@@ -75,6 +87,20 @@ sealed class PODynamicCheckoutPaymentMethod {
         @Json(name = "apm")
         val configuration: AlternativePaymentConfiguration,
         val flow: Flow?
+    ) : PODynamicCheckoutPaymentMethod()
+
+    /**
+     * Dynamic checkout tokenized alternative payment configuration.
+     * This payment method was previously saved by the customer.
+     *
+     * @param[display] UI configuration.
+     * @param[configuration] Tokenized alternative payment configuration.
+     */
+    @JsonClass(generateAdapter = true)
+    data class TokenizedAlternativePayment(
+        val display: Display,
+        @Json(name = "apm_customer_token")
+        val configuration: TokenizedAlternativePaymentConfiguration
     ) : PODynamicCheckoutPaymentMethod()
 
     /**
@@ -135,6 +161,17 @@ sealed class PODynamicCheckoutPaymentMethod {
     )
 
     /**
+     * Tokenized card configuration.
+     *
+     * @param[customerTokenId] Customer token ID.
+     */
+    @JsonClass(generateAdapter = true)
+    data class TokenizedCardConfiguration(
+        @Json(name = "customer_token_id")
+        val customerTokenId: String
+    )
+
+    /**
      * Google Pay configuration.
      * See [CardParameters](https://developers.google.com/pay/api/android/reference/request-objects#CardParameters).
      *
@@ -168,6 +205,21 @@ sealed class PODynamicCheckoutPaymentMethod {
     data class AlternativePaymentConfiguration(
         @Json(name = "gateway_configuration_id")
         val gatewayConfigurationId: String,
+        @Json(name = "redirect_url")
+        val redirectUrl: String?
+    )
+
+    /**
+     * Tokenized alternative payment configuration.
+     *
+     * @param[customerTokenId] Customer token ID.
+     * @param[redirectUrl] Redirect URL to payment method that was previously saved by the customer.
+     * If it's _null_, then payment can be authorized with [customerTokenId].
+     */
+    @JsonClass(generateAdapter = true)
+    data class TokenizedAlternativePaymentConfiguration(
+        @Json(name = "customer_token_id")
+        val customerTokenId: String,
         @Json(name = "redirect_url")
         val redirectUrl: String?
     )

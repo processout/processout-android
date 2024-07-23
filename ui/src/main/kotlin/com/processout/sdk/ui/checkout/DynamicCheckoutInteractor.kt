@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 internal class DynamicCheckoutInteractor(
     private val app: Application,
     private val invoiceId: String,
+    private val clientSecret: String?,
     private val invoicesService: POInvoicesService
 ) : BaseInteractor() {
 
@@ -45,29 +46,31 @@ internal class DynamicCheckoutInteractor(
 
     private fun fetchConfiguration() {
         interactorScope.launch {
-            invoicesService.invoice(invoiceId)
-                .onSuccess { invoice ->
-                    val paymentMethods = invoice.paymentMethods
-                    if (paymentMethods.isNullOrEmpty()) {
-                        _completion.update {
-                            Failure(
-                                ProcessOutResult.Failure(
-                                    code = Generic(),
-                                    message = "Missing remote configuration."
-                                )
+            invoicesService.invoice(
+                invoiceId = invoiceId,
+                clientSecret = clientSecret
+            ).onSuccess { invoice ->
+                val paymentMethods = invoice.paymentMethods
+                if (paymentMethods.isNullOrEmpty()) {
+                    _completion.update {
+                        Failure(
+                            ProcessOutResult.Failure(
+                                code = Generic(),
+                                message = "Missing remote configuration."
                             )
-                        }
-                        return@launch
-                    }
-                    _state.update {
-                        it.copy(
-                            loading = false,
-                            paymentMethods = paymentMethods.map()
                         )
                     }
-                }.onFailure { failure ->
-                    _completion.update { Failure(failure) }
+                    return@launch
                 }
+                _state.update {
+                    it.copy(
+                        loading = false,
+                        paymentMethods = paymentMethods.map()
+                    )
+                }
+            }.onFailure { failure ->
+                _completion.update { Failure(failure) }
+            }
         }
     }
 

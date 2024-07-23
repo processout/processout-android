@@ -93,14 +93,24 @@ interface POInvoicesService {
 
     /**
      * Fetch invoice details.
+     *
+     * @param[clientSecret] Client secret is a value of __x-processout-client-secret__ header of the invoice.
+     * Customer's saved payment methods will be included when this value is provided.
      */
-    suspend fun invoice(invoiceId: String): ProcessOutResult<POInvoice>
+    suspend fun invoice(
+        invoiceId: String,
+        clientSecret: String? = null
+    ): ProcessOutResult<POInvoice>
 
     /**
      * Fetch invoice details.
+     *
+     * @param[clientSecret] Client secret is a value of __x-processout-client-secret__ header of the invoice.
+     * Customer's saved payment methods will be included when this value is provided.
      */
     fun invoice(
         invoiceId: String,
+        clientSecret: String? = null,
         callback: ProcessOutCallback<POInvoice>
     )
 

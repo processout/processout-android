@@ -6,10 +6,7 @@ import com.processout.sdk.api.model.request.NativeAlternativePaymentCaptureReque
 import com.processout.sdk.api.model.request.POCreateInvoiceRequest
 import com.processout.sdk.api.model.response.*
 import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Path
+import retrofit2.http.*
 
 internal interface InvoicesApi {
 
@@ -39,7 +36,8 @@ internal interface InvoicesApi {
 
     @GET("/invoices/{id}")
     suspend fun invoice(
-        @Path("id") invoiceId: String
+        @Path("id") invoiceId: String,
+        @Header("x-processout-client-secret") clientSecret: String?
     ): Response<InvoiceResponse>
 
     @POST("/invoices")

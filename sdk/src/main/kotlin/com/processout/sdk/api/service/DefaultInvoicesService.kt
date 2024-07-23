@@ -150,15 +150,17 @@ internal class DefaultInvoicesService(
     }
 
     override suspend fun invoice(
-        invoiceId: String
+        invoiceId: String,
+        clientSecret: String?
     ): ProcessOutResult<POInvoice> =
-        repository.invoice(invoiceId)
+        repository.invoice(invoiceId, clientSecret)
 
     override fun invoice(
         invoiceId: String,
+        clientSecret: String?,
         callback: ProcessOutCallback<POInvoice>
     ) {
-        repository.invoice(invoiceId, callback)
+        repository.invoice(invoiceId, clientSecret, callback)
     }
 
     override suspend fun createInvoice(

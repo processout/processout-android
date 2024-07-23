@@ -46,6 +46,7 @@ internal class DynamicCheckoutViewModel private constructor(
     class Factory(
         private val app: Application,
         private val invoiceId: String,
+        private val clientSecret: String?,
         private val options: Options,
         private val cardTokenization: CardTokenizationViewModel,
         private val nativeAlternativePayment: NativeAlternativePaymentViewModel
@@ -59,6 +60,7 @@ internal class DynamicCheckoutViewModel private constructor(
                 interactor = DynamicCheckoutInteractor(
                     app = app,
                     invoiceId = invoiceId,
+                    clientSecret = clientSecret,
                     invoicesService = ProcessOut.instance.invoices
                 ),
                 cardTokenization = cardTokenization,

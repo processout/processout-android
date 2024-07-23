@@ -161,7 +161,10 @@ class InvoicesRepositoryTests {
         ).let { invoiceResult ->
             invoiceResult.assertFailure()
             invoiceResult.onSuccess { invoice ->
-                invoices.invoice(invoice.id).assertFailure()
+                invoices.invoice(
+                    invoiceId = invoice.id,
+                    clientSecret = null
+                ).assertFailure()
             }
         }
     }
