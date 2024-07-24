@@ -47,8 +47,7 @@ internal class DynamicCheckoutInteractor(
     private fun fetchConfiguration() {
         interactorScope.launch {
             invoicesService.invoice(
-                invoiceId = invoiceRequest.invoiceId,
-                clientSecret = invoiceRequest.clientSecret
+                invoiceId = invoiceRequest.invoiceId
             ).onSuccess { invoice ->
                 val paymentMethods = invoice.paymentMethods
                 if (paymentMethods.isNullOrEmpty()) {
