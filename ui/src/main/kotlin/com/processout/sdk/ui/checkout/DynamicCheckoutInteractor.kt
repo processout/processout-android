@@ -46,30 +46,29 @@ internal class DynamicCheckoutInteractor(
 
     private fun fetchConfiguration() {
         interactorScope.launch {
-            invoicesService.invoice(
-                invoiceId = invoiceRequest.invoiceId
-            ).onSuccess { invoice ->
-                val paymentMethods = invoice.paymentMethods
-                if (paymentMethods.isNullOrEmpty()) {
-                    _completion.update {
-                        Failure(
-                            ProcessOutResult.Failure(
-                                code = Generic(),
-                                message = "Missing remote configuration."
+            invoicesService.invoice(invoiceRequest)
+                .onSuccess { invoice ->
+                    val paymentMethods = invoice.paymentMethods
+                    if (paymentMethods.isNullOrEmpty()) {
+                        _completion.update {
+                            Failure(
+                                ProcessOutResult.Failure(
+                                    code = Generic(),
+                                    message = "Missing remote configuration."
+                                )
                             )
+                        }
+                        return@launch
+                    }
+                    _state.update {
+                        it.copy(
+                            loading = false,
+                            paymentMethods = paymentMethods.map()
                         )
                     }
-                    return@launch
+                }.onFailure { failure ->
+                    _completion.update { Failure(failure) }
                 }
-                _state.update {
-                    it.copy(
-                        loading = false,
-                        paymentMethods = paymentMethods.map()
-                    )
-                }
-            }.onFailure { failure ->
-                _completion.update { Failure(failure) }
-            }
         }
     }
 
