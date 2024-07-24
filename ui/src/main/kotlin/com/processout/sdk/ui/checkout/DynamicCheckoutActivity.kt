@@ -13,6 +13,7 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.POFailure.Code.Generic
 import com.processout.sdk.core.POUnit
@@ -46,15 +47,14 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         val nativeAlternativePayment: NativeAlternativePaymentViewModel by viewModels {
             NativeAlternativePaymentViewModel.Factory(
                 app = application,
-                invoiceId = configuration?.invoiceId ?: String(),
+                invoiceId = configuration?.invoiceRequest?.invoiceId ?: String(),
                 gatewayConfigurationId = String(),
                 options = PONativeAlternativePaymentConfiguration.Options()
             )
         }
         DynamicCheckoutViewModel.Factory(
             app = application,
-            invoiceId = configuration?.invoiceId ?: String(),
-            clientSecret = configuration?.clientSecret,
+            invoiceRequest = configuration?.invoiceRequest ?: POInvoiceRequest(invoiceId = String()),
             options = configuration?.options ?: PODynamicCheckoutConfiguration.Options(),
             cardTokenization = cardTokenization,
             nativeAlternativePayment = nativeAlternativePayment
@@ -89,7 +89,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         @Suppress("DEPRECATION")
         configuration = intent.getParcelableExtra(EXTRA_CONFIGURATION)
         configuration?.run {
-            if (invoiceId.isBlank()) {
+            if (invoiceRequest.invoiceId.isBlank()) {
                 viewModel.onEvent(
                     Dismiss(
                         ProcessOutResult.Failure(
