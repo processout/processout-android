@@ -62,6 +62,12 @@ object POText {
             textStyle = ProcessOutTheme.typography.title
         )
 
+    val subheading: Style
+        @Composable get() = Style(
+            color = ProcessOutTheme.colors.text.primary,
+            textStyle = ProcessOutTheme.typography.subheading
+        )
+
     val body: Style
         @Composable get() = Style(
             color = ProcessOutTheme.colors.text.primary,

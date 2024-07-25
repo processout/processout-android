@@ -7,6 +7,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -17,7 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -33,6 +36,8 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.RowComponentSpacing
 import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.infoPaddingValues
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.Started
+import com.processout.sdk.ui.core.component.POActionsContainer
+import com.processout.sdk.ui.core.component.POBorderStroke
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.radio.PORadioButton
@@ -264,15 +269,58 @@ internal object DynamicCheckoutScreen {
 
     @Immutable
     data class Style(
-        val field: POField.Style
+        val regularPayment: RegularPaymentStyle,
+        val field: POField.Style,
+        val actionsContainer: POActionsContainer.Style,
+        val backgroundColor: Color
+    )
+
+    @Immutable
+    data class RegularPaymentStyle(
+        val title: POText.Style,
+        val description: POText.Style,
+        val shape: Shape,
+        val border: POBorderStroke
     )
 
     @Composable
     fun style(custom: PODynamicCheckoutConfiguration.Style? = null) = Style(
+        regularPayment = custom?.regularPayment?.custom() ?: defaultRegularPayment,
         field = custom?.field?.let {
             POField.custom(style = it)
-        } ?: POField.default
+        } ?: POField.default,
+        actionsContainer = custom?.actionsContainer?.let {
+            POActionsContainer.custom(style = it)
+        } ?: POActionsContainer.default,
+        backgroundColor = custom?.backgroundColorResId?.let {
+            colorResource(id = it)
+        } ?: ProcessOutTheme.colors.surface.default
     )
+
+    private val defaultRegularPayment: RegularPaymentStyle
+        @Composable get() = with(ProcessOutTheme) {
+            RegularPaymentStyle(
+                title = POText.subheading,
+                description = POText.Style(
+                    color = colors.text.muted,
+                    textStyle = typography.body2
+                ),
+                shape = shapes.roundedCornersSmall,
+                border = POBorderStroke(width = 1.dp, color = colors.border.subtle)
+            )
+        }
+
+    @Composable
+    private fun PODynamicCheckoutConfiguration.RegularPaymentStyle.custom() =
+        RegularPaymentStyle(
+            title = POText.custom(style = title),
+            description = POText.custom(style = description),
+            shape = RoundedCornerShape(size = border.radiusDp.dp),
+            border = POBorderStroke(
+                width = border.widthDp.dp,
+                color = colorResource(id = border.colorResId)
+            )
+        )
 
     val FadeAnimationDurationMillis = 500
     val ResizeAnimationDurationMillis = 300
