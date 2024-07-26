@@ -83,6 +83,7 @@ internal class CardUpdateViewModel private constructor(
     private var latestShouldContinueRequest: POCardUpdateShouldContinueRequest? = null
 
     init {
+        collectFailure()
         shouldContinueOnFailure()
         POLogger.info(
             message = "Card update is started: waiting for user input.",
@@ -216,7 +217,7 @@ internal class CardUpdateViewModel private constructor(
                 ActionId.SUBMIT -> submit()
                 ActionId.CANCEL -> cancel()
             }
-            is Dismiss -> POLogger.info(
+            is Dismiss -> POLogger.warn(
                 message = "Dismissed: %s", event.failure,
                 attributes = logAttributes
             )
@@ -438,6 +439,16 @@ internal class CardUpdateViewModel private constructor(
     private fun dispatch(event: POCardUpdateEvent) {
         viewModelScope.launch {
             eventDispatcher.send(event)
+        }
+    }
+
+    private fun collectFailure() {
+        viewModelScope.launch {
+            _completion.collect {
+                if (it is Failure) {
+                    POLogger.warn("%s", it.failure, attributes = logAttributes)
+                }
+            }
         }
     }
 }
