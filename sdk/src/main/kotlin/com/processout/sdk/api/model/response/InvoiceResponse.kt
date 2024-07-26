@@ -128,21 +128,24 @@ sealed class PODynamicCheckoutPaymentMethod {
     /**
      * Card payment configuration.
      *
-     * @param[requireCvc] Defines whether the card CVC should be collected.
-     * @param[requireCardholderName] Defines whether the cardholder name should be collected.
-     * @param[allowSchemeSelection] Defines whether the user will be asked to select the scheme if co-scheme is available.
+     * @param[cvcRequired] Defines whether the card CVC should be collected.
+     * @param[cardholderNameRequired] Defines whether the cardholder name should be collected.
+     * @param[schemeSelectionAllowed] Defines whether the user will be asked to select the scheme if co-scheme is available.
      * @param[billingAddress] Card billing address configuration.
+     * @param[savingAllowed] Defines whether saving of the payment method is allowed.
      */
     @JsonClass(generateAdapter = true)
     data class CardConfiguration(
-        @Json(name = "require_cvc")
-        val requireCvc: Boolean,
-        @Json(name = "require_cardholder_name")
-        val requireCardholderName: Boolean,
-        @Json(name = "allow_scheme_selection")
-        val allowSchemeSelection: Boolean,
+        @Json(name = "cvc_required")
+        val cvcRequired: Boolean,
+        @Json(name = "cardholder_name_required")
+        val cardholderNameRequired: Boolean,
+        @Json(name = "scheme_selection_allowed")
+        val schemeSelectionAllowed: Boolean,
         @Json(name = "billing_address")
-        val billingAddress: BillingAddressConfiguration
+        val billingAddress: BillingAddressConfiguration,
+        @Json(name = "saving_allowed")
+        val savingAllowed: Boolean
     )
 
     /**

@@ -131,7 +131,7 @@ internal class DynamicCheckoutViewModel private constructor(
     private fun POCardTokenizationConfiguration.apply(
         configuration: CardConfiguration
     ) = copy(
-        isCardholderNameFieldVisible = configuration.requireCardholderName,
+        isCardholderNameFieldVisible = configuration.cardholderNameRequired,
         billingAddress = billingAddress.copy(
             mode = configuration.billingAddress.collectionMode.map(),
             countryCodes = configuration.billingAddress.restrictToCountryCodes
