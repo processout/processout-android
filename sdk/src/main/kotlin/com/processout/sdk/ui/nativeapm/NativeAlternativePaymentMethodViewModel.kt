@@ -524,11 +524,7 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
                                 handleCaptured(uiModel)
                             }
                         is ProcessOutResult.Failure ->
-                            _uiState.value = Failure(
-                                result.also {
-                                    POLogger.warn("Failed to capture invoice: %s", it, attributes = logAttributes)
-                                }
-                            )
+                            _uiState.value = Failure(result)
                     }
                     return@launch
                 }
@@ -538,9 +534,7 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
             _uiState.value = Failure(
                 ProcessOutResult.Failure(
                     Timeout(), "Payment confirmation timed out."
-                ).also {
-                    POLogger.warn("Failed to capture invoice: %s", it, attributes = logAttributes)
-                }
+                )
             )
         }
     }
@@ -593,6 +587,7 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
         viewModelScope.launch {
             _uiState.collect {
                 if (it is Failure) {
+                    POLogger.warn("%s", it.failure, attributes = logAttributes)
                     dispatch(DidFail(it.failure))
                 }
             }
@@ -603,7 +598,7 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
         with(failure) {
             dispatch(
                 DidFail(ProcessOutResult.Failure(code, message, invalidFields)
-                    .also { POLogger.info("View failed: %s", it) })
+                    .also { POLogger.warn("View failed: %s", it, attributes = logAttributes) })
             )
         }
     }
