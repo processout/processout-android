@@ -111,7 +111,7 @@ internal class DynamicCheckoutInteractor(
                     it.copy(selectedPaymentMethodId = event.id)
                 }
             is Dismiss -> {
-                POLogger.info("Dismissed: %s", event.failure)
+                POLogger.warn("Dismissed: %s", event.failure)
                 _completion.update { Failure(event.failure) }
             }
         }
