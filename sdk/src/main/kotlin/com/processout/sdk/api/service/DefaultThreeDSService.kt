@@ -64,7 +64,7 @@ internal class DefaultThreeDSService(private val moshi: Moshi) : ThreeDSService 
                                 ChallengeResponse(body = encode(result.value)), callback
                             )
                             is ProcessOutResult.Failure -> callback(result.copy()
-                                .also { POLogger.info("Failed to create authentication request: %s", it) }
+                                .also { POLogger.warn("Failed to create authentication request: %s", it) }
                             )
                         }
                     }
@@ -97,7 +97,7 @@ internal class DefaultThreeDSService(private val moshi: Moshi) : ThreeDSService 
                                 callback(ChallengeResponse(body = body), callback)
                             }
                             is ProcessOutResult.Failure -> callback(result.copy()
-                                .also { POLogger.info("Failed to handle challenge: %s", it) }
+                                .also { POLogger.warn("Failed to handle challenge: %s", it) }
                             )
                         }
                     }
@@ -135,7 +135,7 @@ internal class DefaultThreeDSService(private val moshi: Moshi) : ThreeDSService 
                                 ), callback
                             )
                             false -> callback(result.copy()
-                                .also { POLogger.info("Failed to handle URL fingerprint: %s", it) }
+                                .also { POLogger.warn("Failed to handle URL fingerprint: %s", it) }
                             )
                         }
                 }
