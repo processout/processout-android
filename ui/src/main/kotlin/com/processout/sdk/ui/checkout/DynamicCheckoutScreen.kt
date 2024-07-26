@@ -55,7 +55,7 @@ internal fun DynamicCheckoutScreen(
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.systemBars))
         Scaffold(
             modifier = Modifier.clip(shape = ProcessOutTheme.shapes.topRoundedCornersLarge),
-            containerColor = ProcessOutTheme.colors.surface.default,
+            containerColor = style.backgroundColor,
             topBar = { Header() },
             bottomBar = { Footer() }
         ) { scaffoldPadding ->
@@ -68,7 +68,8 @@ internal fun DynamicCheckoutScreen(
                 when (state) {
                     is Started -> Content(
                         state = state,
-                        onEvent = onEvent
+                        onEvent = onEvent,
+                        style = style
                     )
                     else -> {}
                 }
@@ -91,14 +92,16 @@ private fun Header() {
 @Composable
 private fun Content(
     state: Started,
-    onEvent: (DynamicCheckoutEvent) -> Unit
+    onEvent: (DynamicCheckoutEvent) -> Unit,
+    style: DynamicCheckoutScreen.Style
 ) {
     Column(
         modifier = Modifier.padding(ProcessOutTheme.spacing.extraLarge)
     ) {
         RegularPayments(
             payments = state.regularPayments,
-            onEvent = onEvent
+            onEvent = onEvent,
+            style = style
         )
     }
 }
@@ -106,15 +109,16 @@ private fun Content(
 @Composable
 private fun RegularPayments(
     payments: POImmutableList<RegularPayment>,
-    onEvent: (DynamicCheckoutEvent) -> Unit
+    onEvent: (DynamicCheckoutEvent) -> Unit,
+    style: DynamicCheckoutScreen.Style
 ) {
-    val borderWidth = 1.dp
-    val containerShape = ProcessOutTheme.shapes.roundedCornersSmall
+    val borderWidth = style.regularPayment.border.width
+    val containerShape = style.regularPayment.shape
     Column(
         modifier = Modifier
             .border(
                 width = borderWidth,
-                color = ProcessOutTheme.colors.border.subtle,
+                color = style.regularPayment.border.color,
                 shape = containerShape
             )
             .clip(shape = containerShape)
@@ -123,18 +127,20 @@ private fun RegularPayments(
         payments.elements.forEachIndexed { index, payment ->
             RegularPayment(
                 payment = payment,
-                onEvent = onEvent
+                onEvent = onEvent,
+                style = style
             )
             RegularPaymentContent(
                 payment = payment,
-                onEvent = onEvent
+                onEvent = onEvent,
+                style = style
             )
             if (index != payments.elements.lastIndex) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .requiredHeight(borderWidth)
-                        .background(color = ProcessOutTheme.colors.border.subtle)
+                        .background(color = style.regularPayment.border.color)
                 )
             }
         }
@@ -144,7 +150,8 @@ private fun RegularPayments(
 @Composable
 private fun RegularPayment(
     payment: RegularPayment,
-    onEvent: (DynamicCheckoutEvent) -> Unit
+    onEvent: (DynamicCheckoutEvent) -> Unit,
+    style: DynamicCheckoutScreen.Style
 ) {
     Row(
         modifier = Modifier
@@ -161,6 +168,7 @@ private fun RegularPayment(
         horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // TODO: logo
         Box(
             modifier = Modifier
                 .requiredSize(24.dp)
@@ -169,7 +177,8 @@ private fun RegularPayment(
         POText(
             text = payment.state.name,
             modifier = Modifier.weight(1f),
-            style = ProcessOutTheme.typography.subheading,
+            color = style.regularPayment.title.color,
+            style = style.regularPayment.title.textStyle,
             overflow = TextOverflow.Ellipsis,
             maxLines = 1
         )
@@ -183,7 +192,8 @@ private fun RegularPayment(
 @Composable
 private fun RegularPaymentContent(
     payment: RegularPayment,
-    onEvent: (DynamicCheckoutEvent) -> Unit
+    onEvent: (DynamicCheckoutEvent) -> Unit,
+    style: DynamicCheckoutScreen.Style
 ) {
     AnimatedVisibility(
         visible = payment.state.selected,
@@ -204,10 +214,7 @@ private fun RegularPaymentContent(
             payment.state.description?.let { description ->
                 Info(
                     text = description,
-                    style = POText.Style(
-                        color = ProcessOutTheme.colors.text.muted,
-                        textStyle = ProcessOutTheme.typography.body2
-                    )
+                    style = style.regularPayment.description
                 )
             }
         }
