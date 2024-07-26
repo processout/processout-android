@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
+import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.response.POBillingAddressCollectionMode
 import com.processout.sdk.api.model.response.POBillingAddressCollectionMode.*
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.CardConfiguration
@@ -36,7 +37,7 @@ import kotlinx.coroutines.flow.stateIn
 
 internal class DynamicCheckoutViewModel private constructor(
     private val app: Application,
-    private val invoiceId: String,
+    private val invoiceRequest: POInvoiceRequest,
     private val options: Options,
     private val interactor: DynamicCheckoutInteractor,
     private val cardTokenization: CardTokenizationViewModel,
@@ -45,7 +46,7 @@ internal class DynamicCheckoutViewModel private constructor(
 
     class Factory(
         private val app: Application,
-        private val invoiceId: String,
+        private val invoiceRequest: POInvoiceRequest,
         private val options: Options,
         private val cardTokenization: CardTokenizationViewModel,
         private val nativeAlternativePayment: NativeAlternativePaymentViewModel
@@ -54,11 +55,11 @@ internal class DynamicCheckoutViewModel private constructor(
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
             DynamicCheckoutViewModel(
                 app = app,
-                invoiceId = invoiceId,
+                invoiceRequest = invoiceRequest,
                 options = options,
                 interactor = DynamicCheckoutInteractor(
                     app = app,
-                    invoiceId = invoiceId,
+                    invoiceRequest = invoiceRequest,
                     invoicesService = ProcessOut.instance.invoices
                 ),
                 cardTokenization = cardTokenization,
@@ -118,7 +119,7 @@ internal class DynamicCheckoutViewModel private constructor(
                             .apply(paymentMethod.configuration)
                     )
                     is NativeAlternativePayment -> nativeAlternativePayment.start(
-                        invoiceId = invoiceId,
+                        invoiceId = invoiceRequest.invoiceId,
                         gatewayConfigurationId = paymentMethod.gatewayConfigurationId
                     )
                     else -> {}
@@ -130,7 +131,7 @@ internal class DynamicCheckoutViewModel private constructor(
     private fun POCardTokenizationConfiguration.apply(
         configuration: CardConfiguration
     ) = copy(
-        isCardholderNameFieldVisible = configuration.requireCardholderName,
+        isCardholderNameFieldVisible = configuration.cardholderNameRequired,
         billingAddress = billingAddress.copy(
             mode = configuration.billingAddress.collectionMode.map(),
             countryCodes = configuration.billingAddress.restrictToCountryCodes

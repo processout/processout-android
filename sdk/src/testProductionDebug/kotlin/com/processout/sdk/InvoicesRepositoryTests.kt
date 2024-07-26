@@ -1,10 +1,7 @@
 package com.processout.sdk
 
 import com.processout.sdk.api.ProcessOut
-import com.processout.sdk.api.model.request.POCardTokenizationRequest
-import com.processout.sdk.api.model.request.POCreateInvoiceRequest
-import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
-import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
+import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.response.CustomerAction
 import com.processout.sdk.api.repository.InvoicesRepository
 import com.processout.sdk.api.repository.POCardsRepository
@@ -161,7 +158,12 @@ class InvoicesRepositoryTests {
         ).let { invoiceResult ->
             invoiceResult.assertFailure()
             invoiceResult.onSuccess { invoice ->
-                invoices.invoice(invoice.id).assertFailure()
+                invoices.invoice(
+                    request = POInvoiceRequest(
+                        invoiceId = invoice.id,
+                        clientSecret = null
+                    )
+                ).assertFailure()
             }
         }
     }

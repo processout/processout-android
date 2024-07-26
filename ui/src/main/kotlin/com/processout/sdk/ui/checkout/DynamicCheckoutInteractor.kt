@@ -1,6 +1,7 @@
 package com.processout.sdk.ui.checkout
 
 import android.app.Application
+import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Flow.express
 import com.processout.sdk.api.service.POInvoicesService
@@ -23,7 +24,7 @@ import kotlinx.coroutines.launch
 
 internal class DynamicCheckoutInteractor(
     private val app: Application,
-    private val invoiceId: String,
+    private val invoiceRequest: POInvoiceRequest,
     private val invoicesService: POInvoicesService
 ) : BaseInteractor() {
 
@@ -45,7 +46,7 @@ internal class DynamicCheckoutInteractor(
 
     private fun fetchConfiguration() {
         interactorScope.launch {
-            invoicesService.invoice(invoiceId)
+            invoicesService.invoice(invoiceRequest)
                 .onSuccess { invoice ->
                     val paymentMethods = invoice.paymentMethods
                     if (paymentMethods.isNullOrEmpty()) {

@@ -2,6 +2,7 @@ package com.processout.sdk.api.service
 
 import com.processout.sdk.api.model.request.POCreateInvoiceRequest
 import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
+import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.POInvoice
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethod
@@ -150,15 +151,46 @@ internal class DefaultInvoicesService(
     }
 
     override suspend fun invoice(
+        request: POInvoiceRequest
+    ): ProcessOutResult<POInvoice> =
+        repository.invoice(request)
+
+    override fun invoice(
+        request: POInvoiceRequest,
+        callback: ProcessOutCallback<POInvoice>
+    ) {
+        repository.invoice(request, callback)
+    }
+
+    @Deprecated(
+        message = "Use function invoice(request)",
+        replaceWith = ReplaceWith("invoice(request)")
+    )
+    override suspend fun invoice(
         invoiceId: String
     ): ProcessOutResult<POInvoice> =
-        repository.invoice(invoiceId)
+        repository.invoice(
+            request = POInvoiceRequest(
+                invoiceId = invoiceId,
+                clientSecret = null
+            )
+        )
 
+    @Deprecated(
+        message = "Use function invoice(request, callback)",
+        replaceWith = ReplaceWith("invoice(request, callback)")
+    )
     override fun invoice(
         invoiceId: String,
         callback: ProcessOutCallback<POInvoice>
     ) {
-        repository.invoice(invoiceId, callback)
+        repository.invoice(
+            request = POInvoiceRequest(
+                invoiceId = invoiceId,
+                clientSecret = null
+            ),
+            callback = callback
+        )
     }
 
     override suspend fun createInvoice(

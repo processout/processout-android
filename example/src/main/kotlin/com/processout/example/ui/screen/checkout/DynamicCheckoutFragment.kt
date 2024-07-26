@@ -16,6 +16,7 @@ import com.processout.example.shared.Constants
 import com.processout.example.shared.toMessage
 import com.processout.example.ui.screen.base.BaseFragment
 import com.processout.example.ui.screen.checkout.DynamicCheckoutUiState.*
+import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.service.PO3DSService
 import com.processout.sdk.checkout.threeds.POCheckout3DSService
 import com.processout.sdk.core.POUnit
@@ -77,7 +78,9 @@ class DynamicCheckoutFragment : BaseFragment<FragmentAuthorizeInvoiceBinding>(
     private fun launchDynamicCheckout(invoiceId: String) {
         launcher.launch(
             PODynamicCheckoutConfiguration(
-                invoiceId = invoiceId
+                invoiceRequest = POInvoiceRequest(
+                    invoiceId = invoiceId
+                )
             )
         )
         viewModel.onLaunched()

@@ -54,8 +54,10 @@ internal class DefaultNetworkGraph(
             .add(
                 PolymorphicJsonAdapterFactory.of(PODynamicCheckoutPaymentMethod::class.java, "type")
                     .withSubtype(Card::class.java, "card")
+                    .withSubtype(CardCustomerToken::class.java, "card_customer_token")
                     .withSubtype(GooglePay::class.java, "googlepay")
                     .withSubtype(AlternativePayment::class.java, "apm")
+                    .withSubtype(AlternativePaymentCustomerToken::class.java, "apm_customer_token")
                     .withDefaultValue(Unknown)
             )
             .build()
