@@ -8,6 +8,8 @@ import com.processout.sdk.api.model.response.POCustomerToken
 import com.processout.sdk.api.repository.CustomerTokensRepository
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.logger.POLogAttribute
+import com.processout.sdk.core.logger.POLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -59,11 +61,26 @@ internal class DefaultCustomerTokensService(
                                 ProcessOutResult.Failure(
                                     POFailure.Code.Internal(),
                                     "Customer token is 'null'."
-                                )
+                                ).also { failure ->
+                                    POLogger.warn(
+                                        message = "Failed to assign customer token: %s", failure,
+                                        attributes = mapOf(
+                                            POLogAttribute.CUSTOMER_ID to request.customerId,
+                                            POLogAttribute.CUSTOMER_TOKEN_ID to request.tokenId
+                                        )
+                                    )
+                                }
                             )
                         }
                     }
                 is ProcessOutResult.Failure -> {
+                    POLogger.warn(
+                        message = "Failed to assign customer token: %s", result,
+                        attributes = mapOf(
+                            POLogAttribute.CUSTOMER_ID to request.customerId,
+                            POLogAttribute.CUSTOMER_TOKEN_ID to request.tokenId
+                        )
+                    )
                     threeDSService.cleanup()
                     scope.launch { _assignCustomerTokenResult.emit(result.copy()) }
                 }
@@ -109,10 +126,25 @@ internal class DefaultCustomerTokensService(
                             ProcessOutResult.Failure(
                                 POFailure.Code.Internal(),
                                 "Customer token is 'null'."
-                            )
+                            ).also { failure ->
+                                POLogger.warn(
+                                    message = "Failed to assign customer token: %s", failure,
+                                    attributes = mapOf(
+                                        POLogAttribute.CUSTOMER_ID to request.customerId,
+                                        POLogAttribute.CUSTOMER_TOKEN_ID to request.tokenId
+                                    )
+                                )
+                            }
                         )
                     }
                 is ProcessOutResult.Failure -> {
+                    POLogger.warn(
+                        message = "Failed to assign customer token: %s", result,
+                        attributes = mapOf(
+                            POLogAttribute.CUSTOMER_ID to request.customerId,
+                            POLogAttribute.CUSTOMER_TOKEN_ID to request.tokenId
+                        )
+                    )
                     threeDSService.cleanup()
                     callback(result.copy())
                 }
