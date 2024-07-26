@@ -387,7 +387,7 @@ internal class NativeAlternativePaymentInteractor(
                 }
             }
             is Dismiss -> {
-                POLogger.info("Dismissed: %s", event.failure)
+                POLogger.warn("Dismissed: %s", event.failure, attributes = logAttributes)
                 dispatch(DidFail(event.failure))
             }
         }
@@ -669,7 +669,6 @@ internal class NativeAlternativePaymentInteractor(
                             handleCaptured(stateValue)
                         }
                     }.onFailure { failure ->
-                        POLogger.warn("Failed to capture the payment: %s", failure, attributes = logAttributes)
                         _completion.update { Failure(failure) }
                     }
                     return@launch
@@ -682,7 +681,7 @@ internal class NativeAlternativePaymentInteractor(
                     ProcessOutResult.Failure(
                         code = Timeout(),
                         message = "Payment confirmation timed out."
-                    ).also { POLogger.warn("Failed to capture the payment: %s", it, attributes = logAttributes) }
+                    )
                 )
             }
         }
@@ -805,6 +804,7 @@ internal class NativeAlternativePaymentInteractor(
         interactorScope.launch {
             _completion.collect {
                 if (it is Failure) {
+                    POLogger.warn("%s", it.failure, attributes = logAttributes)
                     dispatch(DidFail(it.failure))
                 }
             }
