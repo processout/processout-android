@@ -11,10 +11,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,10 +26,12 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.processout.sdk.ui.R
 import com.processout.sdk.ui.checkout.DynamicCheckoutExtendedEvent.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.FadeAnimationDurationMillis
 import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.InfoIconSize
+import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.RegularPaymentLogoSize
 import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.ResizeAnimationDurationMillis
 import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.RowComponentSpacing
 import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.infoPaddingValues
@@ -188,12 +187,31 @@ private fun RegularPayment(
         horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // TODO: logo
-        Box(
-            modifier = Modifier
-                .requiredSize(24.dp)
-                .background(Color.Black)
-        )
+        var showLogo by remember { mutableStateOf(true) }
+        if (showLogo) {
+            val logoUrl: String = with(payment.state.logoResource) {
+                if (isSystemInDarkTheme()) {
+                    darkUrl?.raster ?: lightUrl.raster
+                } else {
+                    lightUrl.raster
+                }
+            }
+            AsyncImage(
+                model = logoUrl,
+                contentDescription = null,
+                modifier = Modifier.requiredSize(RegularPaymentLogoSize),
+                onError = { showLogo = false }
+            )
+        } else {
+            Box(
+                modifier = Modifier
+                    .requiredSize(RegularPaymentLogoSize)
+                    .background(
+                        color = style.regularPayment.title.color,
+                        shape = shapes.roundedCornersSmall
+                    )
+            )
+        }
         POText(
             text = payment.state.name,
             modifier = Modifier.weight(1f),
@@ -391,6 +409,7 @@ internal object DynamicCheckoutScreen {
 
     val RowComponentSpacing = 10.dp
 
+    val RegularPaymentLogoSize = 24.dp
     val InfoIconSize = 14.dp
 
     @Immutable
