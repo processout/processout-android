@@ -8,6 +8,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -136,11 +137,9 @@ private fun RegularPayments(
                 style = style
             )
             if (index != payments.elements.lastIndex) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .requiredHeight(borderWidth)
-                        .background(color = style.regularPayment.border.color)
+                HorizontalDivider(
+                    thickness = borderWidth,
+                    color = style.regularPayment.border.color
                 )
             }
         }
