@@ -5,6 +5,8 @@ import com.processout.sdk.core.ProcessOutResult
 
 internal sealed interface DynamicCheckoutExtendedEvent : DynamicCheckoutEvent {
     data class PaymentMethodSelected(val id: String) : DynamicCheckoutExtendedEvent
+    data class Action(val id: String) : DynamicCheckoutExtendedEvent
+    data class ActionConfirmationRequested(val id: String) : DynamicCheckoutExtendedEvent
     data class Dismiss(val failure: ProcessOutResult.Failure) : DynamicCheckoutExtendedEvent
 }
 

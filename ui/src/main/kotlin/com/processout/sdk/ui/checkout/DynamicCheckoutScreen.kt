@@ -29,19 +29,20 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.R
-import com.processout.sdk.ui.checkout.DynamicCheckoutExtendedEvent.PaymentMethodSelected
+import com.processout.sdk.ui.checkout.DynamicCheckoutExtendedEvent.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.FadeAnimationDurationMillis
 import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.InfoIconSize
 import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.ResizeAnimationDurationMillis
 import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.RowComponentSpacing
 import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.infoPaddingValues
-import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment
-import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.Started
+import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.*
 import com.processout.sdk.ui.core.component.POActionsContainer
 import com.processout.sdk.ui.core.component.POBorderStroke
+import com.processout.sdk.ui.core.component.PODialog
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.radio.PORadioButton
+import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.component.isImeVisibleAsState
@@ -58,7 +59,14 @@ internal fun DynamicCheckoutScreen(
             modifier = Modifier.clip(shape = ProcessOutTheme.shapes.topRoundedCornersLarge),
             containerColor = style.backgroundColor,
             topBar = { Header() },
-            bottomBar = { Footer() }
+            bottomBar = {
+                Footer(
+                    state = state,
+                    onEvent = onEvent,
+                    containerStyle = style.actionsContainer,
+                    dialogStyle = style.dialog
+                )
+            }
         ) { scaffoldPadding ->
             Column(
                 modifier = Modifier
@@ -250,15 +258,29 @@ private fun Info(
 }
 
 @Composable
-private fun Footer() {
+private fun Footer(
+    state: DynamicCheckoutViewModelState,
+    onEvent: (DynamicCheckoutEvent) -> Unit,
+    containerStyle: POActionsContainer.Style,
+    dialogStyle: PODialog.Style
+) {
     Column {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // TODO
+        var cancelAction: POActionState? = null
+        when (state) {
+            is Starting -> cancelAction = state.cancelAction
+            is Started -> cancelAction = state.cancelAction
+            else -> {}
         }
+        if (cancelAction != null) {
+            POActionsContainer(
+                actions = POImmutableList(listOf(cancelAction)),
+                onClick = { onEvent(Action(id = it)) },
+                onConfirmationRequested = { onEvent(ActionConfirmationRequested(id = it)) },
+                containerStyle = containerStyle,
+                dialogStyle = dialogStyle
+            )
+        }
+
         val isImeVisible by isImeVisibleAsState()
         val imePaddingValues = WindowInsets.ime.asPaddingValues()
         val systemBarsPaddingValues = WindowInsets.systemBars.asPaddingValues()
@@ -278,6 +300,7 @@ internal object DynamicCheckoutScreen {
         val regularPayment: RegularPaymentStyle,
         val field: POField.Style,
         val actionsContainer: POActionsContainer.Style,
+        val dialog: PODialog.Style,
         val backgroundColor: Color
     )
 
@@ -298,6 +321,9 @@ internal object DynamicCheckoutScreen {
         actionsContainer = custom?.actionsContainer?.let {
             POActionsContainer.custom(style = it)
         } ?: POActionsContainer.default,
+        dialog = custom?.dialog?.let {
+            PODialog.custom(style = it)
+        } ?: PODialog.default,
         backgroundColor = custom?.backgroundColorResId?.let {
             colorResource(id = it)
         } ?: ProcessOutTheme.colors.surface.default

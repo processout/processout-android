@@ -5,6 +5,7 @@ import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Flow.express
 import com.processout.sdk.api.service.POInvoicesService
+import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.POFailure.Code.Generic
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
@@ -13,8 +14,8 @@ import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.base.BaseInteractor
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Awaiting
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Failure
-import com.processout.sdk.ui.checkout.DynamicCheckoutExtendedEvent.Dismiss
-import com.processout.sdk.ui.checkout.DynamicCheckoutExtendedEvent.PaymentMethodSelected
+import com.processout.sdk.ui.checkout.DynamicCheckoutExtendedEvent.*
+import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.ActionId
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,7 +42,8 @@ internal class DynamicCheckoutInteractor(
     private fun initState() = DynamicCheckoutInteractorState(
         loading = true,
         paymentMethods = emptyList(),
-        selectedPaymentMethodId = null
+        selectedPaymentMethodId = null,
+        cancelActionId = ActionId.CANCEL
     )
 
     private fun fetchConfiguration() {
@@ -110,10 +112,27 @@ internal class DynamicCheckoutInteractor(
                 _state.update {
                     it.copy(selectedPaymentMethodId = event.id)
                 }
+            is Action -> when (event.id) {
+                ActionId.CANCEL -> cancel()
+            }
+            is ActionConfirmationRequested -> {
+                // TODO
+            }
             is Dismiss -> {
                 POLogger.warn("Dismissed: %s", event.failure)
                 _completion.update { Failure(event.failure) }
             }
+        }
+    }
+
+    private fun cancel() {
+        _completion.update {
+            Failure(
+                ProcessOutResult.Failure(
+                    code = Cancelled,
+                    message = "Cancelled by the user with cancel action."
+                ).also { POLogger.info("Cancelled: %s", it) }
+            )
         }
     }
 }
