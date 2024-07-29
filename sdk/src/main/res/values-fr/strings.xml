@@ -5,6 +5,7 @@
 
     <!-- Dynamic Checkout -->
     <string name="po_dynamic_checkout_button_pay">Payer</string>
+    <string name="po_dynamic_checkout_button_cancel">Annuler</string>
     <string name="po_dynamic_checkout_warning_redirect">Vous serez redirigé pour finaliser ce paiement.</string>
     <string name="po_dynamic_checkout_error_generic">Nous n\'avons pas pu finaliser votre paiement. Veuillez vérifier vos informations ou essayer un autre mode de paiement.</string>
 
