@@ -79,6 +79,7 @@ internal class CardTokenizationInteractor(
         interactorScope.launch {
             POLogger.info("Starting card tokenization.")
             dispatch(WillStart)
+            collectFailure()
             initAddressFields()
             collectPreferredScheme()
             handleCompletion()
@@ -165,7 +166,7 @@ internal class CardTokenizationInteractor(
                 ActionId.SUBMIT -> submit()
                 ActionId.CANCEL -> cancel()
             }
-            is Dismiss -> POLogger.info("Dismissed: %s", event.failure)
+            is Dismiss -> POLogger.warn("Dismissed: %s", event.failure)
         }
     }
 
@@ -748,6 +749,16 @@ internal class CardTokenizationInteractor(
     private fun dispatch(event: POCardTokenizationEvent) {
         interactorScope.launch {
             eventDispatcher.send(event)
+        }
+    }
+
+    private fun collectFailure() {
+        interactorScope.launch {
+            _completion.collect {
+                if (it is Failure) {
+                    POLogger.warn("%s", it.failure)
+                }
+            }
         }
     }
 }

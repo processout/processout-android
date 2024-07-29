@@ -11,6 +11,8 @@ import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTra
 import com.processout.sdk.api.repository.InvoicesRepository
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.logger.POLogAttribute
+import com.processout.sdk.core.logger.POLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -58,6 +60,10 @@ internal class DefaultInvoicesService(
                         }
                     }
                 is ProcessOutResult.Failure -> {
+                    POLogger.warn(
+                        message = "Failed to authorize invoice: %s", result,
+                        attributes = mapOf(POLogAttribute.INVOICE_ID to request.invoiceId)
+                    )
                     threeDSService.cleanup()
                     scope.launch { _authorizeInvoiceResult.emit(result.copy()) }
                 }
@@ -99,6 +105,10 @@ internal class DefaultInvoicesService(
                         callback(ProcessOutResult.Success(Unit))
                     }
                 is ProcessOutResult.Failure -> {
+                    POLogger.warn(
+                        message = "Failed to authorize invoice: %s", result,
+                        attributes = mapOf(POLogAttribute.INVOICE_ID to request.invoiceId)
+                    )
                     threeDSService.cleanup()
                     callback(result.copy())
                 }
