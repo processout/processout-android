@@ -35,7 +35,9 @@ data class PODynamicCheckoutConfiguration(
         val actionsContainer: POActionsContainerStyle? = null,
         val dialog: PODialogStyle? = null,
         @ColorRes
-        val backgroundColorResId: Int? = null
+        val backgroundColorResId: Int? = null,
+        @ColorRes
+        val progressIndicatorColorResId: Int? = null
     ) : Parcelable
 
     @Parcelize

@@ -3,6 +3,7 @@
 package com.processout.sdk.ui.checkout
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -36,15 +37,15 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.ResizeAnimationDurat
 import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.RowComponentSpacing
 import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.infoPaddingValues
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.*
-import com.processout.sdk.ui.core.component.POActionsContainer
-import com.processout.sdk.ui.core.component.POBorderStroke
-import com.processout.sdk.ui.core.component.PODialog
-import com.processout.sdk.ui.core.component.POText
+import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.radio.PORadioButton
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
-import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 import com.processout.sdk.ui.shared.component.isImeVisibleAsState
 
 @Composable
@@ -56,7 +57,7 @@ internal fun DynamicCheckoutScreen(
     Column {
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.systemBars))
         Scaffold(
-            modifier = Modifier.clip(shape = ProcessOutTheme.shapes.topRoundedCornersLarge),
+            modifier = Modifier.clip(shape = shapes.topRoundedCornersLarge),
             containerColor = style.backgroundColor,
             topBar = { Header() },
             bottomBar = {
@@ -72,9 +73,12 @@ internal fun DynamicCheckoutScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(scaffoldPadding)
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = if (state is Starting) Arrangement.Center else Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 when (state) {
+                    is Starting -> Loading(progressIndicatorColor = style.progressIndicatorColor)
                     is Started -> Content(
                         state = state,
                         onEvent = onEvent,
@@ -99,19 +103,28 @@ private fun Header() {
 }
 
 @Composable
+private fun Loading(progressIndicatorColor: Color) {
+    AnimatedVisibility {
+        POCircularProgressIndicator.Medium(color = progressIndicatorColor)
+    }
+}
+
+@Composable
 private fun Content(
     state: Started,
     onEvent: (DynamicCheckoutEvent) -> Unit,
     style: DynamicCheckoutScreen.Style
 ) {
-    Column(
-        modifier = Modifier.padding(ProcessOutTheme.spacing.extraLarge)
-    ) {
-        RegularPayments(
-            payments = state.regularPayments,
-            onEvent = onEvent,
-            style = style
-        )
+    AnimatedVisibility {
+        Column(
+            modifier = Modifier.padding(spacing.extraLarge)
+        ) {
+            RegularPayments(
+                payments = state.regularPayments,
+                onEvent = onEvent,
+                style = style
+            )
+        }
     }
 }
 
@@ -169,8 +182,8 @@ private fun RegularPayment(
             )
             .fillMaxWidth()
             .padding(
-                horizontal = ProcessOutTheme.spacing.extraLarge,
-                vertical = ProcessOutTheme.spacing.small
+                horizontal = spacing.extraLarge,
+                vertical = spacing.small
             ),
         horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing),
         verticalAlignment = Alignment.CenterVertically
@@ -213,9 +226,9 @@ private fun RegularPaymentContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    start = ProcessOutTheme.spacing.extraLarge,
-                    end = ProcessOutTheme.spacing.extraLarge,
-                    bottom = ProcessOutTheme.spacing.extraLarge
+                    start = spacing.extraLarge,
+                    end = spacing.extraLarge,
+                    bottom = spacing.extraLarge
                 )
         ) {
             payment.state.description?.let { description ->
@@ -293,6 +306,23 @@ private fun Footer(
     }
 }
 
+@Composable
+private fun AnimatedVisibility(
+    visibleState: MutableTransitionState<Boolean> = remember {
+        MutableTransitionState(initialState = false)
+            .apply { targetState = true }
+    },
+    content: @Composable () -> Unit
+) {
+    AnimatedVisibility(
+        visibleState = visibleState,
+        enter = fadeIn(animationSpec = tween(durationMillis = FadeAnimationDurationMillis)),
+        exit = fadeOut(animationSpec = tween(durationMillis = FadeAnimationDurationMillis))
+    ) {
+        content()
+    }
+}
+
 internal object DynamicCheckoutScreen {
 
     @Immutable
@@ -301,7 +331,8 @@ internal object DynamicCheckoutScreen {
         val field: POField.Style,
         val actionsContainer: POActionsContainer.Style,
         val dialog: PODialog.Style,
-        val backgroundColor: Color
+        val backgroundColor: Color,
+        val progressIndicatorColor: Color
     )
 
     @Immutable
@@ -326,21 +357,22 @@ internal object DynamicCheckoutScreen {
         } ?: PODialog.default,
         backgroundColor = custom?.backgroundColorResId?.let {
             colorResource(id = it)
-        } ?: ProcessOutTheme.colors.surface.default
+        } ?: colors.surface.default,
+        progressIndicatorColor = custom?.progressIndicatorColorResId?.let {
+            colorResource(id = it)
+        } ?: colors.button.primaryBackgroundDefault
     )
 
     private val defaultRegularPayment: RegularPaymentStyle
-        @Composable get() = with(ProcessOutTheme) {
-            RegularPaymentStyle(
-                title = POText.subheading,
-                description = POText.Style(
-                    color = colors.text.muted,
-                    textStyle = typography.body2
-                ),
-                shape = shapes.roundedCornersSmall,
-                border = POBorderStroke(width = 1.dp, color = colors.border.subtle)
-            )
-        }
+        @Composable get() = RegularPaymentStyle(
+            title = POText.subheading,
+            description = POText.Style(
+                color = colors.text.muted,
+                textStyle = typography.body2
+            ),
+            shape = shapes.roundedCornersSmall,
+            border = POBorderStroke(width = 1.dp, color = colors.border.subtle)
+        )
 
     @Composable
     private fun PODynamicCheckoutConfiguration.RegularPaymentStyle.custom() =
@@ -354,7 +386,7 @@ internal object DynamicCheckoutScreen {
             )
         )
 
-    val FadeAnimationDurationMillis = 500
+    val FadeAnimationDurationMillis = 400
     val ResizeAnimationDurationMillis = 300
 
     val RowComponentSpacing = 10.dp
