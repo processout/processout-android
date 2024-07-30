@@ -2,6 +2,7 @@ package com.processout.sdk.ui.checkout
 
 import android.os.Parcelable
 import androidx.annotation.ColorRes
+import androidx.annotation.DrawableRes
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.style.*
@@ -51,7 +52,9 @@ data class PODynamicCheckoutConfiguration(
     @Parcelize
     data class RegularPaymentStyle(
         val title: POTextStyle,
+        val border: POBorderStyle,
         val description: POTextStyle,
-        val border: POBorderStyle
+        @DrawableRes
+        val descriptionIconResId: Int? = null
     ) : Parcelable
 }

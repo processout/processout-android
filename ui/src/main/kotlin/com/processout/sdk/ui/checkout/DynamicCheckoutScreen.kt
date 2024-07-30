@@ -2,6 +2,7 @@
 
 package com.processout.sdk.ui.checkout
 
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.*
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
@@ -18,23 +19,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.processout.sdk.ui.R
 import com.processout.sdk.ui.checkout.DynamicCheckoutExtendedEvent.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.FadeAnimationDurationMillis
-import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.InfoIconSize
 import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.RegularPaymentLogoSize
 import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.ResizeAnimationDurationMillis
 import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.RowComponentSpacing
-import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.infoPaddingValues
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.*
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
@@ -193,7 +188,7 @@ private fun RegularPayment(
     ) {
         var showLogo by remember { mutableStateOf(true) }
         if (showLogo) {
-            val logoUrl: String = with(payment.state.logoResource) {
+            val logoUrl = with(payment.state.logoResource) {
                 if (isSystemInDarkTheme()) {
                     darkUrl?.raster ?: lightUrl.raster
                 } else {
@@ -254,41 +249,18 @@ private fun RegularPaymentContent(
                 )
         ) {
             payment.state.description?.let { description ->
-                Info(
-                    text = description,
-                    style = style.regularPayment.description
-                )
+                with(style.regularPayment.description) {
+                    POTextWithIcon(
+                        text = description,
+                        iconPainter = painterResource(id = iconResId),
+                        style = text.textStyle,
+                        textColor = text.color,
+                        iconColorFilter = iconColorFilter,
+                        horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing)
+                    )
+                }
             }
         }
-    }
-}
-
-@Composable
-private fun Info(
-    text: String,
-    style: POText.Style
-) {
-    Row {
-        val infoPaddingValues = infoPaddingValues(textStyle = style.textStyle)
-        Image(
-            painter = painterResource(id = R.drawable.po_info_icon),
-            contentDescription = null,
-            modifier = Modifier
-                .padding(
-                    top = infoPaddingValues.iconPaddingTop
-                )
-                .requiredSize(InfoIconSize),
-            colorFilter = ColorFilter.tint(color = style.color)
-        )
-        POText(
-            text = text,
-            color = style.color,
-            style = style.textStyle,
-            modifier = Modifier.padding(
-                top = infoPaddingValues.textPaddingTop,
-                start = RowComponentSpacing
-            )
-        )
     }
 }
 
@@ -366,9 +338,16 @@ internal object DynamicCheckoutScreen {
     @Immutable
     data class RegularPaymentStyle(
         val title: POText.Style,
-        val description: POText.Style,
         val shape: Shape,
-        val border: POBorderStroke
+        val border: POBorderStroke,
+        val description: InfoTextStyle
+    )
+
+    @Immutable
+    data class InfoTextStyle(
+        val text: POText.Style,
+        @DrawableRes val iconResId: Int,
+        val iconColorFilter: ColorFilter?
     )
 
     @Composable
@@ -414,27 +393,41 @@ internal object DynamicCheckoutScreen {
     )
 
     private val defaultRegularPayment: RegularPaymentStyle
-        @Composable get() = RegularPaymentStyle(
-            title = POText.subheading,
-            description = POText.Style(
+        @Composable get() {
+            val description = POText.Style(
                 color = colors.text.muted,
                 textStyle = typography.body2
-            ),
-            shape = shapes.roundedCornersSmall,
-            border = POBorderStroke(width = 1.dp, color = colors.border.subtle)
-        )
+            )
+            return RegularPaymentStyle(
+                title = POText.subheading,
+                shape = shapes.roundedCornersSmall,
+                border = POBorderStroke(width = 1.dp, color = colors.border.subtle),
+                description = InfoTextStyle(
+                    text = description,
+                    iconResId = R.drawable.po_info_icon,
+                    iconColorFilter = ColorFilter.tint(color = description.color)
+                )
+            )
+        }
 
     @Composable
-    private fun PODynamicCheckoutConfiguration.RegularPaymentStyle.custom() =
-        RegularPaymentStyle(
+    private fun PODynamicCheckoutConfiguration.RegularPaymentStyle.custom(): RegularPaymentStyle {
+        val description = POText.custom(style = description)
+        return RegularPaymentStyle(
             title = POText.custom(style = title),
-            description = POText.custom(style = description),
             shape = RoundedCornerShape(size = border.radiusDp.dp),
             border = POBorderStroke(
                 width = border.widthDp.dp,
                 color = colorResource(id = border.colorResId)
+            ),
+            description = InfoTextStyle(
+                text = description,
+                iconResId = descriptionIconResId ?: R.drawable.po_info_icon,
+                iconColorFilter = if (descriptionIconResId != null) null else
+                    ColorFilter.tint(color = description.color)
             )
         )
+    }
 
     val FadeAnimationDurationMillis = 400
     val ResizeAnimationDurationMillis = 300
@@ -442,31 +435,4 @@ internal object DynamicCheckoutScreen {
     val RowComponentSpacing = 10.dp
 
     val RegularPaymentLogoSize = 24.dp
-    val InfoIconSize = 14.dp
-
-    @Immutable
-    data class InfoPaddingValues(
-        val iconPaddingTop: Dp,
-        val textPaddingTop: Dp
-    )
-
-    @Composable
-    fun infoPaddingValues(textStyle: TextStyle): InfoPaddingValues {
-        val textMeasurer = rememberTextMeasurer()
-        val singleLineTextMeasurement = remember(textStyle) {
-            textMeasurer.measure(text = String(), style = textStyle)
-        }
-        val density = LocalDensity.current
-        return remember(singleLineTextMeasurement) {
-            with(density) {
-                val infoIconCenterVertical = InfoIconSize / 2
-                val singleLineTextCenterVertical = singleLineTextMeasurement.size.height.toDp() / 2
-                val paddingTop = singleLineTextCenterVertical - infoIconCenterVertical
-                InfoPaddingValues(
-                    iconPaddingTop = if (paddingTop > 0.dp) paddingTop else 0.dp,
-                    textPaddingTop = if (paddingTop < 0.dp) paddingTop.unaryMinus() else 0.dp
-                )
-            }
-        }
-    }
 }
