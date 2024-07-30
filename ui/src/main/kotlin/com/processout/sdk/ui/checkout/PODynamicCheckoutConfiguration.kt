@@ -31,13 +31,21 @@ data class PODynamicCheckoutConfiguration(
     @Parcelize
     data class Style(
         val regularPayment: RegularPaymentStyle? = null,
+        val label: POTextStyle? = null,
         val field: POFieldStyle? = null,
+        val codeField: POFieldStyle? = null,
+        val radioButton: PORadioButtonStyle? = null,
+        val dropdownMenu: PODropdownMenuStyle? = null,
+        val bodyText: POTextStyle? = null,
+        val errorText: POTextStyle? = null,
         val actionsContainer: POActionsContainerStyle? = null,
         val dialog: PODialogStyle? = null,
         @ColorRes
         val backgroundColorResId: Int? = null,
         @ColorRes
-        val progressIndicatorColorResId: Int? = null
+        val progressIndicatorColorResId: Int? = null,
+        @ColorRes
+        val controlsTintColorResId: Int? = null
     ) : Parcelable
 
     @Parcelize

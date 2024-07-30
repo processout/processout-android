@@ -38,13 +38,17 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.infoPaddingValues
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.*
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
+import com.processout.sdk.ui.core.component.field.code.POCodeField
+import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
 import com.processout.sdk.ui.core.component.field.radio.PORadioButton
+import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
+import com.processout.sdk.ui.shared.component.TextAndroidView
 import com.processout.sdk.ui.shared.component.isImeVisibleAsState
 
 @Composable
@@ -346,7 +350,13 @@ internal object DynamicCheckoutScreen {
     @Immutable
     data class Style(
         val regularPayment: RegularPaymentStyle,
+        val label: POText.Style,
         val field: POField.Style,
+        val codeField: POField.Style,
+        val radioGroup: PORadioGroup.Style,
+        val dropdownMenu: PODropdownField.MenuStyle,
+        val bodyText: TextAndroidView.Style,
+        val errorText: POText.Style,
         val actionsContainer: POActionsContainer.Style,
         val dialog: PODialog.Style,
         val backgroundColor: Color,
@@ -364,9 +374,31 @@ internal object DynamicCheckoutScreen {
     @Composable
     fun style(custom: PODynamicCheckoutConfiguration.Style? = null) = Style(
         regularPayment = custom?.regularPayment?.custom() ?: defaultRegularPayment,
+        label = custom?.label?.let {
+            POText.custom(style = it)
+        } ?: POText.label1,
         field = custom?.field?.let {
             POField.custom(style = it)
         } ?: POField.default,
+        codeField = custom?.codeField?.let {
+            POField.custom(style = it)
+        } ?: POCodeField.default,
+        radioGroup = custom?.radioButton?.let {
+            PORadioGroup.custom(style = it)
+        } ?: PORadioGroup.default,
+        dropdownMenu = custom?.dropdownMenu?.let {
+            PODropdownField.custom(style = it)
+        } ?: PODropdownField.defaultMenu,
+        bodyText = custom?.bodyText?.let { style ->
+            val controlsTintColor = custom.controlsTintColorResId?.let { colorResource(id = it) }
+            TextAndroidView.custom(
+                style = style,
+                controlsTintColor = controlsTintColor ?: colors.text.primary
+            )
+        } ?: TextAndroidView.default,
+        errorText = custom?.errorText?.let {
+            POText.custom(style = it)
+        } ?: POText.errorLabel,
         actionsContainer = custom?.actionsContainer?.let {
             POActionsContainer.custom(style = it)
         } ?: POActionsContainer.default,
