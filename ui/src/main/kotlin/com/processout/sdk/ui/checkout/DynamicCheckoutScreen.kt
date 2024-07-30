@@ -37,6 +37,7 @@ import com.processout.sdk.ui.core.component.field.code.POCodeField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
 import com.processout.sdk.ui.core.component.field.radio.PORadioButton
 import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
+import com.processout.sdk.ui.core.component.field.radio.PORadioGroup.toRadioButtonStyle
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
@@ -221,7 +222,8 @@ private fun RegularPayment(
         )
         PORadioButton(
             selected = payment.state.selected,
-            onClick = { onEvent(PaymentMethodSelected(id = payment.id)) }
+            onClick = { onEvent(PaymentMethodSelected(id = payment.id)) },
+            style = style.radioGroup.toRadioButtonStyle()
         )
     }
 }

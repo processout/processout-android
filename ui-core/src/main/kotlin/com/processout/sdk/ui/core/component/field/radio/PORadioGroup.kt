@@ -139,7 +139,7 @@ object PORadioGroup {
         text = POText.custom(style = text)
     )
 
-    internal fun Style.toRadioButtonStyle() = PORadioButton.Style(
+    fun Style.toRadioButtonStyle() = PORadioButton.Style(
         normalColor = normal.buttonColor,
         selectedColor = selected.buttonColor,
         errorColor = error.buttonColor,
