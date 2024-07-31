@@ -1,6 +1,6 @@
 @file:Suppress("MayBeConstant")
 
-package com.processout.sdk.ui.checkout
+package com.processout.sdk.ui.checkout.screen
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.*
@@ -25,12 +25,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.processout.sdk.ui.R
+import com.processout.sdk.ui.checkout.DynamicCheckoutEvent
 import com.processout.sdk.ui.checkout.DynamicCheckoutExtendedEvent.*
-import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.FadeAnimationDurationMillis
-import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.RegularPaymentLogoSize
-import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.ResizeAnimationDurationMillis
-import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.RowComponentSpacing
+import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.*
+import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration
+import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.FadeAnimationDurationMillis
+import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.RegularPaymentLogoSize
+import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.ResizeAnimationDurationMillis
+import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.RowComponentSpacing
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.code.POCodeField
