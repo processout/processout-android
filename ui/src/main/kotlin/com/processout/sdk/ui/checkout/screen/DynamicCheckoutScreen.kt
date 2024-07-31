@@ -31,9 +31,9 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutExtendedEvent.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.*
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration
-import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.FadeAnimationDurationMillis
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.RegularPaymentLogoSize
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.RowComponentSpacing
+import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.ShortAnimationDurationMillis
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.code.POCodeField
@@ -282,8 +282,8 @@ private fun AnimatedVisibility(
 ) {
     AnimatedVisibility(
         visibleState = visibleState,
-        enter = fadeIn(animationSpec = tween(durationMillis = FadeAnimationDurationMillis)),
-        exit = fadeOut(animationSpec = tween(durationMillis = FadeAnimationDurationMillis))
+        enter = fadeIn(animationSpec = tween(durationMillis = ShortAnimationDurationMillis)),
+        exit = fadeOut(animationSpec = tween(durationMillis = ShortAnimationDurationMillis))
     ) {
         content()
     }
@@ -401,8 +401,8 @@ internal object DynamicCheckoutScreen {
         )
     }
 
-    val FadeAnimationDurationMillis = 400
-    val ResizeAnimationDurationMillis = 300
+    val ShortAnimationDurationMillis = 300
+    val LongAnimationDurationMillis = 600
 
     val RowComponentSpacing = 10.dp
 

@@ -13,9 +13,9 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutEvent
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment.Content.Card
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment.Content.NativeAlternativePayment
-import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.FadeAnimationDurationMillis
-import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.ResizeAnimationDurationMillis
+import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.LongAnimationDurationMillis
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.RowComponentSpacing
+import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.ShortAnimationDurationMillis
 import com.processout.sdk.ui.core.component.POTextWithIcon
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 
@@ -27,13 +27,16 @@ internal fun RegularPaymentContent(
 ) {
     AnimatedVisibility(
         visible = payment.state.selected && !payment.state.loading,
-        enter = fadeIn(animationSpec = tween(durationMillis = FadeAnimationDurationMillis)) +
-                expandVertically(animationSpec = tween(durationMillis = ResizeAnimationDurationMillis)),
-        exit = fadeOut(animationSpec = tween(durationMillis = FadeAnimationDurationMillis)) +
-                shrinkVertically(animationSpec = tween(durationMillis = ResizeAnimationDurationMillis))
+        enter = fadeIn(animationSpec = tween(durationMillis = LongAnimationDurationMillis)) +
+                expandVertically(animationSpec = tween(durationMillis = ShortAnimationDurationMillis)),
+        exit = fadeOut(animationSpec = tween(durationMillis = LongAnimationDurationMillis)) +
+                shrinkVertically(animationSpec = tween(durationMillis = ShortAnimationDurationMillis))
     ) {
         Column(
             modifier = Modifier
+                .animateContentSize(
+                    animationSpec = tween(durationMillis = ShortAnimationDurationMillis)
+                )
                 .fillMaxWidth()
                 .padding(
                     start = spacing.extraLarge,
