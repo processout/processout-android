@@ -3,9 +3,11 @@
 package com.processout.sdk.ui.checkout.screen
 
 import androidx.annotation.DrawableRes
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -20,7 +22,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -32,7 +33,6 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.*
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.FadeAnimationDurationMillis
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.RegularPaymentLogoSize
-import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.ResizeAnimationDurationMillis
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.RowComponentSpacing
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
@@ -228,44 +228,6 @@ private fun RegularPayment(
             onClick = { onEvent(PaymentMethodSelected(id = payment.id)) },
             style = style.radioGroup.toRadioButtonStyle()
         )
-    }
-}
-
-@Composable
-private fun RegularPaymentContent(
-    payment: RegularPayment,
-    onEvent: (DynamicCheckoutEvent) -> Unit,
-    style: DynamicCheckoutScreen.Style
-) {
-    AnimatedVisibility(
-        visible = payment.state.selected,
-        enter = fadeIn(animationSpec = tween(durationMillis = FadeAnimationDurationMillis)) +
-                expandVertically(animationSpec = tween(durationMillis = ResizeAnimationDurationMillis)),
-        exit = fadeOut(animationSpec = tween(durationMillis = FadeAnimationDurationMillis)) +
-                shrinkVertically(animationSpec = tween(durationMillis = ResizeAnimationDurationMillis))
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = spacing.extraLarge,
-                    end = spacing.extraLarge,
-                    bottom = spacing.extraLarge
-                )
-        ) {
-            payment.state.description?.let { description ->
-                with(style.regularPayment.description) {
-                    POTextWithIcon(
-                        text = description,
-                        iconPainter = painterResource(id = iconResId),
-                        style = text.textStyle,
-                        textColor = text.color,
-                        iconColorFilter = iconColorFilter,
-                        horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing)
-                    )
-                }
-            }
-        }
     }
 }
 
