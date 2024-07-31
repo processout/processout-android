@@ -17,8 +17,7 @@ import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Awaiting
-import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.FieldFocusChanged
-import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.FieldValueChanged
+import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutExtendedEvent.PaymentMethodSelected
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.*
@@ -103,6 +102,7 @@ internal class DynamicCheckoutViewModel private constructor(
             is PaymentMethodSelected -> onPaymentMethodSelected(event)
             is FieldValueChanged -> onFieldValueChanged(event)
             is FieldFocusChanged -> onFieldFocusChanged(event)
+            is Action -> onAction(event)
             else -> {}
         }
         if (event is DynamicCheckoutExtendedEvent) {
@@ -167,6 +167,19 @@ internal class DynamicCheckoutViewModel private constructor(
             )
             is NativeAlternativePayment -> nativeAlternativePayment.onEvent(
                 NativeAlternativePaymentEvent.FieldFocusChanged(event.fieldId, event.isFocused)
+            )
+            else -> {}
+        }
+    }
+
+    private fun onAction(event: Action) {
+        val paymentMethod = interactor.paymentMethod(event.paymentMethodId)
+        when (paymentMethod) {
+            is Card -> cardTokenization.onEvent(
+                CardTokenizationEvent.Action(event.actionId)
+            )
+            is NativeAlternativePayment -> nativeAlternativePayment.onEvent(
+                NativeAlternativePaymentEvent.Action(event.actionId)
             )
             else -> {}
         }

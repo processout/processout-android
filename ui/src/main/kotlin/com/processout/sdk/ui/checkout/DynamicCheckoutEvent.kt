@@ -22,6 +22,11 @@ internal sealed interface DynamicCheckoutEvent {
         val fieldId: String,
         val isFocused: Boolean
     ) : DynamicCheckoutEvent
+
+    data class Action(
+        val paymentMethodId: String,
+        val actionId: String
+    ) : DynamicCheckoutEvent
 }
 
 internal sealed interface DynamicCheckoutCompletion {

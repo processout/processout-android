@@ -47,6 +47,8 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
+import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Field
+import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Field.CodeField
 import com.processout.sdk.ui.shared.component.TextAndroidView
 import com.processout.sdk.ui.shared.component.isImeVisibleAsState
 
@@ -402,4 +404,8 @@ internal object DynamicCheckoutScreen {
     val RowComponentSpacing = 10.dp
 
     val RegularPaymentLogoSize = 24.dp
+
+    fun codeFieldHorizontalAlignment(fields: List<Field>): Alignment.Horizontal =
+        if (fields.size == 1 && fields[0] is CodeField)
+            Alignment.CenterHorizontally else Alignment.Start
 }

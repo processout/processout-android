@@ -1,10 +1,7 @@
 package com.processout.sdk.ui.checkout.screen
 
+import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,6 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment
+import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment.Content.Card
+import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment.Content.NativeAlternativePayment
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.FadeAnimationDurationMillis
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.ResizeAnimationDurationMillis
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.RowComponentSpacing
@@ -26,7 +25,7 @@ internal fun RegularPaymentContent(
     onEvent: (DynamicCheckoutEvent) -> Unit,
     style: DynamicCheckoutScreen.Style
 ) {
-    androidx.compose.animation.AnimatedVisibility(
+    AnimatedVisibility(
         visible = payment.state.selected,
         enter = fadeIn(animationSpec = tween(durationMillis = FadeAnimationDurationMillis)) +
                 expandVertically(animationSpec = tween(durationMillis = ResizeAnimationDurationMillis)),
@@ -53,6 +52,21 @@ internal fun RegularPaymentContent(
                         horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing)
                     )
                 }
+            }
+            when (payment.content) {
+                is Card -> CardTokenization(
+                    id = payment.id,
+                    state = payment.content.state,
+                    onEvent = onEvent,
+                    style = style
+                )
+                is NativeAlternativePayment -> NativeAlternativePayment(
+                    id = payment.id,
+                    state = payment.content.state,
+                    onEvent = onEvent,
+                    style = style
+                )
+                null -> {}
             }
         }
     }
