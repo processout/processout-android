@@ -26,7 +26,7 @@ internal fun RegularPaymentContent(
     style: DynamicCheckoutScreen.Style
 ) {
     AnimatedVisibility(
-        visible = payment.state.selected,
+        visible = payment.state.selected && !payment.state.loading,
         enter = fadeIn(animationSpec = tween(durationMillis = FadeAnimationDurationMillis)) +
                 expandVertically(animationSpec = tween(durationMillis = ResizeAnimationDurationMillis)),
         exit = fadeOut(animationSpec = tween(durationMillis = FadeAnimationDurationMillis)) +

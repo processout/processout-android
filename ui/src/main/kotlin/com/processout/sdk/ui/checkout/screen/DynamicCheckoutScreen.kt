@@ -47,8 +47,6 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
-import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Field
-import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Field.CodeField
 import com.processout.sdk.ui.shared.component.TextAndroidView
 import com.processout.sdk.ui.shared.component.isImeVisibleAsState
 
@@ -109,7 +107,7 @@ private fun Header() {
 @Composable
 private fun Loading(progressIndicatorColor: Color) {
     AnimatedVisibility {
-        POCircularProgressIndicator.Medium(color = progressIndicatorColor)
+        POCircularProgressIndicator.Large(color = progressIndicatorColor)
     }
 }
 
@@ -225,6 +223,11 @@ private fun RegularPayment(
             overflow = TextOverflow.Ellipsis,
             maxLines = 1
         )
+        with(payment.state) {
+            if (selected && loading) {
+                POCircularProgressIndicator.Medium(color = style.progressIndicatorColor)
+            }
+        }
         PORadioButton(
             selected = payment.state.selected,
             onClick = { onEvent(PaymentMethodSelected(id = payment.id)) },
@@ -404,8 +407,4 @@ internal object DynamicCheckoutScreen {
     val RowComponentSpacing = 10.dp
 
     val RegularPaymentLogoSize = 24.dp
-
-    fun codeFieldHorizontalAlignment(fields: List<Field>): Alignment.Horizontal =
-        if (fields.size == 1 && fields[0] is CodeField)
-            Alignment.CenterHorizontally else Alignment.Start
 }

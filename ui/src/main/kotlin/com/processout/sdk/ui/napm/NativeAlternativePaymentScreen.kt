@@ -140,7 +140,7 @@ internal fun NativeAlternativePaymentScreen(
 @Composable
 private fun Loading(progressIndicatorColor: Color) {
     AnimatedVisibility(enterDelayMillis = AnimationDurationMillis) {
-        POCircularProgressIndicator.Medium(color = progressIndicatorColor)
+        POCircularProgressIndicator.Large(color = progressIndicatorColor)
     }
 }
 
@@ -483,7 +483,7 @@ private fun AnimatedProgressIndicator(
         enter = expandVertically() + fadeIn(animationSpec = tween(durationMillis = AnimationDurationMillis)),
         exit = shrinkVertically() + fadeOut(animationSpec = tween(durationMillis = AnimationDurationMillis))
     ) {
-        POCircularProgressIndicator.Medium(color = progressIndicatorColor)
+        POCircularProgressIndicator.Large(color = progressIndicatorColor)
     }
 }
 

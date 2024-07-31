@@ -13,7 +13,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
-import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.codeFieldHorizontalAlignment
 import com.processout.sdk.ui.core.component.PORequestFocus
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.POFieldLabels
@@ -87,7 +86,7 @@ private fun UserInput(
                     isPrimaryActionEnabled = isPrimaryActionEnabled,
                     fieldStyle = style.codeField,
                     labelsStyle = labelsStyle,
-                    horizontalAlignment = codeFieldHorizontalAlignment(state.fields.elements)
+                    horizontalAlignment = Alignment.Start
                 )
                 is RadioField -> RadioField(
                     id = id,
