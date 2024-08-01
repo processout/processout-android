@@ -259,7 +259,7 @@ internal class DynamicCheckoutViewModel private constructor(
                         display = paymentMethod.display,
                         selected = selected
                     ),
-                    content = Content.Card(cardTokenizationState),
+                    content = if (selected) Content.Card(cardTokenizationState) else null,
                     action = null
                 )
                 is AlternativePayment -> if (!paymentMethod.isExpress)
@@ -284,7 +284,7 @@ internal class DynamicCheckoutViewModel private constructor(
                         loading = nativeAlternativePaymentState is Loading,
                         selected = selected
                     ),
-                    content = Content.NativeAlternativePayment(nativeAlternativePaymentState),
+                    content = if (selected) Content.NativeAlternativePayment(nativeAlternativePaymentState) else null,
                     action = null
                 )
                 else -> null
