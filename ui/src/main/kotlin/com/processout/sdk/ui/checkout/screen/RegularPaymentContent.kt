@@ -34,9 +34,7 @@ internal fun RegularPaymentContent(
     ) {
         Column(
             modifier = Modifier
-                .animateContentSize(
-                    animationSpec = tween(durationMillis = ShortAnimationDurationMillis)
-                )
+                .animateContentSize()
                 .fillMaxWidth()
                 .padding(
                     start = spacing.extraLarge,
