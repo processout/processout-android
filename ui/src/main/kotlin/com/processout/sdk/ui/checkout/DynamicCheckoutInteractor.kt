@@ -165,6 +165,7 @@ internal class DynamicCheckoutInteractor(
                 }
             is Action -> when (event.id) {
                 ActionId.CANCEL -> cancel()
+                else -> submit(event.id)
             }
             is ActionConfirmationRequested -> {
                 // TODO
@@ -173,6 +174,19 @@ internal class DynamicCheckoutInteractor(
                 POLogger.warn("Dismissed: %s", event.failure)
                 _completion.update { Failure(event.failure) }
             }
+        }
+    }
+
+    private fun submit(id: String) {
+        val paymentMethod = paymentMethod(id)
+        when (paymentMethod) {
+            is GooglePay -> {
+                // TODO
+            }
+            is AlternativePayment -> {
+                // TODO
+            }
+            else -> {}
         }
     }
 

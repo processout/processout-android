@@ -181,7 +181,9 @@ internal class DynamicCheckoutViewModel private constructor(
             is NativeAlternativePayment -> nativeAlternativePayment.onEvent(
                 NativeAlternativePaymentEvent.Action(event.actionId)
             )
-            else -> {}
+            else -> interactor.onEvent(
+                DynamicCheckoutExtendedEvent.Action(id = event.actionId)
+            )
         }
     }
 
