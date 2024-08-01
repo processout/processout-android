@@ -54,7 +54,7 @@ private fun UserInput(
     style: DynamicCheckoutScreen.Style
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.large)
+        verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.extraLarge)
     ) {
         val lifecycleEvent = rememberLifecycleEvent()
         val labelsStyle = remember {

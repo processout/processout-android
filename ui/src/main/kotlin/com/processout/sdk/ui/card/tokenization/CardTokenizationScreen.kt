@@ -31,6 +31,7 @@ import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.component.rememberLifecycleEvent
+import com.processout.sdk.ui.shared.extension.conditional
 import com.processout.sdk.ui.shared.state.FieldState
 
 @Composable
@@ -68,8 +69,7 @@ internal fun CardTokenizationScreen(
                 .fillMaxSize()
                 .padding(scaffoldPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(ProcessOutTheme.spacing.extraLarge),
-            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
+                .padding(ProcessOutTheme.spacing.extraLarge)
         ) {
             Sections(
                 state = state,
@@ -90,33 +90,41 @@ private fun Sections(
         LocalFocusManager.current.clearFocus(force = true)
     }
     val lifecycleEvent = rememberLifecycleEvent()
-    state.sections.elements.forEach { section ->
-        section.title?.let {
-            with(style.sectionTitle) {
-                POText(
-                    text = it,
-                    color = color,
-                    style = textStyle
+    state.sections.elements.forEachIndexed { index, section ->
+        Column(
+            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
+        ) {
+            section.title?.let {
+                with(style.sectionTitle) {
+                    POText(
+                        text = it,
+                        modifier = Modifier.conditional(
+                            condition = index != 0,
+                            modifier = { padding(top = ProcessOutTheme.spacing.extraLarge) }
+                        ),
+                        color = color,
+                        style = textStyle
+                    )
+                }
+            }
+            section.items.elements.forEach { item ->
+                Item(
+                    item = item,
+                    onEvent = onEvent,
+                    lifecycleEvent = lifecycleEvent,
+                    focusedFieldId = state.focusedFieldId,
+                    isPrimaryActionEnabled = state.primaryAction.enabled && !state.primaryAction.loading,
+                    style = style,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
-        }
-        section.items.elements.forEach { item ->
-            Item(
-                item = item,
-                onEvent = onEvent,
-                lifecycleEvent = lifecycleEvent,
-                focusedFieldId = state.focusedFieldId,
-                isPrimaryActionEnabled = state.primaryAction.enabled && !state.primaryAction.loading,
-                style = style,
-                modifier = Modifier.fillMaxWidth()
-            )
         }
         POExpandableText(
             text = section.errorMessage,
             style = style.errorMessage,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = ProcessOutTheme.spacing.small)
+                .padding(top = ProcessOutTheme.spacing.small)
         )
     }
 }
