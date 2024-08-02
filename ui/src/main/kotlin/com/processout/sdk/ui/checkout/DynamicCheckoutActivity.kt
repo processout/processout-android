@@ -50,7 +50,9 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                 app = application,
                 invoiceId = configuration?.invoiceRequest?.invoiceId ?: String(),
                 gatewayConfigurationId = String(),
-                options = PONativeAlternativePaymentConfiguration.Options()
+                options = PONativeAlternativePaymentConfiguration.Options(
+                    skipSuccessScreen = true
+                )
             )
         }
         DynamicCheckoutViewModel.Factory(

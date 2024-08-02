@@ -1,18 +1,28 @@
 package com.processout.sdk.ui.checkout.screen
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.animation.*
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.lifecycle.Lifecycle
+import coil.compose.AsyncImage
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
+import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.CaptureImageHeight
+import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.CaptureImageWidth
+import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.LongAnimationDurationMillis
+import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.ShortAnimationDurationMillis
+import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.isMessageShort
+import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.messageGravity
+import com.processout.sdk.ui.core.component.POCircularProgressIndicator
 import com.processout.sdk.ui.core.component.PORequestFocus
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.POFieldLabels
@@ -29,7 +39,9 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Capture
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Field.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.UserInput
+import com.processout.sdk.ui.shared.component.TextAndroidView
 import com.processout.sdk.ui.shared.component.rememberLifecycleEvent
+import com.processout.sdk.ui.shared.extension.conditional
 import com.processout.sdk.ui.shared.state.FieldState
 
 @Composable
@@ -41,7 +53,9 @@ internal fun NativeAlternativePayment(
 ) {
     when (state) {
         is UserInput -> UserInput(id, state, onEvent, style)
-        is Capture -> Capture(state, style)
+        is Capture -> if (!state.isCaptured) {
+            Capture(state, style)
+        }
         else -> {}
     }
 }
@@ -308,5 +322,65 @@ private fun Capture(
     state: Capture,
     style: DynamicCheckoutScreen.Style
 ) {
+    AnimatedVisibility(
+        visibleState = remember {
+            MutableTransitionState(initialState = false)
+                .apply { targetState = true }
+        },
+        enter = fadeIn(animationSpec = tween(durationMillis = LongAnimationDurationMillis)),
+        exit = fadeOut(animationSpec = tween(durationMillis = LongAnimationDurationMillis))
+    ) {
+        Column(
+            modifier = Modifier.conditional(
+                condition = isMessageShort(state.message) && !state.withProgressIndicator,
+                modifier = { padding(top = spacing.extraLarge) }
+            ),
+            verticalArrangement = Arrangement.spacedBy(spacing.extraLarge),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (state.withProgressIndicator) {
+                AnimatedProgressIndicator(style.progressIndicatorColor)
+            }
+            TextAndroidView(
+                text = state.message,
+                style = style.bodyText,
+                modifier = Modifier.fillMaxWidth(),
+                gravity = messageGravity(state.message),
+                selectable = true,
+                linksClickable = true
+            )
+            var showImage by remember { mutableStateOf(true) }
+            if (showImage) {
+                AsyncImage(
+                    model = state.imageUrl,
+                    contentDescription = null,
+                    modifier = Modifier.requiredSize(
+                        width = CaptureImageWidth,
+                        height = CaptureImageHeight
+                    ),
+                    alignment = Alignment.Center,
+                    contentScale = ContentScale.Fit,
+                    onError = {
+                        showImage = false
+                    }
+                )
+            }
+        }
+    }
+}
 
+@Composable
+private fun AnimatedProgressIndicator(
+    progressIndicatorColor: Color
+) {
+    AnimatedVisibility(
+        visibleState = remember {
+            MutableTransitionState(initialState = false)
+                .apply { targetState = true }
+        },
+        enter = expandVertically() + fadeIn(animationSpec = tween(durationMillis = ShortAnimationDurationMillis)),
+        exit = shrinkVertically() + fadeOut(animationSpec = tween(durationMillis = ShortAnimationDurationMillis))
+    ) {
+        POCircularProgressIndicator.Large(color = progressIndicatorColor)
+    }
 }

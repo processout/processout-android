@@ -2,6 +2,7 @@
 
 package com.processout.sdk.ui.checkout.screen
 
+import android.view.Gravity
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
@@ -407,4 +408,16 @@ internal object DynamicCheckoutScreen {
     val RowComponentSpacing = 10.dp
 
     val RegularPaymentLogoSize = 24.dp
+
+    val CaptureImageWidth = 110.dp
+    val CaptureImageHeight = 140.dp
+
+    private val ShortMessageMaxLength = 150
+
+    fun isMessageShort(text: String) = text.length <= ShortMessageMaxLength
+
+    fun messageGravity(text: String): Int =
+        if (isMessageShort(text))
+            Gravity.CENTER_HORIZONTAL
+        else Gravity.START
 }
