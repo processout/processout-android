@@ -24,7 +24,7 @@ import com.processout.sdk.ui.core.component.field.radio.POLabeledRadioField
 import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
 import com.processout.sdk.ui.core.component.field.text.POLabeledTextField
 import com.processout.sdk.ui.core.state.POImmutableList
-import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Capture
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Field.*
@@ -54,7 +54,7 @@ private fun UserInput(
     style: DynamicCheckoutScreen.Style
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.extraLarge)
+        verticalArrangement = Arrangement.spacedBy(spacing.extraLarge)
     ) {
         val lifecycleEvent = rememberLifecycleEvent()
         val labelsStyle = remember {
