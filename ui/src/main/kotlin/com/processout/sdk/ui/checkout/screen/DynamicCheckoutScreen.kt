@@ -226,7 +226,7 @@ private fun RegularPayment(
         )
         with(payment.state) {
             if (selected && loading) {
-                POCircularProgressIndicator.Medium(color = style.progressIndicatorColor)
+                POCircularProgressIndicator.Small(color = style.progressIndicatorColor)
             }
         }
         PORadioButton(

@@ -15,13 +15,6 @@ object POCircularProgressIndicator {
 
     @Composable
     fun Small(color: Color) = CircularProgressIndicator(
-        modifier = Modifier.requiredSize(18.dp),
-        strokeWidth = 1.dp,
-        color = color
-    )
-
-    @Composable
-    fun Medium(color: Color) = CircularProgressIndicator(
         modifier = Modifier.requiredSize(20.dp),
         strokeWidth = 2.dp,
         color = color
