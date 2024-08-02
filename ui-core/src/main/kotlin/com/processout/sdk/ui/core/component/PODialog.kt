@@ -115,7 +115,7 @@ object PODialog {
     val default: Style
         @Composable get() = Style(
             title = POText.title,
-            message = POText.body,
+            message = POText.body1,
             confirmButton = POButton.tertiary,
             dismissButton = POButton.tertiary,
             backgroundColor = ProcessOutTheme.colors.surface.default
