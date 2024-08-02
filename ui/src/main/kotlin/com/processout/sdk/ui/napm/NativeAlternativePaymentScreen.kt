@@ -386,7 +386,7 @@ private fun Capture(
                 top = ProcessOutTheme.spacing.extraSmall,
                 bottom = ProcessOutTheme.spacing.extraLarge
             ),
-            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.large),
+            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.extraLarge),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             CaptureHeader(state, style)
@@ -398,7 +398,7 @@ private fun Capture(
                 )
             ) { isCaptured ->
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.large),
+                    verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.extraLarge),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     if (isCaptured) {
