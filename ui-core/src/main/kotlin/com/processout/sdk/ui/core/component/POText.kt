@@ -24,7 +24,7 @@ fun POText(
     text: String,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
-    style: TextStyle = ProcessOutTheme.typography.body2,
+    style: TextStyle = ProcessOutTheme.typography.body1,
     fontStyle: FontStyle? = null,
     textAlign: TextAlign? = null,
     onTextLayout: (TextLayoutResult) -> Unit = {},

@@ -31,7 +31,7 @@ fun POTextWithIcon(
     text: String,
     iconPainter: Painter,
     modifier: Modifier = Modifier,
-    style: TextStyle = ProcessOutTheme.typography.body2,
+    style: TextStyle = ProcessOutTheme.typography.body1,
     textColor: Color = Color.Unspecified,
     iconColorFilter: ColorFilter? = null,
     fontStyle: FontStyle? = null,
