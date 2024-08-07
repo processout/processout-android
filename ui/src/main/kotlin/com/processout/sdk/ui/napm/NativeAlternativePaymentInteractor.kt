@@ -181,8 +181,7 @@ internal class NativeAlternativePaymentInteractor(
         parameterValues: PONativeAlternativePaymentMethodParameterValues?
     ) = CaptureStateValue(
         paymentProviderName = parameterValues?.providerName,
-        logoUrl = if (parameterValues?.providerName != null)
-            parameterValues.providerLogoUrl else gateway.logoUrl,
+        logoUrl = logoUrl(gateway, parameterValues),
         actionImageUrl = gateway.customerActionImageUrl,
         actionMessage = parameterValues?.customerActionMessage
             ?: gateway.customerActionMessage?.let { escapedMarkdown(it) },
@@ -192,6 +191,19 @@ internal class NativeAlternativePaymentInteractor(
         ),
         withProgressIndicator = false
     )
+
+    private fun logoUrl(
+        gateway: PONativeAlternativePaymentMethodTransactionDetails.Gateway,
+        parameterValues: PONativeAlternativePaymentMethodParameterValues?
+    ): String? {
+        if (parameterValues?.providerName != null) {
+            return parameterValues.providerLogoUrl
+        }
+        if (options.paymentConfirmation.hideGatewayDetails) {
+            return null
+        }
+        return gateway.logoUrl
+    }
 
     //region User Input
 
