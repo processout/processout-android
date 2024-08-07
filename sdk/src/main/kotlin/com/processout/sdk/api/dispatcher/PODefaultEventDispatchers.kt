@@ -17,9 +17,11 @@ object PODefaultEventDispatchers : POEventDispatchers {
     override val nativeAlternativePaymentMethod: PONativeAlternativePaymentMethodEventDispatcher =
         defaultNativeAlternativePaymentMethod
 
-    override val cardTokenization: POCardTokenizationEventDispatcher by lazy {
-        PODefaultCardTokenizationEventDispatcher
+    val defaultCardTokenization by lazy {
+        PODefaultCardTokenizationEventDispatcher()
     }
+    override val cardTokenization: POCardTokenizationEventDispatcher =
+        defaultCardTokenization
 
     override val cardUpdate: POCardUpdateEventDispatcher by lazy {
         PODefaultCardUpdateEventDispatcher

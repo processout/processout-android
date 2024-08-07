@@ -12,7 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
-import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
+import com.processout.sdk.api.dispatcher.PODefaultEventDispatchers
 import com.processout.sdk.ui.card.tokenization.CardTokenizationInteractorState.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.*
 import com.processout.sdk.ui.core.state.POActionState
@@ -51,7 +51,7 @@ internal class CardTokenizationViewModel private constructor(
                     cardsRepository = ProcessOut.instance.cards,
                     cardSchemeProvider = CardSchemeProvider(),
                     addressSpecificationProvider = AddressSpecificationProvider(app),
-                    eventDispatcher = PODefaultCardTokenizationEventDispatcher
+                    eventDispatcher = PODefaultEventDispatchers.defaultCardTokenization
                 )
             ) as T
     }

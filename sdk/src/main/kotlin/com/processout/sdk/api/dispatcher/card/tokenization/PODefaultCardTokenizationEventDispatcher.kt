@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 
 /** @suppress */
 @ProcessOutInternalApi
-object PODefaultCardTokenizationEventDispatcher : POCardTokenizationEventDispatcher {
+class PODefaultCardTokenizationEventDispatcher : POCardTokenizationEventDispatcher {
 
     private val _events = MutableSharedFlow<POCardTokenizationEvent>()
     override val events = _events.asSharedFlow()
