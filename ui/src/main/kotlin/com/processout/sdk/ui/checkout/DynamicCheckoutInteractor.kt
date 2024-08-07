@@ -50,6 +50,7 @@ internal class DynamicCheckoutInteractor(
     val state = _state.asStateFlow()
 
     init {
+        dispatchEvents()
         fetchConfiguration()
     }
 
@@ -204,6 +205,15 @@ internal class DynamicCheckoutInteractor(
                     message = "Cancelled by the user with cancel action."
                 ).also { POLogger.info("Cancelled: %s", it) }
             )
+        }
+    }
+
+    private fun dispatchEvents() {
+        interactorScope.launch {
+            cardTokenizationEventDispatcher.events.collect { eventDispatcher.send(it) }
+        }
+        interactorScope.launch {
+            nativeAlternativePaymentEventDispatcher.events.collect { eventDispatcher.send(it) }
         }
     }
 }
