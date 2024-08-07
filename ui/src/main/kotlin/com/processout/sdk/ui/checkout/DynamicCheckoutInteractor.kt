@@ -6,6 +6,7 @@ import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.request.ImageResult
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
+import com.processout.sdk.api.dispatcher.checkout.PODefaultDynamicCheckoutEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
@@ -37,6 +38,7 @@ internal class DynamicCheckoutInteractor(
     private val app: Application,
     private val invoiceRequest: POInvoiceRequest,
     private val invoicesService: POInvoicesService,
+    private val eventDispatcher: PODefaultDynamicCheckoutEventDispatcher,
     private val cardTokenizationEventDispatcher: PODefaultCardTokenizationEventDispatcher,
     private val nativeAlternativePaymentEventDispatcher: PODefaultNativeAlternativePaymentMethodEventDispatcher
 ) : BaseInteractor() {

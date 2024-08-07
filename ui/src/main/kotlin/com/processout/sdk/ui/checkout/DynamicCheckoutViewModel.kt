@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
+import com.processout.sdk.api.dispatcher.checkout.PODefaultDynamicCheckoutEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.response.POBillingAddressCollectionMode
@@ -66,6 +67,7 @@ internal class DynamicCheckoutViewModel private constructor(
                     app = app,
                     invoiceRequest = invoiceRequest,
                     invoicesService = ProcessOut.instance.invoices,
+                    eventDispatcher = PODefaultDynamicCheckoutEventDispatcher,
                     cardTokenizationEventDispatcher = cardTokenizationEventDispatcher,
                     nativeAlternativePaymentEventDispatcher = nativeAlternativePaymentEventDispatcher
                 ),
