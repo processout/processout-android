@@ -33,6 +33,7 @@ import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration
 
 internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
 
@@ -51,6 +52,9 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                 invoiceId = configuration?.invoiceRequest?.invoiceId ?: String(),
                 gatewayConfigurationId = String(),
                 options = PONativeAlternativePaymentConfiguration.Options(
+                    paymentConfirmation = PaymentConfirmationConfiguration(
+                        hideGatewayDetails = true
+                    ),
                     skipSuccessScreen = true
                 )
             )

@@ -409,6 +409,8 @@ internal object DynamicCheckoutScreen {
 
     val RegularPaymentLogoSize = 24.dp
 
+    val CaptureLogoHeight = 34.dp
+
     val CaptureImageWidth = 110.dp
     val CaptureImageHeight = 140.dp
 

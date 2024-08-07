@@ -18,12 +18,14 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutEvent
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.CaptureImageHeight
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.CaptureImageWidth
+import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.CaptureLogoHeight
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.LongAnimationDurationMillis
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.ShortAnimationDurationMillis
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.isMessageShort
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.messageGravity
 import com.processout.sdk.ui.core.component.POCircularProgressIndicator
 import com.processout.sdk.ui.core.component.PORequestFocus
+import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.POFieldLabels
 import com.processout.sdk.ui.core.component.field.code.POCodeField
@@ -330,14 +332,18 @@ private fun Capture(
         enter = fadeIn(animationSpec = tween(durationMillis = LongAnimationDurationMillis)),
         exit = fadeOut(animationSpec = tween(durationMillis = LongAnimationDurationMillis))
     ) {
+        val withPaddingTop = isMessageShort(state.message) &&
+                state.logoUrl == null && state.title == null &&
+                !state.withProgressIndicator
         Column(
             modifier = Modifier.conditional(
-                condition = isMessageShort(state.message) && !state.withProgressIndicator,
+                condition = withPaddingTop,
                 modifier = { padding(top = spacing.extraLarge) }
             ),
             verticalArrangement = Arrangement.spacedBy(spacing.extraLarge),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            CaptureHeader(state, style)
             if (state.withProgressIndicator) {
                 AnimatedProgressIndicator(style.progressIndicatorColor)
             }
@@ -365,6 +371,33 @@ private fun Capture(
                     }
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun CaptureHeader(
+    state: Capture,
+    style: DynamicCheckoutScreen.Style
+) {
+    var showLogo by remember { mutableStateOf(true) }
+    if (showLogo) {
+        AsyncImage(
+            model = state.logoUrl,
+            contentDescription = null,
+            modifier = Modifier.requiredHeight(CaptureLogoHeight),
+            contentScale = ContentScale.FillHeight,
+            onError = {
+                showLogo = false
+            }
+        )
+    } else if (state.title != null) {
+        with(style.regularPayment.title) {
+            POText(
+                text = state.title,
+                color = color,
+                style = textStyle
+            )
         }
     }
 }
