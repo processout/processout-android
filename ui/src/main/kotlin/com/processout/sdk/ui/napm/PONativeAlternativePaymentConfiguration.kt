@@ -91,6 +91,8 @@ data class PONativeAlternativePaymentConfiguration(
      * Default value is 3 minutes, while maximum value is 15 minutes.
      * @param[showProgressIndicatorAfterSeconds] Show progress indicator during payment confirmation after provided delay (in seconds).
      * Use _null_ to hide, this is a default behaviour.
+     * @param[hideGatewayDetails] Specifies whether gateway information (such as name/logo) should be hidden during payment confirmation
+     * even when specific payment provider details are not available. Default value is _false_.
      * @param[secondaryAction] Secondary action (e.g. "Cancel") that could be optionally presented to user during payment confirmation stage.
      * Use _null_ to hide, this is a default behaviour.
      */
@@ -99,6 +101,7 @@ data class PONativeAlternativePaymentConfiguration(
         val waitsConfirmation: Boolean = true,
         val timeoutSeconds: Int = DEFAULT_TIMEOUT_SECONDS,
         val showProgressIndicatorAfterSeconds: Int? = null,
+        val hideGatewayDetails: Boolean = false,
         val secondaryAction: SecondaryAction? = null
     ) : Parcelable {
         companion object {
