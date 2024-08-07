@@ -1,90 +1,41 @@
-package com.processout.sdk.ui.card.tokenization
+package com.processout.sdk.ui.checkout.screen
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
-import androidx.compose.ui.res.colorResource
 import androidx.lifecycle.Lifecycle
-import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
+import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.Item
-import com.processout.sdk.ui.core.component.*
+import com.processout.sdk.ui.checkout.DynamicCheckoutEvent
+import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.FieldFocusChanged
+import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.FieldValueChanged
+import com.processout.sdk.ui.core.component.POAnimatedImage
+import com.processout.sdk.ui.core.component.POExpandableText
+import com.processout.sdk.ui.core.component.PORequestFocus
+import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
 import com.processout.sdk.ui.core.component.field.text.POTextField
-import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
-import com.processout.sdk.ui.core.style.POAxis
-import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.shared.component.rememberLifecycleEvent
 import com.processout.sdk.ui.shared.extension.conditional
 import com.processout.sdk.ui.shared.state.FieldState
 
 @Composable
-internal fun CardTokenizationScreen(
+internal fun CardTokenization(
+    id: String,
     state: CardTokenizationViewModelState,
-    onEvent: (CardTokenizationEvent) -> Unit,
-    style: CardTokenizationScreen.Style = CardTokenizationScreen.style()
-) {
-    Scaffold(
-        modifier = Modifier
-            .nestedScroll(rememberNestedScrollInteropConnection())
-            .clip(shape = ProcessOutTheme.shapes.topRoundedCornersLarge),
-        containerColor = style.backgroundColor,
-        topBar = {
-            POHeader(
-                modifier = Modifier.verticalScroll(rememberScrollState()),
-                title = state.title,
-                style = style.title,
-                dividerColor = style.dividerColor,
-                dragHandleColor = style.dragHandleColor,
-                withDragHandle = state.draggable
-            )
-        },
-        bottomBar = {
-            Actions(
-                primary = state.primaryAction,
-                secondary = state.secondaryAction,
-                onEvent = onEvent,
-                style = style.actionsContainer
-            )
-        }
-    ) { scaffoldPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(scaffoldPadding)
-                .verticalScroll(rememberScrollState())
-                .padding(ProcessOutTheme.spacing.extraLarge)
-        ) {
-            Sections(
-                state = state,
-                onEvent = onEvent,
-                style = style
-            )
-        }
-    }
-}
-
-@Composable
-private fun Sections(
-    state: CardTokenizationViewModelState,
-    onEvent: (CardTokenizationEvent) -> Unit,
-    style: CardTokenizationScreen.Style
+    onEvent: (DynamicCheckoutEvent) -> Unit,
+    style: DynamicCheckoutScreen.Style
 ) {
     if (state.focusedFieldId == null) {
         LocalFocusManager.current.clearFocus(force = true)
@@ -92,15 +43,15 @@ private fun Sections(
     val lifecycleEvent = rememberLifecycleEvent()
     state.sections.elements.forEachIndexed { index, section ->
         Column(
-            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
+            verticalArrangement = Arrangement.spacedBy(spacing.small)
         ) {
             section.title?.let {
-                with(style.sectionTitle) {
+                with(style.label) {
                     POText(
                         text = it,
                         modifier = Modifier.conditional(
                             condition = index != 0,
-                            modifier = { padding(top = ProcessOutTheme.spacing.extraLarge) }
+                            modifier = { padding(top = spacing.extraLarge) }
                         ),
                         color = color,
                         style = textStyle
@@ -109,6 +60,7 @@ private fun Sections(
             }
             section.items.elements.forEach { item ->
                 Item(
+                    id = id,
                     item = item,
                     onEvent = onEvent,
                     lifecycleEvent = lifecycleEvent,
@@ -121,26 +73,28 @@ private fun Sections(
         }
         POExpandableText(
             text = section.errorMessage,
-            style = style.errorMessage,
+            style = style.errorText,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = ProcessOutTheme.spacing.small)
+                .padding(top = spacing.small)
         )
     }
 }
 
 @Composable
 private fun Item(
+    id: String,
     item: Item,
-    onEvent: (CardTokenizationEvent) -> Unit,
+    onEvent: (DynamicCheckoutEvent) -> Unit,
     lifecycleEvent: Lifecycle.Event,
     focusedFieldId: String?,
     isPrimaryActionEnabled: Boolean,
-    style: CardTokenizationScreen.Style,
+    style: DynamicCheckoutScreen.Style,
     modifier: Modifier = Modifier
 ) {
     when (item) {
         is Item.TextField -> TextField(
+            id = id,
             state = item.state,
             onEvent = onEvent,
             lifecycleEvent = lifecycleEvent,
@@ -150,6 +104,7 @@ private fun Item(
             modifier = modifier
         )
         is Item.DropdownField -> DropdownField(
+            id = id,
             state = item.state,
             onEvent = onEvent,
             fieldStyle = style.field,
@@ -157,10 +112,11 @@ private fun Item(
             modifier = modifier
         )
         is Item.Group -> Row(
-            horizontalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
+            horizontalArrangement = Arrangement.spacedBy(spacing.small)
         ) {
             item.items.elements.forEach { groupItem ->
                 Item(
+                    id = id,
                     item = groupItem,
                     onEvent = onEvent,
                     lifecycleEvent = lifecycleEvent,
@@ -176,8 +132,9 @@ private fun Item(
 
 @Composable
 private fun TextField(
+    id: String,
     state: FieldState,
-    onEvent: (CardTokenizationEvent) -> Unit,
+    onEvent: (DynamicCheckoutEvent) -> Unit,
     lifecycleEvent: Lifecycle.Event,
     focusedFieldId: String?,
     isPrimaryActionEnabled: Boolean,
@@ -190,7 +147,8 @@ private fun TextField(
         onValueChange = {
             onEvent(
                 FieldValueChanged(
-                    id = state.id,
+                    paymentMethodId = id,
+                    fieldId = state.id,
                     value = state.inputFilter?.filter(it) ?: it
                 )
             )
@@ -200,7 +158,8 @@ private fun TextField(
             .onFocusChanged {
                 onEvent(
                     FieldFocusChanged(
-                        id = state.id,
+                        paymentMethodId = id,
+                        fieldId = state.id,
                         isFocused = it.isFocused
                     )
                 )
@@ -217,7 +176,14 @@ private fun TextField(
             imeAction = state.keyboardOptions.imeAction,
             actionId = state.keyboardActionId,
             enabled = isPrimaryActionEnabled,
-            onClick = { onEvent(Action(id = it)) }
+            onClick = {
+                onEvent(
+                    DynamicCheckoutEvent.Action(
+                        paymentMethodId = id,
+                        actionId = it
+                    )
+                )
+            }
         )
     )
     if (state.id == focusedFieldId && lifecycleEvent == Lifecycle.Event.ON_RESUME) {
@@ -227,8 +193,9 @@ private fun TextField(
 
 @Composable
 private fun DropdownField(
+    id: String,
     state: FieldState,
-    onEvent: (CardTokenizationEvent) -> Unit,
+    onEvent: (DynamicCheckoutEvent) -> Unit,
     fieldStyle: POField.Style,
     menuStyle: PODropdownField.MenuStyle,
     modifier: Modifier = Modifier
@@ -238,7 +205,8 @@ private fun DropdownField(
         onValueChange = {
             onEvent(
                 FieldValueChanged(
-                    id = state.id,
+                    paymentMethodId = id,
+                    fieldId = state.id,
                     value = it
                 )
             )
@@ -248,7 +216,8 @@ private fun DropdownField(
             .onFocusChanged {
                 onEvent(
                     FieldFocusChanged(
-                        id = state.id,
+                        paymentMethodId = id,
+                        fieldId = state.id,
                         isFocused = it.isFocused
                     )
                 )
@@ -265,73 +234,8 @@ private fun AnimatedFieldIcon(@DrawableRes id: Int) {
     POAnimatedImage(
         id = id,
         modifier = Modifier
-            .requiredHeight(ProcessOutTheme.dimensions.formComponentMinHeight)
+            .requiredHeight(dimensions.formComponentMinHeight)
             .padding(POField.contentPadding),
         contentScale = ContentScale.FillHeight
-    )
-}
-
-@Composable
-private fun Actions(
-    primary: POActionState,
-    secondary: POActionState?,
-    onEvent: (CardTokenizationEvent) -> Unit,
-    style: POActionsContainer.Style
-) {
-    val actions = mutableListOf(primary)
-    secondary?.let { actions.add(it) }
-    POActionsContainer(
-        actions = POImmutableList(
-            if (style.axis == POAxis.Horizontal) actions.reversed() else actions
-        ),
-        onClick = { onEvent(Action(id = it)) },
-        containerStyle = style
-    )
-}
-
-internal object CardTokenizationScreen {
-
-    @Immutable
-    data class Style(
-        val title: POText.Style,
-        val sectionTitle: POText.Style,
-        val field: POField.Style,
-        val dropdownMenu: PODropdownField.MenuStyle,
-        val errorMessage: POText.Style,
-        val actionsContainer: POActionsContainer.Style,
-        val backgroundColor: Color,
-        val dividerColor: Color,
-        val dragHandleColor: Color
-    )
-
-    @Composable
-    fun style(custom: POCardTokenizationConfiguration.Style? = null) = Style(
-        title = custom?.title?.let {
-            POText.custom(style = it)
-        } ?: POText.title,
-        sectionTitle = custom?.sectionTitle?.let {
-            POText.custom(style = it)
-        } ?: POText.label1,
-        field = custom?.field?.let {
-            POField.custom(style = it)
-        } ?: POField.default,
-        dropdownMenu = custom?.dropdownMenu?.let {
-            PODropdownField.custom(style = it)
-        } ?: PODropdownField.defaultMenu,
-        errorMessage = custom?.errorMessage?.let {
-            POText.custom(style = it)
-        } ?: POText.errorLabel,
-        actionsContainer = custom?.actionsContainer?.let {
-            POActionsContainer.custom(style = it)
-        } ?: POActionsContainer.default,
-        backgroundColor = custom?.backgroundColorResId?.let {
-            colorResource(id = it)
-        } ?: ProcessOutTheme.colors.surface.default,
-        dividerColor = custom?.dividerColorResId?.let {
-            colorResource(id = it)
-        } ?: ProcessOutTheme.colors.border.subtle,
-        dragHandleColor = custom?.dragHandleColorResId?.let {
-            colorResource(id = it)
-        } ?: ProcessOutTheme.colors.border.subtle
     )
 }

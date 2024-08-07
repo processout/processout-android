@@ -93,31 +93,19 @@ object PORadioGroup {
             Style(
                 normal = StateStyle(
                     buttonColor = colors.input.borderDefault,
-                    text = POText.Style(
-                        color = colors.text.primary,
-                        textStyle = typography.label2
-                    )
+                    text = POText.body2
                 ),
                 selected = StateStyle(
                     buttonColor = colors.button.primaryBackgroundDefault,
-                    text = POText.Style(
-                        color = colors.text.primary,
-                        textStyle = typography.label2
-                    )
+                    text = POText.body2
                 ),
                 error = StateStyle(
                     buttonColor = colors.input.borderError,
-                    text = POText.Style(
-                        color = colors.text.primary,
-                        textStyle = typography.label2
-                    )
+                    text = POText.body2
                 ),
                 disabled = StateStyle(
                     buttonColor = colors.input.borderDisabled,
-                    text = POText.Style(
-                        color = colors.text.primary,
-                        textStyle = typography.label2
-                    )
+                    text = POText.body2
                 )
             )
         }
@@ -139,7 +127,7 @@ object PORadioGroup {
         text = POText.custom(style = text)
     )
 
-    internal fun Style.toRadioButtonStyle() = PORadioButton.Style(
+    fun Style.toRadioButtonStyle() = PORadioButton.Style(
         normalColor = normal.buttonColor,
         selectedColor = selected.buttonColor,
         errorColor = error.buttonColor,

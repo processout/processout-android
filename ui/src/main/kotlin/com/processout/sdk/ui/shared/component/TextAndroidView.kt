@@ -81,13 +81,12 @@ internal object TextAndroidView {
     val default: Style
         @Composable get() = with(ProcessOutTheme) {
             Style(
-                type = with(typography.body2) {
+                type = with(typography.body1) {
                     POTextType(
                         textSizeSp = fontSize.value.toInt(),
                         lineHeightSp = lineHeight.value.toInt(),
-                        fontResId = R.font.work_sans_regular,
-                        weight = NORMAL,
-                        italic = false
+                        fontResId = R.font.work_sans_medium,
+                        weight = MEDIUM
                     )
                 },
                 color = colors.text.primary,

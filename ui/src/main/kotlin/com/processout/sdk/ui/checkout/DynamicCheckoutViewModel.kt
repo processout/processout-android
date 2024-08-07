@@ -17,14 +17,15 @@ import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Awaiting
-import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.FieldFocusChanged
-import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.FieldValueChanged
+import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutExtendedEvent.PaymentMethodSelected
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment.Content
+import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.CancelButton
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.Options
 import com.processout.sdk.ui.core.state.POActionState
+import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
@@ -89,7 +90,7 @@ internal class DynamicCheckoutViewModel private constructor(
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
-        initialValue = Starting
+        initialValue = Starting(cancelAction = null)
     )
 
     init {
@@ -101,6 +102,7 @@ internal class DynamicCheckoutViewModel private constructor(
             is PaymentMethodSelected -> onPaymentMethodSelected(event)
             is FieldValueChanged -> onFieldValueChanged(event)
             is FieldFocusChanged -> onFieldFocusChanged(event)
+            is Action -> onAction(event)
             else -> {}
         }
         if (event is DynamicCheckoutExtendedEvent) {
@@ -170,19 +172,60 @@ internal class DynamicCheckoutViewModel private constructor(
         }
     }
 
+    private fun onAction(event: Action) {
+        val paymentMethod = interactor.paymentMethod(event.paymentMethodId)
+        when (paymentMethod) {
+            is Card -> cardTokenization.onEvent(
+                CardTokenizationEvent.Action(event.actionId)
+            )
+            is NativeAlternativePayment -> nativeAlternativePayment.onEvent(
+                NativeAlternativePaymentEvent.Action(event.actionId)
+            )
+            else -> interactor.onEvent(
+                DynamicCheckoutExtendedEvent.Action(id = event.actionId)
+            )
+        }
+    }
+
     private fun combine(
         interactorState: DynamicCheckoutInteractorState,
         cardTokenizationState: CardTokenizationViewModelState,
         nativeAlternativePaymentState: NativeAlternativePaymentViewModelState
-    ): DynamicCheckoutViewModelState =
-        if (interactorState.loading) {
-            Starting
+    ): DynamicCheckoutViewModelState {
+        val cancelAction = options.cancelButton?.toActionState(
+            id = interactorState.cancelActionId,
+            enabled = true // TODO
+        )
+        return if (interactorState.loading) {
+            Starting(cancelAction = cancelAction)
         } else {
             Started(
                 expressPayments = expressPayments(interactorState),
-                regularPayments = regularPayments(interactorState, cardTokenizationState, nativeAlternativePaymentState)
+                regularPayments = regularPayments(interactorState, cardTokenizationState, nativeAlternativePaymentState),
+                cancelAction = cancelAction
             )
         }
+    }
+
+    private fun CancelButton.toActionState(
+        id: String,
+        enabled: Boolean
+    ) = POActionState(
+        id = id,
+        text = text ?: app.getString(R.string.po_dynamic_checkout_button_cancel),
+        primary = false,
+        enabled = enabled,
+        confirmation = confirmation?.run {
+            Confirmation(
+                title = title ?: app.getString(R.string.po_cancel_payment_confirmation_title),
+                message = message,
+                confirmActionText = confirmActionText
+                    ?: app.getString(R.string.po_cancel_payment_confirmation_confirm),
+                dismissActionText = dismissActionText
+                    ?: app.getString(R.string.po_cancel_payment_confirmation_dismiss)
+            )
+        }
+    )
 
     private fun expressPayments(
         interactorState: DynamicCheckoutInteractorState
@@ -218,7 +261,7 @@ internal class DynamicCheckoutViewModel private constructor(
                         display = paymentMethod.display,
                         selected = selected
                     ),
-                    content = Content.Card(cardTokenizationState),
+                    content = if (selected) Content.Card(cardTokenizationState) else null,
                     action = null
                 )
                 is AlternativePayment -> if (!paymentMethod.isExpress)
@@ -243,7 +286,7 @@ internal class DynamicCheckoutViewModel private constructor(
                         loading = nativeAlternativePaymentState is Loading,
                         selected = selected
                     ),
-                    content = Content.NativeAlternativePayment(nativeAlternativePaymentState),
+                    content = if (selected) Content.NativeAlternativePayment(nativeAlternativePaymentState) else null,
                     action = null
                 )
                 else -> null

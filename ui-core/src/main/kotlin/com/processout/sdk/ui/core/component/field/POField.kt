@@ -60,10 +60,7 @@ object POField {
         @Composable get() = with(ProcessOutTheme) {
             Style(
                 normal = StateStyle(
-                    text = POText.Style(
-                        color = colors.text.primary,
-                        textStyle = typography.label2
-                    ),
+                    text = POText.body2,
                     placeholderTextColor = colors.text.muted,
                     backgroundColor = colors.input.backgroundDefault,
                     controlsTintColor = colors.text.primary,
@@ -72,10 +69,7 @@ object POField {
                     border = POBorderStroke(width = 1.dp, color = colors.input.borderDefault)
                 ),
                 error = StateStyle(
-                    text = POText.Style(
-                        color = colors.text.primary,
-                        textStyle = typography.label2
-                    ),
+                    text = POText.body2,
                     placeholderTextColor = colors.text.muted,
                     backgroundColor = colors.input.backgroundDefault,
                     controlsTintColor = colors.text.primary,
@@ -84,10 +78,7 @@ object POField {
                     border = POBorderStroke(width = 1.dp, color = colors.input.borderError)
                 ),
                 focused = StateStyle(
-                    text = POText.Style(
-                        color = colors.text.primary,
-                        textStyle = typography.label2
-                    ),
+                    text = POText.body2,
                     placeholderTextColor = colors.text.muted,
                     backgroundColor = colors.input.backgroundDefault,
                     controlsTintColor = colors.text.primary,

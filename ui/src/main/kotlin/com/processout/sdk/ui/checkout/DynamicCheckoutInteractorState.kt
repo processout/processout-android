@@ -6,7 +6,8 @@ import java.util.UUID
 internal data class DynamicCheckoutInteractorState(
     val loading: Boolean,
     val paymentMethods: List<PaymentMethod>,
-    val selectedPaymentMethodId: String?
+    val selectedPaymentMethodId: String?,
+    val cancelActionId: String
 ) {
 
     sealed interface PaymentMethod {
@@ -36,5 +37,9 @@ internal data class DynamicCheckoutInteractorState(
             val gatewayConfigurationId: String,
             val display: Display
         ) : PaymentMethod
+    }
+
+    object ActionId {
+        const val CANCEL = "cancel"
     }
 }

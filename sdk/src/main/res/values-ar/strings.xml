@@ -5,6 +5,7 @@
 
     <!-- Dynamic Checkout -->
     <string name="po_dynamic_checkout_button_pay">ادفع</string>
+    <string name="po_dynamic_checkout_button_cancel">إلغاء</string>
     <string name="po_dynamic_checkout_warning_redirect">سيتم إعادة توجيهك لإتمام هذه الدفعة.</string>
     <string name="po_dynamic_checkout_error_generic">لم نتمكن من إتمام دفعتك. يرجى التحقق من التفاصيل أو تجربة طريقة دفع أخرى.</string>
 

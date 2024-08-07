@@ -140,7 +140,7 @@ internal fun NativeAlternativePaymentScreen(
 @Composable
 private fun Loading(progressIndicatorColor: Color) {
     AnimatedVisibility(enterDelayMillis = AnimationDurationMillis) {
-        POCircularProgressIndicator.Medium(color = progressIndicatorColor)
+        POCircularProgressIndicator.Large(color = progressIndicatorColor)
     }
 }
 
@@ -154,7 +154,7 @@ private fun UserInput(
     AnimatedVisibility {
         Column(
             modifier = modifier,
-            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.large)
+            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.extraLarge)
         ) {
             val lifecycleEvent = rememberLifecycleEvent()
             val labelsStyle = remember {
@@ -386,7 +386,7 @@ private fun Capture(
                 top = ProcessOutTheme.spacing.extraSmall,
                 bottom = ProcessOutTheme.spacing.extraLarge
             ),
-            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.large),
+            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.extraLarge),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             CaptureHeader(state, style)
@@ -398,7 +398,7 @@ private fun Capture(
                 )
             ) { isCaptured ->
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.large),
+                    verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.extraLarge),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     if (isCaptured) {
@@ -483,7 +483,7 @@ private fun AnimatedProgressIndicator(
         enter = expandVertically() + fadeIn(animationSpec = tween(durationMillis = AnimationDurationMillis)),
         exit = shrinkVertically() + fadeOut(animationSpec = tween(durationMillis = AnimationDurationMillis))
     ) {
-        POCircularProgressIndicator.Medium(color = progressIndicatorColor)
+        POCircularProgressIndicator.Large(color = progressIndicatorColor)
     }
 }
 
@@ -639,7 +639,7 @@ internal object NativeAlternativePaymentScreen {
                     POText.custom(style = it)
                 } ?: POText.Style(
                     color = colors.text.success,
-                    textStyle = typography.body2
+                    textStyle = typography.body1
                 ),
                 successImageResId = custom?.successImageResId ?: R.drawable.po_success_image,
                 progressIndicatorColor = custom?.progressIndicatorColorResId?.let {

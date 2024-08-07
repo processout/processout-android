@@ -166,10 +166,7 @@ object PODropdownField {
     val defaultMenu: MenuStyle
         @Composable get() = with(ProcessOutTheme) {
             MenuStyle(
-                text = POText.Style(
-                    color = colors.text.primary,
-                    textStyle = typography.label2
-                ),
+                text = POText.body2,
                 backgroundColor = colors.surface.neutral,
                 rippleColor = colors.text.muted,
                 shape = shapes.roundedCornersSmall,
@@ -191,5 +188,5 @@ object PODropdownField {
         )
     }
 
-    internal val MaxVisibleMenuItems = 7
+    internal val MaxVisibleMenuItems = 6
 }

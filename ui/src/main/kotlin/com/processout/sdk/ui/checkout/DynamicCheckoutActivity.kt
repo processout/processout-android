@@ -29,9 +29,11 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutActivityContract.Companion.
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Failure
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Success
 import com.processout.sdk.ui.checkout.DynamicCheckoutExtendedEvent.Dismiss
+import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration
 
 internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
 
@@ -49,7 +51,12 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                 app = application,
                 invoiceId = configuration?.invoiceRequest?.invoiceId ?: String(),
                 gatewayConfigurationId = String(),
-                options = PONativeAlternativePaymentConfiguration.Options()
+                options = PONativeAlternativePaymentConfiguration.Options(
+                    paymentConfirmation = PaymentConfirmationConfiguration(
+                        hideGatewayDetails = true
+                    ),
+                    skipSuccessScreen = true
+                )
             )
         }
         DynamicCheckoutViewModel.Factory(
