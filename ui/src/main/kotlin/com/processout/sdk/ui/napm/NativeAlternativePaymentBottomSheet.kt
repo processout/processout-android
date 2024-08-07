@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.processout.sdk.api.dispatcher.PODefaultEventDispatchers
 import com.processout.sdk.core.*
 import com.processout.sdk.ui.base.BaseBottomSheetDialogFragment
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
@@ -46,7 +47,8 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
             app = requireActivity().application,
             invoiceId = configuration?.invoiceId ?: String(),
             gatewayConfigurationId = configuration?.gatewayConfigurationId ?: String(),
-            options = configuration?.options ?: Options()
+            options = configuration?.options ?: Options(),
+            eventDispatcher = PODefaultEventDispatchers.defaultNativeAlternativePaymentMethod
         )
     }
 

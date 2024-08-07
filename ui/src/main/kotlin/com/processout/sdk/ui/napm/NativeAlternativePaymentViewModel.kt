@@ -11,7 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
-import com.processout.sdk.api.dispatcher.PODefaultEventDispatchers
+import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType.*
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails.Invoice
@@ -43,7 +43,8 @@ internal class NativeAlternativePaymentViewModel private constructor(
         private val app: Application,
         private val invoiceId: String,
         private val gatewayConfigurationId: String,
-        private val options: Options
+        private val options: Options,
+        private val eventDispatcher: PODefaultNativeAlternativePaymentMethodEventDispatcher
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
@@ -63,7 +64,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                         maxDelay = 90 * 1000,
                         factor = 1.45
                     ),
-                    eventDispatcher = PODefaultEventDispatchers.defaultNativeAlternativePaymentMethod
+                    eventDispatcher = eventDispatcher
                 )
             ) as T
 

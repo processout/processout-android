@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
+import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
+import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.response.POBillingAddressCollectionMode
 import com.processout.sdk.api.model.response.POBillingAddressCollectionMode.*
@@ -50,7 +52,9 @@ internal class DynamicCheckoutViewModel private constructor(
         private val invoiceRequest: POInvoiceRequest,
         private val options: Options,
         private val cardTokenization: CardTokenizationViewModel,
-        private val nativeAlternativePayment: NativeAlternativePaymentViewModel
+        private val nativeAlternativePayment: NativeAlternativePaymentViewModel,
+        private val cardTokenizationEventDispatcher: PODefaultCardTokenizationEventDispatcher,
+        private val nativeAlternativePaymentEventDispatcher: PODefaultNativeAlternativePaymentMethodEventDispatcher
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
@@ -61,7 +65,9 @@ internal class DynamicCheckoutViewModel private constructor(
                 interactor = DynamicCheckoutInteractor(
                     app = app,
                     invoiceRequest = invoiceRequest,
-                    invoicesService = ProcessOut.instance.invoices
+                    invoicesService = ProcessOut.instance.invoices,
+                    cardTokenizationEventDispatcher = cardTokenizationEventDispatcher,
+                    nativeAlternativePaymentEventDispatcher = nativeAlternativePaymentEventDispatcher
                 ),
                 cardTokenization = cardTokenization,
                 nativeAlternativePayment = nativeAlternativePayment

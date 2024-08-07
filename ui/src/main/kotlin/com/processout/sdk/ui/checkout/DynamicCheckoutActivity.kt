@@ -13,6 +13,8 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
+import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.POFailure.Code.Generic
@@ -40,12 +42,15 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
     private var configuration: PODynamicCheckoutConfiguration? = null
 
     private val viewModel: DynamicCheckoutViewModel by viewModels {
+        val cardTokenizationEventDispatcher = PODefaultCardTokenizationEventDispatcher()
         val cardTokenization: CardTokenizationViewModel by viewModels {
             CardTokenizationViewModel.Factory(
                 app = application,
-                configuration = POCardTokenizationConfiguration()
+                configuration = POCardTokenizationConfiguration(),
+                eventDispatcher = cardTokenizationEventDispatcher
             )
         }
+        val nativeAlternativePaymentEventDispatcher = PODefaultNativeAlternativePaymentMethodEventDispatcher()
         val nativeAlternativePayment: NativeAlternativePaymentViewModel by viewModels {
             NativeAlternativePaymentViewModel.Factory(
                 app = application,
@@ -56,7 +61,8 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                         hideGatewayDetails = true
                     ),
                     skipSuccessScreen = true
-                )
+                ),
+                eventDispatcher = nativeAlternativePaymentEventDispatcher
             )
         }
         DynamicCheckoutViewModel.Factory(
@@ -64,7 +70,9 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
             invoiceRequest = configuration?.invoiceRequest ?: POInvoiceRequest(invoiceId = String()),
             options = configuration?.options ?: PODynamicCheckoutConfiguration.Options(),
             cardTokenization = cardTokenization,
-            nativeAlternativePayment = nativeAlternativePayment
+            nativeAlternativePayment = nativeAlternativePayment,
+            cardTokenizationEventDispatcher = cardTokenizationEventDispatcher,
+            nativeAlternativePaymentEventDispatcher = nativeAlternativePaymentEventDispatcher
         )
     }
 
