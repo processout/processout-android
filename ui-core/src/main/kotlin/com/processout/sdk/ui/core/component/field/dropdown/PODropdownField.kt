@@ -188,5 +188,5 @@ object PODropdownField {
         )
     }
 
-    internal val MaxVisibleMenuItems = 7
+    internal val MaxVisibleMenuItems = 6
 }
