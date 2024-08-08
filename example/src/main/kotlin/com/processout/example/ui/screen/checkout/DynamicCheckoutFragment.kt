@@ -62,8 +62,10 @@ class DynamicCheckoutFragment : BaseFragment<FragmentAuthorizeInvoiceBinding>(
     private fun handle(result: ProcessOutActivityResult<POUnit>) {
         viewModel.reset()
         result.onSuccess {
-            // TODO
-        }.onFailure { showAlert(it.toMessage()) }
+            showAlert(getString(R.string.success))
+        }.onFailure {
+            showAlert(it.toMessage())
+        }
     }
 
     private fun handle(uiState: DynamicCheckoutUiState) {
