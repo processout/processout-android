@@ -8,6 +8,7 @@ import coil.request.ImageResult
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.dispatcher.checkout.PODefaultDynamicCheckoutEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
+import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceRequest
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Display
@@ -49,6 +50,8 @@ internal class DynamicCheckoutInteractor(
 
     private val _state = MutableStateFlow(initState())
     val state = _state.asStateFlow()
+
+    private var latestInvoiceRequest: PODynamicCheckoutInvoiceRequest? = null
 
     init {
         dispatchEvents()
@@ -224,10 +227,24 @@ internal class DynamicCheckoutInteractor(
     fun onNativeAlternativePayment(completion: NativeAlternativePaymentCompletion) {
         when (completion) {
             NativeAlternativePaymentCompletion.Success -> _completion.update { Success }
-            is NativeAlternativePaymentCompletion.Failure -> {
-                // TODO
-            }
+            is NativeAlternativePaymentCompletion.Failure ->
+                if (eventDispatcher.subscribedForInvoiceRequest()) {
+                    requestInvoice(completion.failure)
+                } else {
+                    _completion.update { Failure(completion.failure) }
+                }
             else -> {}
+        }
+    }
+
+    private fun requestInvoice(failure: ProcessOutResult.Failure) {
+        interactorScope.launch {
+            val request = PODynamicCheckoutInvoiceRequest(
+                invoice = _state.value.invoice,
+                failure = failure
+            )
+            latestInvoiceRequest = request
+            eventDispatcher.send(request)
         }
     }
 
