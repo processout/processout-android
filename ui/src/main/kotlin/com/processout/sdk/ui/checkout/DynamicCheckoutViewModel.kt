@@ -92,6 +92,7 @@ internal class DynamicCheckoutViewModel private constructor(
 
     init {
         addCloseable(interactor.interactorScope)
+        interactor.onInvoiceChanged = ::onInvoiceChanged
         handleCompletions()
     }
 
@@ -106,6 +107,10 @@ internal class DynamicCheckoutViewModel private constructor(
                 interactor.onNativeAlternativePayment(it)
             }
         }
+    }
+
+    private fun onInvoiceChanged(invoiceRequest: POInvoiceRequest) {
+        // TODO
     }
 
     fun onEvent(event: DynamicCheckoutEvent) {

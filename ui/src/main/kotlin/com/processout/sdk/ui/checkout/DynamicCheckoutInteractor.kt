@@ -52,6 +52,7 @@ internal class DynamicCheckoutInteractor(
     val state = _state.asStateFlow()
 
     private var latestInvoiceRequest: PODynamicCheckoutInvoiceRequest? = null
+    var onInvoiceChanged: ((POInvoiceRequest) -> Unit)? = null
 
     init {
         collectInvoice()
@@ -254,7 +255,12 @@ internal class DynamicCheckoutInteractor(
             eventDispatcher.invoiceResponse.collect { response ->
                 if (response.uuid == latestInvoiceRequest?.uuid) {
                     latestInvoiceRequest = null
-                    // TODO: notify to the top to replace invoice correctly
+                    val invoiceRequest = response.invoiceRequest
+                    if (invoiceRequest == null) {
+                        _completion.update { Failure(response.failure) }
+                    } else {
+                        onInvoiceChanged?.invoke(invoiceRequest)
+                    }
                 }
             }
         }
