@@ -57,6 +57,7 @@ internal class DynamicCheckoutInteractor(
 
     private fun initState() = DynamicCheckoutInteractorState(
         loading = true,
+        invoice = null,
         paymentMethods = emptyList(),
         selectedPaymentMethodId = null,
         cancelActionId = ActionId.CANCEL
@@ -86,6 +87,7 @@ internal class DynamicCheckoutInteractor(
                     _state.update {
                         it.copy(
                             loading = false,
+                            invoice = invoice,
                             paymentMethods = mappedPaymentMethods
                         )
                     }

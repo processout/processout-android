@@ -1,10 +1,12 @@
 package com.processout.sdk.ui.checkout
 
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.*
+import com.processout.sdk.api.model.response.POInvoice
 import java.util.UUID
 
 internal data class DynamicCheckoutInteractorState(
     val loading: Boolean,
+    val invoice: POInvoice?,
     val paymentMethods: List<PaymentMethod>,
     val selectedPaymentMethodId: String?,
     val cancelActionId: String
