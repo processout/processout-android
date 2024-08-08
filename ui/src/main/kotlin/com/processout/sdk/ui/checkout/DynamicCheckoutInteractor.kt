@@ -54,6 +54,7 @@ internal class DynamicCheckoutInteractor(
     private var latestInvoiceRequest: PODynamicCheckoutInvoiceRequest? = null
 
     init {
+        collectInvoice()
         dispatchEvents()
         fetchConfiguration()
     }
@@ -245,6 +246,17 @@ internal class DynamicCheckoutInteractor(
             )
             latestInvoiceRequest = request
             eventDispatcher.send(request)
+        }
+    }
+
+    private fun collectInvoice() {
+        interactorScope.launch {
+            eventDispatcher.invoiceResponse.collect { response ->
+                if (response.uuid == latestInvoiceRequest?.uuid) {
+                    latestInvoiceRequest = null
+                    // TODO: notify to the top to replace invoice correctly
+                }
+            }
         }
     }
 
