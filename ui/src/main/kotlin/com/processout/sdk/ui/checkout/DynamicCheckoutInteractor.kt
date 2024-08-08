@@ -20,12 +20,13 @@ import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.base.BaseInteractor
-import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Awaiting
-import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Failure
+import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion
+import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutExtendedEvent.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.ActionId
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.*
+import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -205,6 +206,26 @@ internal class DynamicCheckoutInteractor(
                     message = "Cancelled by the user with cancel action."
                 ).also { POLogger.info("Cancelled: %s", it) }
             )
+        }
+    }
+
+    fun onCardTokenization(completion: CardTokenizationCompletion) {
+        when (completion) {
+            is CardTokenizationCompletion.Success -> _completion.update { Success }
+            is CardTokenizationCompletion.Failure -> {
+                // TODO
+            }
+            else -> {}
+        }
+    }
+
+    fun onNativeAlternativePayment(completion: NativeAlternativePaymentCompletion) {
+        when (completion) {
+            NativeAlternativePaymentCompletion.Success -> _completion.update { Success }
+            is NativeAlternativePaymentCompletion.Failure -> {
+                // TODO
+            }
+            else -> {}
         }
     }
 

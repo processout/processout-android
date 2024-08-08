@@ -14,10 +14,11 @@ import com.processout.sdk.api.model.response.POBillingAddressCollectionMode
 import com.processout.sdk.api.model.response.POBillingAddressCollectionMode.*
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.CardConfiguration
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Display
-import com.processout.sdk.ui.card.tokenization.*
+import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent
+import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
+import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode
-import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Awaiting
-import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Success
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutExtendedEvent.PaymentMethodSelected
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.*
@@ -28,7 +29,6 @@ import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.Options
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.core.state.POImmutableList
-import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState
@@ -37,6 +37,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 internal class DynamicCheckoutViewModel private constructor(
     private val app: Application,
@@ -75,17 +76,7 @@ internal class DynamicCheckoutViewModel private constructor(
             ) as T
     }
 
-    val completion: StateFlow<DynamicCheckoutCompletion> = combine(
-        interactor.completion,
-        cardTokenization.completion,
-        nativeAlternativePayment.completion
-    ) { interactorCompletion, cardTokenizationCompletion, nativeAlternativePaymentCompletion ->
-        combine(interactorCompletion, cardTokenizationCompletion, nativeAlternativePaymentCompletion)
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Eagerly,
-        initialValue = Awaiting
-    )
+    val completion = interactor.completion
 
     val state: StateFlow<DynamicCheckoutViewModelState> = combine(
         interactor.state,
@@ -101,23 +92,20 @@ internal class DynamicCheckoutViewModel private constructor(
 
     init {
         addCloseable(interactor.interactorScope)
+        handleCompletions()
     }
 
-    private fun combine(
-        interactorCompletion: DynamicCheckoutCompletion,
-        cardTokenizationCompletion: CardTokenizationCompletion,
-        nativeAlternativePaymentCompletion: NativeAlternativePaymentCompletion
-    ): DynamicCheckoutCompletion {
-        var completion = interactorCompletion
-        when (cardTokenizationCompletion) {
-            is CardTokenizationCompletion.Success -> completion = Success
-            else -> {}
+    private fun handleCompletions() {
+        viewModelScope.launch {
+            cardTokenization.completion.collect {
+                interactor.onCardTokenization(it)
+            }
         }
-        when (nativeAlternativePaymentCompletion) {
-            NativeAlternativePaymentCompletion.Success -> completion = Success
-            else -> {}
+        viewModelScope.launch {
+            nativeAlternativePayment.completion.collect {
+                interactor.onNativeAlternativePayment(it)
+            }
         }
-        return completion
     }
 
     fun onEvent(event: DynamicCheckoutEvent) {
