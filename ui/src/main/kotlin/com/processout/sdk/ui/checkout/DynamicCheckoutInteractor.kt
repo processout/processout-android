@@ -28,17 +28,14 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.ActionId
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
 internal class DynamicCheckoutInteractor(
     private val app: Application,
-    private val invoiceRequest: POInvoiceRequest,
+    private var invoiceRequest: POInvoiceRequest,
     private val invoicesService: POInvoicesService,
     private val eventDispatcher: PODefaultDynamicCheckoutEventDispatcher,
     private val cardTokenizationEventDispatcher: PODefaultCardTokenizationEventDispatcher,
@@ -55,9 +52,31 @@ internal class DynamicCheckoutInteractor(
     var onInvoiceChanged: ((POInvoiceRequest) -> Unit)? = null
 
     init {
+        start()
+    }
+
+    private fun start() {
         collectInvoice()
         dispatchEvents()
         fetchConfiguration()
+    }
+
+    fun restart(invoiceRequest: POInvoiceRequest) {
+        this.invoiceRequest = invoiceRequest
+        reset(
+            state = _state.value.copy(
+                invoice = null,
+                selectedPaymentMethodId = null
+            )
+        )
+        start()
+    }
+
+    private fun reset(state: DynamicCheckoutInteractorState) {
+        interactorScope.coroutineContext.cancelChildren()
+        latestInvoiceRequest = null
+        _completion.update { Awaiting }
+        _state.update { state }
     }
 
     private fun initState() = DynamicCheckoutInteractorState(

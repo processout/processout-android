@@ -41,7 +41,7 @@ import kotlinx.coroutines.launch
 
 internal class DynamicCheckoutViewModel private constructor(
     private val app: Application,
-    private val invoiceRequest: POInvoiceRequest,
+    private var invoiceRequest: POInvoiceRequest,
     private val options: Options,
     private val interactor: DynamicCheckoutInteractor,
     private val cardTokenization: CardTokenizationViewModel,
@@ -110,7 +110,9 @@ internal class DynamicCheckoutViewModel private constructor(
     }
 
     private fun onInvoiceChanged(invoiceRequest: POInvoiceRequest) {
-        // TODO
+        this.invoiceRequest = invoiceRequest
+        nativeAlternativePayment.reset()
+        interactor.restart(invoiceRequest)
     }
 
     fun onEvent(event: DynamicCheckoutEvent) {
