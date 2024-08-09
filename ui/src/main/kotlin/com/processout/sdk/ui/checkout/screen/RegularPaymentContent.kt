@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.Action
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment
@@ -46,16 +45,11 @@ internal fun RegularPaymentContent(
                 )
         ) {
             payment.state.description?.let { description ->
-                with(style.regularPayment.description) {
-                    POTextWithIcon(
-                        text = description,
-                        iconPainter = painterResource(id = iconResId),
-                        style = text.textStyle,
-                        textColor = text.color,
-                        iconColorFilter = iconColorFilter,
-                        horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing)
-                    )
-                }
+                POTextWithIcon(
+                    text = description,
+                    style = style.regularPayment.description,
+                    horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing)
+                )
             }
             var action = payment.action
             when (payment.content) {

@@ -3,7 +3,6 @@
 package com.processout.sdk.ui.checkout.screen
 
 import android.view.Gravity
-import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
@@ -26,7 +25,6 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.processout.sdk.ui.R
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent
 import com.processout.sdk.ui.checkout.DynamicCheckoutExtendedEvent.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState
@@ -35,6 +33,7 @@ import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.RegularPaymentLogoSize
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.RowComponentSpacing
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.ShortAnimationDurationMillis
+import com.processout.sdk.ui.core.R
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.code.POCodeField
@@ -313,14 +312,7 @@ internal object DynamicCheckoutScreen {
         val title: POText.Style,
         val shape: Shape,
         val border: POBorderStroke,
-        val description: InfoTextStyle
-    )
-
-    @Immutable
-    data class InfoTextStyle(
-        val text: POText.Style,
-        @DrawableRes val iconResId: Int,
-        val iconColorFilter: ColorFilter?
+        val description: POTextWithIcon.Style
     )
 
     @Composable
@@ -375,7 +367,7 @@ internal object DynamicCheckoutScreen {
                 title = POText.subheading,
                 shape = shapes.roundedCornersSmall,
                 border = POBorderStroke(width = 1.dp, color = colors.border.subtle),
-                description = InfoTextStyle(
+                description = POTextWithIcon.Style(
                     text = description,
                     iconResId = R.drawable.po_info_icon,
                     iconColorFilter = ColorFilter.tint(color = description.color)
@@ -393,7 +385,7 @@ internal object DynamicCheckoutScreen {
                 width = border.widthDp.dp,
                 color = colorResource(id = border.colorResId)
             ),
-            description = InfoTextStyle(
+            description = POTextWithIcon.Style(
                 text = description,
                 iconResId = descriptionIconResId ?: R.drawable.po_info_icon,
                 iconColorFilter = if (descriptionIconResId != null) null else
