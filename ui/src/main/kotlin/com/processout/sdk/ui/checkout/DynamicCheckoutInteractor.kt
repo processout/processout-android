@@ -10,6 +10,8 @@ import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokeniza
 import com.processout.sdk.api.dispatcher.checkout.PODefaultDynamicCheckoutEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceRequest
+import com.processout.sdk.api.model.request.POInvoiceInvalidationReason
+import com.processout.sdk.api.model.request.POInvoiceInvalidationReason.*
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Display
@@ -255,7 +257,7 @@ internal class DynamicCheckoutInteractor(
             NativeAlternativePaymentCompletion.Success -> _completion.update { Success }
             is NativeAlternativePaymentCompletion.Failure ->
                 if (eventDispatcher.subscribedForInvoiceRequest()) {
-                    requestInvoice(completion.failure)
+                    requestInvoice(reason = Error(completion.failure))
                 } else {
                     _completion.update { Failure(completion.failure) }
                 }
@@ -263,11 +265,11 @@ internal class DynamicCheckoutInteractor(
         }
     }
 
-    private fun requestInvoice(failure: ProcessOutResult.Failure) {
+    private fun requestInvoice(reason: POInvoiceInvalidationReason) {
         interactorScope.launch {
             val request = PODynamicCheckoutInvoiceRequest(
                 invoice = _state.value.invoice,
-                failure = failure
+                reason = reason
             )
             latestInvoiceRequest = request
             eventDispatcher.send(request)
@@ -281,7 +283,19 @@ internal class DynamicCheckoutInteractor(
                     latestInvoiceRequest = null
                     val invoiceRequest = response.invoiceRequest
                     if (invoiceRequest == null) {
-                        _completion.update { Failure(response.failure) }
+                        val failure = when (val reason = response.reason) {
+                            PaymentMethodChanged -> ProcessOutResult.Failure(
+                                code = Generic(),
+                                message = "Payment method has been changed by the user during processing. " +
+                                        "Invoice invalidated and the new one has not been provided."
+                            )
+                            is Error -> reason.failure
+                            Other -> ProcessOutResult.Failure(
+                                code = Generic(),
+                                message = "Invoice invalidated and the new one has not been provided."
+                            )
+                        }
+                        _completion.update { Failure(failure) }
                     } else {
                         onInvoiceChanged?.invoke(invoiceRequest)
                     }
