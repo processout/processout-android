@@ -54,7 +54,7 @@ internal class DynamicCheckoutInteractor(
     val state = _state.asStateFlow()
 
     private var latestInvoiceRequest: PODynamicCheckoutInvoiceRequest? = null
-    var onInvoiceChanged: ((POInvoiceRequest) -> Unit)? = null
+    var onInvoiceChanged: ((POInvoiceRequest, PODynamicCheckoutInvoiceInvalidationReason) -> Unit)? = null
 
     init {
         start()
@@ -66,8 +66,15 @@ internal class DynamicCheckoutInteractor(
         fetchConfiguration()
     }
 
-    fun restart(invoiceRequest: POInvoiceRequest) {
+    fun restart(
+        invoiceRequest: POInvoiceRequest,
+        reason: PODynamicCheckoutInvoiceInvalidationReason
+    ) {
         this.invoiceRequest = invoiceRequest
+        val errorMessage = when (reason) {
+            is Error -> app.getString(R.string.po_dynamic_checkout_error_generic)
+            else -> null
+        }
         reset(
             state = _state.value.copy(
                 invoice = POInvoice(
@@ -76,7 +83,7 @@ internal class DynamicCheckoutInteractor(
                     currency = String()
                 ),
                 selectedPaymentMethodId = null,
-                errorMessage = app.getString(R.string.po_dynamic_checkout_error_generic)
+                errorMessage = errorMessage
             )
         )
         start()
@@ -292,8 +299,9 @@ internal class DynamicCheckoutInteractor(
                 if (response.uuid == latestInvoiceRequest?.uuid) {
                     latestInvoiceRequest = null
                     val invoiceRequest = response.invoiceRequest
+                    val reason = response.reason
                     if (invoiceRequest == null) {
-                        val failure = when (val reason = response.reason) {
+                        val failure = when (reason) {
                             PaymentMethodChanged -> ProcessOutResult.Failure(
                                 code = Generic(),
                                 message = "Payment method has been changed by the user during processing. " +
@@ -303,7 +311,7 @@ internal class DynamicCheckoutInteractor(
                         }
                         _completion.update { Failure(failure) }
                     } else {
-                        onInvoiceChanged?.invoke(invoiceRequest)
+                        onInvoiceChanged?.invoke(invoiceRequest, reason)
                     }
                 }
             }

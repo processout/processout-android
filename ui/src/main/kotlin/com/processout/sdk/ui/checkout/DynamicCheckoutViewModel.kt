@@ -9,6 +9,7 @@ import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.dispatcher.checkout.PODefaultDynamicCheckoutEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
+import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceInvalidationReason
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.response.POBillingAddressCollectionMode
 import com.processout.sdk.api.model.response.POBillingAddressCollectionMode.*
@@ -109,10 +110,13 @@ internal class DynamicCheckoutViewModel private constructor(
         }
     }
 
-    private fun onInvoiceChanged(invoiceRequest: POInvoiceRequest) {
+    private fun onInvoiceChanged(
+        invoiceRequest: POInvoiceRequest,
+        reason: PODynamicCheckoutInvoiceInvalidationReason
+    ) {
         this.invoiceRequest = invoiceRequest
         nativeAlternativePayment.reset()
-        interactor.restart(invoiceRequest)
+        interactor.restart(invoiceRequest, reason)
     }
 
     fun onEvent(event: DynamicCheckoutEvent) {
