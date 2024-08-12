@@ -139,7 +139,8 @@ internal class NativeAlternativePaymentViewModel private constructor(
             secondaryAction = options.secondaryAction?.toActionState(
                 id = secondaryAction.id,
                 enabled = secondaryAction.enabled && !submitting
-            )
+            ),
+            submittedAtLeastOnce = submittedAtLeastOnce
         )
     }
 

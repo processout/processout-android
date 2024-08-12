@@ -21,7 +21,8 @@ internal sealed interface NativeAlternativePaymentViewModelState {
         val fields: POImmutableList<Field>,
         val focusedFieldId: String?,
         val primaryAction: POActionState,
-        val secondaryAction: POActionState?
+        val secondaryAction: POActionState?,
+        val submittedAtLeastOnce: Boolean
     ) : NativeAlternativePaymentViewModelState
 
     @Immutable
