@@ -9,9 +9,10 @@ import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.dispatcher.checkout.PODefaultDynamicCheckoutEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
+import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceInvalidationReason
+import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceInvalidationReason.Error
+import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceInvalidationReason.PaymentMethodChanged
 import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceRequest
-import com.processout.sdk.api.model.request.POInvoiceInvalidationReason
-import com.processout.sdk.api.model.request.POInvoiceInvalidationReason.*
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Display
@@ -274,7 +275,7 @@ internal class DynamicCheckoutInteractor(
         }
     }
 
-    private fun requestInvoice(reason: POInvoiceInvalidationReason) {
+    private fun requestInvoice(reason: PODynamicCheckoutInvoiceInvalidationReason) {
         interactorScope.launch {
             val request = PODynamicCheckoutInvoiceRequest(
                 invoice = _state.value.invoice,
@@ -299,10 +300,6 @@ internal class DynamicCheckoutInteractor(
                                         "Invoice invalidated and the new one has not been provided."
                             )
                             is Error -> reason.failure
-                            Other -> ProcessOutResult.Failure(
-                                code = Generic(),
-                                message = "Invoice invalidated and the new one has not been provided."
-                            )
                         }
                         _completion.update { Failure(failure) }
                     } else {
