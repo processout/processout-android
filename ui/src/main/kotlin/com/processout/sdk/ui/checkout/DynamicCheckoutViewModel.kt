@@ -220,7 +220,8 @@ internal class DynamicCheckoutViewModel private constructor(
             Started(
                 expressPayments = expressPayments(interactorState),
                 regularPayments = regularPayments(interactorState, cardTokenizationState, nativeAlternativePaymentState),
-                cancelAction = cancelAction
+                cancelAction = cancelAction,
+                errorMessage = interactorState.errorMessage
             )
         }
     }

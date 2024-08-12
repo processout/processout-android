@@ -121,6 +121,12 @@ private fun Content(
         Column(
             modifier = Modifier.padding(spacing.extraLarge)
         ) {
+            POMessageBox(
+                text = state.errorMessage,
+                style = style.messageBox,
+                modifier = Modifier.padding(bottom = spacing.extraLarge),
+                horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing)
+            )
             RegularPayments(
                 payments = state.regularPayments,
                 onEvent = onEvent,
@@ -301,6 +307,7 @@ internal object DynamicCheckoutScreen {
         val dropdownMenu: PODropdownField.MenuStyle,
         val bodyText: TextAndroidView.Style,
         val errorText: POText.Style,
+        val messageBox: POMessageBox.Style,
         val actionsContainer: POActionsContainer.Style,
         val dialog: PODialog.Style,
         val backgroundColor: Color,
@@ -343,6 +350,9 @@ internal object DynamicCheckoutScreen {
         errorText = custom?.errorText?.let {
             POText.custom(style = it)
         } ?: POText.errorLabel,
+        messageBox = custom?.messageBox?.let {
+            POMessageBox.custom(style = it)
+        } ?: POMessageBox.error,
         actionsContainer = custom?.actionsContainer?.let {
             POActionsContainer.custom(style = it)
         } ?: POActionsContainer.default,

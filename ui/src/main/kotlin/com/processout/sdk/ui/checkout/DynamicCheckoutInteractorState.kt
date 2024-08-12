@@ -9,7 +9,8 @@ internal data class DynamicCheckoutInteractorState(
     val invoice: POInvoice?,
     val paymentMethods: List<PaymentMethod>,
     val selectedPaymentMethodId: String?,
-    val cancelActionId: String
+    val cancelActionId: String,
+    val errorMessage: String? = null
 ) {
 
     sealed interface PaymentMethod {

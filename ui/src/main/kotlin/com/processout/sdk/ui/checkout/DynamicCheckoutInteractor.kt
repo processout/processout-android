@@ -5,6 +5,7 @@ import coil.imageLoader
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.request.ImageResult
+import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.dispatcher.checkout.PODefaultDynamicCheckoutEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
@@ -66,7 +67,8 @@ internal class DynamicCheckoutInteractor(
         reset(
             state = _state.value.copy(
                 invoice = null,
-                selectedPaymentMethodId = null
+                selectedPaymentMethodId = null,
+                errorMessage = app.getString(R.string.po_dynamic_checkout_error_generic)
             )
         )
         start()
@@ -195,7 +197,10 @@ internal class DynamicCheckoutInteractor(
         when (event) {
             is PaymentMethodSelected ->
                 _state.update {
-                    it.copy(selectedPaymentMethodId = event.id)
+                    it.copy(
+                        selectedPaymentMethodId = event.id,
+                        errorMessage = null
+                    )
                 }
             is Action -> when (event.id) {
                 ActionId.CANCEL -> cancel()

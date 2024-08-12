@@ -39,6 +39,7 @@ data class PODynamicCheckoutConfiguration(
         val dropdownMenu: PODropdownMenuStyle? = null,
         val bodyText: POTextStyle? = null,
         val errorText: POTextStyle? = null,
+        val messageBox: POMessageBoxStyle? = null,
         val actionsContainer: POActionsContainerStyle? = null,
         val dialog: PODialogStyle? = null,
         @ColorRes
