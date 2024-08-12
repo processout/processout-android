@@ -24,9 +24,9 @@ data class POInvoice(
     val amount: String,
     val currency: String,
     @Json(name = "return_url")
-    val returnUrl: String?,
+    val returnUrl: String? = null,
     @Json(name = "payment_methods")
-    @ProcessOutInternalApi val paymentMethods: List<PODynamicCheckoutPaymentMethod>?
+    @ProcessOutInternalApi val paymentMethods: List<PODynamicCheckoutPaymentMethod>? = null
 )
 
 /**

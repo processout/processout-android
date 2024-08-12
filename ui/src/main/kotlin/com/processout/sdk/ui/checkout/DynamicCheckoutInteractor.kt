@@ -16,6 +16,7 @@ import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Display
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Flow.express
+import com.processout.sdk.api.model.response.POInvoice
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.POFailure.Code.Generic
@@ -68,7 +69,11 @@ internal class DynamicCheckoutInteractor(
         this.invoiceRequest = invoiceRequest
         reset(
             state = _state.value.copy(
-                invoice = null,
+                invoice = POInvoice(
+                    id = invoiceRequest.invoiceId,
+                    amount = String(),
+                    currency = String()
+                ),
                 selectedPaymentMethodId = null,
                 errorMessage = app.getString(R.string.po_dynamic_checkout_error_generic)
             )
@@ -85,7 +90,11 @@ internal class DynamicCheckoutInteractor(
 
     private fun initState() = DynamicCheckoutInteractorState(
         loading = true,
-        invoice = null,
+        invoice = POInvoice(
+            id = invoiceRequest.invoiceId,
+            amount = String(),
+            currency = String()
+        ),
         paymentMethods = emptyList(),
         selectedPaymentMethodId = null,
         cancelActionId = ActionId.CANCEL
