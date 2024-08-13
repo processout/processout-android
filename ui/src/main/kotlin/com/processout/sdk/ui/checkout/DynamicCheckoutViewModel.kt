@@ -300,7 +300,7 @@ internal class DynamicCheckoutViewModel private constructor(
                         selected = selected
                     ),
                     content = if (selected) Content.Card(cardTokenizationState) else null,
-                    action = null
+                    submitAction = cardTokenizationState.primaryAction
                 )
                 is AlternativePayment -> if (!paymentMethod.isExpress)
                     RegularPayment(
@@ -312,7 +312,7 @@ internal class DynamicCheckoutViewModel private constructor(
                             selected = selected
                         ),
                         content = null,
-                        action = POActionState(
+                        submitAction = POActionState(
                             id = id,
                             text = app.getString(R.string.po_dynamic_checkout_button_pay),
                             primary = true
@@ -326,7 +326,10 @@ internal class DynamicCheckoutViewModel private constructor(
                         selected = selected
                     ),
                     content = if (selected) Content.NativeAlternativePayment(nativeAlternativePaymentState) else null,
-                    action = null
+                    submitAction = when (nativeAlternativePaymentState) {
+                        is UserInput -> nativeAlternativePaymentState.primaryAction
+                        else -> null
+                    }
                 )
                 else -> null
             }

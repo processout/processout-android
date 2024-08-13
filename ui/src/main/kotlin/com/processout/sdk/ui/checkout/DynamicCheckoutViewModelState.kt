@@ -54,7 +54,7 @@ internal sealed interface DynamicCheckoutViewModelState {
         val id: String,
         val state: State,
         val content: Content?,
-        val action: POActionState?
+        val submitAction: POActionState?
     ) {
         @Immutable
         data class State(
