@@ -3,14 +3,11 @@ package com.processout.sdk.ui.checkout
 import androidx.compose.ui.text.input.TextFieldValue
 import com.processout.sdk.core.ProcessOutResult
 
-internal sealed interface DynamicCheckoutExtendedEvent : DynamicCheckoutEvent {
-    data class PaymentMethodSelected(val id: String) : DynamicCheckoutExtendedEvent
-    data class Action(val id: String) : DynamicCheckoutExtendedEvent
-    data class ActionConfirmationRequested(val id: String) : DynamicCheckoutExtendedEvent
-    data class Dismiss(val failure: ProcessOutResult.Failure) : DynamicCheckoutExtendedEvent
-}
-
 internal sealed interface DynamicCheckoutEvent {
+    data class PaymentMethodSelected(
+        val id: String
+    ) : DynamicCheckoutEvent
+
     data class FieldValueChanged(
         val paymentMethodId: String,
         val fieldId: String,
@@ -24,8 +21,16 @@ internal sealed interface DynamicCheckoutEvent {
     ) : DynamicCheckoutEvent
 
     data class Action(
-        val paymentMethodId: String,
-        val actionId: String
+        val actionId: String,
+        val paymentMethodId: String?
+    ) : DynamicCheckoutEvent
+
+    data class ActionConfirmationRequested(
+        val id: String
+    ) : DynamicCheckoutEvent
+
+    data class Dismiss(
+        val failure: ProcessOutResult.Failure
     ) : DynamicCheckoutEvent
 }
 

@@ -72,8 +72,8 @@ internal fun RegularPaymentContent(
                         onClick = {
                             onEvent(
                                 Action(
-                                    paymentMethodId = payment.id,
-                                    actionId = id
+                                    actionId = id,
+                                    paymentMethodId = payment.id
                                 )
                             )
                         },

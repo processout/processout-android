@@ -26,7 +26,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent
-import com.processout.sdk.ui.checkout.DynamicCheckoutExtendedEvent.*
+import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.*
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration
@@ -259,7 +259,14 @@ private fun Footer(
         if (cancelAction != null) {
             POActionsContainer(
                 actions = POImmutableList(listOf(cancelAction)),
-                onClick = { onEvent(Action(id = it)) },
+                onClick = {
+                    onEvent(
+                        Action(
+                            actionId = it,
+                            paymentMethodId = null
+                        )
+                    )
+                },
                 onConfirmationRequested = { onEvent(ActionConfirmationRequested(id = it)) },
                 containerStyle = containerStyle,
                 dialogStyle = dialogStyle

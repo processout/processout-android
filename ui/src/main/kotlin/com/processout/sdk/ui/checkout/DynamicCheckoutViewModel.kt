@@ -9,20 +9,10 @@ import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.dispatcher.checkout.PODefaultDynamicCheckoutEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
-import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceInvalidationReason
-import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceInvalidationReason.PaymentMethodChanged
 import com.processout.sdk.api.model.request.POInvoiceRequest
-import com.processout.sdk.api.model.response.POBillingAddressCollectionMode
-import com.processout.sdk.api.model.response.POBillingAddressCollectionMode.*
-import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.CardConfiguration
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Display
-import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState
-import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
-import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode
-import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
-import com.processout.sdk.ui.checkout.DynamicCheckoutExtendedEvent.PaymentMethodSelected
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment.Content
@@ -31,23 +21,19 @@ import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.Options
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.core.state.POImmutableList
-import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState
-import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.*
+import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Loading
+import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.UserInput
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 
 internal class DynamicCheckoutViewModel private constructor(
     private val app: Application,
-    private var invoiceRequest: POInvoiceRequest,
     private val options: Options,
-    private val interactor: DynamicCheckoutInteractor,
-    private val cardTokenization: CardTokenizationViewModel,
-    private val nativeAlternativePayment: NativeAlternativePaymentViewModel
+    private val interactor: DynamicCheckoutInteractor
 ) : ViewModel() {
 
     class Factory(
@@ -55,26 +41,25 @@ internal class DynamicCheckoutViewModel private constructor(
         private val invoiceRequest: POInvoiceRequest,
         private val options: Options,
         private val cardTokenization: CardTokenizationViewModel,
-        private val nativeAlternativePayment: NativeAlternativePaymentViewModel,
         private val cardTokenizationEventDispatcher: PODefaultCardTokenizationEventDispatcher,
+        private val nativeAlternativePayment: NativeAlternativePaymentViewModel,
         private val nativeAlternativePaymentEventDispatcher: PODefaultNativeAlternativePaymentMethodEventDispatcher
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
             DynamicCheckoutViewModel(
                 app = app,
-                invoiceRequest = invoiceRequest,
                 options = options,
                 interactor = DynamicCheckoutInteractor(
                     app = app,
                     invoiceRequest = invoiceRequest,
                     invoicesService = ProcessOut.instance.invoices,
-                    eventDispatcher = PODefaultDynamicCheckoutEventDispatcher,
+                    cardTokenization = cardTokenization,
                     cardTokenizationEventDispatcher = cardTokenizationEventDispatcher,
-                    nativeAlternativePaymentEventDispatcher = nativeAlternativePaymentEventDispatcher
-                ),
-                cardTokenization = cardTokenization,
-                nativeAlternativePayment = nativeAlternativePayment
+                    nativeAlternativePayment = nativeAlternativePayment,
+                    nativeAlternativePaymentEventDispatcher = nativeAlternativePaymentEventDispatcher,
+                    eventDispatcher = PODefaultDynamicCheckoutEventDispatcher
+                )
             ) as T
     }
 
@@ -82,8 +67,8 @@ internal class DynamicCheckoutViewModel private constructor(
 
     val state: StateFlow<DynamicCheckoutViewModelState> = combine(
         interactor.state,
-        cardTokenization.state,
-        nativeAlternativePayment.state
+        interactor.cardTokenizationState,
+        interactor.nativeAlternativePaymentState
     ) { interactorState, cardTokenizationState, nativeAlternativePaymentState ->
         combine(interactorState, cardTokenizationState, nativeAlternativePaymentState)
     }.stateIn(
@@ -94,134 +79,9 @@ internal class DynamicCheckoutViewModel private constructor(
 
     init {
         addCloseable(interactor.interactorScope)
-        interactor.onInvoiceChanged = ::onInvoiceChanged
-        handleCompletions()
     }
 
-    private fun handleCompletions() {
-        viewModelScope.launch {
-            cardTokenization.completion.collect {
-                interactor.onCardTokenization(it)
-            }
-        }
-        viewModelScope.launch {
-            nativeAlternativePayment.completion.collect {
-                interactor.onNativeAlternativePayment(it)
-            }
-        }
-    }
-
-    private fun onInvoiceChanged(
-        invoiceRequest: POInvoiceRequest,
-        reason: PODynamicCheckoutInvoiceInvalidationReason
-    ) {
-        this.invoiceRequest = invoiceRequest
-        cardTokenization.reset()
-        nativeAlternativePayment.reset()
-        interactor.restart(invoiceRequest, reason)
-    }
-
-    fun onEvent(event: DynamicCheckoutEvent) {
-        when (event) {
-            is PaymentMethodSelected -> onPaymentMethodSelected(event)
-            is FieldValueChanged -> onFieldValueChanged(event)
-            is FieldFocusChanged -> onFieldFocusChanged(event)
-            is Action -> onAction(event)
-            else -> {}
-        }
-        if (event is DynamicCheckoutExtendedEvent) {
-            interactor.onEvent(event)
-        }
-    }
-
-    private fun onPaymentMethodSelected(event: PaymentMethodSelected) {
-        if (event.id != interactor.state.value.selectedPaymentMethodId) {
-            interactor.paymentMethod(event.id)?.let { paymentMethod ->
-                if (nativeAlternativePayment.state.value.submittedAtLeastOnce()) {
-                    interactor.invalidateInvoice(reason = PaymentMethodChanged)
-                }
-                cardTokenization.reset()
-                nativeAlternativePayment.reset()
-                if (interactor.state.value.isInvoiceValid) {
-                    when (paymentMethod) {
-                        is Card -> cardTokenization.start(
-                            configuration = cardTokenization.configuration
-                                .apply(paymentMethod.configuration)
-                        )
-                        is NativeAlternativePayment -> nativeAlternativePayment.start(
-                            invoiceId = invoiceRequest.invoiceId,
-                            gatewayConfigurationId = paymentMethod.gatewayConfigurationId
-                        )
-                        else -> {}
-                    }
-                }
-            }
-        }
-    }
-
-    private fun NativeAlternativePaymentViewModelState.submittedAtLeastOnce() =
-        when (this) {
-            is Loading -> false
-            is UserInput -> submittedAtLeastOnce
-            is Capture -> true
-        }
-
-    private fun POCardTokenizationConfiguration.apply(
-        configuration: CardConfiguration
-    ) = copy(
-        isCardholderNameFieldVisible = configuration.cardholderNameRequired,
-        billingAddress = billingAddress.copy(
-            mode = configuration.billingAddress.collectionMode.map(),
-            countryCodes = configuration.billingAddress.restrictToCountryCodes
-        )
-    )
-
-    private fun POBillingAddressCollectionMode.map() = when (this) {
-        full -> CollectionMode.Full
-        automatic -> CollectionMode.Automatic
-        never -> CollectionMode.Never
-    }
-
-    private fun onFieldValueChanged(event: FieldValueChanged) {
-        val paymentMethod = interactor.paymentMethod(event.paymentMethodId)
-        when (paymentMethod) {
-            is Card -> cardTokenization.onEvent(
-                CardTokenizationEvent.FieldValueChanged(event.fieldId, event.value)
-            )
-            is NativeAlternativePayment -> nativeAlternativePayment.onEvent(
-                NativeAlternativePaymentEvent.FieldValueChanged(event.fieldId, event.value)
-            )
-            else -> {}
-        }
-    }
-
-    private fun onFieldFocusChanged(event: FieldFocusChanged) {
-        val paymentMethod = interactor.paymentMethod(event.paymentMethodId)
-        when (paymentMethod) {
-            is Card -> cardTokenization.onEvent(
-                CardTokenizationEvent.FieldFocusChanged(event.fieldId, event.isFocused)
-            )
-            is NativeAlternativePayment -> nativeAlternativePayment.onEvent(
-                NativeAlternativePaymentEvent.FieldFocusChanged(event.fieldId, event.isFocused)
-            )
-            else -> {}
-        }
-    }
-
-    private fun onAction(event: Action) {
-        val paymentMethod = interactor.paymentMethod(event.paymentMethodId)
-        when (paymentMethod) {
-            is Card -> cardTokenization.onEvent(
-                CardTokenizationEvent.Action(event.actionId)
-            )
-            is NativeAlternativePayment -> nativeAlternativePayment.onEvent(
-                NativeAlternativePaymentEvent.Action(event.actionId)
-            )
-            else -> interactor.onEvent(
-                DynamicCheckoutExtendedEvent.Action(id = event.actionId)
-            )
-        }
-    }
+    fun onEvent(event: DynamicCheckoutEvent) = interactor.onEvent(event)
 
     private fun combine(
         interactorState: DynamicCheckoutInteractorState,
@@ -300,7 +160,7 @@ internal class DynamicCheckoutViewModel private constructor(
                         selected = selected
                     ),
                     content = if (selected) Content.Card(cardTokenizationState) else null,
-                    submitAction = cardTokenizationState.primaryAction
+                    submitAction = if (selected) cardTokenizationState.primaryAction else null
                 )
                 is AlternativePayment -> if (!paymentMethod.isExpress)
                     RegularPayment(
@@ -313,7 +173,7 @@ internal class DynamicCheckoutViewModel private constructor(
                         ),
                         content = null,
                         submitAction = POActionState(
-                            id = id,
+                            id = interactorState.submitActionId,
                             text = app.getString(R.string.po_dynamic_checkout_button_pay),
                             primary = true
                         )
@@ -326,10 +186,8 @@ internal class DynamicCheckoutViewModel private constructor(
                         selected = selected
                     ),
                     content = if (selected) Content.NativeAlternativePayment(nativeAlternativePaymentState) else null,
-                    submitAction = when (nativeAlternativePaymentState) {
-                        is UserInput -> nativeAlternativePaymentState.primaryAction
-                        else -> null
-                    }
+                    submitAction = if (selected && nativeAlternativePaymentState is UserInput)
+                        nativeAlternativePaymentState.primaryAction else null
                 )
                 else -> null
             }

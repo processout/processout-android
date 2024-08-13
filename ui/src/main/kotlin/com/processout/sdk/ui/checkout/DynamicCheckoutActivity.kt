@@ -30,7 +30,7 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutActivityContract.Companion.
 import com.processout.sdk.ui.checkout.DynamicCheckoutActivityContract.Companion.EXTRA_RESULT
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Failure
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Success
-import com.processout.sdk.ui.checkout.DynamicCheckoutExtendedEvent.Dismiss
+import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.Dismiss
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
@@ -70,8 +70,8 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
             invoiceRequest = configuration?.invoiceRequest ?: POInvoiceRequest(invoiceId = String()),
             options = configuration?.options ?: PODynamicCheckoutConfiguration.Options(),
             cardTokenization = cardTokenization,
-            nativeAlternativePayment = nativeAlternativePayment,
             cardTokenizationEventDispatcher = cardTokenizationEventDispatcher,
+            nativeAlternativePayment = nativeAlternativePayment,
             nativeAlternativePaymentEventDispatcher = nativeAlternativePaymentEventDispatcher
         )
     }

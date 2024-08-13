@@ -8,6 +8,7 @@ internal data class DynamicCheckoutInteractorState(
     val invoice: POInvoice,
     val paymentMethods: List<PaymentMethod>,
     val selectedPaymentMethodId: String?,
+    val submitActionId: String,
     val cancelActionId: String,
     val errorMessage: String? = null,
     val isInvoiceValid: Boolean = true
@@ -43,6 +44,7 @@ internal data class DynamicCheckoutInteractorState(
     }
 
     object ActionId {
-        const val CANCEL = "cancel"
+        const val SUBMIT = "dc-submit"
+        const val CANCEL = "dc-cancel"
     }
 }

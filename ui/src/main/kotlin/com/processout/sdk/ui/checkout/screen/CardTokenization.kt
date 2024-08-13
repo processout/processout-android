@@ -179,8 +179,8 @@ private fun TextField(
             onClick = {
                 onEvent(
                     DynamicCheckoutEvent.Action(
-                        paymentMethodId = id,
-                        actionId = it
+                        actionId = it,
+                        paymentMethodId = id
                     )
                 )
             }

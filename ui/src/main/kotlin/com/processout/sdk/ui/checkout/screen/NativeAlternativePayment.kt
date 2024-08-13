@@ -176,8 +176,8 @@ private fun TextField(
             onClick = {
                 onEvent(
                     Action(
-                        paymentMethodId = id,
-                        actionId = it
+                        actionId = it,
+                        paymentMethodId = id
                     )
                 )
             }
@@ -240,8 +240,8 @@ private fun CodeField(
             onClick = {
                 onEvent(
                     Action(
-                        paymentMethodId = id,
-                        actionId = it
+                        actionId = it,
+                        paymentMethodId = id
                     )
                 )
             }
