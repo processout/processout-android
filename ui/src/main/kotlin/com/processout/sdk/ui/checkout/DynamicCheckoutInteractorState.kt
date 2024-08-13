@@ -2,7 +2,6 @@ package com.processout.sdk.ui.checkout
 
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.*
 import com.processout.sdk.api.model.response.POInvoice
-import java.util.UUID
 
 internal data class DynamicCheckoutInteractorState(
     val loading: Boolean,
@@ -10,7 +9,8 @@ internal data class DynamicCheckoutInteractorState(
     val paymentMethods: List<PaymentMethod>,
     val selectedPaymentMethodId: String?,
     val cancelActionId: String,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val isInvoiceValid: Boolean = true
 ) {
 
     sealed interface PaymentMethod {
@@ -18,25 +18,25 @@ internal data class DynamicCheckoutInteractorState(
         val id: String
 
         data class Card(
-            override val id: String = UUID.randomUUID().toString(),
+            override val id: String,
             val configuration: CardConfiguration,
             val display: Display
         ) : PaymentMethod
 
         data class GooglePay(
-            override val id: String = UUID.randomUUID().toString(),
+            override val id: String,
             val configuration: GooglePayConfiguration
         ) : PaymentMethod
 
         data class AlternativePayment(
-            override val id: String = UUID.randomUUID().toString(),
+            override val id: String,
             val redirectUrl: String,
             val display: Display,
             val isExpress: Boolean
         ) : PaymentMethod
 
         data class NativeAlternativePayment(
-            override val id: String = UUID.randomUUID().toString(),
+            override val id: String,
             val gatewayConfigurationId: String,
             val display: Display
         ) : PaymentMethod

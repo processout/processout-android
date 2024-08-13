@@ -10,6 +10,7 @@ import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokeniza
 import com.processout.sdk.api.dispatcher.checkout.PODefaultDynamicCheckoutEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceInvalidationReason
+import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceInvalidationReason.PaymentMethodChanged
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.response.POBillingAddressCollectionMode
 import com.processout.sdk.api.model.response.POBillingAddressCollectionMode.*
@@ -33,7 +34,7 @@ import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState
-import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Loading
+import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.*
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -115,6 +116,7 @@ internal class DynamicCheckoutViewModel private constructor(
         reason: PODynamicCheckoutInvoiceInvalidationReason
     ) {
         this.invoiceRequest = invoiceRequest
+        cardTokenization.reset()
         nativeAlternativePayment.reset()
         interactor.restart(invoiceRequest, reason)
     }
@@ -135,22 +137,34 @@ internal class DynamicCheckoutViewModel private constructor(
     private fun onPaymentMethodSelected(event: PaymentMethodSelected) {
         if (event.id != interactor.state.value.selectedPaymentMethodId) {
             interactor.paymentMethod(event.id)?.let { paymentMethod ->
+                if (nativeAlternativePayment.state.value.submittedAtLeastOnce()) {
+                    interactor.invalidateInvoice(reason = PaymentMethodChanged)
+                }
                 cardTokenization.reset()
                 nativeAlternativePayment.reset()
-                when (paymentMethod) {
-                    is Card -> cardTokenization.start(
-                        configuration = cardTokenization.configuration
-                            .apply(paymentMethod.configuration)
-                    )
-                    is NativeAlternativePayment -> nativeAlternativePayment.start(
-                        invoiceId = invoiceRequest.invoiceId,
-                        gatewayConfigurationId = paymentMethod.gatewayConfigurationId
-                    )
-                    else -> {}
+                if (interactor.state.value.isInvoiceValid) {
+                    when (paymentMethod) {
+                        is Card -> cardTokenization.start(
+                            configuration = cardTokenization.configuration
+                                .apply(paymentMethod.configuration)
+                        )
+                        is NativeAlternativePayment -> nativeAlternativePayment.start(
+                            invoiceId = invoiceRequest.invoiceId,
+                            gatewayConfigurationId = paymentMethod.gatewayConfigurationId
+                        )
+                        else -> {}
+                    }
                 }
             }
         }
     }
+
+    private fun NativeAlternativePaymentViewModelState.submittedAtLeastOnce() =
+        when (this) {
+            is Loading -> false
+            is UserInput -> submittedAtLeastOnce
+            is Capture -> true
+        }
 
     private fun POCardTokenizationConfiguration.apply(
         configuration: CardConfiguration
@@ -282,6 +296,7 @@ internal class DynamicCheckoutViewModel private constructor(
                     id = id,
                     state = regularPaymentState(
                         display = paymentMethod.display,
+                        loading = !interactorState.isInvoiceValid,
                         selected = selected
                     ),
                     content = if (selected) Content.Card(cardTokenizationState) else null,
@@ -293,6 +308,7 @@ internal class DynamicCheckoutViewModel private constructor(
                         state = regularPaymentState(
                             display = paymentMethod.display,
                             description = app.getString(R.string.po_dynamic_checkout_warning_redirect),
+                            loading = !interactorState.isInvoiceValid,
                             selected = selected
                         ),
                         content = null,
@@ -306,7 +322,7 @@ internal class DynamicCheckoutViewModel private constructor(
                     id = id,
                     state = regularPaymentState(
                         display = paymentMethod.display,
-                        loading = nativeAlternativePaymentState is Loading,
+                        loading = !interactorState.isInvoiceValid || nativeAlternativePaymentState is Loading,
                         selected = selected
                     ),
                     content = if (selected) Content.NativeAlternativePayment(nativeAlternativePaymentState) else null,
