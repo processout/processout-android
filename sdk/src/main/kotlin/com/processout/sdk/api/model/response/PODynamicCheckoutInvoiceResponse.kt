@@ -11,11 +11,11 @@ import java.util.UUID
 data class PODynamicCheckoutInvoiceResponse internal constructor(
     val uuid: UUID = UUID.randomUUID(),
     val invoiceRequest: POInvoiceRequest?,
-    val reason: PODynamicCheckoutInvoiceInvalidationReason
+    val invalidationReason: PODynamicCheckoutInvoiceInvalidationReason
 )
 
 /** @suppress */
 @ProcessOutInternalApi
 fun PODynamicCheckoutInvoiceRequest.toResponse(
     invoiceRequest: POInvoiceRequest?
-) = PODynamicCheckoutInvoiceResponse(uuid, invoiceRequest, reason)
+) = PODynamicCheckoutInvoiceResponse(uuid, invoiceRequest, invalidationReason)

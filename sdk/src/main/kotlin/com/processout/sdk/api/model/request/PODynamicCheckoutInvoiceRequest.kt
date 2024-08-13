@@ -12,5 +12,5 @@ import java.util.UUID
 data class PODynamicCheckoutInvoiceRequest @ProcessOutInternalApi constructor(
     val uuid: UUID = UUID.randomUUID(),
     val invoice: POInvoice,
-    val reason: PODynamicCheckoutInvoiceInvalidationReason
+    val invalidationReason: PODynamicCheckoutInvoiceInvalidationReason
 )

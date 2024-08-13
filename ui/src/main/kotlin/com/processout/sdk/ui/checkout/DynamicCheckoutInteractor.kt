@@ -10,8 +10,6 @@ import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokeniza
 import com.processout.sdk.api.dispatcher.checkout.PODefaultDynamicCheckoutEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceInvalidationReason
-import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceInvalidationReason.Error
-import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceInvalidationReason.PaymentMethodChanged
 import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceRequest
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
@@ -72,11 +70,12 @@ internal class DynamicCheckoutInteractor(
     ) {
         this.invoiceRequest = invoiceRequest
         val selectedPaymentMethodId = when (reason) {
-            is Error -> null
+            is PODynamicCheckoutInvoiceInvalidationReason.Failure -> null
             else -> _state.value.selectedPaymentMethodId
         }
         val errorMessage = when (reason) {
-            is Error -> app.getString(R.string.po_dynamic_checkout_error_generic)
+            is PODynamicCheckoutInvoiceInvalidationReason.Failure ->
+                app.getString(R.string.po_dynamic_checkout_error_generic)
             else -> null
         }
         reset(
@@ -284,7 +283,7 @@ internal class DynamicCheckoutInteractor(
             NativeAlternativePaymentCompletion.Success -> _completion.update { Success }
             is NativeAlternativePaymentCompletion.Failure ->
                 if (eventDispatcher.subscribedForInvoiceRequest()) {
-                    invalidateInvoice(reason = Error(completion.failure))
+                    invalidateInvoice(reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(completion.failure))
                 } else {
                     _completion.update { Failure(completion.failure) }
                 }
@@ -298,7 +297,7 @@ internal class DynamicCheckoutInteractor(
             if (latestInvoiceRequest == null) {
                 val request = PODynamicCheckoutInvoiceRequest(
                     invoice = _state.value.invoice,
-                    reason = reason
+                    invalidationReason = reason
                 )
                 latestInvoiceRequest = request
                 eventDispatcher.send(request)
@@ -312,15 +311,16 @@ internal class DynamicCheckoutInteractor(
                 if (response.uuid == latestInvoiceRequest?.uuid) {
                     latestInvoiceRequest = null
                     val invoiceRequest = response.invoiceRequest
-                    val reason = response.reason
+                    val reason = response.invalidationReason
                     if (invoiceRequest == null) {
                         val failure = when (reason) {
-                            PaymentMethodChanged -> ProcessOutResult.Failure(
-                                code = Generic(),
-                                message = "Payment method has been changed by the user during processing. " +
-                                        "Invoice invalidated and the new one has not been provided."
-                            )
-                            is Error -> reason.failure
+                            PODynamicCheckoutInvoiceInvalidationReason.PaymentMethodChanged ->
+                                ProcessOutResult.Failure(
+                                    code = Generic(),
+                                    message = "Payment method has been changed by the user during processing. " +
+                                            "Invoice invalidated and the new one has not been provided."
+                                )
+                            is PODynamicCheckoutInvoiceInvalidationReason.Failure -> reason.failure
                         }
                         _completion.update { Failure(failure) }
                     } else {

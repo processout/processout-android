@@ -7,7 +7,7 @@ import com.processout.sdk.core.annotation.ProcessOutInternalApi
 @ProcessOutInternalApi
 sealed class PODynamicCheckoutInvoiceInvalidationReason {
     data object PaymentMethodChanged : PODynamicCheckoutInvoiceInvalidationReason()
-    data class Error(
+    data class Failure(
         val failure: ProcessOutResult.Failure
     ) : PODynamicCheckoutInvoiceInvalidationReason()
 }
