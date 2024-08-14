@@ -42,6 +42,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.*
+import com.processout.sdk.ui.shared.extension.orElse
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -156,6 +157,14 @@ internal class DynamicCheckoutInteractor(
                     }
                     _state.value.selectedPaymentMethodId?.let { id ->
                         paymentMethod(id)?.let { start(it) }
+                            .orElse {
+                                _state.update {
+                                    it.copy(
+                                        selectedPaymentMethodId = null,
+                                        errorMessage = app.getString(R.string.po_dynamic_checkout_error_method_unavailable)
+                                    )
+                                }
+                            }
                     }
                 }.onFailure { failure ->
                     _completion.update { Failure(failure) }
