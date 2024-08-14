@@ -136,7 +136,7 @@ internal class DynamicCheckoutInteractor(
                             Failure(
                                 ProcessOutResult.Failure(
                                     code = Generic(),
-                                    message = "Missing remote configuration."
+                                    message = "Missing payment methods configuration."
                                 )
                             )
                         }
