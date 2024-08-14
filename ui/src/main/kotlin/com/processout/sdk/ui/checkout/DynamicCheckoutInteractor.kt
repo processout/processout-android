@@ -19,6 +19,7 @@ import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Card
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Display
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Flow.express
 import com.processout.sdk.api.model.response.POInvoice
+import com.processout.sdk.api.model.response.POTransaction.Status.*
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.POFailure.Code.Generic
@@ -122,45 +123,62 @@ internal class DynamicCheckoutInteractor(
         interactorScope.launch {
             invoicesService.invoice(invoiceRequest)
                 .onSuccess { invoice ->
-                    val paymentMethods = invoice.paymentMethods
-                    if (paymentMethods.isNullOrEmpty()) {
-                        _completion.update {
+                    when (invoice.transaction?.status()) {
+                        WAITING -> setStartedState(invoice)
+                        AUTHORIZED, COMPLETED -> _completion.update { Success }
+                        else -> _completion.update {
                             Failure(
                                 ProcessOutResult.Failure(
                                     code = Generic(),
-                                    message = "Missing payment methods configuration."
+                                    message = "Unsupported invoice state. Please create new invoice and restart dynamic checkout."
                                 )
                             )
                         }
-                        return@launch
-                    }
-                    val mappedPaymentMethods = paymentMethods.map()
-                    preloadAllImages(
-                        paymentMethods = mappedPaymentMethods,
-                        coroutineScope = this@launch
-                    )
-                    _state.update {
-                        it.copy(
-                            loading = false,
-                            invoice = invoice,
-                            isInvoiceValid = true, // TODO: validate invoice transaction state
-                            paymentMethods = mappedPaymentMethods
-                        )
-                    }
-                    _state.value.selectedPaymentMethodId?.let { id ->
-                        paymentMethod(id)?.let { start(it) }
-                            .orElse {
-                                _state.update {
-                                    it.copy(
-                                        selectedPaymentMethodId = null,
-                                        errorMessage = app.getString(R.string.po_dynamic_checkout_error_method_unavailable)
-                                    )
-                                }
-                            }
                     }
                 }.onFailure { failure ->
                     _completion.update { Failure(failure) }
                 }
+        }
+    }
+
+    private fun setStartedState(invoice: POInvoice) {
+        interactorScope.launch {
+            val paymentMethods = invoice.paymentMethods
+            if (paymentMethods.isNullOrEmpty()) {
+                _completion.update {
+                    Failure(
+                        ProcessOutResult.Failure(
+                            code = Generic(),
+                            message = "Missing payment methods configuration."
+                        )
+                    )
+                }
+                return@launch
+            }
+            val mappedPaymentMethods = paymentMethods.map()
+            preloadAllImages(
+                paymentMethods = mappedPaymentMethods,
+                coroutineScope = this@launch
+            )
+            _state.update {
+                it.copy(
+                    loading = false,
+                    invoice = invoice,
+                    isInvoiceValid = true,
+                    paymentMethods = mappedPaymentMethods
+                )
+            }
+            _state.value.selectedPaymentMethodId?.let { id ->
+                paymentMethod(id)?.let { start(it) }
+                    .orElse {
+                        _state.update {
+                            it.copy(
+                                selectedPaymentMethodId = null,
+                                errorMessage = app.getString(R.string.po_dynamic_checkout_error_method_unavailable)
+                            )
+                        }
+                    }
+            }
         }
     }
 
