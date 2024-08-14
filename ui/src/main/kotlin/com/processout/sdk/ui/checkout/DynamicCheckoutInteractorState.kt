@@ -6,12 +6,12 @@ import com.processout.sdk.api.model.response.POInvoice
 internal data class DynamicCheckoutInteractorState(
     val loading: Boolean,
     val invoice: POInvoice,
+    val isInvoiceValid: Boolean,
     val paymentMethods: List<PaymentMethod>,
     val selectedPaymentMethodId: String?,
     val submitActionId: String,
     val cancelActionId: String,
-    val errorMessage: String? = null,
-    val isInvoiceValid: Boolean = true
+    val errorMessage: String? = null
 ) {
 
     sealed interface PaymentMethod {

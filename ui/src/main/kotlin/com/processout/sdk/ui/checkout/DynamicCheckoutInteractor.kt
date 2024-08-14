@@ -118,6 +118,7 @@ internal class DynamicCheckoutInteractor(
             amount = String(),
             currency = String()
         ),
+        isInvoiceValid = false,
         paymentMethods = emptyList(),
         selectedPaymentMethodId = null,
         submitActionId = ActionId.SUBMIT,
