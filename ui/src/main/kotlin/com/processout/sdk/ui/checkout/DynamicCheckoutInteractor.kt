@@ -146,14 +146,16 @@ internal class DynamicCheckoutInteractor(
                         paymentMethods = mappedPaymentMethods,
                         coroutineScope = this@launch
                     )
-                    // TODO: start selected payment method if any
                     _state.update {
                         it.copy(
                             loading = false,
                             invoice = invoice,
-                            paymentMethods = mappedPaymentMethods,
-                            isInvoiceValid = true
+                            isInvoiceValid = true, // TODO: validate invoice transaction state
+                            paymentMethods = mappedPaymentMethods
                         )
+                    }
+                    _state.value.selectedPaymentMethodId?.let { id ->
+                        paymentMethod(id)?.let { start(it) }
                     }
                 }.onFailure { failure ->
                     _completion.update { Failure(failure) }
@@ -260,17 +262,7 @@ internal class DynamicCheckoutInteractor(
                 cardTokenization.reset()
                 nativeAlternativePayment.reset()
                 if (state.value.isInvoiceValid) {
-                    when (paymentMethod) {
-                        is Card -> cardTokenization.start(
-                            configuration = cardTokenization.configuration
-                                .apply(paymentMethod.configuration)
-                        )
-                        is NativeAlternativePayment -> nativeAlternativePayment.start(
-                            invoiceId = invoiceRequest.invoiceId,
-                            gatewayConfigurationId = paymentMethod.gatewayConfigurationId
-                        )
-                        else -> {}
-                    }
+                    start(paymentMethod)
                 }
                 _state.update {
                     it.copy(
@@ -288,6 +280,20 @@ internal class DynamicCheckoutInteractor(
             is UserInput -> submittedAtLeastOnce
             is Capture -> true
         }
+
+    private fun start(paymentMethod: PaymentMethod) {
+        when (paymentMethod) {
+            is Card -> cardTokenization.start(
+                configuration = cardTokenization.configuration
+                    .apply(paymentMethod.configuration)
+            )
+            is NativeAlternativePayment -> nativeAlternativePayment.start(
+                invoiceId = invoiceRequest.invoiceId,
+                gatewayConfigurationId = paymentMethod.gatewayConfigurationId
+            )
+            else -> {}
+        }
+    }
 
     private fun POCardTokenizationConfiguration.apply(
         configuration: CardConfiguration
