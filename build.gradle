@@ -61,7 +61,7 @@ ext {
     commonMarkVersion = '0.22.0'
     libphonenumberVersion = '8.13.38'
 
-    checkout3dsSdkVersion = '3.2.2'
+    checkout3dsSdkVersion = '3.2.3'
     adyen3dsSdkVersion = '2.2.15'
 
     junitVersion = '4.13.2'
