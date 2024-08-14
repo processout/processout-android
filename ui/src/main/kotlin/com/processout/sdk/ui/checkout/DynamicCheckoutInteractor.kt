@@ -93,11 +93,7 @@ internal class DynamicCheckoutInteractor(
         }
         reset(
             state = _state.value.copy(
-                invoice = POInvoice(
-                    id = invoiceRequest.invoiceId,
-                    amount = String(),
-                    currency = String()
-                ),
+                invoice = POInvoice(id = invoiceRequest.invoiceId),
                 selectedPaymentMethodId = selectedPaymentMethodId,
                 errorMessage = errorMessage
             )
@@ -114,11 +110,7 @@ internal class DynamicCheckoutInteractor(
 
     private fun initState() = DynamicCheckoutInteractorState(
         loading = true,
-        invoice = POInvoice(
-            id = invoiceRequest.invoiceId,
-            amount = String(),
-            currency = String()
-        ),
+        invoice = POInvoice(id = invoiceRequest.invoiceId),
         isInvoiceValid = false,
         paymentMethods = emptyList(),
         selectedPaymentMethodId = null,

@@ -34,7 +34,7 @@ internal interface InvoicesApi {
         @Body request: NativeAlternativePaymentCaptureRequest
     ): Response<CaptureResponse>
 
-    @GET("/invoices/{id}")
+    @GET("/invoices/{id}?expand=transaction")
     suspend fun invoice(
         @Path("id") invoiceId: String,
         @Header("x-processout-client-secret") clientSecret: String?
