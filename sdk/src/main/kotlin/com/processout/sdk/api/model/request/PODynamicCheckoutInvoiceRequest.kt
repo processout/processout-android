@@ -5,7 +5,7 @@ import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import java.util.UUID
 
 /**
- * Please make sure to invalidate existing invoice before creating the new one.
+ * __Note:__ please make sure to invalidate existing invoice before creating the new one.
  */
 /** @suppress */
 @ProcessOutInternalApi
