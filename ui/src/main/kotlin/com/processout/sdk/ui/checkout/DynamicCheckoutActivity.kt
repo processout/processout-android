@@ -3,6 +3,7 @@ package com.processout.sdk.ui.checkout
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.SystemBarStyle
@@ -12,7 +13,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.request.POInvoiceRequest
@@ -23,6 +27,7 @@ import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.toActivityResult
 import com.processout.sdk.ui.R
+import com.processout.sdk.ui.apm.POAlternativePaymentMethodCustomTabLauncher
 import com.processout.sdk.ui.base.BaseTransparentPortraitActivity
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
@@ -31,11 +36,15 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutActivityContract.Companion.
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Failure
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Success
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.Dismiss
+import com.processout.sdk.ui.checkout.DynamicCheckoutPaymentEvent.AlternativePayment
+import com.processout.sdk.ui.checkout.DynamicCheckoutPaymentEvent.GooglePay
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
 
@@ -76,6 +85,8 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         )
     }
 
+    private lateinit var alternativePaymentLauncher: POAlternativePaymentMethodCustomTabLauncher
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(
@@ -86,10 +97,24 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
             initConfiguration()
         }
         dispatchBackPressed()
+        alternativePaymentLauncher = POAlternativePaymentMethodCustomTabLauncher.create(
+            from = this,
+            callback = viewModel::handle
+        )
         setContent {
             ProcessOutTheme {
                 with(viewModel.completion.collectAsStateWithLifecycle()) {
                     LaunchedEffect(value) { handle(value) }
+                }
+                val lifecycleOwner = LocalLifecycleOwner.current
+                LaunchedEffect(lifecycleOwner) {
+                    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                        withContext(Dispatchers.Main.immediate) {
+                            viewModel.paymentEvents.collect {
+                                handle(it)
+                            }
+                        }
+                    }
                 }
                 DynamicCheckoutScreen(
                     state = viewModel.state.collectAsStateWithLifecycle().value,
@@ -142,6 +167,18 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
             )
             else -> {}
         }
+
+    private fun handle(paymentEvent: DynamicCheckoutPaymentEvent) {
+        when (paymentEvent) {
+            is GooglePay -> {
+                // TODO
+            }
+            is AlternativePayment -> alternativePaymentLauncher.launch(
+                uri = Uri.parse(paymentEvent.redirectUrl),
+                returnUrl = paymentEvent.returnUrl
+            )
+        }
+    }
 
     private fun finishWithActivityResult(
         resultCode: Int,

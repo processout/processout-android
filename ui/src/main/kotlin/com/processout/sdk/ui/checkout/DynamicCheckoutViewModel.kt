@@ -10,7 +10,9 @@ import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokeniza
 import com.processout.sdk.api.dispatcher.checkout.PODefaultDynamicCheckoutEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.request.POInvoiceRequest
+import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Display
+import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.*
@@ -77,11 +79,15 @@ internal class DynamicCheckoutViewModel private constructor(
         initialValue = Starting(cancelAction = null)
     )
 
+    val paymentEvents = interactor.paymentEvents
+
     init {
         addCloseable(interactor.interactorScope)
     }
 
     fun onEvent(event: DynamicCheckoutEvent) = interactor.onEvent(event)
+
+    fun handle(result: ProcessOutResult<POAlternativePaymentMethodResponse>) = interactor.handle(result)
 
     private fun combine(
         interactorState: DynamicCheckoutInteractorState,

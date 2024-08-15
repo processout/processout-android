@@ -1,6 +1,7 @@
 package com.processout.sdk.ui.checkout
 
 import androidx.compose.ui.text.input.TextFieldValue
+import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.GooglePayConfiguration
 import com.processout.sdk.core.ProcessOutResult
 
 internal sealed interface DynamicCheckoutEvent {
@@ -32,6 +33,17 @@ internal sealed interface DynamicCheckoutEvent {
     data class Dismiss(
         val failure: ProcessOutResult.Failure
     ) : DynamicCheckoutEvent
+}
+
+internal sealed interface DynamicCheckoutPaymentEvent {
+    data class GooglePay(
+        val configuration: GooglePayConfiguration
+    ) : DynamicCheckoutPaymentEvent
+
+    data class AlternativePayment(
+        val redirectUrl: String,
+        val returnUrl: String
+    ) : DynamicCheckoutPaymentEvent
 }
 
 internal sealed interface DynamicCheckoutCompletion {
