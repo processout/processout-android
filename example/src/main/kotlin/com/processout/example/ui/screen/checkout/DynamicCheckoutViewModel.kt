@@ -39,7 +39,7 @@ class DynamicCheckoutViewModel(
                     createInvoice(
                         InvoiceDetails(
                             amount = "3",
-                            currency = "PLN"
+                            currency = "EUR"
                         )
                     ).onSuccess {
                         replaceInvoice(
