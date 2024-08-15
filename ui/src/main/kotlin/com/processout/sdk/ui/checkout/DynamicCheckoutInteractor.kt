@@ -282,7 +282,7 @@ internal class DynamicCheckoutInteractor(
     private fun onPaymentMethodSelected(event: PaymentMethodSelected) {
         if (event.id != state.value.selectedPaymentMethodId) {
             paymentMethod(event.id)?.let { paymentMethod ->
-                if (nativeAlternativePayment.state.value.submittedAtLeastOnce()) {
+                if (shouldInvalidateInvoice()) {
                     val failure = ProcessOutResult.Failure(
                         code = Generic(),
                         message = "Payment method has been changed by the user during processing. " +
@@ -306,6 +306,18 @@ internal class DynamicCheckoutInteractor(
                 }
             }
         }
+    }
+
+    private fun shouldInvalidateInvoice(): Boolean {
+        _state.value.selectedPaymentMethodId?.let {
+            paymentMethod(it)?.let { selectedPaymentMethod ->
+                return when (selectedPaymentMethod) {
+                    is NativeAlternativePayment -> nativeAlternativePayment.state.value.submittedAtLeastOnce()
+                    else -> false
+                }
+            }
+        }
+        return false
     }
 
     private fun NativeAlternativePaymentViewModelState.submittedAtLeastOnce() =
