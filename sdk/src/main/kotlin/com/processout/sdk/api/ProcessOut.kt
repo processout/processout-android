@@ -4,10 +4,9 @@ package com.processout.sdk.api
 
 import com.processout.processout_sdk.ProcessOutLegacyAccessor
 import com.processout.sdk.BuildConfig
-import com.processout.sdk.api.dispatcher.DefaultEventDispatchers
+import com.processout.sdk.api.dispatcher.PODefaultEventDispatchers
 import com.processout.sdk.api.dispatcher.POEventDispatchers
 import com.processout.sdk.api.dispatcher.PONativeAlternativePaymentMethodEventDispatcher
-import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.api.preferences.Preferences
 import com.processout.sdk.api.repository.POCardsRepository
@@ -60,7 +59,7 @@ class ProcessOut private constructor(
     }
 
     /** Dispatchers that allows to handle events during various payment flows. */
-    val dispatchers: POEventDispatchers by lazy { DefaultEventDispatchers }
+    val dispatchers: POEventDispatchers by lazy { PODefaultEventDispatchers }
 
     /** Dispatcher that allows to handle events during native alternative payments. */
     @Deprecated(
@@ -68,7 +67,7 @@ class ProcessOut private constructor(
         replaceWith = ReplaceWith("dispatchers.nativeAlternativePaymentMethod")
     )
     val nativeAlternativePaymentMethodEventDispatcher: PONativeAlternativePaymentMethodEventDispatcher by lazy {
-        PODefaultNativeAlternativePaymentMethodEventDispatcher
+        dispatchers.nativeAlternativePaymentMethod
     }
 
     /**

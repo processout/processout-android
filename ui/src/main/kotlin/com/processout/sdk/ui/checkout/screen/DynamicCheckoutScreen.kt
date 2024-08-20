@@ -3,7 +3,6 @@
 package com.processout.sdk.ui.checkout.screen
 
 import android.view.Gravity
-import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
@@ -26,15 +25,15 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.processout.sdk.ui.R
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent
-import com.processout.sdk.ui.checkout.DynamicCheckoutExtendedEvent.*
+import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.*
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.RegularPaymentLogoSize
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.RowComponentSpacing
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.ShortAnimationDurationMillis
+import com.processout.sdk.ui.core.R
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.code.POCodeField
@@ -122,6 +121,12 @@ private fun Content(
         Column(
             modifier = Modifier.padding(spacing.extraLarge)
         ) {
+            POMessageBox(
+                text = state.errorMessage,
+                style = style.messageBox,
+                modifier = Modifier.padding(bottom = spacing.extraLarge),
+                horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing)
+            )
             RegularPayments(
                 payments = state.regularPayments,
                 onEvent = onEvent,
@@ -254,7 +259,14 @@ private fun Footer(
         if (cancelAction != null) {
             POActionsContainer(
                 actions = POImmutableList(listOf(cancelAction)),
-                onClick = { onEvent(Action(id = it)) },
+                onClick = {
+                    onEvent(
+                        Action(
+                            actionId = it,
+                            paymentMethodId = null
+                        )
+                    )
+                },
                 onConfirmationRequested = { onEvent(ActionConfirmationRequested(id = it)) },
                 containerStyle = containerStyle,
                 dialogStyle = dialogStyle
@@ -302,6 +314,7 @@ internal object DynamicCheckoutScreen {
         val dropdownMenu: PODropdownField.MenuStyle,
         val bodyText: TextAndroidView.Style,
         val errorText: POText.Style,
+        val messageBox: POMessageBox.Style,
         val actionsContainer: POActionsContainer.Style,
         val dialog: PODialog.Style,
         val backgroundColor: Color,
@@ -313,14 +326,7 @@ internal object DynamicCheckoutScreen {
         val title: POText.Style,
         val shape: Shape,
         val border: POBorderStroke,
-        val description: InfoTextStyle
-    )
-
-    @Immutable
-    data class InfoTextStyle(
-        val text: POText.Style,
-        @DrawableRes val iconResId: Int,
-        val iconColorFilter: ColorFilter?
+        val description: POTextWithIcon.Style
     )
 
     @Composable
@@ -351,6 +357,9 @@ internal object DynamicCheckoutScreen {
         errorText = custom?.errorText?.let {
             POText.custom(style = it)
         } ?: POText.errorLabel,
+        messageBox = custom?.messageBox?.let {
+            POMessageBox.custom(style = it)
+        } ?: POMessageBox.error,
         actionsContainer = custom?.actionsContainer?.let {
             POActionsContainer.custom(style = it)
         } ?: POActionsContainer.default,
@@ -375,7 +384,7 @@ internal object DynamicCheckoutScreen {
                 title = POText.subheading,
                 shape = shapes.roundedCornersSmall,
                 border = POBorderStroke(width = 1.dp, color = colors.border.subtle),
-                description = InfoTextStyle(
+                description = POTextWithIcon.Style(
                     text = description,
                     iconResId = R.drawable.po_info_icon,
                     iconColorFilter = ColorFilter.tint(color = description.color)
@@ -393,7 +402,7 @@ internal object DynamicCheckoutScreen {
                 width = border.widthDp.dp,
                 color = colorResource(id = border.colorResId)
             ),
-            description = InfoTextStyle(
+            description = POTextWithIcon.Style(
                 text = description,
                 iconResId = descriptionIconResId ?: R.drawable.po_info_icon,
                 iconColorFilter = if (descriptionIconResId != null) null else

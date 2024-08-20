@@ -1,5 +1,6 @@
 package com.processout.sdk.ui.core.component
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -8,10 +9,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -20,20 +21,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.processout.sdk.ui.core.R
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.core.component.POText.Style
 import com.processout.sdk.ui.core.component.POTextWithIcon.paddingValues
-import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 
 /** @suppress */
 @ProcessOutInternalApi
 @Composable
 fun POTextWithIcon(
     text: String,
-    iconPainter: Painter,
     modifier: Modifier = Modifier,
-    style: TextStyle = ProcessOutTheme.typography.body1,
-    textColor: Color = Color.Unspecified,
-    iconColorFilter: ColorFilter? = null,
+    style: POTextWithIcon.Style = POTextWithIcon.default,
     fontStyle: FontStyle? = null,
     textAlign: TextAlign? = null,
     onTextLayout: (TextLayoutResult) -> Unit = {},
@@ -46,21 +47,22 @@ fun POTextWithIcon(
     Row(
         horizontalArrangement = horizontalArrangement
     ) {
+        val iconPainter = painterResource(id = style.iconResId)
         val paddingValues = paddingValues(
             iconPainter = iconPainter,
-            textStyle = style
+            textStyle = style.text.textStyle
         )
         Image(
             painter = iconPainter,
             contentDescription = null,
             modifier = Modifier.padding(top = paddingValues.iconPaddingTop),
-            colorFilter = iconColorFilter
+            colorFilter = style.iconColorFilter
         )
         POText(
             text = text,
             modifier = modifier.padding(top = paddingValues.textPaddingTop),
-            color = textColor,
-            style = style,
+            color = style.text.color,
+            style = style.text.textStyle,
             fontStyle = fontStyle,
             textAlign = textAlign,
             onTextLayout = onTextLayout,
@@ -72,7 +74,29 @@ fun POTextWithIcon(
     }
 }
 
-internal object POTextWithIcon {
+/** @suppress */
+@ProcessOutInternalApi
+object POTextWithIcon {
+
+    @Immutable
+    data class Style(
+        val text: POText.Style,
+        @DrawableRes val iconResId: Int,
+        val iconColorFilter: ColorFilter?
+    )
+
+    val default: Style
+        @Composable get() {
+            val text = Style(
+                color = colors.text.primary,
+                textStyle = typography.body2
+            )
+            return Style(
+                text = text,
+                iconResId = R.drawable.po_info_icon,
+                iconColorFilter = ColorFilter.tint(color = text.color)
+            )
+        }
 
     @Immutable
     data class PaddingValues(

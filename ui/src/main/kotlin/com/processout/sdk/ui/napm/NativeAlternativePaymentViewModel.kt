@@ -43,7 +43,8 @@ internal class NativeAlternativePaymentViewModel private constructor(
         private val app: Application,
         private val invoiceId: String,
         private val gatewayConfigurationId: String,
-        private val options: Options
+        private val options: Options,
+        private val eventDispatcher: PODefaultNativeAlternativePaymentMethodEventDispatcher
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
@@ -63,7 +64,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                         maxDelay = 90 * 1000,
                         factor = 1.45
                     ),
-                    eventDispatcher = PODefaultNativeAlternativePaymentMethodEventDispatcher
+                    eventDispatcher = eventDispatcher
                 )
             ) as T
 
@@ -138,7 +139,8 @@ internal class NativeAlternativePaymentViewModel private constructor(
             secondaryAction = options.secondaryAction?.toActionState(
                 id = secondaryAction.id,
                 enabled = secondaryAction.enabled && !submitting
-            )
+            ),
+            submittedAtLeastOnce = submittedAtLeastOnce
         )
     }
 

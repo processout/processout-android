@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 
 /** @suppress */
 @ProcessOutInternalApi
-object PODefaultNativeAlternativePaymentMethodEventDispatcher : PONativeAlternativePaymentMethodEventDispatcher {
+class PODefaultNativeAlternativePaymentMethodEventDispatcher : PONativeAlternativePaymentMethodEventDispatcher {
 
     private val _events = MutableSharedFlow<PONativeAlternativePaymentMethodEvent>()
     override val events = _events.asSharedFlow()

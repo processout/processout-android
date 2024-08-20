@@ -38,7 +38,8 @@ internal class CardTokenizationViewModel private constructor(
 
     class Factory(
         private val app: Application,
-        private val configuration: POCardTokenizationConfiguration
+        private val configuration: POCardTokenizationConfiguration,
+        private val eventDispatcher: PODefaultCardTokenizationEventDispatcher
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
@@ -51,7 +52,7 @@ internal class CardTokenizationViewModel private constructor(
                     cardsRepository = ProcessOut.instance.cards,
                     cardSchemeProvider = CardSchemeProvider(),
                     addressSpecificationProvider = AddressSpecificationProvider(app),
-                    eventDispatcher = PODefaultCardTokenizationEventDispatcher
+                    eventDispatcher = eventDispatcher
                 )
             ) as T
     }

@@ -22,7 +22,8 @@ internal sealed interface DynamicCheckoutViewModelState {
     data class Started(
         val expressPayments: POImmutableList<ExpressPayment>,
         val regularPayments: POImmutableList<RegularPayment>,
-        val cancelAction: POActionState?
+        val cancelAction: POActionState?,
+        val errorMessage: String? = null
     ) : DynamicCheckoutViewModelState
 
     @Immutable
@@ -53,7 +54,7 @@ internal sealed interface DynamicCheckoutViewModelState {
         val id: String,
         val state: State,
         val content: Content?,
-        val action: POActionState?
+        val submitAction: POActionState?
     ) {
         @Immutable
         data class State(

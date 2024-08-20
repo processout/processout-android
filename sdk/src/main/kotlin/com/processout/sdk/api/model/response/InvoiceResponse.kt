@@ -16,22 +16,25 @@ internal data class InvoiceResponse(
  * @param[amount] Invoice amount.
  * @param[currency] Invoice currency.
  * @param[returnUrl] Return URL or deep link for web based operations.
+ * @param[transaction] Transaction details.
  * @param[paymentMethods] Dynamic checkout configuration.
  */
 @JsonClass(generateAdapter = true)
 data class POInvoice(
     val id: String,
-    val amount: String,
-    val currency: String,
+    val amount: String = String(),
+    val currency: String = String(),
     @Json(name = "return_url")
-    val returnUrl: String?,
+    val returnUrl: String? = null,
+    @ProcessOutInternalApi val transaction: POTransaction? = null,
     @Json(name = "payment_methods")
-    @ProcessOutInternalApi val paymentMethods: List<PODynamicCheckoutPaymentMethod>?
+    @ProcessOutInternalApi val paymentMethods: List<PODynamicCheckoutPaymentMethod>? = null
 )
 
 /**
  * Dynamic checkout configuration.
  */
+@ProcessOutInternalApi
 sealed class PODynamicCheckoutPaymentMethod {
 
     //region Types
