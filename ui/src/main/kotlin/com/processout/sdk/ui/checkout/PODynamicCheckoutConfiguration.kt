@@ -14,6 +14,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class PODynamicCheckoutConfiguration(
     val invoiceRequest: POInvoiceRequest,
+    val returnUrl: String,
     val options: Options = Options(),
     val style: Style? = null
 ) : Parcelable {

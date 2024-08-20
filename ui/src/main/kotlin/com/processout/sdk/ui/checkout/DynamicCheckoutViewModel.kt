@@ -41,6 +41,7 @@ internal class DynamicCheckoutViewModel private constructor(
     class Factory(
         private val app: Application,
         private val invoiceRequest: POInvoiceRequest,
+        private val returnUrl: String,
         private val options: Options,
         private val cardTokenization: CardTokenizationViewModel,
         private val cardTokenizationEventDispatcher: PODefaultCardTokenizationEventDispatcher,
@@ -56,6 +57,7 @@ internal class DynamicCheckoutViewModel private constructor(
                     app = app,
                     invoiceRequest = invoiceRequest,
                     invoicesService = ProcessOut.instance.invoices,
+                    returnUrl = returnUrl,
                     cardTokenization = cardTokenization,
                     cardTokenizationEventDispatcher = cardTokenizationEventDispatcher,
                     nativeAlternativePayment = nativeAlternativePayment,

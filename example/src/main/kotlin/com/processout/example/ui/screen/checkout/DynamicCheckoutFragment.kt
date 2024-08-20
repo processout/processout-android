@@ -82,7 +82,8 @@ class DynamicCheckoutFragment : BaseFragment<FragmentAuthorizeInvoiceBinding>(
             PODynamicCheckoutConfiguration(
                 invoiceRequest = POInvoiceRequest(
                     invoiceId = invoiceId
-                )
+                ),
+                returnUrl = Constants.RETURN_URL
             )
         )
         viewModel.onLaunched()

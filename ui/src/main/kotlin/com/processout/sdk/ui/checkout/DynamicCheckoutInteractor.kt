@@ -56,6 +56,7 @@ internal class DynamicCheckoutInteractor(
     private val app: Application,
     private var invoiceRequest: POInvoiceRequest,
     private val invoicesService: POInvoicesService,
+    private val returnUrl: String,
     private val cardTokenization: CardTokenizationViewModel,
     private val cardTokenizationEventDispatcher: PODefaultCardTokenizationEventDispatcher,
     private val nativeAlternativePayment: NativeAlternativePaymentViewModel,
@@ -418,8 +419,7 @@ internal class DynamicCheckoutInteractor(
                                 _paymentEvents.send(
                                     DynamicCheckoutPaymentEvent.AlternativePayment(
                                         redirectUrl = paymentMethod.redirectUrl,
-                                        returnUrl = _state.value.invoice.returnUrl
-                                            ?: String() // TODO: handle missing 'returnUrl'
+                                        returnUrl = returnUrl
                                     )
                                 )
                             }

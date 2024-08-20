@@ -77,6 +77,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         DynamicCheckoutViewModel.Factory(
             app = application,
             invoiceRequest = configuration?.invoiceRequest ?: POInvoiceRequest(invoiceId = String()),
+            returnUrl = configuration?.returnUrl ?: String(),
             options = configuration?.options ?: PODynamicCheckoutConfiguration.Options(),
             cardTokenization = cardTokenization,
             cardTokenizationEventDispatcher = cardTokenizationEventDispatcher,
