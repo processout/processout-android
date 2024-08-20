@@ -390,43 +390,39 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun onAction(event: Action) {
+        val paymentMethod = event.paymentMethodId?.let { paymentMethod(it) }
         when (event.actionId) {
-            ActionId.CANCEL -> cancel()
-            else -> event.paymentMethodId?.let {
-                val paymentMethod = paymentMethod(it)
-                when (paymentMethod) {
-                    is Card -> cardTokenization.onEvent(
-                        CardTokenizationEvent.Action(event.actionId)
-                    )
-                    is NativeAlternativePayment -> nativeAlternativePayment.onEvent(
-                        NativeAlternativePaymentEvent.Action(event.actionId)
-                    )
-                    else -> {}
-                }
-                if (event.actionId == ActionId.SUBMIT) {
-                    when (paymentMethod) {
-                        is GooglePay -> {
-                            interactorScope.launch {
-                                _paymentEvents.send(
-                                    DynamicCheckoutPaymentEvent.GooglePay(
-                                        configuration = paymentMethod.configuration
-                                    )
-                                )
-                            }
-                        }
-                        is AlternativePayment -> {
-                            interactorScope.launch {
-                                _paymentEvents.send(
-                                    DynamicCheckoutPaymentEvent.AlternativePayment(
-                                        redirectUrl = paymentMethod.redirectUrl,
-                                        returnUrl = returnUrl
-                                    )
-                                )
-                            }
-                        }
-                        else -> {}
+            ActionId.SUBMIT -> when (paymentMethod) {
+                is GooglePay -> {
+                    interactorScope.launch {
+                        _paymentEvents.send(
+                            DynamicCheckoutPaymentEvent.GooglePay(
+                                configuration = paymentMethod.configuration
+                            )
+                        )
                     }
                 }
+                is AlternativePayment -> {
+                    interactorScope.launch {
+                        _paymentEvents.send(
+                            DynamicCheckoutPaymentEvent.AlternativePayment(
+                                redirectUrl = paymentMethod.redirectUrl,
+                                returnUrl = returnUrl
+                            )
+                        )
+                    }
+                }
+                else -> {}
+            }
+            ActionId.CANCEL -> cancel()
+            else -> when (paymentMethod) {
+                is Card -> cardTokenization.onEvent(
+                    CardTokenizationEvent.Action(event.actionId)
+                )
+                is NativeAlternativePayment -> nativeAlternativePayment.onEvent(
+                    NativeAlternativePaymentEvent.Action(event.actionId)
+                )
+                else -> {}
             }
         }
     }
