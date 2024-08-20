@@ -511,7 +511,7 @@ internal class DynamicCheckoutInteractor(
     private fun collectTokenizedCard() {
         interactorScope.launch {
             cardTokenizationEventDispatcher.processTokenizedCard.collect { card ->
-                // authorize invoice
+                // TODO: authorize invoice
             }
         }
     }
