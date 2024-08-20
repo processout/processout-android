@@ -84,6 +84,8 @@ internal class DynamicCheckoutInteractor(
     private fun start() {
         dispatchEvents()
         handleCompletions()
+        collectTokenizedCard()
+        collectAuthorizeInvoiceResult()
         collectInvoice()
         fetchConfiguration()
     }
@@ -263,6 +265,11 @@ internal class DynamicCheckoutInteractor(
     private fun paymentMethod(id: String): PaymentMethod? =
         _state.value.paymentMethods.find { it.id == id }
 
+    private fun selectedPaymentMethod(): PaymentMethod? =
+        _state.value.selectedPaymentMethodId?.let {
+            paymentMethod(it)
+        }
+
     fun onEvent(event: DynamicCheckoutEvent) {
         when (event) {
             is PaymentMethodSelected -> onPaymentMethodSelected(event)
@@ -309,12 +316,10 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun shouldInvalidateInvoice(): Boolean {
-        _state.value.selectedPaymentMethodId?.let {
-            paymentMethod(it)?.let { selectedPaymentMethod ->
-                return when (selectedPaymentMethod) {
-                    is NativeAlternativePayment -> nativeAlternativePayment.state.value.submittedAtLeastOnce()
-                    else -> false
-                }
+        selectedPaymentMethod()?.let { selectedPaymentMethod ->
+            return when (selectedPaymentMethod) {
+                is NativeAlternativePayment -> nativeAlternativePayment.state.value.submittedAtLeastOnce()
+                else -> false
             }
         }
         return false
@@ -511,6 +516,28 @@ internal class DynamicCheckoutInteractor(
         }
         interactorScope.launch {
             nativeAlternativePaymentEventDispatcher.events.collect { eventDispatcher.send(it) }
+        }
+    }
+
+    private fun collectTokenizedCard() {
+        interactorScope.launch {
+            cardTokenizationEventDispatcher.processTokenizedCard.collect { card ->
+                // authorize invoice
+            }
+        }
+    }
+
+    private fun collectAuthorizeInvoiceResult() {
+        interactorScope.launch {
+            invoicesService.authorizeInvoiceResult.collect { result ->
+                when (selectedPaymentMethod()) {
+                    is Card -> cardTokenizationEventDispatcher.complete(result)
+                    is GooglePay -> {
+                        // TODO
+                    }
+                    else -> {}
+                }
+            }
         }
     }
 
