@@ -442,17 +442,6 @@ internal class DynamicCheckoutInteractor(
         }
     }
 
-    fun handle(result: ProcessOutResult<POAlternativePaymentMethodResponse>) {
-        result.onSuccess {
-            _completion.update { Success }
-        }.onFailure {
-            invalidateInvoice(
-                failure = it,
-                reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(it)
-            )
-        }
-    }
-
     private fun invalidateInvoice(
         failure: ProcessOutResult.Failure,
         reason: PODynamicCheckoutInvoiceInvalidationReason
@@ -565,6 +554,17 @@ internal class DynamicCheckoutInteractor(
                     else -> {}
                 }
             }
+        }
+    }
+
+    fun handle(result: ProcessOutResult<POAlternativePaymentMethodResponse>) {
+        result.onSuccess {
+            _completion.update { Success }
+        }.onFailure {
+            invalidateInvoice(
+                failure = it,
+                reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(it)
+            )
         }
     }
 }
