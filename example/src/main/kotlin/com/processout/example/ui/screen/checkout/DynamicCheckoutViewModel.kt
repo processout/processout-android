@@ -7,8 +7,6 @@ import com.processout.example.shared.Constants
 import com.processout.example.ui.screen.checkout.DynamicCheckoutUiState.*
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POCreateInvoiceRequest
-import com.processout.sdk.api.model.request.POInvoiceRequest
-import com.processout.sdk.api.model.response.toResponse
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
@@ -31,31 +29,6 @@ class DynamicCheckoutViewModel(
 
     private val _uiState = MutableStateFlow<DynamicCheckoutUiState>(Initial)
     val uiState = _uiState.asStateFlow()
-
-    init {
-        viewModelScope.launch {
-            with(ProcessOut.instance.dispatchers.dynamicCheckout) {
-                invoiceRequest.collect { request ->
-                    createInvoice(
-                        InvoiceDetails(
-                            amount = "3",
-                            currency = "EUR"
-                        )
-                    ).onSuccess {
-                        replaceInvoice(
-                            request.toResponse(
-                                invoiceRequest = POInvoiceRequest(
-                                    invoiceId = it.id
-                                )
-                            )
-                        )
-                    }.onFailure {
-                        replaceInvoice(request.toResponse(invoiceRequest = null))
-                    }
-                }
-            }
-        }
-    }
 
     fun submit(details: InvoiceDetails) {
         _uiState.value = Submitting

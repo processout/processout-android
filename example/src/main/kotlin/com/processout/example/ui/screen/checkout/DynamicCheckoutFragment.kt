@@ -16,6 +16,7 @@ import com.processout.example.shared.Constants
 import com.processout.example.shared.toMessage
 import com.processout.example.ui.screen.base.BaseFragment
 import com.processout.example.ui.screen.checkout.DynamicCheckoutUiState.*
+import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.service.PO3DSService
 import com.processout.sdk.checkout.threeds.POCheckout3DSService
@@ -44,6 +45,9 @@ class DynamicCheckoutFragment : BaseFragment<FragmentAuthorizeInvoiceBinding>(
         super.onCreate(savedInstanceState)
         launcher = PODynamicCheckoutLauncher.create(
             from = this,
+            delegate = DefaultDynamicCheckoutDelegate(
+                invoices = ProcessOut.instance.invoices
+            ),
             callback = ::handle
         )
         customTabLauncher = PO3DSRedirectCustomTabLauncher.create(from = this)
