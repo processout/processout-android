@@ -6,12 +6,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
-import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Display
+import com.processout.sdk.api.service.proxy3ds.PODefaultProxy3DSService
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState
@@ -57,12 +57,12 @@ internal class DynamicCheckoutViewModel private constructor(
                     app = app,
                     invoiceRequest = invoiceRequest,
                     invoicesService = ProcessOut.instance.invoices,
+                    threeDSService = PODefaultProxy3DSService(),
                     returnUrl = returnUrl,
                     cardTokenization = cardTokenization,
                     cardTokenizationEventDispatcher = cardTokenizationEventDispatcher,
                     nativeAlternativePayment = nativeAlternativePayment,
-                    nativeAlternativePaymentEventDispatcher = nativeAlternativePaymentEventDispatcher,
-                    eventDispatcher = POEventDispatcher
+                    nativeAlternativePaymentEventDispatcher = nativeAlternativePaymentEventDispatcher
                 )
             ) as T
     }
@@ -214,4 +214,8 @@ internal class DynamicCheckoutViewModel private constructor(
         selectable = true, // TODO
         selected = selected
     )
+
+    override fun onCleared() {
+        interactor.onCleared()
+    }
 }

@@ -11,6 +11,7 @@ import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokeniza
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceInvalidationReason
 import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceRequest
+import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.model.response.POBillingAddressCollectionMode.*
@@ -19,6 +20,7 @@ import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Disp
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Flow.express
 import com.processout.sdk.api.model.response.POTransaction.Status.*
 import com.processout.sdk.api.service.POInvoicesService
+import com.processout.sdk.api.service.proxy3ds.POProxy3DSService
 import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.POFailure.Code.Generic
 import com.processout.sdk.core.ProcessOutResult
@@ -53,12 +55,13 @@ internal class DynamicCheckoutInteractor(
     private val app: Application,
     private var invoiceRequest: POInvoiceRequest,
     private val invoicesService: POInvoicesService,
+    private val threeDSService: POProxy3DSService,
     private val returnUrl: String,
     private val cardTokenization: CardTokenizationViewModel,
     private val cardTokenizationEventDispatcher: PODefaultCardTokenizationEventDispatcher,
     private val nativeAlternativePayment: NativeAlternativePaymentViewModel,
     private val nativeAlternativePaymentEventDispatcher: PODefaultNativeAlternativePaymentMethodEventDispatcher,
-    private val eventDispatcher: POEventDispatcher
+    private val eventDispatcher: POEventDispatcher = POEventDispatcher
 ) : BaseInteractor() {
 
     private val _completion = MutableStateFlow<DynamicCheckoutCompletion>(Awaiting)
@@ -491,7 +494,13 @@ internal class DynamicCheckoutInteractor(
     private fun collectTokenizedCard() {
         interactorScope.launch {
             cardTokenizationEventDispatcher.processTokenizedCard.collect { card ->
-                // TODO: authorize invoice
+                invoicesService.authorizeInvoice(
+                    request = POInvoiceAuthorizationRequest(
+                        invoiceId = _state.value.invoice.id,
+                        source = card.id
+                    ),
+                    threeDSService = threeDSService
+                )
             }
         }
     }
@@ -543,5 +552,9 @@ internal class DynamicCheckoutInteractor(
                 reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(failure)
             )
         }
+    }
+
+    fun onCleared() {
+        threeDSService.close()
     }
 }
