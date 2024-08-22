@@ -3,9 +3,11 @@ package com.processout.sdk.api.repository
 import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.network.InvoicesApi
-import com.processout.sdk.core.ProcessOutCallback
-import com.processout.sdk.core.map
+import com.processout.sdk.api.network.InvoicesApi.Companion.HEADER_CLIENT_SECRET
+import com.processout.sdk.core.*
 import com.processout.sdk.di.ContextGraph
+import kotlinx.coroutines.launch
+import retrofit2.Response
 
 internal class DefaultInvoicesRepository(
     failureMapper: ApiFailureMapper,
@@ -73,25 +75,31 @@ internal class DefaultInvoicesRepository(
     }
 
     override suspend fun invoice(request: POInvoiceRequest) =
-        apiCall {
+        plainApiCall {
             api.invoice(
                 invoiceId = request.invoiceId,
                 clientSecret = request.clientSecret
             )
-        }.map { it.invoice }
+        }.map()
 
     override fun invoice(
         request: POInvoiceRequest,
         callback: ProcessOutCallback<POInvoice>
-    ) = apiCallScoped(callback, InvoiceResponse::toModel) {
-        api.invoice(
-            invoiceId = request.invoiceId,
-            clientSecret = request.clientSecret
-        )
+    ) {
+        repositoryScope.launch {
+            invoice(request)
+                .onSuccess {
+                    callback.onSuccess(it)
+                }.onFailure {
+                    with(it) {
+                        callback.onFailure(code, message, invalidFields, cause)
+                    }
+                }
+        }
     }
 
     override suspend fun createInvoice(request: POCreateInvoiceRequest) =
-        apiCall { api.createInvoice(request) }.map { it.invoice }
+        plainApiCall { api.createInvoice(request) }.map()
 
     private fun POInvoiceAuthorizationRequest.withDeviceData() =
         InvoiceAuthorizationRequestWithDeviceData(
@@ -116,6 +124,17 @@ internal class DefaultInvoicesRepository(
             gatewayConfigurationId = gatewayConfigurationId,
             nativeApm = NativeAPMRequestParameters(parameterValues = parameters)
         )
+
+    private fun ProcessOutResult<Response<InvoiceResponse>>.map() = fold(
+        onSuccess = { response ->
+            response.body()?.let { invoice ->
+                ProcessOutResult.Success(
+                    invoice.toModel(clientSecret = response.headers()[HEADER_CLIENT_SECRET])
+                )
+            } ?: response.nullBodyFailure()
+        },
+        onFailure = { it }
+    )
 }
 
 private fun NativeAlternativePaymentMethodResponse.toModel() = nativeApm
@@ -124,4 +143,15 @@ private fun NativeAlternativePaymentMethodTransactionDetailsResponse.toModel() =
 
 private fun CaptureResponse.toModel() = nativeApm
 
-private fun InvoiceResponse.toModel() = invoice
+private fun InvoiceResponse.toModel(clientSecret: String?) =
+    with(invoice) {
+        POInvoice(
+            id = id,
+            amount = amount,
+            currency = currency,
+            returnUrl = returnUrl,
+            transaction = transaction,
+            paymentMethods = paymentMethods,
+            clientSecret = clientSecret
+        )
+    }

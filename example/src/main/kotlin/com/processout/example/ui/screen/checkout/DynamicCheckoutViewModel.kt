@@ -35,11 +35,11 @@ class DynamicCheckoutViewModel(
         viewModelScope.launch {
             createInvoice(details)
                 .onFailure { _uiState.value = Failure(it) }
-                .onSuccess {
+                .onSuccess { invoice ->
                     _uiState.value = Submitted(
                         DynamicCheckoutUiModel(
-                            invoiceId = it.id,
-                            cardId = String()
+                            invoiceId = invoice.id,
+                            clientSecret = invoice.clientSecret
                         )
                     )
                 }

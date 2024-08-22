@@ -74,17 +74,18 @@ class DynamicCheckoutFragment : BaseFragment<FragmentDynamicCheckoutBinding>(
     private fun handle(uiState: DynamicCheckoutUiState) {
         handleControls(uiState)
         when (uiState) {
-            is Submitted -> launchDynamicCheckout(uiState.uiModel.invoiceId)
+            is Submitted -> launchDynamicCheckout(uiState.uiModel)
             is Failure -> showAlert(uiState.failure.toMessage())
             else -> {}
         }
     }
 
-    private fun launchDynamicCheckout(invoiceId: String) {
+    private fun launchDynamicCheckout(uiModel: DynamicCheckoutUiModel) {
         launcher.launch(
             PODynamicCheckoutConfiguration(
                 invoiceRequest = POInvoiceRequest(
-                    invoiceId = invoiceId
+                    invoiceId = uiModel.invoiceId,
+                    clientSecret = uiModel.clientSecret
                 ),
                 returnUrl = Constants.RETURN_URL
             )

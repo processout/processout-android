@@ -10,6 +10,10 @@ import retrofit2.http.*
 
 internal interface InvoicesApi {
 
+    companion object {
+        const val HEADER_CLIENT_SECRET = "x-processout-client-secret"
+    }
+
     @POST("/invoices/{id}/authorize")
     suspend fun authorizeInvoice(
         @Path("id") invoiceId: String,
@@ -37,7 +41,7 @@ internal interface InvoicesApi {
     @GET("/invoices/{id}?expand=transaction")
     suspend fun invoice(
         @Path("id") invoiceId: String,
-        @Header("x-processout-client-secret") clientSecret: String?
+        @Header(HEADER_CLIENT_SECRET) clientSecret: String?
     ): Response<InvoiceResponse>
 
     @POST("/invoices")
