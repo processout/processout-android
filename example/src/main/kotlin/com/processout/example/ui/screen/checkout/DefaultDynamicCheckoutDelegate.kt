@@ -25,7 +25,10 @@ class DefaultDynamicCheckoutDelegate(
             )
         ).fold(
             onSuccess = { invoice ->
-                POInvoiceRequest(invoiceId = invoice.id)
+                POInvoiceRequest(
+                    invoiceId = invoice.id,
+                    clientSecret = invoice.clientSecret
+                )
             },
             onFailure = { null }
         )
