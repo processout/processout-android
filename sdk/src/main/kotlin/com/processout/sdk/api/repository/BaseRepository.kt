@@ -90,7 +90,7 @@ internal abstract class BaseRepository(
         return apiMethod()
     }
 
-    private fun <T : Any> Response<T>.nullBodyFailure(): ProcessOutResult.Failure {
+    protected fun <T : Any> Response<T>.nullBodyFailure(): ProcessOutResult.Failure {
         val request = raw().request
         return ProcessOutResult.Failure(
             POFailure.Code.Internal(),

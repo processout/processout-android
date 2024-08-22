@@ -6,7 +6,19 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 internal data class InvoiceResponse(
-    val invoice: POInvoice
+    val invoice: InvoiceResponseBody
+)
+
+@JsonClass(generateAdapter = true)
+internal data class InvoiceResponseBody(
+    val id: String,
+    val amount: String,
+    val currency: String,
+    @Json(name = "return_url")
+    val returnUrl: String?,
+    val transaction: POTransaction?,
+    @Json(name = "payment_methods")
+    val paymentMethods: List<PODynamicCheckoutPaymentMethod>?
 )
 
 /**
@@ -18,17 +30,16 @@ internal data class InvoiceResponse(
  * @param[returnUrl] Return URL or deep link for web based operations.
  * @param[transaction] Transaction details.
  * @param[paymentMethods] Dynamic checkout configuration.
+ * @param[clientSecret] Client secret is a value of __x-processout-client-secret__ header of the invoice.
  */
-@JsonClass(generateAdapter = true)
 data class POInvoice(
     val id: String,
     val amount: String = String(),
     val currency: String = String(),
-    @Json(name = "return_url")
     val returnUrl: String? = null,
     @ProcessOutInternalApi val transaction: POTransaction? = null,
-    @Json(name = "payment_methods")
-    @ProcessOutInternalApi val paymentMethods: List<PODynamicCheckoutPaymentMethod>? = null
+    @ProcessOutInternalApi val paymentMethods: List<PODynamicCheckoutPaymentMethod>? = null,
+    @ProcessOutInternalApi val clientSecret: String? = null
 )
 
 /**
