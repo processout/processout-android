@@ -37,7 +37,7 @@
         android:id="@+id/dynamicCheckoutFragment"
         android:name="com.processout.example.ui.screen.checkout.DynamicCheckoutFragment"
         android:label="@string/dynamic_checkout"
-        tools:layout="@layout/fragment_authorize_invoice" />
+        tools:layout="@layout/fragment_dynamic_checkout" />
 
     <fragment
         android:id="@+id/alternativePaymentMethodsFragment"
@@ -76,6 +76,6 @@
         android:id="@+id/cardPaymentFragment"
         android:name="com.processout.example.ui.screen.card.payment.CardPaymentFragment"
         android:label="@string/card_payment"
-        tools:layout="@layout/fragment_authorize_invoice" />
+        tools:layout="@layout/fragment_card_payment" />
 
 </navigation>
