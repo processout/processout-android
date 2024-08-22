@@ -2,11 +2,8 @@
 
 package com.processout.sdk.api.repository
 
-import com.processout.sdk.core.POFailure
-import com.processout.sdk.core.ProcessOutCallback
-import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.*
 import com.processout.sdk.core.logger.POLogger
-import com.processout.sdk.core.map
 import com.processout.sdk.core.retry.PORetryStrategy
 import com.processout.sdk.core.retry.PORetryStrategy.Exponential
 import kotlinx.coroutines.*
@@ -28,12 +25,22 @@ internal abstract class BaseRepository(
 
     protected suspend fun <T : Any> apiCall(
         apiMethod: suspend () -> Response<T>
-    ): ProcessOutResult<T> = withContext(workDispatcher) {
+    ): ProcessOutResult<T> = plainApiCall(apiMethod)
+        .fold(
+            onSuccess = { response ->
+                response.body()?.let { ProcessOutResult.Success(it) }
+                    ?: response.nullBodyFailure()
+            },
+            onFailure = { it }
+        )
+
+    protected suspend fun <T : Any> plainApiCall(
+        apiMethod: suspend () -> Response<T>
+    ): ProcessOutResult<Response<T>> = withContext(workDispatcher) {
         try {
             val response = retry(apiMethod, retryStrategy)
             when (response.isSuccessful) {
-                true -> response.body()?.let { ProcessOutResult.Success(it) }
-                    ?: response.handleEmptyBody()
+                true -> ProcessOutResult.Success(response)
                 false -> failureMapper.map(response)
             }
         } catch (e: Exception) {
@@ -83,7 +90,7 @@ internal abstract class BaseRepository(
         return apiMethod()
     }
 
-    private fun <T : Any> Response<T>.handleEmptyBody(): ProcessOutResult.Failure {
+    private fun <T : Any> Response<T>.nullBodyFailure(): ProcessOutResult.Failure {
         val request = raw().request
         return ProcessOutResult.Failure(
             POFailure.Code.Internal(),
