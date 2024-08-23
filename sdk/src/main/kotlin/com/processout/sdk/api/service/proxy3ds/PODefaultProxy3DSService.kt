@@ -8,12 +8,15 @@ import com.processout.sdk.api.model.threeds.PO3DSRedirect
 import com.processout.sdk.api.service.proxy3ds.POProxy3DSServiceRequest.*
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 /** @suppress */
 @ProcessOutInternalApi
 class PODefaultProxy3DSService(
-    private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate),
+    private val scope: CoroutineScope = MainScope(),
     private val eventDispatcher: POEventDispatcher = POEventDispatcher
 ) : POProxy3DSService {
 
