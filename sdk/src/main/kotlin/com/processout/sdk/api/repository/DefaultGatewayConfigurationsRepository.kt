@@ -8,11 +8,13 @@ import com.processout.sdk.api.model.response.POGatewayConfiguration
 import com.processout.sdk.api.network.GatewayConfigurationsApi
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.map
+import kotlinx.coroutines.CoroutineScope
 
 internal class DefaultGatewayConfigurationsRepository(
     failureMapper: ApiFailureMapper,
+    repositoryScope: CoroutineScope,
     private val api: GatewayConfigurationsApi
-) : BaseRepository(failureMapper), POGatewayConfigurationsRepository {
+) : BaseRepository(failureMapper, repositoryScope), POGatewayConfigurationsRepository {
 
     override suspend fun fetch(
         request: POAllGatewayConfigurationsRequest

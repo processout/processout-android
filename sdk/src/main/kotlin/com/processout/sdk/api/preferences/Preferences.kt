@@ -4,12 +4,15 @@ import android.content.Context
 import androidx.core.content.edit
 import com.processout.sdk.BuildConfig
 import com.processout.sdk.di.ContextGraph
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.UUID
 
 internal class Preferences(
     contextGraph: ContextGraph,
-    scope: CoroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob()),
+    scope: CoroutineScope = contextGraph.mainScope,
     workDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
 

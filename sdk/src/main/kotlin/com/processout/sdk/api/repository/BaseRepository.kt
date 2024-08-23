@@ -1,5 +1,3 @@
-@file:Suppress("MemberVisibilityCanBePrivate")
-
 package com.processout.sdk.api.repository
 
 import com.processout.sdk.core.*
@@ -13,14 +11,14 @@ import java.net.SocketTimeoutException
 
 internal abstract class BaseRepository(
     private val failureMapper: ApiFailureMapper,
+    protected val repositoryScope: CoroutineScope,
+    private val workDispatcher: CoroutineDispatcher = Dispatchers.IO,
     private val retryStrategy: PORetryStrategy = Exponential(
         maxRetries = 4,
         initialDelay = 100,
         maxDelay = 1000,
         factor = 3.0
-    ),
-    protected val repositoryScope: CoroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob()),
-    protected val workDispatcher: CoroutineDispatcher = Dispatchers.IO
+    )
 ) {
 
     protected suspend fun <T : Any> apiCall(

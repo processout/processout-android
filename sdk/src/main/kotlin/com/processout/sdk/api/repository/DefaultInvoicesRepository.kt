@@ -13,7 +13,7 @@ internal class DefaultInvoicesRepository(
     failureMapper: ApiFailureMapper,
     private val api: InvoicesApi,
     private val contextGraph: ContextGraph
-) : BaseRepository(failureMapper), InvoicesRepository {
+) : BaseRepository(failureMapper, contextGraph.mainScope), InvoicesRepository {
 
     override suspend fun authorizeInvoice(
         request: POInvoiceAuthorizationRequest

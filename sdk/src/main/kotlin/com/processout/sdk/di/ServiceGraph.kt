@@ -4,9 +4,6 @@ import com.processout.sdk.api.service.*
 import com.processout.sdk.core.logger.POLogLevel
 import com.processout.sdk.core.logger.POLoggerService
 import com.processout.sdk.core.logger.SystemLoggerService
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 
 internal interface ServiceGraph {
     val invoicesService: POInvoicesService
@@ -24,16 +21,13 @@ internal class DefaultServiceGraph(
     alternativePaymentMethodsBaseUrl: String
 ) : ServiceGraph {
 
-    private val mainCoroutineScope: CoroutineScope
-        get() = CoroutineScope(Dispatchers.Main + SupervisorJob())
-
     private val threeDSService: ThreeDSService by lazy {
         DefaultThreeDSService(networkGraph.moshi)
     }
 
     override val invoicesService: POInvoicesService by lazy {
         DefaultInvoicesService(
-            mainCoroutineScope,
+            contextGraph.mainScope,
             repositoryGraph.invoicesRepository,
             threeDSService
         )
@@ -41,7 +35,7 @@ internal class DefaultServiceGraph(
 
     override val customerTokensService: POCustomerTokensService by lazy {
         DefaultCustomerTokensService(
-            mainCoroutineScope,
+            contextGraph.mainScope,
             repositoryGraph.customerTokensRepository,
             threeDSService
         )
@@ -62,7 +56,6 @@ internal class DefaultServiceGraph(
     override val telemetryService: POLoggerService by lazy {
         TelemetryService(
             minimumLevel = POLogLevel.WARN,
-            scope = mainCoroutineScope,
             repository = repositoryGraph.telemetryRepository,
             contextGraph = contextGraph
         )

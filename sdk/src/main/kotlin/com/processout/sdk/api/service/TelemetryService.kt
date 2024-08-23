@@ -21,9 +21,9 @@ import kotlinx.coroutines.launch
 
 internal class TelemetryService(
     minimumLevel: POLogLevel,
-    private val scope: CoroutineScope,
     private val repository: TelemetryRepository,
-    private val contextGraph: ContextGraph
+    private val contextGraph: ContextGraph,
+    private val scope: CoroutineScope = contextGraph.mainScope
 ) : BaseLoggerService(minimumLevel) {
 
     override fun log(event: LogEvent) {

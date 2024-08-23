@@ -20,7 +20,7 @@ internal class DefaultRepositoryGraph(
         get() = ApiFailureMapper(adapter = networkGraph.moshi.adapter(POFailure.ApiError::class.java))
 
     override val gatewayConfigurationsRepository: POGatewayConfigurationsRepository by lazy {
-        DefaultGatewayConfigurationsRepository(failureMapper, networkGraph.gatewayConfigurationsApi)
+        DefaultGatewayConfigurationsRepository(failureMapper, contextGraph.mainScope, networkGraph.gatewayConfigurationsApi)
     }
 
     override val invoicesRepository: InvoicesRepository by lazy {
@@ -36,6 +36,6 @@ internal class DefaultRepositoryGraph(
     }
 
     override val telemetryRepository: TelemetryRepository by lazy {
-        DefaultTelemetryRepository(failureMapper, networkGraph.telemetryApi)
+        DefaultTelemetryRepository(failureMapper, contextGraph.mainScope, networkGraph.telemetryApi)
     }
 }

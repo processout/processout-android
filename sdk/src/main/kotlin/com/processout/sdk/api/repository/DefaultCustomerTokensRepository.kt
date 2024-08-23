@@ -14,7 +14,7 @@ internal class DefaultCustomerTokensRepository(
     failureMapper: ApiFailureMapper,
     private val api: CustomerTokensApi,
     private val contextGraph: ContextGraph
-) : BaseRepository(failureMapper), CustomerTokensRepository {
+) : BaseRepository(failureMapper, contextGraph.mainScope), CustomerTokensRepository {
 
     override suspend fun assignCustomerToken(
         request: POAssignCustomerTokenRequest
