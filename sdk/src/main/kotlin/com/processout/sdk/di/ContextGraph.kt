@@ -8,10 +8,13 @@ import androidx.core.content.ContextCompat
 import com.processout.sdk.api.ProcessOutConfiguration
 import com.processout.sdk.api.model.request.DeviceData
 import com.processout.sdk.core.locale.currentAppLocale
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.MainScope
 import java.util.Calendar
 
 internal interface ContextGraph {
     var configuration: ProcessOutConfiguration
+    val mainScope: CoroutineScope
     val deviceData: DeviceData
 }
 
@@ -23,6 +26,8 @@ internal class DefaultContextGraph(
     override var configuration: ProcessOutConfiguration = configuration
         @Synchronized get
         @Synchronized set
+
+    override val mainScope: CoroutineScope = MainScope()
 
     override val deviceData: DeviceData
         get() = provideDeviceData()

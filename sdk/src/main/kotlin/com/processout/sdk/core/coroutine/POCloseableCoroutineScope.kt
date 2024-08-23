@@ -8,11 +8,9 @@ import kotlin.coroutines.CoroutineContext
 
 /** @suppress */
 @ProcessOutInternalApi
-class POCloseableCoroutineScope(context: CoroutineContext) : Closeable, CoroutineScope {
+class POCloseableCoroutineScope(
+    override val coroutineContext: CoroutineContext
+) : Closeable, CoroutineScope {
 
-    override val coroutineContext: CoroutineContext = context
-
-    override fun close() {
-        coroutineContext.cancel()
-    }
+    override fun close() = coroutineContext.cancel()
 }

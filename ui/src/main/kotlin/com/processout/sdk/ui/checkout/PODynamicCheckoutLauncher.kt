@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.app.ActivityOptionsCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
@@ -28,15 +27,13 @@ import kotlinx.coroutines.*
 /** @suppress */
 @ProcessOutInternalApi
 class PODynamicCheckoutLauncher private constructor(
+    private val scope: CoroutineScope,
     private val launcher: ActivityResultLauncher<PODynamicCheckoutConfiguration>,
     private val activityOptions: ActivityOptionsCompat,
     private val delegate: PODynamicCheckoutDelegate,
     private val threeDSService: PO3DSService,
-    private val lifecycleOwner: LifecycleOwner,
     private val eventDispatcher: POEventDispatcher = POEventDispatcher
 ) {
-
-    private val lifecycleScope = lifecycleOwner.lifecycleScope
 
     companion object {
         /**
@@ -49,14 +46,14 @@ class PODynamicCheckoutLauncher private constructor(
             threeDSService: PO3DSService,
             callback: (ProcessOutActivityResult<POUnit>) -> Unit
         ) = PODynamicCheckoutLauncher(
+            scope = from.lifecycleScope,
             launcher = from.registerForActivityResult(
                 DynamicCheckoutActivityContract(),
                 callback
             ),
             activityOptions = createActivityOptions(from.requireContext()),
             delegate = delegate,
-            threeDSService = threeDSService,
-            lifecycleOwner = from
+            threeDSService = threeDSService
         )
 
         /**
@@ -69,6 +66,7 @@ class PODynamicCheckoutLauncher private constructor(
             threeDSService: PO3DSService,
             callback: (ProcessOutActivityResult<POUnit>) -> Unit
         ) = PODynamicCheckoutLauncher(
+            scope = from.lifecycleScope,
             launcher = from.registerForActivityResult(
                 DynamicCheckoutActivityContract(),
                 from.activityResultRegistry,
@@ -76,8 +74,7 @@ class PODynamicCheckoutLauncher private constructor(
             ),
             activityOptions = createActivityOptions(from),
             delegate = delegate,
-            threeDSService = threeDSService,
-            lifecycleOwner = from
+            threeDSService = threeDSService
         )
 
         private fun createActivityOptions(context: Context) =
@@ -94,18 +91,18 @@ class PODynamicCheckoutLauncher private constructor(
 
     private fun dispatchEvents() {
         eventDispatcher.subscribe<POCardTokenizationEvent>(
-            coroutineScope = lifecycleScope
+            coroutineScope = scope
         ) { delegate.onEvent(it) }
         eventDispatcher.subscribe<PONativeAlternativePaymentMethodEvent>(
-            coroutineScope = lifecycleScope
+            coroutineScope = scope
         ) { delegate.onEvent(it) }
     }
 
     private fun dispatchInvoice() {
         eventDispatcher.subscribeForRequest<PODynamicCheckoutInvoiceRequest>(
-            coroutineScope = lifecycleScope
+            coroutineScope = scope
         ) { request ->
-            lifecycleScope.launch {
+            scope.launch {
                 val invoiceRequest = delegate.newInvoice(
                     currentInvoice = request.currentInvoice,
                     invalidationReason = request.invalidationReason
@@ -117,11 +114,11 @@ class PODynamicCheckoutLauncher private constructor(
 
     private fun dispatch3DSService() {
         eventDispatcher.subscribeForRequest<POProxy3DSServiceRequest>(
-            coroutineScope = lifecycleScope
+            coroutineScope = scope
         ) { request ->
             when (request) {
                 is Authentication -> threeDSService.authenticationRequest(request.configuration) {
-                    lifecycleScope.launch {
+                    scope.launch {
                         eventDispatcher.send(
                             POProxy3DSServiceResponse.Authentication(
                                 uuid = request.uuid,
@@ -131,7 +128,7 @@ class PODynamicCheckoutLauncher private constructor(
                     }
                 }
                 is Challenge -> threeDSService.handle(request.challenge) {
-                    lifecycleScope.launch {
+                    scope.launch {
                         eventDispatcher.send(
                             POProxy3DSServiceResponse.Challenge(
                                 uuid = request.uuid,
@@ -141,7 +138,7 @@ class PODynamicCheckoutLauncher private constructor(
                     }
                 }
                 is Redirect -> threeDSService.handle(request.redirect) {
-                    lifecycleScope.launch {
+                    scope.launch {
                         eventDispatcher.send(
                             POProxy3DSServiceResponse.Redirect(
                                 uuid = request.uuid,

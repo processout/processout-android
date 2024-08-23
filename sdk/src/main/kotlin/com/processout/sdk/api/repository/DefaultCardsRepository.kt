@@ -14,7 +14,7 @@ internal class DefaultCardsRepository(
     failureMapper: ApiFailureMapper,
     private val api: CardsApi,
     private val contextGraph: ContextGraph
-) : BaseRepository(failureMapper), POCardsRepository {
+) : BaseRepository(failureMapper, contextGraph.mainScope), POCardsRepository {
 
     override suspend fun tokenize(
         request: POCardTokenizationRequest
