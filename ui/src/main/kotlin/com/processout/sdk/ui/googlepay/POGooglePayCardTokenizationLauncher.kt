@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.wallet.PaymentData
@@ -27,8 +28,6 @@ import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.ui.shared.extension.orElse
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
@@ -52,7 +51,7 @@ class POGooglePayCardTokenizationLauncher private constructor(
         ) = POGooglePayCardTokenizationLauncher(
             launcher = from.registerForActivityResult(
                 TaskResultContracts.GetPaymentDataResult(),
-                ActivityResultHandler(callback)
+                ActivityResultHandler(from.lifecycleScope, callback)
             ),
             service = GooglePayService(
                 application = from.requireActivity().application,
@@ -72,7 +71,7 @@ class POGooglePayCardTokenizationLauncher private constructor(
             launcher = from.registerForActivityResult(
                 TaskResultContracts.GetPaymentDataResult(),
                 from.activityResultRegistry,
-                ActivityResultHandler(callback)
+                ActivityResultHandler(from.lifecycleScope, callback)
             ),
             service = GooglePayService(
                 application = from.application,
@@ -101,10 +100,10 @@ class POGooglePayCardTokenizationLauncher private constructor(
     }
 
     private class ActivityResultHandler(
+        private val scope: CoroutineScope,
         private val callback: (ProcessOutResult<POGooglePayCardTokenizationData>) -> Unit,
         private val cards: POCardsRepository = ProcessOut.instance.cards,
-        private val mapper: PaymentDataMapper = PaymentDataMapper(),
-        private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+        private val mapper: PaymentDataMapper = PaymentDataMapper()
     ) : ActivityResultCallback<ApiTaskResult<PaymentData>> {
 
         override fun onActivityResult(result: ApiTaskResult<PaymentData>) {
