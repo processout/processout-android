@@ -90,7 +90,11 @@ internal class DynamicCheckoutInteractor(
         fetchConfiguration()
     }
 
-    private fun restart(reason: PODynamicCheckoutInvoiceInvalidationReason) {
+    private fun restart(
+        invoiceRequest: POInvoiceRequest,
+        reason: PODynamicCheckoutInvoiceInvalidationReason
+    ) {
+        configuration = configuration.copy(invoiceRequest = invoiceRequest)
         val selectedPaymentMethodId = when (reason) {
             is PODynamicCheckoutInvoiceInvalidationReason.Failure -> null
             else -> _state.value.selectedPaymentMethodId
@@ -114,6 +118,8 @@ internal class DynamicCheckoutInteractor(
     private fun reset(state: DynamicCheckoutInteractorState) {
         interactorScope.coroutineContext.cancelChildren()
         latestInvoiceRequest = null
+        cardTokenization.reset()
+        nativeAlternativePayment.reset()
         _completion.update { Awaiting }
         _state.update { state }
     }
@@ -465,20 +471,10 @@ internal class DynamicCheckoutInteractor(
                     }
                     _completion.update { Failure(failure) }
                 } else {
-                    onInvoiceChanged(invoiceRequest, reason)
+                    restart(invoiceRequest, reason)
                 }
             }
         }
-    }
-
-    private fun onInvoiceChanged(
-        invoiceRequest: POInvoiceRequest,
-        reason: PODynamicCheckoutInvoiceInvalidationReason
-    ) {
-        configuration = configuration.copy(invoiceRequest = invoiceRequest)
-        cardTokenization.reset()
-        nativeAlternativePayment.reset()
-        restart(reason)
     }
 
     private fun dispatchEvents() {
