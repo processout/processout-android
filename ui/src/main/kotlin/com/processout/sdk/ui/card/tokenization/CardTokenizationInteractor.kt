@@ -91,7 +91,6 @@ internal class CardTokenizationInteractor(
 
     fun start(configuration: POCardTokenizationConfiguration) {
         this.configuration = configuration
-        _state.update { initState() }
         start()
     }
 
