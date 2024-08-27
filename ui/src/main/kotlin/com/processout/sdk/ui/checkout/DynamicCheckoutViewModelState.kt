@@ -62,7 +62,6 @@ internal sealed interface DynamicCheckoutViewModelState {
             val logoResource: POImageResource,
             val description: String?,
             val loading: Boolean,
-            val selectable: Boolean,
             val selected: Boolean
         )
 

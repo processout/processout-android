@@ -211,7 +211,6 @@ internal class DynamicCheckoutViewModel private constructor(
         logoResource = display.logo,
         description = description,
         loading = loading,
-        selectable = true, // TODO
         selected = selected
     )
 
