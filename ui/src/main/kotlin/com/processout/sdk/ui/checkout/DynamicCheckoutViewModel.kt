@@ -159,6 +159,7 @@ internal class DynamicCheckoutViewModel private constructor(
         interactorState.paymentMethods.mapNotNull { paymentMethod ->
             val id = paymentMethod.id
             val selected = id == interactorState.selectedPaymentMethodId
+            val submitActionText = app.getString(R.string.po_dynamic_checkout_button_pay)
             when (paymentMethod) {
                 is Card -> RegularPayment(
                     id = id,
@@ -168,7 +169,7 @@ internal class DynamicCheckoutViewModel private constructor(
                         selected = selected
                     ),
                     content = if (selected) Content.Card(cardTokenizationState) else null,
-                    submitAction = if (selected) cardTokenizationState.primaryAction else null
+                    submitAction = if (selected) cardTokenizationState.primaryAction.copy(text = submitActionText) else null
                 )
                 is AlternativePayment -> if (!paymentMethod.isExpress)
                     RegularPayment(
@@ -182,7 +183,7 @@ internal class DynamicCheckoutViewModel private constructor(
                         content = null,
                         submitAction = POActionState(
                             id = interactorState.submitActionId,
-                            text = app.getString(R.string.po_dynamic_checkout_button_pay),
+                            text = submitActionText,
                             primary = true
                         )
                     ) else null
@@ -195,7 +196,7 @@ internal class DynamicCheckoutViewModel private constructor(
                     ),
                     content = if (selected) Content.NativeAlternativePayment(nativeAlternativePaymentState) else null,
                     submitAction = if (selected && nativeAlternativePaymentState is UserInput)
-                        nativeAlternativePaymentState.primaryAction else null
+                        nativeAlternativePaymentState.primaryAction.copy(text = submitActionText) else null
                 )
                 else -> null
             }
