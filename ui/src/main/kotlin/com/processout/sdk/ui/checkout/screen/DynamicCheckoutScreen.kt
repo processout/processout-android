@@ -3,11 +3,9 @@
 package com.processout.sdk.ui.checkout.screen
 
 import android.view.Gravity
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.*
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -29,7 +27,10 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutEvent
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.*
+import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment.Content.Card
+import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment.Content.NativeAlternativePayment
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration
+import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.LongAnimationDurationMillis
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.RegularPaymentLogoSize
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.RowComponentSpacing
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.ShortAnimationDurationMillis
@@ -239,6 +240,76 @@ private fun RegularPayment(
             onClick = { onEvent(PaymentMethodSelected(id = payment.id)) },
             style = style.radioGroup.toRadioButtonStyle()
         )
+    }
+}
+
+@Composable
+private fun RegularPaymentContent(
+    payment: RegularPayment,
+    onEvent: (DynamicCheckoutEvent) -> Unit,
+    style: DynamicCheckoutScreen.Style
+) {
+    AnimatedVisibility(
+        visible = payment.state.selected && !payment.state.loading,
+        enter = fadeIn(animationSpec = tween(durationMillis = LongAnimationDurationMillis)) +
+                expandVertically(animationSpec = tween(durationMillis = ShortAnimationDurationMillis)),
+        exit = fadeOut(animationSpec = tween(durationMillis = LongAnimationDurationMillis)) +
+                shrinkVertically(animationSpec = tween(durationMillis = ShortAnimationDurationMillis))
+    ) {
+        Column(
+            modifier = Modifier
+                .animateContentSize()
+                .fillMaxWidth()
+                .padding(
+                    start = spacing.extraLarge,
+                    end = spacing.extraLarge,
+                    bottom = spacing.extraLarge
+                )
+        ) {
+            payment.state.description?.let {
+                POTextWithIcon(
+                    text = it,
+                    style = style.regularPayment.description,
+                    horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing)
+                )
+            }
+            when (payment.content) {
+                is Card -> CardTokenization(
+                    id = payment.id,
+                    state = payment.content.state,
+                    onEvent = onEvent,
+                    style = style
+                )
+                is NativeAlternativePayment -> NativeAlternativePayment(
+                    id = payment.id,
+                    state = payment.content.state,
+                    onEvent = onEvent,
+                    style = style
+                )
+                null -> {}
+            }
+            payment.submitAction?.let {
+                with(it) {
+                    POButton(
+                        text = text,
+                        onClick = {
+                            onEvent(
+                                Action(
+                                    actionId = id,
+                                    paymentMethodId = payment.id
+                                )
+                            )
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = spacing.extraLarge),
+                        style = style.actionsContainer.primary,
+                        enabled = enabled,
+                        loading = loading
+                    )
+                }
+            }
+        }
     }
 }
 
