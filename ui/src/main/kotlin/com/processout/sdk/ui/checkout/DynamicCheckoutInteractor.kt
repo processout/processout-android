@@ -293,7 +293,7 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun onPaymentMethodSelected(event: PaymentMethodSelected) {
-        if (event.id != state.value.selectedPaymentMethodId) {
+        if (event.id != _state.value.selectedPaymentMethodId) {
             paymentMethod(event.id)?.let { paymentMethod ->
                 if (shouldInvalidateInvoice()) {
                     invalidateInvoice(
@@ -302,7 +302,7 @@ internal class DynamicCheckoutInteractor(
                 }
                 cardTokenization.reset()
                 nativeAlternativePayment.reset()
-                if (state.value.isInvoiceValid) {
+                if (_state.value.isInvoiceValid) {
                     start(paymentMethod)
                 }
                 _state.update {
