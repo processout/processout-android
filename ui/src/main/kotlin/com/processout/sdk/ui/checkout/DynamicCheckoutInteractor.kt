@@ -53,10 +53,9 @@ import kotlinx.coroutines.flow.update
 
 internal class DynamicCheckoutInteractor(
     private val app: Application,
-    private var invoiceRequest: POInvoiceRequest,
+    private var configuration: PODynamicCheckoutConfiguration,
     private val invoicesService: POInvoicesService,
     private val threeDSService: POProxy3DSService,
-    private val returnUrl: String,
     private val cardTokenization: CardTokenizationViewModel,
     private val cardTokenizationEventDispatcher: PODefaultCardTokenizationEventDispatcher,
     private val nativeAlternativePayment: NativeAlternativePaymentViewModel,
@@ -104,7 +103,7 @@ internal class DynamicCheckoutInteractor(
         }
         reset(
             state = _state.value.copy(
-                invoice = POInvoice(id = invoiceRequest.invoiceId),
+                invoice = POInvoice(id = configuration.invoiceRequest.invoiceId),
                 selectedPaymentMethodId = selectedPaymentMethodId,
                 errorMessage = errorMessage
             )
@@ -121,7 +120,7 @@ internal class DynamicCheckoutInteractor(
 
     private fun initState() = DynamicCheckoutInteractorState(
         loading = true,
-        invoice = POInvoice(id = invoiceRequest.invoiceId),
+        invoice = POInvoice(id = configuration.invoiceRequest.invoiceId),
         isInvoiceValid = false,
         paymentMethods = emptyList(),
         selectedPaymentMethodId = null,
@@ -131,7 +130,7 @@ internal class DynamicCheckoutInteractor(
 
     private fun fetchConfiguration() {
         interactorScope.launch {
-            invoicesService.invoice(invoiceRequest)
+            invoicesService.invoice(configuration.invoiceRequest)
                 .onSuccess { invoice ->
                     when (invoice.transaction?.status()) {
                         WAITING -> setStartedState(invoice)
@@ -334,7 +333,7 @@ internal class DynamicCheckoutInteractor(
                     .apply(paymentMethod.configuration)
             )
             is NativeAlternativePayment -> nativeAlternativePayment.start(
-                invoiceId = invoiceRequest.invoiceId,
+                invoiceId = configuration.invoiceRequest.invoiceId,
                 gatewayConfigurationId = paymentMethod.gatewayConfigurationId
             )
             else -> {}
@@ -401,7 +400,7 @@ internal class DynamicCheckoutInteractor(
                         _paymentEvents.send(
                             DynamicCheckoutPaymentEvent.AlternativePayment(
                                 redirectUrl = paymentMethod.redirectUrl,
-                                returnUrl = returnUrl
+                                returnUrl = configuration.returnUrl
                             )
                         )
                     }
@@ -476,7 +475,7 @@ internal class DynamicCheckoutInteractor(
         invoiceRequest: POInvoiceRequest,
         reason: PODynamicCheckoutInvoiceInvalidationReason
     ) {
-        this.invoiceRequest = invoiceRequest
+        configuration = configuration.copy(invoiceRequest = invoiceRequest)
         cardTokenization.reset()
         nativeAlternativePayment.reset()
         restart(reason)

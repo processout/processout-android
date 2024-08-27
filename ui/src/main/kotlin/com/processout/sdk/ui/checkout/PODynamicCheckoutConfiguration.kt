@@ -15,14 +15,10 @@ import kotlinx.parcelize.Parcelize
 data class PODynamicCheckoutConfiguration(
     val invoiceRequest: POInvoiceRequest,
     val returnUrl: String,
-    val options: Options = Options(),
+    val submitButtonText: String? = null,
+    val cancelButton: CancelButton? = CancelButton(),
     val style: Style? = null
 ) : Parcelable {
-
-    @Parcelize
-    data class Options(
-        val cancelButton: CancelButton? = CancelButton()
-    ) : Parcelable
 
     @Parcelize
     data class CancelButton(

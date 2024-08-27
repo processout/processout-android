@@ -8,7 +8,6 @@ import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
-import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Display
 import com.processout.sdk.api.service.proxy3ds.PODefaultProxy3DSService
@@ -19,7 +18,6 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMeth
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment.Content
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.CancelButton
-import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.Options
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.core.state.POImmutableList
@@ -34,15 +32,13 @@ import kotlinx.coroutines.flow.stateIn
 
 internal class DynamicCheckoutViewModel private constructor(
     private val app: Application,
-    private val options: Options,
+    private val configuration: PODynamicCheckoutConfiguration,
     private val interactor: DynamicCheckoutInteractor
 ) : ViewModel() {
 
     class Factory(
         private val app: Application,
-        private val invoiceRequest: POInvoiceRequest,
-        private val returnUrl: String,
-        private val options: Options,
+        private val configuration: PODynamicCheckoutConfiguration,
         private val cardTokenization: CardTokenizationViewModel,
         private val cardTokenizationEventDispatcher: PODefaultCardTokenizationEventDispatcher,
         private val nativeAlternativePayment: NativeAlternativePaymentViewModel,
@@ -52,13 +48,12 @@ internal class DynamicCheckoutViewModel private constructor(
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
             DynamicCheckoutViewModel(
                 app = app,
-                options = options,
+                configuration = configuration,
                 interactor = DynamicCheckoutInteractor(
                     app = app,
-                    invoiceRequest = invoiceRequest,
+                    configuration = configuration,
                     invoicesService = ProcessOut.instance.invoices,
                     threeDSService = PODefaultProxy3DSService(),
-                    returnUrl = returnUrl,
                     cardTokenization = cardTokenization,
                     cardTokenizationEventDispatcher = cardTokenizationEventDispatcher,
                     nativeAlternativePayment = nativeAlternativePayment,
@@ -96,7 +91,7 @@ internal class DynamicCheckoutViewModel private constructor(
         cardTokenizationState: CardTokenizationViewModelState,
         nativeAlternativePaymentState: NativeAlternativePaymentViewModelState
     ): DynamicCheckoutViewModelState {
-        val cancelAction = options.cancelButton?.toActionState(
+        val cancelAction = configuration.cancelButton?.toActionState(
             id = interactorState.cancelActionId,
             enabled = true // TODO
         )
