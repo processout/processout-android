@@ -62,7 +62,6 @@ internal fun DynamicCheckoutScreen(
         Scaffold(
             modifier = Modifier.clip(shape = shapes.topRoundedCornersLarge),
             containerColor = style.backgroundColor,
-            topBar = { Header() },
             bottomBar = {
                 Footer(
                     state = state,
@@ -91,17 +90,6 @@ internal fun DynamicCheckoutScreen(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun Header() {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.End,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // TODO
     }
 }
 
