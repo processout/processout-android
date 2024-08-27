@@ -58,9 +58,11 @@ internal fun DynamicCheckoutScreen(
     style: DynamicCheckoutScreen.Style = DynamicCheckoutScreen.style()
 ) {
     Column {
-        Spacer(Modifier.windowInsetsTopHeight(WindowInsets.systemBars))
+        Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
         Scaffold(
-            modifier = Modifier.clip(shape = shapes.topRoundedCornersLarge),
+            modifier = Modifier
+                .consumeWindowInsets(WindowInsets.statusBars)
+                .clip(shape = shapes.topRoundedCornersLarge),
             containerColor = style.backgroundColor,
             bottomBar = {
                 Footer(
