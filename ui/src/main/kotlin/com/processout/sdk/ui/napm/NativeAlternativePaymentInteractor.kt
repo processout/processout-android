@@ -111,8 +111,8 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     fun reset() {
-        onCleared()
         interactorScope.coroutineContext.cancelChildren()
+        handler.removeCallbacksAndMessages(null)
         latestDefaultValuesRequest = null
         captureStartTimestamp = 0L
         capturePassedTimestamp = 0L
