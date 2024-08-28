@@ -39,11 +39,12 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.Dismiss
 import com.processout.sdk.ui.checkout.DynamicCheckoutPaymentEvent.AlternativePayment
 import com.processout.sdk.ui.checkout.DynamicCheckoutPaymentEvent.GooglePay
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.AlternativePaymentConfiguration
+import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.CancelButton
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
-import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
-import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.DEFAULT_TIMEOUT_SECONDS
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -52,11 +53,15 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
     private var configuration: PODynamicCheckoutConfiguration? = null
 
     private val viewModel: DynamicCheckoutViewModel by viewModels {
+        val submitButtonText = configuration?.submitButtonText
+            ?: getString(com.processout.sdk.R.string.po_dynamic_checkout_button_pay)
         val cardTokenizationEventDispatcher = PODefaultCardTokenizationEventDispatcher()
         val cardTokenization: CardTokenizationViewModel by viewModels {
             CardTokenizationViewModel.Factory(
                 app = application,
-                configuration = POCardTokenizationConfiguration(),
+                configuration = POCardTokenizationConfiguration(
+                    primaryActionText = submitButtonText
+                ),
                 eventDispatcher = cardTokenizationEventDispatcher
             )
         }
@@ -66,12 +71,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                 app = application,
                 invoiceId = configuration?.invoiceRequest?.invoiceId ?: String(),
                 gatewayConfigurationId = String(),
-                options = PONativeAlternativePaymentConfiguration.Options(
-                    paymentConfirmation = PaymentConfirmationConfiguration(
-                        hideGatewayDetails = true
-                    ),
-                    skipSuccessScreen = true
-                ),
+                options = nativeAlternativePaymentConfiguration(submitButtonText),
                 eventDispatcher = nativeAlternativePaymentEventDispatcher
             )
         }
@@ -89,6 +89,29 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
             nativeAlternativePaymentEventDispatcher = nativeAlternativePaymentEventDispatcher
         )
     }
+
+    private fun nativeAlternativePaymentConfiguration(submitButtonText: String): Options {
+        val paymentConfirmation = configuration?.alternativePayment?.paymentConfirmation
+        return Options(
+            primaryActionText = submitButtonText,
+            secondaryAction = configuration?.cancelButton?.toSecondaryAction(),
+            paymentConfirmation = PaymentConfirmationConfiguration(
+                waitsConfirmation = true,
+                timeoutSeconds = paymentConfirmation?.timeoutSeconds ?: DEFAULT_TIMEOUT_SECONDS,
+                showProgressIndicatorAfterSeconds = paymentConfirmation?.showProgressIndicatorAfterSeconds,
+                hideGatewayDetails = true,
+                secondaryAction = paymentConfirmation?.cancelButton?.toSecondaryAction()
+            ),
+            inlineSingleSelectValuesLimit = configuration?.alternativePayment?.inlineSingleSelectValuesLimit ?: 5,
+            skipSuccessScreen = true
+        )
+    }
+
+    private fun CancelButton.toSecondaryAction() = SecondaryAction.Cancel(
+        text = text,
+        disabledForSeconds = disabledForSeconds,
+        confirmation = confirmation
+    )
 
     private lateinit var alternativePaymentLauncher: POAlternativePaymentMethodCustomTabLauncher
 
