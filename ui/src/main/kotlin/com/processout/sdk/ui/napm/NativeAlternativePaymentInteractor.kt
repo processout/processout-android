@@ -174,8 +174,7 @@ internal class NativeAlternativePaymentInteractor(
                 enabled = false
             ),
             submitAllowed = true,
-            submitting = false,
-            submittedAtLeastOnce = false
+            submitting = false
         )
 
     private fun UserInputStateValue.toCaptureStateValue(
@@ -322,8 +321,7 @@ internal class NativeAlternativePaymentInteractor(
             UserInput(
                 stateValue.copy(
                     submitAllowed = true,
-                    submitting = false,
-                    submittedAtLeastOnce = true
+                    submitting = false
                 )
             )
         }
