@@ -21,13 +21,6 @@ data class PODynamicCheckoutConfiguration(
 ) : Parcelable {
 
     @Parcelize
-    data class CancelButton(
-        val text: String? = null,
-        val disabledForSeconds: Int = 0,
-        val confirmation: POActionConfirmationConfiguration? = null
-    ) : Parcelable
-
-    @Parcelize
     data class AlternativePaymentConfiguration(
         val returnUrl: String,
         val inlineSingleSelectValuesLimit: Int = 5,
@@ -41,6 +34,13 @@ data class PODynamicCheckoutConfiguration(
             val cancelButton: CancelButton? = CancelButton()
         ) : Parcelable
     }
+
+    @Parcelize
+    data class CancelButton(
+        val text: String? = null,
+        val disabledForSeconds: Int = 0,
+        val confirmation: POActionConfirmationConfiguration? = null
+    ) : Parcelable
 
     @Parcelize
     data class Style(
