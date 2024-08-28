@@ -23,6 +23,7 @@ import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration
+import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.AlternativePaymentConfiguration
 import com.processout.sdk.ui.checkout.PODynamicCheckoutLauncher
 import com.processout.sdk.ui.shared.view.dialog.POAlertDialog
 import com.processout.sdk.ui.threeds.PO3DSRedirectCustomTabLauncher
@@ -87,7 +88,9 @@ class DynamicCheckoutFragment : BaseFragment<FragmentDynamicCheckoutBinding>(
                     invoiceId = uiModel.invoiceId,
                     clientSecret = uiModel.clientSecret
                 ),
-                returnUrl = Constants.RETURN_URL
+                alternativePayment = AlternativePaymentConfiguration(
+                    returnUrl = Constants.RETURN_URL
+                )
             )
         )
         viewModel.onLaunched()

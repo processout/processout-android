@@ -14,7 +14,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class PODynamicCheckoutConfiguration(
     val invoiceRequest: POInvoiceRequest,
-    val returnUrl: String,
+    val alternativePayment: AlternativePaymentConfiguration,
     val submitButtonText: String? = null,
     val cancelButton: CancelButton? = CancelButton(),
     val style: Style? = null
@@ -23,8 +23,24 @@ data class PODynamicCheckoutConfiguration(
     @Parcelize
     data class CancelButton(
         val text: String? = null,
+        val disabledForSeconds: Int = 0,
         val confirmation: POActionConfirmationConfiguration? = null
     ) : Parcelable
+
+    @Parcelize
+    data class AlternativePaymentConfiguration(
+        val returnUrl: String,
+        val inlineSingleSelectValuesLimit: Int = 5,
+        val paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration(),
+    ) : Parcelable {
+
+        @Parcelize
+        data class PaymentConfirmationConfiguration(
+            val timeoutSeconds: Int = 3 * 60,
+            val showProgressIndicatorAfterSeconds: Int? = null,
+            val cancelButton: CancelButton? = CancelButton()
+        ) : Parcelable
+    }
 
     @Parcelize
     data class Style(

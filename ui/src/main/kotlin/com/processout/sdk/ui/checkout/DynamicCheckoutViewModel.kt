@@ -14,6 +14,7 @@ import com.processout.sdk.api.service.proxy3ds.PODefaultProxy3DSService
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState
+import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment.Content
@@ -23,8 +24,7 @@ import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState
-import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Loading
-import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.UserInput
+import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.*
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -91,10 +91,7 @@ internal class DynamicCheckoutViewModel private constructor(
         cardTokenizationState: CardTokenizationViewModelState,
         nativeAlternativePaymentState: NativeAlternativePaymentViewModelState
     ): DynamicCheckoutViewModelState {
-        val cancelAction = configuration.cancelButton?.toActionState(
-            id = interactorState.cancelActionId,
-            enabled = true // TODO
-        )
+        val cancelAction = cancelAction(interactorState, nativeAlternativePaymentState)
         return if (interactorState.loading) {
             Starting(cancelAction = cancelAction)
         } else {
@@ -107,14 +104,28 @@ internal class DynamicCheckoutViewModel private constructor(
         }
     }
 
+    private fun DynamicCheckoutInteractorState.selectedPaymentMethod(): PaymentMethod? =
+        paymentMethods.find { it.id == selectedPaymentMethodId }
+
+    private fun cancelAction(
+        interactorState: DynamicCheckoutInteractorState,
+        nativeAlternativePaymentState: NativeAlternativePaymentViewModelState
+    ): POActionState? = when (interactorState.selectedPaymentMethod()) {
+        is NativeAlternativePayment -> when (nativeAlternativePaymentState) {
+            is Loading -> nativeAlternativePaymentState.secondaryAction
+            is UserInput -> nativeAlternativePaymentState.secondaryAction
+            is Capture -> nativeAlternativePaymentState.secondaryAction
+        }
+        else -> configuration.cancelButton?.toActionState(interactorState)
+    }
+
     private fun CancelButton.toActionState(
-        id: String,
-        enabled: Boolean
+        interactorState: DynamicCheckoutInteractorState
     ) = POActionState(
-        id = id,
+        id = interactorState.cancelActionId,
         text = text ?: app.getString(R.string.po_dynamic_checkout_button_cancel),
         primary = false,
-        enabled = enabled,
+        enabled = !interactorState.processingPayment,
         confirmation = confirmation?.run {
             Confirmation(
                 title = title ?: app.getString(R.string.po_cancel_payment_confirmation_title),
@@ -179,7 +190,8 @@ internal class DynamicCheckoutViewModel private constructor(
                         submitAction = POActionState(
                             id = interactorState.submitActionId,
                             text = submitActionText,
-                            primary = true
+                            primary = true,
+                            loading = interactorState.processingPayment
                         )
                     ) else null
                 is NativeAlternativePayment -> RegularPayment(
