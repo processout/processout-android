@@ -110,14 +110,17 @@ internal class DynamicCheckoutViewModel private constructor(
     private fun cancelAction(
         interactorState: DynamicCheckoutInteractorState,
         nativeAlternativePaymentState: NativeAlternativePaymentViewModelState
-    ): POActionState? = when (interactorState.selectedPaymentMethod()) {
-        is NativeAlternativePayment -> when (nativeAlternativePaymentState) {
-            is Loading -> nativeAlternativePaymentState.secondaryAction
-            is UserInput -> nativeAlternativePaymentState.secondaryAction
-            is Capture -> nativeAlternativePaymentState.secondaryAction
-        }
-        else -> configuration.cancelButton?.toActionState(interactorState)
-    }?.copy(id = interactorState.cancelActionId)
+    ): POActionState? {
+        val cancelAction = configuration.cancelButton?.toActionState(interactorState)
+        return when (interactorState.selectedPaymentMethod()) {
+            is NativeAlternativePayment -> when (nativeAlternativePaymentState) {
+                is Loading -> nativeAlternativePaymentState.secondaryAction ?: cancelAction
+                is UserInput -> nativeAlternativePaymentState.secondaryAction
+                is Capture -> nativeAlternativePaymentState.secondaryAction
+            }
+            else -> cancelAction
+        }?.copy(id = interactorState.cancelActionId)
+    }
 
     private fun CancelButton.toActionState(
         interactorState: DynamicCheckoutInteractorState
