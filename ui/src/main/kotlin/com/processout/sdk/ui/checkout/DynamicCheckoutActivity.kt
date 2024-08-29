@@ -92,6 +92,8 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
     private fun cardTokenizationConfiguration(submitButtonText: String) =
         POCardTokenizationConfiguration(
             primaryActionText = submitButtonText,
+            secondaryActionText = configuration?.cancelButton?.text
+                ?: getString(com.processout.sdk.R.string.po_dynamic_checkout_button_cancel),
             cancellation = POCancellationConfiguration(
                 secondaryAction = configuration?.cancelButton != null
             )

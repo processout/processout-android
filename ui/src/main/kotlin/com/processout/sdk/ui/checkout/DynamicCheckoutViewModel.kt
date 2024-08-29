@@ -25,6 +25,7 @@ import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.*
+import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -114,7 +115,9 @@ internal class DynamicCheckoutViewModel private constructor(
     ): POActionState? {
         val cancelAction = configuration.cancelButton?.toActionState(interactorState)
         return when (interactorState.selectedPaymentMethod()) {
-            is Card -> cardTokenizationState.secondaryAction
+            is Card -> cardTokenizationState.secondaryAction?.copy(
+                confirmation = configuration.cancelButton?.confirmation?.toState()
+            )
             is NativeAlternativePayment -> when (nativeAlternativePaymentState) {
                 is Loading -> nativeAlternativePaymentState.secondaryAction ?: cancelAction
                 is UserInput -> nativeAlternativePaymentState.secondaryAction
@@ -131,16 +134,16 @@ internal class DynamicCheckoutViewModel private constructor(
         text = text ?: app.getString(R.string.po_dynamic_checkout_button_cancel),
         primary = false,
         enabled = !interactorState.processingPayment,
-        confirmation = confirmation?.run {
-            Confirmation(
-                title = title ?: app.getString(R.string.po_cancel_payment_confirmation_title),
-                message = message,
-                confirmActionText = confirmActionText
-                    ?: app.getString(R.string.po_cancel_payment_confirmation_confirm),
-                dismissActionText = dismissActionText
-                    ?: app.getString(R.string.po_cancel_payment_confirmation_dismiss)
-            )
-        }
+        confirmation = confirmation?.toState()
+    )
+
+    private fun POActionConfirmationConfiguration.toState() = Confirmation(
+        title = title ?: app.getString(R.string.po_cancel_payment_confirmation_title),
+        message = message,
+        confirmActionText = confirmActionText
+            ?: app.getString(R.string.po_cancel_payment_confirmation_confirm),
+        dismissActionText = dismissActionText
+            ?: app.getString(R.string.po_cancel_payment_confirmation_dismiss)
     )
 
     private fun expressPayments(
