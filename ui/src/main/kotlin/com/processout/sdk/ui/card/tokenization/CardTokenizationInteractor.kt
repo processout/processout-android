@@ -115,7 +115,10 @@ internal class CardTokenizationInteractor(
     private fun cardFields(): List<Field> = mutableListOf(
         Field(id = CardFieldId.NUMBER),
         Field(id = CardFieldId.EXPIRATION),
-        Field(id = CardFieldId.CVC),
+        Field(
+            id = CardFieldId.CVC,
+            shouldCollect = configuration.cvcRequired
+        ),
         Field(
             id = CardFieldId.CARDHOLDER,
             shouldCollect = configuration.isCardholderNameFieldVisible

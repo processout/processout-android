@@ -15,6 +15,7 @@ import kotlinx.parcelize.Parcelize
  * Defines card tokenization configuration.
  *
  * @param[title] Custom title.
+ * @param[cvcRequired] Specifies whether the card CVC should be collected. Default value is _true_.
  * @param[isCardholderNameFieldVisible] Specifies whether the cardholder name field should be displayed. Default value is _true_.
  * @param[billingAddress] Allows to customize the collection of billing address.
  * @param[primaryActionText] Custom primary action text (e.g. "Submit").
@@ -26,6 +27,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class POCardTokenizationConfiguration(
     val title: String? = null,
+    val cvcRequired: Boolean = true,
     val isCardholderNameFieldVisible: Boolean = true,
     val billingAddress: BillingAddressConfiguration = BillingAddressConfiguration(),
     val primaryActionText: String? = null,
