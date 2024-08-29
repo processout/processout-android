@@ -45,6 +45,7 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.DEFAULT_TIMEOUT_SECONDS
+import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -59,9 +60,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         val cardTokenization: CardTokenizationViewModel by viewModels {
             CardTokenizationViewModel.Factory(
                 app = application,
-                configuration = POCardTokenizationConfiguration(
-                    primaryActionText = submitButtonText
-                ),
+                configuration = cardTokenizationConfiguration(submitButtonText),
                 eventDispatcher = cardTokenizationEventDispatcher
             )
         }
@@ -89,6 +88,14 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
             nativeAlternativePaymentEventDispatcher = nativeAlternativePaymentEventDispatcher
         )
     }
+
+    private fun cardTokenizationConfiguration(submitButtonText: String) =
+        POCardTokenizationConfiguration(
+            primaryActionText = submitButtonText,
+            cancellation = POCancellationConfiguration(
+                secondaryAction = configuration?.cancelButton != null
+            )
+        )
 
     private fun nativeAlternativePaymentConfiguration(submitButtonText: String): Options {
         val paymentConfirmation = configuration?.alternativePayment?.paymentConfirmation
