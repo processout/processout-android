@@ -376,31 +376,7 @@ internal class DynamicCheckoutInteractor(
     private fun onAction(event: Action) {
         val paymentMethod = event.paymentMethodId?.let { paymentMethod(it) }
         when (event.actionId) {
-            ActionId.SUBMIT -> {
-                _state.update { it.copy(processingPayment = true) }
-                when (paymentMethod) {
-                    is GooglePay -> {
-                        interactorScope.launch {
-                            _paymentEvents.send(
-                                DynamicCheckoutPaymentEvent.GooglePay(
-                                    configuration = paymentMethod.configuration
-                                )
-                            )
-                        }
-                    }
-                    is AlternativePayment -> {
-                        interactorScope.launch {
-                            _paymentEvents.send(
-                                DynamicCheckoutPaymentEvent.AlternativePayment(
-                                    redirectUrl = paymentMethod.redirectUrl,
-                                    returnUrl = configuration.alternativePayment.returnUrl
-                                )
-                            )
-                        }
-                    }
-                    else -> {}
-                }
-            }
+            ActionId.SUBMIT -> submit(paymentMethod)
             ActionId.CANCEL -> cancel()
             else -> when (paymentMethod) {
                 is Card -> cardTokenization.onEvent(
@@ -411,6 +387,43 @@ internal class DynamicCheckoutInteractor(
                 )
                 else -> {}
             }
+        }
+    }
+
+    private fun submit(paymentMethod: PaymentMethod?) {
+        when (paymentMethod) {
+            is GooglePay -> {
+                interactorScope.launch {
+                    _state.update { it.copy(processingPayment = true) }
+                    _paymentEvents.send(
+                        DynamicCheckoutPaymentEvent.GooglePay(
+                            configuration = paymentMethod.configuration
+                        )
+                    )
+                }
+            }
+            is AlternativePayment -> {
+                val returnUrl = configuration.alternativePayment.returnUrl
+                if (returnUrl.isNullOrBlank()) {
+                    handle(
+                        ProcessOutResult.Failure(
+                            code = Generic(),
+                            message = "Missing return URL in alternative payment configuration."
+                        )
+                    )
+                    return
+                }
+                interactorScope.launch {
+                    _state.update { it.copy(processingPayment = true) }
+                    _paymentEvents.send(
+                        DynamicCheckoutPaymentEvent.AlternativePayment(
+                            redirectUrl = paymentMethod.redirectUrl,
+                            returnUrl = returnUrl
+                        )
+                    )
+                }
+            }
+            else -> {}
         }
     }
 

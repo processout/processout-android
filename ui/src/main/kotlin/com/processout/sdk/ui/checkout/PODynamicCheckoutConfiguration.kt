@@ -3,6 +3,7 @@ package com.processout.sdk.ui.checkout
 import android.os.Parcelable
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
+import com.processout.sdk.api.model.request.POContact
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.style.*
@@ -14,15 +15,29 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class PODynamicCheckoutConfiguration(
     val invoiceRequest: POInvoiceRequest,
-    val alternativePayment: AlternativePaymentConfiguration,
+    val card: CardConfiguration = CardConfiguration(),
+    val alternativePayment: AlternativePaymentConfiguration = AlternativePaymentConfiguration(),
     val submitButtonText: String? = null,
     val cancelButton: CancelButton? = CancelButton(),
     val style: Style? = null
 ) : Parcelable {
 
     @Parcelize
+    data class CardConfiguration(
+        val billingAddress: BillingAddressConfiguration = BillingAddressConfiguration(),
+        val metadata: Map<String, String>? = null
+    ) : Parcelable {
+
+        @Parcelize
+        data class BillingAddressConfiguration(
+            val defaultAddress: POContact? = null,
+            val attachDefaultsToPaymentMethod: Boolean = false
+        ) : Parcelable
+    }
+
+    @Parcelize
     data class AlternativePaymentConfiguration(
-        val returnUrl: String,
+        val returnUrl: String? = null,
         val inlineSingleSelectValuesLimit: Int = 5,
         val paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration(),
     ) : Parcelable {
