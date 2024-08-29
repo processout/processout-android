@@ -31,6 +31,7 @@ import com.processout.sdk.ui.apm.POAlternativePaymentMethodCustomTabLauncher
 import com.processout.sdk.ui.base.BaseTransparentPortraitActivity
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration
 import com.processout.sdk.ui.checkout.DynamicCheckoutActivityContract.Companion.EXTRA_CONFIGURATION
 import com.processout.sdk.ui.checkout.DynamicCheckoutActivityContract.Companion.EXTRA_RESULT
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Failure
@@ -85,15 +86,22 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         )
     }
 
-    private fun cardTokenizationConfiguration(submitButtonText: String) =
-        POCardTokenizationConfiguration(
+    private fun cardTokenizationConfiguration(submitButtonText: String): POCardTokenizationConfiguration {
+        val billingAddress = configuration?.card?.billingAddress
+        return POCardTokenizationConfiguration(
+            billingAddress = BillingAddressConfiguration(
+                defaultAddress = billingAddress?.defaultAddress,
+                attachDefaultsToPaymentMethod = billingAddress?.attachDefaultsToPaymentMethod ?: false
+            ),
             primaryActionText = submitButtonText,
             secondaryActionText = configuration?.cancelButton?.text
                 ?: getString(com.processout.sdk.R.string.po_dynamic_checkout_button_cancel),
             cancellation = POCancellationConfiguration(
                 secondaryAction = configuration?.cancelButton != null
-            )
+            ),
+            metadata = configuration?.card?.metadata
         )
+    }
 
     private fun nativeAlternativePaymentConfiguration(submitButtonText: String): Options {
         val paymentConfirmation = configuration?.alternativePayment?.paymentConfirmation
