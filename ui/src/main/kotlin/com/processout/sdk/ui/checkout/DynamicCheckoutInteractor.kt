@@ -495,6 +495,7 @@ internal class DynamicCheckoutInteractor(
     private fun collectTokenizedCard() {
         interactorScope.launch {
             cardTokenizationEventDispatcher.processTokenizedCard.collect { card ->
+                _state.update { it.copy(processingPayment = true) }
                 invoicesService.authorizeInvoice(
                     request = POInvoiceAuthorizationRequest(
                         invoiceId = _state.value.invoice.id,
