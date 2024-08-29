@@ -71,8 +71,8 @@ internal class DynamicCheckoutInteractor(
     val cardTokenizationState = cardTokenization.state
     val nativeAlternativePaymentState = nativeAlternativePayment.state
 
-    private val _paymentEvents = Channel<DynamicCheckoutPaymentEvent>()
-    val paymentEvents = _paymentEvents.receiveAsFlow()
+    private val _submitEvents = Channel<DynamicCheckoutSubmitEvent>()
+    val submitEvents = _submitEvents.receiveAsFlow()
 
     private var latestInvoiceRequest: PODynamicCheckoutInvoiceRequest? = null
 
@@ -395,8 +395,8 @@ internal class DynamicCheckoutInteractor(
             is GooglePay -> {
                 interactorScope.launch {
                     _state.update { it.copy(processingPayment = true) }
-                    _paymentEvents.send(
-                        DynamicCheckoutPaymentEvent.GooglePay(
+                    _submitEvents.send(
+                        DynamicCheckoutSubmitEvent.GooglePay(
                             configuration = paymentMethod.configuration
                         )
                     )
@@ -415,8 +415,8 @@ internal class DynamicCheckoutInteractor(
                 }
                 interactorScope.launch {
                     _state.update { it.copy(processingPayment = true) }
-                    _paymentEvents.send(
-                        DynamicCheckoutPaymentEvent.AlternativePayment(
+                    _submitEvents.send(
+                        DynamicCheckoutSubmitEvent.AlternativePayment(
                             redirectUrl = paymentMethod.redirectUrl,
                             returnUrl = returnUrl
                         )

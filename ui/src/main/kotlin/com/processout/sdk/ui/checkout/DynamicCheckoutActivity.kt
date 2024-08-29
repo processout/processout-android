@@ -36,8 +36,8 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutActivityContract.Companion.
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Failure
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Success
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.Dismiss
-import com.processout.sdk.ui.checkout.DynamicCheckoutPaymentEvent.AlternativePayment
-import com.processout.sdk.ui.checkout.DynamicCheckoutPaymentEvent.GooglePay
+import com.processout.sdk.ui.checkout.DynamicCheckoutSubmitEvent.AlternativePayment
+import com.processout.sdk.ui.checkout.DynamicCheckoutSubmitEvent.GooglePay
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.AlternativePaymentConfiguration
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.CancelButton
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen
@@ -147,9 +147,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                 LaunchedEffect(lifecycleOwner) {
                     lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                         withContext(Dispatchers.Main.immediate) {
-                            viewModel.paymentEvents.collect {
-                                handle(it)
-                            }
+                            viewModel.submitEvents.collect { submit(it) }
                         }
                     }
                 }
@@ -205,14 +203,14 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
             else -> {}
         }
 
-    private fun handle(paymentEvent: DynamicCheckoutPaymentEvent) {
-        when (paymentEvent) {
+    private fun submit(event: DynamicCheckoutSubmitEvent) {
+        when (event) {
             is GooglePay -> {
                 // TODO
             }
             is AlternativePayment -> alternativePaymentLauncher.launch(
-                uri = Uri.parse(paymentEvent.redirectUrl),
-                returnUrl = paymentEvent.returnUrl
+                uri = Uri.parse(event.redirectUrl),
+                returnUrl = event.returnUrl
             )
         }
     }
