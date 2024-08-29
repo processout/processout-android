@@ -38,7 +38,6 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Success
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.Dismiss
 import com.processout.sdk.ui.checkout.DynamicCheckoutSubmitEvent.AlternativePayment
 import com.processout.sdk.ui.checkout.DynamicCheckoutSubmitEvent.GooglePay
-import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.AlternativePaymentConfiguration
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.CancelButton
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
@@ -77,10 +76,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         DynamicCheckoutViewModel.Factory(
             app = application,
             configuration = configuration ?: PODynamicCheckoutConfiguration(
-                invoiceRequest = POInvoiceRequest(invoiceId = String()),
-                alternativePayment = configuration?.alternativePayment ?: AlternativePaymentConfiguration(
-                    returnUrl = String()
-                )
+                invoiceRequest = POInvoiceRequest(invoiceId = String())
             ),
             cardTokenization = cardTokenization,
             cardTokenizationEventDispatcher = cardTokenizationEventDispatcher,
