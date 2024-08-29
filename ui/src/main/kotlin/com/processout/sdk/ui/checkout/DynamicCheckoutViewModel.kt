@@ -116,7 +116,7 @@ internal class DynamicCheckoutViewModel private constructor(
         val cancelAction = configuration.cancelButton?.toActionState(interactorState)
         return when (interactorState.selectedPaymentMethod()) {
             is Card -> cardTokenizationState.secondaryAction?.copy(
-                confirmation = configuration.cancelButton?.confirmation?.toState()
+                confirmation = configuration.cancelButton?.confirmation?.map()
             )
             is NativeAlternativePayment -> when (nativeAlternativePaymentState) {
                 is Loading -> nativeAlternativePaymentState.secondaryAction ?: cancelAction
@@ -134,10 +134,10 @@ internal class DynamicCheckoutViewModel private constructor(
         text = text ?: app.getString(R.string.po_dynamic_checkout_button_cancel),
         primary = false,
         enabled = !interactorState.processingPayment,
-        confirmation = confirmation?.toState()
+        confirmation = confirmation?.map()
     )
 
-    private fun POActionConfirmationConfiguration.toState() = Confirmation(
+    private fun POActionConfirmationConfiguration.map() = Confirmation(
         title = title ?: app.getString(R.string.po_cancel_payment_confirmation_title),
         message = message,
         confirmActionText = confirmActionText
