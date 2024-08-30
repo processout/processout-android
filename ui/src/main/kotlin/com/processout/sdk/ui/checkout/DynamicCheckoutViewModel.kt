@@ -141,10 +141,7 @@ internal class DynamicCheckoutViewModel private constructor(
                 }
             }
             else -> defaultCancelAction
-        }?.copy(
-            id = interactorState.cancelActionId,
-            primary = false
-        )
+        }?.copy(id = interactorState.cancelActionId)
     }
 
     private fun CancelButton.toActionState(
@@ -194,6 +191,7 @@ internal class DynamicCheckoutViewModel private constructor(
         interactorState.paymentMethods.mapNotNull { paymentMethod ->
             val id = paymentMethod.id
             val selected = id == interactorState.selectedPaymentMethodId
+            val submitButtonText = configuration.submitButtonText ?: app.getString(R.string.po_dynamic_checkout_button_pay)
             when (paymentMethod) {
                 is Card -> RegularPayment(
                     id = id,
@@ -203,7 +201,7 @@ internal class DynamicCheckoutViewModel private constructor(
                         selected = selected
                     ),
                     content = if (selected) Content.Card(cardTokenizationState) else null,
-                    submitAction = if (selected) cardTokenizationState.primaryAction else null
+                    submitAction = if (selected) cardTokenizationState.primaryAction.copy(text = submitButtonText) else null
                 )
                 is AlternativePayment -> if (!paymentMethod.isExpress)
                     RegularPayment(
@@ -217,7 +215,7 @@ internal class DynamicCheckoutViewModel private constructor(
                         content = null,
                         submitAction = POActionState(
                             id = interactorState.submitActionId,
-                            text = configuration.submitButtonText ?: app.getString(R.string.po_dynamic_checkout_button_pay),
+                            text = submitButtonText,
                             primary = true,
                             loading = interactorState.processingPayment
                         )
@@ -231,7 +229,7 @@ internal class DynamicCheckoutViewModel private constructor(
                     ),
                     content = if (selected) Content.NativeAlternativePayment(nativeAlternativePaymentState) else null,
                     submitAction = if (selected && nativeAlternativePaymentState is UserInput)
-                        nativeAlternativePaymentState.primaryAction else null
+                        nativeAlternativePaymentState.primaryAction.copy(text = submitButtonText) else null
                 )
                 else -> null
             }

@@ -54,13 +54,11 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
     private var configuration: PODynamicCheckoutConfiguration? = null
 
     private val viewModel: DynamicCheckoutViewModel by viewModels {
-        val submitButtonText = configuration?.submitButtonText
-            ?: getString(com.processout.sdk.R.string.po_dynamic_checkout_button_pay)
         val cardTokenizationEventDispatcher = PODefaultCardTokenizationEventDispatcher()
         val cardTokenization: CardTokenizationViewModel by viewModels {
             CardTokenizationViewModel.Factory(
                 app = application,
-                configuration = cardTokenizationConfiguration(submitButtonText),
+                configuration = cardTokenizationConfiguration(),
                 eventDispatcher = cardTokenizationEventDispatcher
             )
         }
@@ -70,7 +68,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                 app = application,
                 invoiceId = configuration?.invoiceRequest?.invoiceId ?: String(),
                 gatewayConfigurationId = String(),
-                options = nativeAlternativePaymentConfiguration(submitButtonText),
+                options = nativeAlternativePaymentConfiguration(),
                 eventDispatcher = nativeAlternativePaymentEventDispatcher
             )
         }
@@ -86,14 +84,14 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         )
     }
 
-    private fun cardTokenizationConfiguration(submitButtonText: String): POCardTokenizationConfiguration {
+    private fun cardTokenizationConfiguration(): POCardTokenizationConfiguration {
         val billingAddress = configuration?.card?.billingAddress
         return POCardTokenizationConfiguration(
             billingAddress = BillingAddressConfiguration(
                 defaultAddress = billingAddress?.defaultAddress,
                 attachDefaultsToPaymentMethod = billingAddress?.attachDefaultsToPaymentMethod ?: false
             ),
-            primaryActionText = submitButtonText,
+            primaryActionText = configuration?.submitButtonText,
             secondaryActionText = configuration?.cancelButton?.text,
             cancellation = POCancellationConfiguration(
                 secondaryAction = configuration?.cancelButton != null
@@ -102,10 +100,10 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         )
     }
 
-    private fun nativeAlternativePaymentConfiguration(submitButtonText: String): Options {
+    private fun nativeAlternativePaymentConfiguration(): Options {
         val paymentConfirmation = configuration?.alternativePayment?.paymentConfirmation
         return Options(
-            primaryActionText = submitButtonText,
+            primaryActionText = configuration?.submitButtonText,
             secondaryAction = configuration?.cancelButton?.toSecondaryAction(),
             paymentConfirmation = PaymentConfirmationConfiguration(
                 waitsConfirmation = true,
