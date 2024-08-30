@@ -111,8 +111,8 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     fun reset() {
-        onCleared()
         interactorScope.coroutineContext.cancelChildren()
+        handler.removeCallbacksAndMessages(null)
         latestDefaultValuesRequest = null
         captureStartTimestamp = 0L
         capturePassedTimestamp = 0L
@@ -174,8 +174,7 @@ internal class NativeAlternativePaymentInteractor(
                 enabled = false
             ),
             submitAllowed = true,
-            submitting = false,
-            submittedAtLeastOnce = false
+            submitting = false
         )
 
     private fun UserInputStateValue.toCaptureStateValue(
@@ -322,8 +321,7 @@ internal class NativeAlternativePaymentInteractor(
             UserInput(
                 stateValue.copy(
                     submitAllowed = true,
-                    submitting = false,
-                    submittedAtLeastOnce = true
+                    submitting = false
                 )
             )
         }

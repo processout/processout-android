@@ -11,6 +11,7 @@ internal data class DynamicCheckoutInteractorState(
     val selectedPaymentMethodId: String?,
     val submitActionId: String,
     val cancelActionId: String,
+    val processingPayment: Boolean,
     val errorMessage: String? = null
 ) {
 

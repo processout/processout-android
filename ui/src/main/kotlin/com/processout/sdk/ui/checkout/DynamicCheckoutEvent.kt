@@ -35,15 +35,15 @@ internal sealed interface DynamicCheckoutEvent {
     ) : DynamicCheckoutEvent
 }
 
-internal sealed interface DynamicCheckoutPaymentEvent {
+internal sealed interface DynamicCheckoutSubmitEvent {
     data class GooglePay(
         val configuration: GooglePayConfiguration
-    ) : DynamicCheckoutPaymentEvent
+    ) : DynamicCheckoutSubmitEvent
 
     data class AlternativePayment(
         val redirectUrl: String,
         val returnUrl: String
-    ) : DynamicCheckoutPaymentEvent
+    ) : DynamicCheckoutSubmitEvent
 }
 
 internal sealed interface DynamicCheckoutCompletion {

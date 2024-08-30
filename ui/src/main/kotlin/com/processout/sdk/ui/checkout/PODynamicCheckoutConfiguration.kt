@@ -3,6 +3,7 @@ package com.processout.sdk.ui.checkout
 import android.os.Parcelable
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
+import com.processout.sdk.api.model.request.POContact
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.style.*
@@ -14,19 +15,45 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class PODynamicCheckoutConfiguration(
     val invoiceRequest: POInvoiceRequest,
-    val returnUrl: String,
-    val options: Options = Options(),
+    val card: CardConfiguration = CardConfiguration(),
+    val alternativePayment: AlternativePaymentConfiguration = AlternativePaymentConfiguration(),
+    val submitButtonText: String? = null,
+    val cancelButton: CancelButton? = CancelButton(),
     val style: Style? = null
 ) : Parcelable {
 
     @Parcelize
-    data class Options(
-        val cancelButton: CancelButton? = CancelButton()
-    ) : Parcelable
+    data class CardConfiguration(
+        val billingAddress: BillingAddressConfiguration = BillingAddressConfiguration(),
+        val metadata: Map<String, String>? = null
+    ) : Parcelable {
+
+        @Parcelize
+        data class BillingAddressConfiguration(
+            val defaultAddress: POContact? = null,
+            val attachDefaultsToPaymentMethod: Boolean = false
+        ) : Parcelable
+    }
+
+    @Parcelize
+    data class AlternativePaymentConfiguration(
+        val returnUrl: String? = null,
+        val inlineSingleSelectValuesLimit: Int = 5,
+        val paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration(),
+    ) : Parcelable {
+
+        @Parcelize
+        data class PaymentConfirmationConfiguration(
+            val timeoutSeconds: Int = 3 * 60,
+            val showProgressIndicatorAfterSeconds: Int? = null,
+            val cancelButton: CancelButton? = CancelButton()
+        ) : Parcelable
+    }
 
     @Parcelize
     data class CancelButton(
         val text: String? = null,
+        val disabledForSeconds: Int = 0,
         val confirmation: POActionConfirmationConfiguration? = null
     ) : Parcelable
 
