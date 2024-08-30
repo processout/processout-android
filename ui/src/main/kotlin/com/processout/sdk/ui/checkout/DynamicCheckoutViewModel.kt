@@ -113,25 +113,46 @@ internal class DynamicCheckoutViewModel private constructor(
         cardTokenizationState: CardTokenizationViewModelState,
         nativeAlternativePaymentState: NativeAlternativePaymentViewModelState
     ): POActionState? {
-        val cancelAction = configuration.cancelButton?.toActionState(interactorState)
+        val defaultText = app.getString(R.string.po_dynamic_checkout_button_cancel)
+        val defaultCancelAction = configuration.cancelButton?.toActionState(interactorState, defaultText)
+        val defaultCancelActionText = defaultCancelAction?.text ?: defaultText
         return when (interactorState.selectedPaymentMethod()) {
             is Card -> cardTokenizationState.secondaryAction?.copy(
-                confirmation = configuration.cancelButton?.confirmation?.map()
+                text = defaultCancelActionText,
+                confirmation = defaultCancelAction?.confirmation
             )
-            is NativeAlternativePayment -> when (nativeAlternativePaymentState) {
-                is Loading -> nativeAlternativePaymentState.secondaryAction ?: cancelAction
-                is UserInput -> nativeAlternativePaymentState.secondaryAction
-                is Capture -> nativeAlternativePaymentState.secondaryAction
+            is NativeAlternativePayment -> {
+                val paymentConfirmationCancelAction = configuration.alternativePayment.paymentConfirmation
+                    .cancelButton?.toActionState(interactorState, defaultText)
+                val paymentConfirmationCancelActionText = paymentConfirmationCancelAction?.text ?: defaultText
+                when (nativeAlternativePaymentState) {
+                    is Loading -> nativeAlternativePaymentState.secondaryAction?.copy(
+                        text = paymentConfirmationCancelActionText,
+                        confirmation = paymentConfirmationCancelAction?.confirmation
+                    ) ?: defaultCancelAction
+                    is UserInput -> nativeAlternativePaymentState.secondaryAction?.copy(
+                        text = defaultCancelActionText,
+                        confirmation = defaultCancelAction?.confirmation
+                    )
+                    is Capture -> nativeAlternativePaymentState.secondaryAction?.copy(
+                        text = paymentConfirmationCancelActionText,
+                        confirmation = paymentConfirmationCancelAction?.confirmation
+                    )
+                }
             }
-            else -> cancelAction
-        }?.copy(id = interactorState.cancelActionId)
+            else -> defaultCancelAction
+        }?.copy(
+            id = interactorState.cancelActionId,
+            primary = false
+        )
     }
 
     private fun CancelButton.toActionState(
-        interactorState: DynamicCheckoutInteractorState
+        interactorState: DynamicCheckoutInteractorState,
+        defaultText: String
     ) = POActionState(
         id = interactorState.cancelActionId,
-        text = text ?: app.getString(R.string.po_dynamic_checkout_button_cancel),
+        text = text ?: defaultText,
         primary = false,
         enabled = !interactorState.processingPayment,
         confirmation = confirmation?.map()

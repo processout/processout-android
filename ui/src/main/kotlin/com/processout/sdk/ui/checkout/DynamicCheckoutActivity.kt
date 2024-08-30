@@ -94,8 +94,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                 attachDefaultsToPaymentMethod = billingAddress?.attachDefaultsToPaymentMethod ?: false
             ),
             primaryActionText = submitButtonText,
-            secondaryActionText = configuration?.cancelButton?.text
-                ?: getString(com.processout.sdk.R.string.po_dynamic_checkout_button_cancel),
+            secondaryActionText = configuration?.cancelButton?.text,
             cancellation = POCancellationConfiguration(
                 secondaryAction = configuration?.cancelButton != null
             ),
