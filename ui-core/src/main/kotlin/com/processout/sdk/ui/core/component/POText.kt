@@ -117,7 +117,7 @@ object POText {
             with(density) {
                 val componentCenterHeight = componentHeight / 2
                 val singleLineTextCenterHeight = singleLineTextMeasurement.size.height.toDp() / 2
-                val paddingTop = componentCenterHeight - singleLineTextCenterHeight + 1.dp
+                val paddingTop = componentCenterHeight - singleLineTextCenterHeight
                 if (paddingTop.value > 0) paddingTop else 0.dp
             }
         }
