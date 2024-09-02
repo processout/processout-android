@@ -97,21 +97,21 @@ object PORadioGroup {
         @Composable get() = Style(
             normal = StateStyle(
                 buttonColor = colors.input.borderDefault,
-                text = POText.body2
+                text = POText.label1
             ),
             selected = StateStyle(
                 buttonColor = colors.button.primaryBackgroundDefault,
-                text = POText.body2
+                text = POText.label1
             ),
             error = StateStyle(
                 buttonColor = colors.input.borderError,
-                text = POText.body2
+                text = POText.label1
             ),
             disabled = StateStyle(
                 buttonColor = colors.input.borderDisabled,
                 text = POText.Style(
                     color = colors.text.disabled,
-                    textStyle = typography.body2
+                    textStyle = typography.label1
                 )
             )
         )
