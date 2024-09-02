@@ -24,6 +24,7 @@ import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.Item
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
+import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
 import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.state.POActionState
@@ -296,6 +297,7 @@ internal object CardTokenizationScreen {
         val title: POText.Style,
         val sectionTitle: POText.Style,
         val field: POField.Style,
+        val checkbox: POCheckbox.Style,
         val dropdownMenu: PODropdownField.MenuStyle,
         val errorMessage: POText.Style,
         val actionsContainer: POActionsContainer.Style,
@@ -315,6 +317,9 @@ internal object CardTokenizationScreen {
         field = custom?.field?.let {
             POField.custom(style = it)
         } ?: POField.default,
+        checkbox = custom?.checkbox?.let {
+            POCheckbox.custom(style = it)
+        } ?: POCheckbox.default,
         dropdownMenu = custom?.dropdownMenu?.let {
             PODropdownField.custom(style = it)
         } ?: PODropdownField.defaultMenu,

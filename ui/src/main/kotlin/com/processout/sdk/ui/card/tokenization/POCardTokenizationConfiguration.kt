@@ -4,10 +4,7 @@ import android.os.Parcelable
 import androidx.annotation.ColorRes
 import com.processout.sdk.api.model.request.POContact
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode
-import com.processout.sdk.ui.core.style.POActionsContainerStyle
-import com.processout.sdk.ui.core.style.PODropdownMenuStyle
-import com.processout.sdk.ui.core.style.POFieldStyle
-import com.processout.sdk.ui.core.style.POTextStyle
+import com.processout.sdk.ui.core.style.*
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import kotlinx.parcelize.Parcelize
 
@@ -76,6 +73,7 @@ data class POCardTokenizationConfiguration(
      * @param[title] Title style.
      * @param[sectionTitle] Section title style.
      * @param[field] Field style.
+     * @param[checkbox] Checkbox style.
      * @param[dropdownMenu] Dropdown menu style.
      * @param[errorMessage] Error message style.
      * @param[actionsContainer] Style of action buttons and their container.
@@ -88,6 +86,7 @@ data class POCardTokenizationConfiguration(
         val title: POTextStyle? = null,
         val sectionTitle: POTextStyle? = null,
         val field: POFieldStyle? = null,
+        val checkbox: POCheckboxStyle? = null,
         val dropdownMenu: PODropdownMenuStyle? = null,
         val errorMessage: POTextStyle? = null,
         val actionsContainer: POActionsContainerStyle? = null,

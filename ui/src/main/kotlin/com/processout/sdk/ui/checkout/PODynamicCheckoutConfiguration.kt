@@ -64,6 +64,7 @@ data class PODynamicCheckoutConfiguration(
         val field: POFieldStyle? = null,
         val codeField: POFieldStyle? = null,
         val radioButton: PORadioButtonStyle? = null,
+        val checkbox: POCheckboxStyle? = null,
         val dropdownMenu: PODropdownMenuStyle? = null,
         val bodyText: POTextStyle? = null,
         val errorText: POTextStyle? = null,
