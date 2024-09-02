@@ -8,21 +8,20 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.text.rememberTextMeasurer
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.POText
-import com.processout.sdk.ui.core.component.field.radio.PORadioGroup.textPaddingTop
+import com.processout.sdk.ui.core.component.POText.measuredPaddingTop
 import com.processout.sdk.ui.core.component.field.radio.PORadioGroup.textStyle
 import com.processout.sdk.ui.core.component.field.radio.PORadioGroup.toRadioButtonStyle
 import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.PORadioButtonStateStyle
 import com.processout.sdk.ui.core.style.PORadioButtonStyle
-import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -44,7 +43,7 @@ fun PORadioGroup(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .requiredHeightIn(min = ProcessOutTheme.dimensions.formComponentMinHeight)
+                    .requiredHeightIn(min = dimensions.formComponentMinHeight)
                     .clickable(
                         onClick = onClick,
                         interactionSource = interactionSource,
@@ -61,7 +60,13 @@ fun PORadioGroup(
                 val textStyle = textStyle(style = style, selected = selected, isError = isError)
                 POText(
                     text = it.text,
-                    modifier = Modifier.padding(start = 10.dp, top = textPaddingTop(textStyle)),
+                    modifier = Modifier.padding(
+                        start = 10.dp,
+                        top = measuredPaddingTop(
+                            style = textStyle,
+                            componentHeight = dimensions.formComponentMinHeight
+                        )
+                    ),
                     color = textStyle.color,
                     style = textStyle.textStyle
                 )
@@ -89,29 +94,27 @@ object PORadioGroup {
     )
 
     val default: Style
-        @Composable get() = with(ProcessOutTheme) {
-            Style(
-                normal = StateStyle(
-                    buttonColor = colors.input.borderDefault,
-                    text = POText.body2
-                ),
-                selected = StateStyle(
-                    buttonColor = colors.button.primaryBackgroundDefault,
-                    text = POText.body2
-                ),
-                error = StateStyle(
-                    buttonColor = colors.input.borderError,
-                    text = POText.body2
-                ),
-                disabled = StateStyle(
-                    buttonColor = colors.input.borderDisabled,
-                    text = POText.Style(
-                        color = colors.text.disabled,
-                        textStyle = typography.body2
-                    )
+        @Composable get() = Style(
+            normal = StateStyle(
+                buttonColor = colors.input.borderDefault,
+                text = POText.body2
+            ),
+            selected = StateStyle(
+                buttonColor = colors.button.primaryBackgroundDefault,
+                text = POText.body2
+            ),
+            error = StateStyle(
+                buttonColor = colors.input.borderError,
+                text = POText.body2
+            ),
+            disabled = StateStyle(
+                buttonColor = colors.input.borderDisabled,
+                text = POText.Style(
+                    color = colors.text.disabled,
+                    textStyle = typography.body2
                 )
             )
-        }
+        )
 
     @Composable
     fun custom(style: PORadioButtonStyle): Style {
@@ -145,22 +148,4 @@ object PORadioGroup {
         if (isError) style.error.text
         else if (selected) style.selected.text
         else style.normal.text
-
-    @Composable
-    internal fun textPaddingTop(style: POText.Style): Dp {
-        val textMeasurer = rememberTextMeasurer()
-        val singleLineTextMeasurement = remember(style) {
-            textMeasurer.measure(text = String(), style = style.textStyle)
-        }
-        val density = LocalDensity.current
-        val formComponentHeight = ProcessOutTheme.dimensions.formComponentMinHeight
-        return remember(singleLineTextMeasurement) {
-            with(density) {
-                val formComponentCenter = formComponentHeight / 2
-                val singleLineTextCenter = singleLineTextMeasurement.size.height.toDp() / 2
-                val paddingTop = formComponentCenter - singleLineTextCenter + 1.dp
-                if (paddingTop.value > 0) paddingTop else 0.dp
-            }
-        }
-    }
 }

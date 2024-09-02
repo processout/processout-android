@@ -3,15 +3,20 @@ package com.processout.sdk.ui.core.component
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.style.POTextStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
@@ -97,6 +102,23 @@ object POText {
         color = colorResource(id = style.colorResId),
         textStyle = style.type.toTextStyle()
     )
+
+    @Composable
+    fun measuredPaddingTop(style: Style, componentHeight: Dp): Dp {
+        val textMeasurer = rememberTextMeasurer()
+        val singleLineTextMeasurement = remember(style) {
+            textMeasurer.measure(text = String(), style = style.textStyle)
+        }
+        val density = LocalDensity.current
+        return remember(singleLineTextMeasurement, componentHeight) {
+            with(density) {
+                val componentCenterHeight = componentHeight / 2
+                val singleLineTextCenterHeight = singleLineTextMeasurement.size.height.toDp() / 2
+                val paddingTop = componentCenterHeight - singleLineTextCenterHeight + 1.dp
+                if (paddingTop.value > 0) paddingTop else 0.dp
+            }
+        }
+    }
 }
 
 @Composable
