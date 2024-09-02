@@ -105,7 +105,10 @@ object PORadioGroup {
                 ),
                 disabled = StateStyle(
                     buttonColor = colors.input.borderDisabled,
-                    text = POText.body2
+                    text = POText.Style(
+                        color = colors.text.disabled,
+                        textStyle = typography.body2
+                    )
                 )
             )
         }
