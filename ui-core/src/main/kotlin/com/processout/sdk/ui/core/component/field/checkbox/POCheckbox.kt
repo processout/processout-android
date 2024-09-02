@@ -11,14 +11,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.core.component.POButton.StateStyle
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.POText.measuredPaddingTop
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox.CheckboxScale
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox.CheckboxSize
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox.colors
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox.textStyle
+import com.processout.sdk.ui.core.style.POCheckboxStateStyle
+import com.processout.sdk.ui.core.style.POCheckboxStyle
+import com.processout.sdk.ui.core.style.POCheckmarkStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
@@ -148,6 +153,27 @@ object POCheckbox {
                 )
             )
         )
+
+    @Composable
+    fun custom(style: POCheckboxStyle) = Style(
+        normal = style.normal.toStateStyle(),
+        selected = style.selected.toStateStyle(),
+        error = style.error.toStateStyle(),
+        disabled = style.disabled.toStateStyle()
+    )
+
+    @Composable
+    private fun POCheckboxStateStyle.toStateStyle() = StateStyle(
+        checkmark = checkmark.toCheckmarkStyle(),
+        text = POText.custom(style = text)
+    )
+
+    @Composable
+    private fun POCheckmarkStyle.toCheckmarkStyle() = CheckmarkStyle(
+        color = colorResource(id = colorResId),
+        borderColor = colorResource(id = borderColorResId),
+        backgroundColor = colorResource(id = backgroundColorResId)
+    )
 
     private val MaterialCheckboxSize = 20.dp
     internal val CheckboxSize = 22.dp
