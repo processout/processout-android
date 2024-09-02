@@ -63,7 +63,7 @@ fun PORadioGroup(
                     modifier = Modifier.padding(
                         start = 10.dp,
                         top = measuredPaddingTop(
-                            style = textStyle,
+                            textStyle = textStyle.textStyle,
                             componentHeight = dimensions.formComponentMinHeight
                         )
                     ),

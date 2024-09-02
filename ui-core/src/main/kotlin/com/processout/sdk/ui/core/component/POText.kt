@@ -104,10 +104,13 @@ object POText {
     )
 
     @Composable
-    fun measuredPaddingTop(style: Style, componentHeight: Dp): Dp {
+    fun measuredPaddingTop(
+        textStyle: TextStyle,
+        componentHeight: Dp
+    ): Dp {
         val textMeasurer = rememberTextMeasurer()
-        val singleLineTextMeasurement = remember(style) {
-            textMeasurer.measure(text = String(), style = style.textStyle)
+        val singleLineTextMeasurement = remember(textStyle) {
+            textMeasurer.measure(text = String(), style = textStyle)
         }
         val density = LocalDensity.current
         return remember(singleLineTextMeasurement, componentHeight) {
