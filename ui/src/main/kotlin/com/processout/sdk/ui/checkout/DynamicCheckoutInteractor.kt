@@ -339,7 +339,8 @@ internal class DynamicCheckoutInteractor(
         billingAddress = billingAddress.copy(
             mode = configuration.billingAddress.collectionMode.map(),
             countryCodes = configuration.billingAddress.restrictToCountryCodes
-        )
+        ),
+        savingAllowed = configuration.savingAllowed
     )
 
     private fun POBillingAddressCollectionMode.map() = when (this) {
