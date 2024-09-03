@@ -10,6 +10,7 @@ internal data class CardTokenizationInteractorState(
     val cardFields: List<Field>,
     val addressFields: List<Field>,
     val addressSpecification: AddressSpecification? = null,
+    val saveCardField: Field,
     val focusedFieldId: String?,
     val primaryActionId: String,
     val secondaryActionId: String,
@@ -43,6 +44,10 @@ internal data class CardTokenizationInteractorState(
         const val CITY = "city"
         const val STATE = "state"
         const val POSTAL_CODE = "postal-code"
+    }
+
+    object FieldId {
+        const val SAVE_CARD = "save-card"
     }
 
     object ActionId {

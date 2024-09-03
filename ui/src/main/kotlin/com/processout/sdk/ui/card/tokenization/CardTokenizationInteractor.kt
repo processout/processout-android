@@ -107,6 +107,11 @@ internal class CardTokenizationInteractor(
     private fun initState() = CardTokenizationInteractorState(
         cardFields = cardFields(),
         addressFields = emptyList(),
+        saveCardField = Field(
+            id = FieldId.SAVE_CARD,
+            value = TextFieldValue(text = "false"),
+            shouldCollect = configuration.savingAllowed
+        ),
         focusedFieldId = CardFieldId.NUMBER,
         primaryActionId = ActionId.SUBMIT,
         secondaryActionId = ActionId.CANCEL
@@ -187,7 +192,8 @@ internal class CardTokenizationInteractor(
                 },
                 addressFields = it.addressFields.map { field ->
                     updatedField(id, value, field, isTextChanged)
-                }
+                },
+                saveCardField = updatedField(id, value, it.saveCardField, isTextChanged)
             )
         }
         if (isTextChanged) {
@@ -462,7 +468,7 @@ internal class CardTokenizationInteractor(
         tokenize(tokenizationRequest())
     }
 
-    private fun allFields(): List<Field> = with(_state.value) { cardFields + addressFields }
+    private fun allFields(): List<Field> = with(_state.value) { cardFields + addressFields + saveCardField }
 
     private fun areAllFieldsValid(): Boolean = allFields().all { it.isValid }
 
@@ -711,7 +717,8 @@ internal class CardTokenizationInteractor(
         val addressFields = _state.value.addressFields.map { field ->
             validatedField(invalidFieldIds, field)
         }
-        val allFields = cardFields + addressFields
+        val saveCardField = validatedField(invalidFieldIds, _state.value.saveCardField)
+        val allFields = cardFields + addressFields + saveCardField
         val firstInvalidFieldId = allFields.find { !it.isValid }?.id
         _state.update { state ->
             state.copy(

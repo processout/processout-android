@@ -111,6 +111,9 @@ private fun Item(
             menuStyle = style.dropdownMenu,
             modifier = modifier
         )
+        is Item.CheckboxField -> {
+            // TODO
+        }
         is Item.Group -> Row(
             horizontalArrangement = Arrangement.spacedBy(spacing.small)
         ) {

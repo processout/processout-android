@@ -19,6 +19,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.Item
@@ -157,6 +158,12 @@ private fun Item(
             menuStyle = style.dropdownMenu,
             modifier = modifier
         )
+        is Item.CheckboxField -> CheckboxField(
+            state = item.state,
+            onEvent = onEvent,
+            style = style.checkbox,
+            modifier = modifier
+        )
         is Item.Group -> Row(
             horizontalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
         ) {
@@ -258,6 +265,31 @@ private fun DropdownField(
         menuStyle = menuStyle,
         isError = state.isError,
         placeholderText = state.placeholder
+    )
+}
+
+@Composable
+private fun CheckboxField(
+    state: FieldState,
+    onEvent: (CardTokenizationEvent) -> Unit,
+    style: POCheckbox.Style,
+    modifier: Modifier = Modifier
+) {
+    POCheckbox(
+        text = state.title ?: String(),
+        checked = state.value.text.toBooleanStrictOrNull() ?: false,
+        onCheckedChange = {
+            onEvent(
+                FieldValueChanged(
+                    id = state.id,
+                    value = TextFieldValue(text = it.toString())
+                )
+            )
+        },
+        modifier = modifier,
+        style = style,
+        enabled = state.enabled,
+        isError = state.isError
     )
 }
 
