@@ -14,7 +14,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
-import com.processout.sdk.ui.core.component.POButton.StateStyle
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.POText.measuredPaddingTop
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox.CheckboxScale
