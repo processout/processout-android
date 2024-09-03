@@ -27,7 +27,6 @@ import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.shared.component.rememberLifecycleEvent
-import com.processout.sdk.ui.shared.extension.conditional
 import com.processout.sdk.ui.shared.state.FieldState
 
 @Composable
@@ -42,6 +41,9 @@ internal fun CardTokenization(
     }
     val lifecycleEvent = rememberLifecycleEvent()
     state.sections.elements.forEachIndexed { index, section ->
+        if (index != 0) {
+            Spacer(Modifier.requiredHeight(spacing.extraLarge))
+        }
         Column(
             verticalArrangement = Arrangement.spacedBy(spacing.small)
         ) {
@@ -49,10 +51,6 @@ internal fun CardTokenization(
                 with(style.label) {
                     POText(
                         text = it,
-                        modifier = Modifier.conditional(
-                            condition = index != 0,
-                            modifier = { padding(top = spacing.extraLarge) }
-                        ),
                         color = color,
                         style = textStyle
                     )

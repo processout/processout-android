@@ -33,7 +33,6 @@ import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.component.rememberLifecycleEvent
-import com.processout.sdk.ui.shared.extension.conditional
 import com.processout.sdk.ui.shared.state.FieldState
 
 @Composable
@@ -93,6 +92,9 @@ private fun Sections(
     }
     val lifecycleEvent = rememberLifecycleEvent()
     state.sections.elements.forEachIndexed { index, section ->
+        if (index != 0) {
+            Spacer(Modifier.requiredHeight(ProcessOutTheme.spacing.extraLarge))
+        }
         Column(
             verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
         ) {
@@ -100,10 +102,6 @@ private fun Sections(
                 with(style.sectionTitle) {
                     POText(
                         text = it,
-                        modifier = Modifier.conditional(
-                            condition = index != 0,
-                            modifier = { padding(top = ProcessOutTheme.spacing.extraLarge) }
-                        ),
                         color = color,
                         style = textStyle
                     )
