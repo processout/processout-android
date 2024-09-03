@@ -18,7 +18,11 @@ internal class DefaultInvoicesRepository(
     override suspend fun authorizeInvoice(
         request: POInvoiceAuthorizationRequest
     ) = apiCall {
-        api.authorizeInvoice(request.invoiceId, request.withDeviceData())
+        api.authorizeInvoice(
+            invoiceId = request.invoiceId,
+            request = request.withDeviceData(),
+            clientSecret = request.clientSecret
+        )
     }
 
     override suspend fun initiatePayment(
