@@ -69,6 +69,8 @@ internal class CardTokenizationViewModel private constructor(
 
     val state = interactor.state.map(viewModelScope, ::map)
 
+    val interactorState = interactor.state
+
     init {
         addCloseable(interactor.interactorScope)
     }

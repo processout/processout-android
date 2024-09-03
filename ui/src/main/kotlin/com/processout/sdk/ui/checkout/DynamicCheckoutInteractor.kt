@@ -501,7 +501,10 @@ internal class DynamicCheckoutInteractor(
                 invoicesService.authorizeInvoice(
                     request = POInvoiceAuthorizationRequest(
                         invoiceId = _state.value.invoice.id,
-                        source = card.id
+                        source = card.id,
+                        saveSource = cardTokenization.interactorState.value
+                            .saveCardField.value.text.toBooleanStrictOrNull() ?: false,
+                        clientSecret = configuration.invoiceRequest.clientSecret
                     ),
                     threeDSService = threeDSService
                 )
