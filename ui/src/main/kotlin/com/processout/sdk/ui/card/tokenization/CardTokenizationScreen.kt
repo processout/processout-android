@@ -20,9 +20,11 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.Item
+import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.SectionId.FUTURE_PAYMENTS
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
@@ -92,9 +94,13 @@ private fun Sections(
     }
     val lifecycleEvent = rememberLifecycleEvent()
     state.sections.elements.forEachIndexed { index, section ->
-        if (index != 0) {
-            Spacer(Modifier.requiredHeight(ProcessOutTheme.spacing.extraLarge))
+        val padding = if (section.id == FUTURE_PAYMENTS) {
+            ProcessOutTheme.spacing.small
+        } else when (index) {
+            0 -> 0.dp
+            else -> ProcessOutTheme.spacing.extraLarge
         }
+        Spacer(Modifier.requiredHeight(padding))
         Column(
             verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
         ) {

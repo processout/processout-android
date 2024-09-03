@@ -11,9 +11,11 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.Item
+import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.SectionId.FUTURE_PAYMENTS
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.FieldFocusChanged
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.FieldValueChanged
@@ -43,9 +45,13 @@ internal fun CardTokenization(
     }
     val lifecycleEvent = rememberLifecycleEvent()
     state.sections.elements.forEachIndexed { index, section ->
-        if (index != 0) {
-            Spacer(Modifier.requiredHeight(spacing.extraLarge))
+        val padding = if (section.id == FUTURE_PAYMENTS) {
+            spacing.small
+        } else when (index) {
+            0 -> 0.dp
+            else -> spacing.extraLarge
         }
+        Spacer(Modifier.requiredHeight(padding))
         Column(
             verticalArrangement = Arrangement.spacedBy(spacing.small)
         ) {
