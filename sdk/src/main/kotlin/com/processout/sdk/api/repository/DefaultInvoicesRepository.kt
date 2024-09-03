@@ -104,6 +104,7 @@ internal class DefaultInvoicesRepository(
     private fun POInvoiceAuthorizationRequest.withDeviceData() =
         InvoiceAuthorizationRequestWithDeviceData(
             source = source,
+            saveSource = saveSource,
             incremental = incremental,
             enableThreeDS2 = enableThreeDS2,
             preferredScheme = preferredScheme,
