@@ -61,7 +61,8 @@ fun POCheckbox(
             modifier = Modifier
                 .scale(CheckboxScale)
                 .requiredWidth(CheckboxSize)
-                .requiredHeight(dimensions.formComponentMinHeight),
+                .requiredHeight(dimensions.formComponentMinHeight)
+                .offset(x = (-0.5).dp),
             enabled = enabled,
             colors = colors(
                 style = style,
