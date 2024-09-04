@@ -65,7 +65,8 @@ class DynamicCheckoutViewModel(
             _uiState.value = Submitted(
                 DynamicCheckoutUiModel(
                     invoiceId = invoice.id,
-                    clientSecret = invoice.clientSecret
+                    clientSecret = invoice.clientSecret,
+                    customerId = customerId
                 )
             )
         }.onFailure { _uiState.value = Failure(it) }

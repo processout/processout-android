@@ -14,6 +14,8 @@ class DefaultDynamicCheckoutDelegate(
     private val invoices: POInvoicesService
 ) : PODynamicCheckoutDelegate {
 
+    var customerId: String? = null
+
     override suspend fun newInvoice(
         currentInvoice: POInvoice,
         invalidationReason: PODynamicCheckoutInvoiceInvalidationReason
@@ -40,6 +42,7 @@ class DefaultDynamicCheckoutDelegate(
                 name = UUID.randomUUID().toString(),
                 amount = details.amount,
                 currency = details.currency,
+                customerId = customerId,
                 returnUrl = Constants.RETURN_URL
             )
         )

@@ -38,14 +38,16 @@ class DynamicCheckoutFragment : BaseFragment<FragmentDynamicCheckoutBinding>(
     }
 
     private lateinit var launcher: PODynamicCheckoutLauncher
+    private lateinit var delegate: DefaultDynamicCheckoutDelegate
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        delegate = DefaultDynamicCheckoutDelegate(
+            invoices = ProcessOut.instance.invoices
+        )
         launcher = PODynamicCheckoutLauncher.create(
             from = this,
-            delegate = DefaultDynamicCheckoutDelegate(
-                invoices = ProcessOut.instance.invoices
-            ),
+            delegate = delegate,
             threeDSService = createCheckout3DSService(
                 customTabLauncher = PO3DSRedirectCustomTabLauncher.create(from = this)
             ),
@@ -75,7 +77,10 @@ class DynamicCheckoutFragment : BaseFragment<FragmentDynamicCheckoutBinding>(
     private fun handle(uiState: DynamicCheckoutUiState) {
         handleControls(uiState)
         when (uiState) {
-            is Submitted -> launchDynamicCheckout(uiState.uiModel)
+            is Submitted -> {
+                delegate.customerId = uiState.uiModel.customerId
+                launchDynamicCheckout(uiState.uiModel)
+            }
             is Failure -> showAlert(uiState.failure.toMessage())
             else -> {}
         }
