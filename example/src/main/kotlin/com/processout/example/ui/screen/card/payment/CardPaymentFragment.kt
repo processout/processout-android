@@ -63,8 +63,8 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
-            dispatcher.processTokenizedCard.collect { card ->
-                viewModel.onTokenized(card)
+            dispatcher.processTokenizedCardRequest.collect { request ->
+                viewModel.onTokenized(request.card)
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {

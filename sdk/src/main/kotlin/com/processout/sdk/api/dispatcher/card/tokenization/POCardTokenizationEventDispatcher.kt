@@ -2,6 +2,7 @@ package com.processout.sdk.api.dispatcher.card.tokenization
 
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
 import com.processout.sdk.api.model.request.POCardTokenizationPreferredSchemeRequest
+import com.processout.sdk.api.model.request.POCardTokenizationProcessingRequest
 import com.processout.sdk.api.model.request.POCardTokenizationShouldContinueRequest
 import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.api.model.response.POCardTokenizationPreferredSchemeResponse
@@ -34,6 +35,17 @@ interface POCardTokenizationEventDispatcher {
      * For example to authorize an invoice or assign customer token.
      * Once you've subscribed it's required to call [complete] after processing.
      */
+    val processTokenizedCardRequest: SharedFlow<POCardTokenizationProcessingRequest>
+
+    /**
+     * Subscribe to additionally process tokenized card before completion.
+     * For example to authorize an invoice or assign customer token.
+     * Once you've subscribed it's required to call [complete] after processing.
+     */
+    @Deprecated(
+        message = "Use replacement flow.",
+        replaceWith = ReplaceWith("processTokenizedCardRequest")
+    )
     val processTokenizedCard: SharedFlow<POCard>
 
     /**

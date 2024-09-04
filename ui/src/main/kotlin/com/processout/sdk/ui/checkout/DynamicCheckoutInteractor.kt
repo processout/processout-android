@@ -496,14 +496,13 @@ internal class DynamicCheckoutInteractor(
 
     private fun collectTokenizedCard() {
         interactorScope.launch {
-            cardTokenizationEventDispatcher.processTokenizedCard.collect { card ->
+            cardTokenizationEventDispatcher.processTokenizedCardRequest.collect { request ->
                 _state.update { it.copy(processingPayment = true) }
                 invoicesService.authorizeInvoice(
                     request = POInvoiceAuthorizationRequest(
                         invoiceId = _state.value.invoice.id,
-                        source = card.id,
-                        saveSource = cardTokenization.interactorState.value
-                            .saveCardField.value.text.toBooleanStrictOrNull() ?: false,
+                        source = request.card.id,
+                        saveSource = request.saveCard,
                         clientSecret = configuration.invoiceRequest.clientSecret
                     ),
                     threeDSService = threeDSService
