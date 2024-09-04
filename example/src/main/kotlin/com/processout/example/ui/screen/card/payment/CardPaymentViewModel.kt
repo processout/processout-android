@@ -6,8 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.processout.example.shared.Constants
 import com.processout.example.ui.screen.card.payment.CardPaymentUiState.*
 import com.processout.sdk.api.ProcessOut
+import com.processout.sdk.api.model.request.POCardTokenizationProcessingRequest
 import com.processout.sdk.api.model.request.POCreateInvoiceRequest
-import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
@@ -41,7 +41,8 @@ class CardPaymentViewModel(
                         _uiState.value = Submitted(
                             CardPaymentUiModel(
                                 invoiceId = it.id,
-                                cardId = String()
+                                cardId = String(),
+                                saveCard = false
                             )
                         )
                     }
@@ -66,19 +67,21 @@ class CardPaymentViewModel(
         }
     }
 
-    fun onTokenized(card: POCard) {
+    fun onTokenized(request: POCardTokenizationProcessingRequest) {
         val uiState = _uiState.value
         if (uiState is Tokenizing) {
             _uiState.value = Tokenized(
                 uiState.uiModel.copy(
-                    cardId = card.id
+                    cardId = request.card.id,
+                    saveCard = request.saveCard
                 )
             )
         }
         if (uiState is Authorizing) {
             _uiState.value = Tokenized(
                 uiState.uiModel.copy(
-                    cardId = card.id
+                    cardId = request.card.id,
+                    saveCard = request.saveCard
                 )
             )
         }

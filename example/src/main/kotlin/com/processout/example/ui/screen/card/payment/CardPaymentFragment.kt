@@ -64,7 +64,7 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
         }
         viewLifecycleOwner.lifecycleScope.launch {
             dispatcher.processTokenizedCardRequest.collect { request ->
-                viewModel.onTokenized(request.card)
+                viewModel.onTokenized(request)
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
@@ -87,9 +87,7 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
         handleControls(uiState)
         when (uiState) {
             is Submitted -> launchCardTokenization()
-            is Tokenized -> with(uiState.uiModel) {
-                authorizeInvoice(invoiceId, cardId)
-            }
+            is Tokenized -> authorizeInvoice(uiState.uiModel)
             is Failure -> showAlert(uiState.failure.toMessage())
             else -> {}
         }
@@ -97,14 +95,19 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
 
     private fun launchCardTokenization() {
         viewModel.onTokenizing()
-        launcher.launch(POCardTokenizationConfiguration())
+        launcher.launch(
+            POCardTokenizationConfiguration(
+                savingAllowed = true
+            )
+        )
     }
 
-    private fun authorizeInvoice(invoiceId: String, cardId: String) {
+    private fun authorizeInvoice(uiModel: CardPaymentUiModel) {
         invoices.authorizeInvoice(
             request = POInvoiceAuthorizationRequest(
-                invoiceId = invoiceId,
-                source = cardId
+                invoiceId = uiModel.invoiceId,
+                source = uiModel.cardId,
+                saveSource = uiModel.saveCard
             ),
             threeDSService = create3DSService()
         )
