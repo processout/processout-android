@@ -42,6 +42,13 @@ internal data class DynamicCheckoutInteractorState(
             val gatewayConfigurationId: String,
             val display: Display
         ) : PaymentMethod
+
+        data class CustomerToken(
+            override val id: String,
+            val configuration: CustomerTokenConfiguration,
+            val display: Display,
+            val isExpress: Boolean
+        ) : PaymentMethod
     }
 
     object ActionId {
