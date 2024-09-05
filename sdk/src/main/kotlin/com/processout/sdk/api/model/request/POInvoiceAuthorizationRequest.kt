@@ -9,6 +9,7 @@ import java.util.Date
  *
  * @param invoiceId Invoice identifier to authorize.
  * @param source Payment source to use for authorization.
+ * @param saveSource If you want us to save the payment source by creating a customer token during the authorization. Only supported with card payment source.
  * @param incremental Boolean value indicating if authorization is incremental. Default value is _false_.
  * @param enableThreeDS2 Boolean value indicating whether 3DS2 is enabled. Default value is _true_.
  * @param preferredScheme Card scheme or co-scheme that should get priority if it is available.
@@ -20,11 +21,13 @@ import java.util.Date
  * @param captureAmount Amount of money to capture when partial captures are available. Note that this only applies if you are also using the [autoCaptureAt] option.
  * @param authorizeOnly Boolean value indicating whether should only authorize the invoice or also capture it. Default value is _true_.
  * @param allowFallbackToSale Boolean value indicating whether should fallback to sale if the gateway does not support separation between authorization and capture. Default value is _false_.
+ * @param clientSecret Client secret is a value of __x-processout-client-secret__ header of the invoice.
  * @param metadata Additional metadata.
  */
 data class POInvoiceAuthorizationRequest(
     val invoiceId: String,
     val source: String,
+    val saveSource: Boolean = false,
     val incremental: Boolean = false,
     val enableThreeDS2: Boolean = true,
     val preferredScheme: String? = null,
@@ -36,12 +39,15 @@ data class POInvoiceAuthorizationRequest(
     val captureAmount: String? = null,
     val authorizeOnly: Boolean = true,
     val allowFallbackToSale: Boolean = false,
+    val clientSecret: String? = null,
     val metadata: Map<String, String>? = null
 )
 
 @JsonClass(generateAdapter = true)
 internal data class InvoiceAuthorizationRequestWithDeviceData(
     val source: String,
+    @Json(name = "save_source")
+    val saveSource: Boolean,
     val incremental: Boolean,
     @Json(name = "enable_three_d_s_2")
     val enableThreeDS2: Boolean,

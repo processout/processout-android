@@ -10,9 +10,12 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.Item
+import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.SectionId.FUTURE_PAYMENTS
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.FieldFocusChanged
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.FieldValueChanged
@@ -21,13 +24,13 @@ import com.processout.sdk.ui.core.component.POExpandableText
 import com.processout.sdk.ui.core.component.PORequestFocus
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
+import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
 import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.shared.component.rememberLifecycleEvent
-import com.processout.sdk.ui.shared.extension.conditional
 import com.processout.sdk.ui.shared.state.FieldState
 
 @Composable
@@ -42,6 +45,13 @@ internal fun CardTokenization(
     }
     val lifecycleEvent = rememberLifecycleEvent()
     state.sections.elements.forEachIndexed { index, section ->
+        val padding = if (section.id == FUTURE_PAYMENTS) {
+            spacing.small
+        } else when (index) {
+            0 -> 0.dp
+            else -> spacing.extraLarge
+        }
+        Spacer(Modifier.requiredHeight(padding))
         Column(
             verticalArrangement = Arrangement.spacedBy(spacing.small)
         ) {
@@ -49,10 +59,6 @@ internal fun CardTokenization(
                 with(style.label) {
                     POText(
                         text = it,
-                        modifier = Modifier.conditional(
-                            condition = index != 0,
-                            modifier = { padding(top = spacing.extraLarge) }
-                        ),
                         color = color,
                         style = textStyle
                     )
@@ -109,6 +115,13 @@ private fun Item(
             onEvent = onEvent,
             fieldStyle = style.field,
             menuStyle = style.dropdownMenu,
+            modifier = modifier
+        )
+        is Item.CheckboxField -> CheckboxField(
+            id = id,
+            state = item.state,
+            onEvent = onEvent,
+            style = style.checkbox,
             modifier = modifier
         )
         is Item.Group -> Row(
@@ -226,6 +239,33 @@ private fun DropdownField(
         menuStyle = menuStyle,
         isError = state.isError,
         placeholderText = state.placeholder
+    )
+}
+
+@Composable
+private fun CheckboxField(
+    id: String,
+    state: FieldState,
+    onEvent: (DynamicCheckoutEvent) -> Unit,
+    style: POCheckbox.Style,
+    modifier: Modifier = Modifier
+) {
+    POCheckbox(
+        text = state.title ?: String(),
+        checked = state.value.text.toBooleanStrictOrNull() ?: false,
+        onCheckedChange = {
+            onEvent(
+                FieldValueChanged(
+                    paymentMethodId = id,
+                    fieldId = state.id,
+                    value = TextFieldValue(text = it.toString())
+                )
+            )
+        },
+        modifier = modifier,
+        style = style,
+        enabled = state.enabled,
+        isError = state.isError
     )
 }
 

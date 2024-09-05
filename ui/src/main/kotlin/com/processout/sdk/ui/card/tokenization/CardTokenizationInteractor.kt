@@ -7,11 +7,7 @@ import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
 import com.processout.sdk.api.model.event.POCardTokenizationEvent.*
-import com.processout.sdk.api.model.request.POCardTokenizationPreferredSchemeRequest
-import com.processout.sdk.api.model.request.POCardTokenizationRequest
-import com.processout.sdk.api.model.request.POCardTokenizationShouldContinueRequest
-import com.processout.sdk.api.model.request.POContact
-import com.processout.sdk.api.model.response.POCard
+import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.response.POCardIssuerInformation
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.POFailure.Code.Cancelled
@@ -107,6 +103,11 @@ internal class CardTokenizationInteractor(
     private fun initState() = CardTokenizationInteractorState(
         cardFields = cardFields(),
         addressFields = emptyList(),
+        saveCardField = Field(
+            id = FieldId.SAVE_CARD,
+            value = TextFieldValue(text = "false"),
+            shouldCollect = configuration.savingAllowed
+        ),
         focusedFieldId = CardFieldId.NUMBER,
         primaryActionId = ActionId.SUBMIT,
         secondaryActionId = ActionId.CANCEL
@@ -187,7 +188,8 @@ internal class CardTokenizationInteractor(
                 },
                 addressFields = it.addressFields.map { field ->
                     updatedField(id, value, field, isTextChanged)
-                }
+                },
+                saveCardField = updatedField(id, value, it.saveCardField, isTextChanged)
             )
         }
         if (isTextChanged) {
@@ -462,7 +464,7 @@ internal class CardTokenizationInteractor(
         tokenize(tokenizationRequest())
     }
 
-    private fun allFields(): List<Field> = with(_state.value) { cardFields + addressFields }
+    private fun allFields(): List<Field> = with(_state.value) { cardFields + addressFields + saveCardField }
 
     private fun areAllFieldsValid(): Boolean = allFields().all { it.isValid }
 
@@ -543,6 +545,7 @@ internal class CardTokenizationInteractor(
 
     //region Tokenization
 
+    @Suppress("DEPRECATION")
     private fun tokenize(request: POCardTokenizationRequest) {
         POLogger.info(message = "Submitting card information.")
         dispatch(WillTokenize)
@@ -555,14 +558,20 @@ internal class CardTokenizationInteractor(
                         attributes = mapOf(POLogAttribute.CARD_ID to card.id)
                     )
                     dispatch(DidTokenize(card))
-                    if (eventDispatcher.subscribedForProcessTokenizedCard()) {
-                        requestToProcessTokenizedCard(card)
-                    } else {
-                        POLogger.info(
-                            message = "Completed successfully.",
-                            attributes = mapOf(POLogAttribute.CARD_ID to card.id)
-                        )
-                        _completion.update { Success(card) }
+                    val subscribedForProcessing = eventDispatcher.subscribedForProcessTokenizedCardRequest()
+                    val subscribedForProcessingDeprecated = eventDispatcher.subscribedForProcessTokenizedCard()
+                    val processingRequest = POCardTokenizationProcessingRequest(
+                        card = card,
+                        saveCard = _state.value.saveCardField.value.text.toBooleanStrictOrNull() ?: false
+                    )
+                    if (subscribedForProcessing) {
+                        requestToProcessTokenizedCard(request = processingRequest, useDeprecated = false)
+                    }
+                    if (subscribedForProcessingDeprecated) {
+                        requestToProcessTokenizedCard(request = processingRequest, useDeprecated = true)
+                    }
+                    if (!subscribedForProcessing && !subscribedForProcessingDeprecated) {
+                        complete(Success(card))
                     }
                 }.onFailure { failure ->
                     if (eventDispatcher.subscribedForShouldContinueRequest()) {
@@ -574,13 +583,22 @@ internal class CardTokenizationInteractor(
         }
     }
 
-    private fun requestToProcessTokenizedCard(card: POCard) {
+    private fun requestToProcessTokenizedCard(
+        request: POCardTokenizationProcessingRequest,
+        useDeprecated: Boolean // TODO: remove when deprecated dispatcher method is removed.
+    ) {
         interactorScope.launch {
             _state.update { it.copy(focusedFieldId = null) }
-            eventDispatcher.processTokenizedCard(card)
+            initAddressFields()
+            if (useDeprecated) {
+                @Suppress("DEPRECATION")
+                eventDispatcher.processTokenizedCard(request.card)
+            } else {
+                eventDispatcher.processTokenizedCardRequest(request)
+            }
             POLogger.info(
                 message = "Requested to process tokenized card.",
-                attributes = mapOf(POLogAttribute.CARD_ID to card.id)
+                attributes = mapOf(POLogAttribute.CARD_ID to request.card.id)
             )
         }
     }
@@ -590,11 +608,7 @@ internal class CardTokenizationInteractor(
             eventDispatcher.completion.collect { result ->
                 result.onSuccess {
                     _state.value.tokenizedCard?.let { card ->
-                        POLogger.info(
-                            message = "Completed successfully.",
-                            attributes = mapOf(POLogAttribute.CARD_ID to card.id)
-                        )
-                        _completion.update { Success(card) }
+                        complete(Success(card))
                     }.orElse {
                         val failure = ProcessOutResult.Failure(
                             code = Generic(),
@@ -605,6 +619,14 @@ internal class CardTokenizationInteractor(
                 }.onFailure { handleCompletion(it) }
             }
         }
+    }
+
+    private fun complete(success: Success) {
+        POLogger.info(
+            message = "Completed successfully.",
+            attributes = mapOf(POLogAttribute.CARD_ID to success.card.id)
+        )
+        _completion.update { success }
     }
 
     private fun handleCompletion(failure: ProcessOutResult.Failure) {
@@ -711,7 +733,8 @@ internal class CardTokenizationInteractor(
         val addressFields = _state.value.addressFields.map { field ->
             validatedField(invalidFieldIds, field)
         }
-        val allFields = cardFields + addressFields
+        val saveCardField = validatedField(invalidFieldIds, _state.value.saveCardField)
+        val allFields = cardFields + addressFields + saveCardField
         val firstInvalidFieldId = allFields.find { !it.isValid }?.id
         _state.update { state ->
             state.copy(

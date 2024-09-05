@@ -4,10 +4,8 @@ import android.os.Parcelable
 import androidx.annotation.ColorRes
 import com.processout.sdk.api.model.request.POContact
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode
-import com.processout.sdk.ui.core.style.POActionsContainerStyle
-import com.processout.sdk.ui.core.style.PODropdownMenuStyle
-import com.processout.sdk.ui.core.style.POFieldStyle
-import com.processout.sdk.ui.core.style.POTextStyle
+import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.core.style.*
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import kotlinx.parcelize.Parcelize
 
@@ -18,6 +16,7 @@ import kotlinx.parcelize.Parcelize
  * @param[cvcRequired] Specifies whether the card CVC should be collected. Default value is _true_.
  * @param[isCardholderNameFieldVisible] Specifies whether the cardholder name field should be displayed. Default value is _true_.
  * @param[billingAddress] Allows to customize the collection of billing address.
+ * @param[savingAllowed] Displays checkbox that allows to save the card details for future payments.
  * @param[primaryActionText] Custom primary action text (e.g. "Submit").
  * @param[secondaryActionText] Custom secondary action text (e.g. "Cancel").
  * @param[cancellation] Specifies cancellation behaviour.
@@ -30,6 +29,7 @@ data class POCardTokenizationConfiguration(
     val cvcRequired: Boolean = true,
     val isCardholderNameFieldVisible: Boolean = true,
     val billingAddress: BillingAddressConfiguration = BillingAddressConfiguration(),
+    @ProcessOutInternalApi val savingAllowed: Boolean = false,
     val primaryActionText: String? = null,
     val secondaryActionText: String? = null,
     val cancellation: POCancellationConfiguration = POCancellationConfiguration(),
@@ -76,6 +76,7 @@ data class POCardTokenizationConfiguration(
      * @param[title] Title style.
      * @param[sectionTitle] Section title style.
      * @param[field] Field style.
+     * @param[checkbox] Checkbox style.
      * @param[dropdownMenu] Dropdown menu style.
      * @param[errorMessage] Error message style.
      * @param[actionsContainer] Style of action buttons and their container.
@@ -88,6 +89,7 @@ data class POCardTokenizationConfiguration(
         val title: POTextStyle? = null,
         val sectionTitle: POTextStyle? = null,
         val field: POFieldStyle? = null,
+        val checkbox: POCheckboxStyle? = null,
         val dropdownMenu: PODropdownMenuStyle? = null,
         val errorMessage: POTextStyle? = null,
         val actionsContainer: POActionsContainerStyle? = null,

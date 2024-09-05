@@ -107,13 +107,13 @@ internal class CardTokenizationViewModel private constructor(
     }
 
     private fun sections(state: CardTokenizationInteractorState): POImmutableList<Section> {
-        val sections = mutableListOf<Section>()
         val lastFocusableFieldId = lastFocusableFieldId(state)
-        sections.add(cardInformationSection(state, lastFocusableFieldId))
-        billingAddressSection(state, lastFocusableFieldId)?.let {
-            sections.add(it)
-        }
-        return POImmutableList(sections)
+        val sections = listOf(
+            cardInformationSection(state, lastFocusableFieldId),
+            billingAddressSection(state, lastFocusableFieldId),
+            futurePaymentsSection(state.saveCardField)
+        )
+        return POImmutableList(sections.filterNotNull())
     }
 
     private fun lastFocusableFieldId(state: CardTokenizationInteractorState): String? {
@@ -288,6 +288,22 @@ internal class CardTokenizationViewModel private constructor(
         )
     }
 
+    private fun futurePaymentsSection(saveCardField: Field): Section? {
+        if (!saveCardField.shouldCollect) {
+            return null
+        }
+        val items = listOf(
+            checkboxField(
+                field = saveCardField,
+                title = app.getString(R.string.po_card_tokenization_save_card)
+            )
+        )
+        return Section(
+            id = SectionId.FUTURE_PAYMENTS,
+            items = POImmutableList(items)
+        )
+    }
+
     private fun keyboardAction(fieldId: String, lastFocusableFieldId: String?) =
         if (fieldId == lastFocusableFieldId) {
             KeyboardAction(
@@ -337,6 +353,18 @@ internal class CardTokenizationViewModel private constructor(
                 availableValues = POImmutableList(field.availableValues ?: emptyList())
             )
         )
+
+    private fun checkboxField(
+        field: Field,
+        title: String? = null
+    ): Item = Item.CheckboxField(
+        FieldState(
+            id = field.id,
+            value = field.value,
+            title = title,
+            isError = !field.isValid
+        )
+    )
 
     private fun textField(
         field: Field,

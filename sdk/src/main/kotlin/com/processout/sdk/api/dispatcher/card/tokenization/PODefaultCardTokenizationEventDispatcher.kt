@@ -1,7 +1,10 @@
+@file:Suppress("OVERRIDE_DEPRECATION")
+
 package com.processout.sdk.api.dispatcher.card.tokenization
 
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
 import com.processout.sdk.api.model.request.POCardTokenizationPreferredSchemeRequest
+import com.processout.sdk.api.model.request.POCardTokenizationProcessingRequest
 import com.processout.sdk.api.model.request.POCardTokenizationShouldContinueRequest
 import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.api.model.response.POCardTokenizationPreferredSchemeResponse
@@ -29,6 +32,9 @@ class PODefaultCardTokenizationEventDispatcher : POCardTokenizationEventDispatch
 
     private val _shouldContinueResponse = MutableSharedFlow<POCardTokenizationShouldContinueResponse>()
     val shouldContinueResponse = _shouldContinueResponse.asSharedFlow()
+
+    private val _processTokenizedCardRequest = MutableSharedFlow<POCardTokenizationProcessingRequest>()
+    override val processTokenizedCardRequest = _processTokenizedCardRequest.asSharedFlow()
 
     private val _processTokenizedCard = MutableSharedFlow<POCard>()
     override val processTokenizedCard = _processTokenizedCard.asSharedFlow()
@@ -68,6 +74,14 @@ class PODefaultCardTokenizationEventDispatcher : POCardTokenizationEventDispatch
 
     // Process Tokenized Card
 
+    suspend fun processTokenizedCardRequest(request: POCardTokenizationProcessingRequest) {
+        _processTokenizedCardRequest.emit(request)
+    }
+
+    @Deprecated(
+        message = "Use replacement function.",
+        replaceWith = ReplaceWith("processTokenizedCardRequest(request)")
+    )
     suspend fun processTokenizedCard(card: POCard) {
         _processTokenizedCard.emit(card)
     }
@@ -76,5 +90,11 @@ class PODefaultCardTokenizationEventDispatcher : POCardTokenizationEventDispatch
         _completion.emit(result)
     }
 
+    fun subscribedForProcessTokenizedCardRequest() = _processTokenizedCardRequest.subscriptionCount.value > 0
+
+    @Deprecated(
+        message = "Use replacement function.",
+        replaceWith = ReplaceWith("subscribedForProcessTokenizedCardRequest()")
+    )
     fun subscribedForProcessTokenizedCard() = _processTokenizedCard.subscriptionCount.value > 0
 }

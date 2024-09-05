@@ -17,7 +17,8 @@ internal interface InvoicesApi {
     @POST("/invoices/{id}/authorize")
     suspend fun authorizeInvoice(
         @Path("id") invoiceId: String,
-        @Body request: InvoiceAuthorizationRequestWithDeviceData
+        @Body request: InvoiceAuthorizationRequestWithDeviceData,
+        @Header(HEADER_CLIENT_SECRET) clientSecret: String?
     ): Response<InvoiceAuthorizationResponse>
 
     @POST("/invoices/{id}/native-payment")

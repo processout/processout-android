@@ -37,6 +37,7 @@ import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.ShortAnimatio
 import com.processout.sdk.ui.core.R
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
+import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
 import com.processout.sdk.ui.core.component.field.code.POCodeField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
 import com.processout.sdk.ui.core.component.field.radio.PORadioButton
@@ -372,6 +373,7 @@ internal object DynamicCheckoutScreen {
         val field: POField.Style,
         val codeField: POField.Style,
         val radioGroup: PORadioGroup.Style,
+        val checkbox: POCheckbox.Style,
         val dropdownMenu: PODropdownField.MenuStyle,
         val bodyText: TextAndroidView.Style,
         val errorText: POText.Style,
@@ -405,6 +407,9 @@ internal object DynamicCheckoutScreen {
         radioGroup = custom?.radioButton?.let {
             PORadioGroup.custom(style = it)
         } ?: PORadioGroup.default,
+        checkbox = custom?.checkbox?.let {
+            POCheckbox.custom(style = it)
+        } ?: POCheckbox.default,
         dropdownMenu = custom?.dropdownMenu?.let {
             PODropdownField.custom(style = it)
         } ?: PODropdownField.defaultMenu,

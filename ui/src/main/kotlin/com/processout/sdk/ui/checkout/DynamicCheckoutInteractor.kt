@@ -339,7 +339,8 @@ internal class DynamicCheckoutInteractor(
         billingAddress = billingAddress.copy(
             mode = configuration.billingAddress.collectionMode.map(),
             countryCodes = configuration.billingAddress.restrictToCountryCodes
-        )
+        ),
+        savingAllowed = configuration.savingAllowed
     )
 
     private fun POBillingAddressCollectionMode.map() = when (this) {
@@ -495,12 +496,14 @@ internal class DynamicCheckoutInteractor(
 
     private fun collectTokenizedCard() {
         interactorScope.launch {
-            cardTokenizationEventDispatcher.processTokenizedCard.collect { card ->
+            cardTokenizationEventDispatcher.processTokenizedCardRequest.collect { request ->
                 _state.update { it.copy(processingPayment = true) }
                 invoicesService.authorizeInvoice(
                     request = POInvoiceAuthorizationRequest(
                         invoiceId = _state.value.invoice.id,
-                        source = card.id
+                        source = request.card.id,
+                        saveSource = request.saveCard,
+                        clientSecret = configuration.invoiceRequest.clientSecret
                     ),
                     threeDSService = threeDSService
                 )

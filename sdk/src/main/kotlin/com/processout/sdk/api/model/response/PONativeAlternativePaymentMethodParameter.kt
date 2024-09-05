@@ -43,13 +43,13 @@ data class PONativeAlternativePaymentMethodParameter(
         /** Generic text field. Any chars allowed. */
         TEXT("text"),
 
-        /** Phone field. */
+        /** Email field. */
         EMAIL("email"),
 
-        /** Email field. */
+        /** Phone number field. */
         PHONE("phone"),
 
-        /** Phone number field. */
+        /** Single select field. */
         SINGLE_SELECT("single-select"),
 
         /** Unsupported field type. */

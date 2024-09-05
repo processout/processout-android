@@ -12,7 +12,8 @@ sealed class DynamicCheckoutUiState {
 
 data class DynamicCheckoutUiModel(
     val invoiceId: String,
-    val clientSecret: String?
+    val clientSecret: String?,
+    val customerId: String?
 )
 
 data class InvoiceDetails(

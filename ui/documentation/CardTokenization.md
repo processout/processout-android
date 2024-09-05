@@ -116,11 +116,11 @@ viewModelScope.launch {
 
 lifecycleScope.launch {
     ProcessOut.instance.dispatchers.cardTokenization
-        .processTokenizedCard.collect { card ->
+        .processTokenizedCardRequest.collect { request ->
             ProcessOut.instance.invoices.authorizeInvoice(
                 request = POInvoiceAuthorizationRequest(
                     invoiceId = "iv_",
-                    source = card.id
+                    source = request.card.id
                 ),
                 threeDSService = create3DSService()
             )

@@ -27,11 +27,13 @@ internal data class CardTokenizationViewModelState(
     sealed interface Item {
         data class TextField(val state: FieldState) : Item
         data class DropdownField(val state: FieldState) : Item
+        data class CheckboxField(val state: FieldState) : Item
         data class Group(val items: POImmutableList<Item>) : Item
     }
 
     object SectionId {
         const val CARD_INFORMATION = "card-information"
         const val BILLING_ADDRESS = "billing-address"
+        const val FUTURE_PAYMENTS = "future-payments"
     }
 }

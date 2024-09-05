@@ -19,11 +19,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.Item
+import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.SectionId.FUTURE_PAYMENTS
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
+import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
 import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.state.POActionState
@@ -31,7 +35,6 @@ import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.component.rememberLifecycleEvent
-import com.processout.sdk.ui.shared.extension.conditional
 import com.processout.sdk.ui.shared.state.FieldState
 
 @Composable
@@ -91,6 +94,13 @@ private fun Sections(
     }
     val lifecycleEvent = rememberLifecycleEvent()
     state.sections.elements.forEachIndexed { index, section ->
+        val padding = if (section.id == FUTURE_PAYMENTS) {
+            ProcessOutTheme.spacing.small
+        } else when (index) {
+            0 -> 0.dp
+            else -> ProcessOutTheme.spacing.extraLarge
+        }
+        Spacer(Modifier.requiredHeight(padding))
         Column(
             verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
         ) {
@@ -98,10 +108,6 @@ private fun Sections(
                 with(style.sectionTitle) {
                     POText(
                         text = it,
-                        modifier = Modifier.conditional(
-                            condition = index != 0,
-                            modifier = { padding(top = ProcessOutTheme.spacing.extraLarge) }
-                        ),
                         color = color,
                         style = textStyle
                     )
@@ -154,6 +160,12 @@ private fun Item(
             onEvent = onEvent,
             fieldStyle = style.field,
             menuStyle = style.dropdownMenu,
+            modifier = modifier
+        )
+        is Item.CheckboxField -> CheckboxField(
+            state = item.state,
+            onEvent = onEvent,
+            style = style.checkbox,
             modifier = modifier
         )
         is Item.Group -> Row(
@@ -261,6 +273,31 @@ private fun DropdownField(
 }
 
 @Composable
+private fun CheckboxField(
+    state: FieldState,
+    onEvent: (CardTokenizationEvent) -> Unit,
+    style: POCheckbox.Style,
+    modifier: Modifier = Modifier
+) {
+    POCheckbox(
+        text = state.title ?: String(),
+        checked = state.value.text.toBooleanStrictOrNull() ?: false,
+        onCheckedChange = {
+            onEvent(
+                FieldValueChanged(
+                    id = state.id,
+                    value = TextFieldValue(text = it.toString())
+                )
+            )
+        },
+        modifier = modifier,
+        style = style,
+        enabled = state.enabled,
+        isError = state.isError
+    )
+}
+
+@Composable
 private fun AnimatedFieldIcon(@DrawableRes id: Int) {
     POAnimatedImage(
         id = id,
@@ -296,6 +333,7 @@ internal object CardTokenizationScreen {
         val title: POText.Style,
         val sectionTitle: POText.Style,
         val field: POField.Style,
+        val checkbox: POCheckbox.Style,
         val dropdownMenu: PODropdownField.MenuStyle,
         val errorMessage: POText.Style,
         val actionsContainer: POActionsContainer.Style,
@@ -315,6 +353,9 @@ internal object CardTokenizationScreen {
         field = custom?.field?.let {
             POField.custom(style = it)
         } ?: POField.default,
+        checkbox = custom?.checkbox?.let {
+            POCheckbox.custom(style = it)
+        } ?: POCheckbox.default,
         dropdownMenu = custom?.dropdownMenu?.let {
             PODropdownField.custom(style = it)
         } ?: PODropdownField.defaultMenu,
