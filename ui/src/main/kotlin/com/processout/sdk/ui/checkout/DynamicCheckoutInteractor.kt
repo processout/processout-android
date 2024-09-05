@@ -200,42 +200,42 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun List<PODynamicCheckoutPaymentMethod>.map(): List<PaymentMethod> =
-        mapIndexedNotNull { index, paymentMethod ->
+        mapNotNull { paymentMethod ->
             when (paymentMethod) {
                 is PODynamicCheckoutPaymentMethod.Card -> Card(
-                    id = index.toString(),
+                    id = "card",
                     configuration = paymentMethod.configuration,
                     display = paymentMethod.display
                 )
                 is PODynamicCheckoutPaymentMethod.GooglePay -> GooglePay(
-                    id = index.toString(),
+                    id = paymentMethod.configuration.gatewayMerchantId,
                     configuration = paymentMethod.configuration
                 )
                 is PODynamicCheckoutPaymentMethod.AlternativePayment -> {
                     val redirectUrl = paymentMethod.configuration.redirectUrl
                     if (redirectUrl != null) {
                         AlternativePayment(
-                            id = index.toString(),
+                            id = paymentMethod.configuration.gatewayConfigurationId,
                             redirectUrl = redirectUrl,
                             display = paymentMethod.display,
                             isExpress = paymentMethod.flow == express
                         )
                     } else {
                         NativeAlternativePayment(
-                            id = index.toString(),
+                            id = paymentMethod.configuration.gatewayConfigurationId,
                             gatewayConfigurationId = paymentMethod.configuration.gatewayConfigurationId,
                             display = paymentMethod.display
                         )
                     }
                 }
                 is PODynamicCheckoutPaymentMethod.CardCustomerToken -> CustomerToken(
-                    id = index.toString(),
+                    id = paymentMethod.configuration.customerTokenId,
                     configuration = paymentMethod.configuration,
                     display = paymentMethod.display,
                     isExpress = paymentMethod.flow == express
                 )
                 is PODynamicCheckoutPaymentMethod.AlternativePaymentCustomerToken -> CustomerToken(
-                    id = index.toString(),
+                    id = paymentMethod.configuration.customerTokenId,
                     configuration = paymentMethod.configuration,
                     display = paymentMethod.display,
                     isExpress = paymentMethod.flow == express
