@@ -107,7 +107,8 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
             request = POInvoiceAuthorizationRequest(
                 invoiceId = uiModel.invoiceId,
                 source = uiModel.cardId,
-                saveSource = uiModel.saveCard
+                saveSource = uiModel.saveCard,
+                clientSecret = uiModel.clientSecret
             ),
             threeDSService = create3DSService()
         )

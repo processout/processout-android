@@ -66,8 +66,7 @@ class CardPaymentViewModel(
             _uiState.value = Submitted(
                 CardPaymentUiModel(
                     invoiceId = invoice.id,
-                    cardId = String(),
-                    saveCard = false
+                    clientSecret = invoice.clientSecret
                 )
             )
         }.onFailure { _uiState.value = Failure(it) }
