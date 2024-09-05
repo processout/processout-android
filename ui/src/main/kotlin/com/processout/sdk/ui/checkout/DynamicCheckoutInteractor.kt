@@ -228,6 +228,18 @@ internal class DynamicCheckoutInteractor(
                         )
                     }
                 }
+                is PODynamicCheckoutPaymentMethod.CardCustomerToken -> CustomerToken(
+                    id = index.toString(),
+                    configuration = paymentMethod.configuration,
+                    display = paymentMethod.display,
+                    isExpress = paymentMethod.flow == express
+                )
+                is PODynamicCheckoutPaymentMethod.AlternativePaymentCustomerToken -> CustomerToken(
+                    id = index.toString(),
+                    configuration = paymentMethod.configuration,
+                    display = paymentMethod.display,
+                    isExpress = paymentMethod.flow == express
+                )
                 else -> null
             }
         }
