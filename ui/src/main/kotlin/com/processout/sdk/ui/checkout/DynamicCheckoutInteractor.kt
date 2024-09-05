@@ -438,6 +438,9 @@ internal class DynamicCheckoutInteractor(
                     )
                 }
             }
+            is CustomerToken -> {
+                // TODO
+            }
             else -> {}
         }
     }

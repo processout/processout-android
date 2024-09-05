@@ -119,13 +119,67 @@ private fun Content(
                 modifier = Modifier.padding(bottom = spacing.extraLarge),
                 horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing)
             )
-            RegularPayments(
-                payments = state.regularPayments,
-                onEvent = onEvent,
-                style = style
-            )
+            if (state.expressPayments.elements.isNotEmpty()) {
+                ExpressPayments(
+                    payments = state.expressPayments,
+                    onEvent = onEvent,
+                    style = style
+                )
+            }
+            if (state.regularPayments.elements.isNotEmpty()) {
+                RegularPayments(
+                    payments = state.regularPayments,
+                    onEvent = onEvent,
+                    style = style
+                )
+            }
         }
     }
+}
+
+@Composable
+private fun ExpressPayments(
+    payments: POImmutableList<ExpressPayment>,
+    onEvent: (DynamicCheckoutEvent) -> Unit,
+    style: DynamicCheckoutScreen.Style
+) {
+    Column(
+        modifier = Modifier.padding(bottom = spacing.extraLarge),
+        verticalArrangement = Arrangement.spacedBy(spacing.small)
+    ) {
+        payments.elements.forEach { payment ->
+            when (payment) {
+                is ExpressPayment.GooglePay -> {
+                    // TODO
+                }
+                is ExpressPayment.Express -> ExpressPayment(
+                    payment = payment,
+                    onEvent = onEvent,
+                    style = style
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ExpressPayment(
+    payment: ExpressPayment.Express,
+    onEvent: (DynamicCheckoutEvent) -> Unit,
+    style: DynamicCheckoutScreen.Style
+) {
+    POButton(
+        text = payment.name,
+        onClick = {
+            onEvent(
+                Action(
+                    actionId = payment.submitActionId,
+                    paymentMethodId = payment.id
+                )
+            )
+        },
+        modifier = Modifier.fillMaxWidth()
+    )
 }
 
 @Composable
