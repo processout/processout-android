@@ -23,6 +23,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.processout.sdk.api.model.response.POImageResource
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState
@@ -31,7 +32,7 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayme
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment.Content.NativeAlternativePayment
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.LongAnimationDurationMillis
-import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.RegularPaymentLogoSize
+import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.PaymentLogoSize
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.RowComponentSpacing
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.ShortAnimationDurationMillis
 import com.processout.sdk.ui.core.R
@@ -178,7 +179,14 @@ private fun ExpressPayment(
                 )
             )
         },
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        leadingContent = {
+            PaymentLogo(
+                logoResource = payment.logoResource,
+                fallbackBoxColor = Color.Transparent,
+                modifier = Modifier.padding(end = spacing.small)
+            )
+        }
     )
 }
 
@@ -242,31 +250,10 @@ private fun RegularPayment(
         horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        var showLogo by remember { mutableStateOf(true) }
-        if (showLogo) {
-            val logoUrl = with(payment.state.logoResource) {
-                if (isSystemInDarkTheme()) {
-                    darkUrl?.raster ?: lightUrl.raster
-                } else {
-                    lightUrl.raster
-                }
-            }
-            AsyncImage(
-                model = logoUrl,
-                contentDescription = null,
-                modifier = Modifier.requiredSize(RegularPaymentLogoSize),
-                onError = { showLogo = false }
-            )
-        } else {
-            Box(
-                modifier = Modifier
-                    .requiredSize(RegularPaymentLogoSize)
-                    .background(
-                        color = style.regularPayment.title.color,
-                        shape = shapes.roundedCornersSmall
-                    )
-            )
-        }
+        PaymentLogo(
+            logoResource = payment.state.logoResource,
+            fallbackBoxColor = style.regularPayment.title.color
+        )
         POText(
             text = payment.state.name,
             modifier = Modifier.weight(1f),
@@ -355,6 +342,39 @@ private fun RegularPaymentContent(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun PaymentLogo(
+    logoResource: POImageResource,
+    fallbackBoxColor: Color,
+    modifier: Modifier = Modifier
+) {
+    var showLogo by remember { mutableStateOf(true) }
+    if (showLogo) {
+        val logoUrl = with(logoResource) {
+            if (isSystemInDarkTheme()) {
+                darkUrl?.raster ?: lightUrl.raster
+            } else {
+                lightUrl.raster
+            }
+        }
+        AsyncImage(
+            model = logoUrl,
+            contentDescription = null,
+            modifier = modifier.requiredSize(PaymentLogoSize),
+            onError = { showLogo = false }
+        )
+    } else {
+        Box(
+            modifier = modifier
+                .requiredSize(PaymentLogoSize)
+                .background(
+                    color = fallbackBoxColor,
+                    shape = shapes.roundedCornersSmall
+                )
+        )
     }
 }
 
@@ -536,7 +556,7 @@ internal object DynamicCheckoutScreen {
 
     val RowComponentSpacing = 10.dp
 
-    val RegularPaymentLogoSize = 24.dp
+    val PaymentLogoSize = 24.dp
 
     val CaptureLogoHeight = 34.dp
 
