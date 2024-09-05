@@ -256,6 +256,7 @@ internal class DynamicCheckoutInteractor(
                 is Card -> logoUrls.addAll(it.display.logoUrls())
                 is AlternativePayment -> logoUrls.addAll(it.display.logoUrls())
                 is NativeAlternativePayment -> logoUrls.addAll(it.display.logoUrls())
+                is CustomerToken -> logoUrls.addAll(it.display.logoUrls())
                 else -> {}
             }
         }
