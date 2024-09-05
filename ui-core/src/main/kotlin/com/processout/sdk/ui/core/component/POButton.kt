@@ -40,6 +40,7 @@ fun POButton(
     style: POButton.Style = POButton.primary,
     enabled: Boolean = true,
     loading: Boolean = false,
+    leadingContent: @Composable RowScope.() -> Unit = {},
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
     val pressed by interactionSource.collectIsPressedAsState()
@@ -70,6 +71,7 @@ fun POButton(
                     )
                 }
             } else {
+                leadingContent()
                 POText(
                     text = text,
                     style = if (enabled) style.normal.text.textStyle else style.disabled.text.textStyle,
