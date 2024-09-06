@@ -1,4 +1,4 @@
-package com.processout.sdk.core.coroutine
+package com.processout.sdk.core.coroutines
 
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import kotlinx.coroutines.CoroutineScope

@@ -1,6 +1,6 @@
 package com.processout.sdk.ui.base
 
-import com.processout.sdk.core.coroutine.POCloseableCoroutineScope
+import com.processout.sdk.core.coroutines.POCloseableCoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 
