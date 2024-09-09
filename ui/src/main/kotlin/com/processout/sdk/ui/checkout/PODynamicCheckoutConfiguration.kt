@@ -59,6 +59,7 @@ data class PODynamicCheckoutConfiguration(
 
     @Parcelize
     data class Style(
+        val expressPaymentButton: POBrandButtonStyle? = null,
         val regularPayment: RegularPaymentStyle? = null,
         val label: POTextStyle? = null,
         val field: POFieldStyle? = null,

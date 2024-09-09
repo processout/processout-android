@@ -46,6 +46,7 @@ import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
 import com.processout.sdk.ui.core.component.field.radio.PORadioGroup.toRadioButtonStyle
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
+import com.processout.sdk.ui.core.style.POBrandButtonStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
@@ -442,6 +443,7 @@ internal object DynamicCheckoutScreen {
 
     @Immutable
     data class Style(
+        val expressPaymentButton: POBrandButtonStyle?,
         val regularPayment: RegularPaymentStyle,
         val label: POText.Style,
         val field: POField.Style,
@@ -468,6 +470,7 @@ internal object DynamicCheckoutScreen {
 
     @Composable
     fun style(custom: PODynamicCheckoutConfiguration.Style? = null) = Style(
+        expressPaymentButton = custom?.expressPaymentButton,
         regularPayment = custom?.regularPayment?.custom() ?: defaultRegularPayment,
         label = custom?.label?.let {
             POText.custom(style = it)
