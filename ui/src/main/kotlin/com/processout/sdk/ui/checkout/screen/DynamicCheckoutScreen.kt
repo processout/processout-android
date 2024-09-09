@@ -560,9 +560,7 @@ internal object DynamicCheckoutScreen {
     val RowComponentSpacing = 10.dp
 
     val PaymentLogoSize = 24.dp
-
     val CaptureLogoHeight = 34.dp
-
     val CaptureImageWidth = 110.dp
     val CaptureImageHeight = 140.dp
 
