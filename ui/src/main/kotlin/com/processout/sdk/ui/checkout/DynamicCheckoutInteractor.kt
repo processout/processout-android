@@ -14,11 +14,14 @@ import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceInvalidation
 import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceRequest
 import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
 import com.processout.sdk.api.model.request.POInvoiceRequest
-import com.processout.sdk.api.model.response.*
+import com.processout.sdk.api.model.response.POBillingAddressCollectionMode
 import com.processout.sdk.api.model.response.POBillingAddressCollectionMode.*
+import com.processout.sdk.api.model.response.PODynamicCheckoutInvoiceResponse
+import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.CardConfiguration
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Display
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Flow.express
+import com.processout.sdk.api.model.response.POInvoice
 import com.processout.sdk.api.model.response.POTransaction.Status.*
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.api.service.proxy3ds.POProxy3DSService
@@ -439,7 +442,20 @@ internal class DynamicCheckoutInteractor(
                 }
             }
             is CustomerToken -> {
-                // TODO
+                _state.update { it.copy(processingPayment = true) }
+                with(paymentMethod.configuration) {
+                    if (redirectUrl != null) {
+                        // TODO
+                    } else {
+                        invoicesService.authorizeInvoice(
+                            request = POInvoiceAuthorizationRequest(
+                                invoiceId = _state.value.invoice.id,
+                                source = customerTokenId
+                            ),
+                            threeDSService = threeDSService
+                        )
+                    }
+                }
             }
             else -> {}
         }
@@ -530,12 +546,14 @@ internal class DynamicCheckoutInteractor(
     private fun collectAuthorizeInvoiceResult() {
         interactorScope.launch {
             invoicesService.authorizeInvoiceResult.collect { result ->
-                when (selectedPaymentMethod()) {
-                    is Card -> cardTokenizationEventDispatcher.complete(result)
-                    is GooglePay -> {
-                        // TODO
+                val selectedPaymentMethod = selectedPaymentMethod()
+                if (selectedPaymentMethod != null) {
+                    when (selectedPaymentMethod) {
+                        is Card -> cardTokenizationEventDispatcher.complete(result)
+                        else -> {}
                     }
-                    else -> {}
+                } else {
+                    handle(result)
                 }
             }
         }
@@ -566,7 +584,7 @@ internal class DynamicCheckoutInteractor(
         }
     }
 
-    fun handle(result: ProcessOutResult<POAlternativePaymentMethodResponse>) {
+    fun handle(result: ProcessOutResult<Any>) {
         result.onSuccess {
             _completion.update { Success }
         }.onFailure { failure ->
