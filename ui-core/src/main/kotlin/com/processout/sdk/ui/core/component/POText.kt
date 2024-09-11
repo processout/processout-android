@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.style.POTextStyle
+import com.processout.sdk.ui.core.style.POTextType
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.core.theme.toTextStyle
 
@@ -102,6 +103,9 @@ object POText {
         color = colorResource(id = style.colorResId),
         textStyle = style.type.toTextStyle()
     )
+
+    @Composable
+    fun custom(type: POTextType) = type.toTextStyle()
 
     @Composable
     fun measuredPaddingTop(

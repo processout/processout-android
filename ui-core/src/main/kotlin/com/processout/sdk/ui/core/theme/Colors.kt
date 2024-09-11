@@ -64,7 +64,8 @@ data class POColors(
     )
 }
 
-internal val LightColorPalette = POColors(
+@ProcessOutInternalApi
+val POLightColorPalette = POColors(
     text = Text(
         primary = Color(0xFF121821),
         inverse = Color(0xFFFAFAFA),
@@ -104,7 +105,8 @@ internal val LightColorPalette = POColors(
     )
 )
 
-internal val DarkColorPalette = POColors(
+@ProcessOutInternalApi
+val PODarkColorPalette = POColors(
     text = Text(
         primary = Color(0xFFFAFAFA),
         inverse = Color(0xFF121821),
@@ -144,4 +146,4 @@ internal val DarkColorPalette = POColors(
     )
 )
 
-internal val LocalPOColors = staticCompositionLocalOf { LightColorPalette }
+internal val LocalPOColors = staticCompositionLocalOf { POLightColorPalette }
