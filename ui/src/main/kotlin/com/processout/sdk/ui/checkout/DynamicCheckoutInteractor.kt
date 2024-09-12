@@ -547,24 +547,18 @@ internal class DynamicCheckoutInteractor(
     private fun collectAuthorizeInvoiceResult() {
         interactorScope.launch {
             invoicesService.authorizeInvoiceResult.collect { result ->
-                selectedPaymentMethod()?.let {
-                    when (it) {
-                        is Card -> cardTokenizationEventDispatcher.complete(result)
-                        is AlternativePayment -> handleAuthorizeInvoice(result)
-                        else -> {}
+                if (selectedPaymentMethod() is Card) {
+                    cardTokenizationEventDispatcher.complete(result)
+                } else {
+                    result.onSuccess {
+                        _completion.update { Success }
+                    }.onFailure { failure ->
+                        invalidateInvoice(
+                            reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(failure)
+                        )
                     }
-                } ?: handleAuthorizeInvoice(result)
+                }
             }
-        }
-    }
-
-    private fun handleAuthorizeInvoice(result: ProcessOutResult<String>) {
-        result.onSuccess {
-            _completion.update { Success }
-        }.onFailure { failure ->
-            invalidateInvoice(
-                reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(failure)
-            )
         }
     }
 
