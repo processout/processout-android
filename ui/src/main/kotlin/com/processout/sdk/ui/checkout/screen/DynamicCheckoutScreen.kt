@@ -179,26 +179,29 @@ private fun ExpressPayment(
     onEvent: (DynamicCheckoutEvent) -> Unit,
     style: DynamicCheckoutScreen.Style
 ) {
-    POButton(
-        text = payment.name,
-        onClick = {
-            onEvent(
-                Action(
-                    actionId = payment.submitActionId,
-                    paymentMethodId = payment.id
+    with(payment.submitAction) {
+        POButton(
+            text = text,
+            onClick = {
+                onEvent(
+                    Action(
+                        actionId = id,
+                        paymentMethodId = payment.id
+                    )
                 )
-            )
-        },
-        modifier = Modifier.fillMaxWidth(),
-        style = style.expressPaymentButton.toButtonStyle(payment.brandColor),
-        leadingContent = {
-            PaymentLogo(
-                logoResource = payment.logoResource,
-                fallbackBoxColor = Color.Transparent,
-                modifier = Modifier.padding(end = spacing.small)
-            )
-        }
-    )
+            },
+            modifier = Modifier.fillMaxWidth(),
+            style = style.expressPaymentButton.toButtonStyle(payment.brandColor),
+            enabled = enabled,
+            leadingContent = {
+                PaymentLogo(
+                    logoResource = payment.logoResource,
+                    fallbackBoxColor = Color.Transparent,
+                    modifier = Modifier.padding(end = spacing.small)
+                )
+            }
+        )
+    }
 }
 
 @Composable
@@ -577,22 +580,20 @@ internal object DynamicCheckoutScreen {
             ?: if (isLightBrandColor) POLightColorPalette.text.primary else PODarkColorPalette.text.primary
         val borderColor = this?.normal?.border?.color?.resolve(isLightTheme = isLightBrandColor)
             ?: Color.Transparent
-        return POButton.primary.copy(
-            normal = this?.normal?.toStateStyle(
-                textColor = textColor,
-                borderColor = borderColor,
+        val stateStyle = this?.normal?.toStateStyle(
+            textColor = textColor,
+            borderColor = borderColor,
+            backgroundColor = resolvedBrandColor
+        ) ?: with(POButton.primary.normal) {
+            copy(
+                text = text.copy(color = textColor),
+                border = border.copy(color = borderColor),
                 backgroundColor = resolvedBrandColor
-            ) ?: with(POButton.primary.normal) {
-                copy(
-                    text = text.copy(
-                        color = textColor
-                    ),
-                    border = border.copy(
-                        color = borderColor
-                    ),
-                    backgroundColor = resolvedBrandColor
-                )
-            },
+            )
+        }
+        return POButton.Style(
+            normal = stateStyle,
+            disabled = stateStyle,
             highlighted = HighlightedStyle(
                 textColor = textColor,
                 borderColor = borderColor,
@@ -600,7 +601,8 @@ internal object DynamicCheckoutScreen {
                     ?: if (isLightBrandColor)
                         resolvedBrandColor.darker(factor = 0.08f)
                     else resolvedBrandColor.lighter(factor = 0.15f)
-            )
+            ),
+            progressIndicatorColor = textColor
         )
     }
 
