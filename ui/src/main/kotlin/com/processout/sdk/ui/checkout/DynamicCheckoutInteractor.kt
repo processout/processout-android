@@ -406,6 +406,9 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun submit(paymentMethod: PaymentMethod?) {
+        if (_state.value.processingPayment) {
+            return
+        }
         when (paymentMethod) {
             is GooglePay -> {
                 interactorScope.launch {
