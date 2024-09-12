@@ -315,24 +315,25 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun onPaymentMethodSelected(event: PaymentMethodSelected) {
-        if (event.id != _state.value.selectedPaymentMethodId) {
-            paymentMethod(event.id)?.let { paymentMethod ->
-                if (_state.value.processingPaymentMethodId != null) {
-                    invalidateInvoice(
-                        reason = PODynamicCheckoutInvoiceInvalidationReason.PaymentMethodChanged
-                    )
-                }
-                cardTokenization.reset()
-                nativeAlternativePayment.reset()
-                if (_state.value.isInvoiceValid) {
-                    start(paymentMethod)
-                }
-                _state.update {
-                    it.copy(
-                        selectedPaymentMethodId = event.id,
-                        errorMessage = null
-                    )
-                }
+        if (event.id == _state.value.selectedPaymentMethodId) {
+            return
+        }
+        paymentMethod(event.id)?.let { paymentMethod ->
+            if (_state.value.processingPaymentMethodId != null) {
+                invalidateInvoice(
+                    reason = PODynamicCheckoutInvoiceInvalidationReason.PaymentMethodChanged
+                )
+            }
+            cardTokenization.reset()
+            nativeAlternativePayment.reset()
+            if (_state.value.isInvoiceValid) {
+                start(paymentMethod)
+            }
+            _state.update {
+                it.copy(
+                    selectedPaymentMethodId = event.id,
+                    errorMessage = null
+                )
             }
         }
     }
