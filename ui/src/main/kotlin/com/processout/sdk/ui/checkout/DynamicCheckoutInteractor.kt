@@ -420,44 +420,45 @@ internal class DynamicCheckoutInteractor(
                     )
                 }
             }
-            is AlternativePayment -> {
-                val returnUrl = configuration.alternativePayment.returnUrl
-                if (returnUrl.isNullOrBlank()) {
-                    handleAlternativePayment(
-                        ProcessOutResult.Failure(
-                            code = Generic(),
-                            message = "Missing return URL in alternative payment configuration."
-                        )
-                    )
-                    return
-                }
-                interactorScope.launch {
-                    _state.update { it.copy(processingPayment = true) }
-                    _submitEvents.send(
-                        DynamicCheckoutSubmitEvent.AlternativePayment(
-                            redirectUrl = paymentMethod.redirectUrl,
-                            returnUrl = returnUrl
-                        )
-                    )
-                }
-            }
+            is AlternativePayment -> submitAlternativePayment(paymentMethod.redirectUrl)
             is CustomerToken -> {
-                _state.update { it.copy(processingPayment = true) }
-                with(paymentMethod.configuration) {
-                    if (redirectUrl != null) {
-                        // TODO
-                    } else {
-                        invoicesService.authorizeInvoice(
-                            request = POInvoiceAuthorizationRequest(
-                                invoiceId = _state.value.invoice.id,
-                                source = customerTokenId
-                            ),
-                            threeDSService = threeDSService
-                        )
-                    }
+                val redirectUrl = paymentMethod.configuration.redirectUrl
+                if (redirectUrl != null) {
+                    submitAlternativePayment(redirectUrl)
+                } else {
+                    _state.update { it.copy(processingPayment = true) }
+                    invoicesService.authorizeInvoice(
+                        request = POInvoiceAuthorizationRequest(
+                            invoiceId = _state.value.invoice.id,
+                            source = paymentMethod.configuration.customerTokenId
+                        ),
+                        threeDSService = threeDSService
+                    )
                 }
             }
             else -> {}
+        }
+    }
+
+    private fun submitAlternativePayment(redirectUrl: String) {
+        val returnUrl = configuration.alternativePayment.returnUrl
+        if (returnUrl.isNullOrBlank()) {
+            handleAlternativePayment(
+                ProcessOutResult.Failure(
+                    code = Generic(),
+                    message = "Missing return URL in alternative payment configuration."
+                )
+            )
+            return
+        }
+        interactorScope.launch {
+            _state.update { it.copy(processingPayment = true) }
+            _submitEvents.send(
+                DynamicCheckoutSubmitEvent.AlternativePayment(
+                    redirectUrl = redirectUrl,
+                    returnUrl = returnUrl
+                )
+            )
         }
     }
 
