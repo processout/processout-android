@@ -8,10 +8,11 @@ internal data class DynamicCheckoutInteractorState(
     val invoice: POInvoice,
     val isInvoiceValid: Boolean,
     val paymentMethods: List<PaymentMethod>,
-    val selectedPaymentMethodId: String?,
+    val selectedPaymentMethodId: String? = null,
+    val pendingSubmitPaymentMethodId: String? = null,
     val submitActionId: String,
     val cancelActionId: String,
-    val processingPayment: Boolean,
+    val processingPayment: Boolean = false,
     val errorMessage: String? = null
 ) {
 

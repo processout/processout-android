@@ -130,10 +130,8 @@ internal class DynamicCheckoutInteractor(
         invoice = POInvoice(id = configuration.invoiceRequest.invoiceId),
         isInvoiceValid = false,
         paymentMethods = emptyList(),
-        selectedPaymentMethodId = null,
         submitActionId = ActionId.SUBMIT,
-        cancelActionId = ActionId.CANCEL,
-        processingPayment = false
+        cancelActionId = ActionId.CANCEL
     )
 
     private fun fetchConfiguration() {
@@ -193,6 +191,15 @@ internal class DynamicCheckoutInteractor(
                                 selectedPaymentMethodId = null,
                                 errorMessage = app.getString(R.string.po_dynamic_checkout_error_method_unavailable)
                             )
+                        }
+                    }
+            }
+            _state.value.pendingSubmitPaymentMethodId?.let { id ->
+                _state.update { it.copy(pendingSubmitPaymentMethodId = null) }
+                paymentMethod(id)?.let { submit(it) }
+                    .orElse {
+                        _state.update {
+                            it.copy(errorMessage = app.getString(R.string.po_dynamic_checkout_error_method_unavailable))
                         }
                     }
             }
@@ -391,7 +398,7 @@ internal class DynamicCheckoutInteractor(
     private fun onAction(event: Action) {
         val paymentMethod = event.paymentMethodId?.let { paymentMethod(it) }
         when (event.actionId) {
-            ActionId.SUBMIT -> submit(paymentMethod)
+            ActionId.SUBMIT -> paymentMethod?.let { submit(it) }
             ActionId.CANCEL -> cancel()
             else -> when (paymentMethod) {
                 is Card -> cardTokenization.onEvent(
@@ -405,8 +412,30 @@ internal class DynamicCheckoutInteractor(
         }
     }
 
-    private fun submit(paymentMethod: PaymentMethod?) {
+    private fun PaymentMethod.isExpress(): Boolean =
+        when (this) {
+            is Card, is NativeAlternativePayment -> false
+            is GooglePay -> true
+            is AlternativePayment -> isExpress
+            is CustomerToken -> isExpress
+        }
+
+    private fun submit(paymentMethod: PaymentMethod) {
+        if (paymentMethod.isExpress()) {
+            cardTokenization.reset()
+            nativeAlternativePayment.reset()
+            _state.update {
+                it.copy(
+                    selectedPaymentMethodId = null,
+                    errorMessage = null
+                )
+            }
+        }
         if (_state.value.processingPayment) {
+            _state.update { it.copy(pendingSubmitPaymentMethodId = paymentMethod.id) }
+            invalidateInvoice(
+                reason = PODynamicCheckoutInvoiceInvalidationReason.PaymentMethodChanged
+            )
             return
         }
         when (paymentMethod) {
