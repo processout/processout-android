@@ -137,7 +137,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         dispatchBackPressed()
         alternativePaymentLauncher = POAlternativePaymentMethodCustomTabLauncher.create(
             from = this,
-            callback = viewModel::handle
+            callback = viewModel::handleAlternativePayment
         )
         setContent {
             ProcessOutTheme {

@@ -85,7 +85,9 @@ internal class DynamicCheckoutViewModel private constructor(
 
     fun onEvent(event: DynamicCheckoutEvent) = interactor.onEvent(event)
 
-    fun handle(result: ProcessOutResult<POAlternativePaymentMethodResponse>) = interactor.handle(result)
+    fun handleAlternativePayment(
+        result: ProcessOutResult<POAlternativePaymentMethodResponse>
+    ) = interactor.handleAlternativePayment(result)
 
     private fun combine(
         interactorState: DynamicCheckoutInteractorState,

@@ -14,14 +14,11 @@ import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceInvalidation
 import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceRequest
 import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
 import com.processout.sdk.api.model.request.POInvoiceRequest
-import com.processout.sdk.api.model.response.POBillingAddressCollectionMode
+import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.model.response.POBillingAddressCollectionMode.*
-import com.processout.sdk.api.model.response.PODynamicCheckoutInvoiceResponse
-import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.CardConfiguration
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Display
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Flow.express
-import com.processout.sdk.api.model.response.POInvoice
 import com.processout.sdk.api.model.response.POTransaction.Status.*
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.api.service.proxy3ds.POProxy3DSService
@@ -423,7 +420,7 @@ internal class DynamicCheckoutInteractor(
             is AlternativePayment -> {
                 val returnUrl = configuration.alternativePayment.returnUrl
                 if (returnUrl.isNullOrBlank()) {
-                    handle(
+                    handleAlternativePayment(
                         ProcessOutResult.Failure(
                             code = Generic(),
                             message = "Missing return URL in alternative payment configuration."
@@ -546,16 +543,24 @@ internal class DynamicCheckoutInteractor(
     private fun collectAuthorizeInvoiceResult() {
         interactorScope.launch {
             invoicesService.authorizeInvoiceResult.collect { result ->
-                val selectedPaymentMethod = selectedPaymentMethod()
-                if (selectedPaymentMethod != null) {
-                    when (selectedPaymentMethod) {
+                selectedPaymentMethod()?.let {
+                    when (it) {
                         is Card -> cardTokenizationEventDispatcher.complete(result)
+                        is AlternativePayment -> handleAuthorizeInvoice(result)
                         else -> {}
                     }
-                } else {
-                    handle(result)
-                }
+                } ?: handleAuthorizeInvoice(result)
             }
+        }
+    }
+
+    private fun handleAuthorizeInvoice(result: ProcessOutResult<String>) {
+        result.onSuccess {
+            _completion.update { Success }
+        }.onFailure { failure ->
+            invalidateInvoice(
+                reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(failure)
+            )
         }
     }
 
@@ -584,9 +589,17 @@ internal class DynamicCheckoutInteractor(
         }
     }
 
-    fun handle(result: ProcessOutResult<Any>) {
-        result.onSuccess {
-            _completion.update { Success }
+    fun handleAlternativePayment(result: ProcessOutResult<POAlternativePaymentMethodResponse>) {
+        result.onSuccess { response ->
+            invoicesService.authorizeInvoice(
+                request = POInvoiceAuthorizationRequest(
+                    invoiceId = _state.value.invoice.id,
+                    source = response.gatewayToken,
+                    authorizeOnly = false,
+                    allowFallbackToSale = true
+                ),
+                threeDSService = threeDSService
+            )
         }.onFailure { failure ->
             invalidateInvoice(
                 reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(failure)
