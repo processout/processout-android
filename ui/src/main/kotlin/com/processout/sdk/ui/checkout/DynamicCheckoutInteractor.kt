@@ -598,7 +598,7 @@ internal class DynamicCheckoutInteractor(
                 request = POInvoiceAuthorizationRequest(
                     invoiceId = _state.value.invoice.id,
                     source = response.gatewayToken,
-                    authorizeOnly = false,
+                    authorizeOnly = true,
                     allowFallbackToSale = true
                 ),
                 threeDSService = threeDSService
