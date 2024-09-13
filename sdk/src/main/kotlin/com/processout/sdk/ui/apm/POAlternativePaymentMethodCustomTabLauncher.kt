@@ -1,5 +1,3 @@
-@file:Suppress("MoveVariableDeclarationIntoWhen")
-
 package com.processout.sdk.ui.apm
 
 import android.net.Uri

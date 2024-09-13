@@ -190,7 +190,7 @@ internal class CardTokenizationViewModel private constructor(
                     placeholder = app.getString(R.string.po_card_tokenization_card_details_cardholder_placeholder),
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.Words,
-                        autoCorrect = false,
+                        autoCorrectEnabled = false,
                         keyboardType = KeyboardType.Text,
                         imeAction = keyboardAction.imeAction
                     ),
@@ -270,7 +270,7 @@ internal class CardTokenizationViewModel private constructor(
                     forceTextDirectionLtr = true,
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.Characters,
-                        autoCorrect = false,
+                        autoCorrectEnabled = false,
                         keyboardType = KeyboardType.Text,
                         imeAction = keyboardAction.imeAction
                     ),
