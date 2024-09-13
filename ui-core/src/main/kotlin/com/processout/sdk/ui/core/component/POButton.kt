@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package com.processout.sdk.ui.core.component
 
 import androidx.compose.foundation.BorderStroke
@@ -7,7 +5,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,7 +24,6 @@ import com.processout.sdk.ui.core.component.POButton.elevation
 import com.processout.sdk.ui.core.style.POButtonDefaults
 import com.processout.sdk.ui.core.style.POButtonStateStyle
 import com.processout.sdk.ui.core.style.POButtonStyle
-import com.processout.sdk.ui.core.theme.NoRippleTheme
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 
 /** @suppress */
@@ -44,10 +40,7 @@ fun POButton(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
     val pressed by interactionSource.collectIsPressedAsState()
-    CompositionLocalProvider(
-        LocalRippleTheme provides NoRippleTheme,
-        LocalMinimumInteractiveComponentEnforcement provides false
-    ) {
+    CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
         Button(
             onClick = onClick,
             modifier = modifier.requiredHeightIn(

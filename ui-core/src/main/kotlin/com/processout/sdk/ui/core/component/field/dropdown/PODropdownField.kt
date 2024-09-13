@@ -10,7 +10,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -134,7 +133,7 @@ private fun MenuItem(
             .clickable(
                 onClick = { onClick(availableValue) },
                 interactionSource = interactionSource,
-                indication = rememberRipple(color = style.rippleColor)
+                indication = ripple(color = style.rippleColor)
             )
             .fillMaxWidth()
             .padding(horizontal = ProcessOutTheme.spacing.large),

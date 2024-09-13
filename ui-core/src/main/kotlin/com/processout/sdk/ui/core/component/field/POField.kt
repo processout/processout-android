@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.selection.TextSelectionColors
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
@@ -174,7 +174,7 @@ object POField {
                     clickable(
                         onClick = {},
                         interactionSource = remember { MutableInteractionSource() },
-                        indication = rememberRipple(color = style.dropdownRippleColor)
+                        indication = ripple(color = style.dropdownRippleColor)
                     )
                 }
         )
