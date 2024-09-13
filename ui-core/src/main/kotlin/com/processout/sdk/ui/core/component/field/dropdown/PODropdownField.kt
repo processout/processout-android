@@ -64,7 +64,7 @@ fun PODropdownField(
                     ?.let { TextFieldValue(it.text) } ?: TextFieldValue(),
                 onValueChange = {},
                 modifier = modifier
-                    .menuAnchor()
+                    .menuAnchor(MenuAnchorType.PrimaryNotEditable)
                     .onFocusChanged {
                         isFocused = it.isFocused
                     },
