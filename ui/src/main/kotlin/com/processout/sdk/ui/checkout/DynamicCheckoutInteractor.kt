@@ -109,7 +109,7 @@ internal class DynamicCheckoutInteractor(
             state = _state.value.copy(
                 invoice = POInvoice(id = configuration.invoiceRequest.invoiceId),
                 selectedPaymentMethodId = selectedPaymentMethodId,
-                processingPayment = false,
+                processingPaymentMethodId = null,
                 errorMessage = errorMessage
             )
         )
@@ -130,10 +130,8 @@ internal class DynamicCheckoutInteractor(
         invoice = POInvoice(id = configuration.invoiceRequest.invoiceId),
         isInvoiceValid = false,
         paymentMethods = emptyList(),
-        selectedPaymentMethodId = null,
         submitActionId = ActionId.SUBMIT,
-        cancelActionId = ActionId.CANCEL,
-        processingPayment = false
+        cancelActionId = ActionId.CANCEL
     )
 
     private fun fetchConfiguration() {
@@ -196,38 +194,59 @@ internal class DynamicCheckoutInteractor(
                         }
                     }
             }
+            _state.value.pendingSubmitPaymentMethodId?.let { id ->
+                _state.update { it.copy(pendingSubmitPaymentMethodId = null) }
+                paymentMethod(id)?.let { submit(it) }
+                    .orElse {
+                        _state.update {
+                            it.copy(errorMessage = app.getString(R.string.po_dynamic_checkout_error_method_unavailable))
+                        }
+                    }
+            }
         }
     }
 
     private fun List<PODynamicCheckoutPaymentMethod>.map(): List<PaymentMethod> =
-        mapIndexedNotNull { index, paymentMethod ->
+        mapNotNull { paymentMethod ->
             when (paymentMethod) {
                 is PODynamicCheckoutPaymentMethod.Card -> Card(
-                    id = index.toString(),
+                    id = "card",
                     configuration = paymentMethod.configuration,
                     display = paymentMethod.display
                 )
                 is PODynamicCheckoutPaymentMethod.GooglePay -> GooglePay(
-                    id = index.toString(),
+                    id = paymentMethod.configuration.gatewayMerchantId,
                     configuration = paymentMethod.configuration
                 )
                 is PODynamicCheckoutPaymentMethod.AlternativePayment -> {
                     val redirectUrl = paymentMethod.configuration.redirectUrl
                     if (redirectUrl != null) {
                         AlternativePayment(
-                            id = index.toString(),
+                            id = paymentMethod.configuration.gatewayConfigurationId,
                             redirectUrl = redirectUrl,
                             display = paymentMethod.display,
                             isExpress = paymentMethod.flow == express
                         )
                     } else {
                         NativeAlternativePayment(
-                            id = index.toString(),
+                            id = paymentMethod.configuration.gatewayConfigurationId,
                             gatewayConfigurationId = paymentMethod.configuration.gatewayConfigurationId,
                             display = paymentMethod.display
                         )
                     }
                 }
+                is PODynamicCheckoutPaymentMethod.CardCustomerToken -> CustomerToken(
+                    id = paymentMethod.configuration.customerTokenId,
+                    configuration = paymentMethod.configuration,
+                    display = paymentMethod.display,
+                    isExpress = paymentMethod.flow == express
+                )
+                is PODynamicCheckoutPaymentMethod.AlternativePaymentCustomerToken -> CustomerToken(
+                    id = paymentMethod.configuration.customerTokenId,
+                    configuration = paymentMethod.configuration,
+                    display = paymentMethod.display,
+                    isExpress = paymentMethod.flow == express
+                )
                 else -> null
             }
         }
@@ -244,6 +263,7 @@ internal class DynamicCheckoutInteractor(
                 is Card -> logoUrls.addAll(it.display.logoUrls())
                 is AlternativePayment -> logoUrls.addAll(it.display.logoUrls())
                 is NativeAlternativePayment -> logoUrls.addAll(it.display.logoUrls())
+                is CustomerToken -> logoUrls.addAll(it.display.logoUrls())
                 else -> {}
             }
         }
@@ -295,24 +315,25 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun onPaymentMethodSelected(event: PaymentMethodSelected) {
-        if (event.id != _state.value.selectedPaymentMethodId) {
-            paymentMethod(event.id)?.let { paymentMethod ->
-                if (_state.value.processingPayment) {
-                    invalidateInvoice(
-                        reason = PODynamicCheckoutInvoiceInvalidationReason.PaymentMethodChanged
-                    )
-                }
-                cardTokenization.reset()
-                nativeAlternativePayment.reset()
-                if (_state.value.isInvoiceValid) {
-                    start(paymentMethod)
-                }
-                _state.update {
-                    it.copy(
-                        selectedPaymentMethodId = event.id,
-                        errorMessage = null
-                    )
-                }
+        if (event.id == _state.value.selectedPaymentMethodId) {
+            return
+        }
+        paymentMethod(event.id)?.let { paymentMethod ->
+            if (_state.value.processingPaymentMethodId != null) {
+                invalidateInvoice(
+                    reason = PODynamicCheckoutInvoiceInvalidationReason.PaymentMethodChanged
+                )
+            }
+            cardTokenization.reset()
+            nativeAlternativePayment.reset()
+            if (_state.value.isInvoiceValid) {
+                start(paymentMethod)
+            }
+            _state.update {
+                it.copy(
+                    selectedPaymentMethodId = event.id,
+                    errorMessage = null
+                )
             }
         }
     }
@@ -378,7 +399,7 @@ internal class DynamicCheckoutInteractor(
     private fun onAction(event: Action) {
         val paymentMethod = event.paymentMethodId?.let { paymentMethod(it) }
         when (event.actionId) {
-            ActionId.SUBMIT -> submit(paymentMethod)
+            ActionId.SUBMIT -> paymentMethod?.let { submit(it) }
             ActionId.CANCEL -> cancel()
             else -> when (paymentMethod) {
                 is Card -> cardTokenization.onEvent(
@@ -392,11 +413,39 @@ internal class DynamicCheckoutInteractor(
         }
     }
 
-    private fun submit(paymentMethod: PaymentMethod?) {
+    private fun PaymentMethod.isExpress(): Boolean =
+        when (this) {
+            is Card, is NativeAlternativePayment -> false
+            is GooglePay -> true
+            is AlternativePayment -> isExpress
+            is CustomerToken -> isExpress
+        }
+
+    private fun submit(paymentMethod: PaymentMethod) {
+        if (paymentMethod.id == _state.value.processingPaymentMethodId) {
+            return
+        }
+        if (paymentMethod.isExpress()) {
+            cardTokenization.reset()
+            nativeAlternativePayment.reset()
+            _state.update {
+                it.copy(
+                    selectedPaymentMethodId = null,
+                    errorMessage = null
+                )
+            }
+        }
+        if (_state.value.processingPaymentMethodId != null) {
+            _state.update { it.copy(pendingSubmitPaymentMethodId = paymentMethod.id) }
+            invalidateInvoice(
+                reason = PODynamicCheckoutInvoiceInvalidationReason.PaymentMethodChanged
+            )
+            return
+        }
         when (paymentMethod) {
             is GooglePay -> {
                 interactorScope.launch {
-                    _state.update { it.copy(processingPayment = true) }
+                    _state.update { it.copy(processingPaymentMethodId = paymentMethod.id) }
                     _submitEvents.send(
                         DynamicCheckoutSubmitEvent.GooglePay(
                             configuration = paymentMethod.configuration
@@ -404,28 +453,54 @@ internal class DynamicCheckoutInteractor(
                     )
                 }
             }
-            is AlternativePayment -> {
-                val returnUrl = configuration.alternativePayment.returnUrl
-                if (returnUrl.isNullOrBlank()) {
-                    handle(
-                        ProcessOutResult.Failure(
-                            code = Generic(),
-                            message = "Missing return URL in alternative payment configuration."
-                        )
+            is AlternativePayment -> submitAlternativePayment(
+                id = paymentMethod.id,
+                redirectUrl = paymentMethod.redirectUrl
+            )
+            is CustomerToken -> {
+                val redirectUrl = paymentMethod.configuration.redirectUrl
+                if (redirectUrl != null) {
+                    submitAlternativePayment(
+                        id = paymentMethod.id,
+                        redirectUrl = redirectUrl
                     )
-                    return
-                }
-                interactorScope.launch {
-                    _state.update { it.copy(processingPayment = true) }
-                    _submitEvents.send(
-                        DynamicCheckoutSubmitEvent.AlternativePayment(
-                            redirectUrl = paymentMethod.redirectUrl,
-                            returnUrl = returnUrl
-                        )
+                } else {
+                    _state.update { it.copy(processingPaymentMethodId = paymentMethod.id) }
+                    invoicesService.authorizeInvoice(
+                        request = POInvoiceAuthorizationRequest(
+                            invoiceId = _state.value.invoice.id,
+                            source = paymentMethod.configuration.customerTokenId
+                        ),
+                        threeDSService = threeDSService
                     )
                 }
             }
             else -> {}
+        }
+    }
+
+    private fun submitAlternativePayment(
+        id: String,
+        redirectUrl: String
+    ) {
+        val returnUrl = configuration.alternativePayment.returnUrl
+        if (returnUrl.isNullOrBlank()) {
+            handleAlternativePayment(
+                ProcessOutResult.Failure(
+                    code = Generic(),
+                    message = "Missing return URL in alternative payment configuration."
+                )
+            )
+            return
+        }
+        interactorScope.launch {
+            _state.update { it.copy(processingPaymentMethodId = id) }
+            _submitEvents.send(
+                DynamicCheckoutSubmitEvent.AlternativePayment(
+                    redirectUrl = redirectUrl,
+                    returnUrl = returnUrl
+                )
+            )
         }
     }
 
@@ -487,7 +562,7 @@ internal class DynamicCheckoutInteractor(
         interactorScope.launch {
             nativeAlternativePaymentEventDispatcher.events.collect { event ->
                 if (event is WillSubmitParameters) {
-                    _state.update { it.copy(processingPayment = true) }
+                    _state.update { it.copy(processingPaymentMethodId = selectedPaymentMethod()?.id) }
                 }
                 eventDispatcher.send(event)
             }
@@ -497,7 +572,7 @@ internal class DynamicCheckoutInteractor(
     private fun collectTokenizedCard() {
         interactorScope.launch {
             cardTokenizationEventDispatcher.processTokenizedCardRequest.collect { request ->
-                _state.update { it.copy(processingPayment = true) }
+                _state.update { it.copy(processingPaymentMethodId = selectedPaymentMethod()?.id) }
                 invoicesService.authorizeInvoice(
                     request = POInvoiceAuthorizationRequest(
                         invoiceId = _state.value.invoice.id,
@@ -514,12 +589,16 @@ internal class DynamicCheckoutInteractor(
     private fun collectAuthorizeInvoiceResult() {
         interactorScope.launch {
             invoicesService.authorizeInvoiceResult.collect { result ->
-                when (selectedPaymentMethod()) {
-                    is Card -> cardTokenizationEventDispatcher.complete(result)
-                    is GooglePay -> {
-                        // TODO
+                if (selectedPaymentMethod() is Card) {
+                    cardTokenizationEventDispatcher.complete(result)
+                } else {
+                    result.onSuccess {
+                        _completion.update { Success }
+                    }.onFailure { failure ->
+                        invalidateInvoice(
+                            reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(failure)
+                        )
                     }
-                    else -> {}
                 }
             }
         }
@@ -550,9 +629,17 @@ internal class DynamicCheckoutInteractor(
         }
     }
 
-    fun handle(result: ProcessOutResult<POAlternativePaymentMethodResponse>) {
-        result.onSuccess {
-            _completion.update { Success }
+    fun handleAlternativePayment(result: ProcessOutResult<POAlternativePaymentMethodResponse>) {
+        result.onSuccess { response ->
+            invoicesService.authorizeInvoice(
+                request = POInvoiceAuthorizationRequest(
+                    invoiceId = _state.value.invoice.id,
+                    source = response.gatewayToken,
+                    authorizeOnly = true,
+                    allowFallbackToSale = true
+                ),
+                threeDSService = threeDSService
+            )
         }.onFailure { failure ->
             invalidateInvoice(
                 reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(failure)

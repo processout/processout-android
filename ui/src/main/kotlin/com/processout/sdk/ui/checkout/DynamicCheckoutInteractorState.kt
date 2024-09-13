@@ -8,10 +8,11 @@ internal data class DynamicCheckoutInteractorState(
     val invoice: POInvoice,
     val isInvoiceValid: Boolean,
     val paymentMethods: List<PaymentMethod>,
-    val selectedPaymentMethodId: String?,
     val submitActionId: String,
     val cancelActionId: String,
-    val processingPayment: Boolean,
+    val selectedPaymentMethodId: String? = null,
+    val processingPaymentMethodId: String? = null,
+    val pendingSubmitPaymentMethodId: String? = null,
     val errorMessage: String? = null
 ) {
 
@@ -41,6 +42,13 @@ internal data class DynamicCheckoutInteractorState(
             override val id: String,
             val gatewayConfigurationId: String,
             val display: Display
+        ) : PaymentMethod
+
+        data class CustomerToken(
+            override val id: String,
+            val configuration: CustomerTokenConfiguration,
+            val display: Display,
+            val isExpress: Boolean
         ) : PaymentMethod
     }
 

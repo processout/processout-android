@@ -69,12 +69,14 @@ sealed class PODynamicCheckoutPaymentMethod {
      *
      * @param[display] UI configuration.
      * @param[configuration] Customer token payment configuration.
+     * @param[flow] Payment flow type.
      */
     @JsonClass(generateAdapter = true)
     data class CardCustomerToken(
         val display: Display,
         @Json(name = "card_customer_token")
-        val configuration: CustomerTokenConfiguration
+        val configuration: CustomerTokenConfiguration,
+        val flow: Flow?
     ) : PODynamicCheckoutPaymentMethod()
 
     /**
@@ -109,12 +111,14 @@ sealed class PODynamicCheckoutPaymentMethod {
      *
      * @param[display] UI configuration.
      * @param[configuration] Customer token payment configuration.
+     * @param[flow] Payment flow type.
      */
     @JsonClass(generateAdapter = true)
     data class AlternativePaymentCustomerToken(
         val display: Display,
         @Json(name = "apm_customer_token")
-        val configuration: CustomerTokenConfiguration
+        val configuration: CustomerTokenConfiguration,
+        val flow: Flow?
     ) : PODynamicCheckoutPaymentMethod()
 
     /**

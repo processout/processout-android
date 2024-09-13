@@ -23,6 +23,8 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.processout.sdk.api.model.response.POColor
+import com.processout.sdk.api.model.response.POImageResource
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState
@@ -31,11 +33,15 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayme
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment.Content.NativeAlternativePayment
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.LongAnimationDurationMillis
-import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.RegularPaymentLogoSize
+import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.PaymentLogoSize
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.RowComponentSpacing
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.ShortAnimationDurationMillis
+import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.toButtonStyle
 import com.processout.sdk.ui.core.R
 import com.processout.sdk.ui.core.component.*
+import com.processout.sdk.ui.core.component.POButton.HighlightedStyle
+import com.processout.sdk.ui.core.component.POButton.StateStyle
+import com.processout.sdk.ui.core.component.POText.Style
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
 import com.processout.sdk.ui.core.component.field.code.POCodeField
@@ -45,12 +51,17 @@ import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
 import com.processout.sdk.ui.core.component.field.radio.PORadioGroup.toRadioButtonStyle
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
+import com.processout.sdk.ui.core.style.POBrandButtonStateStyle
+import com.processout.sdk.ui.core.style.POBrandButtonStyle
+import com.processout.sdk.ui.core.theme.PODarkColorPalette
+import com.processout.sdk.ui.core.theme.POLightColorPalette
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 import com.processout.sdk.ui.shared.component.TextAndroidView
 import com.processout.sdk.ui.shared.component.isImeVisibleAsState
+import com.processout.sdk.ui.shared.extension.*
 
 @Composable
 internal fun DynamicCheckoutScreen(
@@ -119,12 +130,77 @@ private fun Content(
                 modifier = Modifier.padding(bottom = spacing.extraLarge),
                 horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing)
             )
-            RegularPayments(
-                payments = state.regularPayments,
-                onEvent = onEvent,
-                style = style
-            )
+            if (state.expressPayments.elements.isNotEmpty()) {
+                ExpressPayments(
+                    payments = state.expressPayments,
+                    onEvent = onEvent,
+                    style = style
+                )
+            }
+            if (state.regularPayments.elements.isNotEmpty()) {
+                RegularPayments(
+                    payments = state.regularPayments,
+                    onEvent = onEvent,
+                    style = style
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun ExpressPayments(
+    payments: POImmutableList<ExpressPayment>,
+    onEvent: (DynamicCheckoutEvent) -> Unit,
+    style: DynamicCheckoutScreen.Style
+) {
+    Column(
+        modifier = Modifier.padding(bottom = spacing.extraLarge),
+        verticalArrangement = Arrangement.spacedBy(spacing.small)
+    ) {
+        payments.elements.forEach { payment ->
+            when (payment) {
+                is ExpressPayment.GooglePay -> {
+                    // TODO
+                }
+                is ExpressPayment.Express -> ExpressPayment(
+                    payment = payment,
+                    onEvent = onEvent,
+                    style = style
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ExpressPayment(
+    payment: ExpressPayment.Express,
+    onEvent: (DynamicCheckoutEvent) -> Unit,
+    style: DynamicCheckoutScreen.Style
+) {
+    with(payment.submitAction) {
+        POButton(
+            text = text,
+            onClick = {
+                onEvent(
+                    Action(
+                        actionId = id,
+                        paymentMethodId = payment.id
+                    )
+                )
+            },
+            modifier = Modifier.fillMaxWidth(),
+            style = style.expressPaymentButton.toButtonStyle(payment.brandColor),
+            enabled = enabled,
+            leadingContent = {
+                PaymentLogo(
+                    logoResource = payment.logoResource,
+                    fallbackBoxColor = Color.Transparent,
+                    modifier = Modifier.padding(end = spacing.small)
+                )
+            }
+        )
     }
 }
 
@@ -188,31 +264,10 @@ private fun RegularPayment(
         horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        var showLogo by remember { mutableStateOf(true) }
-        if (showLogo) {
-            val logoUrl = with(payment.state.logoResource) {
-                if (isSystemInDarkTheme()) {
-                    darkUrl?.raster ?: lightUrl.raster
-                } else {
-                    lightUrl.raster
-                }
-            }
-            AsyncImage(
-                model = logoUrl,
-                contentDescription = null,
-                modifier = Modifier.requiredSize(RegularPaymentLogoSize),
-                onError = { showLogo = false }
-            )
-        } else {
-            Box(
-                modifier = Modifier
-                    .requiredSize(RegularPaymentLogoSize)
-                    .background(
-                        color = style.regularPayment.title.color,
-                        shape = shapes.roundedCornersSmall
-                    )
-            )
-        }
+        PaymentLogo(
+            logoResource = payment.state.logoResource,
+            fallbackBoxColor = style.regularPayment.title.color
+        )
         POText(
             text = payment.state.name,
             modifier = Modifier.weight(1f),
@@ -305,6 +360,39 @@ private fun RegularPaymentContent(
 }
 
 @Composable
+private fun PaymentLogo(
+    logoResource: POImageResource,
+    fallbackBoxColor: Color,
+    modifier: Modifier = Modifier
+) {
+    var showLogo by remember { mutableStateOf(true) }
+    if (showLogo) {
+        val logoUrl = with(logoResource) {
+            if (isSystemInDarkTheme()) {
+                darkUrl?.raster ?: lightUrl.raster
+            } else {
+                lightUrl.raster
+            }
+        }
+        AsyncImage(
+            model = logoUrl,
+            contentDescription = null,
+            modifier = modifier.requiredSize(PaymentLogoSize),
+            onError = { showLogo = false }
+        )
+    } else {
+        Box(
+            modifier = modifier
+                .requiredSize(PaymentLogoSize)
+                .background(
+                    color = fallbackBoxColor,
+                    shape = shapes.roundedCornersSmall
+                )
+        )
+    }
+}
+
+@Composable
 private fun Footer(
     state: DynamicCheckoutViewModelState,
     onEvent: (DynamicCheckoutEvent) -> Unit,
@@ -368,6 +456,7 @@ internal object DynamicCheckoutScreen {
 
     @Immutable
     data class Style(
+        val expressPaymentButton: POBrandButtonStyle?,
         val regularPayment: RegularPaymentStyle,
         val label: POText.Style,
         val field: POField.Style,
@@ -394,6 +483,7 @@ internal object DynamicCheckoutScreen {
 
     @Composable
     fun style(custom: PODynamicCheckoutConfiguration.Style? = null) = Style(
+        expressPaymentButton = custom?.expressPaymentButton,
         regularPayment = custom?.regularPayment?.custom() ?: defaultRegularPayment,
         label = custom?.label?.let {
             POText.custom(style = it)
@@ -442,7 +532,7 @@ internal object DynamicCheckoutScreen {
 
     private val defaultRegularPayment: RegularPaymentStyle
         @Composable get() {
-            val description = POText.Style(
+            val description = Style(
                 color = colors.text.muted,
                 textStyle = typography.body2
             )
@@ -477,15 +567,77 @@ internal object DynamicCheckoutScreen {
         )
     }
 
+    @Composable
+    fun POBrandButtonStyle?.toButtonStyle(
+        brandColor: POColor,
+        isLightTheme: Boolean = !isSystemInDarkTheme()
+    ): POButton.Style {
+        val resolvedBrandColor = this?.normal?.backgroundColorResId?.let { colorResource(id = it) }
+            ?: (if (isLightTheme) brandColor.lightColor else brandColor.darkColor)
+            ?: colors.button.primaryBackgroundDefault
+        val isLightBrandColor = resolvedBrandColor.isLight()
+        val textColor = this?.normal?.text?.color?.resolve(isLightTheme = isLightBrandColor)
+            ?: if (isLightBrandColor) POLightColorPalette.text.primary else PODarkColorPalette.text.primary
+        val borderColor = this?.normal?.border?.color?.resolve(isLightTheme = isLightBrandColor)
+            ?: Color.Transparent
+        val stateStyle = this?.normal?.toStateStyle(
+            textColor = textColor,
+            borderColor = borderColor,
+            backgroundColor = resolvedBrandColor
+        ) ?: with(POButton.primary.normal) {
+            copy(
+                text = text.copy(color = textColor),
+                border = border.copy(color = borderColor),
+                backgroundColor = resolvedBrandColor
+            )
+        }
+        return POButton.Style(
+            normal = stateStyle,
+            disabled = stateStyle,
+            highlighted = HighlightedStyle(
+                textColor = textColor,
+                borderColor = borderColor,
+                backgroundColor = this?.highlighted?.backgroundColorResId?.let { colorResource(id = it) }
+                    ?: if (isLightBrandColor)
+                        resolvedBrandColor.darker(factor = 0.08f)
+                    else resolvedBrandColor.lighter(factor = 0.15f)
+            ),
+            progressIndicatorColor = textColor
+        )
+    }
+
+    @Composable
+    private fun com.processout.sdk.ui.core.style.POColor.resolve(
+        isLightTheme: Boolean
+    ): Color = if (isLightTheme)
+        colorResource(id = lightColorResId)
+    else colorResource(id = darkColorResId)
+
+    @Composable
+    private fun POBrandButtonStateStyle.toStateStyle(
+        textColor: Color,
+        borderColor: Color,
+        backgroundColor: Color
+    ) = StateStyle(
+        text = Style(
+            color = textColor,
+            textStyle = POText.custom(type = text.type)
+        ),
+        shape = RoundedCornerShape(size = border.radiusDp.dp),
+        border = POBorderStroke(width = border.widthDp.dp, color = borderColor),
+        backgroundColor = backgroundColor,
+        elevation = elevationDp.dp,
+        paddingHorizontal = paddingHorizontalDp.dp,
+        paddingVertical = paddingVerticalDp.dp
+    )
+
     val ShortAnimationDurationMillis = 300
     val LongAnimationDurationMillis = 600
 
     val RowComponentSpacing = 10.dp
 
-    val RegularPaymentLogoSize = 24.dp
-
+    val PaymentLogoSize = 24.dp
     val CaptureLogoHeight = 34.dp
-
     val CaptureImageWidth = 110.dp
     val CaptureImageHeight = 140.dp
 

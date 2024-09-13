@@ -37,15 +37,16 @@ internal sealed interface DynamicCheckoutViewModelState {
     sealed interface ExpressPayment {
         @Immutable
         data class GooglePay(
-            val id: String
+            val id: String,
+            val submitAction: POActionState
         ) : ExpressPayment
 
         @Immutable
         data class Express(
             val id: String,
-            val name: String,
             val logoResource: POImageResource,
-            val brandColor: POColor
+            val brandColor: POColor,
+            val submitAction: POActionState
         ) : ExpressPayment
     }
 

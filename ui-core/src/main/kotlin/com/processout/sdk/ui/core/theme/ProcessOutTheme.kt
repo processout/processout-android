@@ -14,7 +14,7 @@ fun ProcessOutTheme(
     isDarkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colors = if (isDarkTheme) DarkColorPalette else LightColorPalette
+    val colors = if (isDarkTheme) PODarkColorPalette else POLightColorPalette
     CompositionLocalProvider(
         LocalPOColors provides colors,
         LocalPOTypography provides ProcessOutTheme.typography,
