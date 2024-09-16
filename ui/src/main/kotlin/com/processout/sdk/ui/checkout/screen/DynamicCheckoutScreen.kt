@@ -23,6 +23,9 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.google.pay.button.ButtonTheme
+import com.google.pay.button.ButtonType
+import com.google.pay.button.PayButton
 import com.processout.sdk.api.model.response.POColor
 import com.processout.sdk.api.model.response.POImageResource
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent
@@ -56,6 +59,7 @@ import com.processout.sdk.ui.core.style.POBrandButtonStyle
 import com.processout.sdk.ui.core.theme.PODarkColorPalette
 import com.processout.sdk.ui.core.theme.POLightColorPalette
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
@@ -67,7 +71,8 @@ import com.processout.sdk.ui.shared.extension.*
 internal fun DynamicCheckoutScreen(
     state: DynamicCheckoutViewModelState,
     onEvent: (DynamicCheckoutEvent) -> Unit,
-    style: DynamicCheckoutScreen.Style = DynamicCheckoutScreen.style()
+    style: DynamicCheckoutScreen.Style,
+    isLightTheme: Boolean
 ) {
     Column {
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
@@ -98,7 +103,8 @@ internal fun DynamicCheckoutScreen(
                     is Started -> Content(
                         state = state,
                         onEvent = onEvent,
-                        style = style
+                        style = style,
+                        isLightTheme = isLightTheme
                     )
                     else -> {}
                 }
@@ -118,7 +124,8 @@ private fun Loading(progressIndicatorColor: Color) {
 private fun Content(
     state: Started,
     onEvent: (DynamicCheckoutEvent) -> Unit,
-    style: DynamicCheckoutScreen.Style
+    style: DynamicCheckoutScreen.Style,
+    isLightTheme: Boolean
 ) {
     AnimatedVisibility {
         Column(
@@ -134,14 +141,16 @@ private fun Content(
                 ExpressPayments(
                     payments = state.expressPayments,
                     onEvent = onEvent,
-                    style = style
+                    style = style,
+                    isLightTheme = isLightTheme
                 )
             }
             if (state.regularPayments.elements.isNotEmpty()) {
                 RegularPayments(
                     payments = state.regularPayments,
                     onEvent = onEvent,
-                    style = style
+                    style = style,
+                    isLightTheme = isLightTheme
                 )
             }
         }
@@ -152,7 +161,8 @@ private fun Content(
 private fun ExpressPayments(
     payments: POImmutableList<ExpressPayment>,
     onEvent: (DynamicCheckoutEvent) -> Unit,
-    style: DynamicCheckoutScreen.Style
+    style: DynamicCheckoutScreen.Style,
+    isLightTheme: Boolean
 ) {
     Column(
         modifier = Modifier.padding(bottom = spacing.extraLarge),
@@ -160,13 +170,17 @@ private fun ExpressPayments(
     ) {
         payments.elements.forEach { payment ->
             when (payment) {
-                is ExpressPayment.GooglePay -> {
-                    // TODO
-                }
+                is ExpressPayment.GooglePay -> GooglePay(
+                    payment = payment,
+                    onEvent = onEvent,
+                    style = style,
+                    isLightTheme = isLightTheme
+                )
                 is ExpressPayment.Express -> ExpressPayment(
                     payment = payment,
                     onEvent = onEvent,
-                    style = style
+                    style = style,
+                    isLightTheme = isLightTheme
                 )
             }
         }
@@ -174,10 +188,30 @@ private fun ExpressPayments(
 }
 
 @Composable
+private fun GooglePay(
+    payment: ExpressPayment.GooglePay,
+    onEvent: (DynamicCheckoutEvent) -> Unit,
+    style: DynamicCheckoutScreen.Style,
+    isLightTheme: Boolean
+) {
+    PayButton(
+        onClick = {},
+        allowedPaymentMethods = String(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .requiredHeight(dimensions.interactiveComponentMinSize),
+        theme = if (isLightTheme) ButtonTheme.Dark else ButtonTheme.Light,
+        type = ButtonType.Pay,
+        radius = 4.dp
+    )
+}
+
+@Composable
 private fun ExpressPayment(
     payment: ExpressPayment.Express,
     onEvent: (DynamicCheckoutEvent) -> Unit,
-    style: DynamicCheckoutScreen.Style
+    style: DynamicCheckoutScreen.Style,
+    isLightTheme: Boolean
 ) {
     with(payment.submitAction) {
         POButton(
@@ -191,13 +225,17 @@ private fun ExpressPayment(
                 )
             },
             modifier = Modifier.fillMaxWidth(),
-            style = style.expressPaymentButton.toButtonStyle(payment.brandColor),
+            style = style.expressPaymentButton.toButtonStyle(
+                brandColor = payment.brandColor,
+                isLightTheme = isLightTheme
+            ),
             enabled = enabled,
             leadingContent = {
                 PaymentLogo(
                     logoResource = payment.logoResource,
                     fallbackBoxColor = Color.Transparent,
-                    modifier = Modifier.padding(end = spacing.small)
+                    modifier = Modifier.padding(end = spacing.small),
+                    isLightTheme = isLightTheme
                 )
             }
         )
@@ -208,7 +246,8 @@ private fun ExpressPayment(
 private fun RegularPayments(
     payments: POImmutableList<RegularPayment>,
     onEvent: (DynamicCheckoutEvent) -> Unit,
-    style: DynamicCheckoutScreen.Style
+    style: DynamicCheckoutScreen.Style,
+    isLightTheme: Boolean
 ) {
     val borderWidth = style.regularPayment.border.width
     val containerShape = style.regularPayment.shape
@@ -226,7 +265,8 @@ private fun RegularPayments(
             RegularPayment(
                 payment = payment,
                 onEvent = onEvent,
-                style = style
+                style = style,
+                isLightTheme = isLightTheme
             )
             RegularPaymentContent(
                 payment = payment,
@@ -247,7 +287,8 @@ private fun RegularPayments(
 private fun RegularPayment(
     payment: RegularPayment,
     onEvent: (DynamicCheckoutEvent) -> Unit,
-    style: DynamicCheckoutScreen.Style
+    style: DynamicCheckoutScreen.Style,
+    isLightTheme: Boolean
 ) {
     Row(
         modifier = Modifier
@@ -266,7 +307,8 @@ private fun RegularPayment(
     ) {
         PaymentLogo(
             logoResource = payment.state.logoResource,
-            fallbackBoxColor = style.regularPayment.title.color
+            fallbackBoxColor = style.regularPayment.title.color,
+            isLightTheme = isLightTheme
         )
         POText(
             text = payment.state.name,
@@ -363,15 +405,16 @@ private fun RegularPaymentContent(
 private fun PaymentLogo(
     logoResource: POImageResource,
     fallbackBoxColor: Color,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isLightTheme: Boolean
 ) {
     var showLogo by remember { mutableStateOf(true) }
     if (showLogo) {
         val logoUrl = with(logoResource) {
-            if (isSystemInDarkTheme()) {
-                darkUrl?.raster ?: lightUrl.raster
-            } else {
+            if (isLightTheme) {
                 lightUrl.raster
+            } else {
+                darkUrl?.raster ?: lightUrl.raster
             }
         }
         AsyncImage(
@@ -570,7 +613,7 @@ internal object DynamicCheckoutScreen {
     @Composable
     fun POBrandButtonStyle?.toButtonStyle(
         brandColor: POColor,
-        isLightTheme: Boolean = !isSystemInDarkTheme()
+        isLightTheme: Boolean
     ): POButton.Style {
         val resolvedBrandColor = this?.normal?.backgroundColorResId?.let { colorResource(id = it) }
             ?: (if (isLightTheme) brandColor.lightColor else brandColor.darkColor)

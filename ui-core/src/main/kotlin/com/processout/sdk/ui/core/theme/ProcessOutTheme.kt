@@ -11,10 +11,10 @@ import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 @ProcessOutInternalApi
 @Composable
 fun ProcessOutTheme(
-    isDarkTheme: Boolean = isSystemInDarkTheme(),
+    isLightTheme: Boolean = !isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colors = if (isDarkTheme) PODarkColorPalette else POLightColorPalette
+    val colors = if (isLightTheme) POLightColorPalette else PODarkColorPalette
     CompositionLocalProvider(
         LocalPOColors provides colors,
         LocalPOTypography provides ProcessOutTheme.typography,
