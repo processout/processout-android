@@ -21,6 +21,7 @@ import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Disp
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Flow.express
 import com.processout.sdk.api.model.response.POTransaction.Status.*
 import com.processout.sdk.api.service.POInvoicesService
+import com.processout.sdk.api.service.googlepay.POGooglePayService
 import com.processout.sdk.api.service.proxy3ds.POProxy3DSService
 import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.POFailure.Code.Generic
@@ -55,6 +56,7 @@ internal class DynamicCheckoutInteractor(
     private var configuration: PODynamicCheckoutConfiguration,
     private val invoicesService: POInvoicesService,
     private val threeDSService: POProxy3DSService,
+    private val googlePayService: POGooglePayService,
     private val cardTokenization: CardTokenizationViewModel,
     private val cardTokenizationEventDispatcher: PODefaultCardTokenizationEventDispatcher,
     private val nativeAlternativePayment: NativeAlternativePaymentViewModel,

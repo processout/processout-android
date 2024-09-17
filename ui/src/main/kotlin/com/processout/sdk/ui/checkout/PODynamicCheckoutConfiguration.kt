@@ -3,6 +3,7 @@ package com.processout.sdk.ui.checkout
 import android.os.Parcelable
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
+import com.google.android.gms.wallet.WalletConstants
 import com.processout.sdk.api.model.request.POContact
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
@@ -16,6 +17,7 @@ import kotlinx.parcelize.Parcelize
 data class PODynamicCheckoutConfiguration(
     val invoiceRequest: POInvoiceRequest,
     val card: CardConfiguration = CardConfiguration(),
+    val googlePay: GooglePayConfiguration = GooglePayConfiguration(),
     val alternativePayment: AlternativePaymentConfiguration = AlternativePaymentConfiguration(),
     val submitButtonText: String? = null,
     val cancelButton: CancelButton? = CancelButton(),
@@ -33,6 +35,18 @@ data class PODynamicCheckoutConfiguration(
             val defaultAddress: POContact? = null,
             val attachDefaultsToPaymentMethod: Boolean = false
         ) : Parcelable
+    }
+
+    @Parcelize
+    data class GooglePayConfiguration(
+        val environment: Environment = Environment.TEST
+    ) : Parcelable {
+
+        @Parcelize
+        enum class Environment(val value: Int) : Parcelable {
+            TEST(WalletConstants.ENVIRONMENT_TEST),
+            PRODUCTION(WalletConstants.ENVIRONMENT_PRODUCTION)
+        }
     }
 
     @Parcelize

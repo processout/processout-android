@@ -4,12 +4,14 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.wallet.Wallet.WalletOptions
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Display
+import com.processout.sdk.api.service.googlepay.PODefaultGooglePayService
 import com.processout.sdk.api.service.proxy3ds.PODefaultProxy3DSService
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
@@ -55,6 +57,12 @@ internal class DynamicCheckoutViewModel private constructor(
                     configuration = configuration,
                     invoicesService = ProcessOut.instance.invoices,
                     threeDSService = PODefaultProxy3DSService(),
+                    googlePayService = PODefaultGooglePayService(
+                        application = app,
+                        walletOptions = WalletOptions.Builder()
+                            .setEnvironment(configuration.googlePay.environment.value)
+                            .build()
+                    ),
                     cardTokenization = cardTokenization,
                     cardTokenizationEventDispatcher = cardTokenizationEventDispatcher,
                     nativeAlternativePayment = nativeAlternativePayment,
