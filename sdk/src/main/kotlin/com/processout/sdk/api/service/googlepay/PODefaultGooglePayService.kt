@@ -13,6 +13,7 @@ import com.processout.sdk.core.logger.POLogger
 import kotlinx.coroutines.tasks.await
 import org.json.JSONObject
 
+/** @suppress */
 @ProcessOutInternalApi
 class PODefaultGooglePayService(
     application: Application,

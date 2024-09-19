@@ -6,6 +6,7 @@ import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import org.json.JSONArray
 import org.json.JSONObject
 
+/** @suppress */
 @ProcessOutInternalApi
 object POGooglePayRequestBuilder {
 

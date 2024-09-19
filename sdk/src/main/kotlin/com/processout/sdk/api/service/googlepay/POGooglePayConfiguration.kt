@@ -2,6 +2,7 @@ package com.processout.sdk.api.service.googlepay
 
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 
+/** @suppress */
 @ProcessOutInternalApi
 data class POGooglePayConfiguration(
     val gateway: String,

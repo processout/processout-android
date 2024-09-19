@@ -5,6 +5,7 @@ import com.google.android.gms.wallet.PaymentData
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import org.json.JSONObject
 
+/** @suppress */
 @ProcessOutInternalApi
 interface POGooglePayService {
 
