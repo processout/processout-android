@@ -552,13 +552,7 @@ internal class DynamicCheckoutInteractor(
                     )
                 } else {
                     _state.update { it.copy(processingPaymentMethodId = paymentMethod.id) }
-                    invoicesService.authorizeInvoice(
-                        request = POInvoiceAuthorizationRequest(
-                            invoiceId = _state.value.invoice.id,
-                            source = paymentMethod.configuration.customerTokenId
-                        ),
-                        threeDSService = threeDSService
-                    )
+                    authorizeInvoice(source = paymentMethod.configuration.customerTokenId)
                 }
             }
             else -> {}
@@ -659,17 +653,31 @@ internal class DynamicCheckoutInteractor(
         interactorScope.launch {
             cardTokenizationEventDispatcher.processTokenizedCardRequest.collect { request ->
                 _state.update { it.copy(processingPaymentMethodId = selectedPaymentMethod()?.id) }
-                invoicesService.authorizeInvoice(
-                    request = POInvoiceAuthorizationRequest(
-                        invoiceId = _state.value.invoice.id,
-                        source = request.card.id,
-                        saveSource = request.saveCard,
-                        clientSecret = configuration.invoiceRequest.clientSecret
-                    ),
-                    threeDSService = threeDSService
+                authorizeInvoice(
+                    source = request.card.id,
+                    saveSource = request.saveCard,
+                    clientSecret = configuration.invoiceRequest.clientSecret
                 )
             }
         }
+    }
+
+    private fun authorizeInvoice(
+        source: String,
+        saveSource: Boolean = false,
+        allowFallbackToSale: Boolean = false,
+        clientSecret: String? = null
+    ) {
+        invoicesService.authorizeInvoice(
+            request = POInvoiceAuthorizationRequest(
+                invoiceId = _state.value.invoice.id,
+                source = source,
+                saveSource = saveSource,
+                allowFallbackToSale = allowFallbackToSale,
+                clientSecret = clientSecret
+            ),
+            threeDSService = threeDSService
+        )
     }
 
     private fun collectAuthorizeInvoiceResult() {
@@ -717,13 +725,7 @@ internal class DynamicCheckoutInteractor(
 
     fun handleGooglePay(result: ProcessOutResult<POGooglePayCardTokenizationData>) {
         result.onSuccess { response ->
-            invoicesService.authorizeInvoice(
-                request = POInvoiceAuthorizationRequest(
-                    invoiceId = _state.value.invoice.id,
-                    source = response.card.id
-                ),
-                threeDSService = threeDSService
-            )
+            authorizeInvoice(source = response.card.id)
         }.onFailure { failure ->
             invalidateInvoice(
                 reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(failure)
@@ -733,14 +735,9 @@ internal class DynamicCheckoutInteractor(
 
     fun handleAlternativePayment(result: ProcessOutResult<POAlternativePaymentMethodResponse>) {
         result.onSuccess { response ->
-            invoicesService.authorizeInvoice(
-                request = POInvoiceAuthorizationRequest(
-                    invoiceId = _state.value.invoice.id,
-                    source = response.gatewayToken,
-                    authorizeOnly = true,
-                    allowFallbackToSale = true
-                ),
-                threeDSService = threeDSService
+            authorizeInvoice(
+                source = response.gatewayToken,
+                allowFallbackToSale = true
             )
         }.onFailure { failure ->
             invalidateInvoice(
