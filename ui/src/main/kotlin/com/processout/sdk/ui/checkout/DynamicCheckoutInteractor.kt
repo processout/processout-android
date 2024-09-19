@@ -113,7 +113,8 @@ internal class DynamicCheckoutInteractor(
         configuration = configuration.copy(invoiceRequest = invoiceRequest)
         val selectedPaymentMethodId = when (reason) {
             is PODynamicCheckoutInvoiceInvalidationReason.Failure ->
-                if (reason.failure.code == Cancelled) _state.value.selectedPaymentMethodId else null
+                if (reason.failure.code == Cancelled)
+                    _state.value.selectedPaymentMethodId else null
             else -> _state.value.selectedPaymentMethodId
         }
         val errorMessage = when (reason) {
