@@ -168,7 +168,10 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                 DynamicCheckoutScreen(
                     state = viewModel.state.collectAsStateWithLifecycle().value,
                     onEvent = remember { viewModel::onEvent },
-                    style = DynamicCheckoutScreen.style(custom = configuration?.style),
+                    style = DynamicCheckoutScreen.style(
+                        custom = configuration?.style,
+                        isLightTheme = isLightTheme
+                    ),
                     isLightTheme = isLightTheme
                 )
             }

@@ -23,8 +23,6 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.google.pay.button.ButtonTheme
-import com.google.pay.button.ButtonType
 import com.google.pay.button.PayButton
 import com.processout.sdk.api.model.response.POColor
 import com.processout.sdk.api.model.response.POImageResource
@@ -59,10 +57,10 @@ import com.processout.sdk.ui.core.style.POBrandButtonStyle
 import com.processout.sdk.ui.core.theme.PODarkColorPalette
 import com.processout.sdk.ui.core.theme.POLightColorPalette
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
-import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
+import com.processout.sdk.ui.shared.component.GooglePayButton
 import com.processout.sdk.ui.shared.component.TextAndroidView
 import com.processout.sdk.ui.shared.component.isImeVisibleAsState
 import com.processout.sdk.ui.shared.extension.*
@@ -173,8 +171,7 @@ private fun ExpressPayments(
                 is ExpressPayment.GooglePay -> GooglePay(
                     payment = payment,
                     onEvent = onEvent,
-                    style = style,
-                    isLightTheme = isLightTheme
+                    style = style.googlePayButton
                 )
                 is ExpressPayment.Express -> ExpressPayment(
                     payment = payment,
@@ -191,8 +188,7 @@ private fun ExpressPayments(
 private fun GooglePay(
     payment: ExpressPayment.GooglePay,
     onEvent: (DynamicCheckoutEvent) -> Unit,
-    style: DynamicCheckoutScreen.Style,
-    isLightTheme: Boolean
+    style: GooglePayButton.Style
 ) {
     with(payment.submitAction) {
         PayButton(
@@ -209,10 +205,10 @@ private fun GooglePay(
             allowedPaymentMethods = payment.allowedPaymentMethods,
             modifier = Modifier
                 .fillMaxWidth()
-                .requiredHeight(dimensions.interactiveComponentMinSize),
-            theme = if (isLightTheme) ButtonTheme.Dark else ButtonTheme.Light,
-            type = ButtonType.Pay,
-            radius = 4.dp
+                .requiredHeight(style.height),
+            theme = style.theme,
+            type = style.type,
+            radius = style.borderRadius
         )
     }
 }
@@ -510,6 +506,7 @@ internal object DynamicCheckoutScreen {
 
     @Immutable
     data class Style(
+        val googlePayButton: GooglePayButton.Style,
         val expressPaymentButton: POBrandButtonStyle?,
         val regularPayment: RegularPaymentStyle,
         val label: POText.Style,
@@ -536,7 +533,13 @@ internal object DynamicCheckoutScreen {
     )
 
     @Composable
-    fun style(custom: PODynamicCheckoutConfiguration.Style? = null) = Style(
+    fun style(
+        custom: PODynamicCheckoutConfiguration.Style?,
+        isLightTheme: Boolean
+    ) = Style(
+        googlePayButton = custom?.googlePayButton?.let {
+            GooglePayButton.custom(style = it, isLightTheme)
+        } ?: GooglePayButton.default(isLightTheme),
         expressPaymentButton = custom?.expressPaymentButton,
         regularPayment = custom?.regularPayment?.custom() ?: defaultRegularPayment,
         label = custom?.label?.let {
