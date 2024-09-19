@@ -53,7 +53,7 @@ object POGooglePayConfiguration {
             val checkoutOption: CheckoutOption
         ) {
             enum class TotalPriceStatus {
-                ESTIMATED, FINAL
+                FINAL, ESTIMATED
             }
 
             enum class CheckoutOption {
