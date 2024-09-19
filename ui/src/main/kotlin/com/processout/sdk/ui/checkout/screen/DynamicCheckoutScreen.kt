@@ -194,24 +194,27 @@ private fun GooglePay(
     style: DynamicCheckoutScreen.Style,
     isLightTheme: Boolean
 ) {
-    PayButton(
-        onClick = {
-            onEvent(
-                Action(
-                    actionId = payment.submitAction.id,
-                    paymentMethodId = payment.id
-                )
-            )
-        },
-        allowedPaymentMethods = payment.allowedPaymentMethods,
-        modifier = Modifier
-            .fillMaxWidth()
-            .requiredHeight(dimensions.interactiveComponentMinSize),
-        theme = if (isLightTheme) ButtonTheme.Dark else ButtonTheme.Light,
-        type = ButtonType.Pay,
-        radius = 4.dp,
-        enabled = payment.submitAction.enabled
-    )
+    with(payment.submitAction) {
+        PayButton(
+            onClick = {
+                if (enabled) {
+                    onEvent(
+                        Action(
+                            actionId = id,
+                            paymentMethodId = payment.id
+                        )
+                    )
+                }
+            },
+            allowedPaymentMethods = payment.allowedPaymentMethods,
+            modifier = Modifier
+                .fillMaxWidth()
+                .requiredHeight(dimensions.interactiveComponentMinSize),
+            theme = if (isLightTheme) ButtonTheme.Dark else ButtonTheme.Light,
+            type = ButtonType.Pay,
+            radius = 4.dp
+        )
+    }
 }
 
 @Composable

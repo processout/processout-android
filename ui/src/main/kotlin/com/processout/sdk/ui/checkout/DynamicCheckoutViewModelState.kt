@@ -38,8 +38,8 @@ internal sealed interface DynamicCheckoutViewModelState {
         @Immutable
         data class GooglePay(
             val id: String,
-            val submitAction: POActionState,
-            val allowedPaymentMethods: String
+            val allowedPaymentMethods: String,
+            val submitAction: POActionState
         ) : ExpressPayment
 
         @Immutable

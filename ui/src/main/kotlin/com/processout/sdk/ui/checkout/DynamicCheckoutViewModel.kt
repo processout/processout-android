@@ -187,13 +187,13 @@ internal class DynamicCheckoutViewModel private constructor(
             when (paymentMethod) {
                 is GooglePay -> ExpressPayment.GooglePay(
                     id = id,
+                    allowedPaymentMethods = paymentMethod.allowedPaymentMethods,
                     submitAction = POActionState(
                         id = interactorState.submitActionId,
-                        text = String(), // TODO
+                        text = String(),
                         primary = true,
                         enabled = id != interactorState.processingPaymentMethodId
-                    ),
-                    allowedPaymentMethods = paymentMethod.allowedPaymentMethods
+                    )
                 )
                 is AlternativePayment -> if (paymentMethod.isExpress)
                     expressPayment(
