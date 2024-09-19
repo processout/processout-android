@@ -21,9 +21,10 @@ import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Flow
 import com.processout.sdk.api.model.response.POTransaction.Status.*
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.api.service.googlepay.POGooglePayConfiguration
-import com.processout.sdk.api.service.googlepay.POGooglePayConfiguration.CardParameters
-import com.processout.sdk.api.service.googlepay.POGooglePayConfiguration.CardParameters.BillingAddressParameters
-import com.processout.sdk.api.service.googlepay.POGooglePayConfiguration.PaymentDataParameters.ShippingAddressParameters
+import com.processout.sdk.api.service.googlepay.POGooglePayConfiguration.CardConfiguration.BillingAddressParameters
+import com.processout.sdk.api.service.googlepay.POGooglePayConfiguration.PaymentDataConfiguration.ShippingAddressParameters
+import com.processout.sdk.api.service.googlepay.POGooglePayConfiguration.PaymentDataConfiguration.TransactionInfo
+import com.processout.sdk.api.service.googlepay.POGooglePayRequestBuilder
 import com.processout.sdk.api.service.googlepay.POGooglePayService
 import com.processout.sdk.api.service.proxy3ds.POProxy3DSService
 import com.processout.sdk.core.POFailure.Code.Cancelled
@@ -47,9 +48,12 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMeth
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.Card
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.GooglePay
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration
-import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration.BillingAddressConfiguration
+import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration.BillingAddressConfiguration.Format.FULL
+import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration.BillingAddressConfiguration.Format.MIN
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration.CheckoutOption.COMPLETE_IMMEDIATE_PURCHASE
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration.CheckoutOption.DEFAULT
+import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration.TotalPriceStatus.ESTIMATED
+import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration.TotalPriceStatus.FINAL
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
@@ -183,7 +187,10 @@ internal class DynamicCheckoutInteractor(
                 }
                 return@launch
             }
-            val mappedPaymentMethods = paymentMethods.map(invoice)
+            val mappedPaymentMethods = paymentMethods.map(
+                amount = invoice.amount,
+                currency = invoice.currency
+            )
             preloadAllImages(
                 paymentMethods = mappedPaymentMethods,
                 coroutineScope = this@launch
@@ -220,7 +227,8 @@ internal class DynamicCheckoutInteractor(
     }
 
     private suspend fun List<PODynamicCheckoutPaymentMethod>.map(
-        invoice: POInvoice
+        amount: String,
+        currency: String
     ): List<PaymentMethod> = mapNotNull { paymentMethod ->
         when (paymentMethod) {
             is PODynamicCheckoutPaymentMethod.Card -> Card(
@@ -229,17 +237,19 @@ internal class DynamicCheckoutInteractor(
                 display = paymentMethod.display
             )
             is PODynamicCheckoutPaymentMethod.GooglePay -> {
-                val parameters = configuration.googlePay.parameters(
-                    invoice = invoice,
+                val configuration = configuration.googlePay.map(
+                    amount = amount,
+                    currency = currency,
                     configuration = paymentMethod.configuration
                 )
-                val request = POGooglePayConfiguration.isReadyToPayRequest(parameters.cardParameters)
-                if (googlePayService.isReadyToPay(request))
+                val isReadyToPayRequest = POGooglePayRequestBuilder.isReadyToPayRequest(configuration.card)
+                if (googlePayService.isReadyToPay(isReadyToPayRequest))
                     GooglePay(
                         id = paymentMethod.configuration.gatewayMerchantId,
-                        allowedPaymentMethods = POGooglePayConfiguration
-                            .allowedPaymentMethods(parameters.cardParameters).toString(),
-                        paymentDataRequest = POGooglePayConfiguration.paymentDataRequest(parameters)
+                        allowedPaymentMethods = POGooglePayRequestBuilder
+                            .allowedPaymentMethods(configuration.card)
+                            .toString(),
+                        paymentDataRequest = POGooglePayRequestBuilder.paymentDataRequest(configuration)
                     ) else null
             }
             is PODynamicCheckoutPaymentMethod.AlternativePayment -> {
@@ -275,58 +285,57 @@ internal class DynamicCheckoutInteractor(
         }
     }
 
-    private fun GooglePayConfiguration.parameters(
-        invoice: POInvoice,
+    private fun GooglePayConfiguration.map(
+        amount: String,
+        currency: String,
         configuration: PODynamicCheckoutPaymentMethod.GooglePayConfiguration
-    ): POGooglePayConfiguration.Parameters {
-        return POGooglePayConfiguration.Parameters(
-            gateway = configuration.gateway,
-            gatewayMerchantId = configuration.gatewayMerchantId,
-            cardParameters = CardParameters(
-                allowedAuthMethods = configuration.allowedAuthMethods,
-                allowedCardNetworks = configuration.allowedCardNetworks,
-                allowPrepaidCards = configuration.allowPrepaidCards,
-                allowCreditCards = configuration.allowCreditCards,
-                assuranceDetailsRequired = true,
-                billingAddressRequired = billingAddress != null,
-                billingAddressParameters = billingAddress?.let {
-                    BillingAddressParameters(
-                        format = when (it.format) {
-                            BillingAddressConfiguration.Format.MIN -> BillingAddressParameters.Format.MIN
-                            BillingAddressConfiguration.Format.FULL -> BillingAddressParameters.Format.FULL
-                        },
-                        phoneNumberRequired = it.phoneNumberRequired
-                    )
+    ) = POGooglePayConfiguration(
+        gateway = configuration.gateway,
+        gatewayMerchantId = configuration.gatewayMerchantId,
+        card = POGooglePayConfiguration.CardConfiguration(
+            allowedAuthMethods = configuration.allowedAuthMethods,
+            allowedCardNetworks = configuration.allowedCardNetworks,
+            allowPrepaidCards = configuration.allowPrepaidCards,
+            allowCreditCards = configuration.allowCreditCards,
+            assuranceDetailsRequired = true,
+            billingAddressRequired = billingAddress != null,
+            billingAddressParameters = billingAddress?.let {
+                BillingAddressParameters(
+                    format = when (it.format) {
+                        MIN -> BillingAddressParameters.Format.MIN
+                        FULL -> BillingAddressParameters.Format.FULL
+                    },
+                    phoneNumberRequired = it.phoneNumberRequired
+                )
+            }
+        ),
+        paymentData = POGooglePayConfiguration.PaymentDataConfiguration(
+            transactionInfo = TransactionInfo(
+                currencyCode = currency,
+                countryCode = null, // TODO: get from dashboard configuration when ready
+                transactionId = UUID.randomUUID().toString(),
+                totalPrice = amount,
+                totalPriceLabel = totalPriceLabel,
+                totalPriceStatus = when (totalPriceStatus) {
+                    FINAL -> TransactionInfo.TotalPriceStatus.FINAL
+                    ESTIMATED -> TransactionInfo.TotalPriceStatus.ESTIMATED
+                },
+                checkoutOption = when (checkoutOption) {
+                    DEFAULT -> TransactionInfo.CheckoutOption.DEFAULT
+                    COMPLETE_IMMEDIATE_PURCHASE -> TransactionInfo.CheckoutOption.COMPLETE_IMMEDIATE_PURCHASE
                 }
             ),
-            paymentDataParameters = POGooglePayConfiguration.PaymentDataParameters(
-                transactionInfo = POGooglePayConfiguration.PaymentDataParameters.TransactionInfo(
-                    currencyCode = invoice.currency,
-                    countryCode = null, // TODO: get from dashboard configuration when ready
-                    transactionId = UUID.randomUUID().toString(),
-                    totalPrice = invoice.amount,
-                    totalPriceLabel = totalPriceLabel,
-                    totalPriceStatus = when (totalPriceStatus) {
-                        GooglePayConfiguration.TotalPriceStatus.FINAL -> POGooglePayConfiguration.PaymentDataParameters.TransactionInfo.TotalPriceStatus.FINAL
-                        GooglePayConfiguration.TotalPriceStatus.ESTIMATED -> POGooglePayConfiguration.PaymentDataParameters.TransactionInfo.TotalPriceStatus.ESTIMATED
-                    },
-                    checkoutOption = when (checkoutOption) {
-                        DEFAULT -> POGooglePayConfiguration.PaymentDataParameters.TransactionInfo.CheckoutOption.DEFAULT
-                        COMPLETE_IMMEDIATE_PURCHASE -> POGooglePayConfiguration.PaymentDataParameters.TransactionInfo.CheckoutOption.COMPLETE_IMMEDIATE_PURCHASE
-                    }
-                ),
-                merchantName = merchantName,
-                emailRequired = emailRequired,
-                shippingAddressRequired = shippingAddress != null,
-                shippingAddressParameters = shippingAddress?.let {
-                    ShippingAddressParameters(
-                        allowedCountryCodes = it.allowedCountryCodes,
-                        phoneNumberRequired = it.phoneNumberRequired
-                    )
-                }
-            )
+            merchantName = merchantName,
+            emailRequired = emailRequired,
+            shippingAddressRequired = shippingAddress != null,
+            shippingAddressParameters = shippingAddress?.let {
+                ShippingAddressParameters(
+                    allowedCountryCodes = it.allowedCountryCodes,
+                    phoneNumberRequired = it.phoneNumberRequired
+                )
+            }
         )
-    }
+    )
 
     //region Images
 
@@ -429,23 +438,23 @@ internal class DynamicCheckoutInteractor(
         }
     }
 
-    private fun POCardTokenizationConfiguration.apply(
-        configuration: CardConfiguration
-    ) = copy(
-        cvcRequired = configuration.cvcRequired,
-        isCardholderNameFieldVisible = configuration.cardholderNameRequired,
-        billingAddress = billingAddress.copy(
-            mode = configuration.billingAddress.collectionMode.map(),
-            countryCodes = configuration.billingAddress.restrictToCountryCodes
-        ),
-        savingAllowed = configuration.savingAllowed
-    )
+    private fun POCardTokenizationConfiguration.apply(configuration: CardConfiguration) =
+        copy(
+            cvcRequired = configuration.cvcRequired,
+            isCardholderNameFieldVisible = configuration.cardholderNameRequired,
+            billingAddress = billingAddress.copy(
+                mode = configuration.billingAddress.collectionMode.map(),
+                countryCodes = configuration.billingAddress.restrictToCountryCodes
+            ),
+            savingAllowed = configuration.savingAllowed
+        )
 
-    private fun POBillingAddressCollectionMode.map() = when (this) {
-        full -> CollectionMode.Full
-        automatic -> CollectionMode.Automatic
-        never -> CollectionMode.Never
-    }
+    private fun POBillingAddressCollectionMode.map(): CollectionMode =
+        when (this) {
+            full -> CollectionMode.Full
+            automatic -> CollectionMode.Automatic
+            never -> CollectionMode.Never
+        }
 
     private fun onFieldValueChanged(event: FieldValueChanged) {
         val paymentMethod = paymentMethod(event.paymentMethodId)
