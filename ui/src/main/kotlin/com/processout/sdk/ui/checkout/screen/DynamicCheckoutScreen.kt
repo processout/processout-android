@@ -179,7 +179,7 @@ private fun ExpressPayments(
                 is ExpressPayment.Express -> ExpressPayment(
                     payment = payment,
                     onEvent = onEvent,
-                    style = style,
+                    style = style.expressPaymentButton,
                     isLightTheme = isLightTheme
                 )
             }
@@ -221,7 +221,7 @@ private fun GooglePay(
 private fun ExpressPayment(
     payment: ExpressPayment.Express,
     onEvent: (DynamicCheckoutEvent) -> Unit,
-    style: DynamicCheckoutScreen.Style,
+    style: POBrandButtonStyle?,
     isLightTheme: Boolean
 ) {
     with(payment.submitAction) {
@@ -236,7 +236,7 @@ private fun ExpressPayment(
                 )
             },
             modifier = Modifier.fillMaxWidth(),
-            style = style.expressPaymentButton.toButtonStyle(
+            style = style.toButtonStyle(
                 brandColor = payment.brandColor,
                 isLightTheme = isLightTheme
             ),
