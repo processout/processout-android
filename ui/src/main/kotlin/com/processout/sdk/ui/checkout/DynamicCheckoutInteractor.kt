@@ -16,11 +16,14 @@ import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.model.response.POBillingAddressCollectionMode.*
-import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.CardConfiguration
-import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Display
+import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.*
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Flow.express
 import com.processout.sdk.api.model.response.POTransaction.Status.*
 import com.processout.sdk.api.service.POInvoicesService
+import com.processout.sdk.api.service.googlepay.POGooglePayConfiguration
+import com.processout.sdk.api.service.googlepay.POGooglePayConfiguration.CardParameters
+import com.processout.sdk.api.service.googlepay.POGooglePayConfiguration.CardParameters.BillingAddressParameters
+import com.processout.sdk.api.service.googlepay.POGooglePayConfiguration.PaymentDataParameters.ShippingAddressParameters
 import com.processout.sdk.api.service.googlepay.POGooglePayService
 import com.processout.sdk.api.service.proxy3ds.POProxy3DSService
 import com.processout.sdk.core.POFailure.Code.Cancelled
@@ -40,6 +43,13 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.ActionId
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.*
+import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.AlternativePayment
+import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.Card
+import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.GooglePay
+import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration
+import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration.BillingAddressConfiguration
+import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration.CheckoutOption.COMPLETE_IMMEDIATE_PURCHASE
+import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration.CheckoutOption.DEFAULT
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
@@ -50,6 +60,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
+import java.util.UUID
 
 internal class DynamicCheckoutInteractor(
     private val app: Application,
@@ -172,7 +183,7 @@ internal class DynamicCheckoutInteractor(
                 }
                 return@launch
             }
-            val mappedPaymentMethods = paymentMethods.map()
+            val mappedPaymentMethods = paymentMethods.map(invoice)
             preloadAllImages(
                 paymentMethods = mappedPaymentMethods,
                 coroutineScope = this@launch
@@ -208,50 +219,114 @@ internal class DynamicCheckoutInteractor(
         }
     }
 
-    private fun List<PODynamicCheckoutPaymentMethod>.map(): List<PaymentMethod> =
-        mapNotNull { paymentMethod ->
-            when (paymentMethod) {
-                is PODynamicCheckoutPaymentMethod.Card -> Card(
-                    id = "card",
-                    configuration = paymentMethod.configuration,
-                    display = paymentMethod.display
-                )
-                is PODynamicCheckoutPaymentMethod.GooglePay -> GooglePay(
-                    id = paymentMethod.configuration.gatewayMerchantId,
+    private suspend fun List<PODynamicCheckoutPaymentMethod>.map(
+        invoice: POInvoice
+    ): List<PaymentMethod> = mapNotNull { paymentMethod ->
+        when (paymentMethod) {
+            is PODynamicCheckoutPaymentMethod.Card -> Card(
+                id = "card",
+                configuration = paymentMethod.configuration,
+                display = paymentMethod.display
+            )
+            is PODynamicCheckoutPaymentMethod.GooglePay -> {
+                val parameters = configuration.googlePay.parameters(
+                    invoice = invoice,
                     configuration = paymentMethod.configuration
                 )
-                is PODynamicCheckoutPaymentMethod.AlternativePayment -> {
-                    val redirectUrl = paymentMethod.configuration.redirectUrl
-                    if (redirectUrl != null) {
-                        AlternativePayment(
-                            id = paymentMethod.configuration.gatewayConfigurationId,
-                            redirectUrl = redirectUrl,
-                            display = paymentMethod.display,
-                            isExpress = paymentMethod.flow == express
-                        )
-                    } else {
-                        NativeAlternativePayment(
-                            id = paymentMethod.configuration.gatewayConfigurationId,
-                            gatewayConfigurationId = paymentMethod.configuration.gatewayConfigurationId,
-                            display = paymentMethod.display
-                        )
-                    }
-                }
-                is PODynamicCheckoutPaymentMethod.CardCustomerToken -> CustomerToken(
-                    id = paymentMethod.configuration.customerTokenId,
-                    configuration = paymentMethod.configuration,
-                    display = paymentMethod.display,
-                    isExpress = paymentMethod.flow == express
-                )
-                is PODynamicCheckoutPaymentMethod.AlternativePaymentCustomerToken -> CustomerToken(
-                    id = paymentMethod.configuration.customerTokenId,
-                    configuration = paymentMethod.configuration,
-                    display = paymentMethod.display,
-                    isExpress = paymentMethod.flow == express
-                )
-                else -> null
+                val request = POGooglePayConfiguration.isReadyToPayRequest(parameters.cardParameters)
+                if (googlePayService.isReadyToPay(request))
+                    GooglePay(
+                        id = paymentMethod.configuration.gatewayMerchantId,
+                        allowedPaymentMethods = POGooglePayConfiguration
+                            .allowedPaymentMethods(parameters.cardParameters).toString(),
+                        paymentDataRequest = POGooglePayConfiguration.paymentDataRequest(parameters)
+                    ) else null
             }
+            is PODynamicCheckoutPaymentMethod.AlternativePayment -> {
+                val redirectUrl = paymentMethod.configuration.redirectUrl
+                if (redirectUrl != null) {
+                    AlternativePayment(
+                        id = paymentMethod.configuration.gatewayConfigurationId,
+                        redirectUrl = redirectUrl,
+                        display = paymentMethod.display,
+                        isExpress = paymentMethod.flow == express
+                    )
+                } else {
+                    NativeAlternativePayment(
+                        id = paymentMethod.configuration.gatewayConfigurationId,
+                        gatewayConfigurationId = paymentMethod.configuration.gatewayConfigurationId,
+                        display = paymentMethod.display
+                    )
+                }
+            }
+            is CardCustomerToken -> CustomerToken(
+                id = paymentMethod.configuration.customerTokenId,
+                configuration = paymentMethod.configuration,
+                display = paymentMethod.display,
+                isExpress = paymentMethod.flow == express
+            )
+            is AlternativePaymentCustomerToken -> CustomerToken(
+                id = paymentMethod.configuration.customerTokenId,
+                configuration = paymentMethod.configuration,
+                display = paymentMethod.display,
+                isExpress = paymentMethod.flow == express
+            )
+            else -> null
         }
+    }
+
+    private fun GooglePayConfiguration.parameters(
+        invoice: POInvoice,
+        configuration: PODynamicCheckoutPaymentMethod.GooglePayConfiguration
+    ): POGooglePayConfiguration.Parameters {
+        return POGooglePayConfiguration.Parameters(
+            gateway = configuration.gateway,
+            gatewayMerchantId = configuration.gatewayMerchantId,
+            cardParameters = CardParameters(
+                allowedAuthMethods = configuration.allowedAuthMethods,
+                allowedCardNetworks = configuration.allowedCardNetworks,
+                allowPrepaidCards = configuration.allowPrepaidCards,
+                allowCreditCards = configuration.allowCreditCards,
+                assuranceDetailsRequired = true,
+                billingAddressRequired = billingAddress != null,
+                billingAddressParameters = billingAddress?.let {
+                    BillingAddressParameters(
+                        format = when (it.format) {
+                            BillingAddressConfiguration.Format.MIN -> BillingAddressParameters.Format.MIN
+                            BillingAddressConfiguration.Format.FULL -> BillingAddressParameters.Format.FULL
+                        },
+                        phoneNumberRequired = it.phoneNumberRequired
+                    )
+                }
+            ),
+            paymentDataParameters = POGooglePayConfiguration.PaymentDataParameters(
+                transactionInfo = POGooglePayConfiguration.PaymentDataParameters.TransactionInfo(
+                    currencyCode = invoice.currency,
+                    countryCode = null, // TODO: get from dashboard configuration when ready
+                    transactionId = UUID.randomUUID().toString(),
+                    totalPrice = invoice.amount,
+                    totalPriceLabel = totalPriceLabel,
+                    totalPriceStatus = when (totalPriceStatus) {
+                        GooglePayConfiguration.TotalPriceStatus.FINAL -> POGooglePayConfiguration.PaymentDataParameters.TransactionInfo.TotalPriceStatus.FINAL
+                        GooglePayConfiguration.TotalPriceStatus.ESTIMATED -> POGooglePayConfiguration.PaymentDataParameters.TransactionInfo.TotalPriceStatus.ESTIMATED
+                    },
+                    checkoutOption = when (checkoutOption) {
+                        DEFAULT -> POGooglePayConfiguration.PaymentDataParameters.TransactionInfo.CheckoutOption.DEFAULT
+                        COMPLETE_IMMEDIATE_PURCHASE -> POGooglePayConfiguration.PaymentDataParameters.TransactionInfo.CheckoutOption.COMPLETE_IMMEDIATE_PURCHASE
+                    }
+                ),
+                merchantName = merchantName,
+                emailRequired = emailRequired,
+                shippingAddressRequired = shippingAddress != null,
+                shippingAddressParameters = shippingAddress?.let {
+                    ShippingAddressParameters(
+                        allowedCountryCodes = it.allowedCountryCodes,
+                        phoneNumberRequired = it.phoneNumberRequired
+                    )
+                }
+            )
+        )
+    }
 
     //region Images
 
@@ -450,7 +525,7 @@ internal class DynamicCheckoutInteractor(
                     _state.update { it.copy(processingPaymentMethodId = paymentMethod.id) }
                     _submitEvents.send(
                         DynamicCheckoutSubmitEvent.GooglePay(
-                            configuration = paymentMethod.configuration
+                            paymentDataRequest = paymentMethod.paymentDataRequest
                         )
                     )
                 }
@@ -628,6 +703,22 @@ internal class DynamicCheckoutInteractor(
                     else -> {}
                 }
             }
+        }
+    }
+
+    fun handleGooglePay(result: ProcessOutResult<POGooglePayCardTokenizationData>) {
+        result.onSuccess { response ->
+            invoicesService.authorizeInvoice(
+                request = POInvoiceAuthorizationRequest(
+                    invoiceId = _state.value.invoice.id,
+                    source = response.card.id
+                ),
+                threeDSService = threeDSService
+            )
+        }.onFailure { failure ->
+            invalidateInvoice(
+                reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(failure)
+            )
         }
     }
 

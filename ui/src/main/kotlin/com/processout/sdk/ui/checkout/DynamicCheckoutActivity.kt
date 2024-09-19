@@ -18,6 +18,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.gms.wallet.Wallet.WalletOptions
+import com.google.android.gms.wallet.WalletConstants
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.request.POInvoiceRequest
@@ -43,6 +45,7 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutSubmitEvent.GooglePay
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.CancelButton
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.googlepay.POGooglePayCardTokenizationLauncher
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.DEFAULT_TIMEOUT_SECONDS
@@ -124,6 +127,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         confirmation = confirmation
     )
 
+    private lateinit var googlePayLauncher: POGooglePayCardTokenizationLauncher
     private lateinit var alternativePaymentLauncher: POAlternativePaymentMethodCustomTabLauncher
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -136,6 +140,13 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
             initConfiguration()
         }
         dispatchBackPressed()
+        googlePayLauncher = POGooglePayCardTokenizationLauncher.create(
+            from = this,
+            walletOptions = WalletOptions.Builder()
+                .setEnvironment(configuration?.googlePay?.environment?.value ?: WalletConstants.ENVIRONMENT_TEST)
+                .build(),
+            callback = viewModel::handleGooglePay
+        )
         alternativePaymentLauncher = POAlternativePaymentMethodCustomTabLauncher.create(
             from = this,
             callback = viewModel::handleAlternativePayment
@@ -209,9 +220,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
 
     private fun submit(event: DynamicCheckoutSubmitEvent) {
         when (event) {
-            is GooglePay -> {
-                // TODO
-            }
+            is GooglePay -> googlePayLauncher.launch(event.paymentDataRequest)
             is AlternativePayment -> alternativePaymentLauncher.launch(
                 uri = Uri.parse(event.redirectUrl),
                 returnUrl = event.returnUrl

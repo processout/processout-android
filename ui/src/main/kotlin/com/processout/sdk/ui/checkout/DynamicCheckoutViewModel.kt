@@ -11,6 +11,7 @@ import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokeniza
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Display
+import com.processout.sdk.api.model.response.POGooglePayCardTokenizationData
 import com.processout.sdk.api.service.googlepay.PODefaultGooglePayService
 import com.processout.sdk.api.service.proxy3ds.PODefaultProxy3DSService
 import com.processout.sdk.core.ProcessOutResult
@@ -92,6 +93,10 @@ internal class DynamicCheckoutViewModel private constructor(
     }
 
     fun onEvent(event: DynamicCheckoutEvent) = interactor.onEvent(event)
+
+    fun handleGooglePay(
+        result: ProcessOutResult<POGooglePayCardTokenizationData>
+    ) = interactor.handleGooglePay(result)
 
     fun handleAlternativePayment(
         result: ProcessOutResult<POAlternativePaymentMethodResponse>
@@ -187,7 +192,8 @@ internal class DynamicCheckoutViewModel private constructor(
                         text = String(), // TODO
                         primary = true,
                         enabled = id != interactorState.processingPaymentMethodId
-                    )
+                    ),
+                    allowedPaymentMethods = paymentMethod.allowedPaymentMethods
                 )
                 is AlternativePayment -> if (paymentMethod.isExpress)
                     expressPayment(

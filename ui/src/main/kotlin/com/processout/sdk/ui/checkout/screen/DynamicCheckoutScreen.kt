@@ -195,14 +195,22 @@ private fun GooglePay(
     isLightTheme: Boolean
 ) {
     PayButton(
-        onClick = {},
-        allowedPaymentMethods = String(),
+        onClick = {
+            onEvent(
+                Action(
+                    actionId = payment.submitAction.id,
+                    paymentMethodId = payment.id
+                )
+            )
+        },
+        allowedPaymentMethods = payment.allowedPaymentMethods,
         modifier = Modifier
             .fillMaxWidth()
             .requiredHeight(dimensions.interactiveComponentMinSize),
         theme = if (isLightTheme) ButtonTheme.Dark else ButtonTheme.Light,
         type = ButtonType.Pay,
-        radius = 4.dp
+        radius = 4.dp,
+        enabled = payment.submitAction.enabled
     )
 }
 
