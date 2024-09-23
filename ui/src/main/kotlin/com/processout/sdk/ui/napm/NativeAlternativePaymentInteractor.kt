@@ -79,7 +79,7 @@ internal class NativeAlternativePaymentInteractor(
     private val _completion = MutableStateFlow<NativeAlternativePaymentCompletion>(Awaiting)
     val completion = _completion.asStateFlow()
 
-    private val _state = MutableStateFlow<NativeAlternativePaymentInteractorState>(Loading)
+    private val _state = MutableStateFlow<NativeAlternativePaymentInteractorState>(Idle)
     val state = _state.asStateFlow()
 
     private val handler = Handler(Looper.getMainLooper())
@@ -90,6 +90,10 @@ internal class NativeAlternativePaymentInteractor(
     private var capturePassedTimestamp = 0L
 
     fun start() {
+        if (_state.value !is Idle) {
+            return
+        }
+        _state.update { Loading }
         POLogger.info("Starting native alternative payment.")
         dispatch(WillStart)
         dispatchFailure()
@@ -101,6 +105,9 @@ internal class NativeAlternativePaymentInteractor(
         invoiceId: String,
         gatewayConfigurationId: String
     ) {
+        if (_state.value !is Idle) {
+            return
+        }
         this.invoiceId = invoiceId
         this.gatewayConfigurationId = gatewayConfigurationId
         logAttributes = logAttributes(
@@ -117,7 +124,7 @@ internal class NativeAlternativePaymentInteractor(
         captureStartTimestamp = 0L
         capturePassedTimestamp = 0L
         _completion.update { Awaiting }
-        _state.update { Loading }
+        _state.update { Idle }
     }
 
     private fun fetchTransactionDetails() {

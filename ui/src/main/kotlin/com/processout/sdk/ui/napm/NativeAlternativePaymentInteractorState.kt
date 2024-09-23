@@ -12,6 +12,8 @@ internal sealed interface NativeAlternativePaymentInteractorState {
 
     //region States
 
+    data object Idle : NativeAlternativePaymentInteractorState
+
     data object Loading : NativeAlternativePaymentInteractorState
 
     data class Loaded(

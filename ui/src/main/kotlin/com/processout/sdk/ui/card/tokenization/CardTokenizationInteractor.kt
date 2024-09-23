@@ -72,6 +72,10 @@ internal class CardTokenizationInteractor(
     //region Initialization
 
     fun start() {
+        if (_state.value.started) {
+            return
+        }
+        _state.update { it.copy(started = true) }
         interactorScope.launch {
             POLogger.info("Starting card tokenization.")
             dispatch(WillStart)
@@ -86,6 +90,9 @@ internal class CardTokenizationInteractor(
     }
 
     fun start(configuration: POCardTokenizationConfiguration) {
+        if (_state.value.started) {
+            return
+        }
         this.configuration = configuration
         _state.update { initState() }
         start()
