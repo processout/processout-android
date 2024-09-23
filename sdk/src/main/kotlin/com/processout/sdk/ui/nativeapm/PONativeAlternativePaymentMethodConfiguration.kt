@@ -45,6 +45,8 @@ data class PONativeAlternativePaymentMethodConfiguration(
      * or will complete right after all user’s input is submitted. Default value is _true_.
      * @param[paymentConfirmationTimeoutSeconds] Amount of time (in seconds) to wait for final payment confirmation.
      * Default value is 3 minutes, while maximum value is 15 minutes.
+     * @param[paymentConfirmationPrimaryAction] Optional primary action for payment confirmation.
+     * To hide action use _null_, this is a default behaviour.
      * @param[paymentConfirmationSecondaryAction] Action that could be optionally presented to user during payment confirmation stage.
      * To hide action use _null_, this is a default behaviour.
      * @param[showPaymentConfirmationProgressIndicatorAfterSeconds] Show progress indicator during payment confirmation after provided delay (in seconds).
@@ -61,6 +63,7 @@ data class PONativeAlternativePaymentMethodConfiguration(
         val skipSuccessScreen: Boolean = false,
         val waitsPaymentConfirmation: Boolean = true,
         val paymentConfirmationTimeoutSeconds: Int = DEFAULT_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS,
+        val paymentConfirmationPrimaryAction: ConfirmAction? = null,
         val paymentConfirmationSecondaryAction: SecondaryAction? = null,
         val showPaymentConfirmationProgressIndicatorAfterSeconds: Int? = null
     ) : Parcelable {
@@ -69,6 +72,16 @@ data class PONativeAlternativePaymentMethodConfiguration(
             const val DEFAULT_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS = 3 * 60
         }
     }
+
+    /**
+     * Action for confirmation.
+     *
+     * @param[text] Action text. Pass _null_ to use default text.
+     */
+    @Parcelize
+    data class ConfirmAction(
+        val text: String? = null
+    ) : Parcelable
 
     /**
      * Supported secondary actions.
