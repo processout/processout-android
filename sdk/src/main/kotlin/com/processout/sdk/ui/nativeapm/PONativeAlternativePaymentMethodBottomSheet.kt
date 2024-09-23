@@ -501,6 +501,11 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         viewModel.submitPayment()
     }
 
+    private fun onConfirmPaymentClick() {
+        bindingCapture.poPrimaryButton.isClickable = false
+        viewModel.confirmPayment()
+    }
+
     private fun onCancelClick(confirmation: ActionConfirmation) {
         with(confirmation) {
             if (!enabled) {
@@ -672,9 +677,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             bindingCapture.poFooter.visibility = View.VISIBLE
             with(bindingCapture.poPrimaryButton) {
                 uiModel.paymentConfirmationPrimaryActionText?.let { actionText ->
-                    setOnClickListener {
-                        // TODO
-                    }
+                    setOnClickListener { onConfirmPaymentClick() }
                     text = actionText
                     visibility = View.VISIBLE
                 } ?: run { visibility = View.GONE }
