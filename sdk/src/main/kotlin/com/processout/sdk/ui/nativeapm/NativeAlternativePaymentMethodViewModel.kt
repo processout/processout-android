@@ -430,16 +430,12 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
             animateViewTransition = true
             _uiState.value = Capture(updatedUiModel)
 
-            options.showPaymentConfirmationProgressIndicatorAfterSeconds?.let { afterSeconds ->
-                showPaymentConfirmationProgressIndicator(
-                    afterMillis = TimeUnit.SECONDS.toMillis(afterSeconds.toLong())
-                )
-            }
             updatedUiModel.paymentConfirmationSecondaryAction?.let {
                 scheduleSecondaryActionEnabling(it) { enablePaymentConfirmationSecondaryAction() }
             }
-
-            capture()
+            if (options.paymentConfirmationPrimaryAction == null) {
+                capture()
+            }
             return
         }
         _uiState.value = Success(uiModel.copy())
@@ -503,12 +499,26 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
         }
     else originalMessage
 
+    fun confirmPayment() {
+        _uiState.value.doWhenCapture { uiModel ->
+            _uiState.value = Capture(
+                uiModel.copy(paymentConfirmationPrimaryActionText = null)
+            )
+            capture()
+        }
+    }
+
     private fun capture() {
         if (captureStartTimestamp != 0L) {
             return
         }
         viewModelScope.launch {
             captureStartTimestamp = System.currentTimeMillis()
+            options.showPaymentConfirmationProgressIndicatorAfterSeconds?.let { afterSeconds ->
+                showPaymentConfirmationProgressIndicator(
+                    afterMillis = TimeUnit.SECONDS.toMillis(afterSeconds.toLong())
+                )
+            }
             val iterator = captureRetryStrategy.iterator
             while (capturePassedTimestamp < options.paymentConfirmationTimeoutSeconds * 1000) {
                 val result = invoicesService.captureNativeAlternativePayment(invoiceId, gatewayConfigurationId)
