@@ -45,6 +45,7 @@ internal data class NativeAlternativePaymentMethodUiModel(
     val customerActionImageUrl: String?,
     val primaryActionText: String,
     val secondaryAction: SecondaryActionUiModel?,
+    val paymentConfirmationPrimaryActionText: String?,
     val paymentConfirmationSecondaryAction: SecondaryActionUiModel?,
     val isPaymentConfirmationProgressIndicatorVisible: Boolean,
     val isSubmitting: Boolean
