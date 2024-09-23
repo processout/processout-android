@@ -776,6 +776,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         bindingCapture.poFooter.visibility = View.GONE
     }
 
+    @Suppress("DEPRECATION")
     private fun bindSuccessBackground() {
         val backgroundDecorationSuccessColor =
             when (val stateStyle = configuration?.style?.backgroundDecoration?.success) {
