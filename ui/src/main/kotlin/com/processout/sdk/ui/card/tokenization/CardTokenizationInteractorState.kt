@@ -7,6 +7,7 @@ import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.shared.provider.address.AddressSpecification
 
 internal data class CardTokenizationInteractorState(
+    val started: Boolean = false,
     val cardFields: List<Field>,
     val addressFields: List<Field>,
     val addressSpecification: AddressSpecification? = null,
