@@ -59,6 +59,8 @@ data class PONativeAlternativePaymentConfiguration(
          * @param[text] Action text. Pass _null_ to use default text.
          * @param[disabledForSeconds] Initially disables action for the given amount of time in seconds.
          * By default user can interact with action immediately when it's visible.
+         * @param[confirmation] Specifies action confirmation configuration (e.g. dialog).
+         * Use _null_ to disable, this is a default behaviour.
          */
         @Parcelize
         data class Cancel(
