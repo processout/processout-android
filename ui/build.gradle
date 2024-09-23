@@ -93,10 +93,9 @@ dependencies {
     api "androidx.activity:activity-compose:$androidxActivityVersion"
     api "androidx.lifecycle:lifecycle-viewmodel-compose:$androidxLifecycleVersion"
 
-    api "com.google.android.gms:play-services-wallet:$gmsWalletVersion"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$kotlinxCoroutinesPlayServicesVersion"
-    implementation "com.googlecode.libphonenumber:libphonenumber:$libphonenumberVersion"
     implementation "io.coil-kt:coil-compose:$coilVersion"
+    implementation "com.google.pay.button:compose-pay-button:$composeGooglePayButtonVersion"
+    implementation "com.googlecode.libphonenumber:libphonenumber:$libphonenumberVersion"
 
     ksp "com.squareup.moshi:moshi-kotlin-codegen:$moshiVersion"
 }

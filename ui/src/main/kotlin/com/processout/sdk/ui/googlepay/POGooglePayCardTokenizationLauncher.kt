@@ -19,6 +19,8 @@ import com.processout.sdk.api.model.request.POContact
 import com.processout.sdk.api.model.response.POGooglePayCardTokenizationData
 import com.processout.sdk.api.model.response.POGooglePayPaymentData
 import com.processout.sdk.api.repository.POCardsRepository
+import com.processout.sdk.api.service.googlepay.PODefaultGooglePayService
+import com.processout.sdk.api.service.googlepay.POGooglePayService
 import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.POFailure.Code.Generic
 import com.processout.sdk.core.ProcessOutResult
@@ -36,7 +38,7 @@ import org.json.JSONObject
  */
 class POGooglePayCardTokenizationLauncher private constructor(
     private val launcher: ActivityResultLauncher<Task<PaymentData>>,
-    private val service: GooglePayService
+    private val service: POGooglePayService
 ) {
 
     companion object {
@@ -53,7 +55,7 @@ class POGooglePayCardTokenizationLauncher private constructor(
                 TaskResultContracts.GetPaymentDataResult(),
                 ActivityResultHandler(from.lifecycleScope, callback)
             ),
-            service = GooglePayService(
+            service = PODefaultGooglePayService(
                 application = from.requireActivity().application,
                 walletOptions = walletOptions
             )
@@ -73,7 +75,7 @@ class POGooglePayCardTokenizationLauncher private constructor(
                 from.activityResultRegistry,
                 ActivityResultHandler(from.lifecycleScope, callback)
             ),
-            service = GooglePayService(
+            service = PODefaultGooglePayService(
                 application = from.application,
                 walletOptions = walletOptions
             )

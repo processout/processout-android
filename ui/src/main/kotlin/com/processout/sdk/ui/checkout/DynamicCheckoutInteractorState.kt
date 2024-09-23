@@ -2,6 +2,7 @@ package com.processout.sdk.ui.checkout
 
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.*
 import com.processout.sdk.api.model.response.POInvoice
+import org.json.JSONObject
 
 internal data class DynamicCheckoutInteractorState(
     val loading: Boolean,
@@ -28,7 +29,8 @@ internal data class DynamicCheckoutInteractorState(
 
         data class GooglePay(
             override val id: String,
-            val configuration: GooglePayConfiguration
+            val allowedPaymentMethods: String,
+            val paymentDataRequest: JSONObject
         ) : PaymentMethod
 
         data class AlternativePayment(

@@ -3,6 +3,7 @@ package com.processout.sdk.ui.checkout
 import android.os.Parcelable
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
+import com.google.android.gms.wallet.WalletConstants
 import com.processout.sdk.api.model.request.POContact
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
@@ -16,6 +17,7 @@ import kotlinx.parcelize.Parcelize
 data class PODynamicCheckoutConfiguration(
     val invoiceRequest: POInvoiceRequest,
     val card: CardConfiguration = CardConfiguration(),
+    val googlePay: GooglePayConfiguration = GooglePayConfiguration(),
     val alternativePayment: AlternativePaymentConfiguration = AlternativePaymentConfiguration(),
     val submitButtonText: String? = null,
     val cancelButton: CancelButton? = CancelButton(),
@@ -32,6 +34,53 @@ data class PODynamicCheckoutConfiguration(
         data class BillingAddressConfiguration(
             val defaultAddress: POContact? = null,
             val attachDefaultsToPaymentMethod: Boolean = false
+        ) : Parcelable
+    }
+
+    @Parcelize
+    data class GooglePayConfiguration(
+        val environment: Environment = Environment.TEST,
+        val merchantName: String? = null,
+        val totalPriceLabel: String? = null,
+        val totalPriceStatus: TotalPriceStatus = TotalPriceStatus.FINAL,
+        val checkoutOption: CheckoutOption = CheckoutOption.DEFAULT,
+        val emailRequired: Boolean = false,
+        val billingAddress: BillingAddressConfiguration? = null,
+        val shippingAddress: ShippingAddressConfiguration? = null
+    ) : Parcelable {
+
+        @Parcelize
+        enum class Environment(val value: Int) : Parcelable {
+            TEST(WalletConstants.ENVIRONMENT_TEST),
+            PRODUCTION(WalletConstants.ENVIRONMENT_PRODUCTION)
+        }
+
+        @Parcelize
+        enum class TotalPriceStatus : Parcelable {
+            FINAL, ESTIMATED
+        }
+
+        @Parcelize
+        enum class CheckoutOption : Parcelable {
+            DEFAULT, COMPLETE_IMMEDIATE_PURCHASE
+        }
+
+        @Parcelize
+        data class BillingAddressConfiguration(
+            val format: Format,
+            val phoneNumberRequired: Boolean
+        ) : Parcelable {
+
+            @Parcelize
+            enum class Format : Parcelable {
+                MIN, FULL
+            }
+        }
+
+        @Parcelize
+        data class ShippingAddressConfiguration(
+            val allowedCountryCodes: Set<String>,
+            val phoneNumberRequired: Boolean
         ) : Parcelable
     }
 
@@ -59,6 +108,7 @@ data class PODynamicCheckoutConfiguration(
 
     @Parcelize
     data class Style(
+        val googlePayButton: POGooglePayButtonStyle? = null,
         val expressPaymentButton: POBrandButtonStyle? = null,
         val regularPayment: RegularPaymentStyle? = null,
         val label: POTextStyle? = null,
