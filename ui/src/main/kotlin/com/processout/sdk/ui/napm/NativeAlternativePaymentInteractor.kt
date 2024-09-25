@@ -653,18 +653,17 @@ internal class NativeAlternativePaymentInteractor(
         }
         interactorScope.launch {
             POLogger.info("Waiting for capture confirmation.")
-            dispatch(
-                WillWaitForCaptureConfirmation(
-                    additionalActionExpected = !stateValue.actionMessage.isNullOrBlank()
-                )
-            )
+            val additionalActionExpected = !stateValue.actionMessage.isNullOrBlank()
+            dispatch(WillWaitForCaptureConfirmation(additionalActionExpected = additionalActionExpected))
             preloadAllImages(
                 stateValue = stateValue,
                 coroutineScope = this@launch
             )
             _state.update { Capturing(stateValue) }
             enableCapturingSecondaryAction()
-            capture()
+            if (!additionalActionExpected || options.paymentConfirmation.primaryAction == null) {
+                capture()
+            }
         }
     }
 
