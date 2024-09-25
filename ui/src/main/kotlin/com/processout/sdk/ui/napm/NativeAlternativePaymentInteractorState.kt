@@ -54,7 +54,7 @@ internal sealed interface NativeAlternativePaymentInteractorState {
         val logoUrl: String?,
         val actionImageUrl: String?,
         val actionMessage: String?,
-        val primaryActionId: String,
+        val primaryActionId: String?,
         val secondaryAction: Action,
         val withProgressIndicator: Boolean
     )

@@ -154,11 +154,13 @@ internal class NativeAlternativePaymentViewModel private constructor(
             )
         } else {
             val primaryAction = options.paymentConfirmation.primaryAction?.let {
-                POActionState(
-                    id = primaryActionId,
-                    text = it.text ?: app.getString(R.string.po_native_apm_confirm_payment_button_text),
-                    primary = true
-                )
+                primaryActionId?.let { id ->
+                    POActionState(
+                        id = id,
+                        text = it.text ?: app.getString(R.string.po_native_apm_confirm_payment_button_text),
+                        primary = true
+                    )
+                }
             }
             NativeAlternativePaymentViewModelState.Capture(
                 title = paymentProviderName,

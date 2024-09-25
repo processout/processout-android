@@ -668,7 +668,12 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private fun confirmPayment() {
-        // TODO
+        _state.whenCapturing { stateValue ->
+            POLogger.info("User confirmed that required external action is complete.")
+            dispatch(DidConfirmPayment)
+            _state.update { Capturing(stateValue.copy(primaryActionId = null)) }
+            capture()
+        }
     }
 
     private fun capture() {
