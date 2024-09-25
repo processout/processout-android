@@ -527,7 +527,10 @@ private fun Actions(
             primary = state.primaryAction
             secondary = state.secondaryAction
         }
-        is Capture -> secondary = state.secondaryAction
+        is Capture -> {
+            primary = state.primaryAction
+            secondary = state.secondaryAction
+        }
     }
     val actions = mutableListOf<POActionState>()
     primary?.let { actions.add(it) }

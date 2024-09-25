@@ -192,6 +192,7 @@ internal class NativeAlternativePaymentInteractor(
         actionImageUrl = gateway.customerActionImageUrl,
         actionMessage = parameterValues?.customerActionMessage
             ?: gateway.customerActionMessage?.let { escapedMarkdown(it) },
+        primaryActionId = ActionId.CONFIRM_PAYMENT,
         secondaryAction = NativeAlternativePaymentInteractorState.Action(
             id = ActionId.CANCEL,
             enabled = false
@@ -398,6 +399,7 @@ internal class NativeAlternativePaymentInteractor(
             is Action -> when (event.id) {
                 ActionId.SUBMIT -> submit()
                 ActionId.CANCEL -> cancel()
+                ActionId.CONFIRM_PAYMENT -> confirmPayment()
             }
             is ActionConfirmationRequested -> {
                 POLogger.debug("Requested the user to confirm the action: %s", event.id)
@@ -665,6 +667,10 @@ internal class NativeAlternativePaymentInteractor(
             enableCapturingSecondaryAction()
             capture()
         }
+    }
+
+    private fun confirmPayment() {
+        // TODO
     }
 
     private fun capture() {
