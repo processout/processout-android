@@ -412,12 +412,14 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
         POLogger.info("All payment parameters has been submitted.")
 
         if (options.waitsPaymentConfirmation) {
+            val customerActionMessage = parameterValues?.customerActionMessage ?: uiModel.customerActionMessageMarkdown
             val updatedUiModel = uiModel.copy(
                 title = parameterValues?.providerName,
                 logoUrl = if (parameterValues?.providerName != null)
                     parameterValues.providerLogoUrl else uiModel.logoUrl,
-                customerActionMessageMarkdown = parameterValues?.customerActionMessage
-                    ?: uiModel.customerActionMessageMarkdown
+                customerActionMessageMarkdown = customerActionMessage,
+                paymentConfirmationPrimaryActionText = if (!customerActionMessage.isNullOrBlank())
+                    uiModel.paymentConfirmationPrimaryActionText else null
             )
             POLogger.info("Waiting for capture confirmation.")
             dispatch(
@@ -433,7 +435,7 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
             updatedUiModel.paymentConfirmationSecondaryAction?.let {
                 scheduleSecondaryActionEnabling(it) { enablePaymentConfirmationSecondaryAction() }
             }
-            if (options.paymentConfirmationPrimaryAction == null) {
+            if (updatedUiModel.paymentConfirmationPrimaryActionText == null) {
                 capture()
             }
             return
