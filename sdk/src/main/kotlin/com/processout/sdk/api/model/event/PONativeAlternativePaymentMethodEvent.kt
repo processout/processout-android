@@ -68,8 +68,8 @@ sealed class PONativeAlternativePaymentMethodEvent {
     ) : PONativeAlternativePaymentMethodEvent()
 
     /**
-     * Event is sent during the capture stage when the user confirms that they have completed
-     * any required external actions. Implementation proceeds with the actual capture process.
+     * Event is sent during the capture stage when the user confirms that they have completed required external action.
+     * Implementation proceeds with the actual capture process.
      */
     data object DidConfirmPayment : PONativeAlternativePaymentMethodEvent()
 

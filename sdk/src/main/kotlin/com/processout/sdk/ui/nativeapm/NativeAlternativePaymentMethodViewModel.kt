@@ -501,7 +501,7 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
 
     fun confirmPayment() {
         _uiState.value.doWhenCapture { uiModel ->
-            POLogger.info("User confirmed that required external actions are complete.")
+            POLogger.info("User confirmed that required external action is complete.")
             dispatch(DidConfirmPayment)
             _uiState.value = Capture(
                 uiModel.copy(paymentConfirmationPrimaryActionText = null)
