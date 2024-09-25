@@ -631,7 +631,7 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
             primaryActionText = options.primaryActionText ?: invoice.formatPrimaryActionText(),
             secondaryAction = options.secondaryAction?.toUiModel(),
             paymentConfirmationPrimaryActionText = options.paymentConfirmationPrimaryAction?.let {
-                it.text ?: app.getString(R.string.po_native_apm_confirm_capture_button_text)
+                it.text ?: app.getString(R.string.po_native_apm_confirm_payment_button_text)
             },
             paymentConfirmationSecondaryAction = options.paymentConfirmationSecondaryAction?.toUiModel(),
             isPaymentConfirmationProgressIndicatorVisible = false,

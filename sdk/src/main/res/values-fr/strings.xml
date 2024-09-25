@@ -15,7 +15,7 @@
     <string name="po_native_apm_submit_button_text_format">Payer %s</string>
     <string name="po_native_apm_submit_button_text">Payer</string>
     <string name="po_native_apm_cancel_button_text">Annuler</string>
-    <string name="po_native_apm_confirm_capture_button_text">J\'ai payé</string>
+    <string name="po_native_apm_confirm_payment_button_text">J\'ai payé</string>
     <string name="po_native_apm_email_placeholder">nom@exemple.fr</string>
     <string name="po_native_apm_phone_placeholder">Entrez votre numéro de téléphone</string>
     <string name="po_native_apm_success_message">Succès !\nPaiement confirmé.</string>
