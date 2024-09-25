@@ -663,7 +663,6 @@ internal class NativeAlternativePaymentInteractor(
                 coroutineScope = this@launch
             )
             _state.update { Capturing(stateValue) }
-            enableCapturingProgressIndicator()
             enableCapturingSecondaryAction()
             capture()
         }
@@ -679,6 +678,7 @@ internal class NativeAlternativePaymentInteractor(
         }
         interactorScope.launch {
             captureStartTimestamp = System.currentTimeMillis()
+            enableCapturingProgressIndicator()
             val iterator = captureRetryStrategy.iterator
             while (capturePassedTimestamp < options.paymentConfirmation.timeoutSeconds * 1000) {
                 val result = invoicesService.captureNativeAlternativePayment(invoiceId, gatewayConfigurationId)
