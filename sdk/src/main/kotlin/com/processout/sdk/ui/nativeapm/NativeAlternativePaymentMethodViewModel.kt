@@ -516,13 +516,13 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
         if (captureStartTimestamp != 0L) {
             return
         }
+        captureStartTimestamp = System.currentTimeMillis()
+        options.showPaymentConfirmationProgressIndicatorAfterSeconds?.let { afterSeconds ->
+            showPaymentConfirmationProgressIndicator(
+                afterMillis = TimeUnit.SECONDS.toMillis(afterSeconds.toLong())
+            )
+        }
         viewModelScope.launch {
-            captureStartTimestamp = System.currentTimeMillis()
-            options.showPaymentConfirmationProgressIndicatorAfterSeconds?.let { afterSeconds ->
-                showPaymentConfirmationProgressIndicator(
-                    afterMillis = TimeUnit.SECONDS.toMillis(afterSeconds.toLong())
-                )
-            }
             val iterator = captureRetryStrategy.iterator
             while (capturePassedTimestamp < options.paymentConfirmationTimeoutSeconds * 1000) {
                 val result = invoicesService.captureNativeAlternativePayment(invoiceId, gatewayConfigurationId)

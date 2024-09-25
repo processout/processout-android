@@ -680,9 +680,9 @@ internal class NativeAlternativePaymentInteractor(
         if (captureStartTimestamp != 0L) {
             return
         }
+        captureStartTimestamp = System.currentTimeMillis()
+        enableCapturingProgressIndicator()
         interactorScope.launch {
-            captureStartTimestamp = System.currentTimeMillis()
-            enableCapturingProgressIndicator()
             val iterator = captureRetryStrategy.iterator
             while (capturePassedTimestamp < options.paymentConfirmation.timeoutSeconds * 1000) {
                 val result = invoicesService.captureNativeAlternativePayment(invoiceId, gatewayConfigurationId)
