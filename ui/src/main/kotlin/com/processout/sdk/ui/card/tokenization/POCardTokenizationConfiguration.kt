@@ -4,7 +4,6 @@ import android.os.Parcelable
 import androidx.annotation.ColorRes
 import com.processout.sdk.api.model.request.POContact
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode
-import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.style.*
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import kotlinx.parcelize.Parcelize
@@ -29,7 +28,7 @@ data class POCardTokenizationConfiguration(
     val cvcRequired: Boolean = true,
     val isCardholderNameFieldVisible: Boolean = true,
     val billingAddress: BillingAddressConfiguration = BillingAddressConfiguration(),
-    @ProcessOutInternalApi val savingAllowed: Boolean = false,
+    val savingAllowed: Boolean = false,
     val primaryActionText: String? = null,
     val secondaryActionText: String? = null,
     val cancellation: POCancellationConfiguration = POCancellationConfiguration(),
