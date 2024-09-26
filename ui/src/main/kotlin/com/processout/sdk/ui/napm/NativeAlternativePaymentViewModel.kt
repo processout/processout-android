@@ -153,11 +153,21 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 secondaryAction = secondaryAction
             )
         } else {
+            val primaryAction = options.paymentConfirmation.primaryAction?.let {
+                primaryActionId?.let { id ->
+                    POActionState(
+                        id = id,
+                        text = it.text ?: app.getString(R.string.po_native_apm_confirm_payment_button_text),
+                        primary = true
+                    )
+                }
+            }
             NativeAlternativePaymentViewModelState.Capture(
                 title = paymentProviderName,
                 logoUrl = logoUrl,
                 imageUrl = actionImageUrl,
                 message = actionMessage,
+                primaryAction = primaryAction,
                 secondaryAction = secondaryAction,
                 withProgressIndicator = withProgressIndicator,
                 isCaptured = false
@@ -171,6 +181,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
             logoUrl = logoUrl,
             imageUrl = null,
             message = options.successMessage ?: app.getString(R.string.po_native_apm_success_message),
+            primaryAction = null,
             secondaryAction = null,
             withProgressIndicator = false,
             isCaptured = true

@@ -17,15 +17,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import androidx.activity.addCallback
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.animation.addListener
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.children
-import androidx.core.view.updateLayoutParams
+import androidx.core.view.*
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -503,6 +501,11 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         viewModel.submitPayment()
     }
 
+    private fun onConfirmPaymentClick() {
+        bindingCapture.poPrimaryButton.isClickable = false
+        viewModel.confirmPayment()
+    }
+
     private fun onCancelClick(confirmation: ActionConfirmation) {
         with(confirmation) {
             if (!enabled) {
@@ -586,7 +589,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
 
     private fun bindCapture(uiModel: NativeAlternativePaymentMethodUiModel) {
         initCaptureView()
-        bindPaymentConfirmationSecondaryButton(uiModel)
+        bindCaptureFooter(uiModel)
         if (uiModel.showCustomerAction()) {
             bindingCapture.poCircularProgressIndicator.visibility = View.GONE
             if (uiModel.isPaymentConfirmationProgressIndicatorVisible) {
@@ -665,21 +668,42 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         bindingCapture.poMessage.visibility = View.VISIBLE
     }
 
-    private fun bindPaymentConfirmationSecondaryButton(
+    private fun bindCaptureFooter(
         uiModel: NativeAlternativePaymentMethodUiModel
     ) {
-        uiModel.paymentConfirmationSecondaryAction?.let { action ->
-            with(bindingCapture.poSecondaryButton) {
-                when (action) {
-                    is SecondaryActionUiModel.Cancel -> {
-                        setOnClickListener { onCancelClick(action.confirmation) }
-                        text = action.text
-                        setState(action.state)
-                        bindingCapture.poFooter.visibility = View.VISIBLE
-                    }
-                }
+        val visible = uiModel.paymentConfirmationPrimaryActionText != null
+                || uiModel.paymentConfirmationSecondaryAction != null
+        if (visible) {
+            bindingCapture.poFooter.visibility = View.VISIBLE
+            with(bindingCapture.poPrimaryButton) {
+                uiModel.paymentConfirmationPrimaryActionText?.let { actionText ->
+                    setOnClickListener { onConfirmPaymentClick() }
+                    text = actionText
+                    visibility = View.VISIBLE
+                } ?: run { visibility = View.GONE }
             }
-        } ?: run { bindingCapture.poFooter.visibility = View.GONE }
+            with(bindingCapture.poSecondaryButton) {
+                uiModel.paymentConfirmationSecondaryAction?.let { action ->
+                    when (action) {
+                        is SecondaryActionUiModel.Cancel -> {
+                            setOnClickListener { onCancelClick(action.confirmation) }
+                            if (uiModel.paymentConfirmationPrimaryActionText == null) {
+                                updateLayoutParams<LinearLayout.LayoutParams> {
+                                    updateMarginsRelative(
+                                        top = resources.getDimensionPixelSize(R.dimen.po_bottomSheet_buttons_marginVertical)
+                                    )
+                                }
+                            }
+                            text = action.text
+                            setState(action.state)
+                            visibility = View.VISIBLE
+                        }
+                    }
+                } ?: run { visibility = View.GONE }
+            }
+        } else {
+            bindingCapture.poFooter.visibility = View.GONE
+        }
     }
 
     private fun handleSuccess(uiModel: NativeAlternativePaymentMethodUiModel) {
@@ -755,6 +779,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         bindingCapture.poFooter.visibility = View.GONE
     }
 
+    @Suppress("DEPRECATION")
     private fun bindSuccessBackground() {
         val backgroundDecorationSuccessColor =
             when (val stateStyle = configuration?.style?.backgroundDecoration?.success) {

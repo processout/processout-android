@@ -50,6 +50,16 @@ data class PONativeAlternativePaymentConfiguration(
     ) : Parcelable
 
     /**
+     * Action for confirmation.
+     *
+     * @param[text] Action text. Pass _null_ to use default text.
+     */
+    @Parcelize
+    data class ConfirmAction(
+        val text: String? = null
+    ) : Parcelable
+
+    /**
      * Supported secondary actions.
      */
     sealed class SecondaryAction : Parcelable {
@@ -59,6 +69,8 @@ data class PONativeAlternativePaymentConfiguration(
          * @param[text] Action text. Pass _null_ to use default text.
          * @param[disabledForSeconds] Initially disables action for the given amount of time in seconds.
          * By default user can interact with action immediately when it's visible.
+         * @param[confirmation] Specifies action confirmation configuration (e.g. dialog).
+         * Use _null_ to disable, this is a default behaviour.
          */
         @Parcelize
         data class Cancel(
@@ -93,6 +105,8 @@ data class PONativeAlternativePaymentConfiguration(
      * Use _null_ to hide, this is a default behaviour.
      * @param[hideGatewayDetails] Specifies whether gateway information (such as name/logo) should be hidden during payment confirmation
      * even when specific payment provider details are not available. Default value is _false_.
+     * @param[primaryAction] Optional primary action for payment confirmation.
+     * To hide action use _null_, this is a default behaviour.
      * @param[secondaryAction] Secondary action (e.g. "Cancel") that could be optionally presented to user during payment confirmation stage.
      * Use _null_ to hide, this is a default behaviour.
      */
@@ -102,6 +116,7 @@ data class PONativeAlternativePaymentConfiguration(
         val timeoutSeconds: Int = DEFAULT_TIMEOUT_SECONDS,
         val showProgressIndicatorAfterSeconds: Int? = null,
         val hideGatewayDetails: Boolean = false,
+        val primaryAction: ConfirmAction? = null,
         val secondaryAction: SecondaryAction? = null
     ) : Parcelable {
         companion object {

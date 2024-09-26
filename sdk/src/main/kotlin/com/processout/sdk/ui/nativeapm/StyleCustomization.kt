@@ -30,6 +30,7 @@ import com.processout.sdk.ui.shared.style.radio.PORadioButtonStyle
 import com.processout.sdk.ui.shared.view.extension.dpToPx
 import com.processout.sdk.ui.shared.view.extension.spToPx
 
+@Suppress("DEPRECATION")
 internal fun PoBottomSheetNativeApmBinding.applyStyle(
     style: PONativeAlternativePaymentMethodConfiguration.Style
 ) {
@@ -51,6 +52,7 @@ internal fun PoBottomSheetCaptureBinding.applyStyle(
     }
     style.successImageResId?.let { poSuccessImage.setImageResource(it) }
     style.message?.let { poMessage.applyStyle(it) }
+    style.primaryButton?.let { poPrimaryButton.applyStyle(it) }
     style.secondaryButton?.let { poSecondaryButton.applyStyle(it) }
     style.controlsTintColor?.let {
         poMessage.applyControlsTintColor(it)

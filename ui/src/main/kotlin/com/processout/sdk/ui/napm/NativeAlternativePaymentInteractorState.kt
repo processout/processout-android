@@ -54,6 +54,7 @@ internal sealed interface NativeAlternativePaymentInteractorState {
         val logoUrl: String?,
         val actionImageUrl: String?,
         val actionMessage: String?,
+        val primaryActionId: String?,
         val secondaryAction: Action,
         val withProgressIndicator: Boolean
     )
@@ -79,6 +80,7 @@ internal sealed interface NativeAlternativePaymentInteractorState {
     object ActionId {
         const val SUBMIT = "submit"
         const val CANCEL = "cancel"
+        const val CONFIRM_PAYMENT = "confirm-payment"
     }
 }
 

@@ -192,6 +192,7 @@ internal class NativeAlternativePaymentInteractor(
         actionImageUrl = gateway.customerActionImageUrl,
         actionMessage = parameterValues?.customerActionMessage
             ?: gateway.customerActionMessage?.let { escapedMarkdown(it) },
+        primaryActionId = ActionId.CONFIRM_PAYMENT,
         secondaryAction = NativeAlternativePaymentInteractorState.Action(
             id = ActionId.CANCEL,
             enabled = false
@@ -398,6 +399,7 @@ internal class NativeAlternativePaymentInteractor(
             is Action -> when (event.id) {
                 ActionId.SUBMIT -> submit()
                 ActionId.CANCEL -> cancel()
+                ActionId.CONFIRM_PAYMENT -> confirmPayment()
             }
             is ActionConfirmationRequested -> {
                 POLogger.debug("Requested the user to confirm the action: %s", event.id)
@@ -651,18 +653,25 @@ internal class NativeAlternativePaymentInteractor(
         }
         interactorScope.launch {
             POLogger.info("Waiting for capture confirmation.")
-            dispatch(
-                WillWaitForCaptureConfirmation(
-                    additionalActionExpected = !stateValue.actionMessage.isNullOrBlank()
-                )
-            )
+            val additionalActionExpected = !stateValue.actionMessage.isNullOrBlank()
+            dispatch(WillWaitForCaptureConfirmation(additionalActionExpected = additionalActionExpected))
             preloadAllImages(
                 stateValue = stateValue,
                 coroutineScope = this@launch
             )
             _state.update { Capturing(stateValue) }
-            enableCapturingProgressIndicator()
             enableCapturingSecondaryAction()
+            if (!additionalActionExpected || options.paymentConfirmation.primaryAction == null) {
+                capture()
+            }
+        }
+    }
+
+    private fun confirmPayment() {
+        _state.whenCapturing { stateValue ->
+            POLogger.info("User confirmed that required external action is complete.")
+            dispatch(DidConfirmPayment)
+            _state.update { Capturing(stateValue.copy(primaryActionId = null)) }
             capture()
         }
     }
@@ -671,8 +680,9 @@ internal class NativeAlternativePaymentInteractor(
         if (captureStartTimestamp != 0L) {
             return
         }
+        captureStartTimestamp = System.currentTimeMillis()
+        enableCapturingProgressIndicator()
         interactorScope.launch {
-            captureStartTimestamp = System.currentTimeMillis()
             val iterator = captureRetryStrategy.iterator
             while (capturePassedTimestamp < options.paymentConfirmation.timeoutSeconds * 1000) {
                 val result = invoicesService.captureNativeAlternativePayment(invoiceId, gatewayConfigurationId)

@@ -45,6 +45,8 @@ data class PONativeAlternativePaymentMethodConfiguration(
      * or will complete right after all user’s input is submitted. Default value is _true_.
      * @param[paymentConfirmationTimeoutSeconds] Amount of time (in seconds) to wait for final payment confirmation.
      * Default value is 3 minutes, while maximum value is 15 minutes.
+     * @param[paymentConfirmationPrimaryAction] Optional primary action for payment confirmation.
+     * To hide action use _null_, this is a default behaviour.
      * @param[paymentConfirmationSecondaryAction] Action that could be optionally presented to user during payment confirmation stage.
      * To hide action use _null_, this is a default behaviour.
      * @param[showPaymentConfirmationProgressIndicatorAfterSeconds] Show progress indicator during payment confirmation after provided delay (in seconds).
@@ -61,6 +63,7 @@ data class PONativeAlternativePaymentMethodConfiguration(
         val skipSuccessScreen: Boolean = false,
         val waitsPaymentConfirmation: Boolean = true,
         val paymentConfirmationTimeoutSeconds: Int = DEFAULT_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS,
+        val paymentConfirmationPrimaryAction: ConfirmAction? = null,
         val paymentConfirmationSecondaryAction: SecondaryAction? = null,
         val showPaymentConfirmationProgressIndicatorAfterSeconds: Int? = null
     ) : Parcelable {
@@ -69,6 +72,16 @@ data class PONativeAlternativePaymentMethodConfiguration(
             const val DEFAULT_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS = 3 * 60
         }
     }
+
+    /**
+     * Action for confirmation.
+     *
+     * @param[text] Action text. Pass _null_ to use default text.
+     */
+    @Parcelize
+    data class ConfirmAction(
+        val text: String? = null
+    ) : Parcelable
 
     /**
      * Supported secondary actions.
@@ -80,6 +93,7 @@ data class PONativeAlternativePaymentMethodConfiguration(
          * @param[text] Action text. Pass _null_ to use default text.
          * @param[disabledForSeconds] Initially disables action for the given amount of time in seconds.
          * By default user can interact with action immediately when it's visible.
+         * @param[confirmation] Specifies action confirmation configuration (e.g. dialog). Disabled by default.
          */
         @Parcelize
         data class Cancel(
@@ -90,9 +104,9 @@ data class PONativeAlternativePaymentMethodConfiguration(
     }
 
     /**
-     * Specifies action confirmation behaviour and values.
+     * Specifies action confirmation configuration (e.g. dialog).
      *
-     * @param[enabled] Enables action confirmation.
+     * @param[enabled] Enables action confirmation. Default value is _false_.
      * @param[title] Custom title. Pass _null_ to use default text.
      * @param[message] Custom message. Pass _null_ to use default text. Pass empty string to hide.
      * @param[confirmActionText] Custom confirm action text. Pass _null_ to use default text.

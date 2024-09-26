@@ -412,12 +412,14 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
         POLogger.info("All payment parameters has been submitted.")
 
         if (options.waitsPaymentConfirmation) {
+            val customerActionMessage = parameterValues?.customerActionMessage ?: uiModel.customerActionMessageMarkdown
             val updatedUiModel = uiModel.copy(
                 title = parameterValues?.providerName,
                 logoUrl = if (parameterValues?.providerName != null)
                     parameterValues.providerLogoUrl else uiModel.logoUrl,
-                customerActionMessageMarkdown = parameterValues?.customerActionMessage
-                    ?: uiModel.customerActionMessageMarkdown
+                customerActionMessageMarkdown = customerActionMessage,
+                paymentConfirmationPrimaryActionText = if (!customerActionMessage.isNullOrBlank())
+                    uiModel.paymentConfirmationPrimaryActionText else null
             )
             POLogger.info("Waiting for capture confirmation.")
             dispatch(
@@ -430,16 +432,12 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
             animateViewTransition = true
             _uiState.value = Capture(updatedUiModel)
 
-            options.showPaymentConfirmationProgressIndicatorAfterSeconds?.let { afterSeconds ->
-                showPaymentConfirmationProgressIndicator(
-                    afterMillis = TimeUnit.SECONDS.toMillis(afterSeconds.toLong())
-                )
-            }
             updatedUiModel.paymentConfirmationSecondaryAction?.let {
                 scheduleSecondaryActionEnabling(it) { enablePaymentConfirmationSecondaryAction() }
             }
-
-            capture()
+            if (updatedUiModel.paymentConfirmationPrimaryActionText == null) {
+                capture()
+            }
             return
         }
         _uiState.value = Success(uiModel.copy())
@@ -503,12 +501,28 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
         }
     else originalMessage
 
+    fun confirmPayment() {
+        _uiState.value.doWhenCapture { uiModel ->
+            POLogger.info("User confirmed that required external action is complete.")
+            dispatch(DidConfirmPayment)
+            _uiState.value = Capture(
+                uiModel.copy(paymentConfirmationPrimaryActionText = null)
+            )
+            capture()
+        }
+    }
+
     private fun capture() {
         if (captureStartTimestamp != 0L) {
             return
         }
+        captureStartTimestamp = System.currentTimeMillis()
+        options.showPaymentConfirmationProgressIndicatorAfterSeconds?.let { afterSeconds ->
+            showPaymentConfirmationProgressIndicator(
+                afterMillis = TimeUnit.SECONDS.toMillis(afterSeconds.toLong())
+            )
+        }
         viewModelScope.launch {
-            captureStartTimestamp = System.currentTimeMillis()
             val iterator = captureRetryStrategy.iterator
             while (capturePassedTimestamp < options.paymentConfirmationTimeoutSeconds * 1000) {
                 val result = invoicesService.captureNativeAlternativePayment(invoiceId, gatewayConfigurationId)
@@ -616,6 +630,9 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
             customerActionImageUrl = gateway.customerActionImageUrl,
             primaryActionText = options.primaryActionText ?: invoice.formatPrimaryActionText(),
             secondaryAction = options.secondaryAction?.toUiModel(),
+            paymentConfirmationPrimaryActionText = options.paymentConfirmationPrimaryAction?.let {
+                it.text ?: app.getString(R.string.po_native_apm_confirm_payment_button_text)
+            },
             paymentConfirmationSecondaryAction = options.paymentConfirmationSecondaryAction?.toUiModel(),
             isPaymentConfirmationProgressIndicatorVisible = false,
             isSubmitting = false
