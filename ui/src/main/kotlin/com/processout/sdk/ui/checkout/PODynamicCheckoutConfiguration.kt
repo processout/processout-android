@@ -95,8 +95,15 @@ data class PODynamicCheckoutConfiguration(
         data class PaymentConfirmationConfiguration(
             val timeoutSeconds: Int = 3 * 60,
             val showProgressIndicatorAfterSeconds: Int? = null,
+            val confirmButton: ConfirmButton? = null,
             val cancelButton: CancelButton? = CancelButton()
-        ) : Parcelable
+        ) : Parcelable {
+
+            @Parcelize
+            data class ConfirmButton(
+                val text: String? = null
+            ) : Parcelable
+        }
     }
 
     @Parcelize
