@@ -23,6 +23,7 @@ import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.LongAnimation
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.ShortAnimationDurationMillis
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.isMessageShort
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.messageGravity
+import com.processout.sdk.ui.core.component.POButton
 import com.processout.sdk.ui.core.component.POCircularProgressIndicator
 import com.processout.sdk.ui.core.component.PORequestFocus
 import com.processout.sdk.ui.core.component.POText
@@ -56,7 +57,7 @@ internal fun NativeAlternativePayment(
     when (state) {
         is UserInput -> UserInput(id, state, onEvent, style)
         is Capture -> if (!state.isCaptured) {
-            Capture(state, style)
+            Capture(id, state, onEvent, style)
         }
         else -> {}
     }
@@ -321,7 +322,9 @@ private fun DropdownField(
 
 @Composable
 private fun Capture(
+    id: String,
     state: Capture,
+    onEvent: (DynamicCheckoutEvent) -> Unit,
     style: DynamicCheckoutScreen.Style
 ) {
     AnimatedVisibility(
@@ -369,6 +372,21 @@ private fun Capture(
                     onError = {
                         showImage = false
                     }
+                )
+            }
+            state.primaryAction?.let { action ->
+                POButton(
+                    text = action.text,
+                    onClick = {
+                        onEvent(
+                            Action(
+                                actionId = action.id,
+                                paymentMethodId = id
+                            )
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    style = style.actionsContainer.primary
                 )
             }
         }
