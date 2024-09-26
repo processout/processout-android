@@ -615,6 +615,7 @@ internal class CardTokenizationInteractor(
             eventDispatcher.completion.collect { result ->
                 result.onSuccess {
                     _state.value.tokenizedCard?.let { card ->
+                        dispatch(DidComplete)
                         complete(Success(card))
                     }.orElse {
                         val failure = ProcessOutResult.Failure(
