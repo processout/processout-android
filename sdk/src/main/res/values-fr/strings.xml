@@ -49,6 +49,7 @@
     <string name="po_card_tokenization_card_details_number_placeholder">4242 4242 4242 4242</string>
     <string name="po_card_tokenization_billing_address_title">Adresse de Facturation</string>
     <string name="po_card_tokenization_billing_address_street">Ligne d\'adresse %d</string>
+    <string name="po_card_tokenization_save_card">Enregistrer cette carte pour les paiements futurs</string>
     <string name="po_card_tokenization_error_card">Les informations de votre carte sont incorrectes.</string>
     <string name="po_card_tokenization_error_card_expiration">La date d\'expiration de votre carte est incorrecte.</string>
     <string name="po_card_tokenization_error_card_number">Votre numéro de carte est incorrect.</string>
