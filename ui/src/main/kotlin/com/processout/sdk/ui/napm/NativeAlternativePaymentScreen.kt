@@ -57,6 +57,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.codeFieldHorizo
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.messageGravity
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Field.*
+import com.processout.sdk.ui.shared.component.DynamicFooter
 import com.processout.sdk.ui.shared.component.TextAndroidView
 import com.processout.sdk.ui.shared.component.rememberLifecycleEvent
 import com.processout.sdk.ui.shared.extension.dpToPx
@@ -95,15 +96,17 @@ internal fun NativeAlternativePaymentScreen(
             )
         },
         bottomBar = {
-            Actions(
-                modifier = Modifier.onGloballyPositioned {
-                    bottomBarHeight = it.size.height
-                },
-                state = state,
-                onEvent = onEvent,
-                containerStyle = style.actionsContainer,
-                dialogStyle = style.dialog
-            )
+            DynamicFooter {
+                Actions(
+                    modifier = Modifier.onGloballyPositioned {
+                        bottomBarHeight = it.size.height
+                    },
+                    state = state,
+                    onEvent = onEvent,
+                    containerStyle = style.actionsContainer,
+                    dialogStyle = style.dialog
+                )
+            }
         }
     ) { scaffoldPadding ->
         val verticalSpacing = ProcessOutTheme.spacing.extraLarge

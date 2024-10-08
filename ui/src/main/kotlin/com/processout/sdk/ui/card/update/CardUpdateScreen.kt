@@ -27,6 +27,7 @@ import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.shared.component.DynamicFooter
 import com.processout.sdk.ui.shared.component.rememberLifecycleEvent
 import com.processout.sdk.ui.shared.state.FieldState
 
@@ -52,12 +53,14 @@ internal fun CardUpdateScreen(
             )
         },
         bottomBar = {
-            Actions(
-                primary = state.primaryAction,
-                secondary = state.secondaryAction,
-                onEvent = onEvent,
-                style = style.actionsContainer
-            )
+            DynamicFooter {
+                Actions(
+                    primary = state.primaryAction,
+                    secondary = state.secondaryAction,
+                    onEvent = onEvent,
+                    style = style.actionsContainer
+                )
+            }
         }
     ) { scaffoldPadding ->
         Column(
