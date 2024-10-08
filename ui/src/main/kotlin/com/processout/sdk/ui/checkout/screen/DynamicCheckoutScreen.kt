@@ -73,10 +73,10 @@ internal fun DynamicCheckoutScreen(
     isLightTheme: Boolean
 ) {
     Column {
-        Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
+        Spacer(Modifier.windowInsetsTopHeight(WindowInsets.safeDrawing))
         Scaffold(
             modifier = Modifier
-                .consumeWindowInsets(WindowInsets.statusBars)
+                .consumeWindowInsets(WindowInsets.safeDrawing)
                 .clip(shape = shapes.topRoundedCornersLarge),
             containerColor = style.backgroundColor,
             bottomBar = {
