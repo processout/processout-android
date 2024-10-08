@@ -17,7 +17,9 @@ internal sealed interface ScreenMode {
 @Composable
 internal fun screenModeAsState(viewHeight: Int): State<ScreenMode> {
     val isImeVisible by isImeVisibleAsState()
-    val totalViewHeight = if (isImeVisible) viewHeight + imeHeight() else viewHeight
+    val totalViewHeight = if (isImeVisible)
+        viewHeight + imeHeight() else
+        viewHeight + navigationBarHeight()
     val screenHeight = LocalContext.current.screenSize().height + navigationBarHeight()
     val screenMode = remember(totalViewHeight, screenHeight) {
         mutableStateOf<ScreenMode>(Window(height = totalViewHeight, availableHeight = screenHeight))
