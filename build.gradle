@@ -30,7 +30,7 @@ tasks.dokkaHtmlMultiModule.configure {
 
 ext {
     minSdkVersion = 21
-    targetSdkVersion = 34
+    targetSdkVersion = 35
     compileSdkVersion = 35
 
     publishGroupId = 'com.processout'
