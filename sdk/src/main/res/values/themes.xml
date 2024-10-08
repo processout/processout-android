@@ -37,9 +37,10 @@
         <item name="poCodeEditTextStyle">@style/Widget.ProcessOut.CodeEditText</item>
     </style>
 
-    <style name="ThemeOverlay.ProcessOut.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
+    <style name="ThemeOverlay.ProcessOut.Base.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
         <item name="android:backgroundDimEnabled">true</item>
         <item name="android:windowSoftInputMode">adjustResize</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="colorSurface">@android:color/transparent</item>
         <item name="bottomSheetStyle">@style/Widget.ProcessOut.BottomSheet.Modal</item>
     </style>
