@@ -5,6 +5,7 @@ package com.processout.sdk.ui.base
 import android.animation.ValueAnimator
 import android.content.DialogInterface
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.View
@@ -147,6 +148,12 @@ internal abstract class BaseBottomSheetDialogFragment<T : Parcelable> : BottomSh
                     )?.bottom ?: 0
 
                     var updatedHeight = screenHeight + navigationBarHeight - viewCoordinateY
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                        val displayCutoutHeight = windowInsets?.getInsets(
+                            WindowInsetsCompat.Type.displayCutout()
+                        )?.top ?: 0
+                        updatedHeight += displayCutoutHeight
+                    }
                     if (updatedHeight < bottomSheetBehavior.peekHeight) {
                         updatedHeight = bottomSheetBehavior.peekHeight
                     }

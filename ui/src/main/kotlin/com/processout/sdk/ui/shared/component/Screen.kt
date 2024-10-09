@@ -1,5 +1,6 @@
 package com.processout.sdk.ui.shared.component
 
+import android.os.Build
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -20,7 +21,10 @@ internal fun screenModeAsState(viewHeight: Int): State<ScreenMode> {
     val totalViewHeight = if (isImeVisible)
         viewHeight + imeHeight() else
         viewHeight + navigationBarHeight()
-    val screenHeight = LocalContext.current.screenSize().height + navigationBarHeight()
+    var screenHeight = LocalContext.current.screenSize().height + navigationBarHeight()
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+        screenHeight += displayCutoutHeight()
+    }
     val screenMode = remember(totalViewHeight, screenHeight) {
         mutableStateOf<ScreenMode>(Window(height = totalViewHeight, availableHeight = screenHeight))
     }
@@ -29,6 +33,12 @@ internal fun screenModeAsState(viewHeight: Int): State<ScreenMode> {
     }
     return screenMode
 }
+
+@Composable
+internal fun displayCutoutHeight(): Int =
+    ViewCompat.getRootWindowInsets(LocalView.current.rootView)
+        ?.getInsets(WindowInsetsCompat.Type.displayCutout())
+        ?.top ?: 0
 
 @Composable
 internal fun navigationBarHeight(): Int =
