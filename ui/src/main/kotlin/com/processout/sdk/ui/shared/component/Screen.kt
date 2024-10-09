@@ -28,7 +28,7 @@ internal fun screenModeAsState(viewHeight: Int): State<ScreenMode> {
     val screenMode = remember(totalViewHeight, screenHeight) {
         mutableStateOf<ScreenMode>(Window(height = totalViewHeight, availableHeight = screenHeight))
     }
-    if (screenHeight < totalViewHeight) {
+    if (screenHeight <= totalViewHeight) {
         screenMode.value = Fullscreen(screenHeight)
     }
     return screenMode

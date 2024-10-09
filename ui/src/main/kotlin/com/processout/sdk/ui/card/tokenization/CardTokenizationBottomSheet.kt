@@ -24,6 +24,7 @@ import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Failur
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Success
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.Dismiss
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.shared.component.displayCutoutHeight
 import com.processout.sdk.ui.shared.component.screenModeAsState
 
 internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
@@ -64,7 +65,7 @@ internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCar
                     LaunchedEffect(value) { handle(value) }
                 }
 
-                with(screenModeAsState(viewHeight = defaultViewHeight)) {
+                with(screenModeAsState(viewHeight = defaultViewHeight + displayCutoutHeight())) {
                     LaunchedEffect(value) { apply(value) }
                 }
 
