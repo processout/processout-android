@@ -96,7 +96,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment() 
     private val screenHeight by lazy { requireContext().screenSize().height }
 
     private var minPeekHeight: Int = 0
-    private val maxPeekHeight by lazy { (screenHeight * 0.75).roundToInt() }
+    private val maxPeekHeight by lazy { (screenHeight * 0.8).roundToInt() }
     private val defaultPeekHeight by lazy { resources.getDimensionPixelSize(R.dimen.po_bottomSheet_minHeight) }
 
     private val handler by lazy { Handler(Looper.getMainLooper()) }
