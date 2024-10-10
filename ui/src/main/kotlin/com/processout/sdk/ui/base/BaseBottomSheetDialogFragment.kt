@@ -154,11 +154,8 @@ internal abstract class BaseBottomSheetDialogFragment<T : Parcelable> : BottomSh
                         )?.top ?: 0
                         updatedHeight += displayCutoutHeight
                     }
-                    if (updatedHeight < bottomSheetBehavior.peekHeight) {
-                        updatedHeight = bottomSheetBehavior.peekHeight
-                    }
                     updateLayoutParams {
-                        height = updatedHeight
+                        height = updatedHeight.coerceAtLeast(bottomSheetBehavior.peekHeight)
                     }
                 }
             }
