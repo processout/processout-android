@@ -6,8 +6,8 @@ import android.animation.ValueAnimator
 import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
-import android.content.DialogInterface.OnShowListener
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -20,8 +20,8 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.activity.addCallback
 import androidx.appcompat.view.ContextThemeWrapper
-import androidx.core.animation.addListener
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.Insets
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.view.*
 import androidx.fragment.app.viewModels
@@ -63,13 +63,10 @@ import kotlin.math.roundToInt
 /**
  * Bottom sheet that handles native alternative payment method.
  */
-class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(), OnShowListener {
+class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment() {
 
     companion object {
         const val TAG = "PONativeAlternativePaymentMethodBottomSheet"
-        private const val REQUIRED_SCREEN_HEIGHT_PERCENTAGE = 0.62
-        private const val MAX_INPUTS_COUNT_IN_COLLAPSED_STATE = 2
-        private const val MAX_INLINE_SINGLE_SELECT_IN_COLLAPSED_STATE = 3
         private const val MAX_COMPACT_MESSAGE_LENGTH = 150
         private const val SUCCESS_FINISH_DELAY_MS = 3000L
         private const val ANIMATION_DURATION_MS = 350L
@@ -79,10 +76,10 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
 
     private val viewModel: NativeAlternativePaymentMethodViewModel by viewModels {
         NativeAlternativePaymentMethodViewModel.Factory(
-            requireActivity().application,
-            configuration?.gatewayConfigurationId ?: String(),
-            configuration?.invoiceId ?: String(),
-            configuration?.options ?: PONativeAlternativePaymentMethodConfiguration.Options()
+            app = requireActivity().application,
+            gatewayConfigurationId = configuration?.gatewayConfigurationId ?: String(),
+            invoiceId = configuration?.invoiceId ?: String(),
+            options = configuration?.options ?: PONativeAlternativePaymentMethodConfiguration.Options()
         )
     }
 
@@ -94,9 +91,14 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
 
     private val bottomSheetDialog by lazy { requireDialog() as BottomSheetDialog }
     private val bottomSheetBehavior by lazy { bottomSheetDialog.behavior }
+
+    private var displayHeight: Int = 0
     private val screenHeight by lazy { requireContext().screenSize().height }
+
+    private var minPeekHeight: Int = 0
     private val maxPeekHeight by lazy { (screenHeight * 0.75).roundToInt() }
-    private val minPeekHeight by lazy { resources.getDimensionPixelSize(R.dimen.po_bottomSheet_minHeight) }
+    private val defaultPeekHeight by lazy { resources.getDimensionPixelSize(R.dimen.po_bottomSheet_minHeight) }
+
     private val handler by lazy { Handler(Looper.getMainLooper()) }
     private var cancelConfirmationAlertDialog: DialogInterface? = null
 
@@ -136,7 +138,9 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        allowExpand()
         clipRootToOutline()
+        adjustInsets()
         dispatchBackPressed()
 
         with(bottomSheetDialog) {
@@ -144,7 +148,6 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
                 isCancelable = dragDown
                 setCanceledOnTouchOutside(touchOutside)
             }
-            setOnShowListener(this@PONativeAlternativePaymentMethodBottomSheet)
         }
 
         binding.poPrimaryButton.setOnClickListener { onSubmitClick() }
@@ -156,6 +159,15 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         }
     }
 
+    private fun allowExpand() {
+        val bottomSheet: FrameLayout = requireDialog().findViewById(
+            com.google.android.material.R.id.design_bottom_sheet
+        )
+        bottomSheet.updateLayoutParams {
+            height = ViewGroup.LayoutParams.MATCH_PARENT
+        }
+    }
+
     private fun clipRootToOutline() {
         binding.root.outlineProvider = TopRoundedCornersOutlineProvider(
             R.dimen.po_bottomSheet_cornerRadius
@@ -163,57 +175,35 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         binding.root.clipToOutline = true
     }
 
-    override fun onShow(dialog: DialogInterface) {
-        if (getDialog() == null) return
-        expandable()
-        adjustPeekHeight(animate = false)
-    }
-
-    private val bottomSheetBehaviorCallback = object : BottomSheetBehavior.BottomSheetCallback() {
-        override fun onStateChanged(bottomSheet: View, newState: Int) {
-            if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                _binding?.poContainer?.updateLayoutParams {
-                    height = ViewGroup.LayoutParams.MATCH_PARENT
-                }
-            }
-        }
-
-        override fun onSlide(bottomSheet: View, slideOffset: Float) {
-            if (bottomSheetBehavior.state != BottomSheetBehavior.STATE_EXPANDED) {
-                _binding?.poContainer?.run {
-                    updateLayoutParams {
-                        val containerCoordinateY = IntArray(2)
-                            .also { getLocationOnScreen(it) }.let { it[1] }
-
-                        val windowInsets = ViewCompat.getRootWindowInsets(bottomSheet)
-                        val navigationBarHeight = windowInsets?.getInsets(
-                            WindowInsetsCompat.Type.navigationBars()
-                        )?.bottom ?: 0
-
-                        var keyboardHeight = windowInsets?.getInsets(
-                            WindowInsetsCompat.Type.ime()
-                        )?.bottom ?: 0
-                        if (keyboardHeight != 0) {
-                            keyboardHeight -= navigationBarHeight
-                        }
-
-                        var updatedHeight = screenHeight - keyboardHeight - containerCoordinateY
-                        if (updatedHeight < bottomSheetBehavior.peekHeight) {
-                            updatedHeight = bottomSheetBehavior.peekHeight
-                        }
-                        height = updatedHeight
-                    }
-                }
-            }
-        }
-    }
-
-    private fun expandable() {
-        val bottomSheet: FrameLayout = requireDialog().findViewById(
-            com.google.android.material.R.id.design_bottom_sheet
+    private fun adjustInsets() {
+        val container: FrameLayout = requireDialog().findViewById(
+            com.google.android.material.R.id.container
         )
-        bottomSheet.updateLayoutParams {
-            height = ViewGroup.LayoutParams.MATCH_PARENT
+        ViewCompat.setOnApplyWindowInsetsListener(container) { _, insets ->
+            val imeHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            val displayCutoutHeight = insets.getInsets(WindowInsetsCompat.Type.displayCutout()).top
+            val navigationBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+
+            container.setPaddingRelative(0, statusBarHeight, 0, 0)
+            binding.poFooter.setPaddingRelative(
+                0, 0, 0,
+                if (imeHeight != 0) imeHeight else navigationBarHeight
+            )
+
+            displayHeight = screenHeight + navigationBarHeight
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                displayHeight += displayCutoutHeight
+            }
+            minPeekHeight = if (imeHeight != 0)
+                defaultPeekHeight + imeHeight else
+                defaultPeekHeight + navigationBarHeight
+            minPeekHeight = minPeekHeight.coerceAtMost(displayHeight)
+            adjustPeekHeight(animate = false)
+
+            WindowInsetsCompat.Builder(insets)
+                .setInsets(WindowInsetsCompat.Type.statusBars(), Insets.of(0, 0, 0, 0))
+                .build()
         }
     }
 
@@ -227,17 +217,16 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             is Success -> maxPeekHeight
             is Failure -> bottomSheetBehavior.peekHeight
         }
-
         if (peekHeight != bottomSheetBehavior.peekHeight) {
             if (animate) {
                 animatePeekHeight(peekHeight)
             } else {
                 bottomSheetBehavior.peekHeight = peekHeight
-                setDefaultBottomSheetState()
             }
-            binding.poContainer.updateLayoutParams {
-                height = if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
-                    ViewGroup.LayoutParams.MATCH_PARENT else peekHeight
+            view?.updateLayoutParams {
+                height = if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED
+                    || peekHeight >= displayHeight
+                ) ViewGroup.LayoutParams.MATCH_PARENT else peekHeight
             }
         }
     }
@@ -247,50 +236,34 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             addUpdateListener {
                 bottomSheetBehavior.peekHeight = it.animatedValue as Int
             }
-            addListener(onEnd = {
-                setDefaultBottomSheetState()
-            })
             duration = ANIMATION_DURATION_MS
             start()
         }
     }
 
-    private fun setDefaultBottomSheetState() {
-        bottomSheetBehavior.skipCollapsed = false
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-        bottomSheetBehavior.isDraggable = true
-    }
-
-    private fun adjustBottomSheetState(
-        uiModel: NativeAlternativePaymentMethodUiModel
-    ) {
-        val forceExpand = screenHeight * REQUIRED_SCREEN_HEIGHT_PERCENTAGE < minPeekHeight
-        if (forceExpand) {
-            bottomSheetBehavior.skipCollapsed = true
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-            bottomSheetBehavior.isDraggable = viewModel.options.cancellation.dragDown
-        } else if (shouldExpandAllowingCollapse(uiModel)) {
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-        }
-    }
-
-    private fun shouldExpandAllowingCollapse(
-        uiModel: NativeAlternativePaymentMethodUiModel
-    ): Boolean {
-        if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
-            val inputsCount = uiModel.inputParameters.size
-            if (inputsCount > MAX_INPUTS_COUNT_IN_COLLAPSED_STATE)
-                return true
-            if (inputsCount >= MAX_INPUTS_COUNT_IN_COLLAPSED_STATE && uiModel.secondaryAction != null)
-                return true
-            uiModel.inputParameters.find { it.type() == ParameterType.SINGLE_SELECT }?.let {
-                it.parameter.availableValues?.let { options ->
-                    if (options.size in MAX_INLINE_SINGLE_SELECT_IN_COLLAPSED_STATE + 1..viewModel.options.inlineSingleSelectValuesLimit)
-                        return true
+    private val bottomSheetBehaviorCallback = object : BottomSheetBehavior.BottomSheetCallback() {
+        override fun onStateChanged(bottomSheet: View, newState: Int) {
+            if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                view?.updateLayoutParams {
+                    height = ViewGroup.LayoutParams.MATCH_PARENT
                 }
             }
         }
-        return false
+
+        override fun onSlide(bottomSheet: View, slideOffset: Float) {
+            if (bottomSheetBehavior.state != BottomSheetBehavior.STATE_EXPANDED) {
+                view?.run {
+                    val viewCoordinateY = IntArray(2)
+                        .also { getLocationOnScreen(it) }.let { it[1] }
+                    var updatedHeight = displayHeight - viewCoordinateY
+                    updatedHeight = updatedHeight.coerceAtLeast(bottomSheetBehavior.peekHeight)
+                    updateLayoutParams {
+                        height = if (updatedHeight >= displayHeight)
+                            ViewGroup.LayoutParams.MATCH_PARENT else updatedHeight
+                    }
+                }
+            }
+        }
     }
 
     private fun handleUiState(uiState: NativeAlternativePaymentMethodUiState) {
@@ -391,7 +364,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         binding.poInputsContainer.children.forEach {
             currentInputIds.add(it.id)
         }
-        val newStep = currentInputIds.removeAll(inputParameters.map { it.viewId }).not()
+        currentInputIds.removeAll(inputParameters.map { it.viewId })
         currentInputIds.forEach {
             with(binding.poInputsContainer) {
                 removeView(findViewById(it))
@@ -402,10 +375,6 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
             with(findOrAddInputComponent(inputParameter)) {
                 setState(inputParameter.state)
             }
-        }
-
-        if (newStep) {
-            adjustBottomSheetState(uiModel)
         }
         resolveInputFocus(uiModel.focusedInputId)
     }
@@ -553,15 +522,13 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment(),
         if (_bindingCapture == null) {
             with(binding.poContainer) {
                 removeAllViews()
-                layoutInflater.inflate(
-                    R.layout.po_bottom_sheet_capture,
-                    binding.poContainer, true
-                ).also {
-                    _bindingCapture = PoBottomSheetCaptureBinding.bind(it)
-                    configuration?.style?.run {
-                        bindingCapture.applyStyle(this)
+                layoutInflater.inflate(R.layout.po_bottom_sheet_capture, this, true)
+                    .also {
+                        _bindingCapture = PoBottomSheetCaptureBinding.bind(it)
+                        configuration?.style?.run {
+                            bindingCapture.applyStyle(this)
+                        }
                     }
-                }
             }
         }
     }
