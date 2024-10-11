@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="po_bottomSheet_minHeight">438dp</dimen>
+    <dimen name="po_bottomSheet_minHeight">440dp</dimen>
     <dimen name="po_bottomSheet_margin">24dp</dimen>
     <dimen name="po_bottomSheet_content_padding">16dp</dimen>
     <dimen name="po_bottomSheet_scrollableContent_paddingVertical">28dp</dimen>

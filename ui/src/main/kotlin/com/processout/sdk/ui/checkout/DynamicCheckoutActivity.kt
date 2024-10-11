@@ -133,10 +133,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
-            navigationBarStyle = SystemBarStyle.dark(Color.BLACK)
-        )
+        enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
         if (savedInstanceState == null) {
             initConfiguration()
         }

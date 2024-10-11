@@ -4,6 +4,8 @@
     <style name="Widget.ProcessOut.BottomSheet.Modal" parent="Widget.Material3.BottomSheet.Modal">
         <item name="android:elevation">0dp</item>
         <item name="backgroundTint">@android:color/transparent</item>
+        <item name="paddingTopSystemWindowInsets">false</item>
+        <item name="paddingBottomSystemWindowInsets">false</item>
     </style>
 
     <style name="Widget.ProcessOut.Title" parent="Widget.MaterialComponents.TextView">

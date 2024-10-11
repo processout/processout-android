@@ -3,6 +3,7 @@ package com.processout.sdk.ui.nativeapm
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 
 /**
@@ -13,6 +14,8 @@ class PONativeAlternativePaymentMethodActivity : AppCompatActivity(), BottomShee
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+
         // This is a workaround for crash on Android 8.0 (API level 26).
         // https://issuetracker.google.com/issues/68454482
         // https://stackoverflow.com/questions/48072438/java-lang-illegalstateexception-only-fullscreen-opaque-activities-can-request-o

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="ThemeOverlay.ProcessOut.BottomSheetDialog" parent="ThemeOverlay.ProcessOut.Base.BottomSheetDialog">
+        <item name="android:windowTranslucentNavigation">false</item>
+    </style>
+
+</resources>

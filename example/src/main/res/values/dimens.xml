@@ -3,7 +3,7 @@
     <dimen name="layout_padding">24dp</dimen>
     <dimen name="content_padding">20dp</dimen>
     <dimen name="content_marginVertical">16dp</dimen>
-    <dimen name="button_marginVertical">18dp</dimen>
+    <dimen name="button_marginVertical">16dp</dimen>
     <dimen name="button_space_vertical">8dp</dimen>
     <dimen name="input_space_vertical">12dp</dimen>
     <dimen name="subtitle_paddingVertical">8dp</dimen>

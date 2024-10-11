@@ -5,12 +5,14 @@ package com.processout.sdk.ui.base
 import android.animation.ValueAnimator
 import android.content.DialogInterface
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.activity.addCallback
+import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
@@ -57,9 +59,23 @@ internal abstract class BaseBottomSheetDialogFragment<T : Parcelable> : BottomSh
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        adjustInsets()
         apply(Window(height = defaultViewHeight, availableHeight = screenHeight))
         apply(cancellationConfiguration)
         dispatchBackPressed()
+    }
+
+    private fun adjustInsets() {
+        val container: FrameLayout = requireDialog().findViewById(
+            com.google.android.material.R.id.container
+        )
+        ViewCompat.setOnApplyWindowInsetsListener(container) { _, insets ->
+            val statusBarInsets = insets.getInsets(WindowInsetsCompat.Type.statusBars())
+            view?.setPaddingRelative(0, statusBarInsets.top, 0, 0)
+            WindowInsetsCompat.Builder(insets)
+                .setInsets(WindowInsetsCompat.Type.statusBars(), Insets.of(0, 0, 0, 0))
+                .build()
+        }
     }
 
     protected fun apply(screenMode: ScreenMode, animate: Boolean = false) {
@@ -131,19 +147,15 @@ internal abstract class BaseBottomSheetDialogFragment<T : Parcelable> : BottomSh
                         WindowInsetsCompat.Type.navigationBars()
                     )?.bottom ?: 0
 
-                    var imeHeight = windowInsets?.getInsets(
-                        WindowInsetsCompat.Type.ime()
-                    )?.bottom ?: 0
-                    if (imeHeight != 0) {
-                        imeHeight -= navigationBarHeight
-                    }
-
-                    var updatedHeight = screenHeight - imeHeight - viewCoordinateY
-                    if (updatedHeight < bottomSheetBehavior.peekHeight) {
-                        updatedHeight = bottomSheetBehavior.peekHeight
+                    var updatedHeight = screenHeight + navigationBarHeight - viewCoordinateY
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                        val displayCutoutHeight = windowInsets?.getInsets(
+                            WindowInsetsCompat.Type.displayCutout()
+                        )?.top ?: 0
+                        updatedHeight += displayCutoutHeight
                     }
                     updateLayoutParams {
-                        height = updatedHeight
+                        height = updatedHeight.coerceAtLeast(bottomSheetBehavior.peekHeight)
                     }
                 }
             }

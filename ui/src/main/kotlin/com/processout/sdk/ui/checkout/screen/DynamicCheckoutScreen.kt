@@ -60,9 +60,9 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
+import com.processout.sdk.ui.shared.component.DynamicFooter
 import com.processout.sdk.ui.shared.component.GooglePayButton
 import com.processout.sdk.ui.shared.component.TextAndroidView
-import com.processout.sdk.ui.shared.component.isImeVisibleAsState
 import com.processout.sdk.ui.shared.extension.*
 
 @Composable
@@ -73,19 +73,21 @@ internal fun DynamicCheckoutScreen(
     isLightTheme: Boolean
 ) {
     Column {
-        Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
+        Spacer(Modifier.windowInsetsTopHeight(WindowInsets.safeDrawing))
         Scaffold(
             modifier = Modifier
-                .consumeWindowInsets(WindowInsets.statusBars)
+                .consumeWindowInsets(WindowInsets.safeDrawing)
                 .clip(shape = shapes.topRoundedCornersLarge),
             containerColor = style.backgroundColor,
             bottomBar = {
-                Footer(
-                    state = state,
-                    onEvent = onEvent,
-                    containerStyle = style.actionsContainer,
-                    dialogStyle = style.dialog
-                )
+                DynamicFooter {
+                    Actions(
+                        state = state,
+                        onEvent = onEvent,
+                        containerStyle = style.actionsContainer,
+                        dialogStyle = style.dialog
+                    )
+                }
             }
         ) { scaffoldPadding ->
             Column(
@@ -443,44 +445,32 @@ private fun PaymentLogo(
 }
 
 @Composable
-private fun Footer(
+private fun Actions(
     state: DynamicCheckoutViewModelState,
     onEvent: (DynamicCheckoutEvent) -> Unit,
     containerStyle: POActionsContainer.Style,
     dialogStyle: PODialog.Style
 ) {
-    Column {
-        var cancelAction: POActionState? = null
-        when (state) {
-            is Starting -> cancelAction = state.cancelAction
-            is Started -> cancelAction = state.cancelAction
-            else -> {}
-        }
-        if (cancelAction != null) {
-            POActionsContainer(
-                actions = POImmutableList(listOf(cancelAction)),
-                onClick = {
-                    onEvent(
-                        Action(
-                            actionId = it,
-                            paymentMethodId = null
-                        )
+    var cancelAction: POActionState? = null
+    when (state) {
+        is Starting -> cancelAction = state.cancelAction
+        is Started -> cancelAction = state.cancelAction
+        else -> {}
+    }
+    if (cancelAction != null) {
+        POActionsContainer(
+            actions = POImmutableList(listOf(cancelAction)),
+            onClick = {
+                onEvent(
+                    Action(
+                        actionId = it,
+                        paymentMethodId = null
                     )
-                },
-                onConfirmationRequested = { onEvent(ActionConfirmationRequested(id = it)) },
-                containerStyle = containerStyle,
-                dialogStyle = dialogStyle
-            )
-        }
-
-        val isImeVisible by isImeVisibleAsState()
-        val imePaddingValues = WindowInsets.ime.asPaddingValues()
-        val systemBarsPaddingValues = WindowInsets.systemBars.asPaddingValues()
-        Spacer(
-            Modifier.requiredHeight(
-                if (isImeVisible) imePaddingValues.calculateBottomPadding()
-                else systemBarsPaddingValues.calculateBottomPadding()
-            )
+                )
+            },
+            onConfirmationRequested = { onEvent(ActionConfirmationRequested(id = it)) },
+            containerStyle = containerStyle,
+            dialogStyle = dialogStyle
         )
     }
 }
