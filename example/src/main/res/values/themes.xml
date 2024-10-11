@@ -11,6 +11,7 @@
         <item name="colorSurface">@color/po_surface_level1</item>
         <item name="android:colorBackground">@color/po_surface_level1</item>
         <item name="android:statusBarColor">@color/po_action_primary_default</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowSoftInputMode">adjustResize</item>
         <item name="toolbarStyle">@style/Widget.ProcessOut.Example.Toolbar</item>
         <item name="circularProgressIndicatorStyle">@style/Widget.Material3.CircularProgressIndicator.Small</item>
