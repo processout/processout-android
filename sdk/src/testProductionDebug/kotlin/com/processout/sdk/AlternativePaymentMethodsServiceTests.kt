@@ -1,6 +1,7 @@
 package com.processout.sdk
 
 import android.net.Uri
+import android.os.Build
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
@@ -18,7 +19,10 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(application = TestApplication::class)
+@Config(
+    sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE],
+    application = TestApplication::class
+)
 class AlternativePaymentMethodsServiceTests {
 
     @Rule

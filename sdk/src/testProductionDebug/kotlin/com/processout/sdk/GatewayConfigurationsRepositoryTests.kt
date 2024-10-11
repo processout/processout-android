@@ -1,5 +1,6 @@
 package com.processout.sdk
 
+import android.os.Build
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POAllGatewayConfigurationsRequest
 import com.processout.sdk.api.model.request.POGatewayConfigurationRequest
@@ -17,7 +18,10 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(application = TestApplication::class)
+@Config(
+    sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE],
+    application = TestApplication::class
+)
 class GatewayConfigurationsRepositoryTests {
 
     @Rule

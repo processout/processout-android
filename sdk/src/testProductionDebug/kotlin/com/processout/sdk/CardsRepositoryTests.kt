@@ -1,5 +1,6 @@
 package com.processout.sdk
 
+import android.os.Build
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POCardTokenizationRequest
 import com.processout.sdk.api.model.request.POCardUpdateCVCRequest
@@ -18,7 +19,10 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(application = TestApplication::class)
+@Config(
+    sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE],
+    application = TestApplication::class
+)
 class CardsRepositoryTests {
 
     @Rule
