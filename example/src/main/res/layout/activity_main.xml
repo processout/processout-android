@@ -8,13 +8,22 @@
     tools:context=".ui.screen.MainActivity"
     tools:viewBindingIgnore="true">
 
+    <View
+        android:id="@+id/top_spacer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/po_action_primary_default"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/top_spacer" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/navigation_host_fragment"

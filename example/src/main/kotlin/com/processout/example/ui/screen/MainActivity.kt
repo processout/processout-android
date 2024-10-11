@@ -1,12 +1,14 @@
 package com.processout.example.ui.screen
 
+import android.graphics.Color
 import android.os.Bundle
+import android.view.View
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
@@ -15,15 +17,14 @@ import com.processout.example.R
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var topSpacer: View
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.dark(
-                ContextCompat.getColor(this, com.processout.sdk.R.color.po_action_primary_default)
-            )
-        )
-        adjustInsets()
+        enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
         setContentView(R.layout.activity_main)
+        topSpacer = findViewById(R.id.top_spacer)
+        adjustInsets()
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.navigation_host_fragment) as NavHostFragment
         val navController = navHostFragment.navController
         val appBarConfiguration = AppBarConfiguration(navController.graph)
@@ -35,16 +36,18 @@ class MainActivity : AppCompatActivity() {
         ViewCompat.setOnApplyWindowInsetsListener(
             findViewById(android.R.id.content)
         ) { content, insets ->
-            val padding = insets.getInsets(
-                WindowInsetsCompat.Type.systemBars()
-                        or WindowInsetsCompat.Type.displayCutout()
-                        or WindowInsetsCompat.Type.ime()
-            )
+            topSpacer.updateLayoutParams {
+                height = insets.getInsets(
+                    WindowInsetsCompat.Type.statusBars()
+                            or WindowInsetsCompat.Type.displayCutout()
+                ).top
+            }
             content.setPaddingRelative(
-                padding.left,
-                padding.top,
-                padding.right,
-                padding.bottom
+                0, 0, 0,
+                insets.getInsets(
+                    WindowInsetsCompat.Type.navigationBars()
+                            or WindowInsetsCompat.Type.ime()
+                ).bottom
             )
             insets
         }
