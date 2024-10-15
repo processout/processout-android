@@ -385,6 +385,20 @@ internal class DynamicCheckoutInteractor(
             paymentMethod(it)
         }
 
+    private fun originalPaymentMethod(id: String): PODynamicCheckoutPaymentMethod? {
+        val paymentMethods = _state.value.invoice.paymentMethods
+        val paymentMethod = paymentMethods?.find {
+            when (it) {
+                is CardCustomerToken -> it.configuration.customerTokenId == id
+                is AlternativePaymentCustomerToken -> it.configuration.customerTokenId == id
+                is PODynamicCheckoutPaymentMethod.AlternativePayment -> it.configuration.gatewayConfigurationId == id
+                is PODynamicCheckoutPaymentMethod.GooglePay -> it.configuration.gatewayMerchantId == id
+                is PODynamicCheckoutPaymentMethod.Card, Unknown -> false
+            }
+        }
+        return paymentMethod ?: paymentMethods?.find { it is PODynamicCheckoutPaymentMethod.Card }
+    }
+
     fun onEvent(event: DynamicCheckoutEvent) {
         when (event) {
             is PaymentMethodSelected -> onPaymentMethodSelected(event)
