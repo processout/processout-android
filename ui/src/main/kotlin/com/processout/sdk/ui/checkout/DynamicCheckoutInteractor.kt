@@ -10,10 +10,7 @@ import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.WillSubmitParameters
-import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceInvalidationReason
-import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceRequest
-import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
-import com.processout.sdk.api.model.request.POInvoiceRequest
+import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.model.response.POBillingAddressCollectionMode.*
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.*
@@ -98,11 +95,12 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun start() {
-        dispatchEvents()
         handleCompletions()
-        collectTokenizedCard()
-        collectAuthorizeInvoiceResult()
+        dispatchEvents()
         collectInvoice()
+        collectInvoiceAuthorizationRequest()
+        collectAuthorizeInvoiceResult()
+        collectTokenizedCard()
         fetchConfiguration()
     }
 
@@ -683,28 +681,54 @@ internal class DynamicCheckoutInteractor(
         allowFallbackToSale: Boolean = false,
         clientSecret: String? = null
     ) {
-        val processingPaymentMethodId = _state.value.processingPaymentMethodId
-        if (processingPaymentMethodId == null) {
+        val paymentMethodId = _state.value.processingPaymentMethodId
+        if (paymentMethodId == null) {
             invalidateInvoice(
                 reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(
                     failure = ProcessOutResult.Failure(
                         code = Internal(),
-                        message = "Failed to authorize invoice: 'processingPaymentMethodId' is null."
+                        message = "Failed to authorize invoice: payment method ID is null."
                     )
                 )
             )
             return
         }
-        invoicesService.authorizeInvoice(
-            request = POInvoiceAuthorizationRequest(
-                invoiceId = _state.value.invoice.id,
-                source = source,
-                saveSource = saveSource,
-                allowFallbackToSale = allowFallbackToSale,
-                clientSecret = clientSecret
-            ),
-            threeDSService = threeDSService
-        )
+        val paymentMethod = originalPaymentMethod(paymentMethodId)
+        if (paymentMethod == null) {
+            invalidateInvoice(
+                reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(
+                    failure = ProcessOutResult.Failure(
+                        code = Internal(),
+                        message = "Failed to authorize invoice: payment method is null."
+                    )
+                )
+            )
+            return
+        }
+        interactorScope.launch {
+            val request = PODynamicCheckoutInvoiceAuthorizationRequest(
+                request = POInvoiceAuthorizationRequest(
+                    invoiceId = _state.value.invoice.id,
+                    source = source,
+                    saveSource = saveSource,
+                    allowFallbackToSale = allowFallbackToSale,
+                    clientSecret = clientSecret
+                ),
+                paymentMethod = paymentMethod
+            )
+            eventDispatcher.send(request)
+        }
+    }
+
+    private fun collectInvoiceAuthorizationRequest() {
+        eventDispatcher.subscribeForResponse<PODynamicCheckoutInvoiceAuthorizationResponse>(
+            coroutineScope = interactorScope
+        ) { response ->
+            invoicesService.authorizeInvoice(
+                request = response.request,
+                threeDSService = threeDSService
+            )
+        }
     }
 
     private fun collectAuthorizeInvoiceResult() {
