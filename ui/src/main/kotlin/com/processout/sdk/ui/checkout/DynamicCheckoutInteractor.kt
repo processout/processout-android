@@ -18,6 +18,7 @@ import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.model.response.POBillingAddressCollectionMode.*
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.*
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Flow.express
+import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Unknown
 import com.processout.sdk.api.model.response.POTransaction.Status.*
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.api.service.googlepay.POGooglePayConfiguration
@@ -27,8 +28,7 @@ import com.processout.sdk.api.service.googlepay.POGooglePayConfiguration.Payment
 import com.processout.sdk.api.service.googlepay.POGooglePayRequestBuilder
 import com.processout.sdk.api.service.googlepay.POGooglePayService
 import com.processout.sdk.api.service.proxy3ds.POProxy3DSService
-import com.processout.sdk.core.POFailure.Code.Cancelled
-import com.processout.sdk.core.POFailure.Code.Generic
+import com.processout.sdk.core.POFailure.Code.*
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
@@ -683,6 +683,18 @@ internal class DynamicCheckoutInteractor(
         allowFallbackToSale: Boolean = false,
         clientSecret: String? = null
     ) {
+        val processingPaymentMethodId = _state.value.processingPaymentMethodId
+        if (processingPaymentMethodId == null) {
+            invalidateInvoice(
+                reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(
+                    failure = ProcessOutResult.Failure(
+                        code = Internal(),
+                        message = "Failed to authorize invoice: 'processingPaymentMethodId' is null."
+                    )
+                )
+            )
+            return
+        }
         invoicesService.authorizeInvoice(
             request = POInvoiceAuthorizationRequest(
                 invoiceId = _state.value.invoice.id,
