@@ -54,6 +54,10 @@ internal data class DynamicCheckoutInteractorState(
         ) : PaymentMethod
     }
 
+    object PaymentMethodId {
+        const val CARD = "card"
+    }
+
     object ActionId {
         const val SUBMIT = "dc-submit"
         const val CANCEL = "dc-cancel"

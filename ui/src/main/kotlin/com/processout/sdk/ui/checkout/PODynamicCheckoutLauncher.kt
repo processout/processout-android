@@ -9,6 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
+import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceAuthorizationRequest
 import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceRequest
 import com.processout.sdk.api.model.response.toResponse
 import com.processout.sdk.api.service.PO3DSService
@@ -86,6 +87,7 @@ class PODynamicCheckoutLauncher private constructor(
     init {
         dispatchEvents()
         dispatchInvoice()
+        dispatchInvoiceAuthorizationRequest()
         dispatch3DSService()
     }
 
@@ -108,6 +110,20 @@ class PODynamicCheckoutLauncher private constructor(
                     invalidationReason = request.invalidationReason
                 )
                 eventDispatcher.send(request.toResponse(invoiceRequest))
+            }
+        }
+    }
+
+    private fun dispatchInvoiceAuthorizationRequest() {
+        eventDispatcher.subscribeForRequest<PODynamicCheckoutInvoiceAuthorizationRequest>(
+            coroutineScope = scope
+        ) { request ->
+            scope.launch {
+                val invoiceAuthorizationRequest = delegate.invoiceAuthorizationRequest(
+                    request = request.request,
+                    paymentMethod = request.paymentMethod
+                )
+                eventDispatcher.send(request.toResponse(invoiceAuthorizationRequest))
             }
         }
     }

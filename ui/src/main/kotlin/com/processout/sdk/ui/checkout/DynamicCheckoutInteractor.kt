@@ -10,14 +10,12 @@ import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.WillSubmitParameters
-import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceInvalidationReason
-import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceRequest
-import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
-import com.processout.sdk.api.model.request.POInvoiceRequest
+import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.model.response.POBillingAddressCollectionMode.*
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.*
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Flow.express
+import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Unknown
 import com.processout.sdk.api.model.response.POTransaction.Status.*
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.api.service.googlepay.POGooglePayConfiguration
@@ -27,8 +25,7 @@ import com.processout.sdk.api.service.googlepay.POGooglePayConfiguration.Payment
 import com.processout.sdk.api.service.googlepay.POGooglePayRequestBuilder
 import com.processout.sdk.api.service.googlepay.POGooglePayService
 import com.processout.sdk.api.service.proxy3ds.POProxy3DSService
-import com.processout.sdk.core.POFailure.Code.Cancelled
-import com.processout.sdk.core.POFailure.Code.Generic
+import com.processout.sdk.core.POFailure.Code.*
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
@@ -41,8 +38,7 @@ import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
-import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.ActionId
-import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod
+import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.AlternativePayment
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.Card
@@ -98,11 +94,12 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun start() {
-        dispatchEvents()
         handleCompletions()
-        collectTokenizedCard()
-        collectAuthorizeInvoiceResult()
+        dispatchEvents()
         collectInvoice()
+        collectInvoiceAuthorizationRequest()
+        collectAuthorizeInvoiceResult()
+        collectTokenizedCard()
         fetchConfiguration()
     }
 
@@ -233,7 +230,7 @@ internal class DynamicCheckoutInteractor(
     ): List<PaymentMethod> = mapNotNull { paymentMethod ->
         when (paymentMethod) {
             is PODynamicCheckoutPaymentMethod.Card -> Card(
-                id = "card",
+                id = PaymentMethodId.CARD,
                 configuration = paymentMethod.configuration,
                 display = paymentMethod.display
             )
@@ -383,6 +380,18 @@ internal class DynamicCheckoutInteractor(
     private fun selectedPaymentMethod(): PaymentMethod? =
         _state.value.selectedPaymentMethodId?.let {
             paymentMethod(it)
+        }
+
+    private fun originalPaymentMethod(id: String): PODynamicCheckoutPaymentMethod? =
+        _state.value.invoice.paymentMethods?.find {
+            when (it) {
+                is PODynamicCheckoutPaymentMethod.Card -> PaymentMethodId.CARD == id
+                is PODynamicCheckoutPaymentMethod.GooglePay -> it.configuration.gatewayMerchantId == id
+                is PODynamicCheckoutPaymentMethod.AlternativePayment -> it.configuration.gatewayConfigurationId == id
+                is AlternativePaymentCustomerToken -> it.configuration.customerTokenId == id
+                is CardCustomerToken -> it.configuration.customerTokenId == id
+                Unknown -> false
+            }
         }
 
     fun onEvent(event: DynamicCheckoutEvent) {
@@ -669,16 +678,54 @@ internal class DynamicCheckoutInteractor(
         allowFallbackToSale: Boolean = false,
         clientSecret: String? = null
     ) {
-        invoicesService.authorizeInvoice(
-            request = POInvoiceAuthorizationRequest(
-                invoiceId = _state.value.invoice.id,
-                source = source,
-                saveSource = saveSource,
-                allowFallbackToSale = allowFallbackToSale,
-                clientSecret = clientSecret
-            ),
-            threeDSService = threeDSService
-        )
+        val paymentMethodId = _state.value.processingPaymentMethodId
+        if (paymentMethodId == null) {
+            invalidateInvoice(
+                reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(
+                    failure = ProcessOutResult.Failure(
+                        code = Internal(),
+                        message = "Failed to authorize invoice: payment method ID is null."
+                    )
+                )
+            )
+            return
+        }
+        val paymentMethod = originalPaymentMethod(paymentMethodId)
+        if (paymentMethod == null) {
+            invalidateInvoice(
+                reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(
+                    failure = ProcessOutResult.Failure(
+                        code = Internal(),
+                        message = "Failed to authorize invoice: payment method is null."
+                    )
+                )
+            )
+            return
+        }
+        interactorScope.launch {
+            val request = PODynamicCheckoutInvoiceAuthorizationRequest(
+                request = POInvoiceAuthorizationRequest(
+                    invoiceId = _state.value.invoice.id,
+                    source = source,
+                    saveSource = saveSource,
+                    allowFallbackToSale = allowFallbackToSale,
+                    clientSecret = clientSecret
+                ),
+                paymentMethod = paymentMethod
+            )
+            eventDispatcher.send(request)
+        }
+    }
+
+    private fun collectInvoiceAuthorizationRequest() {
+        eventDispatcher.subscribeForResponse<PODynamicCheckoutInvoiceAuthorizationResponse>(
+            coroutineScope = interactorScope
+        ) { response ->
+            invoicesService.authorizeInvoice(
+                request = response.request,
+                threeDSService = threeDSService
+            )
+        }
     }
 
     private fun collectAuthorizeInvoiceResult() {
