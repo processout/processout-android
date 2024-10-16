@@ -38,8 +38,7 @@ import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
-import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.ActionId
-import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod
+import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.AlternativePayment
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.Card
@@ -231,7 +230,7 @@ internal class DynamicCheckoutInteractor(
     ): List<PaymentMethod> = mapNotNull { paymentMethod ->
         when (paymentMethod) {
             is PODynamicCheckoutPaymentMethod.Card -> Card(
-                id = "card",
+                id = PaymentMethodId.CARD,
                 configuration = paymentMethod.configuration,
                 display = paymentMethod.display
             )
@@ -383,19 +382,17 @@ internal class DynamicCheckoutInteractor(
             paymentMethod(it)
         }
 
-    private fun originalPaymentMethod(id: String): PODynamicCheckoutPaymentMethod? {
-        val paymentMethods = _state.value.invoice.paymentMethods
-        val paymentMethod = paymentMethods?.find {
+    private fun originalPaymentMethod(id: String): PODynamicCheckoutPaymentMethod? =
+        _state.value.invoice.paymentMethods?.find {
             when (it) {
-                is CardCustomerToken -> it.configuration.customerTokenId == id
-                is AlternativePaymentCustomerToken -> it.configuration.customerTokenId == id
-                is PODynamicCheckoutPaymentMethod.AlternativePayment -> it.configuration.gatewayConfigurationId == id
+                is PODynamicCheckoutPaymentMethod.Card -> PaymentMethodId.CARD == id
                 is PODynamicCheckoutPaymentMethod.GooglePay -> it.configuration.gatewayMerchantId == id
-                is PODynamicCheckoutPaymentMethod.Card, Unknown -> false
+                is PODynamicCheckoutPaymentMethod.AlternativePayment -> it.configuration.gatewayConfigurationId == id
+                is AlternativePaymentCustomerToken -> it.configuration.customerTokenId == id
+                is CardCustomerToken -> it.configuration.customerTokenId == id
+                Unknown -> false
             }
         }
-        return paymentMethod ?: paymentMethods?.find { it is PODynamicCheckoutPaymentMethod.Card }
-    }
 
     fun onEvent(event: DynamicCheckoutEvent) {
         when (event) {
