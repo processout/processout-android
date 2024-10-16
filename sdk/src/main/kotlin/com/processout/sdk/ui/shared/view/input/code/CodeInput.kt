@@ -174,7 +174,7 @@ internal class CodeInput(
                 value = trimmedSource
                 return@InputFilter String()
             } else {
-                if (editTexts[index].text.isNullOrEmpty().not() && trimmedSource.isNotEmpty()) {
+                if (!editTexts[index].text.isNullOrEmpty() && trimmedSource.isNotEmpty()) {
                     return@InputFilter String()
                 }
                 return@InputFilter trimmedSource
@@ -244,7 +244,7 @@ internal class CodeInput(
     }
 
     override fun gainFocus() {
-        if (editTexts[focusIndex].isFocused.not()) {
+        if (!editTexts[focusIndex].isFocused) {
             editTexts[focusIndex].requestFocusAndShowKeyboard()
         }
     }

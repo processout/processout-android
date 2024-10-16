@@ -51,7 +51,7 @@ internal data class NativeAlternativePaymentMethodUiModel(
     val isSubmitting: Boolean
 ) {
     fun isSubmitAllowed() = inputParameters.all { it.state is Input.State.Default }
-    fun showCustomerAction() = customerActionMessageMarkdown.isNullOrBlank().not()
+    fun showCustomerAction() = !customerActionMessageMarkdown.isNullOrBlank()
 }
 
 internal sealed class SecondaryActionUiModel {

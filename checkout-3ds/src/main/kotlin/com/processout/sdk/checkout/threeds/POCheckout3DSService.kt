@@ -90,7 +90,7 @@ class POCheckout3DSService private constructor(
 
         val warnings = serviceContext.threeDS2Service.getWarnings().toSet()
         delegate.shouldContinue(warnings) { shouldContinue ->
-            if (shouldContinue.not()) {
+            if (!shouldContinue) {
                 POLogger.info("Cancelling with the given warnings: %s", warnings)
                 setIdleState(serviceContext)
                 completeAuthenticationRequest(

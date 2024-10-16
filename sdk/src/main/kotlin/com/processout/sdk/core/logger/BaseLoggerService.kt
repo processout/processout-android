@@ -23,7 +23,7 @@ internal abstract class BaseLoggerService(
             // Find first element in the stack trace that do not belong to logger package.
             // This element refers to the class that actually invoked the logging.
             loggerPackageName?.let {
-                element.className.startsWith(it).not()
+                !element.className.startsWith(it)
             } ?: false
         }
 

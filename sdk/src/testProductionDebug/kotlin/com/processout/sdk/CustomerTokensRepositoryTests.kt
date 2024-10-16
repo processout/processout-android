@@ -86,7 +86,7 @@ class CustomerTokensRepositoryTests {
                                                 ).let { assignTokenResult ->
                                                     assignTokenResult.assertFailure()
                                                     assignTokenResult.onSuccess { assignToken ->
-                                                        assert(assignToken.token?.id.isNullOrBlank().not())
+                                                        assert(!assignToken.token?.id.isNullOrBlank())
                                                     }
                                                 }
                                             }

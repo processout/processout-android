@@ -360,11 +360,11 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
         }
 
         when (parameter.type()) {
-            NUMERIC -> if (value.isDigitsOnly().not())
+            NUMERIC -> if (!value.isDigitsOnly())
                 return invalidField(R.string.po_native_apm_error_invalid_number)
-            EMAIL -> if (Patterns.EMAIL_ADDRESS.matcher(value).matches().not())
+            EMAIL -> if (!Patterns.EMAIL_ADDRESS.matcher(value).matches())
                 return invalidField(R.string.po_native_apm_error_invalid_email)
-            PHONE -> if (Patterns.PHONE.matcher(value).matches().not())
+            PHONE -> if (!Patterns.PHONE.matcher(value).matches())
                 return invalidField(R.string.po_native_apm_error_invalid_phone)
             else -> {}
         }

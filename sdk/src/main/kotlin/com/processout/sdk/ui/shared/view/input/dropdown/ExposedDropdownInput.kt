@@ -149,7 +149,7 @@ internal class ExposedDropdownInput(
     }
 
     override fun gainFocus() {
-        if (dropdownAutoComplete.isFocused.not()) {
+        if (!dropdownAutoComplete.isFocused) {
             dropdownAutoComplete.requestFocus()
         }
     }

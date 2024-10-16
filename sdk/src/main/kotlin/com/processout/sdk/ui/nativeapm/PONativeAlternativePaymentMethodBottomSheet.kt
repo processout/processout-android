@@ -676,7 +676,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment() 
     private fun handleSuccess(uiModel: NativeAlternativePaymentMethodUiModel) {
         cancelConfirmationAlertDialog?.dismiss()
         if (viewModel.options.waitsPaymentConfirmation &&
-            viewModel.options.skipSuccessScreen.not()
+            !viewModel.options.skipSuccessScreen
         ) {
             handler.postDelayed({ finishWithSuccess() }, SUCCESS_FINISH_DELAY_MS)
             showSuccess(uiModel)
@@ -714,7 +714,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment() 
                                 bindingCapture.poMessage,
                                 bindingCapture.poSuccessImage
                             ).also {
-                                if (uiModel.showCustomerAction().not()) {
+                                if (!uiModel.showCustomerAction()) {
                                     it.add(bindingCapture.poHeader)
                                 }
                             },
@@ -845,7 +845,7 @@ class PONativeAlternativePaymentMethodBottomSheet : BottomSheetDialogFragment() 
         failure: PONativeAlternativePaymentMethodResult.Failure,
         dispatchEvent: Boolean
     ) {
-        if (finishWithSuccess().not()) {
+        if (!finishWithSuccess()) {
             if (dispatchEvent) {
                 viewModel.onViewFailure(failure)
             }
