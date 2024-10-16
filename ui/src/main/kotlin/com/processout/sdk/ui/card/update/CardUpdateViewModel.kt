@@ -197,7 +197,7 @@ internal class CardUpdateViewModel private constructor(
                                     inputFilter = inputFilter
                                 )
                             }
-                            else -> field.copy()
+                            else -> field
                         }
                     }
                 )
@@ -264,9 +264,7 @@ internal class CardUpdateViewModel private constructor(
             } else {
                 field.copy(value = value)
             }
-        } else {
-            field.copy()
-        }
+        } else field
 
     private fun updateFieldFocus(id: String, isFocused: Boolean) {
         if (isFocused) {
@@ -304,7 +302,7 @@ internal class CardUpdateViewModel private constructor(
         _state.update { state ->
             with(state) {
                 copy(
-                    fields = POImmutableList(fields ?: state.fields.elements.map { it.copy() }),
+                    fields = POImmutableList(fields ?: state.fields.elements),
                     primaryAction = primaryAction.copy(
                         enabled = submitAllowed,
                         loading = submitting
@@ -416,9 +414,7 @@ internal class CardUpdateViewModel private constructor(
                 isError = true,
                 value = field.value.copy(selection = TextRange(field.value.text.length))
             )
-        } else {
-            field.copy()
-        }
+        } else field
 
     private fun cancel() {
         _completion.update {

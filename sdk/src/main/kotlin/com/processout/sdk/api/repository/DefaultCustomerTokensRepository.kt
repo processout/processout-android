@@ -32,7 +32,7 @@ internal class DefaultCustomerTokensRepository(
                 is ProcessOutResult.Success -> result.value.token?.let { token ->
                     ProcessOutResult.Success(token)
                 } ?: ProcessOutResult.Failure(POFailure.Code.Internal())
-                is ProcessOutResult.Failure -> result.copy()
+                is ProcessOutResult.Failure -> result
             }
         }
 

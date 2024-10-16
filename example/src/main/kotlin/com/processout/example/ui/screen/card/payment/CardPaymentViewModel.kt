@@ -83,7 +83,7 @@ class CardPaymentViewModel(
     fun onTokenizing() {
         val uiState = _uiState.value
         if (uiState is Submitted) {
-            _uiState.value = Tokenizing(uiState.uiModel.copy())
+            _uiState.value = Tokenizing(uiState.uiModel)
         }
     }
 
@@ -110,7 +110,7 @@ class CardPaymentViewModel(
     fun onAuthorizing() {
         val uiState = _uiState.value
         if (uiState is Tokenized) {
-            _uiState.value = Authorizing(uiState.uiModel.copy())
+            _uiState.value = Authorizing(uiState.uiModel)
         }
     }
 

@@ -135,9 +135,10 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
                         coroutineScope = this@launch
                     )
                 }
-                is ProcessOutResult.Failure -> _uiState.value = Failure(
-                    result.copy().also { POLogger.info("Failed to fetch transaction details: %s", it) }
-                )
+                is ProcessOutResult.Failure -> {
+                    POLogger.info("Failed to fetch transaction details: %s", result)
+                    _uiState.value = Failure(result)
+                }
             }
         }
     }
@@ -210,7 +211,7 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
     }
 
     private fun startUserInput(uiModel: NativeAlternativePaymentMethodUiModel) {
-        _uiState.value = UserInput(uiModel.copy())
+        _uiState.value = UserInput(uiModel)
         uiModel.secondaryAction?.let {
             scheduleSecondaryActionEnabling(it) { enableSecondaryAction() }
         }
@@ -267,7 +268,7 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
                     it.value.take(length)
                 } ?: it.value
                 inputParameter.copy(value = defaultValue)
-            } ?: inputParameter.copy()
+            } ?: inputParameter
         }
         return copy(
             inputParameters = updatedInputParameters
@@ -279,7 +280,7 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
             val updatedInputParameters = uiModel.inputParameters.map {
                 if (it.parameter.key == key)
                     it.copy(value = newValue, state = Input.State.Default())
-                else it.copy()
+                else it
             }
             _uiState.value = UserInput(
                 uiModel.copy(
@@ -440,7 +441,7 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
             }
             return
         }
-        _uiState.value = Success(uiModel.copy())
+        _uiState.value = Success(uiModel)
         POLogger.info("Finished. Did not wait for capture confirmation.")
     }
 
@@ -450,7 +451,7 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
             POLogger.info("Success. Invoice is captured.")
         }
         animateViewTransition = true
-        _uiState.value = Success(uiModel.copy())
+        _uiState.value = Success(uiModel)
     }
 
     private fun handlePaymentFailure(
@@ -459,9 +460,8 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
         replaceToLocalMessage: Boolean // TODO: Delete this when backend localisation is done.
     ) {
         if (failure.invalidFields.isNullOrEmpty()) {
-            _uiState.value = Failure(
-                failure.copy().also { POLogger.info("Unrecoverable payment failure: %s", it) }
-            )
+            POLogger.info("Unrecoverable payment failure: %s", failure)
+            _uiState.value = Failure(failure)
             return
         }
         val updatedInputParameters = uiModel.inputParameters.map { inputParameter ->
@@ -473,7 +473,7 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
                         )
                     )
                 )
-            } ?: inputParameter.copy()
+            } ?: inputParameter
         }
         _uiState.value = UserInput(
             uiModel.copy(
@@ -661,7 +661,7 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
                             ?.focusableViewId ?: View.NO_ID
                     )
                 )
-            } else inputParameter.copy()
+            } else inputParameter
         }
 
     private fun isInputKeyboardActionSupported(type: ParameterType) =

@@ -32,6 +32,6 @@ internal class ThreeDSRedirectWebAuthorizationDelegate(
     }
 
     override fun complete(failure: ProcessOutResult.Failure) {
-        callback(failure.copy())
+        callback(failure)
     }
 }
