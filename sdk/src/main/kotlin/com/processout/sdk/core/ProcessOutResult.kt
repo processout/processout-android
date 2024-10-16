@@ -72,13 +72,13 @@ fun <T : Any> ProcessOutResult<T>.getOrNull(): T? =
 
 /**
  * Returns the encapsulated result of the given transform function applied to the encapsulated value
- * if this instance represents [Success] or the unmodified copy if it is [Failure].
+ * if this instance represents [Success] or the [Failure] otherwise.
  */
 inline fun <T : Any, R : Any> ProcessOutResult<T>.map(
     transform: (T) -> R
 ): ProcessOutResult<R> = when (this) {
     is Success -> Success(transform(value))
-    is Failure -> this.copy()
+    is Failure -> this
 }
 
 /**
