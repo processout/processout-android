@@ -232,9 +232,7 @@ internal class CardTokenizationInteractor(
             } else {
                 field.copy(value = value)
             }
-        } else {
-            field.copy()
-        }
+        } else field
 
     private fun updateFieldFocus(id: String, isFocused: Boolean) {
         if (isFocused) {
@@ -335,7 +333,7 @@ internal class CardTokenizationInteractor(
             interactorScope.launch {
                 val countryCode = countryField.value.text
                 val specification = addressSpecificationProvider.specification(countryCode)
-                val addressFields = mutableListOf(countryField.copy())
+                val addressFields = mutableListOf(countryField)
                 addressFields.addAll(addressFields(countryCode, specification))
                 _state.update {
                     it.copy(
@@ -763,9 +761,7 @@ internal class CardTokenizationInteractor(
                 isValid = false,
                 value = field.value.copy(selection = TextRange(field.value.text.length))
             )
-        } else {
-            field.copy()
-        }
+        } else field
 
     //endregion
 

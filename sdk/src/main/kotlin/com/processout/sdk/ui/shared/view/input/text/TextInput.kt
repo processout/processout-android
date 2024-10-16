@@ -148,7 +148,7 @@ internal class TextInput(
         }
 
     override fun gainFocus() {
-        if (editText.isFocused.not()) {
+        if (!editText.isFocused) {
             editText.requestFocusAndShowKeyboard()
         }
     }

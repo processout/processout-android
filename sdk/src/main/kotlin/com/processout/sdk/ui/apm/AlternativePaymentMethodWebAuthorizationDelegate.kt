@@ -22,12 +22,12 @@ internal class AlternativePaymentMethodWebAuthorizationDelegate(
 
     override fun complete(uri: Uri) {
         when (val result = service.alternativePaymentMethodResponse(uri)) {
-            is ProcessOutResult.Success -> callback(result.copy())
-            is ProcessOutResult.Failure -> callback(result.copy())
+            is ProcessOutResult.Success -> callback(result)
+            is ProcessOutResult.Failure -> callback(result)
         }
     }
 
     override fun complete(failure: ProcessOutResult.Failure) {
-        callback(failure.copy())
+        callback(failure)
     }
 }

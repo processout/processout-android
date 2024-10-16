@@ -63,9 +63,10 @@ internal class DefaultThreeDSService(private val moshi: Moshi) : ThreeDSService 
                             is ProcessOutResult.Success -> callback(
                                 ChallengeResponse(body = encode(result.value)), callback
                             )
-                            is ProcessOutResult.Failure -> callback(result.copy()
-                                .also { POLogger.warn("Failed to create authentication request: %s", it) }
-                            )
+                            is ProcessOutResult.Failure -> {
+                                POLogger.warn("Failed to create authentication request: %s", result)
+                                callback(result)
+                            }
                         }
                     }
                 }
@@ -96,9 +97,10 @@ internal class DefaultThreeDSService(private val moshi: Moshi) : ThreeDSService 
                                 else CHALLENGE_FAILURE_RESPONSE_BODY
                                 callback(ChallengeResponse(body = body), callback)
                             }
-                            is ProcessOutResult.Failure -> callback(result.copy()
-                                .also { POLogger.warn("Failed to handle challenge: %s", it) }
-                            )
+                            is ProcessOutResult.Failure -> {
+                                POLogger.warn("Failed to handle challenge: %s", result)
+                                callback(result)
+                            }
                         }
                     }
                 }
@@ -125,7 +127,7 @@ internal class DefaultThreeDSService(private val moshi: Moshi) : ThreeDSService 
                 )
             ) { result ->
                 when (result) {
-                    is ProcessOutResult.Success -> callback(result.copy())
+                    is ProcessOutResult.Success -> callback(result)
                     is ProcessOutResult.Failure ->
                         when (result.code == POFailure.Code.Timeout()) {
                             true -> callback(
@@ -134,9 +136,10 @@ internal class DefaultThreeDSService(private val moshi: Moshi) : ThreeDSService 
                                     url = url
                                 ), callback
                             )
-                            false -> callback(result.copy()
-                                .also { POLogger.warn("Failed to handle URL fingerprint: %s", it) }
-                            )
+                            false -> {
+                                POLogger.warn("Failed to handle URL fingerprint: %s", result)
+                                callback(result)
+                            }
                         }
                 }
             }

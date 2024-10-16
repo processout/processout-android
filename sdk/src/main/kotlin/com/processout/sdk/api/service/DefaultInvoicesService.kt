@@ -46,7 +46,7 @@ internal class DefaultInvoicesService(
                                     is ProcessOutResult.Failure -> {
                                         threeDSService.cleanup()
                                         scope.launch {
-                                            _authorizeInvoiceResult.emit(serviceResult.copy())
+                                            _authorizeInvoiceResult.emit(serviceResult)
                                         }
                                     }
                                 }
@@ -65,7 +65,7 @@ internal class DefaultInvoicesService(
                         attributes = mapOf(POLogAttribute.INVOICE_ID to request.invoiceId)
                     )
                     threeDSService.cleanup()
-                    scope.launch { _authorizeInvoiceResult.emit(result.copy()) }
+                    scope.launch { _authorizeInvoiceResult.emit(result) }
                 }
             }
         }
@@ -96,7 +96,7 @@ internal class DefaultInvoicesService(
                                         )
                                     is ProcessOutResult.Failure -> {
                                         threeDSService.cleanup()
-                                        callback(serviceResult.copy())
+                                        callback(serviceResult)
                                     }
                                 }
                             }
@@ -110,7 +110,7 @@ internal class DefaultInvoicesService(
                         attributes = mapOf(POLogAttribute.INVOICE_ID to request.invoiceId)
                     )
                     threeDSService.cleanup()
-                    callback(result.copy())
+                    callback(result)
                 }
             }
         }

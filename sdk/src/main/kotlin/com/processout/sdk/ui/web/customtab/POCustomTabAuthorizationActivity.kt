@@ -60,7 +60,7 @@ class POCustomTabAuthorizationActivity : AppCompatActivity() {
         intent.getParcelableExtra<CustomTabConfiguration>(EXTRA_CONFIGURATION)
             ?.let { configuration = it }
 
-        if (::configuration.isInitialized.not()) {
+        if (!::configuration.isInitialized) {
             POLogger.warn("Configuration is not provided. Possibly started from redirect activity by a deep link when flow is already finished.")
             finish()
             return

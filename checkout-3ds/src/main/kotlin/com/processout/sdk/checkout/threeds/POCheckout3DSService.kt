@@ -26,7 +26,6 @@ import com.processout.sdk.checkout.threeds.CheckoutConstants.AuthenticationProce
 import com.processout.sdk.checkout.threeds.CheckoutConstants.ConnectivityErrorCode
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
-import com.processout.sdk.core.copy
 import com.processout.sdk.core.logger.POLogger
 
 /**
@@ -90,7 +89,7 @@ class POCheckout3DSService private constructor(
 
         val warnings = serviceContext.threeDS2Service.getWarnings().toSet()
         delegate.shouldContinue(warnings) { shouldContinue ->
-            if (shouldContinue.not()) {
+            if (!shouldContinue) {
                 POLogger.info("Cancelling with the given warnings: %s", warnings)
                 setIdleState(serviceContext)
                 completeAuthenticationRequest(
@@ -123,8 +122,8 @@ class POCheckout3DSService private constructor(
             is ProcessOutResult.Success -> POLogger.info("Authentication request successfully created.")
             is ProcessOutResult.Failure -> POLogger.info("Failed to create authentication request: %s", result)
         }
-        delegate.didCreateAuthenticationRequest(result.copy())
-        callback(result.copy())
+        delegate.didCreateAuthenticationRequest(result)
+        callback(result)
     }
 
     override fun handle(challenge: PO3DS2Challenge, callback: (ProcessOutResult<Boolean>) -> Unit) {
@@ -166,7 +165,7 @@ class POCheckout3DSService private constructor(
         POLogger.info("Challenge successfully completed. Transaction status: %s", transactionStatus)
         val success = ProcessOutResult.Success(transactionStatus.uppercase() == "Y")
         delegate.didHandle3DS2Challenge(success)
-        callback(success.copy())
+        callback(success)
     }
 
     private fun failChallenge(
@@ -174,8 +173,8 @@ class POCheckout3DSService private constructor(
         callback: (ProcessOutResult<Boolean>) -> Unit
     ) {
         POLogger.info("Failed to handle challenge: %s", failure)
-        delegate.didHandle3DS2Challenge(failure.copy())
-        callback(failure.copy())
+        delegate.didHandle3DS2Challenge(failure)
+        callback(failure)
     }
 
     override fun handle(redirect: PO3DSRedirect, callback: (ProcessOutResult<String>) -> Unit) {

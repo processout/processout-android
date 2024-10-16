@@ -43,7 +43,7 @@ internal class DefaultCustomerTokensService(
                                     is ProcessOutResult.Failure -> {
                                         threeDSService.cleanup()
                                         scope.launch {
-                                            _assignCustomerTokenResult.emit(serviceResult.copy())
+                                            _assignCustomerTokenResult.emit(serviceResult)
                                         }
                                     }
                                 }
@@ -82,7 +82,7 @@ internal class DefaultCustomerTokensService(
                         )
                     )
                     threeDSService.cleanup()
-                    scope.launch { _assignCustomerTokenResult.emit(result.copy()) }
+                    scope.launch { _assignCustomerTokenResult.emit(result) }
                 }
             }
         }
@@ -114,7 +114,7 @@ internal class DefaultCustomerTokensService(
                                         )
                                     is ProcessOutResult.Failure -> {
                                         threeDSService.cleanup()
-                                        callback(serviceResult.copy())
+                                        callback(serviceResult)
                                     }
                                 }
                             }
@@ -146,7 +146,7 @@ internal class DefaultCustomerTokensService(
                         )
                     )
                     threeDSService.cleanup()
-                    callback(result.copy())
+                    callback(result)
                 }
             }
         }

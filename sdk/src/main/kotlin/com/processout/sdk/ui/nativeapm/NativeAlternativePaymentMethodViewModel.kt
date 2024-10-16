@@ -135,9 +135,10 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
                         coroutineScope = this@launch
                     )
                 }
-                is ProcessOutResult.Failure -> _uiState.value = Failure(
-                    result.copy().also { POLogger.info("Failed to fetch transaction details: %s", it) }
-                )
+                is ProcessOutResult.Failure -> {
+                    POLogger.info("Failed to fetch transaction details: %s", result)
+                    _uiState.value = Failure(result)
+                }
             }
         }
     }
@@ -210,20 +211,20 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
     }
 
     private fun startUserInput(uiModel: NativeAlternativePaymentMethodUiModel) {
-        _uiState.value = UserInput(uiModel.copy())
+        _uiState.value = UserInput(uiModel)
         uiModel.secondaryAction?.let {
             scheduleSecondaryActionEnabling(it) { enableSecondaryAction() }
         }
-        dispatch(DidStart)
         POLogger.info("Started. Waiting for payment parameters.")
+        dispatch(DidStart)
     }
 
     private fun continueUserInput(uiModel: NativeAlternativePaymentMethodUiModel) {
         _uiState.value = UserInput(
             uiModel.copy(isSubmitting = false)
         )
-        dispatch(DidSubmitParameters(additionalParametersExpected = true))
         POLogger.info("Submitted. Waiting for additional payment parameters.")
+        dispatch(DidSubmitParameters(additionalParametersExpected = true))
     }
 
     private fun requestDefaultValues(parameters: List<PONativeAlternativePaymentMethodParameter>) {
@@ -267,7 +268,7 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
                     it.value.take(length)
                 } ?: it.value
                 inputParameter.copy(value = defaultValue)
-            } ?: inputParameter.copy()
+            } ?: inputParameter
         }
         return copy(
             inputParameters = updatedInputParameters
@@ -279,7 +280,7 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
             val updatedInputParameters = uiModel.inputParameters.map {
                 if (it.parameter.key == key)
                     it.copy(value = newValue, state = Input.State.Default())
-                else it.copy()
+                else it
             }
             _uiState.value = UserInput(
                 uiModel.copy(
@@ -360,11 +361,11 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
         }
 
         when (parameter.type()) {
-            NUMERIC -> if (value.isDigitsOnly().not())
+            NUMERIC -> if (!value.isDigitsOnly())
                 return invalidField(R.string.po_native_apm_error_invalid_number)
-            EMAIL -> if (Patterns.EMAIL_ADDRESS.matcher(value).matches().not())
+            EMAIL -> if (!Patterns.EMAIL_ADDRESS.matcher(value).matches())
                 return invalidField(R.string.po_native_apm_error_invalid_email)
-            PHONE -> if (Patterns.PHONE.matcher(value).matches().not())
+            PHONE -> if (!Patterns.PHONE.matcher(value).matches())
                 return invalidField(R.string.po_native_apm_error_invalid_phone)
             else -> {}
         }
@@ -408,8 +409,8 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
         coroutineScope: CoroutineScope
     ) {
         _uiState.value = Submitted(uiModel.copy(isSubmitting = false))
-        dispatch(DidSubmitParameters(additionalParametersExpected = false))
         POLogger.info("All payment parameters has been submitted.")
+        dispatch(DidSubmitParameters(additionalParametersExpected = false))
 
         if (options.waitsPaymentConfirmation) {
             val customerActionMessage = parameterValues?.customerActionMessage ?: uiModel.customerActionMessageMarkdown
@@ -440,17 +441,17 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
             }
             return
         }
-        _uiState.value = Success(uiModel.copy())
         POLogger.info("Finished. Did not wait for capture confirmation.")
+        _uiState.value = Success(uiModel)
     }
 
     private fun handleCaptured(uiModel: NativeAlternativePaymentMethodUiModel) {
         if (options.waitsPaymentConfirmation) {
-            dispatch(DidCompletePayment)
             POLogger.info("Success. Invoice is captured.")
+            dispatch(DidCompletePayment)
         }
         animateViewTransition = true
-        _uiState.value = Success(uiModel.copy())
+        _uiState.value = Success(uiModel)
     }
 
     private fun handlePaymentFailure(
@@ -459,9 +460,8 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
         replaceToLocalMessage: Boolean // TODO: Delete this when backend localisation is done.
     ) {
         if (failure.invalidFields.isNullOrEmpty()) {
-            _uiState.value = Failure(
-                failure.copy().also { POLogger.info("Unrecoverable payment failure: %s", it) }
-            )
+            POLogger.info("Unrecoverable payment failure: %s", failure)
+            _uiState.value = Failure(failure)
             return
         }
         val updatedInputParameters = uiModel.inputParameters.map { inputParameter ->
@@ -473,7 +473,7 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
                         )
                     )
                 )
-            } ?: inputParameter.copy()
+            } ?: inputParameter
         }
         _uiState.value = UserInput(
             uiModel.copy(
@@ -481,9 +481,8 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
                 isSubmitting = false
             )
         )
-        dispatch(DidFailToSubmitParameters(
-            failure.also { POLogger.debug("Invalid payment parameters: %s", it.invalidFields) }
-        ))
+        POLogger.debug("Invalid payment parameters: %s", failure.invalidFields)
+        dispatch(DidFailToSubmitParameters(failure))
     }
 
     // TODO: Delete this when backend localisation is done.
@@ -661,7 +660,7 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
                             ?.focusableViewId ?: View.NO_ID
                     )
                 )
-            } else inputParameter.copy()
+            } else inputParameter
         }
 
     private fun isInputKeyboardActionSupported(type: ParameterType) =
