@@ -84,6 +84,8 @@ inline fun <T : Any, R : Any> ProcessOutResult<T>.map(
 /**
  * Returns the unmodified copy of the result.
  */
+@Suppress("DeprecatedCallableAddReplaceWith")
+@Deprecated(message = "Will be removed in the next major release.")
 fun <T : Any> ProcessOutResult<T>.copy(): ProcessOutResult<T> =
     when (this) {
         is Success -> this.copy()
