@@ -215,16 +215,16 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
         uiModel.secondaryAction?.let {
             scheduleSecondaryActionEnabling(it) { enableSecondaryAction() }
         }
-        dispatch(DidStart)
         POLogger.info("Started. Waiting for payment parameters.")
+        dispatch(DidStart)
     }
 
     private fun continueUserInput(uiModel: NativeAlternativePaymentMethodUiModel) {
         _uiState.value = UserInput(
             uiModel.copy(isSubmitting = false)
         )
-        dispatch(DidSubmitParameters(additionalParametersExpected = true))
         POLogger.info("Submitted. Waiting for additional payment parameters.")
+        dispatch(DidSubmitParameters(additionalParametersExpected = true))
     }
 
     private fun requestDefaultValues(parameters: List<PONativeAlternativePaymentMethodParameter>) {
@@ -409,8 +409,8 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
         coroutineScope: CoroutineScope
     ) {
         _uiState.value = Submitted(uiModel.copy(isSubmitting = false))
-        dispatch(DidSubmitParameters(additionalParametersExpected = false))
         POLogger.info("All payment parameters has been submitted.")
+        dispatch(DidSubmitParameters(additionalParametersExpected = false))
 
         if (options.waitsPaymentConfirmation) {
             val customerActionMessage = parameterValues?.customerActionMessage ?: uiModel.customerActionMessageMarkdown
@@ -441,14 +441,14 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
             }
             return
         }
-        _uiState.value = Success(uiModel)
         POLogger.info("Finished. Did not wait for capture confirmation.")
+        _uiState.value = Success(uiModel)
     }
 
     private fun handleCaptured(uiModel: NativeAlternativePaymentMethodUiModel) {
         if (options.waitsPaymentConfirmation) {
-            dispatch(DidCompletePayment)
             POLogger.info("Success. Invoice is captured.")
+            dispatch(DidCompletePayment)
         }
         animateViewTransition = true
         _uiState.value = Success(uiModel)
@@ -481,9 +481,8 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
                 isSubmitting = false
             )
         )
-        dispatch(DidFailToSubmitParameters(
-            failure.also { POLogger.debug("Invalid payment parameters: %s", it.invalidFields) }
-        ))
+        POLogger.debug("Invalid payment parameters: %s", failure.invalidFields)
+        dispatch(DidFailToSubmitParameters(failure))
     }
 
     // TODO: Delete this when backend localisation is done.
