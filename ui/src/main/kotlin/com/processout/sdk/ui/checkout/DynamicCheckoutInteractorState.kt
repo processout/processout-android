@@ -14,7 +14,8 @@ internal data class DynamicCheckoutInteractorState(
     val selectedPaymentMethodId: String? = null,
     val processingPaymentMethodId: String? = null,
     val pendingSubmitPaymentMethodId: String? = null,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val delayedSuccess: Boolean = false
 ) {
 
     sealed interface PaymentMethod {
