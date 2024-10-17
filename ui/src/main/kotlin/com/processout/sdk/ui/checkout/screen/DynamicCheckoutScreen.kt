@@ -3,6 +3,7 @@
 package com.processout.sdk.ui.checkout.screen
 
 import android.view.Gravity
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.*
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
@@ -511,7 +512,8 @@ internal object DynamicCheckoutScreen {
         val actionsContainer: POActionsContainer.Style,
         val dialog: PODialog.Style,
         val backgroundColor: Color,
-        val progressIndicatorColor: Color
+        val progressIndicatorColor: Color,
+        val paymentSuccess: PaymentSuccessStyle
     )
 
     @Immutable
@@ -520,6 +522,13 @@ internal object DynamicCheckoutScreen {
         val shape: Shape,
         val border: POBorderStroke,
         val description: POTextWithIcon.Style
+    )
+
+    @Immutable
+    data class PaymentSuccessStyle(
+        val message: POText.Style,
+        @DrawableRes val successImageResId: Int,
+        val backgroundColor: Color
     )
 
     @Composable
@@ -574,7 +583,8 @@ internal object DynamicCheckoutScreen {
         } ?: colors.surface.default,
         progressIndicatorColor = custom?.progressIndicatorColorResId?.let {
             colorResource(id = it)
-        } ?: colors.button.primaryBackgroundDefault
+        } ?: colors.button.primaryBackgroundDefault,
+        paymentSuccess = custom?.paymentSuccess?.custom() ?: defaultPaymentSuccess
     )
 
     private val defaultRegularPayment: RegularPaymentStyle
@@ -607,12 +617,31 @@ internal object DynamicCheckoutScreen {
             ),
             description = POTextWithIcon.Style(
                 text = description,
-                iconResId = descriptionIconResId ?: R.drawable.po_info_icon,
+                iconResId = descriptionIconResId ?: defaultRegularPayment.description.iconResId,
                 iconColorFilter = if (descriptionIconResId != null) null else
                     ColorFilter.tint(color = description.color)
             )
         )
     }
+
+    private val defaultPaymentSuccess: PaymentSuccessStyle
+        @Composable get() = PaymentSuccessStyle(
+            message = Style(
+                color = colors.text.success,
+                textStyle = typography.body1
+            ),
+            successImageResId = com.processout.sdk.ui.R.drawable.po_success_image,
+            backgroundColor = colors.surface.success
+        )
+
+    @Composable
+    private fun PODynamicCheckoutConfiguration.PaymentSuccessStyle.custom() =
+        PaymentSuccessStyle(
+            message = POText.custom(style = message),
+            successImageResId = successImageResId ?: defaultPaymentSuccess.successImageResId,
+            backgroundColor = backgroundColorResId?.let { colorResource(id = it) }
+                ?: defaultPaymentSuccess.backgroundColor
+        )
 
     @Composable
     fun POBrandButtonStyle?.toButtonStyle(
