@@ -107,7 +107,6 @@ internal fun DynamicCheckoutScreen(
                         style = style,
                         isLightTheme = isLightTheme
                     )
-                    else -> {}
                 }
             }
         }
@@ -452,11 +451,9 @@ private fun Actions(
     containerStyle: POActionsContainer.Style,
     dialogStyle: PODialog.Style
 ) {
-    var cancelAction: POActionState? = null
-    when (state) {
-        is Starting -> cancelAction = state.cancelAction
-        is Started -> cancelAction = state.cancelAction
-        else -> {}
+    val cancelAction: POActionState? = when (state) {
+        is Starting -> state.cancelAction
+        is Started -> state.cancelAction
     }
     if (cancelAction != null) {
         POActionsContainer(
