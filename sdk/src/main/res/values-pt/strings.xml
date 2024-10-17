@@ -9,6 +9,7 @@
     <string name="po_dynamic_checkout_warning_redirect">Será redireccionado para finalizar este pagamento.</string>
     <string name="po_dynamic_checkout_error_generic">Não foi possível concluir o seu pagamento. Por favor, verifique os detalhes ou tente outro método de pagamento.</string>
     <string name="po_dynamic_checkout_error_method_unavailable">O método de pagamento escolhido não está disponível, por favor tente outro método de pagamento.</string>
+    <string name="po_dynamic_checkout_success_message">Successo!\nPagamento aprovado.</string>
 
     <!-- Native Alternative Payment Method -->
     <string name="po_native_apm_title_format">Pagar com %s</string>
