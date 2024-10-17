@@ -1,10 +1,11 @@
-@file:Suppress("MayBeConstant")
+@file:Suppress("MayBeConstant", "MemberVisibilityCanBePrivate", "AnimateAsStateLabel", "CrossfadeLabel")
 
 package com.processout.sdk.ui.checkout.screen
 
 import android.view.Gravity
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.*
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
@@ -20,7 +21,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -34,10 +38,15 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment.Content.Card
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment.Content.NativeAlternativePayment
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration
+import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.CrossfadeAnimationDurationMillis
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.LongAnimationDurationMillis
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.PaymentLogoSize
+import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.PaymentSuccessStyle
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.RowComponentSpacing
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.ShortAnimationDurationMillis
+import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.SuccessImageHeight
+import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.SuccessImageWidth
+import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.animatedBackgroundColor
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.toButtonStyle
 import com.processout.sdk.ui.core.R
 import com.processout.sdk.ui.core.component.*
@@ -79,7 +88,11 @@ internal fun DynamicCheckoutScreen(
             modifier = Modifier
                 .consumeWindowInsets(WindowInsets.safeDrawing)
                 .clip(shape = shapes.topRoundedCornersLarge),
-            containerColor = style.backgroundColor,
+            containerColor = animatedBackgroundColor(
+                state = state,
+                normalColor = style.backgroundColor,
+                successColor = style.paymentSuccess.backgroundColor
+            ),
             bottomBar = {
                 DynamicFooter {
                     Actions(
@@ -101,12 +114,27 @@ internal fun DynamicCheckoutScreen(
             ) {
                 when (state) {
                     is Starting -> Loading(progressIndicatorColor = style.progressIndicatorColor)
-                    is Started -> Content(
-                        state = state,
-                        onEvent = onEvent,
-                        style = style,
-                        isLightTheme = isLightTheme
-                    )
+                    is Started -> Crossfade(
+                        targetState = state.successMessage != null,
+                        animationSpec = tween(
+                            durationMillis = CrossfadeAnimationDurationMillis,
+                            easing = LinearEasing
+                        )
+                    ) { isSuccess ->
+                        if (isSuccess) {
+                            Success(
+                                message = state.successMessage ?: String(),
+                                style = style.paymentSuccess
+                            )
+                        } else {
+                            Content(
+                                state = state,
+                                onEvent = onEvent,
+                                style = style,
+                                isLightTheme = isLightTheme
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -451,24 +479,56 @@ private fun Actions(
     containerStyle: POActionsContainer.Style,
     dialogStyle: PODialog.Style
 ) {
+    val actions = mutableListOf<POActionState>()
     val cancelAction: POActionState? = when (state) {
         is Starting -> state.cancelAction
         is Started -> state.cancelAction
     }
-    if (cancelAction != null) {
-        POActionsContainer(
-            actions = POImmutableList(listOf(cancelAction)),
-            onClick = {
-                onEvent(
-                    Action(
-                        actionId = it,
-                        paymentMethodId = null
-                    )
+    cancelAction?.let { actions.add(it) }
+    POActionsContainer(
+        actions = POImmutableList(actions),
+        onClick = {
+            onEvent(
+                Action(
+                    actionId = it,
+                    paymentMethodId = null
                 )
-            },
-            onConfirmationRequested = { onEvent(ActionConfirmationRequested(id = it)) },
-            containerStyle = containerStyle,
-            dialogStyle = dialogStyle
+            )
+        },
+        onConfirmationRequested = { onEvent(ActionConfirmationRequested(id = it)) },
+        containerStyle = containerStyle,
+        dialogStyle = dialogStyle,
+        animationDurationMillis = CrossfadeAnimationDurationMillis
+    )
+}
+
+@Composable
+private fun Success(
+    message: String,
+    style: PaymentSuccessStyle
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 100.dp),
+        verticalArrangement = Arrangement.spacedBy(spacing.extraLarge),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        POText(
+            text = message,
+            color = style.message.color,
+            style = style.message.textStyle,
+            textAlign = TextAlign.Center
+        )
+        Image(
+            painter = painterResource(id = style.successImageResId),
+            contentDescription = null,
+            modifier = Modifier.requiredSize(
+                width = SuccessImageWidth,
+                height = SuccessImageHeight
+            ),
+            alignment = Alignment.Center,
+            contentScale = ContentScale.Fit
         )
     }
 }
@@ -704,15 +764,36 @@ internal object DynamicCheckoutScreen {
         paddingVertical = paddingVerticalDp.dp
     )
 
+    @Composable
+    fun animatedBackgroundColor(
+        state: DynamicCheckoutViewModelState,
+        normalColor: Color,
+        successColor: Color
+    ): Color = animateColorAsState(
+        targetValue = when (state) {
+            is Started -> if (state.successMessage != null) successColor else normalColor
+            else -> normalColor
+        },
+        animationSpec = tween(
+            durationMillis = CrossfadeAnimationDurationMillis,
+            easing = LinearEasing
+        )
+    ).value
+
     val ShortAnimationDurationMillis = 300
     val LongAnimationDurationMillis = 600
+    val CrossfadeAnimationDurationMillis = 400
 
     val RowComponentSpacing = 10.dp
 
     val PaymentLogoSize = 24.dp
     val CaptureLogoHeight = 34.dp
+
     val CaptureImageWidth = 110.dp
     val CaptureImageHeight = 140.dp
+
+    val SuccessImageWidth = 220.dp
+    val SuccessImageHeight = 280.dp
 
     private val ShortMessageMaxLength = 150
 
