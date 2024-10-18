@@ -114,8 +114,12 @@ internal class DynamicCheckoutViewModel private constructor(
             Started(
                 expressPayments = expressPayments(interactorState),
                 regularPayments = regularPayments(interactorState, cardTokenizationState, nativeAlternativePaymentState),
-                cancelAction = cancelAction,
-                errorMessage = interactorState.errorMessage
+                cancelAction = if (interactorState.delayedSuccess) null else cancelAction,
+                errorMessage = interactorState.errorMessage,
+                successMessage = if (interactorState.delayedSuccess) {
+                    configuration.paymentSuccess?.message
+                        ?: app.getString(R.string.po_dynamic_checkout_success_message)
+                } else null
             )
         }
     }

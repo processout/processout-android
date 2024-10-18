@@ -1,6 +1,9 @@
 package com.processout.sdk.ui.checkout
 
 import android.app.Application
+import android.os.Handler
+import android.os.Looper
+import androidx.core.os.postDelayed
 import coil.imageLoader
 import coil.request.CachePolicy
 import coil.request.ImageRequest
@@ -87,6 +90,8 @@ internal class DynamicCheckoutInteractor(
     private val _submitEvents = Channel<DynamicCheckoutSubmitEvent>()
     val submitEvents = _submitEvents.receiveAsFlow()
 
+    private val handler = Handler(Looper.getMainLooper())
+
     private var latestInvoiceRequest: PODynamicCheckoutInvoiceRequest? = null
 
     init {
@@ -155,7 +160,7 @@ internal class DynamicCheckoutInteractor(
                 .onSuccess { invoice ->
                     when (invoice.transaction?.status()) {
                         WAITING -> setStartedState(invoice)
-                        AUTHORIZED, COMPLETED -> _completion.update { Success }
+                        AUTHORIZED, COMPLETED -> handleSuccess()
                         else -> _completion.update {
                             Failure(
                                 ProcessOutResult.Failure(
@@ -404,8 +409,12 @@ internal class DynamicCheckoutInteractor(
                 // TODO
             }
             is Dismiss -> {
-                POLogger.warn("Dismissed: %s", event.failure)
-                _completion.update { Failure(event.failure) }
+                if (_state.value.delayedSuccess) {
+                    _completion.update { Success }
+                } else {
+                    POLogger.warn("Dismissed: %s", event.failure)
+                    _completion.update { Failure(event.failure) }
+                }
             }
         }
     }
@@ -594,6 +603,29 @@ internal class DynamicCheckoutInteractor(
         }
     }
 
+    fun handleGooglePay(result: ProcessOutResult<POGooglePayCardTokenizationData>) {
+        result.onSuccess { response ->
+            authorizeInvoice(source = response.card.id)
+        }.onFailure { failure ->
+            invalidateInvoice(
+                reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(failure)
+            )
+        }
+    }
+
+    fun handleAlternativePayment(result: ProcessOutResult<POAlternativePaymentMethodResponse>) {
+        result.onSuccess { response ->
+            authorizeInvoice(
+                source = response.gatewayToken,
+                allowFallbackToSale = true
+            )
+        }.onFailure { failure ->
+            invalidateInvoice(
+                reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(failure)
+            )
+        }
+    }
+
     private fun cancel() {
         _completion.update {
             Failure(
@@ -735,7 +767,7 @@ internal class DynamicCheckoutInteractor(
                     cardTokenizationEventDispatcher.complete(result)
                 } else {
                     result.onSuccess {
-                        _completion.update { Success }
+                        handleSuccess()
                     }.onFailure { failure ->
                         invalidateInvoice(
                             reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(failure)
@@ -750,7 +782,7 @@ internal class DynamicCheckoutInteractor(
         interactorScope.launch {
             cardTokenization.completion.collect { completion ->
                 when (completion) {
-                    is CardTokenizationCompletion.Success -> _completion.update { Success }
+                    is CardTokenizationCompletion.Success -> handleSuccess()
                     is CardTokenizationCompletion.Failure -> invalidateInvoice(
                         reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(completion.failure)
                     )
@@ -761,7 +793,7 @@ internal class DynamicCheckoutInteractor(
         interactorScope.launch {
             nativeAlternativePayment.completion.collect { completion ->
                 when (completion) {
-                    NativeAlternativePaymentCompletion.Success -> _completion.update { Success }
+                    NativeAlternativePaymentCompletion.Success -> handleSuccess()
                     is NativeAlternativePaymentCompletion.Failure -> invalidateInvoice(
                         reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(completion.failure)
                     )
@@ -771,30 +803,17 @@ internal class DynamicCheckoutInteractor(
         }
     }
 
-    fun handleGooglePay(result: ProcessOutResult<POGooglePayCardTokenizationData>) {
-        result.onSuccess { response ->
-            authorizeInvoice(source = response.card.id)
-        }.onFailure { failure ->
-            invalidateInvoice(
-                reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(failure)
-            )
-        }
-    }
-
-    fun handleAlternativePayment(result: ProcessOutResult<POAlternativePaymentMethodResponse>) {
-        result.onSuccess { response ->
-            authorizeInvoice(
-                source = response.gatewayToken,
-                allowFallbackToSale = true
-            )
-        }.onFailure { failure ->
-            invalidateInvoice(
-                reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(failure)
-            )
-        }
+    private fun handleSuccess() {
+        configuration.paymentSuccess?.let { paymentSuccess ->
+            _state.update { it.copy(delayedSuccess = true) }
+            handler.postDelayed(delayInMillis = paymentSuccess.durationSeconds * 1000L) {
+                _completion.update { Success }
+            }
+        } ?: _completion.update { Success }
     }
 
     fun onCleared() {
         threeDSService.close()
+        handler.removeCallbacksAndMessages(null)
     }
 }

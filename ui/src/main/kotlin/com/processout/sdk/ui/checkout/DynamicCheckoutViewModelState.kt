@@ -23,12 +23,8 @@ internal sealed interface DynamicCheckoutViewModelState {
         val expressPayments: POImmutableList<ExpressPayment>,
         val regularPayments: POImmutableList<RegularPayment>,
         val cancelAction: POActionState?,
-        val errorMessage: String? = null
-    ) : DynamicCheckoutViewModelState
-
-    @Immutable
-    data class Success(
-        val message: String
+        val errorMessage: String? = null,
+        val successMessage: String? = null
     ) : DynamicCheckoutViewModelState
 
     //endregion

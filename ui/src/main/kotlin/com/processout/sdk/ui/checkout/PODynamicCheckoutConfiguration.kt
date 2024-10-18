@@ -21,6 +21,7 @@ data class PODynamicCheckoutConfiguration(
     val alternativePayment: AlternativePaymentConfiguration = AlternativePaymentConfiguration(),
     val submitButtonText: String? = null,
     val cancelButton: CancelButton? = CancelButton(),
+    val paymentSuccess: PaymentSuccess? = PaymentSuccess(),
     val style: Style? = null
 ) : Parcelable {
 
@@ -114,6 +115,12 @@ data class PODynamicCheckoutConfiguration(
     ) : Parcelable
 
     @Parcelize
+    data class PaymentSuccess(
+        val message: String? = null,
+        val durationSeconds: Int = 3
+    ) : Parcelable
+
+    @Parcelize
     data class Style(
         val googlePayButton: POGooglePayButtonStyle? = null,
         val expressPaymentButton: POBrandButtonStyle? = null,
@@ -134,7 +141,8 @@ data class PODynamicCheckoutConfiguration(
         @ColorRes
         val progressIndicatorColorResId: Int? = null,
         @ColorRes
-        val controlsTintColorResId: Int? = null
+        val controlsTintColorResId: Int? = null,
+        val paymentSuccess: PaymentSuccessStyle? = null
     ) : Parcelable
 
     @Parcelize
@@ -144,5 +152,14 @@ data class PODynamicCheckoutConfiguration(
         val description: POTextStyle,
         @DrawableRes
         val descriptionIconResId: Int? = null
+    ) : Parcelable
+
+    @Parcelize
+    data class PaymentSuccessStyle(
+        val message: POTextStyle,
+        @DrawableRes
+        val successImageResId: Int? = null,
+        @ColorRes
+        val backgroundColorResId: Int? = null
     ) : Parcelable
 }
