@@ -409,8 +409,12 @@ internal class DynamicCheckoutInteractor(
                 // TODO
             }
             is Dismiss -> {
-                POLogger.warn("Dismissed: %s", event.failure)
-                _completion.update { Failure(event.failure) }
+                if (_state.value.delayedSuccess) {
+                    _completion.update { Success }
+                } else {
+                    POLogger.warn("Dismissed: %s", event.failure)
+                    _completion.update { Failure(event.failure) }
+                }
             }
         }
     }
