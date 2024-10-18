@@ -510,7 +510,7 @@ private fun Success(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 100.dp),
+            .padding(top = spacing.extraLarge * 2),
         verticalArrangement = Arrangement.spacedBy(spacing.extraLarge),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
