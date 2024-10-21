@@ -32,6 +32,7 @@ import com.processout.sdk.api.service.googlepay.POGooglePayService
 import com.processout.sdk.api.service.proxy3ds.POProxy3DSService
 import com.processout.sdk.core.POFailure.Code.*
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.logger.POLogAttribute
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
@@ -77,8 +78,16 @@ internal class DynamicCheckoutInteractor(
     private val cardTokenizationEventDispatcher: PODefaultCardTokenizationEventDispatcher,
     private val nativeAlternativePayment: NativeAlternativePaymentViewModel,
     private val nativeAlternativePaymentEventDispatcher: PODefaultNativeAlternativePaymentMethodEventDispatcher,
-    private val eventDispatcher: POEventDispatcher = POEventDispatcher
+    private val eventDispatcher: POEventDispatcher = POEventDispatcher,
+    private var logAttributes: Map<String, String> = logAttributes(
+        invoiceId = configuration.invoiceRequest.invoiceId
+    )
 ) : BaseInteractor() {
+
+    private companion object {
+        fun logAttributes(invoiceId: String): Map<String, String> =
+            mapOf(POLogAttribute.INVOICE_ID to invoiceId)
+    }
 
     private val _completion = MutableStateFlow<DynamicCheckoutCompletion>(Awaiting)
     val completion = _completion.asStateFlow()
@@ -116,6 +125,7 @@ internal class DynamicCheckoutInteractor(
         reason: PODynamicCheckoutInvoiceInvalidationReason
     ) {
         configuration = configuration.copy(invoiceRequest = invoiceRequest)
+        logAttributes = logAttributes(invoiceId = invoiceRequest.invoiceId)
         val selectedPaymentMethodId = when (reason) {
             is PODynamicCheckoutInvoiceInvalidationReason.Failure ->
                 if (reason.failure.code == Cancelled)
