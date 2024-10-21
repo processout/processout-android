@@ -434,6 +434,12 @@ internal class DynamicCheckoutInteractor(
         if (event.id == _state.value.selectedPaymentMethodId) {
             return
         }
+        val originalPaymentMethod = originalPaymentMethod(event.id)
+        if (originalPaymentMethod == null) {
+            handleInternalFailure("Failed to select payment method: it is null.")
+            return
+        }
+        dispatch(WillSelectPaymentMethod(paymentMethod = originalPaymentMethod))
         paymentMethod(event.id)?.let { paymentMethod ->
             if (_state.value.processingPaymentMethodId != null) {
                 invalidateInvoice(
@@ -637,6 +643,14 @@ internal class DynamicCheckoutInteractor(
         }
     }
 
+    private fun handleInternalFailure(message: String) {
+        invalidateInvoice(
+            reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(
+                failure = ProcessOutResult.Failure(code = Internal(), message = message)
+            )
+        )
+    }
+
     private fun invalidateInvoice(reason: PODynamicCheckoutInvoiceInvalidationReason) {
         interactorScope.launch {
             _state.update { it.copy(isInvoiceValid = false) }
@@ -698,26 +712,12 @@ internal class DynamicCheckoutInteractor(
     ) {
         val paymentMethodId = _state.value.processingPaymentMethodId
         if (paymentMethodId == null) {
-            invalidateInvoice(
-                reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(
-                    failure = ProcessOutResult.Failure(
-                        code = Internal(),
-                        message = "Failed to authorize invoice: payment method ID is null."
-                    )
-                )
-            )
+            handleInternalFailure("Failed to authorize invoice: payment method ID is null.")
             return
         }
         val paymentMethod = originalPaymentMethod(paymentMethodId)
         if (paymentMethod == null) {
-            invalidateInvoice(
-                reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(
-                    failure = ProcessOutResult.Failure(
-                        code = Internal(),
-                        message = "Failed to authorize invoice: payment method is null."
-                    )
-                )
-            )
+            handleInternalFailure("Failed to authorize invoice: payment method is null.")
             return
         }
         interactorScope.launch {
