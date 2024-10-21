@@ -207,10 +207,7 @@ internal class DynamicCheckoutInteractor(
                 amount = invoice.amount,
                 currency = invoice.currency
             )
-            preloadAllImages(
-                paymentMethods = mappedPaymentMethods,
-                coroutineScope = this@launch
-            )
+            preloadAllImages(paymentMethods = mappedPaymentMethods)
             _state.update {
                 it.copy(
                     loading = false,
@@ -355,24 +352,23 @@ internal class DynamicCheckoutInteractor(
 
     //region Images
 
-    private suspend fun preloadAllImages(
-        paymentMethods: List<PaymentMethod>,
-        coroutineScope: CoroutineScope
-    ) {
-        val logoUrls = mutableListOf<String>()
-        paymentMethods.forEach {
-            when (it) {
-                is Card -> logoUrls.addAll(it.display.logoUrls())
-                is AlternativePayment -> logoUrls.addAll(it.display.logoUrls())
-                is NativeAlternativePayment -> logoUrls.addAll(it.display.logoUrls())
-                is CustomerToken -> logoUrls.addAll(it.display.logoUrls())
-                else -> {}
+    private suspend fun preloadAllImages(paymentMethods: List<PaymentMethod>) {
+        coroutineScope {
+            val logoUrls = mutableListOf<String>()
+            paymentMethods.forEach {
+                when (it) {
+                    is Card -> logoUrls.addAll(it.display.logoUrls())
+                    is AlternativePayment -> logoUrls.addAll(it.display.logoUrls())
+                    is NativeAlternativePayment -> logoUrls.addAll(it.display.logoUrls())
+                    is CustomerToken -> logoUrls.addAll(it.display.logoUrls())
+                    else -> {}
+                }
             }
+            val deferredResults = logoUrls.map { url ->
+                async { preloadImage(url) }
+            }
+            deferredResults.awaitAll()
         }
-        val deferredResults = logoUrls.map { url ->
-            coroutineScope.async { preloadImage(url) }
-        }
-        deferredResults.awaitAll()
     }
 
     private fun Display.logoUrls(): List<String> {
