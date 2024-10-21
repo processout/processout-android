@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
+import com.processout.sdk.api.model.event.PODynamicCheckoutEvent
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
 import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceAuthorizationRequest
 import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceRequest
@@ -92,6 +93,9 @@ class PODynamicCheckoutLauncher private constructor(
     }
 
     private fun dispatchEvents() {
+        eventDispatcher.subscribe<PODynamicCheckoutEvent>(
+            coroutineScope = scope
+        ) { delegate.onEvent(it) }
         eventDispatcher.subscribe<POCardTokenizationEvent>(
             coroutineScope = scope
         ) { delegate.onEvent(it) }
