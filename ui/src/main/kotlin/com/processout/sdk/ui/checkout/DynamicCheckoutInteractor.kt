@@ -13,7 +13,7 @@ import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.event.PODynamicCheckoutEvent
-import com.processout.sdk.api.model.event.PODynamicCheckoutEvent.DidFail
+import com.processout.sdk.api.model.event.PODynamicCheckoutEvent.*
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.WillSubmitParameters
 import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.response.*
@@ -107,7 +107,11 @@ internal class DynamicCheckoutInteractor(
 
     init {
         interactorScope.launch {
+            POLogger.info("Starting dynamic checkout.")
+            dispatch(WillStart)
             start()
+            POLogger.info("Started: waiting for user input.")
+            dispatch(DidStart)
         }
     }
 
