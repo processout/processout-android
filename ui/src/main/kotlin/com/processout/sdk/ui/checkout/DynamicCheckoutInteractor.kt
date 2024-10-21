@@ -106,10 +106,12 @@ internal class DynamicCheckoutInteractor(
     private var latestInvoiceRequest: PODynamicCheckoutInvoiceRequest? = null
 
     init {
-        start()
+        interactorScope.launch {
+            start()
+        }
     }
 
-    private fun start() {
+    private suspend fun start() {
         handleCompletions()
         dispatchEvents()
         dispatchFailure()
@@ -146,7 +148,7 @@ internal class DynamicCheckoutInteractor(
                 errorMessage = errorMessage
             )
         )
-        start()
+        interactorScope.launch { start() }
     }
 
     private fun reset(state: DynamicCheckoutInteractorState) {
@@ -167,75 +169,71 @@ internal class DynamicCheckoutInteractor(
         cancelActionId = ActionId.CANCEL
     )
 
-    private fun fetchConfiguration() {
-        interactorScope.launch {
-            invoicesService.invoice(configuration.invoiceRequest)
-                .onSuccess { invoice ->
-                    when (invoice.transaction?.status()) {
-                        WAITING -> setStartedState(invoice)
-                        AUTHORIZED, COMPLETED -> handleSuccess()
-                        else -> _completion.update {
-                            Failure(
-                                ProcessOutResult.Failure(
-                                    code = Generic(),
-                                    message = "Unsupported invoice state. Please create new invoice and restart dynamic checkout."
-                                )
+    private suspend fun fetchConfiguration() {
+        invoicesService.invoice(configuration.invoiceRequest)
+            .onSuccess { invoice ->
+                when (invoice.transaction?.status()) {
+                    WAITING -> setStartedState(invoice)
+                    AUTHORIZED, COMPLETED -> handleSuccess()
+                    else -> _completion.update {
+                        Failure(
+                            ProcessOutResult.Failure(
+                                code = Generic(),
+                                message = "Unsupported invoice state. Please create new invoice and restart dynamic checkout."
                             )
-                        }
+                        )
                     }
-                }.onFailure { failure ->
-                    _completion.update { Failure(failure) }
                 }
-        }
+            }.onFailure { failure ->
+                _completion.update { Failure(failure) }
+            }
     }
 
-    private fun setStartedState(invoice: POInvoice) {
-        interactorScope.launch {
-            val paymentMethods = invoice.paymentMethods
-            if (paymentMethods.isNullOrEmpty()) {
-                _completion.update {
-                    Failure(
-                        ProcessOutResult.Failure(
-                            code = Generic(),
-                            message = "Missing payment methods configuration."
-                        )
+    private suspend fun setStartedState(invoice: POInvoice) {
+        val paymentMethods = invoice.paymentMethods
+        if (paymentMethods.isNullOrEmpty()) {
+            _completion.update {
+                Failure(
+                    ProcessOutResult.Failure(
+                        code = Generic(),
+                        message = "Missing payment methods configuration."
                     )
-                }
-                return@launch
-            }
-            val mappedPaymentMethods = paymentMethods.map(
-                amount = invoice.amount,
-                currency = invoice.currency
-            )
-            preloadAllImages(paymentMethods = mappedPaymentMethods)
-            _state.update {
-                it.copy(
-                    loading = false,
-                    invoice = invoice,
-                    isInvoiceValid = true,
-                    paymentMethods = mappedPaymentMethods
                 )
             }
-            _state.value.selectedPaymentMethodId?.let { id ->
-                paymentMethod(id)?.let { start(it) }
-                    .orElse {
-                        _state.update {
-                            it.copy(
-                                selectedPaymentMethodId = null,
-                                errorMessage = app.getString(R.string.po_dynamic_checkout_error_method_unavailable)
-                            )
-                        }
+            return
+        }
+        val mappedPaymentMethods = paymentMethods.map(
+            amount = invoice.amount,
+            currency = invoice.currency
+        )
+        preloadAllImages(paymentMethods = mappedPaymentMethods)
+        _state.update {
+            it.copy(
+                loading = false,
+                invoice = invoice,
+                isInvoiceValid = true,
+                paymentMethods = mappedPaymentMethods
+            )
+        }
+        _state.value.selectedPaymentMethodId?.let { id ->
+            paymentMethod(id)?.let { start(it) }
+                .orElse {
+                    _state.update {
+                        it.copy(
+                            selectedPaymentMethodId = null,
+                            errorMessage = app.getString(R.string.po_dynamic_checkout_error_method_unavailable)
+                        )
                     }
-            }
-            _state.value.pendingSubmitPaymentMethodId?.let { id ->
-                _state.update { it.copy(pendingSubmitPaymentMethodId = null) }
-                paymentMethod(id)?.let { submit(it) }
-                    .orElse {
-                        _state.update {
-                            it.copy(errorMessage = app.getString(R.string.po_dynamic_checkout_error_method_unavailable))
-                        }
+                }
+        }
+        _state.value.pendingSubmitPaymentMethodId?.let { id ->
+            _state.update { it.copy(pendingSubmitPaymentMethodId = null) }
+            paymentMethod(id)?.let { submit(it) }
+                .orElse {
+                    _state.update {
+                        it.copy(errorMessage = app.getString(R.string.po_dynamic_checkout_error_method_unavailable))
                     }
-            }
+                }
         }
     }
 
