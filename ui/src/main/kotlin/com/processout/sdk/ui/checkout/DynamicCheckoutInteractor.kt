@@ -12,6 +12,8 @@ import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
+import com.processout.sdk.api.model.event.PODynamicCheckoutEvent
+import com.processout.sdk.api.model.event.PODynamicCheckoutEvent.DidFail
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.WillSubmitParameters
 import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.response.*
@@ -101,6 +103,7 @@ internal class DynamicCheckoutInteractor(
     private fun start() {
         handleCompletions()
         dispatchEvents()
+        dispatchFailure()
         collectInvoice()
         collectInvoiceAuthorizationRequest()
         collectAuthorizeInvoiceResult()
@@ -626,17 +629,6 @@ internal class DynamicCheckoutInteractor(
         }
     }
 
-    private fun cancel() {
-        _completion.update {
-            Failure(
-                ProcessOutResult.Failure(
-                    code = Cancelled,
-                    message = "Cancelled by the user with cancel action."
-                ).also { POLogger.info("Cancelled: %s", it) }
-            )
-        }
-    }
-
     private fun invalidateInvoice(reason: PODynamicCheckoutInvoiceInvalidationReason) {
         interactorScope.launch {
             _state.update { it.copy(isInvoiceValid = false) }
@@ -673,20 +665,6 @@ internal class DynamicCheckoutInteractor(
                 } else {
                     restart(invoiceRequest, reason)
                 }
-            }
-        }
-    }
-
-    private fun dispatchEvents() {
-        interactorScope.launch {
-            cardTokenizationEventDispatcher.events.collect { eventDispatcher.send(it) }
-        }
-        interactorScope.launch {
-            nativeAlternativePaymentEventDispatcher.events.collect { event ->
-                if (event is WillSubmitParameters) {
-                    _state.update { it.copy(processingPaymentMethodId = selectedPaymentMethod()?.id) }
-                }
-                eventDispatcher.send(event)
             }
         }
     }
@@ -810,6 +788,47 @@ internal class DynamicCheckoutInteractor(
                 _completion.update { Success }
             }
         } ?: _completion.update { Success }
+    }
+
+    private fun dispatch(event: PODynamicCheckoutEvent) {
+        interactorScope.launch {
+            eventDispatcher.send(event)
+        }
+    }
+
+    private fun dispatchEvents() {
+        interactorScope.launch {
+            cardTokenizationEventDispatcher.events.collect { eventDispatcher.send(it) }
+        }
+        interactorScope.launch {
+            nativeAlternativePaymentEventDispatcher.events.collect { event ->
+                if (event is WillSubmitParameters) {
+                    _state.update { it.copy(processingPaymentMethodId = selectedPaymentMethod()?.id) }
+                }
+                eventDispatcher.send(event)
+            }
+        }
+    }
+
+    private fun dispatchFailure() {
+        interactorScope.launch {
+            _completion.collect {
+                if (it is Failure) {
+                    dispatch(DidFail(it.failure))
+                }
+            }
+        }
+    }
+
+    private fun cancel() {
+        _completion.update {
+            Failure(
+                ProcessOutResult.Failure(
+                    code = Cancelled,
+                    message = "Cancelled by the user with cancel action."
+                ).also { POLogger.info("Cancelled: %s", it) }
+            )
+        }
     }
 
     fun onCleared() {
