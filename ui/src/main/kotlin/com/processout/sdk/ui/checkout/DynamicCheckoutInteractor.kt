@@ -158,10 +158,14 @@ internal class DynamicCheckoutInteractor(
     private fun reset(state: DynamicCheckoutInteractorState) {
         interactorScope.coroutineContext.cancelChildren()
         latestInvoiceRequest = null
-        cardTokenization.reset()
-        nativeAlternativePayment.reset()
+        resetPaymentMethods()
         _completion.update { Awaiting }
         _state.update { state }
+    }
+
+    private fun resetPaymentMethods() {
+        cardTokenization.reset()
+        nativeAlternativePayment.reset()
     }
 
     private fun initState() = DynamicCheckoutInteractorState(
@@ -446,8 +450,7 @@ internal class DynamicCheckoutInteractor(
                     reason = PODynamicCheckoutInvoiceInvalidationReason.PaymentMethodChanged
                 )
             }
-            cardTokenization.reset()
-            nativeAlternativePayment.reset()
+            resetPaymentMethods()
             if (_state.value.isInvoiceValid) {
                 start(paymentMethod)
             }
@@ -548,8 +551,7 @@ internal class DynamicCheckoutInteractor(
             return
         }
         if (paymentMethod.isExpress()) {
-            cardTokenization.reset()
-            nativeAlternativePayment.reset()
+            resetPaymentMethods()
             _state.update {
                 it.copy(
                     selectedPaymentMethodId = null,
