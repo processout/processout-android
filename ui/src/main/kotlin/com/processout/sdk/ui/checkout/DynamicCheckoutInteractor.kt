@@ -702,12 +702,7 @@ internal class DynamicCheckoutInteractor(
         allowFallbackToSale: Boolean = false,
         clientSecret: String? = null
     ) {
-        val paymentMethodId = _state.value.processingPaymentMethod?.id
-        if (paymentMethodId == null) {
-            handleInternalFailure("Failed to authorize invoice: payment method ID is null.")
-            return
-        }
-        val paymentMethod = paymentMethod(paymentMethodId)
+        val paymentMethod = _state.value.processingPaymentMethod
         if (paymentMethod == null) {
             handleInternalFailure("Failed to authorize invoice: payment method is null.")
             return
