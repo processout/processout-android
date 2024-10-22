@@ -198,12 +198,14 @@ internal class DynamicCheckoutViewModel private constructor(
                 is AlternativePayment -> if (paymentMethod.isExpress)
                     expressPayment(
                         id = id,
+                        text = paymentMethod.display.name,
                         display = paymentMethod.display,
                         interactorState = interactorState
                     ) else null
                 is CustomerToken -> if (paymentMethod.isExpress)
                     expressPayment(
                         id = id,
+                        text = paymentMethod.display.description ?: paymentMethod.display.name,
                         display = paymentMethod.display,
                         interactorState = interactorState
                     ) else null
@@ -213,6 +215,7 @@ internal class DynamicCheckoutViewModel private constructor(
 
     private fun expressPayment(
         id: String,
+        text: String,
         display: Display,
         interactorState: DynamicCheckoutInteractorState
     ) = ExpressPayment.Express(
@@ -221,7 +224,7 @@ internal class DynamicCheckoutViewModel private constructor(
         brandColor = display.brandColor,
         submitAction = POActionState(
             id = interactorState.submitActionId,
-            text = display.name,
+            text = text,
             primary = true,
             enabled = id != interactorState.processingPaymentMethod?.id
         )

@@ -140,7 +140,8 @@ sealed class PODynamicCheckoutPaymentMethod {
         val name: String,
         val logo: POImageResource,
         @Json(name = "brand_color")
-        val brandColor: POColor
+        val brandColor: POColor,
+        val description: String?
     )
 
     /**
