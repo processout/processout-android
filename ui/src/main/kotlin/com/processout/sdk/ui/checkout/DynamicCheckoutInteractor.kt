@@ -407,18 +407,6 @@ internal class DynamicCheckoutInteractor(
             paymentMethod(it)
         }
 
-    private fun originalPaymentMethod(id: String): PODynamicCheckoutPaymentMethod? =
-        _state.value.invoice.paymentMethods?.find {
-            when (it) {
-                is PODynamicCheckoutPaymentMethod.Card -> PaymentMethodId.CARD == id
-                is PODynamicCheckoutPaymentMethod.GooglePay -> it.configuration.gatewayMerchantId == id
-                is PODynamicCheckoutPaymentMethod.AlternativePayment -> it.configuration.gatewayConfigurationId == id
-                is AlternativePaymentCustomerToken -> it.configuration.customerTokenId == id
-                is CardCustomerToken -> it.configuration.customerTokenId == id
-                Unknown -> false
-            }
-        }
-
     fun onEvent(event: DynamicCheckoutEvent) {
         when (event) {
             is PaymentMethodSelected -> onPaymentMethodSelected(event)
@@ -443,7 +431,7 @@ internal class DynamicCheckoutInteractor(
         if (event.id == _state.value.selectedPaymentMethodId) {
             return
         }
-        val originalPaymentMethod = originalPaymentMethod(event.id)
+        val originalPaymentMethod = paymentMethod(event.id)?.original
         if (originalPaymentMethod == null) {
             handleInternalFailure("Failed to select payment method: it is null.")
             return
@@ -722,7 +710,7 @@ internal class DynamicCheckoutInteractor(
             handleInternalFailure("Failed to authorize invoice: payment method ID is null.")
             return
         }
-        val paymentMethod = originalPaymentMethod(paymentMethodId)
+        val paymentMethod = paymentMethod(paymentMethodId)
         if (paymentMethod == null) {
             handleInternalFailure("Failed to authorize invoice: payment method is null.")
             return
@@ -736,7 +724,7 @@ internal class DynamicCheckoutInteractor(
                     allowFallbackToSale = allowFallbackToSale,
                     clientSecret = clientSecret
                 ),
-                paymentMethod = paymentMethod
+                paymentMethod = paymentMethod.original
             )
             eventDispatcher.send(request)
         }
