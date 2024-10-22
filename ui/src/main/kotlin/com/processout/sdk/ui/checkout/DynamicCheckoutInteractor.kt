@@ -233,8 +233,8 @@ internal class DynamicCheckoutInteractor(
                     }
                 }
         }
-        _state.value.pendingSubmitPaymentMethodId?.let { id ->
-            _state.update { it.copy(pendingSubmitPaymentMethodId = null) }
+        _state.value.pendingSubmitPaymentMethod?.id?.let { id ->
+            _state.update { it.copy(pendingSubmitPaymentMethod = null) }
             paymentMethod(id)?.let { submit(it) }
                 .orElse {
                     _state.update {
@@ -553,7 +553,7 @@ internal class DynamicCheckoutInteractor(
             }
         }
         if (_state.value.processingPaymentMethodId != null) {
-            _state.update { it.copy(pendingSubmitPaymentMethodId = paymentMethod.id) }
+            _state.update { it.copy(pendingSubmitPaymentMethod = paymentMethod) }
             invalidateInvoice(
                 reason = PODynamicCheckoutInvoiceInvalidationReason.PaymentMethodChanged
             )
