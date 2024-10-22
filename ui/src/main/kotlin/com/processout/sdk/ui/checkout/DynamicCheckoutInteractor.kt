@@ -147,7 +147,7 @@ internal class DynamicCheckoutInteractor(
             state = _state.value.copy(
                 invoice = POInvoice(id = configuration.invoiceRequest.invoiceId),
                 selectedPaymentMethod = selectedPaymentMethod,
-                processingPaymentMethodId = null,
+                processingPaymentMethod = null,
                 errorMessage = errorMessage
             )
         )
@@ -433,7 +433,7 @@ internal class DynamicCheckoutInteractor(
         }
         dispatch(WillSelectPaymentMethod(paymentMethod = originalPaymentMethod))
         paymentMethod(event.id)?.let { paymentMethod ->
-            if (_state.value.processingPaymentMethodId != null) {
+            if (_state.value.processingPaymentMethod != null) {
                 invalidateInvoice(
                     reason = PODynamicCheckoutInvoiceInvalidationReason.PaymentMethodChanged
                 )
@@ -535,7 +535,7 @@ internal class DynamicCheckoutInteractor(
         }
 
     private fun submit(paymentMethod: PaymentMethod) {
-        if (paymentMethod.id == _state.value.processingPaymentMethodId) {
+        if (paymentMethod.id == _state.value.processingPaymentMethod?.id) {
             return
         }
         if (paymentMethod.isExpress()) {
@@ -547,7 +547,7 @@ internal class DynamicCheckoutInteractor(
                 )
             }
         }
-        if (_state.value.processingPaymentMethodId != null) {
+        if (_state.value.processingPaymentMethod != null) {
             _state.update { it.copy(pendingSubmitPaymentMethod = paymentMethod) }
             invalidateInvoice(
                 reason = PODynamicCheckoutInvoiceInvalidationReason.PaymentMethodChanged
@@ -555,40 +555,42 @@ internal class DynamicCheckoutInteractor(
             return
         }
         when (paymentMethod) {
-            is GooglePay -> {
+            is GooglePay ->
                 interactorScope.launch {
-                    _state.update { it.copy(processingPaymentMethodId = paymentMethod.id) }
+                    _state.update { it.copy(processingPaymentMethod = paymentMethod) }
                     _submitEvents.send(
                         DynamicCheckoutSubmitEvent.GooglePay(
                             paymentDataRequest = paymentMethod.paymentDataRequest
                         )
                     )
                 }
-            }
-            is AlternativePayment -> submitAlternativePayment(
-                id = paymentMethod.id,
-                redirectUrl = paymentMethod.redirectUrl
-            )
-            is CustomerToken -> {
-                val redirectUrl = paymentMethod.configuration.redirectUrl
-                if (redirectUrl != null) {
-                    submitAlternativePayment(
-                        id = paymentMethod.id,
-                        redirectUrl = redirectUrl
-                    )
+            is AlternativePayment -> submitAlternativePayment(paymentMethod)
+            is CustomerToken ->
+                if (paymentMethod.configuration.redirectUrl != null) {
+                    submitAlternativePayment(paymentMethod)
                 } else {
-                    _state.update { it.copy(processingPaymentMethodId = paymentMethod.id) }
+                    _state.update { it.copy(processingPaymentMethod = paymentMethod) }
                     authorizeInvoice(source = paymentMethod.configuration.customerTokenId)
                 }
-            }
             else -> {}
         }
     }
 
-    private fun submitAlternativePayment(
-        id: String,
-        redirectUrl: String
-    ) {
+    private fun submitAlternativePayment(paymentMethod: PaymentMethod) {
+        val redirectUrl = when (paymentMethod) {
+            is AlternativePayment -> paymentMethod.redirectUrl
+            is CustomerToken -> paymentMethod.configuration.redirectUrl
+            else -> null
+        }
+        if (redirectUrl.isNullOrBlank()) {
+            handleAlternativePayment(
+                ProcessOutResult.Failure(
+                    code = Generic(),
+                    message = "Missing redirect URL in alternative payment configuration."
+                )
+            )
+            return
+        }
         val returnUrl = configuration.alternativePayment.returnUrl
         if (returnUrl.isNullOrBlank()) {
             handleAlternativePayment(
@@ -600,7 +602,7 @@ internal class DynamicCheckoutInteractor(
             return
         }
         interactorScope.launch {
-            _state.update { it.copy(processingPaymentMethodId = id) }
+            _state.update { it.copy(processingPaymentMethod = paymentMethod) }
             _submitEvents.send(
                 DynamicCheckoutSubmitEvent.AlternativePayment(
                     redirectUrl = redirectUrl,
@@ -684,7 +686,7 @@ internal class DynamicCheckoutInteractor(
     private fun collectTokenizedCard() {
         interactorScope.launch {
             cardTokenizationEventDispatcher.processTokenizedCardRequest.collect { request ->
-                _state.update { it.copy(processingPaymentMethodId = _state.value.selectedPaymentMethod?.id) }
+                _state.update { it.copy(processingPaymentMethod = _state.value.selectedPaymentMethod) }
                 authorizeInvoice(
                     source = request.card.id,
                     saveSource = request.saveCard,
@@ -700,7 +702,7 @@ internal class DynamicCheckoutInteractor(
         allowFallbackToSale: Boolean = false,
         clientSecret: String? = null
     ) {
-        val paymentMethodId = _state.value.processingPaymentMethodId
+        val paymentMethodId = _state.value.processingPaymentMethod?.id
         if (paymentMethodId == null) {
             handleInternalFailure("Failed to authorize invoice: payment method ID is null.")
             return
@@ -811,7 +813,7 @@ internal class DynamicCheckoutInteractor(
         interactorScope.launch {
             nativeAlternativePaymentEventDispatcher.events.collect { event ->
                 if (event is WillSubmitParameters) {
-                    _state.update { it.copy(processingPaymentMethodId = _state.value.selectedPaymentMethod?.id) }
+                    _state.update { it.copy(processingPaymentMethod = _state.value.selectedPaymentMethod) }
                 }
                 eventDispatcher.send(event)
             }

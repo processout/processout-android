@@ -166,7 +166,7 @@ internal class DynamicCheckoutViewModel private constructor(
         id = interactorState.cancelActionId,
         text = text ?: defaultText,
         primary = false,
-        enabled = interactorState.processingPaymentMethodId == null,
+        enabled = interactorState.processingPaymentMethod == null,
         confirmation = confirmation?.map()
     )
 
@@ -192,7 +192,7 @@ internal class DynamicCheckoutViewModel private constructor(
                         id = interactorState.submitActionId,
                         text = String(),
                         primary = true,
-                        enabled = id != interactorState.processingPaymentMethodId
+                        enabled = id != interactorState.processingPaymentMethod?.id
                     )
                 )
                 is AlternativePayment -> if (paymentMethod.isExpress)
@@ -223,7 +223,7 @@ internal class DynamicCheckoutViewModel private constructor(
             id = interactorState.submitActionId,
             text = display.name,
             primary = true,
-            enabled = id != interactorState.processingPaymentMethodId
+            enabled = id != interactorState.processingPaymentMethod?.id
         )
     )
 
@@ -261,7 +261,7 @@ internal class DynamicCheckoutViewModel private constructor(
                             id = interactorState.submitActionId,
                             text = submitButtonText,
                             primary = true,
-                            loading = interactorState.processingPaymentMethodId != null
+                            loading = interactorState.processingPaymentMethod != null
                         )
                     ) else null
                 is NativeAlternativePayment -> RegularPayment(
