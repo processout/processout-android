@@ -17,7 +17,6 @@ import com.processout.sdk.api.service.proxy3ds.PODefaultProxy3DSService
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState
-import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment.Content
@@ -124,9 +123,6 @@ internal class DynamicCheckoutViewModel private constructor(
         }
     }
 
-    private fun DynamicCheckoutInteractorState.selectedPaymentMethod(): PaymentMethod? =
-        paymentMethods.find { it.id == selectedPaymentMethodId }
-
     private fun cancelAction(
         interactorState: DynamicCheckoutInteractorState,
         cardTokenizationState: CardTokenizationViewModelState,
@@ -135,7 +131,7 @@ internal class DynamicCheckoutViewModel private constructor(
         val defaultText = app.getString(R.string.po_dynamic_checkout_button_cancel)
         val defaultCancelAction = configuration.cancelButton?.toActionState(interactorState, defaultText)
         val defaultCancelActionText = defaultCancelAction?.text ?: defaultText
-        return when (interactorState.selectedPaymentMethod()) {
+        return when (interactorState.selectedPaymentMethod) {
             is Card -> cardTokenizationState.secondaryAction?.copy(
                 text = defaultCancelActionText,
                 confirmation = defaultCancelAction?.confirmation
@@ -238,7 +234,7 @@ internal class DynamicCheckoutViewModel private constructor(
     ): POImmutableList<RegularPayment> =
         interactorState.paymentMethods.mapNotNull { paymentMethod ->
             val id = paymentMethod.id
-            val selected = id == interactorState.selectedPaymentMethodId
+            val selected = id == interactorState.selectedPaymentMethod?.id
             val submitButtonText = configuration.submitButtonText ?: app.getString(R.string.po_dynamic_checkout_button_pay)
             when (paymentMethod) {
                 is Card -> RegularPayment(
