@@ -118,7 +118,6 @@ internal class DynamicCheckoutInteractor(
     private suspend fun start() {
         handleCompletions()
         dispatchEvents()
-        dispatchFailure()
         collectInvoice()
         collectInvoiceAuthorizationRequest()
         collectAuthorizeInvoiceResult()
@@ -768,6 +767,17 @@ internal class DynamicCheckoutInteractor(
 
     private fun handleCompletions() {
         interactorScope.launch {
+            _completion.collect { completion ->
+                when (completion) {
+                    Success -> {
+                        // TODO
+                    }
+                    is Failure -> dispatch(DidFail(completion.failure))
+                    else -> {}
+                }
+            }
+        }
+        interactorScope.launch {
             cardTokenization.completion.collect { completion ->
                 when (completion) {
                     is CardTokenizationCompletion.Success -> handleSuccess()
@@ -816,16 +826,6 @@ internal class DynamicCheckoutInteractor(
                     _state.update { it.copy(processingPaymentMethodId = selectedPaymentMethod()?.id) }
                 }
                 eventDispatcher.send(event)
-            }
-        }
-    }
-
-    private fun dispatchFailure() {
-        interactorScope.launch {
-            _completion.collect {
-                if (it is Failure) {
-                    dispatch(DidFail(it.failure))
-                }
             }
         }
     }
