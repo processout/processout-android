@@ -251,6 +251,7 @@ internal class DynamicCheckoutInteractor(
         when (paymentMethod) {
             is PODynamicCheckoutPaymentMethod.Card -> Card(
                 id = PaymentMethodId.CARD,
+                original = paymentMethod,
                 configuration = paymentMethod.configuration,
                 display = paymentMethod.display
             )
@@ -264,6 +265,7 @@ internal class DynamicCheckoutInteractor(
                 if (googlePayService.isReadyToPay(isReadyToPayRequest))
                     GooglePay(
                         id = paymentMethod.configuration.gatewayMerchantId,
+                        original = paymentMethod,
                         allowedPaymentMethods = POGooglePayRequestBuilder
                             .allowedPaymentMethods(configuration.card)
                             .toString(),
@@ -275,6 +277,7 @@ internal class DynamicCheckoutInteractor(
                 if (redirectUrl != null) {
                     AlternativePayment(
                         id = paymentMethod.configuration.gatewayConfigurationId,
+                        original = paymentMethod,
                         redirectUrl = redirectUrl,
                         display = paymentMethod.display,
                         isExpress = paymentMethod.flow == express
@@ -282,6 +285,7 @@ internal class DynamicCheckoutInteractor(
                 } else {
                     NativeAlternativePayment(
                         id = paymentMethod.configuration.gatewayConfigurationId,
+                        original = paymentMethod,
                         gatewayConfigurationId = paymentMethod.configuration.gatewayConfigurationId,
                         display = paymentMethod.display
                     )
@@ -289,12 +293,14 @@ internal class DynamicCheckoutInteractor(
             }
             is CardCustomerToken -> CustomerToken(
                 id = paymentMethod.configuration.customerTokenId,
+                original = paymentMethod,
                 configuration = paymentMethod.configuration,
                 display = paymentMethod.display,
                 isExpress = paymentMethod.flow == express
             )
             is AlternativePaymentCustomerToken -> CustomerToken(
                 id = paymentMethod.configuration.customerTokenId,
+                original = paymentMethod,
                 configuration = paymentMethod.configuration,
                 display = paymentMethod.display,
                 isExpress = paymentMethod.flow == express
