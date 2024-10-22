@@ -305,7 +305,7 @@ internal class DynamicCheckoutInteractor(
                 display = paymentMethod.display,
                 isExpress = paymentMethod.flow == express
             )
-            else -> null
+            Unknown -> null
         }
     }
 
