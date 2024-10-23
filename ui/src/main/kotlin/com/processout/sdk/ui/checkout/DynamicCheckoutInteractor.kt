@@ -429,20 +429,15 @@ internal class DynamicCheckoutInteractor(
         if (event.id == _state.value.selectedPaymentMethod?.id) {
             return
         }
-        val originalPaymentMethod = paymentMethod(event.id)?.original
-        if (originalPaymentMethod == null) {
-            handleInternalFailure("Failed to select payment method: it is null.")
-            return
-        }
-        dispatch(WillSelectPaymentMethod(paymentMethod = originalPaymentMethod))
         paymentMethod(event.id)?.let { paymentMethod ->
+            dispatch(WillSelectPaymentMethod(paymentMethod = paymentMethod.original))
+            resetPaymentMethods()
             if (_state.value.processingPaymentMethod != null) {
                 invalidateInvoice(
                     reason = PODynamicCheckoutInvoiceInvalidationReason.PaymentMethodChanged
                 )
-            }
-            resetPaymentMethods()
-            if (_state.value.isInvoiceValid) {
+            } else {
+                dispatch(DidSelectPaymentMethod(paymentMethod = paymentMethod.original))
                 start(paymentMethod)
             }
             _state.update {
