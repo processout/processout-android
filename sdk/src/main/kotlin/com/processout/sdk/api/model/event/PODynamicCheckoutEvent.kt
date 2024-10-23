@@ -20,13 +20,6 @@ sealed class PODynamicCheckoutEvent {
     data object DidStart : PODynamicCheckoutEvent()
 
     /**
-     * Event is sent when user attempts to select payment method.
-     */
-    data class WillSelectPaymentMethod(
-        val paymentMethod: PODynamicCheckoutPaymentMethod
-    ) : PODynamicCheckoutEvent()
-
-    /**
      * Event is sent when payment method is selected by the user.
      */
     data class DidSelectPaymentMethod(

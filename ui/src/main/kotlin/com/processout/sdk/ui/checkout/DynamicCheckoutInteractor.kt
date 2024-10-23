@@ -235,12 +235,16 @@ internal class DynamicCheckoutInteractor(
         }
         _state.value.pendingSubmitPaymentMethod?.id?.let { id ->
             _state.update { it.copy(pendingSubmitPaymentMethod = null) }
-            paymentMethod(id)?.let { submit(it) }
-                .orElse {
-                    _state.update {
-                        it.copy(errorMessage = app.getString(R.string.po_dynamic_checkout_error_method_unavailable))
-                    }
+            paymentMethod(id)?.let {
+                submit(
+                    paymentMethod = it,
+                    dispatchEvents = false
+                )
+            }.orElse {
+                _state.update {
+                    it.copy(errorMessage = app.getString(R.string.po_dynamic_checkout_error_method_unavailable))
                 }
+            }
         }
     }
 
@@ -430,14 +434,13 @@ internal class DynamicCheckoutInteractor(
             return
         }
         paymentMethod(event.id)?.let { paymentMethod ->
-            dispatch(WillSelectPaymentMethod(paymentMethod = paymentMethod.original))
+            dispatch(DidSelectPaymentMethod(paymentMethod = paymentMethod.original))
             resetPaymentMethods()
             if (_state.value.processingPaymentMethod != null) {
                 invalidateInvoice(
                     reason = PODynamicCheckoutInvoiceInvalidationReason.PaymentMethodChanged
                 )
             } else {
-                dispatch(DidSelectPaymentMethod(paymentMethod = paymentMethod.original))
                 start(paymentMethod)
             }
             _state.update {
@@ -510,7 +513,12 @@ internal class DynamicCheckoutInteractor(
     private fun onAction(event: Action) {
         val paymentMethod = event.paymentMethodId?.let { paymentMethod(it) }
         when (event.actionId) {
-            ActionId.SUBMIT -> paymentMethod?.let { submit(it) }
+            ActionId.SUBMIT -> paymentMethod?.let {
+                submit(
+                    paymentMethod = it,
+                    dispatchEvents = true
+                )
+            }
             ActionId.CANCEL -> cancel()
             else -> when (paymentMethod) {
                 is Card -> cardTokenization.onEvent(
@@ -532,11 +540,17 @@ internal class DynamicCheckoutInteractor(
             is CustomerToken -> isExpress
         }
 
-    private fun submit(paymentMethod: PaymentMethod) {
+    private fun submit(
+        paymentMethod: PaymentMethod,
+        dispatchEvents: Boolean
+    ) {
         if (paymentMethod.id == _state.value.processingPaymentMethod?.id) {
             return
         }
         if (paymentMethod.isExpress()) {
+            if (dispatchEvents) {
+                dispatch(DidSelectPaymentMethod(paymentMethod = paymentMethod.original))
+            }
             resetPaymentMethods()
             _state.update {
                 it.copy(
