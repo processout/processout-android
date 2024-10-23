@@ -222,6 +222,11 @@ internal class DynamicCheckoutInteractor(
                 paymentMethods = mappedPaymentMethods
             )
         }
+        restoreSelectedPaymentMethod()
+        handlePendingSubmit()
+    }
+
+    private fun restoreSelectedPaymentMethod() {
         _state.value.selectedPaymentMethod?.id?.let { id ->
             paymentMethod(id)?.let { start(it) }
                 .orElse {
@@ -233,6 +238,9 @@ internal class DynamicCheckoutInteractor(
                     }
                 }
         }
+    }
+
+    private fun handlePendingSubmit() {
         _state.value.pendingSubmitPaymentMethod?.id?.let { id ->
             _state.update { it.copy(pendingSubmitPaymentMethod = null) }
             paymentMethod(id)?.let {
