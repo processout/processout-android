@@ -647,14 +647,6 @@ internal class DynamicCheckoutInteractor(
         }
     }
 
-    private fun handleInternalFailure(message: String) {
-        invalidateInvoice(
-            reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(
-                failure = ProcessOutResult.Failure(code = Internal(), message = message)
-            )
-        )
-    }
-
     private fun invalidateInvoice(reason: PODynamicCheckoutInvoiceInvalidationReason) {
         interactorScope.launch {
             _state.update { it.copy(isInvoiceValid = false) }
@@ -716,7 +708,14 @@ internal class DynamicCheckoutInteractor(
     ) {
         val paymentMethod = _state.value.processingPaymentMethod
         if (paymentMethod == null) {
-            handleInternalFailure("Failed to authorize invoice: payment method is null.")
+            invalidateInvoice(
+                reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(
+                    failure = ProcessOutResult.Failure(
+                        code = Internal(),
+                        message = "Failed to authorize invoice: payment method is null."
+                    )
+                )
+            )
             return
         }
         interactorScope.launch {
