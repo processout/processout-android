@@ -131,6 +131,17 @@ internal class DynamicCheckoutInteractor(
     ) {
         configuration = configuration.copy(invoiceRequest = invoiceRequest)
         logAttributes = logAttributes(invoiceId = invoiceRequest.invoiceId)
+        val didFailPaymentEvent: DidFailPayment? =
+            if (reason is PODynamicCheckoutInvoiceInvalidationReason.Failure) {
+                with(_state.value) {
+                    processingPaymentMethod ?: selectedPaymentMethod
+                }?.let { paymentMethod ->
+                    DidFailPayment(
+                        failure = reason.failure,
+                        paymentMethod = paymentMethod.original
+                    )
+                }
+            } else null
         val selectedPaymentMethod = when (reason) {
             is PODynamicCheckoutInvoiceInvalidationReason.Failure ->
                 if (reason.failure.code == Cancelled)
@@ -151,6 +162,7 @@ internal class DynamicCheckoutInteractor(
                 errorMessage = errorMessage
             )
         )
+        didFailPaymentEvent?.let { dispatch(it) }
         interactorScope.launch { start() }
     }
 
