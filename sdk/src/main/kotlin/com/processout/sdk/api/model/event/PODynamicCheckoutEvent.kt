@@ -20,6 +20,11 @@ sealed class PODynamicCheckoutEvent {
     data object DidStart : PODynamicCheckoutEvent()
 
     /**
+     * Event is sent when user asked to confirm cancellation, e.g. via dialog.
+     */
+    data object DidRequestCancelConfirmation : PODynamicCheckoutEvent()
+
+    /**
      * Event is sent when payment method is selected by the user.
      */
     data class DidSelectPaymentMethod(
@@ -29,15 +34,10 @@ sealed class PODynamicCheckoutEvent {
     /**
      * Event is sent when payment method selection has failed.
      */
-    data class DidFailToSelectPaymentMethod(
+    data class DidFailPayment(
         val failure: ProcessOutResult.Failure,
         val paymentMethod: PODynamicCheckoutPaymentMethod
     ) : PODynamicCheckoutEvent()
-
-    /**
-     * Event is sent when user asked to confirm cancellation, e.g. via dialog.
-     */
-    data object DidRequestCancelConfirmation : PODynamicCheckoutEvent()
 
     /**
      * Event is sent after payment was confirmed to be captured. This is a final event.
