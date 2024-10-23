@@ -42,6 +42,11 @@ sealed class PODynamicCheckoutEvent {
     ) : PODynamicCheckoutEvent()
 
     /**
+     * Event is sent when user asked to confirm cancellation, e.g. via dialog.
+     */
+    data object DidRequestCancelConfirmation : PODynamicCheckoutEvent()
+
+    /**
      * Event is sent after payment was confirmed to be captured. This is a final event.
      */
     data class DidCompletePayment(

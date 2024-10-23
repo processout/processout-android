@@ -409,7 +409,10 @@ internal class DynamicCheckoutInteractor(
             is FieldFocusChanged -> onFieldFocusChanged(event)
             is Action -> onAction(event)
             is ActionConfirmationRequested -> {
-                // TODO
+                POLogger.debug("Requested the user to confirm the action: %s", event.id)
+                if (event.id == ActionId.CANCEL) {
+                    dispatch(DidRequestCancelConfirmation)
+                }
             }
             is Dismiss -> {
                 if (_state.value.delayedSuccess) {
