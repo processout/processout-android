@@ -131,6 +131,7 @@ internal class DynamicCheckoutInteractor(
         collectInvoiceAuthorizationRequest()
         collectAuthorizeInvoiceResult()
         collectTokenizedCard()
+        collectPreferredScheme()
         collectDefaultValues()
         fetchConfiguration()
     }
@@ -846,6 +847,11 @@ internal class DynamicCheckoutInteractor(
             cardTokenizationEventDispatcher.events.collect { eventDispatcher.send(it) }
         }
         interactorScope.launch {
+            cardTokenizationEventDispatcher.preferredSchemeRequest.collect { request ->
+                eventDispatcher.send(request)
+            }
+        }
+        interactorScope.launch {
             nativeAlternativePaymentEventDispatcher.events.collect { event ->
                 if (event is WillSubmitParameters) {
                     _state.update { it.copy(processingPaymentMethod = _state.value.selectedPaymentMethod) }
@@ -856,6 +862,16 @@ internal class DynamicCheckoutInteractor(
         interactorScope.launch {
             nativeAlternativePaymentEventDispatcher.defaultValuesRequest.collect { request ->
                 eventDispatcher.send(request)
+            }
+        }
+    }
+
+    private fun collectPreferredScheme() {
+        eventDispatcher.subscribeForResponse<POCardTokenizationPreferredSchemeResponse>(
+            coroutineScope = interactorScope
+        ) { response ->
+            interactorScope.launch {
+                cardTokenizationEventDispatcher.preferredScheme(response)
             }
         }
     }
