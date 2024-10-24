@@ -32,7 +32,8 @@ sealed class PODynamicCheckoutEvent {
     ) : PODynamicCheckoutEvent()
 
     /**
-     * Event is sent when payment method selection has failed.
+     * Event is sent when certain payment method has failed with retryable error.
+     * User can provide different payment details or try another payment method.
      */
     data class DidFailPayment(
         val failure: ProcessOutResult.Failure,
