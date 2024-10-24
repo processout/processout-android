@@ -1,5 +1,6 @@
 package com.processout.sdk.api.model.response
 
+import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodDefaultValuesRequest
 import java.util.UUID
 
@@ -11,9 +12,9 @@ import java.util.UUID
  * @param[defaultValues] Map where key is [PONativeAlternativePaymentMethodParameter.key] and value is a default value for this parameter.
  */
 data class PONativeAlternativePaymentMethodDefaultValuesResponse internal constructor(
-    val uuid: UUID,
+    override val uuid: UUID,
     val defaultValues: Map<String, String>
-)
+) : POEventDispatcher.Response
 
 /**
  * Creates response with default values from request to use the same UUID.

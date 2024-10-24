@@ -12,6 +12,8 @@ import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
+import com.processout.sdk.api.model.event.PODynamicCheckoutEvent
+import com.processout.sdk.api.model.event.PODynamicCheckoutEvent.*
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.WillSubmitParameters
 import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.response.*
@@ -30,6 +32,7 @@ import com.processout.sdk.api.service.googlepay.POGooglePayService
 import com.processout.sdk.api.service.proxy3ds.POProxy3DSService
 import com.processout.sdk.core.POFailure.Code.*
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.logger.POLogAttribute
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
@@ -75,8 +78,16 @@ internal class DynamicCheckoutInteractor(
     private val cardTokenizationEventDispatcher: PODefaultCardTokenizationEventDispatcher,
     private val nativeAlternativePayment: NativeAlternativePaymentViewModel,
     private val nativeAlternativePaymentEventDispatcher: PODefaultNativeAlternativePaymentMethodEventDispatcher,
-    private val eventDispatcher: POEventDispatcher = POEventDispatcher
+    private val eventDispatcher: POEventDispatcher = POEventDispatcher,
+    private var logAttributes: Map<String, String> = logAttributes(
+        invoiceId = configuration.invoiceRequest.invoiceId
+    )
 ) : BaseInteractor() {
+
+    private companion object {
+        fun logAttributes(invoiceId: String): Map<String, String> =
+            mapOf(POLogAttribute.INVOICE_ID to invoiceId)
+    }
 
     private val _completion = MutableStateFlow<DynamicCheckoutCompletion>(Awaiting)
     val completion = _completion.asStateFlow()
@@ -95,54 +106,13 @@ internal class DynamicCheckoutInteractor(
     private var latestInvoiceRequest: PODynamicCheckoutInvoiceRequest? = null
 
     init {
-        start()
-    }
-
-    private fun start() {
-        handleCompletions()
-        dispatchEvents()
-        collectInvoice()
-        collectInvoiceAuthorizationRequest()
-        collectAuthorizeInvoiceResult()
-        collectTokenizedCard()
-        fetchConfiguration()
-    }
-
-    private fun restart(
-        invoiceRequest: POInvoiceRequest,
-        reason: PODynamicCheckoutInvoiceInvalidationReason
-    ) {
-        configuration = configuration.copy(invoiceRequest = invoiceRequest)
-        val selectedPaymentMethodId = when (reason) {
-            is PODynamicCheckoutInvoiceInvalidationReason.Failure ->
-                if (reason.failure.code == Cancelled)
-                    _state.value.selectedPaymentMethodId else null
-            else -> _state.value.selectedPaymentMethodId
+        interactorScope.launch {
+            POLogger.info("Starting dynamic checkout.")
+            dispatch(WillStart)
+            start()
+            POLogger.info("Started: waiting for user input.")
+            dispatch(DidStart)
         }
-        val errorMessage = when (reason) {
-            is PODynamicCheckoutInvoiceInvalidationReason.Failure ->
-                if (reason.failure.code == Cancelled) null
-                else app.getString(R.string.po_dynamic_checkout_error_generic)
-            else -> null
-        }
-        reset(
-            state = _state.value.copy(
-                invoice = POInvoice(id = configuration.invoiceRequest.invoiceId),
-                selectedPaymentMethodId = selectedPaymentMethodId,
-                processingPaymentMethodId = null,
-                errorMessage = errorMessage
-            )
-        )
-        start()
-    }
-
-    private fun reset(state: DynamicCheckoutInteractorState) {
-        interactorScope.coroutineContext.cancelChildren()
-        latestInvoiceRequest = null
-        cardTokenization.reset()
-        nativeAlternativePayment.reset()
-        _completion.update { Awaiting }
-        _state.update { state }
     }
 
     private fun initState() = DynamicCheckoutInteractorState(
@@ -154,77 +124,155 @@ internal class DynamicCheckoutInteractor(
         cancelActionId = ActionId.CANCEL
     )
 
-    private fun fetchConfiguration() {
-        interactorScope.launch {
-            invoicesService.invoice(configuration.invoiceRequest)
-                .onSuccess { invoice ->
-                    when (invoice.transaction?.status()) {
-                        WAITING -> setStartedState(invoice)
-                        AUTHORIZED, COMPLETED -> handleSuccess()
-                        else -> _completion.update {
-                            Failure(
-                                ProcessOutResult.Failure(
-                                    code = Generic(),
-                                    message = "Unsupported invoice state. Please create new invoice and restart dynamic checkout."
-                                )
-                            )
+    private suspend fun start() {
+        handleCompletions()
+        dispatchEvents()
+        collectInvoice()
+        collectInvoiceAuthorizationRequest()
+        collectAuthorizeInvoiceResult()
+        collectTokenizedCard()
+        collectPreferredScheme()
+        collectDefaultValues()
+        fetchConfiguration()
+    }
+
+    private fun restart(
+        invoiceRequest: POInvoiceRequest,
+        reason: PODynamicCheckoutInvoiceInvalidationReason
+    ) {
+        configuration = configuration.copy(invoiceRequest = invoiceRequest)
+        logAttributes = logAttributes(invoiceId = invoiceRequest.invoiceId)
+        var didFailPaymentEvent: DidFailPayment? = null
+        val selectedPaymentMethod: PaymentMethod?
+        val errorMessage: String?
+        with(_state.value) {
+            when (reason) {
+                is PODynamicCheckoutInvoiceInvalidationReason.Failure -> {
+                    val paymentMethod = processingPaymentMethod ?: this.selectedPaymentMethod
+                    if (paymentMethod != null) {
+                        didFailPaymentEvent = DidFailPayment(
+                            failure = reason.failure,
+                            paymentMethod = paymentMethod.original
+                        )
+                    }
+                    when (reason.failure.code) {
+                        Cancelled -> {
+                            selectedPaymentMethod = this.selectedPaymentMethod
+                            errorMessage = null
+                        }
+                        else -> {
+                            selectedPaymentMethod = null
+                            errorMessage = app.getString(R.string.po_dynamic_checkout_error_generic)
                         }
                     }
-                }.onFailure { failure ->
-                    _completion.update { Failure(failure) }
+                }
+                PODynamicCheckoutInvoiceInvalidationReason.PaymentMethodChanged -> {
+                    selectedPaymentMethod = this.selectedPaymentMethod
+                    errorMessage = null
+                }
+            }
+        }
+        reset(
+            state = _state.value.copy(
+                invoice = POInvoice(id = invoiceRequest.invoiceId),
+                selectedPaymentMethod = selectedPaymentMethod,
+                processingPaymentMethod = null,
+                errorMessage = errorMessage
+            )
+        )
+        didFailPaymentEvent?.let { dispatch(it) }
+        interactorScope.launch { start() }
+    }
+
+    private fun reset(state: DynamicCheckoutInteractorState) {
+        interactorScope.coroutineContext.cancelChildren()
+        latestInvoiceRequest = null
+        resetPaymentMethods()
+        _completion.update { Awaiting }
+        _state.update { state }
+    }
+
+    private fun resetPaymentMethods() {
+        cardTokenization.reset()
+        nativeAlternativePayment.reset()
+    }
+
+    private suspend fun fetchConfiguration() {
+        invoicesService.invoice(configuration.invoiceRequest)
+            .onSuccess { invoice ->
+                when (invoice.transaction?.status()) {
+                    WAITING -> setStartedState(invoice)
+                    AUTHORIZED, COMPLETED -> handleSuccess()
+                    else -> _completion.update {
+                        Failure(
+                            ProcessOutResult.Failure(
+                                code = Generic(),
+                                message = "Unsupported invoice state. Please create new invoice and restart dynamic checkout."
+                            )
+                        )
+                    }
+                }
+            }.onFailure { failure ->
+                _completion.update { Failure(failure) }
+            }
+    }
+
+    private suspend fun setStartedState(invoice: POInvoice) {
+        val paymentMethods = invoice.paymentMethods
+        if (paymentMethods.isNullOrEmpty()) {
+            _completion.update {
+                Failure(
+                    ProcessOutResult.Failure(
+                        code = Generic(),
+                        message = "Missing payment methods configuration."
+                    )
+                )
+            }
+            return
+        }
+        val mappedPaymentMethods = paymentMethods.map(
+            amount = invoice.amount,
+            currency = invoice.currency
+        )
+        preloadAllImages(paymentMethods = mappedPaymentMethods)
+        _state.update {
+            it.copy(
+                loading = false,
+                invoice = invoice,
+                isInvoiceValid = true,
+                paymentMethods = mappedPaymentMethods
+            )
+        }
+        restoreSelectedPaymentMethod()
+        handlePendingSubmit()
+    }
+
+    private fun restoreSelectedPaymentMethod() {
+        _state.value.selectedPaymentMethod?.id?.let { id ->
+            paymentMethod(id)?.let { start(it) }
+                .orElse {
+                    _state.update {
+                        it.copy(
+                            selectedPaymentMethod = null,
+                            errorMessage = app.getString(R.string.po_dynamic_checkout_error_method_unavailable)
+                        )
+                    }
                 }
         }
     }
 
-    private fun setStartedState(invoice: POInvoice) {
-        interactorScope.launch {
-            val paymentMethods = invoice.paymentMethods
-            if (paymentMethods.isNullOrEmpty()) {
-                _completion.update {
-                    Failure(
-                        ProcessOutResult.Failure(
-                            code = Generic(),
-                            message = "Missing payment methods configuration."
-                        )
-                    )
-                }
-                return@launch
-            }
-            val mappedPaymentMethods = paymentMethods.map(
-                amount = invoice.amount,
-                currency = invoice.currency
-            )
-            preloadAllImages(
-                paymentMethods = mappedPaymentMethods,
-                coroutineScope = this@launch
-            )
-            _state.update {
-                it.copy(
-                    loading = false,
-                    invoice = invoice,
-                    isInvoiceValid = true,
-                    paymentMethods = mappedPaymentMethods
+    private fun handlePendingSubmit() {
+        _state.value.pendingSubmitPaymentMethod?.id?.let { id ->
+            _state.update { it.copy(pendingSubmitPaymentMethod = null) }
+            paymentMethod(id)?.let {
+                submit(
+                    paymentMethod = it,
+                    dispatchEvents = false
                 )
-            }
-            _state.value.selectedPaymentMethodId?.let { id ->
-                paymentMethod(id)?.let { start(it) }
-                    .orElse {
-                        _state.update {
-                            it.copy(
-                                selectedPaymentMethodId = null,
-                                errorMessage = app.getString(R.string.po_dynamic_checkout_error_method_unavailable)
-                            )
-                        }
-                    }
-            }
-            _state.value.pendingSubmitPaymentMethodId?.let { id ->
-                _state.update { it.copy(pendingSubmitPaymentMethodId = null) }
-                paymentMethod(id)?.let { submit(it) }
-                    .orElse {
-                        _state.update {
-                            it.copy(errorMessage = app.getString(R.string.po_dynamic_checkout_error_method_unavailable))
-                        }
-                    }
+            }.orElse {
+                _state.update {
+                    it.copy(errorMessage = app.getString(R.string.po_dynamic_checkout_error_method_unavailable))
+                }
             }
         }
     }
@@ -236,6 +284,7 @@ internal class DynamicCheckoutInteractor(
         when (paymentMethod) {
             is PODynamicCheckoutPaymentMethod.Card -> Card(
                 id = PaymentMethodId.CARD,
+                original = paymentMethod,
                 configuration = paymentMethod.configuration,
                 display = paymentMethod.display
             )
@@ -249,6 +298,7 @@ internal class DynamicCheckoutInteractor(
                 if (googlePayService.isReadyToPay(isReadyToPayRequest))
                     GooglePay(
                         id = paymentMethod.configuration.gatewayMerchantId,
+                        original = paymentMethod,
                         allowedPaymentMethods = POGooglePayRequestBuilder
                             .allowedPaymentMethods(configuration.card)
                             .toString(),
@@ -260,6 +310,7 @@ internal class DynamicCheckoutInteractor(
                 if (redirectUrl != null) {
                     AlternativePayment(
                         id = paymentMethod.configuration.gatewayConfigurationId,
+                        original = paymentMethod,
                         redirectUrl = redirectUrl,
                         display = paymentMethod.display,
                         isExpress = paymentMethod.flow == express
@@ -267,6 +318,7 @@ internal class DynamicCheckoutInteractor(
                 } else {
                     NativeAlternativePayment(
                         id = paymentMethod.configuration.gatewayConfigurationId,
+                        original = paymentMethod,
                         gatewayConfigurationId = paymentMethod.configuration.gatewayConfigurationId,
                         display = paymentMethod.display
                     )
@@ -274,17 +326,19 @@ internal class DynamicCheckoutInteractor(
             }
             is CardCustomerToken -> CustomerToken(
                 id = paymentMethod.configuration.customerTokenId,
+                original = paymentMethod,
                 configuration = paymentMethod.configuration,
                 display = paymentMethod.display,
                 isExpress = paymentMethod.flow == express
             )
             is AlternativePaymentCustomerToken -> CustomerToken(
                 id = paymentMethod.configuration.customerTokenId,
+                original = paymentMethod,
                 configuration = paymentMethod.configuration,
                 display = paymentMethod.display,
                 isExpress = paymentMethod.flow == express
             )
-            else -> null
+            Unknown -> null
         }
     }
 
@@ -342,24 +396,23 @@ internal class DynamicCheckoutInteractor(
 
     //region Images
 
-    private suspend fun preloadAllImages(
-        paymentMethods: List<PaymentMethod>,
-        coroutineScope: CoroutineScope
-    ) {
-        val logoUrls = mutableListOf<String>()
-        paymentMethods.forEach {
-            when (it) {
-                is Card -> logoUrls.addAll(it.display.logoUrls())
-                is AlternativePayment -> logoUrls.addAll(it.display.logoUrls())
-                is NativeAlternativePayment -> logoUrls.addAll(it.display.logoUrls())
-                is CustomerToken -> logoUrls.addAll(it.display.logoUrls())
-                else -> {}
+    private suspend fun preloadAllImages(paymentMethods: List<PaymentMethod>) {
+        coroutineScope {
+            val logoUrls = mutableListOf<String>()
+            paymentMethods.forEach {
+                when (it) {
+                    is Card -> logoUrls.addAll(it.display.logoUrls())
+                    is AlternativePayment -> logoUrls.addAll(it.display.logoUrls())
+                    is NativeAlternativePayment -> logoUrls.addAll(it.display.logoUrls())
+                    is CustomerToken -> logoUrls.addAll(it.display.logoUrls())
+                    else -> {}
+                }
             }
+            val deferredResults = logoUrls.map { url ->
+                async { preloadImage(url) }
+            }
+            deferredResults.awaitAll()
         }
-        val deferredResults = logoUrls.map { url ->
-            coroutineScope.async { preloadImage(url) }
-        }
-        deferredResults.awaitAll()
     }
 
     private fun Display.logoUrls(): List<String> {
@@ -379,64 +432,37 @@ internal class DynamicCheckoutInteractor(
 
     //endregion
 
-    private fun paymentMethod(id: String): PaymentMethod? =
-        _state.value.paymentMethods.find { it.id == id }
-
-    private fun selectedPaymentMethod(): PaymentMethod? =
-        _state.value.selectedPaymentMethodId?.let {
-            paymentMethod(it)
-        }
-
-    private fun originalPaymentMethod(id: String): PODynamicCheckoutPaymentMethod? =
-        _state.value.invoice.paymentMethods?.find {
-            when (it) {
-                is PODynamicCheckoutPaymentMethod.Card -> PaymentMethodId.CARD == id
-                is PODynamicCheckoutPaymentMethod.GooglePay -> it.configuration.gatewayMerchantId == id
-                is PODynamicCheckoutPaymentMethod.AlternativePayment -> it.configuration.gatewayConfigurationId == id
-                is AlternativePaymentCustomerToken -> it.configuration.customerTokenId == id
-                is CardCustomerToken -> it.configuration.customerTokenId == id
-                Unknown -> false
-            }
-        }
-
     fun onEvent(event: DynamicCheckoutEvent) {
         when (event) {
             is PaymentMethodSelected -> onPaymentMethodSelected(event)
             is FieldValueChanged -> onFieldValueChanged(event)
             is FieldFocusChanged -> onFieldFocusChanged(event)
             is Action -> onAction(event)
-            is ActionConfirmationRequested -> {
-                // TODO
-            }
-            is Dismiss -> {
-                if (_state.value.delayedSuccess) {
-                    _completion.update { Success }
-                } else {
-                    POLogger.warn("Dismissed: %s", event.failure)
-                    _completion.update { Failure(event.failure) }
-                }
-            }
+            is ActionConfirmationRequested -> onActionConfirmationRequested(event)
+            is Dismiss -> dismiss(event)
         }
     }
 
+    private fun paymentMethod(id: String): PaymentMethod? =
+        _state.value.paymentMethods.find { it.id == id }
+
     private fun onPaymentMethodSelected(event: PaymentMethodSelected) {
-        if (event.id == _state.value.selectedPaymentMethodId) {
+        if (event.id == _state.value.selectedPaymentMethod?.id) {
             return
         }
         paymentMethod(event.id)?.let { paymentMethod ->
-            if (_state.value.processingPaymentMethodId != null) {
+            dispatch(DidSelectPaymentMethod(paymentMethod = paymentMethod.original))
+            resetPaymentMethods()
+            if (_state.value.processingPaymentMethod != null) {
                 invalidateInvoice(
                     reason = PODynamicCheckoutInvoiceInvalidationReason.PaymentMethodChanged
                 )
-            }
-            cardTokenization.reset()
-            nativeAlternativePayment.reset()
-            if (_state.value.isInvoiceValid) {
+            } else {
                 start(paymentMethod)
             }
             _state.update {
                 it.copy(
-                    selectedPaymentMethodId = event.id,
+                    selectedPaymentMethod = paymentMethod,
                     errorMessage = null
                 )
             }
@@ -504,7 +530,12 @@ internal class DynamicCheckoutInteractor(
     private fun onAction(event: Action) {
         val paymentMethod = event.paymentMethodId?.let { paymentMethod(it) }
         when (event.actionId) {
-            ActionId.SUBMIT -> paymentMethod?.let { submit(it) }
+            ActionId.SUBMIT -> paymentMethod?.let {
+                submit(
+                    paymentMethod = it,
+                    dispatchEvents = true
+                )
+            }
             ActionId.CANCEL -> cancel()
             else -> when (paymentMethod) {
                 is Card -> cardTokenization.onEvent(
@@ -518,6 +549,13 @@ internal class DynamicCheckoutInteractor(
         }
     }
 
+    private fun onActionConfirmationRequested(event: ActionConfirmationRequested) {
+        POLogger.debug("Requested the user to confirm the action: %s", event.id)
+        if (event.id == ActionId.CANCEL) {
+            dispatch(DidRequestCancelConfirmation)
+        }
+    }
+
     private fun PaymentMethod.isExpress(): Boolean =
         when (this) {
             is Card, is NativeAlternativePayment -> false
@@ -526,62 +564,66 @@ internal class DynamicCheckoutInteractor(
             is CustomerToken -> isExpress
         }
 
-    private fun submit(paymentMethod: PaymentMethod) {
-        if (paymentMethod.id == _state.value.processingPaymentMethodId) {
+    private fun submit(
+        paymentMethod: PaymentMethod,
+        dispatchEvents: Boolean
+    ) {
+        if (paymentMethod.id == _state.value.processingPaymentMethod?.id) {
             return
         }
         if (paymentMethod.isExpress()) {
-            cardTokenization.reset()
-            nativeAlternativePayment.reset()
+            if (dispatchEvents) {
+                dispatch(DidSelectPaymentMethod(paymentMethod = paymentMethod.original))
+            }
+            resetPaymentMethods()
             _state.update {
                 it.copy(
-                    selectedPaymentMethodId = null,
+                    selectedPaymentMethod = null,
                     errorMessage = null
                 )
             }
         }
-        if (_state.value.processingPaymentMethodId != null) {
-            _state.update { it.copy(pendingSubmitPaymentMethodId = paymentMethod.id) }
+        if (_state.value.processingPaymentMethod != null) {
+            _state.update { it.copy(pendingSubmitPaymentMethod = paymentMethod) }
             invalidateInvoice(
                 reason = PODynamicCheckoutInvoiceInvalidationReason.PaymentMethodChanged
             )
             return
         }
         when (paymentMethod) {
-            is GooglePay -> {
-                interactorScope.launch {
-                    _state.update { it.copy(processingPaymentMethodId = paymentMethod.id) }
-                    _submitEvents.send(
-                        DynamicCheckoutSubmitEvent.GooglePay(
-                            paymentDataRequest = paymentMethod.paymentDataRequest
-                        )
-                    )
-                }
-            }
-            is AlternativePayment -> submitAlternativePayment(
-                id = paymentMethod.id,
-                redirectUrl = paymentMethod.redirectUrl
-            )
-            is CustomerToken -> {
-                val redirectUrl = paymentMethod.configuration.redirectUrl
-                if (redirectUrl != null) {
-                    submitAlternativePayment(
-                        id = paymentMethod.id,
-                        redirectUrl = redirectUrl
-                    )
-                } else {
-                    _state.update { it.copy(processingPaymentMethodId = paymentMethod.id) }
-                    authorizeInvoice(source = paymentMethod.configuration.customerTokenId)
-                }
-            }
+            is GooglePay -> submitGooglePay(paymentMethod)
+            is AlternativePayment -> submitAlternativePayment(paymentMethod)
+            is CustomerToken -> submitCustomerToken(paymentMethod)
             else -> {}
         }
     }
 
-    private fun submitAlternativePayment(
-        id: String,
-        redirectUrl: String
-    ) {
+    private fun submitGooglePay(paymentMethod: GooglePay) {
+        interactorScope.launch {
+            _state.update { it.copy(processingPaymentMethod = paymentMethod) }
+            _submitEvents.send(
+                DynamicCheckoutSubmitEvent.GooglePay(
+                    paymentDataRequest = paymentMethod.paymentDataRequest
+                )
+            )
+        }
+    }
+
+    private fun submitAlternativePayment(paymentMethod: PaymentMethod) {
+        val redirectUrl = when (paymentMethod) {
+            is AlternativePayment -> paymentMethod.redirectUrl
+            is CustomerToken -> paymentMethod.configuration.redirectUrl
+            else -> null
+        }
+        if (redirectUrl.isNullOrBlank()) {
+            handleAlternativePayment(
+                ProcessOutResult.Failure(
+                    code = Generic(),
+                    message = "Missing redirect URL in alternative payment configuration."
+                )
+            )
+            return
+        }
         val returnUrl = configuration.alternativePayment.returnUrl
         if (returnUrl.isNullOrBlank()) {
             handleAlternativePayment(
@@ -593,13 +635,22 @@ internal class DynamicCheckoutInteractor(
             return
         }
         interactorScope.launch {
-            _state.update { it.copy(processingPaymentMethodId = id) }
+            _state.update { it.copy(processingPaymentMethod = paymentMethod) }
             _submitEvents.send(
                 DynamicCheckoutSubmitEvent.AlternativePayment(
                     redirectUrl = redirectUrl,
                     returnUrl = returnUrl
                 )
             )
+        }
+    }
+
+    private fun submitCustomerToken(paymentMethod: CustomerToken) {
+        if (paymentMethod.configuration.redirectUrl != null) {
+            submitAlternativePayment(paymentMethod)
+        } else {
+            _state.update { it.copy(processingPaymentMethod = paymentMethod) }
+            authorizeInvoice(source = paymentMethod.configuration.customerTokenId)
         }
     }
 
@@ -622,17 +673,6 @@ internal class DynamicCheckoutInteractor(
         }.onFailure { failure ->
             invalidateInvoice(
                 reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(failure)
-            )
-        }
-    }
-
-    private fun cancel() {
-        _completion.update {
-            Failure(
-                ProcessOutResult.Failure(
-                    code = Cancelled,
-                    message = "Cancelled by the user with cancel action."
-                ).also { POLogger.info("Cancelled: %s", it) }
             )
         }
     }
@@ -677,24 +717,10 @@ internal class DynamicCheckoutInteractor(
         }
     }
 
-    private fun dispatchEvents() {
-        interactorScope.launch {
-            cardTokenizationEventDispatcher.events.collect { eventDispatcher.send(it) }
-        }
-        interactorScope.launch {
-            nativeAlternativePaymentEventDispatcher.events.collect { event ->
-                if (event is WillSubmitParameters) {
-                    _state.update { it.copy(processingPaymentMethodId = selectedPaymentMethod()?.id) }
-                }
-                eventDispatcher.send(event)
-            }
-        }
-    }
-
     private fun collectTokenizedCard() {
         interactorScope.launch {
             cardTokenizationEventDispatcher.processTokenizedCardRequest.collect { request ->
-                _state.update { it.copy(processingPaymentMethodId = selectedPaymentMethod()?.id) }
+                _state.update { it.copy(processingPaymentMethod = _state.value.selectedPaymentMethod) }
                 authorizeInvoice(
                     source = request.card.id,
                     saveSource = request.saveCard,
@@ -710,19 +736,7 @@ internal class DynamicCheckoutInteractor(
         allowFallbackToSale: Boolean = false,
         clientSecret: String? = null
     ) {
-        val paymentMethodId = _state.value.processingPaymentMethodId
-        if (paymentMethodId == null) {
-            invalidateInvoice(
-                reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(
-                    failure = ProcessOutResult.Failure(
-                        code = Internal(),
-                        message = "Failed to authorize invoice: payment method ID is null."
-                    )
-                )
-            )
-            return
-        }
-        val paymentMethod = originalPaymentMethod(paymentMethodId)
+        val paymentMethod = _state.value.processingPaymentMethod
         if (paymentMethod == null) {
             invalidateInvoice(
                 reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(
@@ -737,13 +751,13 @@ internal class DynamicCheckoutInteractor(
         interactorScope.launch {
             val request = PODynamicCheckoutInvoiceAuthorizationRequest(
                 request = POInvoiceAuthorizationRequest(
-                    invoiceId = _state.value.invoice.id,
+                    invoiceId = configuration.invoiceRequest.invoiceId,
                     source = source,
                     saveSource = saveSource,
                     allowFallbackToSale = allowFallbackToSale,
                     clientSecret = clientSecret
                 ),
-                paymentMethod = paymentMethod
+                paymentMethod = paymentMethod.original
             )
             eventDispatcher.send(request)
         }
@@ -763,10 +777,9 @@ internal class DynamicCheckoutInteractor(
     private fun collectAuthorizeInvoiceResult() {
         interactorScope.launch {
             invoicesService.authorizeInvoiceResult.collect { result ->
-                if (selectedPaymentMethod() is Card) {
-                    cardTokenizationEventDispatcher.complete(result)
-                } else {
-                    result.onSuccess {
+                when (_state.value.selectedPaymentMethod) {
+                    is Card -> cardTokenizationEventDispatcher.complete(result)
+                    else -> result.onSuccess {
                         handleSuccess()
                     }.onFailure { failure ->
                         invalidateInvoice(
@@ -779,6 +792,17 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun handleCompletions() {
+        interactorScope.launch {
+            _completion.collect { completion ->
+                when (completion) {
+                    Success -> _state.value.processingPaymentMethod?.let { paymentMethod ->
+                        dispatch(DidCompletePayment(paymentMethod.original))
+                    }
+                    is Failure -> dispatch(DidFail(completion.failure))
+                    else -> {}
+                }
+            }
+        }
         interactorScope.launch {
             cardTokenization.completion.collect { completion ->
                 when (completion) {
@@ -810,6 +834,76 @@ internal class DynamicCheckoutInteractor(
                 _completion.update { Success }
             }
         } ?: _completion.update { Success }
+    }
+
+    private fun dispatch(event: PODynamicCheckoutEvent) {
+        interactorScope.launch {
+            eventDispatcher.send(event)
+        }
+    }
+
+    private fun dispatchEvents() {
+        interactorScope.launch {
+            cardTokenizationEventDispatcher.events.collect { eventDispatcher.send(it) }
+        }
+        interactorScope.launch {
+            cardTokenizationEventDispatcher.preferredSchemeRequest.collect { request ->
+                eventDispatcher.send(request)
+            }
+        }
+        interactorScope.launch {
+            nativeAlternativePaymentEventDispatcher.events.collect { event ->
+                if (event is WillSubmitParameters) {
+                    _state.update { it.copy(processingPaymentMethod = _state.value.selectedPaymentMethod) }
+                }
+                eventDispatcher.send(event)
+            }
+        }
+        interactorScope.launch {
+            nativeAlternativePaymentEventDispatcher.defaultValuesRequest.collect { request ->
+                eventDispatcher.send(request)
+            }
+        }
+    }
+
+    private fun collectPreferredScheme() {
+        eventDispatcher.subscribeForResponse<POCardTokenizationPreferredSchemeResponse>(
+            coroutineScope = interactorScope
+        ) { response ->
+            interactorScope.launch {
+                cardTokenizationEventDispatcher.preferredScheme(response)
+            }
+        }
+    }
+
+    private fun collectDefaultValues() {
+        eventDispatcher.subscribeForResponse<PONativeAlternativePaymentMethodDefaultValuesResponse>(
+            coroutineScope = interactorScope
+        ) { response ->
+            interactorScope.launch {
+                nativeAlternativePaymentEventDispatcher.provideDefaultValues(response)
+            }
+        }
+    }
+
+    private fun cancel() {
+        _completion.update {
+            Failure(
+                ProcessOutResult.Failure(
+                    code = Cancelled,
+                    message = "Cancelled by the user with cancel action."
+                ).also { POLogger.info("Cancelled: %s", it) }
+            )
+        }
+    }
+
+    private fun dismiss(event: Dismiss) {
+        if (_state.value.delayedSuccess) {
+            _completion.update { Success }
+        } else {
+            POLogger.warn("Dismissed: %s", event.failure)
+            _completion.update { Failure(event.failure) }
+        }
     }
 
     fun onCleared() {

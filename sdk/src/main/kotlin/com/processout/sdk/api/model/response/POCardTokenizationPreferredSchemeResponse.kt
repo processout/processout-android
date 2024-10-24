@@ -1,5 +1,6 @@
 package com.processout.sdk.api.model.response
 
+import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.request.POCardTokenizationPreferredSchemeRequest
 import java.util.UUID
 
@@ -12,10 +13,10 @@ import java.util.UUID
  * @param[preferredScheme] Preferred scheme that will be used by default for card tokenization.
  */
 data class POCardTokenizationPreferredSchemeResponse internal constructor(
-    val uuid: UUID,
+    override val uuid: UUID,
     val issuerInformation: POCardIssuerInformation,
     val preferredScheme: String?
-)
+) : POEventDispatcher.Response
 
 /**
  * Creates [POCardTokenizationPreferredSchemeResponse] from [POCardTokenizationPreferredSchemeRequest].
