@@ -6,6 +6,7 @@ import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
 import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceInvalidationReason
 import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
 import com.processout.sdk.api.model.request.POInvoiceRequest
+import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodDefaultValuesRequest
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.POInvoice
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
@@ -36,4 +37,8 @@ interface PODynamicCheckoutDelegate {
         request: POInvoiceAuthorizationRequest,
         paymentMethod: PODynamicCheckoutPaymentMethod
     ): POInvoiceAuthorizationRequest = request
+
+    suspend fun defaultValues(
+        request: PONativeAlternativePaymentMethodDefaultValuesRequest
+    ): Map<String, String> = emptyMap()
 }
