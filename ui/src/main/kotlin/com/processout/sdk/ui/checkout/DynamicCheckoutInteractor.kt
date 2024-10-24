@@ -115,6 +115,15 @@ internal class DynamicCheckoutInteractor(
         }
     }
 
+    private fun initState() = DynamicCheckoutInteractorState(
+        loading = true,
+        invoice = POInvoice(id = configuration.invoiceRequest.invoiceId),
+        isInvoiceValid = false,
+        paymentMethods = emptyList(),
+        submitActionId = ActionId.SUBMIT,
+        cancelActionId = ActionId.CANCEL
+    )
+
     private suspend fun start() {
         handleCompletions()
         dispatchEvents()
@@ -185,15 +194,6 @@ internal class DynamicCheckoutInteractor(
         cardTokenization.reset()
         nativeAlternativePayment.reset()
     }
-
-    private fun initState() = DynamicCheckoutInteractorState(
-        loading = true,
-        invoice = POInvoice(id = configuration.invoiceRequest.invoiceId),
-        isInvoiceValid = false,
-        paymentMethods = emptyList(),
-        submitActionId = ActionId.SUBMIT,
-        cancelActionId = ActionId.CANCEL
-    )
 
     private suspend fun fetchConfiguration() {
         invoicesService.invoice(configuration.invoiceRequest)
