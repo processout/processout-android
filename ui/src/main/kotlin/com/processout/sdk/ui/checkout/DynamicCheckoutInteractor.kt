@@ -439,12 +439,7 @@ internal class DynamicCheckoutInteractor(
             is FieldValueChanged -> onFieldValueChanged(event)
             is FieldFocusChanged -> onFieldFocusChanged(event)
             is Action -> onAction(event)
-            is ActionConfirmationRequested -> {
-                POLogger.debug("Requested the user to confirm the action: %s", event.id)
-                if (event.id == ActionId.CANCEL) {
-                    dispatch(DidRequestCancelConfirmation)
-                }
-            }
+            is ActionConfirmationRequested -> onActionConfirmationRequested(event)
             is Dismiss -> {
                 if (_state.value.delayedSuccess) {
                     _completion.update { Success }
@@ -556,6 +551,13 @@ internal class DynamicCheckoutInteractor(
                 )
                 else -> {}
             }
+        }
+    }
+
+    private fun onActionConfirmationRequested(event: ActionConfirmationRequested) {
+        POLogger.debug("Requested the user to confirm the action: %s", event.id)
+        if (event.id == ActionId.CANCEL) {
+            dispatch(DidRequestCancelConfirmation)
         }
     }
 
