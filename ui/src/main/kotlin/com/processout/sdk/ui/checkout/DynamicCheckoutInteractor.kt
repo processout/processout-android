@@ -430,9 +430,6 @@ internal class DynamicCheckoutInteractor(
 
     //endregion
 
-    private fun paymentMethod(id: String): PaymentMethod? =
-        _state.value.paymentMethods.find { it.id == id }
-
     fun onEvent(event: DynamicCheckoutEvent) {
         when (event) {
             is PaymentMethodSelected -> onPaymentMethodSelected(event)
@@ -443,6 +440,9 @@ internal class DynamicCheckoutInteractor(
             is Dismiss -> dismiss(event)
         }
     }
+
+    private fun paymentMethod(id: String): PaymentMethod? =
+        _state.value.paymentMethods.find { it.id == id }
 
     private fun onPaymentMethodSelected(event: PaymentMethodSelected) {
         if (event.id == _state.value.selectedPaymentMethod?.id) {
