@@ -594,15 +594,7 @@ internal class DynamicCheckoutInteractor(
             return
         }
         when (paymentMethod) {
-            is GooglePay ->
-                interactorScope.launch {
-                    _state.update { it.copy(processingPaymentMethod = paymentMethod) }
-                    _submitEvents.send(
-                        DynamicCheckoutSubmitEvent.GooglePay(
-                            paymentDataRequest = paymentMethod.paymentDataRequest
-                        )
-                    )
-                }
+            is GooglePay -> submitGooglePay(paymentMethod)
             is AlternativePayment -> submitAlternativePayment(paymentMethod)
             is CustomerToken ->
                 if (paymentMethod.configuration.redirectUrl != null) {
@@ -612,6 +604,17 @@ internal class DynamicCheckoutInteractor(
                     authorizeInvoice(source = paymentMethod.configuration.customerTokenId)
                 }
             else -> {}
+        }
+    }
+
+    private fun submitGooglePay(paymentMethod: GooglePay) {
+        interactorScope.launch {
+            _state.update { it.copy(processingPaymentMethod = paymentMethod) }
+            _submitEvents.send(
+                DynamicCheckoutSubmitEvent.GooglePay(
+                    paymentDataRequest = paymentMethod.paymentDataRequest
+                )
+            )
         }
     }
 
