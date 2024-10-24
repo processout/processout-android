@@ -131,32 +131,39 @@ internal class DynamicCheckoutInteractor(
     ) {
         configuration = configuration.copy(invoiceRequest = invoiceRequest)
         logAttributes = logAttributes(invoiceId = invoiceRequest.invoiceId)
-        val didFailPaymentEvent: DidFailPayment? =
-            if (reason is PODynamicCheckoutInvoiceInvalidationReason.Failure) {
-                with(_state.value) {
-                    processingPaymentMethod ?: selectedPaymentMethod
-                }?.let { paymentMethod ->
-                    DidFailPayment(
-                        failure = reason.failure,
-                        paymentMethod = paymentMethod.original
-                    )
+        var didFailPaymentEvent: DidFailPayment? = null
+        val selectedPaymentMethod: PaymentMethod?
+        val errorMessage: String?
+        with(_state.value) {
+            when (reason) {
+                is PODynamicCheckoutInvoiceInvalidationReason.Failure -> {
+                    val paymentMethod = processingPaymentMethod ?: this.selectedPaymentMethod
+                    if (paymentMethod != null) {
+                        didFailPaymentEvent = DidFailPayment(
+                            failure = reason.failure,
+                            paymentMethod = paymentMethod.original
+                        )
+                    }
+                    when (reason.failure.code) {
+                        Cancelled -> {
+                            selectedPaymentMethod = this.selectedPaymentMethod
+                            errorMessage = null
+                        }
+                        else -> {
+                            selectedPaymentMethod = null
+                            errorMessage = app.getString(R.string.po_dynamic_checkout_error_generic)
+                        }
+                    }
                 }
-            } else null
-        val selectedPaymentMethod = when (reason) {
-            is PODynamicCheckoutInvoiceInvalidationReason.Failure ->
-                if (reason.failure.code == Cancelled)
-                    _state.value.selectedPaymentMethod else null
-            else -> _state.value.selectedPaymentMethod
-        }
-        val errorMessage = when (reason) {
-            is PODynamicCheckoutInvoiceInvalidationReason.Failure ->
-                if (reason.failure.code == Cancelled) null
-                else app.getString(R.string.po_dynamic_checkout_error_generic)
-            else -> null
+                PODynamicCheckoutInvoiceInvalidationReason.PaymentMethodChanged -> {
+                    selectedPaymentMethod = this.selectedPaymentMethod
+                    errorMessage = null
+                }
+            }
         }
         reset(
             state = _state.value.copy(
-                invoice = POInvoice(id = configuration.invoiceRequest.invoiceId),
+                invoice = POInvoice(id = invoiceRequest.invoiceId),
                 selectedPaymentMethod = selectedPaymentMethod,
                 processingPaymentMethod = null,
                 errorMessage = errorMessage
