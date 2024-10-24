@@ -748,7 +748,7 @@ internal class DynamicCheckoutInteractor(
         interactorScope.launch {
             val request = PODynamicCheckoutInvoiceAuthorizationRequest(
                 request = POInvoiceAuthorizationRequest(
-                    invoiceId = _state.value.invoice.id,
+                    invoiceId = configuration.invoiceRequest.invoiceId,
                     source = source,
                     saveSource = saveSource,
                     allowFallbackToSale = allowFallbackToSale,
