@@ -440,14 +440,7 @@ internal class DynamicCheckoutInteractor(
             is FieldFocusChanged -> onFieldFocusChanged(event)
             is Action -> onAction(event)
             is ActionConfirmationRequested -> onActionConfirmationRequested(event)
-            is Dismiss -> {
-                if (_state.value.delayedSuccess) {
-                    _completion.update { Success }
-                } else {
-                    POLogger.warn("Dismissed: %s", event.failure)
-                    _completion.update { Failure(event.failure) }
-                }
-            }
+            is Dismiss -> dismiss(event)
         }
     }
 
@@ -869,6 +862,15 @@ internal class DynamicCheckoutInteractor(
                     message = "Cancelled by the user with cancel action."
                 ).also { POLogger.info("Cancelled: %s", it) }
             )
+        }
+    }
+
+    private fun dismiss(event: Dismiss) {
+        if (_state.value.delayedSuccess) {
+            _completion.update { Success }
+        } else {
+            POLogger.warn("Dismissed: %s", event.failure)
+            _completion.update { Failure(event.failure) }
         }
     }
 
