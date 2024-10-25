@@ -1,5 +1,6 @@
 package com.processout.sdk.ui.checkout
 
+import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.*
 import com.processout.sdk.api.model.response.POInvoice
 import org.json.JSONObject
@@ -11,9 +12,9 @@ internal data class DynamicCheckoutInteractorState(
     val paymentMethods: List<PaymentMethod>,
     val submitActionId: String,
     val cancelActionId: String,
-    val selectedPaymentMethodId: String? = null,
-    val processingPaymentMethodId: String? = null,
-    val pendingSubmitPaymentMethodId: String? = null,
+    val selectedPaymentMethod: PaymentMethod? = null,
+    val processingPaymentMethod: PaymentMethod? = null,
+    val pendingSubmitPaymentMethod: PaymentMethod? = null,
     val errorMessage: String? = null,
     val delayedSuccess: Boolean = false
 ) {
@@ -21,21 +22,25 @@ internal data class DynamicCheckoutInteractorState(
     sealed interface PaymentMethod {
 
         val id: String
+        val original: PODynamicCheckoutPaymentMethod
 
         data class Card(
             override val id: String,
+            override val original: PODynamicCheckoutPaymentMethod,
             val configuration: CardConfiguration,
             val display: Display
         ) : PaymentMethod
 
         data class GooglePay(
             override val id: String,
+            override val original: PODynamicCheckoutPaymentMethod,
             val allowedPaymentMethods: String,
             val paymentDataRequest: JSONObject
         ) : PaymentMethod
 
         data class AlternativePayment(
             override val id: String,
+            override val original: PODynamicCheckoutPaymentMethod,
             val redirectUrl: String,
             val display: Display,
             val isExpress: Boolean
@@ -43,12 +48,14 @@ internal data class DynamicCheckoutInteractorState(
 
         data class NativeAlternativePayment(
             override val id: String,
+            override val original: PODynamicCheckoutPaymentMethod,
             val gatewayConfigurationId: String,
             val display: Display
         ) : PaymentMethod
 
         data class CustomerToken(
             override val id: String,
+            override val original: PODynamicCheckoutPaymentMethod,
             val configuration: CustomerTokenConfiguration,
             val display: Display,
             val isExpress: Boolean

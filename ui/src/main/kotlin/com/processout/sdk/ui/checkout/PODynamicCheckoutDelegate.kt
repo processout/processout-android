@@ -1,10 +1,9 @@
 package com.processout.sdk.ui.checkout
 
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
+import com.processout.sdk.api.model.event.PODynamicCheckoutEvent
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
-import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceInvalidationReason
-import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
-import com.processout.sdk.api.model.request.POInvoiceRequest
+import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.POInvoice
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
@@ -12,6 +11,8 @@ import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 /** @suppress */
 @ProcessOutInternalApi
 interface PODynamicCheckoutDelegate {
+
+    fun onEvent(event: PODynamicCheckoutEvent) {}
 
     fun onEvent(event: POCardTokenizationEvent) {}
 
@@ -33,4 +34,12 @@ interface PODynamicCheckoutDelegate {
         request: POInvoiceAuthorizationRequest,
         paymentMethod: PODynamicCheckoutPaymentMethod
     ): POInvoiceAuthorizationRequest = request
+
+    suspend fun preferredScheme(
+        request: POCardTokenizationPreferredSchemeRequest
+    ): String? = null
+
+    suspend fun defaultValues(
+        request: PONativeAlternativePaymentMethodDefaultValuesRequest
+    ): Map<String, String> = emptyMap()
 }
