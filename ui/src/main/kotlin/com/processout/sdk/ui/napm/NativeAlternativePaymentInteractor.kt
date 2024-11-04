@@ -45,6 +45,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.SecondaryAction
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.SecondaryAction.Cancel
+import com.processout.sdk.ui.shared.provider.BarcodeBitmapProvider
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -56,6 +57,7 @@ internal class NativeAlternativePaymentInteractor(
     private var gatewayConfigurationId: String,
     private val options: Options,
     private val invoicesService: POInvoicesService,
+    private val barcodeBitmapProvider: BarcodeBitmapProvider,
     private val captureRetryStrategy: PORetryStrategy,
     private val eventDispatcher: PODefaultNativeAlternativePaymentMethodEventDispatcher,
     private var logAttributes: Map<String, String> = logAttributes(

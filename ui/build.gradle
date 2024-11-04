@@ -95,6 +95,7 @@ dependencies {
 
     implementation "io.coil-kt:coil-compose:$coilVersion"
     implementation "com.google.pay.button:compose-pay-button:$composeGooglePayButtonVersion"
+    implementation "com.google.zxing:core:$zxingVersion"
     implementation "com.googlecode.libphonenumber:libphonenumber:$libphonenumberVersion"
 
     ksp "com.squareup.moshi:moshi-kotlin-codegen:$moshiVersion"
