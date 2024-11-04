@@ -37,7 +37,7 @@ internal class BarcodeBitmapProvider(
             ).also { POLogger.error("%s", it) }
         }
         bitmap(
-            data = barcode.value,
+            barcode = barcode,
             format = format,
             width = size.width,
             height = size.height,
@@ -46,14 +46,14 @@ internal class BarcodeBitmapProvider(
     }
 
     private fun bitmap(
-        data: String,
+        barcode: POBarcode,
         format: BarcodeFormat,
         width: Int,
         height: Int,
         hints: Map<EncodeHintType, Any>?
     ): ProcessOutResult<Bitmap> =
         try {
-            val bitMatrix = MultiFormatWriter().encode(data, format, width, height, hints)
+            val bitMatrix = MultiFormatWriter().encode(barcode.value(), format, width, height, hints)
             val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
             for (x in 0 until width) {
                 for (y in 0 until height) {

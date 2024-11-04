@@ -1,5 +1,6 @@
 package com.processout.sdk.api.model.response
 
+import android.util.Base64
 import com.processout.sdk.core.util.findBy
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -8,19 +9,25 @@ import com.squareup.moshi.JsonClass
  * Defines the data for barcode generation.
  *
  * @param[rawType] Raw barcode type.
- * @param[value] Data to encode in the barcode.
+ * @param[rawValue] Base64 encoded value.
  */
 @JsonClass(generateAdapter = true)
 data class POBarcode(
     @Json(name = "type")
     val rawType: String,
-    val value: String
+    @Json(name = "value")
+    val rawValue: String
 ) {
 
     /**
      * Returns supported [BarcodeType] or [BarcodeType.UNSUPPORTED] otherwise.
      */
     fun type() = BarcodeType::rawType.findBy(rawType) ?: BarcodeType.UNSUPPORTED
+
+    /**
+     * Returns Base64 decoded value.
+     */
+    fun value() = String(Base64.decode(rawValue, Base64.NO_WRAP))
 
     /**
      * Defines supported barcode types.
