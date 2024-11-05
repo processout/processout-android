@@ -174,6 +174,13 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 message = customerActionMessage,
                 primaryAction = primaryAction,
                 secondaryAction = secondaryAction,
+                saveBarcodeAction = customerAction?.barcode?.let {
+                    POActionState(
+                        id = it.actionId,
+                        text = app.getString(R.string.po_native_apm_save_qr_code_button_text),
+                        primary = false
+                    )
+                },
                 withProgressIndicator = withProgressIndicator,
                 isCaptured = false
             )
@@ -188,6 +195,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
             message = options.successMessage ?: app.getString(R.string.po_native_apm_success_message),
             primaryAction = null,
             secondaryAction = null,
+            saveBarcodeAction = null,
             withProgressIndicator = false,
             isCaptured = true
         )

@@ -541,6 +541,7 @@ private fun Actions(
 ) {
     var primary: POActionState? = null
     var secondary: POActionState? = null
+    var saveBarcode: POActionState? = null
     when (state) {
         is Loading -> secondary = state.secondaryAction
         is UserInput -> {
@@ -550,11 +551,10 @@ private fun Actions(
         is Capture -> {
             primary = state.primaryAction
             secondary = state.secondaryAction
+            saveBarcode = state.saveBarcodeAction
         }
     }
-    val actions = mutableListOf<POActionState>()
-    primary?.let { actions.add(it) }
-    secondary?.let { actions.add(it) }
+    val actions = listOfNotNull(primary, saveBarcode, secondary)
     POActionsContainer(
         modifier = modifier,
         actions = POImmutableList(

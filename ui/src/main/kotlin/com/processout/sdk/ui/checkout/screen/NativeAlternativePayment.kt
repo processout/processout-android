@@ -391,20 +391,39 @@ private fun Capture(
                     else -> {}
                 }
             }
-            state.primaryAction?.let { action ->
-                POButton(
-                    text = action.text,
-                    onClick = {
-                        onEvent(
-                            Action(
-                                actionId = action.id,
-                                paymentMethodId = id
+            Column(
+                verticalArrangement = Arrangement.spacedBy(spacing.small)
+            ) {
+                state.primaryAction?.let { action ->
+                    POButton(
+                        text = action.text,
+                        onClick = {
+                            onEvent(
+                                Action(
+                                    actionId = action.id,
+                                    paymentMethodId = id
+                                )
                             )
-                        )
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    style = style.actionsContainer.primary
-                )
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        style = style.actionsContainer.primary
+                    )
+                }
+                state.saveBarcodeAction?.let { action ->
+                    POButton(
+                        text = action.text,
+                        onClick = {
+                            onEvent(
+                                Action(
+                                    actionId = action.id,
+                                    paymentMethodId = id
+                                )
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        style = style.actionsContainer.secondary
+                    )
+                }
             }
         }
     }

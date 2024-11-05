@@ -32,6 +32,7 @@ internal sealed interface NativeAlternativePaymentViewModelState {
         val message: String,
         val primaryAction: POActionState?,
         val secondaryAction: POActionState?,
+        val saveBarcodeAction: POActionState?,
         val withProgressIndicator: Boolean,
         val isCaptured: Boolean
     ) : NativeAlternativePaymentViewModelState
