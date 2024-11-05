@@ -21,6 +21,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -456,21 +457,37 @@ private fun CaptureContent(
         selectable = true,
         linksClickable = true
     )
-    var showImage by remember { mutableStateOf(true) }
+    var showImage by remember { mutableStateOf(state.image != null) }
     if (showImage) {
-        AsyncImage(
-            model = state.imageUrl,
-            contentDescription = null,
-            modifier = Modifier.requiredSize(
-                width = CaptureImageWidth,
-                height = CaptureImageHeight
-            ),
-            alignment = Alignment.Center,
-            contentScale = ContentScale.Fit,
-            onError = {
-                showImage = false
+        when (state.image) {
+            is Image.Url -> AsyncImage(
+                model = state.image.value,
+                contentDescription = null,
+                modifier = Modifier.requiredSize(
+                    width = CaptureImageWidth,
+                    height = CaptureImageHeight
+                ),
+                alignment = Alignment.Center,
+                contentScale = ContentScale.Fit,
+                onError = {
+                    showImage = false
+                }
+            )
+            is Image.Bitmap -> {
+                val bitmap = state.image.value
+                Image(
+                    bitmap = remember(bitmap) { bitmap.asImageBitmap() },
+                    contentDescription = null,
+                    modifier = Modifier.requiredSize(
+                        width = CaptureImageWidth,
+                        height = CaptureImageHeight
+                    ),
+                    alignment = Alignment.Center,
+                    contentScale = ContentScale.Fit
+                )
             }
-        )
+            else -> {}
+        }
     }
 }
 

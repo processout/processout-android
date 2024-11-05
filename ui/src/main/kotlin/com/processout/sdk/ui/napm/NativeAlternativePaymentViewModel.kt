@@ -21,6 +21,7 @@ import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Field.*
+import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Image
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.DEFAULT_TIMEOUT_SECONDS
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.MAX_TIMEOUT_SECONDS
@@ -167,7 +168,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
             NativeAlternativePaymentViewModelState.Capture(
                 title = paymentProviderName,
                 logoUrl = logoUrl,
-                imageUrl = actionImageUrl,
+                image = actionBarcode?.let { Image.Bitmap(it.bitmap) } ?: actionImageUrl?.let { Image.Url(it) },
                 message = actionMessage,
                 primaryAction = primaryAction,
                 secondaryAction = secondaryAction,
@@ -181,7 +182,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
         NativeAlternativePaymentViewModelState.Capture(
             title = paymentProviderName,
             logoUrl = logoUrl,
-            imageUrl = null,
+            image = null,
             message = options.successMessage ?: app.getString(R.string.po_native_apm_success_message),
             primaryAction = null,
             secondaryAction = null,

@@ -3,6 +3,7 @@ package com.processout.sdk.ui.checkout.screen
 import androidx.compose.animation.*
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -11,6 +12,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.lifecycle.Lifecycle
 import coil.compose.AsyncImage
@@ -39,9 +41,8 @@ import com.processout.sdk.ui.core.component.field.text.POLabeledTextField
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState
-import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Capture
+import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Field.*
-import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.UserInput
 import com.processout.sdk.ui.shared.component.TextAndroidView
 import com.processout.sdk.ui.shared.component.rememberLifecycleEvent
 import com.processout.sdk.ui.shared.extension.conditional
@@ -358,21 +359,37 @@ private fun Capture(
                 selectable = true,
                 linksClickable = true
             )
-            var showImage by remember { mutableStateOf(true) }
+            var showImage by remember { mutableStateOf(state.image != null) }
             if (showImage) {
-                AsyncImage(
-                    model = state.imageUrl,
-                    contentDescription = null,
-                    modifier = Modifier.requiredSize(
-                        width = CaptureImageWidth,
-                        height = CaptureImageHeight
-                    ),
-                    alignment = Alignment.Center,
-                    contentScale = ContentScale.Fit,
-                    onError = {
-                        showImage = false
+                when (state.image) {
+                    is Image.Url -> AsyncImage(
+                        model = state.image.value,
+                        contentDescription = null,
+                        modifier = Modifier.requiredSize(
+                            width = CaptureImageWidth,
+                            height = CaptureImageHeight
+                        ),
+                        alignment = Alignment.Center,
+                        contentScale = ContentScale.Fit,
+                        onError = {
+                            showImage = false
+                        }
+                    )
+                    is Image.Bitmap -> {
+                        val bitmap = state.image.value
+                        Image(
+                            bitmap = remember(bitmap) { bitmap.asImageBitmap() },
+                            contentDescription = null,
+                            modifier = Modifier.requiredSize(
+                                width = CaptureImageWidth,
+                                height = CaptureImageHeight
+                            ),
+                            alignment = Alignment.Center,
+                            contentScale = ContentScale.Fit
+                        )
                     }
-                )
+                    else -> {}
+                }
             }
             state.primaryAction?.let { action ->
                 POButton(
