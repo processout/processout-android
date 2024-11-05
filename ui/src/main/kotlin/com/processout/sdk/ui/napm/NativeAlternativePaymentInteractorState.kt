@@ -54,12 +54,22 @@ internal sealed interface NativeAlternativePaymentInteractorState {
     data class CaptureStateValue(
         val paymentProviderName: String?,
         val logoUrl: String?,
-        val actionImageUrl: String?,
-        val actionMessage: String?,
-        val actionBarcode: ActionBarcode?,
+        val customerAction: CustomerAction?,
         val primaryActionId: String?,
         val secondaryAction: Action,
         val withProgressIndicator: Boolean
+    )
+
+    data class CustomerAction(
+        val message: String,
+        val imageUrl: String?,
+        val barcode: Barcode?
+    )
+
+    data class Barcode(
+        val type: BarcodeType,
+        val bitmap: Bitmap,
+        val actionId: String
     )
 
     data class Field(
@@ -78,12 +88,6 @@ internal sealed interface NativeAlternativePaymentInteractorState {
     data class Action(
         val id: String,
         val enabled: Boolean
-    )
-
-    data class ActionBarcode(
-        val type: BarcodeType,
-        val bitmap: Bitmap,
-        val actionId: String
     )
 
     object ActionId {

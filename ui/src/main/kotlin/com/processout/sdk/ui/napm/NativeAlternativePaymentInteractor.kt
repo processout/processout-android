@@ -189,14 +189,11 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun UserInputStateValue.toCaptureStateValue(
         parameterValues: PONativeAlternativePaymentMethodParameterValues?,
-        actionBarcode: ActionBarcode? = null
+        barcode: Barcode? = null
     ) = CaptureStateValue(
         paymentProviderName = parameterValues?.providerName,
         logoUrl = logoUrl(gateway, parameterValues),
-        actionImageUrl = gateway.customerActionImageUrl,
-        actionMessage = parameterValues?.customerActionMessage
-            ?: gateway.customerActionMessage?.let { escapedMarkdown(it) },
-        actionBarcode = actionBarcode,
+        customerAction = customerAction(parameterValues, barcode),
         primaryActionId = ActionId.CONFIRM_PAYMENT,
         secondaryAction = NativeAlternativePaymentInteractorState.Action(
             id = ActionId.CANCEL,
@@ -216,6 +213,21 @@ internal class NativeAlternativePaymentInteractor(
             return null
         }
         return gateway.logoUrl
+    }
+
+    private fun UserInputStateValue.customerAction(
+        parameterValues: PONativeAlternativePaymentMethodParameterValues?,
+        barcode: Barcode? = null
+    ): CustomerAction? {
+        val message = parameterValues?.customerActionMessage
+            ?: gateway.customerActionMessage?.let { escapedMarkdown(it) }
+        return message?.let {
+            CustomerAction(
+                message = it,
+                imageUrl = gateway.customerActionImageUrl,
+                barcode = barcode
+            )
+        }
     }
 
     //region User Input
@@ -659,7 +671,7 @@ internal class NativeAlternativePaymentInteractor(
             _completion.update { Success }
             return
         }
-        val actionBarcode = parameterValues?.customerActionBarcode?.let { barcode ->
+        val barcode = parameterValues?.customerActionBarcode?.let { barcode ->
             val size = 250.dpToPx(app)
             barcodeBitmapProvider.generate(
                 barcode = barcode,
@@ -667,7 +679,7 @@ internal class NativeAlternativePaymentInteractor(
                 height = size
             ).fold(
                 onSuccess = { bitmap ->
-                    ActionBarcode(
+                    Barcode(
                         type = barcode.type(),
                         bitmap = bitmap,
                         actionId = ActionId.SAVE_BARCODE
@@ -679,10 +691,10 @@ internal class NativeAlternativePaymentInteractor(
                 }
             )
         }
-        val captureStateValue = stateValue.toCaptureStateValue(parameterValues, actionBarcode)
+        val captureStateValue = stateValue.toCaptureStateValue(parameterValues, barcode)
         preloadAllImages(stateValue = captureStateValue)
         POLogger.info("Waiting for capture confirmation.")
-        val additionalActionExpected = !captureStateValue.actionMessage.isNullOrBlank()
+        val additionalActionExpected = !captureStateValue.customerAction?.message.isNullOrBlank()
         dispatch(WillWaitForCaptureConfirmation(additionalActionExpected = additionalActionExpected))
         _state.update { Capturing(captureStateValue) }
         enableCapturingSecondaryAction()
@@ -781,7 +793,7 @@ internal class NativeAlternativePaymentInteractor(
             stateValue.logoUrl?.let {
                 deferredResults.add(async { preloadImage(it) })
             }
-            stateValue.actionImageUrl?.let {
+            stateValue.customerAction?.imageUrl?.let {
                 deferredResults.add(async { preloadImage(it) })
             }
             deferredResults.awaitAll()

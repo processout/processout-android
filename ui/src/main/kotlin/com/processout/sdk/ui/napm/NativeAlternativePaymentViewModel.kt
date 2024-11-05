@@ -151,7 +151,8 @@ internal class NativeAlternativePaymentViewModel private constructor(
             id = secondaryAction.id,
             enabled = secondaryAction.enabled
         )
-        if (actionMessage.isNullOrBlank()) {
+        val customerActionMessage = customerAction?.message
+        if (customerActionMessage.isNullOrBlank()) {
             NativeAlternativePaymentViewModelState.Loading(
                 secondaryAction = secondaryAction
             )
@@ -168,8 +169,9 @@ internal class NativeAlternativePaymentViewModel private constructor(
             NativeAlternativePaymentViewModelState.Capture(
                 title = paymentProviderName,
                 logoUrl = logoUrl,
-                image = actionBarcode?.let { Image.Bitmap(it.bitmap) } ?: actionImageUrl?.let { Image.Url(it) },
-                message = actionMessage,
+                image = customerAction?.barcode?.let { Image.Bitmap(it.bitmap) }
+                    ?: customerAction?.imageUrl?.let { Image.Url(it) },
+                message = customerActionMessage,
                 primaryAction = primaryAction,
                 secondaryAction = secondaryAction,
                 withProgressIndicator = withProgressIndicator,
