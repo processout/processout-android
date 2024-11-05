@@ -45,6 +45,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.SecondaryAction
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.SecondaryAction.Cancel
+import com.processout.sdk.ui.shared.extension.dpToPx
 import com.processout.sdk.ui.shared.provider.BarcodeBitmapProvider
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -150,7 +151,7 @@ internal class NativeAlternativePaymentInteractor(
         }
     }
 
-    private fun handleState(
+    private suspend fun handleState(
         stateValue: UserInputStateValue,
         paymentState: PONativeAlternativePaymentMethodState?,
         parameters: List<PONativeAlternativePaymentMethodParameter>?,
@@ -158,7 +159,7 @@ internal class NativeAlternativePaymentInteractor(
     ) {
         when (paymentState) {
             CUSTOMER_INPUT, null -> handleCustomerInput(stateValue, parameters)
-            PENDING_CAPTURE -> handlePendingCapture(stateValue.toCaptureStateValue(parameterValues))
+            PENDING_CAPTURE -> handlePendingCapture(stateValue, parameterValues)
             CAPTURED -> handleCaptured(stateValue.toCaptureStateValue(parameterValues))
             FAILED -> _completion.update {
                 Failure(
@@ -187,13 +188,15 @@ internal class NativeAlternativePaymentInteractor(
         )
 
     private fun UserInputStateValue.toCaptureStateValue(
-        parameterValues: PONativeAlternativePaymentMethodParameterValues?
+        parameterValues: PONativeAlternativePaymentMethodParameterValues?,
+        actionBarcode: ActionBarcode? = null
     ) = CaptureStateValue(
         paymentProviderName = parameterValues?.providerName,
         logoUrl = logoUrl(gateway, parameterValues),
         actionImageUrl = gateway.customerActionImageUrl,
         actionMessage = parameterValues?.customerActionMessage
             ?: gateway.customerActionMessage?.let { escapedMarkdown(it) },
+        actionBarcode = actionBarcode,
         primaryActionId = ActionId.CONFIRM_PAYMENT,
         secondaryAction = NativeAlternativePaymentInteractorState.Action(
             id = ActionId.CANCEL,
@@ -645,7 +648,10 @@ internal class NativeAlternativePaymentInteractor(
 
     //region Capture
 
-    private fun handlePendingCapture(stateValue: CaptureStateValue) {
+    private suspend fun handlePendingCapture(
+        stateValue: UserInputStateValue,
+        parameterValues: PONativeAlternativePaymentMethodParameterValues?
+    ) {
         POLogger.info("All payment parameters has been submitted.")
         dispatch(DidSubmitParameters(additionalParametersExpected = false))
         if (!options.paymentConfirmation.waitsConfirmation) {
@@ -653,19 +659,35 @@ internal class NativeAlternativePaymentInteractor(
             _completion.update { Success }
             return
         }
-        interactorScope.launch {
-            POLogger.info("Waiting for capture confirmation.")
-            val additionalActionExpected = !stateValue.actionMessage.isNullOrBlank()
-            dispatch(WillWaitForCaptureConfirmation(additionalActionExpected = additionalActionExpected))
-            preloadAllImages(
-                stateValue = stateValue,
-                coroutineScope = this@launch
+        val actionBarcode = parameterValues?.customerActionBarcode?.let { barcode ->
+            val size = 250.dpToPx(app)
+            barcodeBitmapProvider.generate(
+                barcode = barcode,
+                width = size,
+                height = size
+            ).fold(
+                onSuccess = { bitmap ->
+                    ActionBarcode(
+                        type = barcode.type(),
+                        bitmap = bitmap,
+                        actionId = ActionId.SAVE_BARCODE
+                    )
+                },
+                onFailure = { failure ->
+                    _completion.update { Failure(failure) }
+                    return
+                }
             )
-            _state.update { Capturing(stateValue) }
-            enableCapturingSecondaryAction()
-            if (!additionalActionExpected || options.paymentConfirmation.primaryAction == null) {
-                capture()
-            }
+        }
+        val captureStateValue = stateValue.toCaptureStateValue(parameterValues, actionBarcode)
+        preloadAllImages(stateValue = captureStateValue)
+        POLogger.info("Waiting for capture confirmation.")
+        val additionalActionExpected = !captureStateValue.actionMessage.isNullOrBlank()
+        dispatch(WillWaitForCaptureConfirmation(additionalActionExpected = additionalActionExpected))
+        _state.update { Capturing(captureStateValue) }
+        enableCapturingSecondaryAction()
+        if (!additionalActionExpected || options.paymentConfirmation.primaryAction == null) {
+            capture()
         }
     }
 
@@ -753,18 +775,17 @@ internal class NativeAlternativePaymentInteractor(
 
     //region Images
 
-    private suspend fun preloadAllImages(
-        stateValue: CaptureStateValue,
-        coroutineScope: CoroutineScope
-    ) {
-        val deferredResults = mutableListOf<Deferred<ImageResult>>()
-        stateValue.logoUrl?.let {
-            deferredResults.add(coroutineScope.async { preloadImage(it) })
+    private suspend fun preloadAllImages(stateValue: CaptureStateValue) {
+        coroutineScope {
+            val deferredResults = mutableListOf<Deferred<ImageResult>>()
+            stateValue.logoUrl?.let {
+                deferredResults.add(async { preloadImage(it) })
+            }
+            stateValue.actionImageUrl?.let {
+                deferredResults.add(async { preloadImage(it) })
+            }
+            deferredResults.awaitAll()
         }
-        stateValue.actionImageUrl?.let {
-            deferredResults.add(coroutineScope.async { preloadImage(it) })
-        }
-        deferredResults.awaitAll()
     }
 
     private suspend fun preloadImage(url: String): ImageResult {

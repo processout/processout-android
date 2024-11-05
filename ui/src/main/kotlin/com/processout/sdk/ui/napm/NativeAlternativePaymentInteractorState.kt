@@ -1,6 +1,8 @@
 package com.processout.sdk.ui.napm
 
+import android.graphics.Bitmap
 import androidx.compose.ui.text.input.TextFieldValue
+import com.processout.sdk.api.model.response.POBarcode.BarcodeType
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails.Gateway
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails.Invoice
@@ -54,6 +56,7 @@ internal sealed interface NativeAlternativePaymentInteractorState {
         val logoUrl: String?,
         val actionImageUrl: String?,
         val actionMessage: String?,
+        val actionBarcode: ActionBarcode?,
         val primaryActionId: String?,
         val secondaryAction: Action,
         val withProgressIndicator: Boolean
@@ -77,10 +80,17 @@ internal sealed interface NativeAlternativePaymentInteractorState {
         val enabled: Boolean
     )
 
+    data class ActionBarcode(
+        val type: BarcodeType,
+        val bitmap: Bitmap,
+        val actionId: String
+    )
+
     object ActionId {
         const val SUBMIT = "submit"
         const val CANCEL = "cancel"
         const val CONFIRM_PAYMENT = "confirm-payment"
+        const val SAVE_BARCODE = "save-barcode"
     }
 }
 

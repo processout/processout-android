@@ -2,7 +2,6 @@ package com.processout.sdk.ui.shared.provider
 
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.util.Size
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.MultiFormatWriter
@@ -22,7 +21,8 @@ internal class BarcodeBitmapProvider(
 
     suspend fun generate(
         barcode: POBarcode,
-        size: Size
+        width: Int,
+        height: Int
     ): ProcessOutResult<Bitmap> = withContext(workDispatcher) {
         val format: BarcodeFormat
         val hints: Map<EncodeHintType, Any>?
@@ -39,8 +39,8 @@ internal class BarcodeBitmapProvider(
         bitmap(
             barcode = barcode,
             format = format,
-            width = size.width,
-            height = size.height,
+            width = width,
+            height = height,
             hints = hints
         )
     }
