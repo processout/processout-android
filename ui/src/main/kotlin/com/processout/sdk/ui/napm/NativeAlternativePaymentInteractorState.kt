@@ -69,7 +69,8 @@ internal sealed interface NativeAlternativePaymentInteractorState {
     data class Barcode(
         val type: BarcodeType,
         val bitmap: Bitmap,
-        val actionId: String
+        val actionId: String,
+        val isError: Boolean = false
     )
 
     data class Field(
