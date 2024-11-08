@@ -30,6 +30,7 @@ import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Second
 import com.processout.sdk.ui.shared.extension.map
 import com.processout.sdk.ui.shared.filter.PhoneNumberInputFilter
 import com.processout.sdk.ui.shared.provider.BarcodeBitmapProvider
+import com.processout.sdk.ui.shared.provider.MediaStorageProvider
 import com.processout.sdk.ui.shared.state.FieldState
 import com.processout.sdk.ui.shared.transformation.PhoneNumberVisualTransformation
 import java.text.NumberFormat
@@ -60,6 +61,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                     options = options.validated(),
                     invoicesService = ProcessOut.instance.invoices,
                     barcodeBitmapProvider = BarcodeBitmapProvider(),
+                    mediaStorageProvider = MediaStorageProvider(app),
                     captureRetryStrategy = Exponential(
                         maxRetries = Int.MAX_VALUE,
                         initialDelay = 150,
@@ -94,6 +96,8 @@ internal class NativeAlternativePaymentViewModel private constructor(
     val completion = interactor.completion
 
     val state = interactor.state.map(viewModelScope, ::map)
+
+    val sideEffects = interactor.sideEffects
 
     init {
         addCloseable(interactor.interactorScope)

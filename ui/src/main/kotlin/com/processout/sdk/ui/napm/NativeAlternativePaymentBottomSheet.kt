@@ -2,15 +2,22 @@ package com.processout.sdk.ui.napm
 
 import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.processout.sdk.api.dispatcher.PODefaultEventDispatchers
 import com.processout.sdk.core.*
 import com.processout.sdk.ui.base.BaseBottomSheetDialogFragment
@@ -20,14 +27,18 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentActivityContract.Compa
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Failure
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Success
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.Dismiss
+import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.PermissionRequestResult
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.AnimationDurationMillis
+import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.RequestPermission
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Capture
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
 import com.processout.sdk.ui.shared.component.isImeVisibleAsState
 import com.processout.sdk.ui.shared.component.screenModeAsState
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import com.processout.sdk.ui.shared.extension.dpToPx
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
 internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragment<POUnit>() {
@@ -51,6 +62,11 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
             eventDispatcher = PODefaultEventDispatchers.defaultNativeAlternativePaymentMethod
         )
     }
+
+    private val permissionsLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions(),
+        ::handlePermissions
+    )
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -80,6 +96,14 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
             ProcessOutTheme {
                 with(viewModel.completion.collectAsStateWithLifecycle()) {
                     LaunchedEffect(value) { handle(value) }
+                }
+                val lifecycleOwner = LocalLifecycleOwner.current
+                LaunchedEffect(lifecycleOwner) {
+                    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                        withContext(Dispatchers.Main.immediate) {
+                            viewModel.sideEffects.collect { handle(it) }
+                        }
+                    }
                 }
 
                 val state by viewModel.state.collectAsStateWithLifecycle()
@@ -127,6 +151,39 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
                     touchOutside = it.touchOutside
                 )
             )
+        }
+    }
+
+    private fun handle(sideEffect: NativeAlternativePaymentSideEffect) {
+        when (sideEffect) {
+            is RequestPermission -> when {
+                ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    sideEffect.permission
+                ) == PackageManager.PERMISSION_GRANTED ->
+                    viewModel.onEvent(
+                        PermissionRequestResult(
+                            permission = sideEffect.permission,
+                            isGranted = true
+                        )
+                    )
+                ActivityCompat.shouldShowRequestPermissionRationale(
+                    requireActivity(),
+                    sideEffect.permission
+                ) -> viewModel.onEvent(
+                    PermissionRequestResult(
+                        permission = sideEffect.permission,
+                        isGranted = false
+                    )
+                )
+                else -> permissionsLauncher.launch(arrayOf(sideEffect.permission))
+            }
+        }
+    }
+
+    private fun handlePermissions(result: Map<String, Boolean>) {
+        result.forEach {
+            viewModel.onEvent(PermissionRequestResult(permission = it.key, isGranted = it.value))
         }
     }
 

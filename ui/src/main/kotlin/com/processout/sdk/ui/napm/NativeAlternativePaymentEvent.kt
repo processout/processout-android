@@ -8,7 +8,12 @@ internal sealed interface NativeAlternativePaymentEvent {
     data class FieldFocusChanged(val id: String, val isFocused: Boolean) : NativeAlternativePaymentEvent
     data class Action(val id: String) : NativeAlternativePaymentEvent
     data class ActionConfirmationRequested(val id: String) : NativeAlternativePaymentEvent
+    data class PermissionRequestResult(val permission: String, val isGranted: Boolean) : NativeAlternativePaymentEvent
     data class Dismiss(val failure: ProcessOutResult.Failure) : NativeAlternativePaymentEvent
+}
+
+internal sealed interface NativeAlternativePaymentSideEffect {
+    data class RequestPermission(val permission: String) : NativeAlternativePaymentSideEffect
 }
 
 internal sealed interface NativeAlternativePaymentCompletion {
