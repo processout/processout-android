@@ -865,18 +865,22 @@ internal class NativeAlternativePaymentInteractor(
         }
     }
 
+    //endregion
+
+    //region Save Barcode
+
     private fun saveBarcode() {
         _state.whenCapturing { stateValue ->
-            stateValue.customerAction?.barcode?.bitmap?.let { bitmap ->
-                when (Build.VERSION.SDK_INT) {
-                    in Build.VERSION_CODES.M..Build.VERSION_CODES.P ->
-                        interactorScope.launch {
+            stateValue.customerAction?.barcode?.run {
+                interactorScope.launch {
+                    when (Build.VERSION.SDK_INT) {
+                        in Build.VERSION_CODES.M..Build.VERSION_CODES.P ->
                             _sideEffects.send(
                                 RequestPermission(permission = Manifest.permission.WRITE_EXTERNAL_STORAGE)
                             )
-                        }
-                    else -> interactorScope.launch {
-                        mediaStorageProvider.saveImage(bitmap)
+                        else -> mediaStorageProvider
+                            .saveImage(bitmap)
+                            .onFailure { updateBarcodeState(isError = true) }
                     }
                 }
             }
@@ -888,17 +892,33 @@ internal class NativeAlternativePaymentInteractor(
             Manifest.permission.WRITE_EXTERNAL_STORAGE ->
                 if (result.isGranted) {
                     _state.whenCapturing { stateValue ->
-                        stateValue.customerAction?.barcode?.bitmap?.let { bitmap ->
+                        stateValue.customerAction?.barcode?.run {
                             interactorScope.launch {
-                                mediaStorageProvider.saveImage(bitmap)
+                                mediaStorageProvider
+                                    .saveImage(bitmap)
+                                    .onFailure { updateBarcodeState(isError = true) }
                             }
                         }
                     }
                 } else {
-                    // TODO
+                    updateBarcodeState(isError = true)
                 }
         }
     }
+
+    private fun updateBarcodeState(isError: Boolean) =
+        _state.whenCapturing { stateValue ->
+            val updatedStateValue = with(stateValue) {
+                copy(
+                    customerAction = customerAction?.copy(
+                        barcode = customerAction.barcode?.copy(
+                            isError = isError
+                        )
+                    )
+                )
+            }
+            _state.update { Capturing(updatedStateValue) }
+        }
 
     //endregion
 
