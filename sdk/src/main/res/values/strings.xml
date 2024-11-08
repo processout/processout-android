@@ -18,6 +18,9 @@
     <string name="po_native_apm_cancel_button_text">Cancel</string>
     <string name="po_native_apm_confirm_payment_button_text">I\'ve paid</string>
     <string name="po_native_apm_save_qr_code_button_text">Save QR Code to Photos</string>
+    <string name="po_native_apm_save_image_error_title">Image Save Failed</string>
+    <string name="po_native_apm_save_image_error_message">We couldn\'t save the image. Please check your permissions or try taking a screenshot as an alternative.</string>
+    <string name="po_native_apm_save_image_error_confirm">Got it</string>
     <string name="po_native_apm_email_placeholder">name@example.com</string>
     <string name="po_native_apm_phone_placeholder">Enter phone number</string>
     <string name="po_native_apm_success_message">Success!\nPayment approved.</string>
