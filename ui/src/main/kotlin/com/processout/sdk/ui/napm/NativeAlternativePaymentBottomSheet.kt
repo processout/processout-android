@@ -14,10 +14,7 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.repeatOnLifecycle
 import com.processout.sdk.api.dispatcher.PODefaultEventDispatchers
 import com.processout.sdk.core.*
 import com.processout.sdk.ui.base.BaseBottomSheetDialogFragment
@@ -35,10 +32,9 @@ import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Option
 import com.processout.sdk.ui.shared.component.isImeVisibleAsState
 import com.processout.sdk.ui.shared.component.screenModeAsState
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
+import com.processout.sdk.ui.shared.extension.collectImmediately
 import com.processout.sdk.ui.shared.extension.dpToPx
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
 internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragment<POUnit>() {
@@ -97,14 +93,7 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
                 with(viewModel.completion.collectAsStateWithLifecycle()) {
                     LaunchedEffect(value) { handle(value) }
                 }
-                val lifecycleOwner = LocalLifecycleOwner.current
-                LaunchedEffect(lifecycleOwner) {
-                    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                        withContext(Dispatchers.Main.immediate) {
-                            viewModel.sideEffects.collect { handle(it) }
-                        }
-                    }
-                }
+                viewModel.sideEffects.collectImmediately { handle(it) }
 
                 val state by viewModel.state.collectAsStateWithLifecycle()
                 val isImeVisible by isImeVisibleAsState()

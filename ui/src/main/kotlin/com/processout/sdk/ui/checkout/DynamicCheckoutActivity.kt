@@ -14,10 +14,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.gms.wallet.Wallet.WalletOptions
 import com.google.android.gms.wallet.WalletConstants
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
@@ -50,8 +47,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.DEFAULT_TIMEOUT_SECONDS
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.processout.sdk.ui.shared.extension.collectImmediately
 
 internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
 
@@ -155,14 +151,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                 with(viewModel.completion.collectAsStateWithLifecycle()) {
                     LaunchedEffect(value) { handle(value) }
                 }
-                val lifecycleOwner = LocalLifecycleOwner.current
-                LaunchedEffect(lifecycleOwner) {
-                    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                        withContext(Dispatchers.Main.immediate) {
-                            viewModel.submitEvents.collect { submit(it) }
-                        }
-                    }
-                }
+                viewModel.submitEvents.collectImmediately { submit(it) }
                 DynamicCheckoutScreen(
                     state = viewModel.state.collectAsStateWithLifecycle().value,
                     onEvent = remember { viewModel::onEvent },
