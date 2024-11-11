@@ -26,7 +26,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Success
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.Dismiss
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.PermissionRequestResult
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.AnimationDurationMillis
-import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.RequestPermission
+import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.PermissionRequest
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Capture
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
 import com.processout.sdk.ui.shared.component.isImeVisibleAsState
@@ -145,7 +145,7 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
 
     private fun handle(sideEffect: NativeAlternativePaymentSideEffect) {
         when (sideEffect) {
-            is RequestPermission -> when {
+            is PermissionRequest -> when {
                 ContextCompat.checkSelfPermission(
                     requireContext(),
                     sideEffect.permission

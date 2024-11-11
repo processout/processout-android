@@ -14,7 +14,7 @@ internal sealed interface NativeAlternativePaymentEvent {
 }
 
 internal sealed interface NativeAlternativePaymentSideEffect {
-    data class RequestPermission(val permission: String) : NativeAlternativePaymentSideEffect
+    data class PermissionRequest(val permission: String) : NativeAlternativePaymentSideEffect
 }
 
 internal sealed interface NativeAlternativePaymentCompletion {

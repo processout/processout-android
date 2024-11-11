@@ -44,7 +44,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.Action
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
-import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.RequestPermission
+import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.PermissionRequest
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.SecondaryAction
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.SecondaryAction.Cancel
@@ -880,7 +880,7 @@ internal class NativeAlternativePaymentInteractor(
                     when (Build.VERSION.SDK_INT) {
                         in Build.VERSION_CODES.M..Build.VERSION_CODES.P ->
                             _sideEffects.send(
-                                RequestPermission(permission = Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                PermissionRequest(permission = Manifest.permission.WRITE_EXTERNAL_STORAGE)
                             )
                         else -> mediaStorageProvider
                             .saveImage(bitmap)
