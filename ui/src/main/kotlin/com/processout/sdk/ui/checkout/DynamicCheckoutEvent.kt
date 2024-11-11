@@ -26,6 +26,12 @@ internal sealed interface DynamicCheckoutEvent {
         val paymentMethodId: String?
     ) : DynamicCheckoutEvent
 
+    data class DialogAction(
+        val actionId: String,
+        val paymentMethodId: String?,
+        val isConfirmed: Boolean
+    ) : DynamicCheckoutEvent
+
     data class ActionConfirmationRequested(
         val id: String
     ) : DynamicCheckoutEvent

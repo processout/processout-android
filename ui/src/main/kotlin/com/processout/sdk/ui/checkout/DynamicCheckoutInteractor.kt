@@ -439,6 +439,7 @@ internal class DynamicCheckoutInteractor(
             is FieldValueChanged -> onFieldValueChanged(event)
             is FieldFocusChanged -> onFieldFocusChanged(event)
             is Action -> onAction(event)
+            is DialogAction -> onDialogAction(event)
             is ActionConfirmationRequested -> onActionConfirmationRequested(event)
             is PermissionRequestResult -> handlePermission(event)
             is Dismiss -> dismiss(event)
@@ -553,6 +554,19 @@ internal class DynamicCheckoutInteractor(
                 )
                 else -> {}
             }
+        }
+    }
+
+    private fun onDialogAction(event: DialogAction) {
+        val paymentMethod = event.paymentMethodId?.let { paymentMethod(it) }
+        when (paymentMethod) {
+            is NativeAlternativePayment -> nativeAlternativePayment.onEvent(
+                NativeAlternativePaymentEvent.DialogAction(
+                    id = event.actionId,
+                    isConfirmed = event.isConfirmed
+                )
+            )
+            else -> {}
         }
     }
 

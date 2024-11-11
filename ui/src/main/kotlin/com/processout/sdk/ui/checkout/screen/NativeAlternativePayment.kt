@@ -25,10 +25,7 @@ import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.LongAnimation
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.ShortAnimationDurationMillis
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.isMessageShort
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.messageGravity
-import com.processout.sdk.ui.core.component.POButton
-import com.processout.sdk.ui.core.component.POCircularProgressIndicator
-import com.processout.sdk.ui.core.component.PORequestFocus
-import com.processout.sdk.ui.core.component.POText
+import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.POFieldLabels
 import com.processout.sdk.ui.core.component.field.code.POCodeField
@@ -424,6 +421,33 @@ private fun Capture(
                         style = style.actionsContainer.secondary
                     )
                 }
+            }
+            state.confirmationDialog?.let { dialog ->
+                PODialog(
+                    title = dialog.title,
+                    message = dialog.message,
+                    confirmActionText = dialog.confirmActionText,
+                    dismissActionText = dialog.dismissActionText,
+                    onConfirm = {
+                        onEvent(
+                            DialogAction(
+                                actionId = dialog.id,
+                                paymentMethodId = id,
+                                isConfirmed = true
+                            )
+                        )
+                    },
+                    onDismiss = {
+                        onEvent(
+                            DialogAction(
+                                actionId = dialog.id,
+                                paymentMethodId = id,
+                                isConfirmed = false
+                            )
+                        )
+                    },
+                    style = style.dialog
+                )
             }
         }
     }
