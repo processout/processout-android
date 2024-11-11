@@ -132,7 +132,7 @@ data class PONativeAlternativePaymentConfiguration(
     @Parcelize
     data class BarcodeConfiguration(
         val saveActionText: String? = null,
-        val saveErrorConfirmation: POActionConfirmationConfiguration? = null
+        val saveErrorConfirmation: POActionConfirmationConfiguration? = POActionConfirmationConfiguration()
     ) : Parcelable
 
     /**

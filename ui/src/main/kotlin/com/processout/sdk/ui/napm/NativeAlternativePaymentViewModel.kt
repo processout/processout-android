@@ -31,6 +31,7 @@ import com.processout.sdk.ui.shared.extension.map
 import com.processout.sdk.ui.shared.filter.PhoneNumberInputFilter
 import com.processout.sdk.ui.shared.provider.BarcodeBitmapProvider
 import com.processout.sdk.ui.shared.provider.MediaStorageProvider
+import com.processout.sdk.ui.shared.state.ConfirmationDialogState
 import com.processout.sdk.ui.shared.state.FieldState
 import com.processout.sdk.ui.shared.transformation.PhoneNumberVisualTransformation
 import java.text.NumberFormat
@@ -186,6 +187,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                         primary = false
                     )
                 },
+                confirmationDialog = confirmationDialog(),
                 withProgressIndicator = withProgressIndicator,
                 isCaptured = false
             )
@@ -201,6 +203,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
             primaryAction = null,
             secondaryAction = null,
             saveBarcodeAction = null,
+            confirmationDialog = null,
             withProgressIndicator = false,
             isCaptured = true
         )
@@ -374,6 +377,22 @@ internal class NativeAlternativePaymentViewModel private constructor(
             }
         )
     }
+
+    private fun CaptureStateValue.confirmationDialog(): ConfirmationDialogState? =
+        customerAction?.barcode?.let { barcode ->
+            if (barcode.isError) {
+                options.barcode.saveErrorConfirmation?.let {
+                    ConfirmationDialogState(
+                        id = barcode.confirmErrorActionId,
+                        title = it.title ?: app.getString(R.string.po_native_apm_save_image_error_title),
+                        message = it.message ?: app.getString(R.string.po_native_apm_save_image_error_message),
+                        confirmActionText = it.confirmActionText
+                            ?: app.getString(R.string.po_native_apm_save_image_error_confirm),
+                        dismissActionText = it.dismissActionText
+                    )
+                }
+            } else null
+        }
 
     override fun onCleared() {
         interactor.onCleared()

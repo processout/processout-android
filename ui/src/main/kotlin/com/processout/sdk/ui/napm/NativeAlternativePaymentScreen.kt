@@ -135,7 +135,7 @@ internal fun NativeAlternativePaymentScreen(
                     onEvent = onEvent,
                     style = style
                 )
-                is Capture -> Capture(state, style)
+                is Capture -> Capture(state, onEvent, style)
             }
         }
     }
@@ -382,6 +382,7 @@ private fun DropdownField(
 @Composable
 private fun Capture(
     state: Capture,
+    onEvent: (NativeAlternativePaymentEvent) -> Unit,
     style: NativeAlternativePaymentScreen.Style
 ) {
     AnimatedVisibility(enterDelayMillis = AnimationDurationMillis) {
@@ -408,7 +409,7 @@ private fun Capture(
                     if (isCaptured) {
                         SuccessContent(state, style)
                     } else {
-                        CaptureContent(state, style)
+                        CaptureContent(state, onEvent, style)
                     }
                 }
             }
@@ -444,6 +445,7 @@ private fun CaptureHeader(
 @Composable
 private fun CaptureContent(
     state: Capture,
+    onEvent: (NativeAlternativePaymentEvent) -> Unit,
     style: NativeAlternativePaymentScreen.Style
 ) {
     if (state.withProgressIndicator) {
@@ -488,6 +490,17 @@ private fun CaptureContent(
             }
             else -> {}
         }
+    }
+    state.confirmationDialog?.let {
+        PODialog(
+            title = it.title,
+            message = it.message,
+            confirmActionText = it.confirmActionText,
+            dismissActionText = it.dismissActionText,
+            onConfirm = { onEvent(DialogAction(id = it.id, isConfirmed = true)) },
+            onDismiss = { onEvent(DialogAction(id = it.id, isConfirmed = false)) },
+            style = style.dialog
+        )
     }
 }
 

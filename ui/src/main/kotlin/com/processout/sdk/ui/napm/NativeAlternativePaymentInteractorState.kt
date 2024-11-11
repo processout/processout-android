@@ -70,6 +70,7 @@ internal sealed interface NativeAlternativePaymentInteractorState {
         val type: BarcodeType,
         val bitmap: Bitmap,
         val actionId: String,
+        val confirmErrorActionId: String,
         val isError: Boolean = false
     )
 
@@ -96,6 +97,7 @@ internal sealed interface NativeAlternativePaymentInteractorState {
         const val CANCEL = "cancel"
         const val CONFIRM_PAYMENT = "confirm-payment"
         const val SAVE_BARCODE = "save-barcode"
+        const val CONFIRM_SAVE_BARCODE_ERROR = "confirm-save-barcode-error"
     }
 }
 

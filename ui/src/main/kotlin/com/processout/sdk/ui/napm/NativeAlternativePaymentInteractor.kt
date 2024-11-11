@@ -429,6 +429,9 @@ internal class NativeAlternativePaymentInteractor(
                 ActionId.CONFIRM_PAYMENT -> confirmPayment()
                 ActionId.SAVE_BARCODE -> saveBarcode()
             }
+            is DialogAction -> when (event.id) {
+                ActionId.CONFIRM_SAVE_BARCODE_ERROR -> updateBarcodeState(isError = false)
+            }
             is ActionConfirmationRequested -> {
                 POLogger.debug("Requested the user to confirm the action: %s", event.id)
                 if (event.id == ActionId.CANCEL) {
@@ -694,7 +697,8 @@ internal class NativeAlternativePaymentInteractor(
                     Barcode(
                         type = barcode.type(),
                         bitmap = bitmap,
-                        actionId = ActionId.SAVE_BARCODE
+                        actionId = ActionId.SAVE_BARCODE,
+                        confirmErrorActionId = ActionId.CONFIRM_SAVE_BARCODE_ERROR
                     )
                 },
                 onFailure = { failure ->

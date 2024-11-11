@@ -3,6 +3,7 @@ package com.processout.sdk.ui.napm
 import androidx.compose.runtime.Immutable
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
+import com.processout.sdk.ui.shared.state.ConfirmationDialogState
 import com.processout.sdk.ui.shared.state.FieldState
 
 @Immutable
@@ -33,6 +34,7 @@ internal sealed interface NativeAlternativePaymentViewModelState {
         val primaryAction: POActionState?,
         val secondaryAction: POActionState?,
         val saveBarcodeAction: POActionState?,
+        val confirmationDialog: ConfirmationDialogState?,
         val withProgressIndicator: Boolean,
         val isCaptured: Boolean
     ) : NativeAlternativePaymentViewModelState
