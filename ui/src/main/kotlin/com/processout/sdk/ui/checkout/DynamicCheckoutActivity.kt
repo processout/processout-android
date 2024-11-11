@@ -2,6 +2,7 @@ package com.processout.sdk.ui.checkout
 
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
@@ -10,10 +11,13 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.wallet.Wallet.WalletOptions
 import com.google.android.gms.wallet.WalletConstants
@@ -37,8 +41,8 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutActivityContract.Companion.
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Failure
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Success
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.Dismiss
-import com.processout.sdk.ui.checkout.DynamicCheckoutSubmitEvent.AlternativePayment
-import com.processout.sdk.ui.checkout.DynamicCheckoutSubmitEvent.GooglePay
+import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.PermissionRequestResult
+import com.processout.sdk.ui.checkout.DynamicCheckoutSideEffect.*
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.CancelButton
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
@@ -127,6 +131,12 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
     private lateinit var googlePayLauncher: POGooglePayCardTokenizationLauncher
     private lateinit var alternativePaymentLauncher: POAlternativePaymentMethodCustomTabLauncher
 
+    private val permissionsLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions(),
+        ::handlePermissions
+    )
+    private var pendingPermissionRequest: PermissionRequest? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
@@ -151,7 +161,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                 with(viewModel.completion.collectAsStateWithLifecycle()) {
                     LaunchedEffect(value) { handle(value) }
                 }
-                viewModel.submitEvents.collectImmediately { submit(it) }
+                viewModel.sideEffects.collectImmediately { handle(it) }
                 DynamicCheckoutScreen(
                     state = viewModel.state.collectAsStateWithLifecycle().value,
                     onEvent = remember { viewModel::onEvent },
@@ -195,6 +205,60 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         }
     }
 
+    private fun handle(sideEffect: DynamicCheckoutSideEffect) {
+        when (sideEffect) {
+            is GooglePay -> googlePayLauncher.launch(sideEffect.paymentDataRequest)
+            is AlternativePayment -> alternativePaymentLauncher.launch(
+                uri = Uri.parse(sideEffect.redirectUrl),
+                returnUrl = sideEffect.returnUrl
+            )
+            is PermissionRequest -> requestPermission(sideEffect)
+        }
+    }
+
+    private fun requestPermission(request: PermissionRequest) {
+        when {
+            ContextCompat.checkSelfPermission(
+                this, request.permission
+            ) == PackageManager.PERMISSION_GRANTED ->
+                viewModel.onEvent(
+                    PermissionRequestResult(
+                        paymentMethodId = request.paymentMethodId,
+                        permission = request.permission,
+                        isGranted = true
+                    )
+                )
+            ActivityCompat.shouldShowRequestPermissionRationale(
+                this, request.permission
+            ) -> viewModel.onEvent(
+                PermissionRequestResult(
+                    paymentMethodId = request.paymentMethodId,
+                    permission = request.permission,
+                    isGranted = false
+                )
+            )
+            else -> {
+                pendingPermissionRequest = request
+                permissionsLauncher.launch(arrayOf(request.permission))
+            }
+        }
+    }
+
+    private fun handlePermissions(result: Map<String, Boolean>) {
+        pendingPermissionRequest?.let { request ->
+            pendingPermissionRequest = null
+            result.forEach {
+                viewModel.onEvent(
+                    PermissionRequestResult(
+                        paymentMethodId = request.paymentMethodId,
+                        permission = it.key,
+                        isGranted = it.value
+                    )
+                )
+            }
+        }
+    }
+
     private fun handle(completion: DynamicCheckoutCompletion) =
         when (completion) {
             Success -> finishWithActivityResult(
@@ -207,16 +271,6 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
             )
             else -> {}
         }
-
-    private fun submit(event: DynamicCheckoutSubmitEvent) {
-        when (event) {
-            is GooglePay -> googlePayLauncher.launch(event.paymentDataRequest)
-            is AlternativePayment -> alternativePaymentLauncher.launch(
-                uri = Uri.parse(event.redirectUrl),
-                returnUrl = event.returnUrl
-            )
-        }
-    }
 
     private fun finishWithActivityResult(
         resultCode: Int,

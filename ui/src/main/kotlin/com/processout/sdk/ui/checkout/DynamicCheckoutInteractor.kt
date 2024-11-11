@@ -58,6 +58,7 @@ import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayCo
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration.TotalPriceStatus.FINAL
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent
+import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
 import com.processout.sdk.ui.shared.extension.orElse
 import kotlinx.coroutines.*
@@ -98,8 +99,8 @@ internal class DynamicCheckoutInteractor(
     val cardTokenizationState = cardTokenization.state
     val nativeAlternativePaymentState = nativeAlternativePayment.state
 
-    private val _submitEvents = Channel<DynamicCheckoutSubmitEvent>()
-    val submitEvents = _submitEvents.receiveAsFlow()
+    private val _sideEffects = Channel<DynamicCheckoutSideEffect>()
+    val sideEffects = _sideEffects.receiveAsFlow()
 
     private val handler = Handler(Looper.getMainLooper())
 
@@ -148,7 +149,7 @@ internal class DynamicCheckoutInteractor(
         with(_state.value) {
             when (reason) {
                 is PODynamicCheckoutInvoiceInvalidationReason.Failure -> {
-                    val paymentMethod = processingPaymentMethod ?: this.selectedPaymentMethod
+                    val paymentMethod = activePaymentMethod()
                     if (paymentMethod != null) {
                         didFailPaymentEvent = DidFailPayment(
                             failure = reason.failure,
@@ -439,12 +440,18 @@ internal class DynamicCheckoutInteractor(
             is FieldFocusChanged -> onFieldFocusChanged(event)
             is Action -> onAction(event)
             is ActionConfirmationRequested -> onActionConfirmationRequested(event)
+            is PermissionRequestResult -> handlePermission(event)
             is Dismiss -> dismiss(event)
         }
     }
 
     private fun paymentMethod(id: String): PaymentMethod? =
         _state.value.paymentMethods.find { it.id == id }
+
+    private fun activePaymentMethod(): PaymentMethod? =
+        with(_state.value) {
+            processingPaymentMethod ?: selectedPaymentMethod
+        }
 
     private fun onPaymentMethodSelected(event: PaymentMethodSelected) {
         if (event.id == _state.value.selectedPaymentMethod?.id) {
@@ -601,8 +608,8 @@ internal class DynamicCheckoutInteractor(
     private fun submitGooglePay(paymentMethod: GooglePay) {
         interactorScope.launch {
             _state.update { it.copy(processingPaymentMethod = paymentMethod) }
-            _submitEvents.send(
-                DynamicCheckoutSubmitEvent.GooglePay(
+            _sideEffects.send(
+                DynamicCheckoutSideEffect.GooglePay(
                     paymentDataRequest = paymentMethod.paymentDataRequest
                 )
             )
@@ -636,8 +643,8 @@ internal class DynamicCheckoutInteractor(
         }
         interactorScope.launch {
             _state.update { it.copy(processingPaymentMethod = paymentMethod) }
-            _submitEvents.send(
-                DynamicCheckoutSubmitEvent.AlternativePayment(
+            _sideEffects.send(
+                DynamicCheckoutSideEffect.AlternativePayment(
                     redirectUrl = redirectUrl,
                     returnUrl = returnUrl
                 )
@@ -863,6 +870,34 @@ internal class DynamicCheckoutInteractor(
             nativeAlternativePaymentEventDispatcher.defaultValuesRequest.collect { request ->
                 eventDispatcher.send(request)
             }
+        }
+        interactorScope.launch {
+            nativeAlternativePayment.sideEffects.collect { sideEffect ->
+                when (sideEffect) {
+                    is NativeAlternativePaymentSideEffect.PermissionRequest ->
+                        activePaymentMethod()?.let { paymentMethod ->
+                            _sideEffects.send(
+                                DynamicCheckoutSideEffect.PermissionRequest(
+                                    paymentMethodId = paymentMethod.id,
+                                    permission = sideEffect.permission
+                                )
+                            )
+                        }
+                }
+            }
+        }
+    }
+
+    private fun handlePermission(result: PermissionRequestResult) {
+        val paymentMethod = paymentMethod(result.paymentMethodId)
+        when (paymentMethod) {
+            is NativeAlternativePayment -> nativeAlternativePayment.onEvent(
+                NativeAlternativePaymentEvent.PermissionRequestResult(
+                    permission = result.permission,
+                    isGranted = result.isGranted
+                )
+            )
+            else -> {}
         }
     }
 

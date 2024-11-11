@@ -30,20 +30,31 @@ internal sealed interface DynamicCheckoutEvent {
         val id: String
     ) : DynamicCheckoutEvent
 
+    data class PermissionRequestResult(
+        val paymentMethodId: String,
+        val permission: String,
+        val isGranted: Boolean
+    ) : DynamicCheckoutEvent
+
     data class Dismiss(
         val failure: ProcessOutResult.Failure
     ) : DynamicCheckoutEvent
 }
 
-internal sealed interface DynamicCheckoutSubmitEvent {
+internal sealed interface DynamicCheckoutSideEffect {
     data class GooglePay(
         val paymentDataRequest: JSONObject
-    ) : DynamicCheckoutSubmitEvent
+    ) : DynamicCheckoutSideEffect
 
     data class AlternativePayment(
         val redirectUrl: String,
         val returnUrl: String
-    ) : DynamicCheckoutSubmitEvent
+    ) : DynamicCheckoutSideEffect
+
+    data class PermissionRequest(
+        val paymentMethodId: String,
+        val permission: String
+    ) : DynamicCheckoutSideEffect
 }
 
 internal sealed interface DynamicCheckoutCompletion {
