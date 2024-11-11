@@ -6,6 +6,7 @@ import androidx.annotation.DrawableRes
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.style.*
 import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
+import com.processout.sdk.ui.shared.configuration.POBarcodeConfiguration
 import kotlinx.parcelize.Parcelize
 
 /**
@@ -45,7 +46,7 @@ data class PONativeAlternativePaymentConfiguration(
         val secondaryAction: SecondaryAction? = null,
         val cancellation: CancellationConfiguration = CancellationConfiguration(),
         val paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration(),
-        @ProcessOutInternalApi val barcode: BarcodeConfiguration = BarcodeConfiguration(),
+        @ProcessOutInternalApi val barcode: POBarcodeConfiguration = POBarcodeConfiguration(),
         val inlineSingleSelectValuesLimit: Int = 5,
         val skipSuccessScreen: Boolean = false,
         val successMessage: String? = null
@@ -126,14 +127,6 @@ data class PONativeAlternativePaymentConfiguration(
             const val DEFAULT_TIMEOUT_SECONDS = 3 * 60
         }
     }
-
-    /** @suppress */
-    @ProcessOutInternalApi
-    @Parcelize
-    data class BarcodeConfiguration(
-        val saveActionText: String? = null,
-        val saveErrorConfirmation: POActionConfirmationConfiguration? = POActionConfirmationConfiguration()
-    ) : Parcelable
 
     /**
      * Allows to customize the look and feel.

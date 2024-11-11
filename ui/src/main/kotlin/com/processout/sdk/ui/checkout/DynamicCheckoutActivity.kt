@@ -50,6 +50,7 @@ import com.processout.sdk.ui.googlepay.POGooglePayCardTokenizationLauncher
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.DEFAULT_TIMEOUT_SECONDS
+import com.processout.sdk.ui.shared.configuration.POBarcodeConfiguration
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import com.processout.sdk.ui.shared.extension.collectImmediately
 
@@ -117,6 +118,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                 primaryAction = paymentConfirmation?.confirmButton?.let { ConfirmAction(text = it.text) },
                 secondaryAction = paymentConfirmation?.cancelButton?.toSecondaryAction()
             ),
+            barcode = configuration?.alternativePayment?.barcode ?: POBarcodeConfiguration(),
             inlineSingleSelectValuesLimit = configuration?.alternativePayment?.inlineSingleSelectValuesLimit ?: 5,
             skipSuccessScreen = true
         )
