@@ -4,7 +4,12 @@ import android.os.Parcelable
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import kotlinx.parcelize.Parcelize
 
-/** @suppress */
+/**
+ * Specifies barcode configuration.
+ *
+ * @param[saveActionText] Text on the button that saves barcode.
+ * @param[saveErrorConfirmation] Requests user confirmation (e.g. dialog) when saving barcode has failed. Use _null_ to disable.
+ */
 @ProcessOutInternalApi
 @Parcelize
 data class POBarcodeConfiguration(

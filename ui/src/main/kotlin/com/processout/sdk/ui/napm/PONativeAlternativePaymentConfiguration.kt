@@ -33,6 +33,7 @@ data class PONativeAlternativePaymentConfiguration(
      * @param[secondaryAction] Secondary action (e.g. "Cancel"). Use _null_ to hide, this is a default behaviour.
      * @param[cancellation] Specifies cancellation behaviour.
      * @param[paymentConfirmation] Specifies payment confirmation behaviour.
+     * @param[barcode] Specifies barcode configuration.
      * @param[inlineSingleSelectValuesLimit] Defines maximum number of options that will be
      * displayed inline for parameters where user should select single option (e.g. radio buttons).
      * Default value is _5_.
