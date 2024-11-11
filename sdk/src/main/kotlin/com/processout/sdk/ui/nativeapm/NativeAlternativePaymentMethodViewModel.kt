@@ -413,6 +413,15 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
         dispatch(DidSubmitParameters(additionalParametersExpected = false))
 
         if (options.waitsPaymentConfirmation) {
+            parameterValues?.customerActionBarcode?.let {
+                _uiState.value = Failure(
+                    ProcessOutResult.Failure(
+                        code = Generic(),
+                        message = "Barcode customer action is not supported. Please use 'processout-android-ui' implementation."
+                    )
+                )
+                return
+            }
             val customerActionMessage = parameterValues?.customerActionMessage ?: uiModel.customerActionMessageMarkdown
             val updatedUiModel = uiModel.copy(
                 title = parameterValues?.providerName,
