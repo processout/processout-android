@@ -313,6 +313,7 @@ internal class DynamicCheckoutInteractor(
                         id = paymentMethod.configuration.gatewayConfigurationId,
                         original = paymentMethod,
                         redirectUrl = redirectUrl,
+                        savingAllowed = paymentMethod.configuration.savingAllowed,
                         display = paymentMethod.display,
                         isExpress = paymentMethod.flow == express
                     )
