@@ -36,12 +36,12 @@ ext {
     publishGroupId = 'com.processout'
     publishVersion = file('version.resolved').getText().trim()
 
-    androidxCoreVersion = '1.13.1'
+    androidxCoreVersion = '1.15.0'
     androidxAppCompatVersion = '1.7.0'
-    androidxConstraintLayoutVersion = '2.1.4'
+    androidxConstraintLayoutVersion = '2.2.0'
     androidxActivityVersion = '1.9.3'
-    androidxFragmentVersion = '1.8.4'
-    androidxLifecycleVersion = '2.8.6'
+    androidxFragmentVersion = '1.8.5'
+    androidxLifecycleVersion = '2.8.7'
     androidxRecyclerViewVersion = '1.3.2'
     androidxSwipeRefreshLayoutVersion = '1.1.0'
     androidxBrowserVersion = '1.8.0'
