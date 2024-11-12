@@ -17,8 +17,10 @@ import com.processout.sdk.api.service.proxy3ds.PODefaultProxy3DSService
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState
+import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.Field
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.*
+import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.Field.CheckboxField
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment.Content
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.CancelButton
 import com.processout.sdk.ui.core.state.POActionState
@@ -28,6 +30,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.*
 import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
+import com.processout.sdk.ui.shared.state.FieldState
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -259,7 +262,7 @@ internal class DynamicCheckoutViewModel private constructor(
                             loading = !interactorState.isInvoiceValid,
                             selected = selected
                         ),
-                        content = null,
+                        content = alternativePaymentContent(paymentMethod),
                         submitAction = POActionState(
                             id = interactorState.submitActionId,
                             text = submitButtonText,
@@ -294,6 +297,28 @@ internal class DynamicCheckoutViewModel private constructor(
         loading = loading,
         selected = selected
     )
+
+    private fun alternativePaymentContent(
+        paymentMethod: AlternativePayment
+    ): Content.AlternativePayment? =
+        paymentMethod.savePaymentMethodField?.let { field ->
+            Content.AlternativePayment(
+                savePaymentMethodField = field.toCheckboxField(
+                    title = app.getString(R.string.po_dynamic_checkout_save_payment_method)
+                )
+            )
+        }
+
+    private fun Field.toCheckboxField(
+        title: String
+    ): DynamicCheckoutViewModelState.Field =
+        CheckboxField(
+            FieldState(
+                id = id,
+                value = value,
+                title = title
+            )
+        )
 
     override fun onCleared() {
         interactor.onCleared()

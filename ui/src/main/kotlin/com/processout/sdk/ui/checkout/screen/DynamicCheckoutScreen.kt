@@ -35,8 +35,8 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutEvent
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.*
-import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment.Content.Card
-import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment.Content.NativeAlternativePayment
+import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.Field.CheckboxField
+import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment.Content.*
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.CrossfadeAnimationDurationMillis
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.LongAnimationDurationMillis
@@ -48,6 +48,7 @@ import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.SuccessImageH
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.SuccessImageWidth
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.animatedBackgroundColor
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.toButtonStyle
+import com.processout.sdk.ui.checkout.screen.field.CheckboxField
 import com.processout.sdk.ui.core.R
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.POButton.HighlightedStyle
@@ -411,6 +412,12 @@ private fun RegularPaymentContent(
                     onEvent = onEvent,
                     style = style
                 )
+                is AlternativePayment -> AlternativePayment(
+                    id = payment.id,
+                    state = payment.content,
+                    onEvent = onEvent,
+                    style = style
+                )
                 null -> {}
             }
             payment.submitAction?.let {
@@ -434,6 +441,27 @@ private fun RegularPaymentContent(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun AlternativePayment(
+    id: String,
+    state: AlternativePayment,
+    onEvent: (DynamicCheckoutEvent) -> Unit,
+    style: DynamicCheckoutScreen.Style
+) {
+    Column(
+        modifier = Modifier.padding(top = spacing.small)
+    ) {
+        when (state.savePaymentMethodField) {
+            is CheckboxField -> CheckboxField(
+                id = id,
+                state = state.savePaymentMethodField.state,
+                onEvent = onEvent,
+                style = style.checkbox
+            )
         }
     }
 }

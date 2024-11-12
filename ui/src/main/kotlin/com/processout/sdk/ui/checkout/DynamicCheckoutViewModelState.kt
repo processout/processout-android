@@ -7,6 +7,7 @@ import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState
+import com.processout.sdk.ui.shared.state.FieldState
 
 @Immutable
 internal sealed interface DynamicCheckoutViewModelState {
@@ -72,6 +73,15 @@ internal sealed interface DynamicCheckoutViewModelState {
             data class NativeAlternativePayment(
                 val state: NativeAlternativePaymentViewModelState
             ) : Content
+
+            data class AlternativePayment(
+                val savePaymentMethodField: Field
+            ) : Content
         }
+    }
+
+    @Immutable
+    sealed interface Field {
+        data class CheckboxField(val state: FieldState) : Field
     }
 }
