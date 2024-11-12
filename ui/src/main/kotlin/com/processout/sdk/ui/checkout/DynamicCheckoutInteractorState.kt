@@ -1,5 +1,6 @@
 package com.processout.sdk.ui.checkout
 
+import androidx.compose.ui.text.input.TextFieldValue
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.*
 import com.processout.sdk.api.model.response.POInvoice
@@ -42,7 +43,7 @@ internal data class DynamicCheckoutInteractorState(
             override val id: String,
             override val original: PODynamicCheckoutPaymentMethod,
             val redirectUrl: String,
-            val savingAllowed: Boolean,
+            val savePaymentMethodField: Field?,
             val display: Display,
             val isExpress: Boolean
         ) : PaymentMethod
@@ -63,8 +64,17 @@ internal data class DynamicCheckoutInteractorState(
         ) : PaymentMethod
     }
 
+    data class Field(
+        val id: String,
+        val value: TextFieldValue = TextFieldValue()
+    )
+
     object PaymentMethodId {
         const val CARD = "card"
+    }
+
+    object FieldId {
+        const val SAVE_PAYMENT_METHOD = "save-payment-method"
     }
 
     object ActionId {

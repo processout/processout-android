@@ -3,6 +3,7 @@ package com.processout.sdk.ui.checkout
 import android.app.Application
 import android.os.Handler
 import android.os.Looper
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.core.os.postDelayed
 import coil.imageLoader
 import coil.request.CachePolicy
@@ -313,7 +314,12 @@ internal class DynamicCheckoutInteractor(
                         id = paymentMethod.configuration.gatewayConfigurationId,
                         original = paymentMethod,
                         redirectUrl = redirectUrl,
-                        savingAllowed = paymentMethod.configuration.savingAllowed,
+                        savePaymentMethodField = if (paymentMethod.configuration.savingAllowed) {
+                            Field(
+                                id = FieldId.SAVE_PAYMENT_METHOD,
+                                value = TextFieldValue(text = "false")
+                            )
+                        } else null,
                         display = paymentMethod.display,
                         isExpress = paymentMethod.flow == express
                     )
