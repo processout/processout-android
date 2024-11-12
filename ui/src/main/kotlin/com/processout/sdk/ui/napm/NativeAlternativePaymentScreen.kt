@@ -21,6 +21,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -134,7 +135,7 @@ internal fun NativeAlternativePaymentScreen(
                     onEvent = onEvent,
                     style = style
                 )
-                is Capture -> Capture(state, style)
+                is Capture -> Capture(state, onEvent, style)
             }
         }
     }
@@ -381,6 +382,7 @@ private fun DropdownField(
 @Composable
 private fun Capture(
     state: Capture,
+    onEvent: (NativeAlternativePaymentEvent) -> Unit,
     style: NativeAlternativePaymentScreen.Style
 ) {
     AnimatedVisibility(enterDelayMillis = AnimationDurationMillis) {
@@ -407,7 +409,7 @@ private fun Capture(
                     if (isCaptured) {
                         SuccessContent(state, style)
                     } else {
-                        CaptureContent(state, style)
+                        CaptureContent(state, onEvent, style)
                     }
                 }
             }
@@ -443,6 +445,7 @@ private fun CaptureHeader(
 @Composable
 private fun CaptureContent(
     state: Capture,
+    onEvent: (NativeAlternativePaymentEvent) -> Unit,
     style: NativeAlternativePaymentScreen.Style
 ) {
     if (state.withProgressIndicator) {
@@ -456,20 +459,47 @@ private fun CaptureContent(
         selectable = true,
         linksClickable = true
     )
-    var showImage by remember { mutableStateOf(true) }
+    var showImage by remember { mutableStateOf(state.image != null) }
     if (showImage) {
-        AsyncImage(
-            model = state.imageUrl,
-            contentDescription = null,
-            modifier = Modifier.requiredSize(
-                width = CaptureImageWidth,
-                height = CaptureImageHeight
-            ),
-            alignment = Alignment.Center,
-            contentScale = ContentScale.Fit,
-            onError = {
-                showImage = false
+        when (state.image) {
+            is Image.Url -> AsyncImage(
+                model = state.image.value,
+                contentDescription = null,
+                modifier = Modifier.requiredSize(
+                    width = CaptureImageWidth,
+                    height = CaptureImageHeight
+                ),
+                alignment = Alignment.Center,
+                contentScale = ContentScale.Fit,
+                onError = {
+                    showImage = false
+                }
+            )
+            is Image.Bitmap -> {
+                val bitmap = state.image.value
+                Image(
+                    bitmap = remember(bitmap) { bitmap.asImageBitmap() },
+                    contentDescription = null,
+                    modifier = Modifier.requiredSize(
+                        width = CaptureImageWidth,
+                        height = CaptureImageHeight
+                    ),
+                    alignment = Alignment.Center,
+                    contentScale = ContentScale.Fit
+                )
             }
+            else -> {}
+        }
+    }
+    state.confirmationDialog?.let {
+        PODialog(
+            title = it.title,
+            message = it.message,
+            confirmActionText = it.confirmActionText,
+            dismissActionText = it.dismissActionText,
+            onConfirm = { onEvent(DialogAction(id = it.id, isConfirmed = true)) },
+            onDismiss = { onEvent(DialogAction(id = it.id, isConfirmed = false)) },
+            style = style.dialog
         )
     }
 }
@@ -524,6 +554,7 @@ private fun Actions(
 ) {
     var primary: POActionState? = null
     var secondary: POActionState? = null
+    var saveBarcode: POActionState? = null
     when (state) {
         is Loading -> secondary = state.secondaryAction
         is UserInput -> {
@@ -533,11 +564,10 @@ private fun Actions(
         is Capture -> {
             primary = state.primaryAction
             secondary = state.secondaryAction
+            saveBarcode = state.saveBarcodeAction
         }
     }
-    val actions = mutableListOf<POActionState>()
-    primary?.let { actions.add(it) }
-    secondary?.let { actions.add(it) }
+    val actions = listOfNotNull(primary, saveBarcode, secondary)
     POActionsContainer(
         modifier = modifier,
         actions = POImmutableList(

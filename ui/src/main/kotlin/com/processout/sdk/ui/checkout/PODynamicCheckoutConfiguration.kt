@@ -9,6 +9,7 @@ import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.style.*
 import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
+import com.processout.sdk.ui.shared.configuration.POBarcodeConfiguration
 import kotlinx.parcelize.Parcelize
 
 /** @suppress */
@@ -89,7 +90,8 @@ data class PODynamicCheckoutConfiguration(
     data class AlternativePaymentConfiguration(
         val returnUrl: String? = null,
         val inlineSingleSelectValuesLimit: Int = 5,
-        val paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration(),
+        val barcode: POBarcodeConfiguration = POBarcodeConfiguration(),
+        val paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration()
     ) : Parcelable {
 
         @Parcelize

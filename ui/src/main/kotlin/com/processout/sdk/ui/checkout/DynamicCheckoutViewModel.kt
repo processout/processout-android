@@ -85,7 +85,7 @@ internal class DynamicCheckoutViewModel private constructor(
         initialValue = Starting(cancelAction = null)
     )
 
-    val submitEvents = interactor.submitEvents
+    val sideEffects = interactor.sideEffects
 
     init {
         addCloseable(interactor.interactorScope)

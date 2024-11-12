@@ -3,8 +3,10 @@ package com.processout.sdk.ui.napm
 import android.os.Parcelable
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
+import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.style.*
 import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
+import com.processout.sdk.ui.shared.configuration.POBarcodeConfiguration
 import kotlinx.parcelize.Parcelize
 
 /**
@@ -31,6 +33,7 @@ data class PONativeAlternativePaymentConfiguration(
      * @param[secondaryAction] Secondary action (e.g. "Cancel"). Use _null_ to hide, this is a default behaviour.
      * @param[cancellation] Specifies cancellation behaviour.
      * @param[paymentConfirmation] Specifies payment confirmation behaviour.
+     * @param[barcode] Specifies barcode configuration.
      * @param[inlineSingleSelectValuesLimit] Defines maximum number of options that will be
      * displayed inline for parameters where user should select single option (e.g. radio buttons).
      * Default value is _5_.
@@ -44,6 +47,7 @@ data class PONativeAlternativePaymentConfiguration(
         val secondaryAction: SecondaryAction? = null,
         val cancellation: CancellationConfiguration = CancellationConfiguration(),
         val paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration(),
+        @ProcessOutInternalApi val barcode: POBarcodeConfiguration = POBarcodeConfiguration(),
         val inlineSingleSelectValuesLimit: Int = 5,
         val skipSuccessScreen: Boolean = false,
         val successMessage: String? = null

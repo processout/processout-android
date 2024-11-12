@@ -3,6 +3,7 @@ package com.processout.sdk.ui.napm
 import androidx.compose.runtime.Immutable
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
+import com.processout.sdk.ui.shared.state.ConfirmationDialogState
 import com.processout.sdk.ui.shared.state.FieldState
 
 @Immutable
@@ -28,10 +29,12 @@ internal sealed interface NativeAlternativePaymentViewModelState {
     data class Capture(
         val title: String?,
         val logoUrl: String?,
-        val imageUrl: String?,
+        val image: Image?,
         val message: String,
         val primaryAction: POActionState?,
         val secondaryAction: POActionState?,
+        val saveBarcodeAction: POActionState?,
+        val confirmationDialog: ConfirmationDialogState?,
         val withProgressIndicator: Boolean,
         val isCaptured: Boolean
     ) : NativeAlternativePaymentViewModelState
@@ -44,5 +47,11 @@ internal sealed interface NativeAlternativePaymentViewModelState {
         data class CodeField(val state: FieldState) : Field
         data class RadioField(val state: FieldState) : Field
         data class DropdownField(val state: FieldState) : Field
+    }
+
+    @Immutable
+    sealed interface Image {
+        data class Url(val value: String) : Image
+        data class Bitmap(val value: android.graphics.Bitmap) : Image
     }
 }

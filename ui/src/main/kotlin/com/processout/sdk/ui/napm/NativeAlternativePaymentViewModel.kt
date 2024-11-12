@@ -21,6 +21,7 @@ import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Field.*
+import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Image
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.DEFAULT_TIMEOUT_SECONDS
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.MAX_TIMEOUT_SECONDS
@@ -28,6 +29,9 @@ import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Second
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.SecondaryAction.Cancel
 import com.processout.sdk.ui.shared.extension.map
 import com.processout.sdk.ui.shared.filter.PhoneNumberInputFilter
+import com.processout.sdk.ui.shared.provider.BarcodeBitmapProvider
+import com.processout.sdk.ui.shared.provider.MediaStorageProvider
+import com.processout.sdk.ui.shared.state.ConfirmationDialogState
 import com.processout.sdk.ui.shared.state.FieldState
 import com.processout.sdk.ui.shared.transformation.PhoneNumberVisualTransformation
 import java.text.NumberFormat
@@ -57,6 +61,8 @@ internal class NativeAlternativePaymentViewModel private constructor(
                     gatewayConfigurationId = gatewayConfigurationId,
                     options = options.validated(),
                     invoicesService = ProcessOut.instance.invoices,
+                    barcodeBitmapProvider = BarcodeBitmapProvider(),
+                    mediaStorageProvider = MediaStorageProvider(app),
                     captureRetryStrategy = Exponential(
                         maxRetries = Int.MAX_VALUE,
                         initialDelay = 150,
@@ -91,6 +97,8 @@ internal class NativeAlternativePaymentViewModel private constructor(
     val completion = interactor.completion
 
     val state = interactor.state.map(viewModelScope, ::map)
+
+    val sideEffects = interactor.sideEffects
 
     init {
         addCloseable(interactor.interactorScope)
@@ -148,7 +156,8 @@ internal class NativeAlternativePaymentViewModel private constructor(
             id = secondaryAction.id,
             enabled = secondaryAction.enabled
         )
-        if (actionMessage.isNullOrBlank()) {
+        val customerActionMessage = customerAction?.message
+        if (customerActionMessage.isNullOrBlank()) {
             NativeAlternativePaymentViewModelState.Loading(
                 secondaryAction = secondaryAction
             )
@@ -165,10 +174,20 @@ internal class NativeAlternativePaymentViewModel private constructor(
             NativeAlternativePaymentViewModelState.Capture(
                 title = paymentProviderName,
                 logoUrl = logoUrl,
-                imageUrl = actionImageUrl,
-                message = actionMessage,
+                image = customerAction?.barcode?.let { Image.Bitmap(it.bitmap) }
+                    ?: customerAction?.imageUrl?.let { Image.Url(it) },
+                message = customerActionMessage,
                 primaryAction = primaryAction,
                 secondaryAction = secondaryAction,
+                saveBarcodeAction = customerAction?.barcode?.let {
+                    POActionState(
+                        id = it.actionId,
+                        text = options.barcode.saveActionText
+                            ?: app.getString(R.string.po_native_apm_save_qr_code_button_text),
+                        primary = false
+                    )
+                },
+                confirmationDialog = confirmationDialog(),
                 withProgressIndicator = withProgressIndicator,
                 isCaptured = false
             )
@@ -179,10 +198,12 @@ internal class NativeAlternativePaymentViewModel private constructor(
         NativeAlternativePaymentViewModelState.Capture(
             title = paymentProviderName,
             logoUrl = logoUrl,
-            imageUrl = null,
+            image = null,
             message = options.successMessage ?: app.getString(R.string.po_native_apm_success_message),
             primaryAction = null,
             secondaryAction = null,
+            saveBarcodeAction = null,
+            confirmationDialog = null,
             withProgressIndicator = false,
             isCaptured = true
         )
@@ -356,6 +377,22 @@ internal class NativeAlternativePaymentViewModel private constructor(
             }
         )
     }
+
+    private fun CaptureStateValue.confirmationDialog(): ConfirmationDialogState? =
+        customerAction?.barcode?.let { barcode ->
+            if (barcode.isError) {
+                options.barcode.saveErrorConfirmation?.let {
+                    ConfirmationDialogState(
+                        id = barcode.confirmErrorActionId,
+                        title = it.title ?: app.getString(R.string.po_native_apm_save_image_error_title),
+                        message = it.message ?: app.getString(R.string.po_native_apm_save_image_error_message),
+                        confirmActionText = it.confirmActionText
+                            ?: app.getString(R.string.po_native_apm_save_image_error_confirm),
+                        dismissActionText = it.dismissActionText
+                    )
+                }
+            } else null
+        }
 
     override fun onCleared() {
         interactor.onCleared()
