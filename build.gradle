@@ -59,8 +59,8 @@ ext {
     okhttpVersion = '4.12.0'
     okioVersion = '3.9.1'
     coilVersion = '2.7.0'
-    commonMarkVersion = '0.22.0'
-    libphonenumberVersion = '8.13.45'
+    commonMarkVersion = '0.24.0'
+    libphonenumberVersion = '8.13.49'
     zxingVersion = '3.5.3'
 
     checkout3dsSdkVersion = '3.2.4'
