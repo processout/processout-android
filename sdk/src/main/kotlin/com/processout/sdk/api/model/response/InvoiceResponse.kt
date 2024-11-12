@@ -134,6 +134,7 @@ sealed class PODynamicCheckoutPaymentMethod {
      * @param[name] Payment method name.
      * @param[logo] Image resource for light/dark themes.
      * @param[brandColor] Brand color for light/dark themes.
+     * @param[description] Optional payment method description.
      */
     @JsonClass(generateAdapter = true)
     data class Display(
@@ -186,6 +187,12 @@ sealed class PODynamicCheckoutPaymentMethod {
      * Google Pay configuration.
      * See [CardParameters](https://developers.google.com/pay/api/android/reference/request-objects#CardParameters).
      *
+     * @param[gateway] Gateway identifier.
+     * @param[gatewayMerchantId] Gateway merchant ID.
+     * @param[countryCode] The ISO 3166-1 alpha-2 country code where the transaction is processed.
+     * This property is required for merchants who process transactions in European Economic Area (EEA) countries
+     * and any other countries that are subject to Strong Customer Authentication (SCA).
+     * Merchants must specify the acquirer bank country code.
      * @param[allowedAuthMethods] Allowed card authentication methods.
      * @param[allowedCardNetworks] Allowed card networks.
      * @param[allowPrepaidCards] Set to _false_ if you don't support prepaid cards.
@@ -196,6 +203,8 @@ sealed class PODynamicCheckoutPaymentMethod {
         val gateway: String,
         @Json(name = "gateway_merchant_id")
         val gatewayMerchantId: String,
+        @Json(name = "country_code")
+        val countryCode: String,
         @Json(name = "allowed_auth_methods")
         val allowedAuthMethods: Set<String>,
         @Json(name = "allowed_card_networks")

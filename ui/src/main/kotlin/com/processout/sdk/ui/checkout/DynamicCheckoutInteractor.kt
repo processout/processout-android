@@ -370,7 +370,7 @@ internal class DynamicCheckoutInteractor(
         paymentData = POGooglePayConfiguration.PaymentDataConfiguration(
             transactionInfo = TransactionInfo(
                 currencyCode = currency,
-                countryCode = null, // TODO: get from dashboard configuration when ready
+                countryCode = configuration.countryCode,
                 transactionId = UUID.randomUUID().toString(),
                 totalPrice = amount,
                 totalPriceLabel = totalPriceLabel,
