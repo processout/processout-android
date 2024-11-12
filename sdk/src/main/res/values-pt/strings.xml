@@ -6,6 +6,7 @@
     <!-- Dynamic Checkout -->
     <string name="po_dynamic_checkout_button_pay">Pagar</string>
     <string name="po_dynamic_checkout_button_cancel">Cancelar</string>
+    <string name="po_dynamic_checkout_save_payment_method">Guardar este método para futuros pagamentos</string>
     <string name="po_dynamic_checkout_warning_redirect">Será redireccionado para finalizar este pagamento.</string>
     <string name="po_dynamic_checkout_error_generic">Não foi possível concluir o seu pagamento. Por favor, verifique os detalhes ou tente outro método de pagamento.</string>
     <string name="po_dynamic_checkout_error_method_unavailable">O método de pagamento escolhido não está disponível, por favor tente outro método de pagamento.</string>
