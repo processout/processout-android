@@ -165,7 +165,8 @@ private fun Content(
                 text = state.errorMessage,
                 style = style.messageBox,
                 modifier = Modifier.padding(bottom = spacing.extraLarge),
-                horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing)
+                horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing),
+                enterAnimationDelayMillis = ShortAnimationDurationMillis
             )
             if (state.expressPayments.elements.isNotEmpty()) {
                 ExpressPayments(
