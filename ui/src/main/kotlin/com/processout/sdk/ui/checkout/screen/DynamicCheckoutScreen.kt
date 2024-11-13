@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -48,7 +49,6 @@ import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.SuccessImageH
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.SuccessImageWidth
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.animatedBackgroundColor
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.toButtonStyle
-import com.processout.sdk.ui.checkout.screen.field.CheckboxField
 import com.processout.sdk.ui.core.R
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.POButton.HighlightedStyle
@@ -75,6 +75,7 @@ import com.processout.sdk.ui.shared.component.DynamicFooter
 import com.processout.sdk.ui.shared.component.GooglePayButton
 import com.processout.sdk.ui.shared.component.TextAndroidView
 import com.processout.sdk.ui.shared.extension.*
+import com.processout.sdk.ui.shared.state.FieldState
 
 @Composable
 internal fun DynamicCheckoutScreen(
@@ -464,6 +465,33 @@ private fun AlternativePayment(
             )
         }
     }
+}
+
+@Composable
+private fun CheckboxField(
+    id: String,
+    state: FieldState,
+    onEvent: (DynamicCheckoutEvent) -> Unit,
+    style: POCheckbox.Style,
+    modifier: Modifier = Modifier
+) {
+    POCheckbox(
+        text = state.title ?: String(),
+        checked = state.value.text.toBooleanStrictOrNull() ?: false,
+        onCheckedChange = {
+            onEvent(
+                FieldValueChanged(
+                    paymentMethodId = id,
+                    fieldId = state.id,
+                    value = TextFieldValue(text = it.toString())
+                )
+            )
+        },
+        modifier = modifier,
+        style = style,
+        enabled = state.enabled,
+        isError = state.isError
+    )
 }
 
 @Composable

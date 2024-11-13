@@ -10,6 +10,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState
@@ -18,12 +19,12 @@ import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.Se
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.FieldFocusChanged
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.FieldValueChanged
-import com.processout.sdk.ui.checkout.screen.field.CheckboxField
 import com.processout.sdk.ui.core.component.POAnimatedImage
 import com.processout.sdk.ui.core.component.POExpandableText
 import com.processout.sdk.ui.core.component.PORequestFocus
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
+import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
 import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.state.POImmutableList
@@ -238,6 +239,33 @@ private fun DropdownField(
         menuStyle = menuStyle,
         isError = state.isError,
         placeholderText = state.placeholder
+    )
+}
+
+@Composable
+private fun CheckboxField(
+    id: String,
+    state: FieldState,
+    onEvent: (DynamicCheckoutEvent) -> Unit,
+    style: POCheckbox.Style,
+    modifier: Modifier = Modifier
+) {
+    POCheckbox(
+        text = state.title ?: String(),
+        checked = state.value.text.toBooleanStrictOrNull() ?: false,
+        onCheckedChange = {
+            onEvent(
+                FieldValueChanged(
+                    paymentMethodId = id,
+                    fieldId = state.id,
+                    value = TextFieldValue(text = it.toString())
+                )
+            )
+        },
+        modifier = modifier,
+        style = style,
+        enabled = state.enabled,
+        isError = state.isError
     )
 }
 
