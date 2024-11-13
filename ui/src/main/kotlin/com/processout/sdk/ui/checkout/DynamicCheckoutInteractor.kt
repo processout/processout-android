@@ -543,6 +543,7 @@ internal class DynamicCheckoutInteractor(
     ): PaymentMethod = when (paymentMethod) {
         is AlternativePayment -> when (fieldId) {
             FieldId.SAVE_PAYMENT_METHOD -> with(paymentMethod) {
+                POLogger.debug("Field is edited by the user: %s = %s", fieldId, value.text)
                 copy(savePaymentMethodField = savePaymentMethodField?.copy(value = value))
             }
             else -> paymentMethod
