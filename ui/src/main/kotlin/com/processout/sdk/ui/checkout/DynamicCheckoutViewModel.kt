@@ -267,7 +267,8 @@ internal class DynamicCheckoutViewModel private constructor(
                             id = interactorState.submitActionId,
                             text = submitButtonText,
                             primary = true,
-                            loading = interactorState.processingPaymentMethod != null
+                            loading = id == interactorState.processingPaymentMethod?.id
+                                    || !interactorState.isInvoiceValid
                         )
                     ) else null
                 is NativeAlternativePayment -> RegularPayment(
