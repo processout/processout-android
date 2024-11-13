@@ -150,11 +150,10 @@ internal class DynamicCheckoutInteractor(
         with(_state.value) {
             when (reason) {
                 is PODynamicCheckoutInvoiceInvalidationReason.Failure -> {
-                    val paymentMethod = activePaymentMethod()
-                    if (paymentMethod != null) {
+                    activePaymentMethod()?.let {
                         didFailPaymentEvent = DidFailPayment(
                             failure = reason.failure,
-                            paymentMethod = paymentMethod.original
+                            paymentMethod = it.original
                         )
                     }
                     when (reason.failure.code) {
@@ -552,8 +551,7 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun onFieldFocusChanged(event: FieldFocusChanged) {
-        val paymentMethod = paymentMethod(event.paymentMethodId)
-        when (paymentMethod) {
+        when (paymentMethod(event.paymentMethodId)) {
             is Card -> cardTokenization.onEvent(
                 CardTokenizationEvent.FieldFocusChanged(event.fieldId, event.isFocused)
             )
@@ -932,8 +930,7 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun handlePermission(result: PermissionRequestResult) {
-        val paymentMethod = paymentMethod(result.paymentMethodId)
-        when (paymentMethod) {
+        when (paymentMethod(result.paymentMethodId)) {
             is NativeAlternativePayment -> nativeAlternativePayment.onEvent(
                 NativeAlternativePaymentEvent.PermissionRequestResult(
                     permission = result.permission,
