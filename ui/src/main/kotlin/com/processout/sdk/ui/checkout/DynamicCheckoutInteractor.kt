@@ -517,16 +517,37 @@ internal class DynamicCheckoutInteractor(
         }
 
     private fun onFieldValueChanged(event: FieldValueChanged) {
-        val paymentMethod = paymentMethod(event.paymentMethodId)
-        when (paymentMethod) {
+        when (val paymentMethod = paymentMethod(event.paymentMethodId)) {
             is Card -> cardTokenization.onEvent(
                 CardTokenizationEvent.FieldValueChanged(event.fieldId, event.value)
             )
             is NativeAlternativePayment -> nativeAlternativePayment.onEvent(
                 NativeAlternativePaymentEvent.FieldValueChanged(event.fieldId, event.value)
             )
-            else -> {}
+            else -> _state.update { state ->
+                state.copy(
+                    paymentMethods = state.paymentMethods.map {
+                        if (it.id == paymentMethod?.id) {
+                            updatedPaymentMethod(it, event.fieldId, event.value)
+                        } else it
+                    }
+                )
+            }
         }
+    }
+
+    private fun updatedPaymentMethod(
+        paymentMethod: PaymentMethod,
+        fieldId: String,
+        value: TextFieldValue
+    ): PaymentMethod = when (paymentMethod) {
+        is AlternativePayment -> when (fieldId) {
+            FieldId.SAVE_PAYMENT_METHOD -> with(paymentMethod) {
+                copy(savePaymentMethodField = savePaymentMethodField?.copy(value = value))
+            }
+            else -> paymentMethod
+        }
+        else -> paymentMethod
     }
 
     private fun onFieldFocusChanged(event: FieldFocusChanged) {
