@@ -222,7 +222,9 @@ internal class DynamicCheckoutViewModel private constructor(
         display: Display,
         interactorState: DynamicCheckoutInteractorState
     ): ExpressPayment.Express {
-        val processing = id == interactorState.processingPaymentMethod?.id
+        val processing = with(interactorState) {
+            id == processingPaymentMethod?.id || id == pendingSubmitPaymentMethod?.id
+        }
         return ExpressPayment.Express(
             id = id,
             logoResource = display.logo,
