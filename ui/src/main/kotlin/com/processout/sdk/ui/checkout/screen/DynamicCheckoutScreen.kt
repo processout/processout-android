@@ -270,6 +270,7 @@ private fun ExpressPayment(
                 isLightTheme = isLightTheme
             ),
             enabled = enabled,
+            loading = loading,
             leadingContent = {
                 PaymentLogo(
                     logoResource = payment.logoResource,

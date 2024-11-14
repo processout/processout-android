@@ -221,17 +221,21 @@ internal class DynamicCheckoutViewModel private constructor(
         text: String,
         display: Display,
         interactorState: DynamicCheckoutInteractorState
-    ) = ExpressPayment.Express(
-        id = id,
-        logoResource = display.logo,
-        brandColor = display.brandColor,
-        submitAction = POActionState(
-            id = interactorState.submitActionId,
-            text = text,
-            primary = true,
-            enabled = id != interactorState.processingPaymentMethod?.id
+    ): ExpressPayment.Express {
+        val processing = id == interactorState.processingPaymentMethod?.id
+        return ExpressPayment.Express(
+            id = id,
+            logoResource = display.logo,
+            brandColor = display.brandColor,
+            submitAction = POActionState(
+                id = interactorState.submitActionId,
+                text = text,
+                primary = true,
+                enabled = !processing,
+                loading = processing
+            )
         )
-    )
+    }
 
     private fun regularPayments(
         interactorState: DynamicCheckoutInteractorState,
@@ -267,8 +271,7 @@ internal class DynamicCheckoutViewModel private constructor(
                             id = interactorState.submitActionId,
                             text = submitButtonText,
                             primary = true,
-                            loading = id == interactorState.processingPaymentMethod?.id
-                                    || !interactorState.isInvoiceValid
+                            loading = id == interactorState.processingPaymentMethod?.id || !interactorState.isInvoiceValid
                         )
                     ) else null
                 is NativeAlternativePayment -> RegularPayment(
