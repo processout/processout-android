@@ -624,6 +624,20 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun submitAlternativePayment(paymentMethod: PaymentMethod) {
+        if (paymentMethod is AlternativePayment) {
+            val shouldSavePaymentMethod = paymentMethod.savePaymentMethodField
+                ?.value?.text?.toBooleanStrictOrNull() ?: false
+            if (shouldSavePaymentMethod) {
+                _state.update { it.copy(processingPaymentMethod = paymentMethod) }
+                authorizeInvoice(
+                    source = paymentMethod.gatewayConfigurationId,
+                    saveSource = true,
+                    allowFallbackToSale = true,
+                    clientSecret = configuration.invoiceRequest.clientSecret
+                )
+                return
+            }
+        }
         val redirectUrl = when (paymentMethod) {
             is AlternativePayment -> paymentMethod.redirectUrl
             is CustomerToken -> paymentMethod.configuration.redirectUrl
