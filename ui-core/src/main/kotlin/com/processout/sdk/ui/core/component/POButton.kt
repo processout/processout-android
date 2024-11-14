@@ -54,7 +54,7 @@ fun POButton(
             contentPadding = contentPadding(style = style, enabled = enabled),
             interactionSource = interactionSource
         ) {
-            if (enabled && loading) {
+            if (loading) {
                 Box(contentAlignment = Alignment.Center) {
                     POCircularProgressIndicator.Small(color = style.progressIndicatorColor)
                     // This empty POText ensures that button height matches with provided text style while loading.
