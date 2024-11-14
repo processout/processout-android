@@ -42,6 +42,7 @@ internal data class DynamicCheckoutInteractorState(
         data class AlternativePayment(
             override val id: String,
             override val original: PODynamicCheckoutPaymentMethod,
+            val gatewayConfigurationId: String,
             val redirectUrl: String,
             val savePaymentMethodField: Field?,
             val display: Display,

@@ -276,6 +276,7 @@ internal class DynamicCheckoutInteractor(
                     AlternativePayment(
                         id = paymentMethod.configuration.gatewayConfigurationId,
                         original = paymentMethod,
+                        gatewayConfigurationId = paymentMethod.configuration.gatewayConfigurationId,
                         redirectUrl = redirectUrl,
                         savePaymentMethodField = if (paymentMethod.configuration.savingAllowed) {
                             Field(
