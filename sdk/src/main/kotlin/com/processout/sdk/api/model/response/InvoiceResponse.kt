@@ -152,7 +152,7 @@ sealed class PODynamicCheckoutPaymentMethod {
      * @param[cardholderNameRequired] Defines whether the cardholder name should be collected.
      * @param[schemeSelectionAllowed] Defines whether the user will be asked to select the scheme if co-scheme is available.
      * @param[billingAddress] Card billing address configuration.
-     * @param[savingAllowed] Defines whether saving of the payment method is allowed.
+     * @param[savingAllowed] Defines whether saving of the payment method is allowed for future payments.
      */
     @JsonClass(generateAdapter = true)
     data class CardConfiguration(
@@ -220,13 +220,16 @@ sealed class PODynamicCheckoutPaymentMethod {
      *
      * @param[gatewayConfigurationId] Gateway configuration ID.
      * @param[redirectUrl] Redirect URL. If it's _null_, then payment should go through the native flow.
+     * @param[savingAllowed] Defines whether saving of the payment method is allowed for future payments.
      */
     @JsonClass(generateAdapter = true)
     data class AlternativePaymentConfiguration(
         @Json(name = "gateway_configuration_id")
         val gatewayConfigurationId: String,
         @Json(name = "redirect_url")
-        val redirectUrl: String?
+        val redirectUrl: String?,
+        @Json(name = "saving_allowed")
+        val savingAllowed: Boolean
     )
 
     /**

@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -35,8 +36,8 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutEvent
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.*
-import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment.Content.Card
-import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment.Content.NativeAlternativePayment
+import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.Field.CheckboxField
+import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment.Content.*
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.CrossfadeAnimationDurationMillis
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.LongAnimationDurationMillis
@@ -74,6 +75,7 @@ import com.processout.sdk.ui.shared.component.DynamicFooter
 import com.processout.sdk.ui.shared.component.GooglePayButton
 import com.processout.sdk.ui.shared.component.TextAndroidView
 import com.processout.sdk.ui.shared.extension.*
+import com.processout.sdk.ui.shared.state.FieldState
 
 @Composable
 internal fun DynamicCheckoutScreen(
@@ -163,7 +165,8 @@ private fun Content(
                 text = state.errorMessage,
                 style = style.messageBox,
                 modifier = Modifier.padding(bottom = spacing.extraLarge),
-                horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing)
+                horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing),
+                enterAnimationDelayMillis = ShortAnimationDurationMillis
             )
             if (state.expressPayments.elements.isNotEmpty()) {
                 ExpressPayments(
@@ -267,6 +270,7 @@ private fun ExpressPayment(
                 isLightTheme = isLightTheme
             ),
             enabled = enabled,
+            loading = loading,
             leadingContent = {
                 PaymentLogo(
                     logoResource = payment.logoResource,
@@ -411,6 +415,12 @@ private fun RegularPaymentContent(
                     onEvent = onEvent,
                     style = style
                 )
+                is AlternativePayment -> AlternativePayment(
+                    id = payment.id,
+                    state = payment.content,
+                    onEvent = onEvent,
+                    style = style
+                )
                 null -> {}
             }
             payment.submitAction?.let {
@@ -436,6 +446,54 @@ private fun RegularPaymentContent(
             }
         }
     }
+}
+
+@Composable
+private fun AlternativePayment(
+    id: String,
+    state: AlternativePayment,
+    onEvent: (DynamicCheckoutEvent) -> Unit,
+    style: DynamicCheckoutScreen.Style
+) {
+    Column(
+        modifier = Modifier.padding(top = spacing.small)
+    ) {
+        when (state.savePaymentMethodField) {
+            is CheckboxField -> CheckboxField(
+                id = id,
+                state = state.savePaymentMethodField.state,
+                onEvent = onEvent,
+                style = style.checkbox
+            )
+        }
+    }
+}
+
+@Composable
+private fun CheckboxField(
+    id: String,
+    state: FieldState,
+    onEvent: (DynamicCheckoutEvent) -> Unit,
+    style: POCheckbox.Style,
+    modifier: Modifier = Modifier
+) {
+    POCheckbox(
+        text = state.title ?: String(),
+        checked = state.value.text.toBooleanStrictOrNull() ?: false,
+        onCheckedChange = {
+            onEvent(
+                FieldValueChanged(
+                    paymentMethodId = id,
+                    fieldId = state.id,
+                    value = TextFieldValue(text = it.toString())
+                )
+            )
+        },
+        modifier = modifier,
+        style = style,
+        enabled = state.enabled,
+        isError = state.isError
+    )
 }
 
 @Composable
