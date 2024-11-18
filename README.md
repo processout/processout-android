@@ -4,20 +4,33 @@
 
 *Android 5.0 (API level 21) +*
 
-## Download
+## Modules
 
-Download the latest version from Maven Central.
+Add preferred dependencies to your `build.gradle` configuration.
 
-[ProcessOut Android SDK](https://central.sonatype.com/artifact/com.processout/processout-android)\
-`implementation 'com.processout:processout-android:<version>'`
+[ProcessOut Android SDK](https://central.sonatype.com/artifact/com.processout/processout-android)
 
-[ProcessOut Android SDK - Checkout 3DS](https://central.sonatype.com/artifact/com.processout/processout-android-checkout-3ds)\
-`implementation 'com.processout:processout-android-checkout-3ds:<version>'`
+ProcessOut API bindings and components to handle payment flows.
 
-[ProcessOut Android SDK - UI](https://central.sonatype.com/artifact/com.processout/processout-android-ui)\
-`implementation 'com.processout:processout-android-ui:<version>'`
+```kotlin
+implementation("com.processout:processout-android:<version>")
+```
 
-Older versions up to `4.0.0` (including) only [available on the JitPack](https://jitpack.io/#processout/processout-android).
+[ProcessOut Android SDK - Checkout 3DS](https://central.sonatype.com/artifact/com.processout/processout-android-checkout-3ds)
+
+Integration with Checkout 3DS SDK.
+
+```kotlin
+implementation("com.processout:processout-android-checkout-3ds:<version>")
+```
+
+[ProcessOut Android SDK - UI](https://central.sonatype.com/artifact/com.processout/processout-android-ui)
+
+Prebuilt customizable UI to handle payment flows.
+
+```kotlin
+implementation("com.processout:processout-android-ui:<version>")
+```
 
 ## Documentation
 
