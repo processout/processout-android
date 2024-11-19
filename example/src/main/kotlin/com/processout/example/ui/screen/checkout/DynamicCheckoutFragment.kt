@@ -49,10 +49,10 @@ class DynamicCheckoutFragment : BaseFragment<FragmentDynamicCheckoutBinding>(
         )
         launcher = PODynamicCheckoutLauncher.create(
             from = this,
-            delegate = delegate,
             threeDSService = createCheckout3DSService(
                 customTabLauncher = PO3DSRedirectCustomTabLauncher.create(from = this)
             ),
+            delegate = delegate,
             callback = ::handle
         )
     }
