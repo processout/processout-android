@@ -34,8 +34,8 @@ class PODynamicCheckoutLauncher private constructor(
     private val scope: CoroutineScope,
     private val launcher: ActivityResultLauncher<PODynamicCheckoutConfiguration>,
     private val activityOptions: ActivityOptionsCompat,
-    private val delegate: PODynamicCheckoutDelegate,
     private val threeDSService: PO3DSService,
+    private val delegate: PODynamicCheckoutDelegate,
     private val eventDispatcher: POEventDispatcher = POEventDispatcher
 ) {
 
@@ -46,8 +46,8 @@ class PODynamicCheckoutLauncher private constructor(
          */
         fun create(
             from: Fragment,
-            delegate: PODynamicCheckoutDelegate,
             threeDSService: PO3DSService,
+            delegate: PODynamicCheckoutDelegate,
             callback: (ProcessOutActivityResult<POUnit>) -> Unit
         ) = PODynamicCheckoutLauncher(
             scope = from.lifecycleScope,
@@ -56,8 +56,8 @@ class PODynamicCheckoutLauncher private constructor(
                 callback
             ),
             activityOptions = createActivityOptions(from.requireContext()),
-            delegate = delegate,
-            threeDSService = threeDSService
+            threeDSService = threeDSService,
+            delegate = delegate
         )
 
         /**
@@ -66,8 +66,8 @@ class PODynamicCheckoutLauncher private constructor(
          */
         fun create(
             from: ComponentActivity,
-            delegate: PODynamicCheckoutDelegate,
             threeDSService: PO3DSService,
+            delegate: PODynamicCheckoutDelegate,
             callback: (ProcessOutActivityResult<POUnit>) -> Unit
         ) = PODynamicCheckoutLauncher(
             scope = from.lifecycleScope,
@@ -77,8 +77,8 @@ class PODynamicCheckoutLauncher private constructor(
                 callback
             ),
             activityOptions = createActivityOptions(from),
-            delegate = delegate,
-            threeDSService = threeDSService
+            threeDSService = threeDSService,
+            delegate = delegate
         )
 
         private fun createActivityOptions(context: Context) =
