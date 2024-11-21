@@ -169,7 +169,6 @@ internal class DynamicCheckoutViewModel private constructor(
         id = interactorState.cancelActionId,
         text = text ?: defaultText,
         primary = false,
-        enabled = interactorState.processingPaymentMethod == null,
         confirmation = confirmation?.map()
     )
 
