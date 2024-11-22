@@ -43,9 +43,7 @@ sealed class PODynamicCheckoutEvent {
     /**
      * Event is sent after payment was confirmed to be captured. This is a final event.
      */
-    data class DidCompletePayment(
-        val paymentMethod: PODynamicCheckoutPaymentMethod
-    ) : PODynamicCheckoutEvent()
+    data object DidCompletePayment : PODynamicCheckoutEvent()
 
     /**
      * Event is sent when unretryable error occurs. This is a final event.
