@@ -840,9 +840,7 @@ internal class DynamicCheckoutInteractor(
         interactorScope.launch {
             _completion.collect { completion ->
                 when (completion) {
-                    Success -> _state.value.processingPaymentMethod?.let { paymentMethod ->
-                        dispatch(DidCompletePayment(paymentMethod.original))
-                    }
+                    Success -> dispatch(DidCompletePayment)
                     is Failure -> dispatch(DidFail(completion.failure))
                     else -> {}
                 }
