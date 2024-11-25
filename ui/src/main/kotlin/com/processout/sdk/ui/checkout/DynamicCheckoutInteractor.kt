@@ -141,7 +141,8 @@ internal class DynamicCheckoutInteractor(
         logAttributes = logAttributes(invoiceId = invoiceRequest.invoiceId)
         reset(
             state = _state.value.copy(
-                invoice = POInvoice(id = invoiceRequest.invoiceId)
+                invoice = POInvoice(id = invoiceRequest.invoiceId),
+                isInvoiceValid = false
             )
         )
         interactorScope.launch { start() }
