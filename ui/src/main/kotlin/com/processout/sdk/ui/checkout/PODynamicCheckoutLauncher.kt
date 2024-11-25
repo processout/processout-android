@@ -195,7 +195,7 @@ class PODynamicCheckoutLauncher private constructor(
         }
     }
 
-    private fun dispatch(response: POEventDispatcher.Response) {
+    private fun dispatch(response: POProxy3DSServiceResponse) {
         scope.launch { eventDispatcher.send(response) }
     }
 
