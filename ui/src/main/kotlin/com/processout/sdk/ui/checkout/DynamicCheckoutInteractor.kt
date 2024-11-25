@@ -30,7 +30,7 @@ import com.processout.sdk.api.service.googlepay.POGooglePayConfiguration.Payment
 import com.processout.sdk.api.service.googlepay.POGooglePayConfiguration.PaymentDataConfiguration.TransactionInfo
 import com.processout.sdk.api.service.googlepay.POGooglePayRequestBuilder
 import com.processout.sdk.api.service.googlepay.POGooglePayService
-import com.processout.sdk.api.service.proxy3ds.POProxy3DSService
+import com.processout.sdk.api.service.proxy3ds.PODefaultProxy3DSService
 import com.processout.sdk.core.POFailure.Code.*
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogAttribute
@@ -74,7 +74,6 @@ internal class DynamicCheckoutInteractor(
     private val app: Application,
     private var configuration: PODynamicCheckoutConfiguration,
     private val invoicesService: POInvoicesService,
-    private val threeDSService: POProxy3DSService,
     private val googlePayService: POGooglePayService,
     private val cardTokenization: CardTokenizationViewModel,
     private val cardTokenizationEventDispatcher: PODefaultCardTokenizationEventDispatcher,
@@ -131,7 +130,6 @@ internal class DynamicCheckoutInteractor(
         dispatchEvents()
         collectInvoice()
         collectInvoiceAuthorizationRequest()
-        collectAuthorizeInvoiceResult()
         collectTokenizedCard()
         collectPreferredScheme()
         collectDefaultValues()
@@ -812,26 +810,41 @@ internal class DynamicCheckoutInteractor(
         eventDispatcher.subscribeForResponse<PODynamicCheckoutInvoiceAuthorizationResponse>(
             coroutineScope = interactorScope
         ) { response ->
+            @Suppress("DEPRECATION")
             invoicesService.authorizeInvoice(
                 request = response.request,
-                threeDSService = threeDSService
-            )
+                threeDSService = PODefaultProxy3DSService()
+            ) { result ->
+                handleInvoiceAuthorization(
+                    state = _state.value,
+                    invoiceId = response.request.invoiceId,
+                    result = result
+                )
+            }
         }
     }
 
-    private fun collectAuthorizeInvoiceResult() {
-        interactorScope.launch {
-            invoicesService.authorizeInvoiceResult.collect { result ->
-                when (_state.value.processingPaymentMethod) {
-                    is Card -> cardTokenizationEventDispatcher.complete(result)
-                    else -> result.onSuccess {
+    private fun handleInvoiceAuthorization(
+        state: DynamicCheckoutInteractorState,
+        invoiceId: String,
+        result: ProcessOutResult<Unit>
+    ) {
+        if (invoiceId == state.invoice.id && state.isInvoiceValid) {
+            when (state.processingPaymentMethod) {
+                is Card -> interactorScope.launch {
+                    cardTokenizationEventDispatcher.complete(result)
+                }
+                is GooglePay,
+                is AlternativePayment,
+                is CustomerToken ->
+                    result.onSuccess {
                         handleSuccess()
                     }.onFailure { failure ->
                         invalidateInvoice(
                             reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(failure)
                         )
                     }
-                }
+                else -> {}
             }
         }
     }
@@ -977,7 +990,6 @@ internal class DynamicCheckoutInteractor(
     }
 
     fun onCleared() {
-        threeDSService.close()
         handler.removeCallbacksAndMessages(null)
     }
 }

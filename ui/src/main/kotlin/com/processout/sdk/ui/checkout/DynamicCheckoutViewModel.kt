@@ -13,7 +13,6 @@ import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Display
 import com.processout.sdk.api.model.response.POGooglePayCardTokenizationData
 import com.processout.sdk.api.service.googlepay.PODefaultGooglePayService
-import com.processout.sdk.api.service.proxy3ds.PODefaultProxy3DSService
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState
@@ -59,7 +58,6 @@ internal class DynamicCheckoutViewModel private constructor(
                     app = app,
                     configuration = configuration,
                     invoicesService = ProcessOut.instance.invoices,
-                    threeDSService = PODefaultProxy3DSService(),
                     googlePayService = PODefaultGooglePayService(
                         application = app,
                         walletOptions = WalletOptions.Builder()
