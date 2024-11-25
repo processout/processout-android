@@ -12,13 +12,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 /** @suppress */
 @ProcessOutInternalApi
 class PODefaultProxy3DSService(
-    private val scope: CoroutineScope = MainScope(),
-    private val eventDispatcher: POEventDispatcher = POEventDispatcher
+    private val scope: CoroutineScope = MainScope()
 ) : POProxy3DSService {
+
+    private val uuid = UUID.randomUUID()
+    private val eventDispatcher = POEventDispatcher
 
     private var authenticationCallback: ((ProcessOutResult<PO3DS2AuthenticationRequest>) -> Unit)? = null
     private var challengeCallback: ((ProcessOutResult<Boolean>) -> Unit)? = null
@@ -28,10 +31,14 @@ class PODefaultProxy3DSService(
         eventDispatcher.subscribeForResponse<POProxy3DSServiceResponse>(
             coroutineScope = scope
         ) { response ->
+            if (response.uuid != uuid) {
+                return@subscribeForResponse
+            }
             when (response) {
                 is POProxy3DSServiceResponse.Authentication -> authenticationCallback?.invoke(response.result)
                 is POProxy3DSServiceResponse.Challenge -> challengeCallback?.invoke(response.result)
                 is POProxy3DSServiceResponse.Redirect -> redirectCallback?.invoke(response.result)
+                is POProxy3DSServiceResponse.Close -> close()
             }
         }
     }
@@ -41,9 +48,7 @@ class PODefaultProxy3DSService(
         callback: (ProcessOutResult<PO3DS2AuthenticationRequest>) -> Unit
     ) {
         authenticationCallback = callback
-        scope.launch {
-            eventDispatcher.send(Authentication(configuration = configuration))
-        }
+        dispatch(Authentication(uuid = uuid, configuration = configuration))
     }
 
     override fun handle(
@@ -51,9 +56,7 @@ class PODefaultProxy3DSService(
         callback: (ProcessOutResult<Boolean>) -> Unit
     ) {
         challengeCallback = callback
-        scope.launch {
-            eventDispatcher.send(Challenge(challenge = challenge))
-        }
+        dispatch(Challenge(uuid = uuid, challenge = challenge))
     }
 
     override fun handle(
@@ -61,18 +64,18 @@ class PODefaultProxy3DSService(
         callback: (ProcessOutResult<String>) -> Unit
     ) {
         redirectCallback = callback
-        scope.launch {
-            eventDispatcher.send(Redirect(redirect = redirect))
-        }
+        dispatch(Redirect(uuid = uuid, redirect = redirect))
     }
 
     override fun cleanup() {
         authenticationCallback = null
         challengeCallback = null
         redirectCallback = null
-        scope.launch {
-            eventDispatcher.send(Cleanup())
-        }
+        dispatch(Cleanup(uuid = uuid))
+    }
+
+    private fun dispatch(request: POProxy3DSServiceRequest) {
+        scope.launch { eventDispatcher.send(request) }
     }
 
     override fun close() {
