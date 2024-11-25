@@ -21,7 +21,6 @@ import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.model.response.POBillingAddressCollectionMode.*
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.*
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Flow.express
-import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Unknown
 import com.processout.sdk.api.model.response.POTransaction.Status.*
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.api.service.googlepay.POGooglePayConfiguration
@@ -31,7 +30,8 @@ import com.processout.sdk.api.service.googlepay.POGooglePayConfiguration.Payment
 import com.processout.sdk.api.service.googlepay.POGooglePayRequestBuilder
 import com.processout.sdk.api.service.googlepay.POGooglePayService
 import com.processout.sdk.api.service.proxy3ds.PODefaultProxy3DSService
-import com.processout.sdk.core.POFailure.Code.*
+import com.processout.sdk.core.POFailure.Code.Cancelled
+import com.processout.sdk.core.POFailure.Code.Generic
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogAttribute
 import com.processout.sdk.core.logger.POLogger
@@ -409,8 +409,10 @@ internal class DynamicCheckoutInteractor(
             is FieldValueChanged -> onFieldValueChanged(event)
             is FieldFocusChanged -> onFieldFocusChanged(event)
             is Action -> onAction(event)
-            is DialogAction -> onDialogAction(event)
             is ActionConfirmationRequested -> onActionConfirmationRequested(event)
+            is DialogAction -> onDialogAction(event)
+            is GooglePayResult -> handleGooglePay(event.paymentMethodId, event.result)
+            is AlternativePaymentResult -> handleAlternativePayment(event.paymentMethodId, event.result)
             is PermissionRequestResult -> handlePermission(event)
             is Dismiss -> dismiss(event)
         }
@@ -549,6 +551,13 @@ internal class DynamicCheckoutInteractor(
         }
     }
 
+    private fun onActionConfirmationRequested(event: ActionConfirmationRequested) {
+        POLogger.debug("Requested the user to confirm the action: %s", event.id)
+        if (event.id == ActionId.CANCEL) {
+            dispatch(DidRequestCancelConfirmation)
+        }
+    }
+
     private fun onDialogAction(event: DialogAction) {
         val paymentMethod = event.paymentMethodId?.let { paymentMethod(it) }
         when (paymentMethod) {
@@ -559,13 +568,6 @@ internal class DynamicCheckoutInteractor(
                 )
             )
             else -> {}
-        }
-    }
-
-    private fun onActionConfirmationRequested(event: ActionConfirmationRequested) {
-        POLogger.debug("Requested the user to confirm the action: %s", event.id)
-        if (event.id == ActionId.CANCEL) {
-            dispatch(DidRequestCancelConfirmation)
         }
     }
 
@@ -616,6 +618,7 @@ internal class DynamicCheckoutInteractor(
             _state.update { it.copy(processingPaymentMethod = paymentMethod) }
             _sideEffects.send(
                 DynamicCheckoutSideEffect.GooglePay(
+                    paymentMethodId = paymentMethod.id,
                     paymentDataRequest = paymentMethod.paymentDataRequest
                 )
             )
@@ -629,6 +632,7 @@ internal class DynamicCheckoutInteractor(
             if (shouldSavePaymentMethod) {
                 _state.update { it.copy(processingPaymentMethod = paymentMethod) }
                 authorizeInvoice(
+                    paymentMethod = paymentMethod,
                     source = paymentMethod.gatewayConfigurationId,
                     saveSource = true,
                     allowFallbackToSale = true,
@@ -644,7 +648,8 @@ internal class DynamicCheckoutInteractor(
         }
         if (redirectUrl.isNullOrBlank()) {
             handleAlternativePayment(
-                ProcessOutResult.Failure(
+                paymentMethodId = paymentMethod.id,
+                result = ProcessOutResult.Failure(
                     code = Generic(),
                     message = "Missing redirect URL in alternative payment configuration."
                 )
@@ -654,7 +659,8 @@ internal class DynamicCheckoutInteractor(
         val returnUrl = configuration.alternativePayment.returnUrl
         if (returnUrl.isNullOrBlank()) {
             handleAlternativePayment(
-                ProcessOutResult.Failure(
+                paymentMethodId = paymentMethod.id,
+                result = ProcessOutResult.Failure(
                     code = Generic(),
                     message = "Missing return URL in alternative payment configuration."
                 )
@@ -665,6 +671,7 @@ internal class DynamicCheckoutInteractor(
             _state.update { it.copy(processingPaymentMethod = paymentMethod) }
             _sideEffects.send(
                 DynamicCheckoutSideEffect.AlternativePayment(
+                    paymentMethodId = paymentMethod.id,
                     redirectUrl = redirectUrl,
                     returnUrl = returnUrl
                 )
@@ -677,30 +684,53 @@ internal class DynamicCheckoutInteractor(
             submitAlternativePayment(paymentMethod)
         } else {
             _state.update { it.copy(processingPaymentMethod = paymentMethod) }
-            authorizeInvoice(source = paymentMethod.configuration.customerTokenId)
-        }
-    }
-
-    fun handleGooglePay(result: ProcessOutResult<POGooglePayCardTokenizationData>) {
-        result.onSuccess { response ->
-            authorizeInvoice(source = response.card.id)
-        }.onFailure { failure ->
-            invalidateInvoice(
-                reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(failure)
-            )
-        }
-    }
-
-    fun handleAlternativePayment(result: ProcessOutResult<POAlternativePaymentMethodResponse>) {
-        result.onSuccess { response ->
             authorizeInvoice(
-                source = response.gatewayToken,
-                allowFallbackToSale = true
+                paymentMethod = paymentMethod,
+                source = paymentMethod.configuration.customerTokenId
             )
-        }.onFailure { failure ->
-            invalidateInvoice(
-                reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(failure)
-            )
+        }
+    }
+
+    private fun handleGooglePay(
+        paymentMethodId: String,
+        result: ProcessOutResult<POGooglePayCardTokenizationData>
+    ) {
+        _state.value.processingPaymentMethod?.let { paymentMethod ->
+            if (paymentMethod.id != paymentMethodId) {
+                return
+            }
+            result.onSuccess { response ->
+                authorizeInvoice(
+                    paymentMethod = paymentMethod,
+                    source = response.card.id
+                )
+            }.onFailure { failure ->
+                invalidateInvoice(
+                    reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(failure)
+                )
+            }
+        }
+    }
+
+    private fun handleAlternativePayment(
+        paymentMethodId: String,
+        result: ProcessOutResult<POAlternativePaymentMethodResponse>
+    ) {
+        _state.value.processingPaymentMethod?.let { paymentMethod ->
+            if (paymentMethod.id != paymentMethodId) {
+                return
+            }
+            result.onSuccess { response ->
+                authorizeInvoice(
+                    paymentMethod = paymentMethod,
+                    source = response.gatewayToken,
+                    allowFallbackToSale = true
+                )
+            }.onFailure { failure ->
+                invalidateInvoice(
+                    reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(failure)
+                )
+            }
         }
     }
 
@@ -764,34 +794,26 @@ internal class DynamicCheckoutInteractor(
     private fun collectTokenizedCard() {
         interactorScope.launch {
             cardTokenizationEventDispatcher.processTokenizedCardRequest.collect { request ->
-                _state.update { it.copy(processingPaymentMethod = _state.value.selectedPaymentMethod) }
-                authorizeInvoice(
-                    source = request.card.id,
-                    saveSource = request.saveCard,
-                    clientSecret = configuration.invoiceRequest.clientSecret
-                )
+                _state.value.selectedPaymentMethod?.let { paymentMethod ->
+                    _state.update { it.copy(processingPaymentMethod = paymentMethod) }
+                    authorizeInvoice(
+                        paymentMethod = paymentMethod,
+                        source = request.card.id,
+                        saveSource = request.saveCard,
+                        clientSecret = configuration.invoiceRequest.clientSecret
+                    )
+                }
             }
         }
     }
 
     private fun authorizeInvoice(
+        paymentMethod: PaymentMethod,
         source: String,
         saveSource: Boolean = false,
         allowFallbackToSale: Boolean = false,
         clientSecret: String? = null
     ) {
-        val paymentMethod = _state.value.processingPaymentMethod
-        if (paymentMethod == null) {
-            invalidateInvoice(
-                reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(
-                    failure = ProcessOutResult.Failure(
-                        code = Internal(),
-                        message = "Failed to authorize invoice: payment method is null."
-                    )
-                )
-            )
-            return
-        }
         interactorScope.launch {
             val request = PODynamicCheckoutInvoiceAuthorizationRequest(
                 request = POInvoiceAuthorizationRequest(

@@ -9,11 +9,8 @@ import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
-import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Display
-import com.processout.sdk.api.model.response.POGooglePayCardTokenizationData
 import com.processout.sdk.api.service.googlepay.PODefaultGooglePayService
-import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.Field
@@ -93,14 +90,6 @@ internal class DynamicCheckoutViewModel private constructor(
     }
 
     fun onEvent(event: DynamicCheckoutEvent) = interactor.onEvent(event)
-
-    fun handleGooglePay(
-        result: ProcessOutResult<POGooglePayCardTokenizationData>
-    ) = interactor.handleGooglePay(result)
-
-    fun handleAlternativePayment(
-        result: ProcessOutResult<POAlternativePaymentMethodResponse>
-    ) = interactor.handleAlternativePayment(result)
 
     private fun combine(
         interactorState: DynamicCheckoutInteractorState,
