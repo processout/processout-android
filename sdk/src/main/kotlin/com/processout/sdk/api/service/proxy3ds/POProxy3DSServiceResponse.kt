@@ -24,4 +24,6 @@ sealed interface POProxy3DSServiceResponse : POEventDispatcher.Response {
         override val uuid: UUID,
         val result: ProcessOutResult<String>
     ) : POProxy3DSServiceResponse
+
+    data class Close(override val uuid: UUID) : POProxy3DSServiceResponse
 }
