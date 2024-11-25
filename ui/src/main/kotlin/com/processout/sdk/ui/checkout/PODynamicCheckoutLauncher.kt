@@ -164,38 +164,39 @@ class PODynamicCheckoutLauncher private constructor(
         ) { request ->
             when (request) {
                 is Authentication -> threeDSService.authenticationRequest(request.configuration) {
-                    scope.launch {
-                        eventDispatcher.send(
-                            POProxy3DSServiceResponse.Authentication(
-                                uuid = request.uuid,
-                                result = it
-                            )
+                    dispatch(
+                        POProxy3DSServiceResponse.Authentication(
+                            uuid = request.uuid,
+                            result = it
                         )
-                    }
+                    )
                 }
                 is Challenge -> threeDSService.handle(request.challenge) {
-                    scope.launch {
-                        eventDispatcher.send(
-                            POProxy3DSServiceResponse.Challenge(
-                                uuid = request.uuid,
-                                result = it
-                            )
+                    dispatch(
+                        POProxy3DSServiceResponse.Challenge(
+                            uuid = request.uuid,
+                            result = it
                         )
-                    }
+                    )
                 }
                 is Redirect -> threeDSService.handle(request.redirect) {
-                    scope.launch {
-                        eventDispatcher.send(
-                            POProxy3DSServiceResponse.Redirect(
-                                uuid = request.uuid,
-                                result = it
-                            )
+                    dispatch(
+                        POProxy3DSServiceResponse.Redirect(
+                            uuid = request.uuid,
+                            result = it
                         )
-                    }
+                    )
                 }
-                is Cleanup -> threeDSService.cleanup()
+                is Cleanup -> {
+                    threeDSService.cleanup()
+                    dispatch(POProxy3DSServiceResponse.Close(uuid = request.uuid))
+                }
             }
         }
+    }
+
+    private fun dispatch(response: POEventDispatcher.Response) {
+        scope.launch { eventDispatcher.send(response) }
     }
 
     /**
