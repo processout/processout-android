@@ -118,8 +118,7 @@ internal class DynamicCheckoutInteractor(
 
     private fun initState() = DynamicCheckoutInteractorState(
         loading = true,
-        invoice = POInvoice(id = configuration.invoiceRequest.invoiceId),
-        isInvoiceValid = false,
+        invoice = null,
         paymentMethods = emptyList(),
         submitActionId = ActionId.SUBMIT,
         cancelActionId = ActionId.CANCEL
@@ -139,21 +138,16 @@ internal class DynamicCheckoutInteractor(
     private fun restart(invoiceRequest: POInvoiceRequest) {
         configuration = configuration.copy(invoiceRequest = invoiceRequest)
         logAttributes = logAttributes(invoiceId = invoiceRequest.invoiceId)
-        reset(
-            state = _state.value.copy(
-                invoice = POInvoice(id = invoiceRequest.invoiceId),
-                isInvoiceValid = false
-            )
-        )
+        reset()
         interactorScope.launch { start() }
     }
 
-    private fun reset(state: DynamicCheckoutInteractorState) {
+    private fun reset() {
         interactorScope.coroutineContext.cancelChildren()
+        handler.removeCallbacksAndMessages(null)
         latestInvoiceRequest = null
         resetPaymentMethods()
         _completion.update { Awaiting }
-        _state.update { state }
     }
 
     private fun resetPaymentMethods() {
@@ -203,7 +197,6 @@ internal class DynamicCheckoutInteractor(
             it.copy(
                 loading = false,
                 invoice = invoice,
-                isInvoiceValid = true,
                 paymentMethods = mappedPaymentMethods
             )
         }
@@ -438,7 +431,7 @@ internal class DynamicCheckoutInteractor(
                 invalidateInvoice(
                     reason = PODynamicCheckoutInvoiceInvalidationReason.PaymentMethodChanged
                 )
-            } else if (state.isInvoiceValid) {
+            } else if (state.invoice != null) {
                 start(paymentMethod)
             }
             _state.update {
@@ -747,9 +740,10 @@ internal class DynamicCheckoutInteractor(
                 errorMessage = app.getString(R.string.po_dynamic_checkout_error_generic)
             }
         }
+        val currentInvoice = _state.value.invoice ?: POInvoice(id = configuration.invoiceRequest.invoiceId)
         _state.update {
             it.copy(
-                isInvoiceValid = false,
+                invoice = null,
                 selectedPaymentMethod = null,
                 processingPaymentMethod = null,
                 errorMessage = errorMessage
@@ -757,7 +751,7 @@ internal class DynamicCheckoutInteractor(
         }
         if (latestInvoiceRequest == null) {
             val request = PODynamicCheckoutInvoiceRequest(
-                currentInvoice = _state.value.invoice,
+                currentInvoice = currentInvoice,
                 invalidationReason = reason
             )
             latestInvoiceRequest = request
@@ -852,23 +846,24 @@ internal class DynamicCheckoutInteractor(
         invoiceId: String,
         result: ProcessOutResult<Unit>
     ) {
-        if (invoiceId == state.invoice.id && state.isInvoiceValid) {
-            when (state.processingPaymentMethod) {
-                is Card -> interactorScope.launch {
-                    cardTokenizationEventDispatcher.complete(result)
-                }
-                is GooglePay,
-                is AlternativePayment,
-                is CustomerToken ->
-                    result.onSuccess {
-                        handleSuccess()
-                    }.onFailure { failure ->
-                        invalidateInvoice(
-                            reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(failure)
-                        )
-                    }
-                else -> {}
+        if (invoiceId != state.invoice?.id) {
+            return
+        }
+        when (state.processingPaymentMethod) {
+            is Card -> interactorScope.launch {
+                cardTokenizationEventDispatcher.complete(result)
             }
+            is GooglePay,
+            is AlternativePayment,
+            is CustomerToken ->
+                result.onSuccess {
+                    handleSuccess()
+                }.onFailure { failure ->
+                    invalidateInvoice(
+                        reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(failure)
+                    )
+                }
+            else -> {}
         }
     }
 

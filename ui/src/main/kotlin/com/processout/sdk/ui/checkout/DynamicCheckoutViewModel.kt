@@ -239,7 +239,7 @@ internal class DynamicCheckoutViewModel private constructor(
                     id = id,
                     state = regularPaymentState(
                         display = paymentMethod.display,
-                        loading = !interactorState.isInvoiceValid,
+                        loading = interactorState.invoice == null,
                         selected = selected
                     ),
                     content = if (selected) Content.Card(cardTokenizationState) else null,
@@ -251,7 +251,7 @@ internal class DynamicCheckoutViewModel private constructor(
                         state = regularPaymentState(
                             display = paymentMethod.display,
                             description = app.getString(R.string.po_dynamic_checkout_warning_redirect),
-                            loading = !interactorState.isInvoiceValid,
+                            loading = interactorState.invoice == null,
                             selected = selected
                         ),
                         content = alternativePaymentContent(paymentMethod),
@@ -259,14 +259,16 @@ internal class DynamicCheckoutViewModel private constructor(
                             id = interactorState.submitActionId,
                             text = submitButtonText,
                             primary = true,
-                            loading = id == interactorState.processingPaymentMethod?.id || !interactorState.isInvoiceValid
+                            loading = id == interactorState.processingPaymentMethod?.id ||
+                                    interactorState.invoice == null
                         )
                     ) else null
                 is NativeAlternativePayment -> RegularPayment(
                     id = id,
                     state = regularPaymentState(
                         display = paymentMethod.display,
-                        loading = !interactorState.isInvoiceValid || nativeAlternativePaymentState is Loading,
+                        loading = interactorState.invoice == null ||
+                                nativeAlternativePaymentState is Loading,
                         selected = selected
                     ),
                     content = if (selected) Content.NativeAlternativePayment(nativeAlternativePaymentState) else null,
