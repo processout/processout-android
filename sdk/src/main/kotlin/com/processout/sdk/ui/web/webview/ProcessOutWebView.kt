@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit
 @SuppressLint("ViewConstructor", "SetJavaScriptEnabled")
 internal class ProcessOutWebView(
     context: Context,
-    private val configuration: WebViewConfiguration,
+    private val configuration: POWebViewConfiguration,
     private val callback: (ProcessOutResult<Uri>) -> Unit
 ) : WebView(context) {
 

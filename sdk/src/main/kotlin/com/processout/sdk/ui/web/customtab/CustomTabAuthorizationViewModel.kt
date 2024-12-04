@@ -10,18 +10,18 @@ import androidx.savedstate.SavedStateRegistryOwner
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.logger.POLogger
-import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationActivityContract.Companion.EXTRA_TIMEOUT_FINISH
+import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivityContract.Companion.EXTRA_TIMEOUT_FINISH
 import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationUiState.*
 import java.util.concurrent.TimeUnit
 
 internal class CustomTabAuthorizationViewModel private constructor(
     private val savedState: SavedStateHandle,
-    private val configuration: CustomTabConfiguration
+    private val configuration: POCustomTabConfiguration
 ) : ViewModel() {
 
     internal class Factory(
         owner: SavedStateRegistryOwner,
-        private val configuration: CustomTabConfiguration
+        private val configuration: POCustomTabConfiguration
     ) : AbstractSavedStateViewModelFactory(owner, defaultArgs = null) {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T =

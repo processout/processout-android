@@ -19,13 +19,13 @@ import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
-import com.processout.sdk.ui.web.ActivityResultApi.Android
-import com.processout.sdk.ui.web.ActivityResultApi.Dispatcher
 import com.processout.sdk.ui.web.ActivityResultDispatcher
+import com.processout.sdk.ui.web.POActivityResultApi.Android
+import com.processout.sdk.ui.web.POActivityResultApi.Dispatcher
 import com.processout.sdk.ui.web.WebAuthorizationActivityResultDispatcher
-import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationActivityContract.Companion.EXTRA_CONFIGURATION
-import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationActivityContract.Companion.EXTRA_RESULT
-import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationActivityContract.Companion.EXTRA_TIMEOUT_FINISH
+import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivityContract.Companion.EXTRA_CONFIGURATION
+import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivityContract.Companion.EXTRA_RESULT
+import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivityContract.Companion.EXTRA_TIMEOUT_FINISH
 import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationUiState.*
 import kotlinx.coroutines.launch
 
@@ -37,7 +37,7 @@ import kotlinx.coroutines.launch
 class POCustomTabAuthorizationActivity : AppCompatActivity() {
 
     private val resultDispatcher: ActivityResultDispatcher<Uri> = WebAuthorizationActivityResultDispatcher
-    private lateinit var configuration: CustomTabConfiguration
+    private lateinit var configuration: POCustomTabConfiguration
 
     private val viewModel: CustomTabAuthorizationViewModel by viewModels {
         CustomTabAuthorizationViewModel.Factory(this, configuration)
@@ -57,7 +57,7 @@ class POCustomTabAuthorizationActivity : AppCompatActivity() {
             // Cancelled result will be provided from onResume() when going back from the Custom Tab.
         }
 
-        intent.getParcelableExtra<CustomTabConfiguration>(EXTRA_CONFIGURATION)
+        intent.getParcelableExtra<POCustomTabConfiguration>(EXTRA_CONFIGURATION)
             ?.let { configuration = it }
 
         if (!::configuration.isInitialized) {

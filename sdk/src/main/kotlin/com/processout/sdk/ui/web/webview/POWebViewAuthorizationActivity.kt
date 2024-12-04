@@ -13,12 +13,12 @@ import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.toActivityResult
-import com.processout.sdk.ui.web.ActivityResultApi.Android
-import com.processout.sdk.ui.web.ActivityResultApi.Dispatcher
+import com.processout.sdk.ui.web.POActivityResultApi.Android
+import com.processout.sdk.ui.web.POActivityResultApi.Dispatcher
 import com.processout.sdk.ui.web.ActivityResultDispatcher
 import com.processout.sdk.ui.web.WebAuthorizationActivityResultDispatcher
-import com.processout.sdk.ui.web.webview.WebViewAuthorizationActivityContract.Companion.EXTRA_CONFIGURATION
-import com.processout.sdk.ui.web.webview.WebViewAuthorizationActivityContract.Companion.EXTRA_RESULT
+import com.processout.sdk.ui.web.webview.POWebViewAuthorizationActivityContract.Companion.EXTRA_CONFIGURATION
+import com.processout.sdk.ui.web.webview.POWebViewAuthorizationActivityContract.Companion.EXTRA_RESULT
 
 /**
  * Activity that handles 3DS and APM authorization in the WebView.
@@ -27,7 +27,7 @@ import com.processout.sdk.ui.web.webview.WebViewAuthorizationActivityContract.Co
 class POWebViewAuthorizationActivity : AppCompatActivity() {
 
     private val resultDispatcher: ActivityResultDispatcher<Uri> = WebAuthorizationActivityResultDispatcher
-    private lateinit var configuration: WebViewConfiguration
+    private lateinit var configuration: POWebViewConfiguration
 
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,7 +38,7 @@ class POWebViewAuthorizationActivity : AppCompatActivity() {
         requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O)
             ActivityInfo.SCREEN_ORIENTATION_BEHIND else ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
-        intent.getParcelableExtra<WebViewConfiguration>(EXTRA_CONFIGURATION)
+        intent.getParcelableExtra<POWebViewConfiguration>(EXTRA_CONFIGURATION)
             ?.let { configuration = it }
         dispatchBackPressed()
         setContentView(ProcessOutWebView(this, configuration) {

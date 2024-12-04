@@ -9,14 +9,14 @@ import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
-import com.processout.sdk.ui.web.ActivityResultApi
+import com.processout.sdk.ui.web.POActivityResultApi
 import com.processout.sdk.ui.web.WebAuthorizationActivityResultDispatcher
 import com.processout.sdk.ui.web.WebAuthorizationDelegate
 import com.processout.sdk.ui.web.WebAuthorizationDelegateCache
-import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationActivityContract
-import com.processout.sdk.ui.web.customtab.CustomTabConfiguration
+import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivityContract
+import com.processout.sdk.ui.web.customtab.POCustomTabConfiguration
 import com.processout.sdk.ui.web.webview.WebViewAuthorizationActivityLauncher
-import com.processout.sdk.ui.web.webview.WebViewConfiguration
+import com.processout.sdk.ui.web.webview.POWebViewConfiguration
 
 /**
  * Launcher that starts [POCustomTabAuthorizationActivity][com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivity]
@@ -27,7 +27,7 @@ class PO3DSRedirectCustomTabLauncher private constructor(
     private val delegateCache: WebAuthorizationDelegateCache
 ) {
 
-    private lateinit var contract: CustomTabAuthorizationActivityContract
+    private lateinit var contract: POCustomTabAuthorizationActivityContract
     private lateinit var webViewFallbackLauncher: WebViewAuthorizationActivityLauncher
 
     companion object {
@@ -37,7 +37,7 @@ class PO3DSRedirectCustomTabLauncher private constructor(
         fun create(from: Fragment) = PO3DSRedirectCustomTabLauncher(
             WebAuthorizationActivityResultDispatcher
         ).apply {
-            contract = CustomTabAuthorizationActivityContract(from.requireActivity())
+            contract = POCustomTabAuthorizationActivityContract(from.requireActivity())
             webViewFallbackLauncher = WebViewAuthorizationActivityLauncher.create(
                 from, activityResultCallback = null
             )
@@ -49,7 +49,7 @@ class PO3DSRedirectCustomTabLauncher private constructor(
         fun create(from: ComponentActivity) = PO3DSRedirectCustomTabLauncher(
             WebAuthorizationActivityResultDispatcher
         ).apply {
-            contract = CustomTabAuthorizationActivityContract(from)
+            contract = POCustomTabAuthorizationActivityContract(from)
             webViewFallbackLauncher = WebViewAuthorizationActivityLauncher.create(
                 from, activityResultCallback = null
             )
@@ -82,17 +82,17 @@ class PO3DSRedirectCustomTabLauncher private constructor(
 
         if (ProcessOut.instance.browserCapabilities.isCustomTabsSupported()) {
             contract.startActivity(
-                CustomTabConfiguration(
+                POCustomTabConfiguration(
                     uri = delegate.uri,
                     returnUri = Uri.parse(returnUrl),
                     timeoutSeconds = redirect.timeoutSeconds,
-                    resultApi = ActivityResultApi.Dispatcher
+                    resultApi = POActivityResultApi.Dispatcher
                 )
             )
         } else {
             POLogger.info("Custom Chrome Tabs is not supported on device. Will use WebView.")
             webViewFallbackLauncher.startActivity(
-                WebViewConfiguration(
+                POWebViewConfiguration(
                     uri = delegate.uri,
                     returnUris = listOf(
                         Uri.parse(ApiConstants.CHECKOUT_RETURN_URL),
@@ -100,7 +100,7 @@ class PO3DSRedirectCustomTabLauncher private constructor(
                     ),
                     sdkVersion = ProcessOut.VERSION,
                     timeoutSeconds = redirect.timeoutSeconds,
-                    resultApi = ActivityResultApi.Dispatcher
+                    resultApi = POActivityResultApi.Dispatcher
                 )
             )
         }
