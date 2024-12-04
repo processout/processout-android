@@ -23,10 +23,11 @@ import com.processout.sdk.ui.web.ActivityResultDispatcher
 import com.processout.sdk.ui.web.POActivityResultApi.Android
 import com.processout.sdk.ui.web.POActivityResultApi.Dispatcher
 import com.processout.sdk.ui.web.WebAuthorizationActivityResultDispatcher
+import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationUiState.*
 import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivityContract.Companion.EXTRA_CONFIGURATION
+import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivityContract.Companion.EXTRA_FORCE_FINISH
 import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivityContract.Companion.EXTRA_RESULT
 import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivityContract.Companion.EXTRA_TIMEOUT_FINISH
-import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationUiState.*
 import kotlinx.coroutines.launch
 
 /**
@@ -57,13 +58,19 @@ class POCustomTabAuthorizationActivity : AppCompatActivity() {
             // Cancelled result will be provided from onResume() when going back from the Custom Tab.
         }
 
+        if (intent.getBooleanExtra(EXTRA_FORCE_FINISH, false)) {
+            POLogger.info("Activity is started to clear the back stack and finished immediately before it's created.")
+            finish()
+            return
+        }
+
         intent.getParcelableExtra<POCustomTabConfiguration>(EXTRA_CONFIGURATION)
             ?.let { configuration = it }
 
         if (!::configuration.isInitialized) {
             POLogger.info(
-                "Configuration is not provided. Possibly started to clear the back stack and force finish. " +
-                        "Also possibly started from the redirect activity by a deep link when flow is already finished."
+                "Configuration is not provided. Activity is finished immediately before it's created. " +
+                        "Possibly started from the redirect activity by a deep link when the flow is already finished."
             )
             finish()
             return
@@ -95,8 +102,8 @@ class POCustomTabAuthorizationActivity : AppCompatActivity() {
             is Failure -> finishWithActivityResult(uiState.failure)
             Cancelled -> finishWithActivityResult(
                 ProcessOutActivityResult.Failure(
-                    POFailure.Code.Cancelled,
-                    "Cancelled by the user with back press, gesture or cancel action."
+                    code = POFailure.Code.Cancelled,
+                    message = "Cancelled by the user with back press, gesture or cancel action."
                 )
             )
             is Timeout -> handleTimeout(uiState.clearBackStack)

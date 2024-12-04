@@ -10,8 +10,9 @@ import androidx.savedstate.SavedStateRegistryOwner
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.logger.POLogger
-import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivityContract.Companion.EXTRA_TIMEOUT_FINISH
 import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationUiState.*
+import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivityContract.Companion.EXTRA_FORCE_FINISH
+import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivityContract.Companion.EXTRA_TIMEOUT_FINISH
 import java.util.concurrent.TimeUnit
 
 internal class CustomTabAuthorizationViewModel private constructor(
@@ -49,6 +50,10 @@ internal class CustomTabAuthorizationViewModel private constructor(
     }
 
     fun onResume(intent: Intent) {
+        if (intent.getBooleanExtra(EXTRA_FORCE_FINISH, false)) {
+            savedState[KEY_SAVED_STATE] = Cancelled
+            return
+        }
         if (intent.getBooleanExtra(EXTRA_TIMEOUT_FINISH, false)) {
             savedState[KEY_SAVED_STATE] = Timeout(clearBackStack = false)
             return
