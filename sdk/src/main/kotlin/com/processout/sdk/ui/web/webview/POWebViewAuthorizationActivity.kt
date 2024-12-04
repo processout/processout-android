@@ -13,11 +13,12 @@ import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.toActivityResult
+import com.processout.sdk.ui.web.ActivityResultDispatcher
 import com.processout.sdk.ui.web.POActivityResultApi.Android
 import com.processout.sdk.ui.web.POActivityResultApi.Dispatcher
-import com.processout.sdk.ui.web.ActivityResultDispatcher
 import com.processout.sdk.ui.web.WebAuthorizationActivityResultDispatcher
 import com.processout.sdk.ui.web.webview.POWebViewAuthorizationActivityContract.Companion.EXTRA_CONFIGURATION
+import com.processout.sdk.ui.web.webview.POWebViewAuthorizationActivityContract.Companion.EXTRA_FORCE_FINISH
 import com.processout.sdk.ui.web.webview.POWebViewAuthorizationActivityContract.Companion.EXTRA_RESULT
 
 /**
@@ -38,20 +39,45 @@ class POWebViewAuthorizationActivity : AppCompatActivity() {
         requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O)
             ActivityInfo.SCREEN_ORIENTATION_BEHIND else ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
+        if (intent.getBooleanExtra(EXTRA_FORCE_FINISH, false)) {
+            POLogger.info("Activity is started to clear the back stack and finished immediately before it's created.")
+            finish()
+            return
+        }
+
         intent.getParcelableExtra<POWebViewConfiguration>(EXTRA_CONFIGURATION)
             ?.let { configuration = it }
+
+        if (!::configuration.isInitialized) {
+            POLogger.info("Configuration is not provided. Activity is finished immediately before it's created.")
+            finish()
+            return
+        }
+
         dispatchBackPressed()
         setContentView(ProcessOutWebView(this, configuration) {
             finishWithActivityResult(it.toActivityResult())
         })
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        if (intent.getBooleanExtra(EXTRA_FORCE_FINISH, false)) {
+            finishWithActivityResult(
+                ProcessOutActivityResult.Failure(
+                    code = POFailure.Code.Cancelled,
+                    message = "Cancelled by the user with cancel action."
+                ).also { POLogger.info("%s", it) }
+            )
+        }
+    }
+
     private fun dispatchBackPressed() {
         onBackPressedDispatcher.addCallback(this) {
             finishWithActivityResult(
                 ProcessOutActivityResult.Failure(
-                    POFailure.Code.Cancelled,
-                    "Cancelled by user with back press or gesture."
+                    code = POFailure.Code.Cancelled,
+                    message = "Cancelled by the user with back press or gesture."
                 ).also { POLogger.info("%s", it) }
             )
         }
