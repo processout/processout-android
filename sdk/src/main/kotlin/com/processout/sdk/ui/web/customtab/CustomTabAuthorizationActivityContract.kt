@@ -18,6 +18,7 @@ internal class CustomTabAuthorizationActivityContract(
         const val EXTRA_CONFIGURATION = "${BuildConfig.LIBRARY_PACKAGE_NAME}.EXTRA_CONFIGURATION"
         const val EXTRA_RESULT = "${BuildConfig.LIBRARY_PACKAGE_NAME}.EXTRA_RESULT"
         const val EXTRA_TIMEOUT_FINISH = "${BuildConfig.LIBRARY_PACKAGE_NAME}.EXTRA_TIMEOUT_FINISH"
+        const val EXTRA_FORCE_FINISH = "${BuildConfig.LIBRARY_PACKAGE_NAME}.EXTRA_FORCE_FINISH"
     }
 
     fun startActivity(configuration: CustomTabConfiguration) {
