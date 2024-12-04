@@ -61,7 +61,10 @@ class POCustomTabAuthorizationActivity : AppCompatActivity() {
             ?.let { configuration = it }
 
         if (!::configuration.isInitialized) {
-            POLogger.warn("Configuration is not provided. Possibly started from redirect activity by a deep link when flow is already finished.")
+            POLogger.info(
+                "Configuration is not provided. Possibly started to clear the back stack and force finish. " +
+                        "Also possibly started from the redirect activity by a deep link when flow is already finished."
+            )
             finish()
             return
         }
@@ -93,7 +96,7 @@ class POCustomTabAuthorizationActivity : AppCompatActivity() {
             Cancelled -> finishWithActivityResult(
                 ProcessOutActivityResult.Failure(
                     POFailure.Code.Cancelled,
-                    "Cancelled by user with back press, gesture or cancel button."
+                    "Cancelled by the user with back press, gesture or cancel action."
                 )
             )
             is Timeout -> handleTimeout(uiState.clearBackStack)
