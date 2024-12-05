@@ -75,6 +75,8 @@ internal sealed interface DynamicCheckoutSideEffect {
         val paymentMethodId: String,
         val permission: String
     ) : DynamicCheckoutSideEffect
+
+    data object CancelWebAuthorization : DynamicCheckoutSideEffect
 }
 
 internal sealed interface DynamicCheckoutCompletion {

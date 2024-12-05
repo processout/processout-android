@@ -18,9 +18,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.wallet.Wallet.WalletOptions
 import com.google.android.gms.wallet.WalletConstants
+import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.request.POInvoiceRequest
@@ -54,6 +56,10 @@ import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Paymen
 import com.processout.sdk.ui.shared.configuration.POBarcodeConfiguration
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import com.processout.sdk.ui.shared.extension.collectImmediately
+import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivity
+import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivityContract
+import com.processout.sdk.ui.web.webview.POWebViewAuthorizationActivity
+import com.processout.sdk.ui.web.webview.POWebViewAuthorizationActivityContract
 
 internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
 
@@ -167,7 +173,9 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                 with(viewModel.completion.collectAsStateWithLifecycle()) {
                     LaunchedEffect(value) { handle(value) }
                 }
-                viewModel.sideEffects.collectImmediately { handle(it) }
+                viewModel.sideEffects.collectImmediately(
+                    minActiveState = Lifecycle.State.CREATED
+                ) { handle(it) }
                 DynamicCheckoutScreen(
                     state = viewModel.state.collectAsStateWithLifecycle().value,
                     onEvent = remember { viewModel::onEvent },
@@ -225,6 +233,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                 )
             }
             is PermissionRequest -> requestPermission(sideEffect)
+            is CancelWebAuthorization -> cancelWebAuthorization()
         }
     }
 
@@ -291,6 +300,22 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                         isGranted = it.value
                     )
                 )
+            }
+        }
+    }
+
+    private fun cancelWebAuthorization() {
+        if (ProcessOut.instance.browserCapabilities.isCustomTabsSupported()) {
+            Intent(this, POCustomTabAuthorizationActivity::class.java).let {
+                it.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                it.putExtra(POCustomTabAuthorizationActivityContract.EXTRA_FORCE_FINISH, true)
+                startActivity(it)
+            }
+        } else {
+            Intent(this, POWebViewAuthorizationActivity::class.java).let {
+                it.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                it.putExtra(POWebViewAuthorizationActivityContract.EXTRA_FORCE_FINISH, true)
+                startActivity(it)
             }
         }
     }
