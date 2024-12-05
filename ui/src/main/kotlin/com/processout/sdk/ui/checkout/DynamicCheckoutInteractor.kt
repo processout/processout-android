@@ -22,6 +22,7 @@ import com.processout.sdk.api.model.response.POBillingAddressCollectionMode.*
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.*
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Flow.express
 import com.processout.sdk.api.model.response.POTransaction.Status.*
+import com.processout.sdk.api.service.PO3DSService
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.api.service.googlepay.POGooglePayConfiguration
 import com.processout.sdk.api.service.googlepay.POGooglePayConfiguration.CardConfiguration.BillingAddressParameters
@@ -104,6 +105,7 @@ internal class DynamicCheckoutInteractor(
 
     private val handler = Handler(Looper.getMainLooper())
 
+    private var authorizeInvoiceJob: AuthorizeInvoiceJob? = null
     private var latestInvoiceRequest: PODynamicCheckoutInvoiceRequest? = null
 
     init {
@@ -136,23 +138,22 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun restart(invoiceRequest: POInvoiceRequest) {
+        interactorScope.coroutineContext.cancelChildren()
+        handler.removeCallbacksAndMessages(null)
+        cancelWebAuthorization()
         configuration = configuration.copy(invoiceRequest = invoiceRequest)
         logAttributes = logAttributes(invoiceId = invoiceRequest.invoiceId)
-        reset()
         interactorScope.launch { start() }
     }
 
-    private fun reset() {
-        interactorScope.coroutineContext.cancelChildren()
-        handler.removeCallbacksAndMessages(null)
-        latestInvoiceRequest = null
-        resetPaymentMethods()
-        _completion.update { Awaiting }
-    }
-
-    private fun resetPaymentMethods() {
-        cardTokenization.reset()
-        nativeAlternativePayment.reset()
+    private fun cancelWebAuthorization() {
+        with(_state.value) {
+            if (selectedPaymentMethod != null || pendingSubmitPaymentMethod != null) {
+                interactorScope.launch {
+                    _sideEffects.send(DynamicCheckoutSideEffect.CancelWebAuthorization)
+                }
+            }
+        }
     }
 
     private suspend fun fetchConfiguration() {
@@ -437,10 +438,18 @@ internal class DynamicCheckoutInteractor(
             _state.update {
                 it.copy(
                     selectedPaymentMethod = paymentMethod,
+                    pendingSubmitPaymentMethod = null,
                     errorMessage = null
                 )
             }
         }
+    }
+
+    private fun resetPaymentMethods() {
+        cardTokenization.reset()
+        nativeAlternativePayment.reset()
+        authorizeInvoiceJob?.cancel()
+        authorizeInvoiceJob = null
     }
 
     private fun start(paymentMethod: PaymentMethod) {
@@ -590,6 +599,10 @@ internal class DynamicCheckoutInteractor(
                     errorMessage = null
                 )
             }
+        }
+        if (_state.value.invoice == null) {
+            _state.update { it.copy(pendingSubmitPaymentMethod = paymentMethod) }
+            return
         }
         if (_state.value.processingPaymentMethod != null) {
             _state.update { it.copy(pendingSubmitPaymentMethod = paymentMethod) }
@@ -741,6 +754,7 @@ internal class DynamicCheckoutInteractor(
             }
         }
         val currentInvoice = _state.value.invoice ?: POInvoice(id = configuration.invoiceRequest.invoiceId)
+        resetPaymentMethods()
         _state.update {
             it.copy(
                 invoice = null,
@@ -823,14 +837,15 @@ internal class DynamicCheckoutInteractor(
         }
     }
 
+    @Suppress("DEPRECATION")
     private fun collectInvoiceAuthorizationRequest() {
         eventDispatcher.subscribeForResponse<PODynamicCheckoutInvoiceAuthorizationResponse>(
             coroutineScope = interactorScope
         ) { response ->
-            @Suppress("DEPRECATION")
-            invoicesService.authorizeInvoice(
+            val threeDSService = PODefaultProxy3DSService()
+            val job = invoicesService.authorizeInvoice(
                 request = response.request,
-                threeDSService = PODefaultProxy3DSService()
+                threeDSService = threeDSService
             ) { result ->
                 handleInvoiceAuthorization(
                     state = _state.value,
@@ -838,6 +853,10 @@ internal class DynamicCheckoutInteractor(
                     result = result
                 )
             }
+            authorizeInvoiceJob = AuthorizeInvoiceJob(
+                job = job,
+                threeDSService = threeDSService
+            )
         }
     }
 
@@ -1009,5 +1028,15 @@ internal class DynamicCheckoutInteractor(
 
     fun onCleared() {
         handler.removeCallbacksAndMessages(null)
+    }
+
+    private class AuthorizeInvoiceJob(
+        val job: Job,
+        val threeDSService: PO3DSService
+    ) {
+        fun cancel() {
+            job.cancel()
+            threeDSService.cleanup()
+        }
     }
 }
