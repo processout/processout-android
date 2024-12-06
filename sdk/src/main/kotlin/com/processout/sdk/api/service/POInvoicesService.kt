@@ -11,6 +11,7 @@ import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTra
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.SharedFlow
 
 /**
@@ -41,7 +42,7 @@ interface POInvoicesService {
         request: POInvoiceAuthorizationRequest,
         threeDSService: PO3DSService,
         callback: (ProcessOutResult<Unit>) -> Unit
-    )
+    ): Job
 
     /**
      * Initiates native alternative payment with the given request.

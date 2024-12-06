@@ -10,18 +10,19 @@ import androidx.savedstate.SavedStateRegistryOwner
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.logger.POLogger
-import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationActivityContract.Companion.EXTRA_TIMEOUT_FINISH
 import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationUiState.*
+import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivityContract.Companion.EXTRA_FORCE_FINISH
+import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivityContract.Companion.EXTRA_TIMEOUT_FINISH
 import java.util.concurrent.TimeUnit
 
 internal class CustomTabAuthorizationViewModel private constructor(
     private val savedState: SavedStateHandle,
-    private val configuration: CustomTabConfiguration
+    private val configuration: POCustomTabConfiguration
 ) : ViewModel() {
 
     internal class Factory(
         owner: SavedStateRegistryOwner,
-        private val configuration: CustomTabConfiguration
+        private val configuration: POCustomTabConfiguration
     ) : AbstractSavedStateViewModelFactory(owner, defaultArgs = null) {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T =
@@ -49,6 +50,10 @@ internal class CustomTabAuthorizationViewModel private constructor(
     }
 
     fun onResume(intent: Intent) {
+        if (intent.getBooleanExtra(EXTRA_FORCE_FINISH, false)) {
+            savedState[KEY_SAVED_STATE] = Cancelled
+            return
+        }
         if (intent.getBooleanExtra(EXTRA_TIMEOUT_FINISH, false)) {
             savedState[KEY_SAVED_STATE] = Timeout(clearBackStack = false)
             return

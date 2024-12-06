@@ -9,7 +9,7 @@ import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.web.WebAuthorizationDelegate
 import com.processout.sdk.ui.web.webview.ProcessOutWebView
-import com.processout.sdk.ui.web.webview.WebViewConfiguration
+import com.processout.sdk.ui.web.webview.POWebViewConfiguration
 
 @Deprecated("Use PO3DSRedirectCustomTabLauncher.")
 class PO3DSRedirectWebViewBuilder(
@@ -29,7 +29,7 @@ class PO3DSRedirectWebViewBuilder(
 
     fun build(): WebView = ProcessOutWebView(
         activity,
-        WebViewConfiguration(
+        POWebViewConfiguration(
             uri = delegate?.uri,
             returnUris = listOf(Uri.parse(ApiConstants.CHECKOUT_RETURN_URL)),
             sdkVersion = ProcessOut.VERSION,

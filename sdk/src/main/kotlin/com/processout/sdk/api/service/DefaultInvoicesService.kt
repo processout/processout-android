@@ -14,6 +14,7 @@ import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogAttribute
 import com.processout.sdk.core.logger.POLogger
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
@@ -79,39 +80,37 @@ internal class DefaultInvoicesService(
         request: POInvoiceAuthorizationRequest,
         threeDSService: PO3DSService,
         callback: (ProcessOutResult<Unit>) -> Unit
-    ) {
-        scope.launch {
-            when (val result = repository.authorizeInvoice(request)) {
-                is ProcessOutResult.Success ->
-                    result.value.customerAction?.let { action ->
-                        this@DefaultInvoicesService.threeDSService
-                            .handle(action, threeDSService) { serviceResult ->
-                                @Suppress("DEPRECATION")
-                                when (serviceResult) {
-                                    is ProcessOutResult.Success ->
-                                        authorizeInvoice(
-                                            request.copy(source = serviceResult.value),
-                                            threeDSService,
-                                            callback
-                                        )
-                                    is ProcessOutResult.Failure -> {
-                                        threeDSService.cleanup()
-                                        callback(serviceResult)
-                                    }
+    ): Job = scope.launch {
+        when (val result = repository.authorizeInvoice(request)) {
+            is ProcessOutResult.Success ->
+                result.value.customerAction?.let { action ->
+                    this@DefaultInvoicesService.threeDSService
+                        .handle(action, threeDSService) { serviceResult ->
+                            @Suppress("DEPRECATION")
+                            when (serviceResult) {
+                                is ProcessOutResult.Success ->
+                                    authorizeInvoice(
+                                        request.copy(source = serviceResult.value),
+                                        threeDSService,
+                                        callback
+                                    )
+                                is ProcessOutResult.Failure -> {
+                                    threeDSService.cleanup()
+                                    callback(serviceResult)
                                 }
                             }
-                    } ?: run {
-                        threeDSService.cleanup()
-                        callback(ProcessOutResult.Success(Unit))
-                    }
-                is ProcessOutResult.Failure -> {
-                    POLogger.warn(
-                        message = "Failed to authorize invoice: %s", result,
-                        attributes = mapOf(POLogAttribute.INVOICE_ID to request.invoiceId)
-                    )
+                        }
+                } ?: run {
                     threeDSService.cleanup()
-                    callback(result)
+                    callback(ProcessOutResult.Success(Unit))
                 }
+            is ProcessOutResult.Failure -> {
+                POLogger.warn(
+                    message = "Failed to authorize invoice: %s", result,
+                    attributes = mapOf(POLogAttribute.INVOICE_ID to request.invoiceId)
+                )
+                threeDSService.cleanup()
+                callback(result)
             }
         }
     }

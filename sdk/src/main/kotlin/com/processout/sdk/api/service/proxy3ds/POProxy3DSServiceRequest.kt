@@ -12,21 +12,19 @@ import java.util.UUID
 sealed interface POProxy3DSServiceRequest : POEventDispatcher.Request {
 
     data class Authentication(
-        override val uuid: UUID = UUID.randomUUID(),
+        override val uuid: UUID,
         val configuration: PO3DS2Configuration
     ) : POProxy3DSServiceRequest
 
     data class Challenge(
-        override val uuid: UUID = UUID.randomUUID(),
+        override val uuid: UUID,
         val challenge: PO3DS2Challenge
     ) : POProxy3DSServiceRequest
 
     data class Redirect(
-        override val uuid: UUID = UUID.randomUUID(),
+        override val uuid: UUID,
         val redirect: PO3DSRedirect
     ) : POProxy3DSServiceRequest
 
-    data class Cleanup(
-        override val uuid: UUID = UUID.randomUUID()
-    ) : POProxy3DSServiceRequest
+    data class Cleanup(override val uuid: UUID) : POProxy3DSServiceRequest
 }

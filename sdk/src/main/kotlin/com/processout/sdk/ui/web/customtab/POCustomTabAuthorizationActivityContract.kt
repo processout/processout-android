@@ -8,25 +8,29 @@ import androidx.activity.result.contract.ActivityResultContract
 import com.processout.sdk.BuildConfig
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutActivityResult
+import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.core.logger.POLogger
 
-internal class CustomTabAuthorizationActivityContract(
+/** @suppress */
+@ProcessOutInternalApi
+class POCustomTabAuthorizationActivityContract(
     private val activity: ComponentActivity
-) : ActivityResultContract<CustomTabConfiguration, ProcessOutActivityResult<Uri>>() {
+) : ActivityResultContract<POCustomTabConfiguration, ProcessOutActivityResult<Uri>>() {
 
     companion object {
         const val EXTRA_CONFIGURATION = "${BuildConfig.LIBRARY_PACKAGE_NAME}.EXTRA_CONFIGURATION"
         const val EXTRA_RESULT = "${BuildConfig.LIBRARY_PACKAGE_NAME}.EXTRA_RESULT"
         const val EXTRA_TIMEOUT_FINISH = "${BuildConfig.LIBRARY_PACKAGE_NAME}.EXTRA_TIMEOUT_FINISH"
+        const val EXTRA_FORCE_FINISH = "${BuildConfig.LIBRARY_PACKAGE_NAME}.EXTRA_FORCE_FINISH"
     }
 
-    fun startActivity(configuration: CustomTabConfiguration) {
+    fun startActivity(configuration: POCustomTabConfiguration) {
         activity.startActivity(createIntent(activity, configuration))
     }
 
     override fun createIntent(
         context: Context,
-        input: CustomTabConfiguration
+        input: POCustomTabConfiguration
     ) = Intent(context, POCustomTabAuthorizationActivity::class.java)
         .putExtra(EXTRA_CONFIGURATION, input)
 

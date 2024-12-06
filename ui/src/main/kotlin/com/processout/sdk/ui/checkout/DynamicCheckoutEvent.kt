@@ -1,6 +1,8 @@
 package com.processout.sdk.ui.checkout
 
 import androidx.compose.ui.text.input.TextFieldValue
+import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
+import com.processout.sdk.api.model.response.POGooglePayCardTokenizationData
 import com.processout.sdk.core.ProcessOutResult
 import org.json.JSONObject
 
@@ -26,14 +28,24 @@ internal sealed interface DynamicCheckoutEvent {
         val paymentMethodId: String?
     ) : DynamicCheckoutEvent
 
+    data class ActionConfirmationRequested(
+        val id: String
+    ) : DynamicCheckoutEvent
+
     data class DialogAction(
         val actionId: String,
         val paymentMethodId: String?,
         val isConfirmed: Boolean
     ) : DynamicCheckoutEvent
 
-    data class ActionConfirmationRequested(
-        val id: String
+    data class GooglePayResult(
+        val paymentMethodId: String,
+        val result: ProcessOutResult<POGooglePayCardTokenizationData>
+    ) : DynamicCheckoutEvent
+
+    data class AlternativePaymentResult(
+        val paymentMethodId: String,
+        val result: ProcessOutResult<POAlternativePaymentMethodResponse>
     ) : DynamicCheckoutEvent
 
     data class PermissionRequestResult(
@@ -49,10 +61,12 @@ internal sealed interface DynamicCheckoutEvent {
 
 internal sealed interface DynamicCheckoutSideEffect {
     data class GooglePay(
+        val paymentMethodId: String,
         val paymentDataRequest: JSONObject
     ) : DynamicCheckoutSideEffect
 
     data class AlternativePayment(
+        val paymentMethodId: String,
         val redirectUrl: String,
         val returnUrl: String
     ) : DynamicCheckoutSideEffect
@@ -61,6 +75,8 @@ internal sealed interface DynamicCheckoutSideEffect {
         val paymentMethodId: String,
         val permission: String
     ) : DynamicCheckoutSideEffect
+
+    data object CancelWebAuthorization : DynamicCheckoutSideEffect
 }
 
 internal sealed interface DynamicCheckoutCompletion {

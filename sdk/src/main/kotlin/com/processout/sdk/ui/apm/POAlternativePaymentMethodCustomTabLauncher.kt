@@ -15,10 +15,10 @@ import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.web.WebAuthorizationActivityResultDispatcher
 import com.processout.sdk.ui.web.WebAuthorizationDelegate
 import com.processout.sdk.ui.web.WebAuthorizationDelegateCache
-import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationActivityContract
-import com.processout.sdk.ui.web.customtab.CustomTabConfiguration
+import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivityContract
+import com.processout.sdk.ui.web.customtab.POCustomTabConfiguration
 import com.processout.sdk.ui.web.webview.WebViewAuthorizationActivityLauncher
-import com.processout.sdk.ui.web.webview.WebViewConfiguration
+import com.processout.sdk.ui.web.webview.POWebViewConfiguration
 
 /**
  * Launcher that starts [POCustomTabAuthorizationActivity][com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivity]
@@ -30,7 +30,7 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
     private val delegateCache: WebAuthorizationDelegateCache
 ) {
 
-    private lateinit var customTabLauncher: ActivityResultLauncher<CustomTabConfiguration>
+    private lateinit var customTabLauncher: ActivityResultLauncher<POCustomTabConfiguration>
     private lateinit var webViewFallbackLauncher: WebViewAuthorizationActivityLauncher
 
     companion object {
@@ -48,7 +48,7 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
         ).apply {
             val activityResultHandler = ActivityResultHandler(alternativePaymentMethods, callback)
             customTabLauncher = from.registerForActivityResult(
-                CustomTabAuthorizationActivityContract(from.requireActivity()),
+                POCustomTabAuthorizationActivityContract(from.requireActivity()),
                 activityResultHandler
             )
             webViewFallbackLauncher = WebViewAuthorizationActivityLauncher.create(
@@ -70,7 +70,7 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
         ).apply {
             val activityResultHandler = ActivityResultHandler(alternativePaymentMethods, callback)
             customTabLauncher = from.registerForActivityResult(
-                CustomTabAuthorizationActivityContract(from),
+                POCustomTabAuthorizationActivityContract(from),
                 from.activityResultRegistry,
                 activityResultHandler
             )
@@ -92,7 +92,7 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
             WebAuthorizationActivityResultDispatcher
         ).apply {
             customTabLauncher = from.registerForActivityResult(
-                CustomTabAuthorizationActivityContract(from.requireActivity()),
+                POCustomTabAuthorizationActivityContract(from.requireActivity()),
                 activityResultCallback
             )
             webViewFallbackLauncher = WebViewAuthorizationActivityLauncher.create(
@@ -113,7 +113,7 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
             WebAuthorizationActivityResultDispatcher
         ).apply {
             customTabLauncher = from.registerForActivityResult(
-                CustomTabAuthorizationActivityContract(from),
+                POCustomTabAuthorizationActivityContract(from),
                 from.activityResultRegistry,
                 activityResultCallback
             )
@@ -145,7 +145,7 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
     fun launch(uri: Uri, returnUrl: String) {
         if (ProcessOut.instance.browserCapabilities.isCustomTabsSupported()) {
             customTabLauncher.launch(
-                CustomTabConfiguration(
+                POCustomTabConfiguration(
                     uri = uri,
                     returnUri = Uri.parse(returnUrl),
                     timeoutSeconds = null
@@ -154,7 +154,7 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
         } else {
             POLogger.info("Custom Chrome Tabs is not supported on device. Will use WebView.")
             webViewFallbackLauncher.launch(
-                WebViewConfiguration(
+                POWebViewConfiguration(
                     uri = uri,
                     returnUris = listOf(
                         Uri.parse(ApiConstants.CHECKOUT_RETURN_URL),

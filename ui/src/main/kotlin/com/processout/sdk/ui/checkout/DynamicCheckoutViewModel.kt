@@ -9,12 +9,8 @@ import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
-import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Display
-import com.processout.sdk.api.model.response.POGooglePayCardTokenizationData
 import com.processout.sdk.api.service.googlepay.PODefaultGooglePayService
-import com.processout.sdk.api.service.proxy3ds.PODefaultProxy3DSService
-import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.Field
@@ -59,7 +55,6 @@ internal class DynamicCheckoutViewModel private constructor(
                     app = app,
                     configuration = configuration,
                     invoicesService = ProcessOut.instance.invoices,
-                    threeDSService = PODefaultProxy3DSService(),
                     googlePayService = PODefaultGooglePayService(
                         application = app,
                         walletOptions = WalletOptions.Builder()
@@ -95,14 +90,6 @@ internal class DynamicCheckoutViewModel private constructor(
     }
 
     fun onEvent(event: DynamicCheckoutEvent) = interactor.onEvent(event)
-
-    fun handleGooglePay(
-        result: ProcessOutResult<POGooglePayCardTokenizationData>
-    ) = interactor.handleGooglePay(result)
-
-    fun handleAlternativePayment(
-        result: ProcessOutResult<POAlternativePaymentMethodResponse>
-    ) = interactor.handleAlternativePayment(result)
 
     private fun combine(
         interactorState: DynamicCheckoutInteractorState,
@@ -252,7 +239,7 @@ internal class DynamicCheckoutViewModel private constructor(
                     id = id,
                     state = regularPaymentState(
                         display = paymentMethod.display,
-                        loading = !interactorState.isInvoiceValid,
+                        loading = interactorState.invoice == null,
                         selected = selected
                     ),
                     content = if (selected) Content.Card(cardTokenizationState) else null,
@@ -264,7 +251,7 @@ internal class DynamicCheckoutViewModel private constructor(
                         state = regularPaymentState(
                             display = paymentMethod.display,
                             description = app.getString(R.string.po_dynamic_checkout_warning_redirect),
-                            loading = !interactorState.isInvoiceValid,
+                            loading = interactorState.invoice == null,
                             selected = selected
                         ),
                         content = alternativePaymentContent(paymentMethod),
@@ -272,14 +259,16 @@ internal class DynamicCheckoutViewModel private constructor(
                             id = interactorState.submitActionId,
                             text = submitButtonText,
                             primary = true,
-                            loading = id == interactorState.processingPaymentMethod?.id || !interactorState.isInvoiceValid
+                            loading = id == interactorState.processingPaymentMethod?.id ||
+                                    interactorState.invoice == null
                         )
                     ) else null
                 is NativeAlternativePayment -> RegularPayment(
                     id = id,
                     state = regularPaymentState(
                         display = paymentMethod.display,
-                        loading = !interactorState.isInvoiceValid || nativeAlternativePaymentState is Loading,
+                        loading = interactorState.invoice == null ||
+                                nativeAlternativePaymentState is Loading,
                         selected = selected
                     ),
                     content = if (selected) Content.NativeAlternativePayment(nativeAlternativePaymentState) else null,

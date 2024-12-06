@@ -9,19 +9,23 @@ import androidx.core.app.ActivityOptionsCompat
 import com.processout.sdk.BuildConfig
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutActivityResult
+import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.core.logger.POLogger
 
-internal class WebViewAuthorizationActivityContract(
+/** @suppress */
+@ProcessOutInternalApi
+class POWebViewAuthorizationActivityContract(
     private val activity: ComponentActivity
-) : ActivityResultContract<WebViewConfiguration, ProcessOutActivityResult<Uri>>() {
+) : ActivityResultContract<POWebViewConfiguration, ProcessOutActivityResult<Uri>>() {
 
     companion object {
         const val EXTRA_CONFIGURATION = "${BuildConfig.LIBRARY_PACKAGE_NAME}.EXTRA_CONFIGURATION"
         const val EXTRA_RESULT = "${BuildConfig.LIBRARY_PACKAGE_NAME}.EXTRA_RESULT"
+        const val EXTRA_FORCE_FINISH = "${BuildConfig.LIBRARY_PACKAGE_NAME}.EXTRA_FORCE_FINISH"
     }
 
     fun startActivity(
-        configuration: WebViewConfiguration,
+        configuration: POWebViewConfiguration,
         activityOptions: ActivityOptionsCompat
     ) {
         activity.startActivity(
@@ -32,7 +36,7 @@ internal class WebViewAuthorizationActivityContract(
 
     override fun createIntent(
         context: Context,
-        input: WebViewConfiguration
+        input: POWebViewConfiguration
     ) = Intent(context, POWebViewAuthorizationActivity::class.java)
         .putExtra(EXTRA_CONFIGURATION, input)
 

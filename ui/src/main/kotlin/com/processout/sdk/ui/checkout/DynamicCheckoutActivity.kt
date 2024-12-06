@@ -18,12 +18,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.wallet.Wallet.WalletOptions
 import com.google.android.gms.wallet.WalletConstants
+import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.request.POInvoiceRequest
+import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
+import com.processout.sdk.api.model.response.POGooglePayCardTokenizationData
 import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.POFailure.Code.Generic
 import com.processout.sdk.core.POUnit
@@ -40,8 +44,7 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutActivityContract.Companion.
 import com.processout.sdk.ui.checkout.DynamicCheckoutActivityContract.Companion.EXTRA_RESULT
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Failure
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Success
-import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.Dismiss
-import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.PermissionRequestResult
+import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutSideEffect.*
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.CancelButton
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen
@@ -53,6 +56,10 @@ import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Paymen
 import com.processout.sdk.ui.shared.configuration.POBarcodeConfiguration
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import com.processout.sdk.ui.shared.extension.collectImmediately
+import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivity
+import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivityContract
+import com.processout.sdk.ui.web.webview.POWebViewAuthorizationActivity
+import com.processout.sdk.ui.web.webview.POWebViewAuthorizationActivityContract
 
 internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
 
@@ -131,7 +138,10 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
     )
 
     private lateinit var googlePayLauncher: POGooglePayCardTokenizationLauncher
+    private var pendingGooglePay: GooglePay? = null
+
     private lateinit var alternativePaymentLauncher: POAlternativePaymentMethodCustomTabLauncher
+    private var pendingAlternativePayment: AlternativePayment? = null
 
     private val permissionsLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions(),
@@ -151,11 +161,11 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
             walletOptions = WalletOptions.Builder()
                 .setEnvironment(configuration?.googlePay?.environment?.value ?: WalletConstants.ENVIRONMENT_TEST)
                 .build(),
-            callback = viewModel::handleGooglePay
+            callback = ::handleGooglePay
         )
         alternativePaymentLauncher = POAlternativePaymentMethodCustomTabLauncher.create(
             from = this,
-            callback = viewModel::handleAlternativePayment
+            callback = ::handleAlternativePayment
         )
         setContent {
             val isLightTheme = !isSystemInDarkTheme()
@@ -163,7 +173,9 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                 with(viewModel.completion.collectAsStateWithLifecycle()) {
                     LaunchedEffect(value) { handle(value) }
                 }
-                viewModel.sideEffects.collectImmediately { handle(it) }
+                viewModel.sideEffects.collectImmediately(
+                    minActiveState = Lifecycle.State.CREATED
+                ) { handle(it) }
                 DynamicCheckoutScreen(
                     state = viewModel.state.collectAsStateWithLifecycle().value,
                     onEvent = remember { viewModel::onEvent },
@@ -209,12 +221,43 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
 
     private fun handle(sideEffect: DynamicCheckoutSideEffect) {
         when (sideEffect) {
-            is GooglePay -> googlePayLauncher.launch(sideEffect.paymentDataRequest)
-            is AlternativePayment -> alternativePaymentLauncher.launch(
-                uri = Uri.parse(sideEffect.redirectUrl),
-                returnUrl = sideEffect.returnUrl
-            )
+            is GooglePay -> {
+                pendingGooglePay = sideEffect
+                googlePayLauncher.launch(sideEffect.paymentDataRequest)
+            }
+            is AlternativePayment -> {
+                pendingAlternativePayment = sideEffect
+                alternativePaymentLauncher.launch(
+                    uri = Uri.parse(sideEffect.redirectUrl),
+                    returnUrl = sideEffect.returnUrl
+                )
+            }
             is PermissionRequest -> requestPermission(sideEffect)
+            is CancelWebAuthorization -> cancelWebAuthorization()
+        }
+    }
+
+    private fun handleGooglePay(result: ProcessOutResult<POGooglePayCardTokenizationData>) {
+        pendingGooglePay?.let {
+            pendingGooglePay = null
+            viewModel.onEvent(
+                GooglePayResult(
+                    paymentMethodId = it.paymentMethodId,
+                    result = result
+                )
+            )
+        }
+    }
+
+    private fun handleAlternativePayment(result: ProcessOutResult<POAlternativePaymentMethodResponse>) {
+        pendingAlternativePayment?.let {
+            pendingAlternativePayment = null
+            viewModel.onEvent(
+                AlternativePaymentResult(
+                    paymentMethodId = it.paymentMethodId,
+                    result = result
+                )
+            )
         }
     }
 
@@ -257,6 +300,22 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                         isGranted = it.value
                     )
                 )
+            }
+        }
+    }
+
+    private fun cancelWebAuthorization() {
+        if (ProcessOut.instance.browserCapabilities.isCustomTabsSupported()) {
+            Intent(this, POCustomTabAuthorizationActivity::class.java).let {
+                it.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                it.putExtra(POCustomTabAuthorizationActivityContract.EXTRA_FORCE_FINISH, true)
+                startActivity(it)
+            }
+        } else {
+            Intent(this, POWebViewAuthorizationActivity::class.java).let {
+                it.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                it.putExtra(POWebViewAuthorizationActivityContract.EXTRA_FORCE_FINISH, true)
+                startActivity(it)
             }
         }
     }

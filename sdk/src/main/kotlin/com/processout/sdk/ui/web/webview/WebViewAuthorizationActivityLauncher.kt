@@ -11,8 +11,8 @@ import com.processout.sdk.R
 import com.processout.sdk.core.ProcessOutActivityResult
 
 internal class WebViewAuthorizationActivityLauncher private constructor(
-    private val contract: WebViewAuthorizationActivityContract,
-    private val launcher: ActivityResultLauncher<WebViewConfiguration>?,
+    private val contract: POWebViewAuthorizationActivityContract,
+    private val launcher: ActivityResultLauncher<POWebViewConfiguration>?,
     private val activityOptions: ActivityOptionsCompat
 ) {
 
@@ -21,7 +21,7 @@ internal class WebViewAuthorizationActivityLauncher private constructor(
             from: Fragment,
             activityResultCallback: ActivityResultCallback<ProcessOutActivityResult<Uri>>?
         ): WebViewAuthorizationActivityLauncher {
-            val contract = WebViewAuthorizationActivityContract(from.requireActivity())
+            val contract = POWebViewAuthorizationActivityContract(from.requireActivity())
             return WebViewAuthorizationActivityLauncher(
                 contract = contract,
                 launcher = activityResultCallback?.let { callback ->
@@ -35,7 +35,7 @@ internal class WebViewAuthorizationActivityLauncher private constructor(
             from: ComponentActivity,
             activityResultCallback: ActivityResultCallback<ProcessOutActivityResult<Uri>>?
         ): WebViewAuthorizationActivityLauncher {
-            val contract = WebViewAuthorizationActivityContract(from)
+            val contract = POWebViewAuthorizationActivityContract(from)
             return WebViewAuthorizationActivityLauncher(
                 contract = contract,
                 launcher = activityResultCallback?.let { callback ->
@@ -53,11 +53,11 @@ internal class WebViewAuthorizationActivityLauncher private constructor(
             )
     }
 
-    fun startActivity(configuration: WebViewConfiguration) {
+    fun startActivity(configuration: POWebViewConfiguration) {
         contract.startActivity(configuration, activityOptions)
     }
 
-    fun launch(configuration: WebViewConfiguration) {
+    fun launch(configuration: POWebViewConfiguration) {
         launcher?.launch(configuration, activityOptions)
     }
 }
