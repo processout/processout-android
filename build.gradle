@@ -2,11 +2,11 @@
 
 buildscript {
     ext {
-        androidGradlePluginVersion = '8.7.1'
+        androidGradlePluginVersion = '8.7.3'
         kotlinVersion = '2.0.21'
         kspVersion = '2.0.21-1.0.27'
         dokkaVersion = '1.9.20'
-        androidxNavigationVersion = '2.8.3'
+        androidxNavigationVersion = '2.8.4'
         nexusPublishPluginVersion = '2.0.0'
     }
     dependencies {
@@ -46,7 +46,7 @@ ext {
     androidxSwipeRefreshLayoutVersion = '1.1.0'
     androidxBrowserVersion = '1.8.0'
 
-    androidxComposeBOMVersion = '2024.10.01'
+    androidxComposeBOMVersion = '2024.11.00'
     composeGooglePayButtonVersion = '1.0.0'
 
     materialVersion = '1.12.0'

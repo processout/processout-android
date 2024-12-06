@@ -106,30 +106,33 @@ internal fun DynamicCheckoutScreen(
                 }
             }
         ) { scaffoldPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(scaffoldPadding)
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = if (state is Starting) Arrangement.Center else Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                when (state) {
-                    is Starting -> Loading(progressIndicatorColor = style.progressIndicatorColor)
-                    is Started -> Crossfade(
-                        targetState = state.successMessage != null,
-                        animationSpec = tween(
-                            durationMillis = CrossfadeAnimationDurationMillis,
-                            easing = LinearEasing
-                        )
-                    ) { isSuccess ->
-                        if (isSuccess) {
-                            Success(
-                                message = state.successMessage ?: String(),
-                                style = style.paymentSuccess
-                            )
-                        } else {
-                            Content(
+            Crossfade(
+                targetState = when (state) {
+                    is Started -> state.successMessage != null
+                    else -> false
+                },
+                animationSpec = tween(
+                    durationMillis = CrossfadeAnimationDurationMillis,
+                    easing = LinearEasing
+                )
+            ) { isSuccess ->
+                if (isSuccess && state is Started) {
+                    Success(
+                        message = state.successMessage ?: String(),
+                        style = style.paymentSuccess
+                    )
+                } else {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(scaffoldPadding)
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = if (state is Starting) Arrangement.Center else Arrangement.Top,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        when (state) {
+                            is Starting -> Loading(progressIndicatorColor = style.progressIndicatorColor)
+                            is Started -> Content(
                                 state = state,
                                 onEvent = onEvent,
                                 style = style,
@@ -567,7 +570,7 @@ private fun Success(
 ) {
     Column(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .padding(top = spacing.extraLarge * 2),
         verticalArrangement = Arrangement.spacedBy(spacing.extraLarge),
         horizontalAlignment = Alignment.CenterHorizontally
