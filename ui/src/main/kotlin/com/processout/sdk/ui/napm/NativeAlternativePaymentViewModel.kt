@@ -183,7 +183,10 @@ internal class NativeAlternativePaymentViewModel private constructor(
                     POActionState(
                         id = it.actionId,
                         text = options.barcode.saveActionText
-                            ?: app.getString(R.string.po_native_apm_save_qr_code_button_text),
+                            ?: app.getString(
+                                R.string.po_native_apm_save_barcode_button_text_format,
+                                it.type.rawType.uppercase()
+                            ),
                         primary = false
                     )
                 },
