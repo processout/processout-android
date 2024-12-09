@@ -3,7 +3,6 @@ package com.processout.sdk.ui.napm
 import android.os.Parcelable
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
-import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.style.*
 import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
 import com.processout.sdk.ui.shared.configuration.POBarcodeConfiguration
@@ -47,7 +46,7 @@ data class PONativeAlternativePaymentConfiguration(
         val secondaryAction: SecondaryAction? = null,
         val cancellation: CancellationConfiguration = CancellationConfiguration(),
         val paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration(),
-        @ProcessOutInternalApi val barcode: POBarcodeConfiguration = POBarcodeConfiguration(),
+        val barcode: POBarcodeConfiguration = POBarcodeConfiguration(),
         val inlineSingleSelectValuesLimit: Int = 5,
         val skipSuccessScreen: Boolean = false,
         val successMessage: String? = null

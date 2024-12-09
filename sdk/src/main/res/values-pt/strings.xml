@@ -18,6 +18,10 @@
     <string name="po_native_apm_submit_button_text">Pagar</string>
     <string name="po_native_apm_cancel_button_text">Cancelar</string>
     <string name="po_native_apm_confirm_payment_button_text">Já paguei</string>
+    <string name="po_native_apm_save_barcode_button_text_format">Guardar código %s</string>
+    <string name="po_native_apm_save_barcode_error_title">Falha na gravação da imagem</string>
+    <string name="po_native_apm_save_barcode_error_message">Não conseguimos gravar a imagem. Por favor, verifique as suas permissões ou tire uma captura do ecrā como alternativa.</string>
+    <string name="po_native_apm_save_barcode_error_confirm">Compreendi</string>
     <string name="po_native_apm_email_placeholder">nome@exemplo.pt</string>
     <string name="po_native_apm_phone_placeholder">Insira o seu número de telemóvel</string>
     <string name="po_native_apm_success_message">Successo!\nPagamento aprovado.</string>

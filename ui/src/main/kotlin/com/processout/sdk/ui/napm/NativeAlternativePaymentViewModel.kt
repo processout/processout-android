@@ -183,7 +183,10 @@ internal class NativeAlternativePaymentViewModel private constructor(
                     POActionState(
                         id = it.actionId,
                         text = options.barcode.saveActionText
-                            ?: app.getString(R.string.po_native_apm_save_qr_code_button_text),
+                            ?: app.getString(
+                                R.string.po_native_apm_save_barcode_button_text_format,
+                                it.type.rawType.uppercase()
+                            ),
                         primary = false
                     )
                 },
@@ -384,10 +387,10 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 options.barcode.saveErrorConfirmation?.let {
                     ConfirmationDialogState(
                         id = barcode.confirmErrorActionId,
-                        title = it.title ?: app.getString(R.string.po_native_apm_save_image_error_title),
-                        message = it.message ?: app.getString(R.string.po_native_apm_save_image_error_message),
+                        title = it.title ?: app.getString(R.string.po_native_apm_save_barcode_error_title),
+                        message = it.message ?: app.getString(R.string.po_native_apm_save_barcode_error_message),
                         confirmActionText = it.confirmActionText
-                            ?: app.getString(R.string.po_native_apm_save_image_error_confirm),
+                            ?: app.getString(R.string.po_native_apm_save_barcode_error_confirm),
                         dismissActionText = it.dismissActionText
                     )
                 }
