@@ -14,16 +14,19 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.*
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.PORequestFocus
 import com.processout.sdk.ui.core.component.field.POField
+import com.processout.sdk.ui.core.component.field.code.POCodeField.rememberTextFieldWidth
 import com.processout.sdk.ui.core.component.field.code.POCodeField.style
 import com.processout.sdk.ui.core.component.field.code.POCodeField.validLength
 import com.processout.sdk.ui.core.component.field.text.POTextField
@@ -47,13 +50,16 @@ fun POCodeField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
+    var rowWidthPx by remember { mutableIntStateOf(0) }
+    val horizontalSpace = ProcessOutTheme.spacing.small
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         Row(
             modifier = Modifier
+                .focusGroup()
                 .fillMaxWidth()
-                .focusGroup(),
+                .onGloballyPositioned { rowWidthPx = it.size.width },
             horizontalArrangement = Arrangement.spacedBy(
-                space = ProcessOutTheme.spacing.small,
+                space = horizontalSpace,
                 alignment = horizontalAlignment
             ),
             verticalAlignment = Alignment.CenterVertically
@@ -125,7 +131,14 @@ fun POCodeField(
                             }
                         },
                         modifier = modifier
-                            .requiredWidth(ProcessOutTheme.dimensions.interactiveComponentMinSize)
+                            .requiredWidth(
+                                rememberTextFieldWidth(
+                                    defaultWidth = ProcessOutTheme.dimensions.interactiveComponentMinSize,
+                                    rowWidth = with(LocalDensity.current) { rowWidthPx.toDp() },
+                                    space = horizontalSpace,
+                                    length = validLength
+                                )
+                            )
                             .onPreviewKeyEvent {
                                 when {
                                     it.key == Key.Backspace && it.type == KeyEventType.KeyDown -> {
@@ -245,5 +258,21 @@ object POCodeField {
             return length
         }
         return LengthMax
+    }
+
+    @Composable
+    internal fun rememberTextFieldWidth(
+        defaultWidth: Dp,
+        rowWidth: Dp,
+        space: Dp,
+        length: Int
+    ): Dp = remember(defaultWidth, rowWidth, space, length) {
+        var textFieldWidth = defaultWidth
+        val totalSpace = space * (length - 1)
+        val requiredTotalWidth = defaultWidth * length + totalSpace
+        if (rowWidth < requiredTotalWidth) {
+            textFieldWidth = (rowWidth - totalSpace) / length
+        }
+        textFieldWidth.coerceIn(0.dp..defaultWidth)
     }
 }
