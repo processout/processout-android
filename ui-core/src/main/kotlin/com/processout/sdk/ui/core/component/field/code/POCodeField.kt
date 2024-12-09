@@ -80,7 +80,7 @@ fun POCodeField(
                             if (!pastedValues.all { it.text.isEmpty() }) {
                                 values = pastedValues
                                 focusedIndex = values.focusedIndex()
-                                onValueChange(values.textFieldValue())
+                                onValueChange(values.codeValue())
                             }
                         }
                     },
@@ -127,7 +127,7 @@ fun POCodeField(
                                         }
                                     }
                                 }
-                                onValueChange(values.textFieldValue())
+                                onValueChange(values.codeValue())
                             }
                         },
                         modifier = modifier
@@ -151,7 +151,7 @@ fun POCodeField(
                                                 }
                                             }
                                             focusManager.moveFocus(FocusDirection.Previous)
-                                            onValueChange(values.textFieldValue())
+                                            onValueChange(values.codeValue())
                                         }
                                         false
                                     }
@@ -216,7 +216,7 @@ private fun List<TextFieldValue>.focusedIndex(): Int {
     return lastIndex
 }
 
-private fun List<TextFieldValue>.textFieldValue() = TextFieldValue(
+private fun List<TextFieldValue>.codeValue() = TextFieldValue(
     text = joinToString(separator = String()) { it.text }
 )
 
