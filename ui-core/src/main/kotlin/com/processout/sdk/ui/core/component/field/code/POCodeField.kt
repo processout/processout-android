@@ -64,9 +64,9 @@ fun POCodeField(
             ),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val validLength by remember { mutableIntStateOf(validLength(length)) }
-            var values by remember { mutableStateOf(values(value.text, validLength)) }
-            var focusedIndex by remember { mutableIntStateOf(values.focusedIndex()) }
+            val validLength = remember(length) { validLength(length) }
+            var values by remember(validLength) { mutableStateOf(values(value.text, validLength)) }
+            var focusedIndex by remember(validLength) { mutableIntStateOf(values.focusedIndex()) }
             val clipboardManager = LocalClipboardManager.current
             CompositionLocalProvider(
                 LocalTextToolbar provides ProcessOutTextToolbar(
