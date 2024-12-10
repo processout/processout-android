@@ -20,6 +20,7 @@ data class PODynamicCheckoutConfiguration(
     val card: CardConfiguration = CardConfiguration(),
     val googlePay: GooglePayConfiguration = GooglePayConfiguration(),
     val alternativePayment: AlternativePaymentConfiguration = AlternativePaymentConfiguration(),
+    val preselectSinglePaymentMethod: Boolean = true,
     val submitButtonText: String? = null,
     val cancelButton: CancelButton? = CancelButton(),
     val paymentSuccess: PaymentSuccess? = PaymentSuccess(),
