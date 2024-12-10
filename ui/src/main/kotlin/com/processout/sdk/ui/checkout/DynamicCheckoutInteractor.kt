@@ -201,11 +201,22 @@ internal class DynamicCheckoutInteractor(
                 paymentMethods = mappedPaymentMethods
             )
         }
-        restoreSelectedPaymentMethod()
+        handleSelectedPaymentMethod()
         handlePendingSubmit()
     }
 
-    private fun restoreSelectedPaymentMethod() {
+    private fun handleSelectedPaymentMethod() {
+        if (configuration.preselectSinglePaymentMethod) {
+            _state.value.paymentMethods
+                .partition { it.isExpress() }
+                .let { pair ->
+                    val expressPaymentMethods = pair.first
+                    val regularPaymentMethods = pair.second
+                    if (expressPaymentMethods.isEmpty() && regularPaymentMethods.size == 1) {
+                        _state.update { it.copy(selectedPaymentMethod = regularPaymentMethods.firstOrNull()) }
+                    }
+                }
+        }
         _state.value.selectedPaymentMethod?.id?.let { id ->
             paymentMethod(id)?.let { start(it) }
                 .orElse {
