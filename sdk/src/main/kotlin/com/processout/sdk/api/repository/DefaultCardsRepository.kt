@@ -88,7 +88,10 @@ internal class DefaultCardsRepository(
             deviceData = contextGraph.deviceData
         )
 
-    private fun POCardUpdateRequest.toBody() = CardUpdateRequestBody(cvc = cvc)
+    private fun POCardUpdateRequest.toBody() = CardUpdateRequestBody(
+        cvc = cvc,
+        preferredScheme = preferredScheme
+    )
 }
 
 private fun CardResponse.toModel() = card
