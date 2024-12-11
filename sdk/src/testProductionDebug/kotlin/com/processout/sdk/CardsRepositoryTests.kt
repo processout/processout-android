@@ -62,7 +62,8 @@ class CardsRepositoryTests {
             result.onSuccess { card ->
                 val cardUpdateRequest = POCardUpdateRequest(
                     cardId = card.id,
-                    cvc = "321"
+                    cvc = "321",
+                    preferredScheme = "none"
                 )
                 cards.updateCard(cardUpdateRequest).assertFailure()
             }
