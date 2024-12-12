@@ -22,8 +22,13 @@ internal class UserAgentInterceptor(
             "ProcessOut Android-Bindings",
             sdkVersion
         )
-        val userAgentRequest = chain.request().newBuilder()
-            .header("Idempotency-Key", UUID.randomUUID().toString())
+        val request = chain.request()
+        val updatedRequest = request.newBuilder()
+            .apply {
+                if (request.method == "POST") {
+                    header("Idempotency-Key", UUID.randomUUID().toString())
+                }
+            }
             .header("User-Agent", userAgentComponents.joinToString(separator = "/"))
             .header("Accept-Language", contextGraph.configuration.application.currentSdkLocale().toLanguageTag())
             .header("Session-Id", contextGraph.configuration.sessionId)
@@ -32,6 +37,6 @@ internal class UserAgentInterceptor(
             .header("Device-System-Version", contextGraph.deviceData.systemApiLevel)
             .header("Product-Version", sdkVersion)
             .build()
-        return chain.proceed(userAgentRequest)
+        return chain.proceed(updatedRequest)
     }
 }
