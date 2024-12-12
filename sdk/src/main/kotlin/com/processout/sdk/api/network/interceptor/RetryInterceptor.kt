@@ -3,8 +3,10 @@ package com.processout.sdk.api.network.interceptor
 import com.processout.sdk.core.retry.PORetryStrategy
 import com.processout.sdk.core.retry.PORetryStrategy.Exponential
 import okhttp3.Interceptor
+import okhttp3.Request
 import okhttp3.Response
 import java.io.IOException
+import java.util.UUID
 
 internal class RetryInterceptor(
     private val retryStrategy: PORetryStrategy = Exponential(
@@ -16,7 +18,7 @@ internal class RetryInterceptor(
 ) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
-        val request = chain.request()
+        val request = chain.request().addIdempotencyKey()
         val iterator = retryStrategy.iterator
         repeat(retryStrategy.maxRetries - 1) {
             var response: Response? = null
@@ -36,4 +38,12 @@ internal class RetryInterceptor(
         }
         return chain.proceed(request)
     }
+
+    private fun Request.addIdempotencyKey(): Request =
+        when (method) {
+            "POST" -> newBuilder()
+                .header("Idempotency-Key", UUID.randomUUID().toString())
+                .build()
+            else -> this
+        }
 }
