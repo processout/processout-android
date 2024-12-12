@@ -14,7 +14,7 @@ internal class BasicAuthInterceptor(
 
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
-        val authRequest = with(contextGraph.configuration) {
+        val updatedRequest = with(contextGraph.configuration) {
             chain.request().newBuilder()
                 .header(
                     name = "Authorization",
@@ -24,6 +24,6 @@ internal class BasicAuthInterceptor(
                     )
                 ).build()
         }
-        return chain.proceed(authRequest)
+        return chain.proceed(updatedRequest)
     }
 }
