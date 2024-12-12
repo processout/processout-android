@@ -4,6 +4,7 @@ import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.*
 import com.processout.sdk.api.network.*
 import com.processout.sdk.api.network.interceptor.BasicAuthInterceptor
+import com.processout.sdk.api.network.interceptor.RetryInterceptor
 import com.processout.sdk.api.network.interceptor.UserAgentInterceptor
 import com.processout.sdk.api.preferences.Preferences
 import com.processout.sdk.core.logger.POLogger
@@ -40,6 +41,7 @@ internal class DefaultNetworkGraph(
             .writeTimeout(30, TimeUnit.SECONDS)
             .addInterceptor(BasicAuthInterceptor(contextGraph))
             .addInterceptor(UserAgentInterceptor(contextGraph, preferences, sdkVersion))
+            .addInterceptor(RetryInterceptor())
             .addInterceptor(HttpLoggingInterceptor { message ->
                 if (contextGraph.configuration.debug) {
                     POLogger.debug(message)

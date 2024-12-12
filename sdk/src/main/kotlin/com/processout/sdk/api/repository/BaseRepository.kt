@@ -2,8 +2,6 @@ package com.processout.sdk.api.repository
 
 import com.processout.sdk.core.*
 import com.processout.sdk.core.logger.POLogger
-import com.processout.sdk.core.retry.PORetryStrategy
-import com.processout.sdk.core.retry.PORetryStrategy.Exponential
 import kotlinx.coroutines.*
 import retrofit2.Response
 import java.io.IOException
@@ -12,13 +10,7 @@ import java.net.SocketTimeoutException
 internal abstract class BaseRepository(
     private val failureMapper: ApiFailureMapper,
     protected val repositoryScope: CoroutineScope,
-    private val workDispatcher: CoroutineDispatcher = Dispatchers.IO,
-    private val retryStrategy: PORetryStrategy = Exponential(
-        maxRetries = 4,
-        initialDelay = 100,
-        maxDelay = 1000,
-        factor = 3.0
-    )
+    private val workDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
 
     protected suspend fun <T : Any> apiCall(
@@ -36,7 +28,7 @@ internal abstract class BaseRepository(
         apiMethod: suspend () -> Response<T>
     ): ProcessOutResult<Response<T>> = withContext(workDispatcher) {
         try {
-            val response = retry(apiMethod, retryStrategy)
+            val response = apiMethod()
             when (response.isSuccessful) {
                 true -> ProcessOutResult.Success(response)
                 false -> failureMapper.map(response)
@@ -64,28 +56,6 @@ internal abstract class BaseRepository(
                 ).also { POLogger.error("%s", it) }
             }
         }
-    }
-
-    private suspend fun <T : Any> retry(
-        apiMethod: suspend () -> Response<T>,
-        strategy: PORetryStrategy
-    ): Response<T> {
-        val iterator = strategy.iterator
-        repeat(strategy.maxRetries - 1) {
-            try {
-                val response = apiMethod()
-                val isRetryable = when (response.code()) {
-                    408, 409, 425, 429,
-                    in 500..599 -> true
-                    else -> false
-                }
-                if (!isRetryable) return response
-            } catch (_: IOException) {
-                // network issue, retry
-            }
-            delay(iterator.next())
-        }
-        return apiMethod()
     }
 
     protected fun <T : Any> Response<T>.nullBodyFailure(): ProcessOutResult.Failure {
