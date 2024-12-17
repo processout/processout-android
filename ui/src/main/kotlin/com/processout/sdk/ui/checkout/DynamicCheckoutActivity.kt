@@ -22,6 +22,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.wallet.Wallet.WalletOptions
 import com.google.android.gms.wallet.WalletConstants
+import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
@@ -34,7 +35,6 @@ import com.processout.sdk.core.POUnit
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.toActivityResult
-import com.processout.sdk.ui.R
 import com.processout.sdk.ui.apm.POAlternativePaymentMethodCustomTabLauncher
 import com.processout.sdk.ui.base.BaseTransparentPortraitActivity
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
