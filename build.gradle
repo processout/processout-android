@@ -6,7 +6,7 @@ buildscript {
         kotlinVersion = '2.0.21'
         kspVersion = '2.0.21-1.0.27'
         dokkaVersion = '1.9.20'
-        androidxNavigationVersion = '2.8.4'
+        androidxNavigationVersion = '2.8.5'
         nexusPublishPluginVersion = '2.0.0'
     }
     dependencies {
