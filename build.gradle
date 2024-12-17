@@ -3,8 +3,8 @@
 buildscript {
     ext {
         androidGradlePluginVersion = '8.7.3'
-        kotlinVersion = '2.0.21'
-        kspVersion = '2.0.21-1.0.27'
+        kotlinVersion = '2.1.0'
+        kspVersion = '2.1.0-1.0.29'
         dokkaVersion = '1.9.20'
         androidxNavigationVersion = '2.8.5'
         nexusPublishPluginVersion = '2.0.0'
