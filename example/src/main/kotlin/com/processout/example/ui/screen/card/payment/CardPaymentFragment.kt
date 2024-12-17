@@ -15,6 +15,7 @@ import com.processout.example.service.threeds.Checkout3DSServiceDelegate
 import com.processout.example.service.threeds.POAdyen3DSService
 import com.processout.example.shared.Constants
 import com.processout.example.shared.toMessage
+import com.processout.example.ui.screen.MainActivity
 import com.processout.example.ui.screen.base.BaseFragment
 import com.processout.example.ui.screen.card.payment.CardPaymentUiState.*
 import com.processout.sdk.api.ProcessOut
@@ -176,12 +177,13 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
 
     private fun handleControls(uiState: CardPaymentUiState) {
         when (uiState) {
-            Submitting -> enableControls(false)
-            else -> enableControls(true)
+            Initial -> enableControls(true)
+            else -> enableControls(false)
         }
     }
 
     private fun enableControls(isEnabled: Boolean) {
+        (requireActivity() as MainActivity).adjustImeInsets = isEnabled
         with(binding) {
             amountInput.isEnabled = isEnabled
             currencyInput.isEnabled = isEnabled

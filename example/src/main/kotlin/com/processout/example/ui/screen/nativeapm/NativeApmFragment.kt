@@ -10,7 +10,9 @@ import androidx.navigation.fragment.navArgs
 import com.processout.example.R
 import com.processout.example.databinding.FragmentNativeApmBinding
 import com.processout.example.shared.toMessage
+import com.processout.example.ui.screen.MainActivity
 import com.processout.example.ui.screen.base.BaseFragment
+import com.processout.example.ui.screen.nativeapm.NativeApmUiState.*
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
@@ -83,8 +85,8 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
     private fun handle(uiState: NativeApmUiState) {
         handleControls(uiState)
         when (uiState) {
-            is NativeApmUiState.Submitted -> launch(uiState.uiModel)
-            is NativeApmUiState.Failure -> showAlert(uiState.failure.toMessage())
+            is Submitted -> launch(uiState.uiModel)
+            is Failure -> showAlert(uiState.failure.toMessage())
             else -> {}
         }
     }
@@ -110,12 +112,13 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
 
     private fun handleControls(uiState: NativeApmUiState) {
         when (uiState) {
-            NativeApmUiState.Submitting -> enableControls(false)
-            else -> enableControls(true)
+            Initial -> enableControls(true)
+            else -> enableControls(false)
         }
     }
 
     private fun enableControls(isEnabled: Boolean) {
+        (requireActivity() as MainActivity).adjustImeInsets = isEnabled
         with(binding) {
             amountInput.isEnabled = isEnabled
             currencyInput.isEnabled = isEnabled
