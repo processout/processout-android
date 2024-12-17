@@ -12,6 +12,7 @@ import com.processout.example.databinding.FragmentDynamicCheckoutBinding
 import com.processout.example.service.threeds.Checkout3DSServiceDelegate
 import com.processout.example.shared.Constants
 import com.processout.example.shared.toMessage
+import com.processout.example.ui.screen.MainActivity
 import com.processout.example.ui.screen.base.BaseFragment
 import com.processout.example.ui.screen.checkout.DynamicCheckoutUiState.*
 import com.processout.sdk.api.ProcessOut
@@ -141,12 +142,13 @@ class DynamicCheckoutFragment : BaseFragment<FragmentDynamicCheckoutBinding>(
 
     private fun handleControls(uiState: DynamicCheckoutUiState) {
         when (uiState) {
-            Submitting -> enableControls(false)
-            else -> enableControls(true)
+            Initial -> enableControls(true)
+            else -> enableControls(false)
         }
     }
 
     private fun enableControls(isEnabled: Boolean) {
+        (requireActivity() as MainActivity).adjustImeInsets = isEnabled
         with(binding) {
             amountInput.isEnabled = isEnabled
             currencyInput.isEnabled = isEnabled

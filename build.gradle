@@ -3,10 +3,10 @@
 buildscript {
     ext {
         androidGradlePluginVersion = '8.7.3'
-        kotlinVersion = '2.0.21'
-        kspVersion = '2.0.21-1.0.27'
+        kotlinVersion = '2.1.0'
+        kspVersion = '2.1.0-1.0.29'
         dokkaVersion = '1.9.20'
-        androidxNavigationVersion = '2.8.4'
+        androidxNavigationVersion = '2.8.5'
         nexusPublishPluginVersion = '2.0.0'
     }
     dependencies {
@@ -46,21 +46,21 @@ ext {
     androidxSwipeRefreshLayoutVersion = '1.1.0'
     androidxBrowserVersion = '1.8.0'
 
-    androidxComposeBOMVersion = '2024.11.00'
+    androidxComposeBOMVersion = '2024.12.01'
     composeGooglePayButtonVersion = '1.0.0'
 
     materialVersion = '1.12.0'
 
     gmsWalletVersion = '19.4.0'
-    kotlinxCoroutinesPlayServicesVersion = '1.8.1'
+    kotlinxCoroutinesPlayServicesVersion = '1.9.0'
 
     retrofitVersion = '2.11.0'
-    moshiVersion = '1.15.1'
+    moshiVersion = '1.15.2'
     okhttpVersion = '4.12.0'
     okioVersion = '3.9.1'
     coilVersion = '2.7.0'
     commonMarkVersion = '0.24.0'
-    libphonenumberVersion = '8.13.49'
+    libphonenumberVersion = '8.13.52'
     zxingVersion = '3.5.3'
 
     checkout3dsSdkVersion = '3.2.4'

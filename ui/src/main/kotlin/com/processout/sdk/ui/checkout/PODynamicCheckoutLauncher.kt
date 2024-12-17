@@ -6,6 +6,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.core.app.ActivityOptionsCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
 import com.processout.sdk.api.model.event.PODynamicCheckoutEvent
@@ -21,7 +22,6 @@ import com.processout.sdk.api.service.proxy3ds.POProxy3DSServiceRequest.*
 import com.processout.sdk.api.service.proxy3ds.POProxy3DSServiceResponse
 import com.processout.sdk.core.POUnit
 import com.processout.sdk.core.ProcessOutActivityResult
-import com.processout.sdk.ui.R
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import kotlinx.coroutines.*
 

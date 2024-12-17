@@ -17,6 +17,7 @@ import com.processout.example.R
 
 class MainActivity : AppCompatActivity() {
 
+    var adjustImeInsets = true
     private lateinit var topSpacer: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,13 +43,11 @@ class MainActivity : AppCompatActivity() {
                             or WindowInsetsCompat.Type.displayCutout()
                 ).top
             }
-            content.setPaddingRelative(
-                0, 0, 0,
-                insets.getInsets(
-                    WindowInsetsCompat.Type.navigationBars()
-                            or WindowInsetsCompat.Type.ime()
-                ).bottom
-            )
+            var bottomInsetsTypeMask = WindowInsetsCompat.Type.navigationBars()
+            if (adjustImeInsets) {
+                bottomInsetsTypeMask = bottomInsetsTypeMask or WindowInsetsCompat.Type.ime()
+            }
+            content.setPaddingRelative(0, 0, 0, insets.getInsets(bottomInsetsTypeMask).bottom)
             insets
         }
     }
