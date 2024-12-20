@@ -443,7 +443,8 @@ private fun RegularPaymentContent(
                             .padding(top = spacing.extraLarge),
                         style = style.actionsContainer.primary,
                         enabled = enabled,
-                        loading = loading
+                        loading = loading,
+                        iconResId = iconResId
                     )
                 }
             }

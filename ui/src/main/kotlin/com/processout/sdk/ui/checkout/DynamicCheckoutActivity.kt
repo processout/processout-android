@@ -103,7 +103,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                 defaultAddress = billingAddress?.defaultAddress,
                 attachDefaultsToPaymentMethod = billingAddress?.attachDefaultsToPaymentMethod ?: false
             ),
-            primaryActionText = configuration?.submitButtonText,
+            primaryActionText = configuration?.submitButton?.text,
             secondaryActionText = configuration?.cancelButton?.text,
             cancellation = POCancellationConfiguration(
                 secondaryAction = configuration?.cancelButton != null
@@ -115,7 +115,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
     private fun nativeAlternativePaymentConfiguration(): Options {
         val paymentConfirmation = configuration?.alternativePayment?.paymentConfirmation
         return Options(
-            primaryActionText = configuration?.submitButtonText,
+            primaryActionText = configuration?.submitButton?.text,
             secondaryAction = configuration?.cancelButton?.toSecondaryAction(),
             paymentConfirmation = PaymentConfirmationConfiguration(
                 waitsConfirmation = true,

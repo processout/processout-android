@@ -21,7 +21,7 @@ data class PODynamicCheckoutConfiguration(
     val googlePay: GooglePayConfiguration = GooglePayConfiguration(),
     val alternativePayment: AlternativePaymentConfiguration = AlternativePaymentConfiguration(),
     val preselectSinglePaymentMethod: Boolean = true,
-    val submitButtonText: String? = null,
+    val submitButton: SubmitButton = SubmitButton(),
     val cancelButton: CancelButton? = CancelButton(),
     val paymentSuccess: PaymentSuccess? = PaymentSuccess(),
     val style: Style? = null
@@ -109,6 +109,13 @@ data class PODynamicCheckoutConfiguration(
             ) : Parcelable
         }
     }
+
+    @Parcelize
+    data class SubmitButton(
+        val text: String? = null,
+        @DrawableRes
+        val iconResId: Int? = null
+    ) : Parcelable
 
     @Parcelize
     data class CancelButton(
