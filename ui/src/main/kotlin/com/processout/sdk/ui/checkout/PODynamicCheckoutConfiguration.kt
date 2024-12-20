@@ -120,6 +120,8 @@ data class PODynamicCheckoutConfiguration(
     @Parcelize
     data class CancelButton(
         val text: String? = null,
+        @DrawableRes
+        val iconResId: Int? = null,
         val disabledForSeconds: Int = 0,
         val confirmation: POActionConfirmationConfiguration? = null
     ) : Parcelable

@@ -146,7 +146,10 @@ internal class DynamicCheckoutViewModel private constructor(
                 }
             }
             else -> defaultCancelAction
-        }?.copy(id = interactorState.cancelActionId)
+        }?.copy(
+            id = interactorState.cancelActionId,
+            iconResId = configuration.cancelButton?.iconResId
+        )
     }
 
     private fun CancelButton.toActionState(
