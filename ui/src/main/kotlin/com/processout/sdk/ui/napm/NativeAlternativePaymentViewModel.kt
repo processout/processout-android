@@ -167,7 +167,8 @@ internal class NativeAlternativePaymentViewModel private constructor(
                     POActionState(
                         id = id,
                         text = it.text ?: app.getString(R.string.po_native_apm_confirm_payment_button_text),
-                        primary = true
+                        primary = true,
+                        iconResId = it.iconResId
                     )
                 }
             }

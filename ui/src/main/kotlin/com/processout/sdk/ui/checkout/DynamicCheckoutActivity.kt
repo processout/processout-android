@@ -122,7 +122,12 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                 timeoutSeconds = paymentConfirmation?.timeoutSeconds ?: DEFAULT_TIMEOUT_SECONDS,
                 showProgressIndicatorAfterSeconds = paymentConfirmation?.showProgressIndicatorAfterSeconds,
                 hideGatewayDetails = true,
-                primaryAction = paymentConfirmation?.confirmButton?.let { ConfirmAction(text = it.text) },
+                primaryAction = paymentConfirmation?.confirmButton?.let {
+                    ConfirmAction(
+                        text = it.text,
+                        iconResId = it.iconResId
+                    )
+                },
                 secondaryAction = paymentConfirmation?.cancelButton?.toSecondaryAction()
             ),
             barcode = configuration?.alternativePayment?.barcode ?: POBarcodeConfiguration(),

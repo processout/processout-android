@@ -56,10 +56,13 @@ data class PONativeAlternativePaymentConfiguration(
      * Action for confirmation.
      *
      * @param[text] Action text. Pass _null_ to use default text.
+     * @param[iconResId] Action icon drawable resource ID. Pass _null_ to hide.
      */
     @Parcelize
     data class ConfirmAction(
-        val text: String? = null
+        val text: String? = null,
+        @DrawableRes
+        val iconResId: Int? = null
     ) : Parcelable
 
     /**

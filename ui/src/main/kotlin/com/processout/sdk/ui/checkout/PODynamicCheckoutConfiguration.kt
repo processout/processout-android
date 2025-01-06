@@ -105,7 +105,9 @@ data class PODynamicCheckoutConfiguration(
 
             @Parcelize
             data class ConfirmButton(
-                val text: String? = null
+                val text: String? = null,
+                @DrawableRes
+                val iconResId: Int? = null
             ) : Parcelable
         }
     }
