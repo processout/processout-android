@@ -25,6 +25,7 @@ import com.processout.sdk.ui.core.component.POButton.border
 import com.processout.sdk.ui.core.component.POButton.colors
 import com.processout.sdk.ui.core.component.POButton.contentPadding
 import com.processout.sdk.ui.core.component.POButton.elevation
+import com.processout.sdk.ui.core.extension.conditional
 import com.processout.sdk.ui.core.style.POButtonDefaults
 import com.processout.sdk.ui.core.style.POButtonStateStyle
 import com.processout.sdk.ui.core.style.POButtonStyle
@@ -78,7 +79,9 @@ fun POButton(
                         painter = painterResource(it),
                         contentDescription = null,
                         modifier = Modifier
-                            .padding(end = spacing.small)
+                            .conditional(text.isNotBlank()) {
+                                padding(end = spacing.small)
+                            }
                             .requiredSize(20.dp),
                         colorFilter = ColorFilter.tint(color = iconColor)
                     )
