@@ -183,12 +183,13 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 saveBarcodeAction = customerAction?.barcode?.let {
                     POActionState(
                         id = it.actionId,
-                        text = options.barcode.saveActionText
+                        text = options.barcode.saveButton.text
                             ?: app.getString(
                                 R.string.po_native_apm_save_barcode_button_text_format,
                                 it.type.rawType.uppercase()
                             ),
-                        primary = false
+                        primary = false,
+                        iconResId = options.barcode.saveButton.iconResId
                     )
                 },
                 confirmationDialog = confirmationDialog(),

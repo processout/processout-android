@@ -419,7 +419,8 @@ private fun Capture(
                             )
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        style = style.actionsContainer.secondary
+                        style = style.actionsContainer.secondary,
+                        iconResId = action.iconResId
                     )
                 }
             }
