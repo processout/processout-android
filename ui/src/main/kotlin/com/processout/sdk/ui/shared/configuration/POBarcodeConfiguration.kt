@@ -2,7 +2,6 @@ package com.processout.sdk.ui.shared.configuration
 
 import android.os.Parcelable
 import androidx.annotation.DrawableRes
-import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import kotlinx.parcelize.Parcelize
 
 /**
@@ -13,14 +12,14 @@ import kotlinx.parcelize.Parcelize
  * @param[saveErrorConfirmation] Requests user confirmation (e.g. dialog) when barcode saving has failed. Use _null_ to disable.
  */
 @Parcelize
-data class POBarcodeConfiguration @ProcessOutInternalApi constructor(
-    @Deprecated(message = "Use 'saveButton.text' property.")
+data class POBarcodeConfiguration internal constructor(
+    @Deprecated(message = "Use 'saveButton.text' instead.")
     val saveActionText: String? = null,
     val saveButton: Button = Button(),
     val saveErrorConfirmation: POActionConfirmationConfiguration? = POActionConfirmationConfiguration()
 ) : Parcelable {
 
-    @Deprecated(message = "Use constructor POBarcodeConfiguration(saveButton, saveErrorConfirmation)")
+    @Deprecated(message = "Use alternative constructor.")
     constructor(
         saveActionText: String? = null,
         saveErrorConfirmation: POActionConfirmationConfiguration? = POActionConfirmationConfiguration()
