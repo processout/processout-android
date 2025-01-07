@@ -46,7 +46,7 @@ data class PONativeAlternativePaymentConfiguration(
         val secondaryAction: SecondaryAction? = null,
         val cancellation: CancellationConfiguration = CancellationConfiguration(),
         val paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration(),
-        val barcode: POBarcodeConfiguration = POBarcodeConfiguration(),
+        val barcode: POBarcodeConfiguration = POBarcodeConfiguration(saveButton = POBarcodeConfiguration.Button()),
         val inlineSingleSelectValuesLimit: Int = 5,
         val skipSuccessScreen: Boolean = false,
         val successMessage: String? = null

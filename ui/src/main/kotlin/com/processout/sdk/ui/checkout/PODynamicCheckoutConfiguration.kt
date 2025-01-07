@@ -91,7 +91,7 @@ data class PODynamicCheckoutConfiguration(
     data class AlternativePaymentConfiguration(
         val returnUrl: String? = null,
         val inlineSingleSelectValuesLimit: Int = 5,
-        val barcode: POBarcodeConfiguration = POBarcodeConfiguration(),
+        val barcode: POBarcodeConfiguration = POBarcodeConfiguration(saveButton = POBarcodeConfiguration.Button()),
         val paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration()
     ) : Parcelable {
 

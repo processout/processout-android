@@ -130,7 +130,8 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                 },
                 secondaryAction = paymentConfirmation?.cancelButton?.toSecondaryAction()
             ),
-            barcode = configuration?.alternativePayment?.barcode ?: POBarcodeConfiguration(),
+            barcode = configuration?.alternativePayment?.barcode
+                ?: POBarcodeConfiguration(saveButton = POBarcodeConfiguration.Button()),
             inlineSingleSelectValuesLimit = configuration?.alternativePayment?.inlineSingleSelectValuesLimit ?: 5,
             skipSuccessScreen = true
         )
