@@ -4,6 +4,8 @@ import android.os.Parcelable
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import com.processout.sdk.ui.core.style.*
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.SecondaryAction
 import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
 import com.processout.sdk.ui.shared.configuration.POBarcodeConfiguration
 import kotlinx.parcelize.Parcelize
@@ -20,7 +22,7 @@ import kotlinx.parcelize.Parcelize
 data class PONativeAlternativePaymentConfiguration(
     val invoiceId: String,
     val gatewayConfigurationId: String,
-    val options: Options = Options(),
+    val options: Options = Options(submitButton = SubmitButton()),
     val style: Style? = null
 ) : Parcelable {
 
@@ -30,6 +32,8 @@ data class PONativeAlternativePaymentConfiguration(
      * @param[title] Custom title.
      * @param[primaryActionText] Custom primary action text (e.g. "Pay").
      * @param[secondaryAction] Secondary action (e.g. "Cancel"). Use _null_ to hide, this is a default behaviour.
+     * @param[submitButton] Submit button configuration.
+     * @param[cancelButton] Cancel button configuration. Use _null_ to hide, this is a default behaviour.
      * @param[cancellation] Specifies cancellation behaviour.
      * @param[paymentConfirmation] Specifies payment confirmation behaviour.
      * @param[barcode] Specifies barcode configuration.
@@ -40,16 +44,102 @@ data class PONativeAlternativePaymentConfiguration(
      * @param[successMessage] Custom success message when payment is completed.
      */
     @Parcelize
-    data class Options(
+    data class Options internal constructor(
         val title: String? = null,
+        @Deprecated(message = "Use 'submitButton.text' instead.")
         val primaryActionText: String? = null,
+        @Deprecated(message = "Use 'cancelButton' instead.")
         val secondaryAction: SecondaryAction? = null,
+        val submitButton: SubmitButton = SubmitButton(),
+        val cancelButton: CancelButton? = null,
         val cancellation: CancellationConfiguration = CancellationConfiguration(),
-        val paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration(),
+        val paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration(confirmButton = null),
         val barcode: POBarcodeConfiguration = POBarcodeConfiguration(saveButton = POBarcodeConfiguration.Button()),
         val inlineSingleSelectValuesLimit: Int = 5,
         val skipSuccessScreen: Boolean = false,
         val successMessage: String? = null
+    ) : Parcelable {
+
+        @Deprecated(message = "Use alternative constructor.")
+        constructor(
+            title: String? = null,
+            primaryActionText: String? = null,
+            secondaryAction: SecondaryAction? = null,
+            cancellation: CancellationConfiguration = CancellationConfiguration(),
+            paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration(confirmButton = null),
+            barcode: POBarcodeConfiguration = POBarcodeConfiguration(saveButton = POBarcodeConfiguration.Button()),
+            inlineSingleSelectValuesLimit: Int = 5,
+            skipSuccessScreen: Boolean = false,
+            successMessage: String? = null
+        ) : this(
+            title = title,
+            primaryActionText = primaryActionText,
+            secondaryAction = secondaryAction,
+            submitButton = SubmitButton(text = primaryActionText),
+            cancelButton = secondaryAction?.toCancelButton(),
+            cancellation = cancellation,
+            paymentConfirmation = paymentConfirmation,
+            barcode = barcode,
+            inlineSingleSelectValuesLimit = inlineSingleSelectValuesLimit,
+            skipSuccessScreen = skipSuccessScreen,
+            successMessage = successMessage
+        )
+
+        constructor(
+            title: String? = null,
+            submitButton: SubmitButton = SubmitButton(),
+            cancelButton: CancelButton? = null,
+            cancellation: CancellationConfiguration = CancellationConfiguration(),
+            paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration(confirmButton = null),
+            barcode: POBarcodeConfiguration = POBarcodeConfiguration(saveButton = POBarcodeConfiguration.Button()),
+            inlineSingleSelectValuesLimit: Int = 5,
+            skipSuccessScreen: Boolean = false,
+            successMessage: String? = null
+        ) : this(
+            title = title,
+            primaryActionText = submitButton.text,
+            secondaryAction = cancelButton?.toSecondaryAction(),
+            submitButton = submitButton,
+            cancelButton = cancelButton,
+            cancellation = cancellation,
+            paymentConfirmation = paymentConfirmation,
+            barcode = barcode,
+            inlineSingleSelectValuesLimit = inlineSingleSelectValuesLimit,
+            skipSuccessScreen = skipSuccessScreen,
+            successMessage = successMessage
+        )
+    }
+
+    /**
+     * Submit button configuration.
+     *
+     * @param[text] Button text. Pass _null_ to use default text.
+     * @param[iconResId] Button icon drawable resource ID. Pass _null_ to hide.
+     */
+    @Parcelize
+    data class SubmitButton(
+        val text: String? = null,
+        @DrawableRes
+        val iconResId: Int? = null
+    ) : Parcelable
+
+    /**
+     * Cancel button configuration.
+     *
+     * @param[text] Button text. Pass _null_ to use default text.
+     * @param[iconResId] Button icon drawable resource ID. Pass _null_ to hide.
+     * @param[disabledForSeconds] Initially disables the button for the given amount of time in seconds.
+     * By default user can interact with the button immediately when it's visible.
+     * @param[confirmation] Specifies action confirmation configuration (e.g. dialog).
+     * Use _null_ to disable, this is a default behaviour.
+     */
+    @Parcelize
+    data class CancelButton(
+        val text: String? = null,
+        @DrawableRes
+        val iconResId: Int? = null,
+        val disabledForSeconds: Int = 0,
+        val confirmation: POActionConfirmationConfiguration? = null
     ) : Parcelable
 
     /**
@@ -59,6 +149,7 @@ data class PONativeAlternativePaymentConfiguration(
      * @param[iconResId] Action icon drawable resource ID. Pass _null_ to hide.
      */
     @Parcelize
+    @Deprecated(message = "Use 'SubmitButton' instead.")
     data class ConfirmAction(
         val text: String? = null,
         @DrawableRes
@@ -68,17 +159,19 @@ data class PONativeAlternativePaymentConfiguration(
     /**
      * Supported secondary actions.
      */
+    @Deprecated(message = "Use 'CancelButton' instead.")
     sealed class SecondaryAction : Parcelable {
         /**
          * Action for cancellation.
          *
          * @param[text] Action text. Pass _null_ to use default text.
-         * @param[disabledForSeconds] Initially disables action for the given amount of time in seconds.
-         * By default user can interact with action immediately when it's visible.
+         * @param[disabledForSeconds] Initially disables the action for the given amount of time in seconds.
+         * By default user can interact with the action immediately when it's visible.
          * @param[confirmation] Specifies action confirmation configuration (e.g. dialog).
          * Use _null_ to disable, this is a default behaviour.
          */
         @Parcelize
+        @Deprecated(message = "Use 'CancelButton' instead.")
         data class Cancel(
             val text: String? = null,
             val disabledForSeconds: Int = 0,
@@ -115,20 +208,68 @@ data class PONativeAlternativePaymentConfiguration(
      * To hide action use _null_, this is a default behaviour.
      * @param[secondaryAction] Secondary action (e.g. "Cancel") that could be optionally presented to user during payment confirmation stage.
      * Use _null_ to hide, this is a default behaviour.
+     * @param[confirmButton] Confirm button configuration.
+     * @param[cancelButton] Cancel button configuration.
      */
     @Parcelize
-    data class PaymentConfirmationConfiguration(
+    data class PaymentConfirmationConfiguration internal constructor(
         val waitsConfirmation: Boolean = true,
         val timeoutSeconds: Int = DEFAULT_TIMEOUT_SECONDS,
         val showProgressIndicatorAfterSeconds: Int? = null,
         val hideGatewayDetails: Boolean = false,
+        @Deprecated(message = "Use 'confirmButton' instead.")
         val primaryAction: ConfirmAction? = null,
-        val secondaryAction: SecondaryAction? = null
+        @Deprecated(message = "Use 'cancelButton' instead.")
+        val secondaryAction: SecondaryAction? = null,
+        val confirmButton: SubmitButton? = null,
+        val cancelButton: CancelButton? = null
     ) : Parcelable {
+
         companion object {
             const val MAX_TIMEOUT_SECONDS = 15 * 60
             const val DEFAULT_TIMEOUT_SECONDS = 3 * 60
         }
+
+        @Deprecated(message = "Use alternative constructor.")
+        constructor(
+            waitsConfirmation: Boolean = true,
+            timeoutSeconds: Int = DEFAULT_TIMEOUT_SECONDS,
+            showProgressIndicatorAfterSeconds: Int? = null,
+            hideGatewayDetails: Boolean = false,
+            primaryAction: ConfirmAction? = null,
+            secondaryAction: SecondaryAction? = null
+        ) : this(
+            waitsConfirmation = waitsConfirmation,
+            timeoutSeconds = timeoutSeconds,
+            showProgressIndicatorAfterSeconds = showProgressIndicatorAfterSeconds,
+            hideGatewayDetails = hideGatewayDetails,
+            primaryAction = primaryAction,
+            secondaryAction = secondaryAction,
+            confirmButton = primaryAction?.let {
+                SubmitButton(text = it.text, iconResId = it.iconResId)
+            },
+            cancelButton = secondaryAction?.toCancelButton()
+        )
+
+        constructor(
+            waitsConfirmation: Boolean = true,
+            timeoutSeconds: Int = DEFAULT_TIMEOUT_SECONDS,
+            showProgressIndicatorAfterSeconds: Int? = null,
+            hideGatewayDetails: Boolean = false,
+            confirmButton: SubmitButton? = null,
+            cancelButton: CancelButton? = null
+        ) : this(
+            waitsConfirmation = waitsConfirmation,
+            timeoutSeconds = timeoutSeconds,
+            showProgressIndicatorAfterSeconds = showProgressIndicatorAfterSeconds,
+            hideGatewayDetails = hideGatewayDetails,
+            primaryAction = confirmButton?.let {
+                ConfirmAction(text = it.text, iconResId = it.iconResId)
+            },
+            secondaryAction = cancelButton?.toSecondaryAction(),
+            confirmButton = confirmButton,
+            cancelButton = cancelButton
+        )
     }
 
     /**
@@ -178,3 +319,19 @@ data class PONativeAlternativePaymentConfiguration(
         val dragHandleColorResId: Int? = null
     ) : Parcelable
 }
+
+private fun SecondaryAction.toCancelButton(): CancelButton =
+    when (this) {
+        is SecondaryAction.Cancel -> CancelButton(
+            text = text,
+            disabledForSeconds = disabledForSeconds,
+            confirmation = confirmation
+        )
+    }
+
+private fun CancelButton.toSecondaryAction() =
+    SecondaryAction.Cancel(
+        text = text,
+        disabledForSeconds = disabledForSeconds,
+        confirmation = confirmation
+    )
