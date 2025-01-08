@@ -225,14 +225,16 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
 
     private fun dispatchBackPressed() {
         onBackPressedDispatcher.addCallback(this) {
-            viewModel.onEvent(
-                Dismiss(
-                    ProcessOutResult.Failure(
-                        code = Cancelled,
-                        message = "Cancelled by the user with back press or gesture."
+            if (configuration?.cancelOnBackPressed == true) {
+                viewModel.onEvent(
+                    Dismiss(
+                        ProcessOutResult.Failure(
+                            code = Cancelled,
+                            message = "Cancelled by the user with back press or gesture."
+                        )
                     )
                 )
-            )
+            }
         }
     }
 

@@ -20,9 +20,10 @@ data class PODynamicCheckoutConfiguration(
     val card: CardConfiguration = CardConfiguration(),
     val googlePay: GooglePayConfiguration = GooglePayConfiguration(),
     val alternativePayment: AlternativePaymentConfiguration = AlternativePaymentConfiguration(),
-    val preselectSinglePaymentMethod: Boolean = true,
     val submitButton: SubmitButton = SubmitButton(),
     val cancelButton: CancelButton? = CancelButton(),
+    val cancelOnBackPressed: Boolean = true,
+    val preselectSinglePaymentMethod: Boolean = true,
     val paymentSuccess: PaymentSuccess? = PaymentSuccess(),
     val style: Style? = null
 ) : Parcelable {
