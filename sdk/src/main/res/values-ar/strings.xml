@@ -92,4 +92,9 @@
     <string name="po_cancel_payment_confirmation_confirm">إلغاء الدفع</string>
     <string name="po_cancel_payment_confirmation_dismiss">ليس الآن</string>
 
+    <!-- Cancel Confirmation -->
+    <string name="po_cancel_confirmation_title">إلغاء؟</string>
+    <string name="po_cancel_confirmation_confirm">إلغاء</string>
+    <string name="po_cancel_confirmation_dismiss">ليس الآن</string>
+
 </resources>

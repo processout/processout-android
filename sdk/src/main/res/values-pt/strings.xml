@@ -90,4 +90,9 @@
     <string name="po_cancel_payment_confirmation_confirm">Cancelar pagamento</string>
     <string name="po_cancel_payment_confirmation_dismiss">Agora não</string>
 
+    <!-- Cancel Confirmation -->
+    <string name="po_cancel_confirmation_title">Cancelar?</string>
+    <string name="po_cancel_confirmation_confirm">Cancelar</string>
+    <string name="po_cancel_confirmation_dismiss">Agora não</string>
+
 </resources>

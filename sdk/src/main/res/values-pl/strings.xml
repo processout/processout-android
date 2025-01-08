@@ -91,4 +91,9 @@
     <string name="po_cancel_payment_confirmation_confirm">Anuluj płatność</string>
     <string name="po_cancel_payment_confirmation_dismiss">Nie teraz</string>
 
+    <!-- Cancel Confirmation -->
+    <string name="po_cancel_confirmation_title">Anulować?</string>
+    <string name="po_cancel_confirmation_confirm">Anuluj</string>
+    <string name="po_cancel_confirmation_dismiss">Nie teraz</string>
+
 </resources>
