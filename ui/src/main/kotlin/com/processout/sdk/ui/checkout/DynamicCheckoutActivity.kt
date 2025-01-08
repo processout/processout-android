@@ -47,11 +47,14 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Success
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutSideEffect.*
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.CancelButton
+import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.SubmitButton
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.googlepay.POGooglePayCardTokenizationLauncher
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
-import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.DEFAULT_TIMEOUT_SECONDS
 import com.processout.sdk.ui.shared.configuration.POBarcodeConfiguration
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
@@ -115,20 +118,15 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
     private fun nativeAlternativePaymentConfiguration(): Options {
         val paymentConfirmation = configuration?.alternativePayment?.paymentConfirmation
         return Options(
-            primaryActionText = configuration?.submitButton?.text,
-            secondaryAction = configuration?.cancelButton?.toSecondaryAction(),
+            submitButton = configuration?.submitButton?.map() ?: PONativeAlternativePaymentConfiguration.SubmitButton(),
+            cancelButton = configuration?.cancelButton?.map(),
             paymentConfirmation = PaymentConfirmationConfiguration(
                 waitsConfirmation = true,
                 timeoutSeconds = paymentConfirmation?.timeoutSeconds ?: DEFAULT_TIMEOUT_SECONDS,
                 showProgressIndicatorAfterSeconds = paymentConfirmation?.showProgressIndicatorAfterSeconds,
                 hideGatewayDetails = true,
-                primaryAction = paymentConfirmation?.confirmButton?.let {
-                    ConfirmAction(
-                        text = it.text,
-                        iconResId = it.iconResId
-                    )
-                },
-                secondaryAction = paymentConfirmation?.cancelButton?.toSecondaryAction()
+                confirmButton = paymentConfirmation?.confirmButton?.map(),
+                cancelButton = paymentConfirmation?.cancelButton?.map()
             ),
             barcode = configuration?.alternativePayment?.barcode
                 ?: POBarcodeConfiguration(saveButton = POBarcodeConfiguration.Button()),
@@ -137,8 +135,14 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         )
     }
 
-    private fun CancelButton.toSecondaryAction() = SecondaryAction.Cancel(
+    private fun SubmitButton.map() = PONativeAlternativePaymentConfiguration.SubmitButton(
         text = text,
+        iconResId = iconResId
+    )
+
+    private fun CancelButton.map() = PONativeAlternativePaymentConfiguration.CancelButton(
+        text = text,
+        iconResId = iconResId,
         disabledForSeconds = disabledForSeconds,
         confirmation = confirmation
     )
