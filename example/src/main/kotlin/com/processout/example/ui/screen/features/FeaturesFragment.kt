@@ -98,7 +98,6 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
                                 preferredScheme = card?.coScheme
                             ),
                             cancellation = POCancellationConfiguration(
-                                secondaryAction = true,
                                 backPressed = true,
                                 dragDown = true,
                                 touchOutside = false

@@ -8,6 +8,7 @@ import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Cancel
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.SecondaryAction
 import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
 import com.processout.sdk.ui.shared.configuration.POBarcodeConfiguration
+import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import kotlinx.parcelize.Parcelize
 
 /**
@@ -46,7 +47,7 @@ data class PONativeAlternativePaymentConfiguration(
         val title: String? = null,
         val submitButton: SubmitButton = SubmitButton(),
         val cancelButton: CancelButton? = null,
-        val cancellation: CancellationConfiguration = CancellationConfiguration(),
+        val cancellation: POCancellationConfiguration = POCancellationConfiguration(),
         val paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration(confirmButton = null),
         val barcode: POBarcodeConfiguration = POBarcodeConfiguration(saveButton = POBarcodeConfiguration.Button()),
         val inlineSingleSelectValuesLimit: Int = 5,
@@ -84,7 +85,13 @@ data class PONativeAlternativePaymentConfiguration(
             title = title,
             submitButton = SubmitButton(text = primaryActionText),
             cancelButton = secondaryAction?.toCancelButton(),
-            cancellation = cancellation,
+            cancellation = with(cancellation) {
+                POCancellationConfiguration(
+                    backPressed = backPressed,
+                    dragDown = dragDown,
+                    touchOutside = touchOutside
+                )
+            },
             paymentConfirmation = paymentConfirmation,
             barcode = barcode,
             inlineSingleSelectValuesLimit = inlineSingleSelectValuesLimit,
@@ -167,6 +174,7 @@ data class PONativeAlternativePaymentConfiguration(
      * @param[touchOutside] Cancel on touch of the outside dimmed area of the bottom sheet. Default value is _true_.
      */
     @Parcelize
+    @Deprecated(message = "Use 'POCancellationConfiguration' instead.")
     data class CancellationConfiguration(
         val backPressed: Boolean = true,
         val dragDown: Boolean = true,
