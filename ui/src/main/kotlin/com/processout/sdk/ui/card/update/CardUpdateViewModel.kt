@@ -100,14 +100,18 @@ internal class CardUpdateViewModel private constructor(
             focusedFieldId = CardFieldId.CVC,
             primaryAction = POActionState(
                 id = ActionId.SUBMIT,
-                text = primaryActionText ?: app.getString(R.string.po_card_update_button_submit),
-                primary = true
+                text = submitButton.text ?: app.getString(R.string.po_card_update_button_submit),
+                primary = true,
+                iconResId = submitButton.iconResId
             ),
-            secondaryAction = if (cancellation.secondaryAction) POActionState(
-                id = ActionId.CANCEL,
-                text = secondaryActionText ?: app.getString(R.string.po_card_update_button_cancel),
-                primary = false
-            ) else null,
+            secondaryAction = cancelButton?.let {
+                POActionState(
+                    id = ActionId.CANCEL,
+                    text = it.text ?: app.getString(R.string.po_card_update_button_cancel),
+                    primary = false,
+                    iconResId = it.iconResId
+                )
+            },
             draggable = cancellation.dragDown
         )
     }

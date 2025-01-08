@@ -2,9 +2,11 @@ package com.processout.sdk.ui.card.update
 
 import android.os.Parcelable
 import androidx.annotation.ColorRes
+import androidx.annotation.DrawableRes
 import com.processout.sdk.ui.core.style.POActionsContainerStyle
 import com.processout.sdk.ui.core.style.POFieldStyle
 import com.processout.sdk.ui.core.style.POTextStyle
+import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import kotlinx.parcelize.Parcelize
 
@@ -18,7 +20,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class POCardUpdateConfiguration(
     val cardId: String,
-    val options: Options = Options(),
+    val options: Options = Options(submitButton = SubmitButton()),
     val style: Style? = null
 ) : Parcelable {
 
@@ -27,17 +29,72 @@ data class POCardUpdateConfiguration(
      *
      * @param[title] Custom title.
      * @param[cardInformation] Allows to provide card information that will be visible in UI.
-     * @param[primaryActionText] Custom primary action text (e.g. "Submit").
-     * @param[secondaryActionText] Custom secondary action text (e.g. "Cancel").
+     * @param[submitButton] Submit button configuration.
+     * @param[cancelButton] Cancel button configuration. Use _null_ to hide.
      * @param[cancellation] Specifies cancellation behaviour.
      */
     @Parcelize
     data class Options(
         val title: String? = null,
         val cardInformation: CardInformation? = null,
-        val primaryActionText: String? = null,
-        val secondaryActionText: String? = null,
+        val submitButton: SubmitButton = SubmitButton(),
+        val cancelButton: CancelButton? = CancelButton(),
         val cancellation: POCancellationConfiguration = POCancellationConfiguration()
+    ) : Parcelable {
+
+        /**
+         * Allows to customize behaviour and pre-define the values.
+         *
+         * @param[title] Custom title.
+         * @param[cardInformation] Allows to provide card information that will be visible in UI.
+         * @param[primaryActionText] Custom primary action text (e.g. "Submit").
+         * @param[secondaryActionText] Custom secondary action text (e.g. "Cancel").
+         * @param[cancellation] Specifies cancellation behaviour.
+         */
+        @Deprecated(message = "Use alternative constructor.")
+        constructor(
+            title: String? = null,
+            cardInformation: CardInformation? = null,
+            primaryActionText: String? = null,
+            secondaryActionText: String? = null,
+            cancellation: POCancellationConfiguration = POCancellationConfiguration()
+        ) : this(
+            title = title,
+            cardInformation = cardInformation,
+            submitButton = SubmitButton(text = primaryActionText),
+            cancelButton = if (cancellation.secondaryAction)
+                CancelButton(text = secondaryActionText) else null,
+            cancellation = cancellation
+        )
+    }
+
+    /**
+     * Submit button configuration.
+     *
+     * @param[text] Button text. Pass _null_ to use default text.
+     * @param[iconResId] Button icon drawable resource ID. Pass _null_ to hide.
+     */
+    @Parcelize
+    data class SubmitButton(
+        val text: String? = null,
+        @DrawableRes
+        val iconResId: Int? = null
+    ) : Parcelable
+
+    /**
+     * Cancel button configuration.
+     *
+     * @param[text] Button text. Pass _null_ to use default text.
+     * @param[iconResId] Button icon drawable resource ID. Pass _null_ to hide.
+     * @param[confirmation] Specifies action confirmation configuration (e.g. dialog).
+     * Use _null_ to disable, this is a default behaviour.
+     */
+    @Parcelize
+    data class CancelButton(
+        val text: String? = null,
+        @DrawableRes
+        val iconResId: Int? = null,
+        val confirmation: POActionConfirmationConfiguration? = null
     ) : Parcelable
 
     /**

@@ -20,6 +20,7 @@ import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.api.model.response.POGooglePayCardTokenizationData
 import com.processout.sdk.core.*
 import com.processout.sdk.ui.card.update.POCardUpdateConfiguration
+import com.processout.sdk.ui.card.update.POCardUpdateConfiguration.*
 import com.processout.sdk.ui.card.update.POCardUpdateLauncher
 import com.processout.sdk.ui.googlepay.POGooglePayCardTokenizationLauncher
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
@@ -90,13 +91,14 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
                 cardUpdateLauncher.launch(
                     POCardUpdateConfiguration(
                         cardId = card?.id ?: String(),
-                        options = POCardUpdateConfiguration.Options(
-                            cardInformation = POCardUpdateConfiguration.CardInformation(
+                        options = Options(
+                            cardInformation = CardInformation(
                                 maskedNumber = maskedNumber,
                                 iin = card?.iin,
                                 scheme = card?.scheme,
                                 preferredScheme = card?.coScheme
                             ),
+                            submitButton = SubmitButton(),
                             cancellation = POCancellationConfiguration(
                                 backPressed = true,
                                 dragDown = true,
