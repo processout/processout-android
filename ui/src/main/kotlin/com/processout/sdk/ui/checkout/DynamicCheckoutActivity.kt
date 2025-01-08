@@ -57,7 +57,6 @@ import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Option
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.DEFAULT_TIMEOUT_SECONDS
 import com.processout.sdk.ui.shared.configuration.POBarcodeConfiguration
-import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import com.processout.sdk.ui.shared.extension.collectImmediately
 import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivity
 import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivityContract
@@ -106,11 +105,19 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                 defaultAddress = billingAddress?.defaultAddress,
                 attachDefaultsToPaymentMethod = billingAddress?.attachDefaultsToPaymentMethod ?: false
             ),
-            primaryActionText = configuration?.submitButton?.text,
-            secondaryActionText = configuration?.cancelButton?.text,
-            cancellation = POCancellationConfiguration(
-                secondaryAction = configuration?.cancelButton != null
-            ),
+            submitButton = configuration?.submitButton?.let {
+                POCardTokenizationConfiguration.SubmitButton(
+                    text = it.text,
+                    iconResId = it.iconResId
+                )
+            } ?: POCardTokenizationConfiguration.SubmitButton(),
+            cancelButton = configuration?.cancelButton?.let {
+                POCardTokenizationConfiguration.CancelButton(
+                    text = it.text,
+                    iconResId = it.iconResId,
+                    confirmation = it.confirmation
+                )
+            },
             metadata = configuration?.card?.metadata
         )
     }
