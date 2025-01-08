@@ -91,17 +91,21 @@ internal class CardTokenizationViewModel private constructor(
             focusedFieldId = state.focusedFieldId,
             primaryAction = POActionState(
                 id = state.primaryActionId,
-                text = primaryActionText ?: app.getString(R.string.po_card_tokenization_button_submit),
+                text = submitButton.text ?: app.getString(R.string.po_card_tokenization_button_submit),
                 primary = true,
                 enabled = state.submitAllowed,
-                loading = state.submitting
+                loading = state.submitting,
+                iconResId = submitButton.iconResId
             ),
-            secondaryAction = if (cancellation.secondaryAction) POActionState(
-                id = state.secondaryActionId,
-                text = secondaryActionText ?: app.getString(R.string.po_card_tokenization_button_cancel),
-                primary = false,
-                enabled = !state.submitting
-            ) else null,
+            secondaryAction = cancelButton?.let {
+                POActionState(
+                    id = state.secondaryActionId,
+                    text = it.text ?: app.getString(R.string.po_card_tokenization_button_cancel),
+                    primary = false,
+                    enabled = !state.submitting,
+                    iconResId = it.iconResId
+                )
+            },
             draggable = cancellation.dragDown
         )
     }

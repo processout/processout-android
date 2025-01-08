@@ -2,9 +2,11 @@ package com.processout.sdk.ui.card.tokenization
 
 import android.os.Parcelable
 import androidx.annotation.ColorRes
+import androidx.annotation.DrawableRes
 import com.processout.sdk.api.model.request.POContact
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode
 import com.processout.sdk.ui.core.style.*
+import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import kotlinx.parcelize.Parcelize
 
@@ -16,8 +18,8 @@ import kotlinx.parcelize.Parcelize
  * @param[isCardholderNameFieldVisible] Specifies whether the cardholder name field should be displayed. Default value is _true_.
  * @param[billingAddress] Allows to customize the collection of billing address.
  * @param[savingAllowed] Displays checkbox that allows to save the card details for future payments.
- * @param[primaryActionText] Custom primary action text (e.g. "Submit").
- * @param[secondaryActionText] Custom secondary action text (e.g. "Cancel").
+ * @param[submitButton] Submit button configuration.
+ * @param[cancelButton] Cancel button configuration. Use _null_ to hide.
  * @param[cancellation] Specifies cancellation behaviour.
  * @param[metadata] Metadata related to the card.
  * @param[style] Allows to customize the look and feel.
@@ -29,12 +31,52 @@ data class POCardTokenizationConfiguration(
     val isCardholderNameFieldVisible: Boolean = true,
     val billingAddress: BillingAddressConfiguration = BillingAddressConfiguration(),
     val savingAllowed: Boolean = false,
-    val primaryActionText: String? = null,
-    val secondaryActionText: String? = null,
+    val submitButton: SubmitButton = SubmitButton(),
+    val cancelButton: CancelButton? = CancelButton(),
     val cancellation: POCancellationConfiguration = POCancellationConfiguration(),
     val metadata: Map<String, String>? = null,
     val style: Style? = null
 ) : Parcelable {
+
+    /**
+     * Defines card tokenization configuration.
+     *
+     * @param[title] Custom title.
+     * @param[cvcRequired] Specifies whether the card CVC should be collected. Default value is _true_.
+     * @param[isCardholderNameFieldVisible] Specifies whether the cardholder name field should be displayed. Default value is _true_.
+     * @param[billingAddress] Allows to customize the collection of billing address.
+     * @param[savingAllowed] Displays checkbox that allows to save the card details for future payments.
+     * @param[primaryActionText] Custom primary action text (e.g. "Submit").
+     * @param[secondaryActionText] Custom secondary action text (e.g. "Cancel").
+     * @param[cancellation] Specifies cancellation behaviour.
+     * @param[metadata] Metadata related to the card.
+     * @param[style] Allows to customize the look and feel.
+     */
+    @Deprecated(message = "Use alternative constructor.")
+    constructor(
+        title: String? = null,
+        cvcRequired: Boolean = true,
+        isCardholderNameFieldVisible: Boolean = true,
+        billingAddress: BillingAddressConfiguration = BillingAddressConfiguration(),
+        savingAllowed: Boolean = false,
+        primaryActionText: String? = null,
+        secondaryActionText: String? = null,
+        cancellation: POCancellationConfiguration = POCancellationConfiguration(),
+        metadata: Map<String, String>? = null,
+        style: Style? = null
+    ) : this(
+        title = title,
+        cvcRequired = cvcRequired,
+        isCardholderNameFieldVisible = isCardholderNameFieldVisible,
+        billingAddress = billingAddress,
+        savingAllowed = savingAllowed,
+        submitButton = SubmitButton(text = primaryActionText),
+        cancelButton = if (cancellation.secondaryAction)
+            CancelButton(text = secondaryActionText) else null,
+        cancellation = cancellation,
+        metadata = metadata,
+        style = style
+    )
 
     /**
      * Defines billing address configuration.
@@ -68,6 +110,35 @@ data class POCardTokenizationConfiguration(
             Full
         }
     }
+
+    /**
+     * Submit button configuration.
+     *
+     * @param[text] Button text. Pass _null_ to use default text.
+     * @param[iconResId] Button icon drawable resource ID. Pass _null_ to hide.
+     */
+    @Parcelize
+    data class SubmitButton(
+        val text: String? = null,
+        @DrawableRes
+        val iconResId: Int? = null
+    ) : Parcelable
+
+    /**
+     * Cancel button configuration.
+     *
+     * @param[text] Button text. Pass _null_ to use default text.
+     * @param[iconResId] Button icon drawable resource ID. Pass _null_ to hide.
+     * @param[confirmation] Specifies action confirmation configuration (e.g. dialog).
+     * Use _null_ to disable, this is a default behaviour.
+     */
+    @Parcelize
+    data class CancelButton(
+        val text: String? = null,
+        @DrawableRes
+        val iconResId: Int? = null,
+        val confirmation: POActionConfirmationConfiguration? = null
+    ) : Parcelable
 
     /**
      * Allows to customize the look and feel.
