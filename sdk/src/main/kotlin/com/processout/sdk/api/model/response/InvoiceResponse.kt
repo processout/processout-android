@@ -33,7 +33,7 @@ internal data class InvoiceResponseBody(
  * @param[customerId] Customer identifier.
  * @param[transaction] Transaction details.
  * @param[paymentMethods] Dynamic checkout configuration.
- * @param[clientSecret] Client secret is a value of __x-processout-client-secret__ header of the invoice.
+ * @param[clientSecret] Client secret is a value of __X-ProcessOut-Client-Secret__ header of the invoice.
  */
 data class POInvoice(
     val id: String,
