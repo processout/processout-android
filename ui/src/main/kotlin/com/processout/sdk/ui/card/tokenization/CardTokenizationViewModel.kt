@@ -16,6 +16,7 @@ import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokeniza
 import com.processout.sdk.ui.card.tokenization.CardTokenizationInteractorState.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.*
 import com.processout.sdk.ui.core.state.POActionState
+import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.shared.extension.map
 import com.processout.sdk.ui.shared.filter.CardExpirationInputFilter
@@ -91,17 +92,31 @@ internal class CardTokenizationViewModel private constructor(
             focusedFieldId = state.focusedFieldId,
             primaryAction = POActionState(
                 id = state.primaryActionId,
-                text = primaryActionText ?: app.getString(R.string.po_card_tokenization_button_submit),
+                text = submitButton.text ?: app.getString(R.string.po_card_tokenization_button_submit),
                 primary = true,
                 enabled = state.submitAllowed,
-                loading = state.submitting
+                loading = state.submitting,
+                iconResId = submitButton.iconResId
             ),
-            secondaryAction = if (cancellation.secondaryAction) POActionState(
-                id = state.secondaryActionId,
-                text = secondaryActionText ?: app.getString(R.string.po_card_tokenization_button_cancel),
-                primary = false,
-                enabled = !state.submitting
-            ) else null,
+            secondaryAction = cancelButton?.let {
+                POActionState(
+                    id = state.secondaryActionId,
+                    text = it.text ?: app.getString(R.string.po_card_tokenization_button_cancel),
+                    primary = false,
+                    enabled = !state.submitting,
+                    iconResId = it.iconResId,
+                    confirmation = it.confirmation?.run {
+                        Confirmation(
+                            title = title ?: app.getString(R.string.po_cancel_confirmation_title),
+                            message = message,
+                            confirmActionText = confirmActionText
+                                ?: app.getString(R.string.po_cancel_confirmation_confirm),
+                            dismissActionText = dismissActionText
+                                ?: app.getString(R.string.po_cancel_confirmation_dismiss)
+                        )
+                    }
+                )
+            },
             draggable = cancellation.dragDown
         )
     }

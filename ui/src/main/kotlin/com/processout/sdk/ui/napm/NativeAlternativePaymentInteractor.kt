@@ -45,9 +45,8 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.Action
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.PermissionRequest
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
-import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.SecondaryAction
-import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.SecondaryAction.Cancel
 import com.processout.sdk.ui.shared.extension.dpToPx
 import com.processout.sdk.ui.shared.provider.BarcodeBitmapProvider
 import com.processout.sdk.ui.shared.provider.MediaStorageProvider
@@ -714,7 +713,7 @@ internal class NativeAlternativePaymentInteractor(
         dispatch(WillWaitForCaptureConfirmation(additionalActionExpected = additionalActionExpected))
         _state.update { Capturing(captureStateValue) }
         enableCapturingSecondaryAction()
-        if (!additionalActionExpected || options.paymentConfirmation.primaryAction == null) {
+        if (!additionalActionExpected || options.paymentConfirmation.confirmButton == null) {
             capture()
         }
     }
@@ -829,14 +828,11 @@ internal class NativeAlternativePaymentInteractor(
 
     //region Features
 
-    private val SecondaryAction?.disabledForMillis: Long
-        get() = when (this) {
-            is Cancel -> disabledForSeconds * 1000L
-            null -> 0
-        }
+    private val CancelButton?.disabledForMillis: Long
+        get() = this?.disabledForSeconds?.let { it * 1000L } ?: 0
 
     private fun enableUserInputSecondaryAction() {
-        handler.postDelayed(delayInMillis = options.secondaryAction.disabledForMillis) {
+        handler.postDelayed(delayInMillis = options.cancelButton.disabledForMillis) {
             _state.whenUserInput { stateValue ->
                 _state.update {
                     with(stateValue) {
@@ -848,7 +844,7 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private fun enableCapturingSecondaryAction() {
-        handler.postDelayed(delayInMillis = options.paymentConfirmation.secondaryAction.disabledForMillis) {
+        handler.postDelayed(delayInMillis = options.paymentConfirmation.cancelButton.disabledForMillis) {
             _state.whenCapturing { stateValue ->
                 _state.update {
                     with(stateValue) {

@@ -20,9 +20,10 @@ data class PODynamicCheckoutConfiguration(
     val card: CardConfiguration = CardConfiguration(),
     val googlePay: GooglePayConfiguration = GooglePayConfiguration(),
     val alternativePayment: AlternativePaymentConfiguration = AlternativePaymentConfiguration(),
-    val preselectSinglePaymentMethod: Boolean = true,
-    val submitButtonText: String? = null,
+    val submitButton: SubmitButton = SubmitButton(),
     val cancelButton: CancelButton? = CancelButton(),
+    val cancelOnBackPressed: Boolean = true,
+    val preselectSinglePaymentMethod: Boolean = true,
     val paymentSuccess: PaymentSuccess? = PaymentSuccess(),
     val style: Style? = null
 ) : Parcelable {
@@ -91,7 +92,7 @@ data class PODynamicCheckoutConfiguration(
     data class AlternativePaymentConfiguration(
         val returnUrl: String? = null,
         val inlineSingleSelectValuesLimit: Int = 5,
-        val barcode: POBarcodeConfiguration = POBarcodeConfiguration(),
+        val barcode: POBarcodeConfiguration = POBarcodeConfiguration(saveButton = POBarcodeConfiguration.Button()),
         val paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration()
     ) : Parcelable {
 
@@ -99,20 +100,23 @@ data class PODynamicCheckoutConfiguration(
         data class PaymentConfirmationConfiguration(
             val timeoutSeconds: Int = 3 * 60,
             val showProgressIndicatorAfterSeconds: Int? = null,
-            val confirmButton: ConfirmButton? = null,
+            val confirmButton: SubmitButton? = null,
             val cancelButton: CancelButton? = CancelButton()
-        ) : Parcelable {
-
-            @Parcelize
-            data class ConfirmButton(
-                val text: String? = null
-            ) : Parcelable
-        }
+        ) : Parcelable
     }
+
+    @Parcelize
+    data class SubmitButton(
+        val text: String? = null,
+        @DrawableRes
+        val iconResId: Int? = null
+    ) : Parcelable
 
     @Parcelize
     data class CancelButton(
         val text: String? = null,
+        @DrawableRes
+        val iconResId: Int? = null,
         val disabledForSeconds: Int = 0,
         val confirmation: POActionConfirmationConfiguration? = null
     ) : Parcelable

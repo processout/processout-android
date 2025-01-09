@@ -89,4 +89,9 @@
     <string name="po_cancel_payment_confirmation_confirm">Cancel payment</string>
     <string name="po_cancel_payment_confirmation_dismiss">Not now</string>
 
+    <!-- Cancel Confirmation -->
+    <string name="po_cancel_confirmation_title">Cancel?</string>
+    <string name="po_cancel_confirmation_confirm">Cancel</string>
+    <string name="po_cancel_confirmation_dismiss">Not now</string>
+
 </resources>

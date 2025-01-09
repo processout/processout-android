@@ -109,7 +109,8 @@ private fun Actions(
                 modifier = modifier.fillMaxWidth(),
                 style = if (primary) primaryActionStyle else secondaryActionStyle,
                 enabled = enabled,
-                loading = loading
+                loading = loading,
+                iconResId = iconResId
             )
             if (requestConfirmation) {
                 confirmation?.run {

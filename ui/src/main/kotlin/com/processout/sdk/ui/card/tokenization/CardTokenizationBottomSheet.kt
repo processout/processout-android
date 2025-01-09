@@ -23,6 +23,7 @@ import com.processout.sdk.ui.card.tokenization.CardTokenizationActivityContract.
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Failure
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Success
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.Dismiss
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.SubmitButton
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.component.displayCutoutHeight
 import com.processout.sdk.ui.shared.component.screenModeAsState
@@ -41,7 +42,7 @@ internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCar
     private val viewModel: CardTokenizationViewModel by viewModels {
         CardTokenizationViewModel.Factory(
             app = requireActivity().application,
-            configuration = configuration ?: POCardTokenizationConfiguration(),
+            configuration = configuration ?: POCardTokenizationConfiguration(submitButton = SubmitButton()),
             eventDispatcher = PODefaultEventDispatchers.defaultCardTokenization
         )
     }

@@ -403,7 +403,8 @@ private fun Capture(
                             )
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        style = style.actionsContainer.primary
+                        style = style.actionsContainer.primary,
+                        iconResId = action.iconResId
                     )
                 }
                 state.saveBarcodeAction?.let { action ->
@@ -418,7 +419,8 @@ private fun Capture(
                             )
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        style = style.actionsContainer.secondary
+                        style = style.actionsContainer.secondary,
+                        iconResId = action.iconResId
                     )
                 }
             }

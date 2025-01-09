@@ -22,11 +22,10 @@ import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Field.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Image
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.DEFAULT_TIMEOUT_SECONDS
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.MAX_TIMEOUT_SECONDS
-import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.SecondaryAction
-import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.SecondaryAction.Cancel
 import com.processout.sdk.ui.shared.extension.map
 import com.processout.sdk.ui.shared.filter.PhoneNumberInputFilter
 import com.processout.sdk.ui.shared.provider.BarcodeBitmapProvider
@@ -139,12 +138,13 @@ internal class NativeAlternativePaymentViewModel private constructor(
             focusedFieldId = focusedFieldId,
             primaryAction = POActionState(
                 id = primaryActionId,
-                text = options.primaryActionText ?: invoice.formatPrimaryActionText(),
+                text = options.submitButton.text ?: invoice.formatPrimaryActionText(),
                 primary = true,
                 enabled = submitAllowed,
-                loading = submitting
+                loading = submitting,
+                iconResId = options.submitButton.iconResId
             ),
-            secondaryAction = options.secondaryAction?.toActionState(
+            secondaryAction = options.cancelButton?.toActionState(
                 id = secondaryAction.id,
                 enabled = secondaryAction.enabled && !submitting
             )
@@ -152,7 +152,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
     }
 
     private fun Capturing.map() = with(value) {
-        val secondaryAction = options.paymentConfirmation.secondaryAction?.toActionState(
+        val secondaryAction = options.paymentConfirmation.cancelButton?.toActionState(
             id = secondaryAction.id,
             enabled = secondaryAction.enabled
         )
@@ -162,12 +162,13 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 secondaryAction = secondaryAction
             )
         } else {
-            val primaryAction = options.paymentConfirmation.primaryAction?.let {
+            val primaryAction = options.paymentConfirmation.confirmButton?.let {
                 primaryActionId?.let { id ->
                     POActionState(
                         id = id,
                         text = it.text ?: app.getString(R.string.po_native_apm_confirm_payment_button_text),
-                        primary = true
+                        primary = true,
+                        iconResId = it.iconResId
                     )
                 }
             }
@@ -182,12 +183,13 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 saveBarcodeAction = customerAction?.barcode?.let {
                     POActionState(
                         id = it.actionId,
-                        text = options.barcode.saveActionText
+                        text = options.barcode.saveButton.text
                             ?: app.getString(
                                 R.string.po_native_apm_save_barcode_button_text_format,
                                 it.type.rawType.uppercase()
                             ),
-                        primary = false
+                        primary = false,
+                        iconResId = options.barcode.saveButton.iconResId
                     )
                 },
                 confirmationDialog = confirmationDialog(),
@@ -359,27 +361,26 @@ internal class NativeAlternativePaymentViewModel private constructor(
             app.getString(R.string.po_native_apm_submit_button_text)
         }
 
-    private fun SecondaryAction.toActionState(
+    private fun CancelButton.toActionState(
         id: String,
         enabled: Boolean
-    ): POActionState = when (this) {
-        is Cancel -> POActionState(
-            id = id,
-            text = text ?: app.getString(R.string.po_native_apm_cancel_button_text),
-            primary = false,
-            enabled = enabled,
-            confirmation = confirmation?.run {
-                Confirmation(
-                    title = title ?: app.getString(R.string.po_cancel_payment_confirmation_title),
-                    message = message,
-                    confirmActionText = confirmActionText
-                        ?: app.getString(R.string.po_cancel_payment_confirmation_confirm),
-                    dismissActionText = dismissActionText
-                        ?: app.getString(R.string.po_cancel_payment_confirmation_dismiss)
-                )
-            }
-        )
-    }
+    ) = POActionState(
+        id = id,
+        text = text ?: app.getString(R.string.po_native_apm_cancel_button_text),
+        primary = false,
+        enabled = enabled,
+        iconResId = iconResId,
+        confirmation = confirmation?.run {
+            Confirmation(
+                title = title ?: app.getString(R.string.po_cancel_payment_confirmation_title),
+                message = message,
+                confirmActionText = confirmActionText
+                    ?: app.getString(R.string.po_cancel_payment_confirmation_confirm),
+                dismissActionText = dismissActionText
+                    ?: app.getString(R.string.po_cancel_payment_confirmation_dismiss)
+            )
+        }
+    )
 
     private fun CaptureStateValue.confirmationDialog(): ConfirmationDialogState? =
         customerAction?.barcode?.let { barcode ->

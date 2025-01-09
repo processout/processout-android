@@ -1,6 +1,8 @@
 package com.processout.sdk.ui.core.component
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
@@ -10,8 +12,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -21,10 +25,12 @@ import com.processout.sdk.ui.core.component.POButton.border
 import com.processout.sdk.ui.core.component.POButton.colors
 import com.processout.sdk.ui.core.component.POButton.contentPadding
 import com.processout.sdk.ui.core.component.POButton.elevation
+import com.processout.sdk.ui.core.extension.conditional
 import com.processout.sdk.ui.core.style.POButtonDefaults
 import com.processout.sdk.ui.core.style.POButtonStateStyle
 import com.processout.sdk.ui.core.style.POButtonStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -37,9 +43,11 @@ fun POButton(
     enabled: Boolean = true,
     loading: Boolean = false,
     leadingContent: @Composable RowScope.() -> Unit = {},
+    @DrawableRes iconResId: Int? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
     val pressed by interactionSource.collectIsPressedAsState()
+    val colors = colors(style = style, enabled = enabled, loading = loading, pressed = pressed)
     CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
         Button(
             onClick = onClick,
@@ -47,7 +55,7 @@ fun POButton(
                 min = ProcessOutTheme.dimensions.interactiveComponentMinSize
             ),
             enabled = enabled && !loading,
-            colors = colors(style = style, enabled = enabled, loading = loading, pressed = pressed),
+            colors = colors,
             shape = if (enabled) style.normal.shape else style.disabled.shape,
             border = border(style = style, enabled = enabled, pressed = pressed),
             elevation = elevation(style = style, enabled = enabled, loading = loading),
@@ -65,6 +73,19 @@ fun POButton(
                 }
             } else {
                 leadingContent()
+                iconResId?.let {
+                    val iconColor = if (enabled) colors.contentColor else colors.disabledContentColor
+                    Image(
+                        painter = painterResource(it),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .conditional(text.isNotBlank()) {
+                                padding(end = spacing.small)
+                            }
+                            .requiredSize(20.dp),
+                        colorFilter = ColorFilter.tint(color = iconColor)
+                    )
+                }
                 POText(
                     text = text,
                     style = if (enabled) style.normal.text.textStyle else style.disabled.text.textStyle,

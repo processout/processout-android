@@ -47,14 +47,16 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Success
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutSideEffect.*
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.CancelButton
+import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.SubmitButton
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.googlepay.POGooglePayCardTokenizationLauncher
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
-import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.DEFAULT_TIMEOUT_SECONDS
 import com.processout.sdk.ui.shared.configuration.POBarcodeConfiguration
-import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import com.processout.sdk.ui.shared.extension.collectImmediately
 import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivity
 import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivityContract
@@ -103,11 +105,19 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                 defaultAddress = billingAddress?.defaultAddress,
                 attachDefaultsToPaymentMethod = billingAddress?.attachDefaultsToPaymentMethod ?: false
             ),
-            primaryActionText = configuration?.submitButtonText,
-            secondaryActionText = configuration?.cancelButton?.text,
-            cancellation = POCancellationConfiguration(
-                secondaryAction = configuration?.cancelButton != null
-            ),
+            submitButton = configuration?.submitButton?.let {
+                POCardTokenizationConfiguration.SubmitButton(
+                    text = it.text,
+                    iconResId = it.iconResId
+                )
+            } ?: POCardTokenizationConfiguration.SubmitButton(),
+            cancelButton = configuration?.cancelButton?.let {
+                POCardTokenizationConfiguration.CancelButton(
+                    text = it.text,
+                    iconResId = it.iconResId,
+                    confirmation = it.confirmation
+                )
+            },
             metadata = configuration?.card?.metadata
         )
     }
@@ -115,24 +125,31 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
     private fun nativeAlternativePaymentConfiguration(): Options {
         val paymentConfirmation = configuration?.alternativePayment?.paymentConfirmation
         return Options(
-            primaryActionText = configuration?.submitButtonText,
-            secondaryAction = configuration?.cancelButton?.toSecondaryAction(),
+            submitButton = configuration?.submitButton?.map() ?: PONativeAlternativePaymentConfiguration.SubmitButton(),
+            cancelButton = configuration?.cancelButton?.map(),
             paymentConfirmation = PaymentConfirmationConfiguration(
                 waitsConfirmation = true,
                 timeoutSeconds = paymentConfirmation?.timeoutSeconds ?: DEFAULT_TIMEOUT_SECONDS,
                 showProgressIndicatorAfterSeconds = paymentConfirmation?.showProgressIndicatorAfterSeconds,
                 hideGatewayDetails = true,
-                primaryAction = paymentConfirmation?.confirmButton?.let { ConfirmAction(text = it.text) },
-                secondaryAction = paymentConfirmation?.cancelButton?.toSecondaryAction()
+                confirmButton = paymentConfirmation?.confirmButton?.map(),
+                cancelButton = paymentConfirmation?.cancelButton?.map()
             ),
-            barcode = configuration?.alternativePayment?.barcode ?: POBarcodeConfiguration(),
+            barcode = configuration?.alternativePayment?.barcode
+                ?: POBarcodeConfiguration(saveButton = POBarcodeConfiguration.Button()),
             inlineSingleSelectValuesLimit = configuration?.alternativePayment?.inlineSingleSelectValuesLimit ?: 5,
             skipSuccessScreen = true
         )
     }
 
-    private fun CancelButton.toSecondaryAction() = SecondaryAction.Cancel(
+    private fun SubmitButton.map() = PONativeAlternativePaymentConfiguration.SubmitButton(
         text = text,
+        iconResId = iconResId
+    )
+
+    private fun CancelButton.map() = PONativeAlternativePaymentConfiguration.CancelButton(
+        text = text,
+        iconResId = iconResId,
         disabledForSeconds = disabledForSeconds,
         confirmation = confirmation
     )
@@ -208,14 +225,16 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
 
     private fun dispatchBackPressed() {
         onBackPressedDispatcher.addCallback(this) {
-            viewModel.onEvent(
-                Dismiss(
-                    ProcessOutResult.Failure(
-                        code = Cancelled,
-                        message = "Cancelled by the user with back press or gesture."
+            if (configuration?.cancelOnBackPressed == true) {
+                viewModel.onEvent(
+                    Dismiss(
+                        ProcessOutResult.Failure(
+                            code = Cancelled,
+                            message = "Cancelled by the user with back press or gesture."
+                        )
                     )
                 )
-            )
+            }
         }
     }
 

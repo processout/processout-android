@@ -28,6 +28,7 @@ import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.card.update.CardUpdateCompletion.*
 import com.processout.sdk.ui.card.update.CardUpdateEvent.*
 import com.processout.sdk.ui.core.state.POActionState
+import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.shared.extension.orElse
 import com.processout.sdk.ui.shared.filter.CardSecurityCodeInputFilter
@@ -100,14 +101,28 @@ internal class CardUpdateViewModel private constructor(
             focusedFieldId = CardFieldId.CVC,
             primaryAction = POActionState(
                 id = ActionId.SUBMIT,
-                text = primaryActionText ?: app.getString(R.string.po_card_update_button_submit),
-                primary = true
+                text = submitButton.text ?: app.getString(R.string.po_card_update_button_submit),
+                primary = true,
+                iconResId = submitButton.iconResId
             ),
-            secondaryAction = if (cancellation.secondaryAction) POActionState(
-                id = ActionId.CANCEL,
-                text = secondaryActionText ?: app.getString(R.string.po_card_update_button_cancel),
-                primary = false
-            ) else null,
+            secondaryAction = cancelButton?.let {
+                POActionState(
+                    id = ActionId.CANCEL,
+                    text = it.text ?: app.getString(R.string.po_card_update_button_cancel),
+                    primary = false,
+                    iconResId = it.iconResId,
+                    confirmation = it.confirmation?.run {
+                        Confirmation(
+                            title = title ?: app.getString(R.string.po_cancel_confirmation_title),
+                            message = message,
+                            confirmActionText = confirmActionText
+                                ?: app.getString(R.string.po_cancel_confirmation_confirm),
+                            dismissActionText = dismissActionText
+                                ?: app.getString(R.string.po_cancel_confirmation_dismiss)
+                        )
+                    }
+                )
+            },
             draggable = cancellation.dragDown
         )
     }

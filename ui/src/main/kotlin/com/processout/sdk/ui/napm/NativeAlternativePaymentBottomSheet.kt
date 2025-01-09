@@ -29,9 +29,9 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.AnimationDurati
 import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.PermissionRequest
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Capture
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.SubmitButton
 import com.processout.sdk.ui.shared.component.isImeVisibleAsState
 import com.processout.sdk.ui.shared.component.screenModeAsState
-import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import com.processout.sdk.ui.shared.extension.collectImmediately
 import com.processout.sdk.ui.shared.extension.dpToPx
 import kotlinx.coroutines.delay
@@ -54,7 +54,7 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
             app = requireActivity().application,
             invoiceId = configuration?.invoiceId ?: String(),
             gatewayConfigurationId = configuration?.gatewayConfigurationId ?: String(),
-            options = configuration?.options ?: Options(),
+            options = configuration?.options ?: Options(submitButton = SubmitButton()),
             eventDispatcher = PODefaultEventDispatchers.defaultNativeAlternativePaymentMethod
         )
     }
@@ -132,15 +132,7 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        configuration?.options?.cancellation?.let {
-            apply(
-                POCancellationConfiguration(
-                    backPressed = it.backPressed,
-                    dragDown = it.dragDown,
-                    touchOutside = it.touchOutside
-                )
-            )
-        }
+        configuration?.let { apply(it.options.cancellation) }
     }
 
     private fun handle(sideEffect: NativeAlternativePaymentSideEffect) {
