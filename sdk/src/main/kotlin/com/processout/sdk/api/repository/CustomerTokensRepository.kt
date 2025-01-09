@@ -3,6 +3,7 @@ package com.processout.sdk.api.repository
 import com.processout.sdk.api.model.request.POAssignCustomerTokenRequest
 import com.processout.sdk.api.model.request.POCreateCustomerRequest
 import com.processout.sdk.api.model.request.POCreateCustomerTokenRequest
+import com.processout.sdk.api.model.request.PODeleteCustomerTokenRequest
 import com.processout.sdk.api.model.response.CustomerTokenResponse
 import com.processout.sdk.api.model.response.POCustomer
 import com.processout.sdk.api.model.response.POCustomerToken
@@ -15,6 +16,10 @@ internal interface CustomerTokensRepository {
         request: POAssignCustomerTokenRequest
     ): ProcessOutResult<CustomerTokenResponse>
 
+    suspend fun deleteCustomerToken(
+        request: PODeleteCustomerTokenRequest
+    ): ProcessOutResult<Unit>
+
     /** @suppress */
     @ProcessOutInternalApi
     suspend fun createCustomerToken(
@@ -23,5 +28,7 @@ internal interface CustomerTokensRepository {
 
     /** @suppress */
     @ProcessOutInternalApi
-    suspend fun createCustomer(request: POCreateCustomerRequest): ProcessOutResult<POCustomer>
+    suspend fun createCustomer(
+        request: POCreateCustomerRequest
+    ): ProcessOutResult<POCustomer>
 }

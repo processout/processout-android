@@ -6,7 +6,6 @@ import com.processout.sdk.api.model.request.POCreateCustomerTokenRequestBody
 import com.processout.sdk.api.model.response.CustomerResponse
 import com.processout.sdk.api.model.response.CustomerTokenResponse
 import com.processout.sdk.api.network.HeaderConstants.CLIENT_SECRET
-import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -24,7 +23,7 @@ internal interface CustomerTokensApi {
         @Path("customer_id") customerId: String,
         @Path("token_id") tokenId: String,
         @Header(CLIENT_SECRET) clientSecret: String
-    ): Response<ResponseBody>
+    ): Response<Unit>
 
     @POST("/customers/{customer_id}/tokens")
     suspend fun createCustomerToken(
@@ -33,5 +32,7 @@ internal interface CustomerTokensApi {
     ): Response<CustomerTokenResponse>
 
     @POST("/customers")
-    suspend fun createCustomer(@Body request: POCreateCustomerRequest): Response<CustomerResponse>
+    suspend fun createCustomer(
+        @Body request: POCreateCustomerRequest
+    ): Response<CustomerResponse>
 }

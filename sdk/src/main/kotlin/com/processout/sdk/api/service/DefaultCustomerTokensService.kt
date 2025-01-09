@@ -3,6 +3,7 @@ package com.processout.sdk.api.service
 import com.processout.sdk.api.model.request.POAssignCustomerTokenRequest
 import com.processout.sdk.api.model.request.POCreateCustomerRequest
 import com.processout.sdk.api.model.request.POCreateCustomerTokenRequest
+import com.processout.sdk.api.model.request.PODeleteCustomerTokenRequest
 import com.processout.sdk.api.model.response.POCustomer
 import com.processout.sdk.api.model.response.POCustomerToken
 import com.processout.sdk.api.repository.CustomerTokensRepository
@@ -151,6 +152,11 @@ internal class DefaultCustomerTokensService(
             }
         }
     }
+
+    override suspend fun deleteCustomerToken(
+        request: PODeleteCustomerTokenRequest
+    ): ProcessOutResult<Unit> =
+        repository.deleteCustomerToken(request)
 
     override suspend fun createCustomerToken(
         request: POCreateCustomerTokenRequest
