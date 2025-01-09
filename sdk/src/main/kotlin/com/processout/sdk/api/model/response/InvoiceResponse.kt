@@ -16,6 +16,8 @@ internal data class InvoiceResponseBody(
     val currency: String,
     @Json(name = "return_url")
     val returnUrl: String?,
+    @Json(name = "customer_id")
+    val customerId: String?,
     val transaction: POTransaction?,
     @Json(name = "payment_methods")
     val paymentMethods: List<PODynamicCheckoutPaymentMethod>?
@@ -28,6 +30,7 @@ internal data class InvoiceResponseBody(
  * @param[amount] Invoice amount.
  * @param[currency] Invoice currency.
  * @param[returnUrl] Return URL or deep link for web based operations.
+ * @param[customerId] Customer identifier.
  * @param[transaction] Transaction details.
  * @param[paymentMethods] Dynamic checkout configuration.
  * @param[clientSecret] Client secret is a value of __x-processout-client-secret__ header of the invoice.
@@ -37,6 +40,7 @@ data class POInvoice(
     val amount: String = String(),
     val currency: String = String(),
     val returnUrl: String? = null,
+    val customerId: String? = null,
     @ProcessOutInternalApi val transaction: POTransaction? = null,
     @ProcessOutInternalApi val paymentMethods: List<PODynamicCheckoutPaymentMethod>? = null,
     @ProcessOutInternalApi val clientSecret: String? = null
@@ -244,7 +248,9 @@ sealed class PODynamicCheckoutPaymentMethod {
         @Json(name = "customer_token_id")
         val customerTokenId: String,
         @Json(name = "redirect_url")
-        val redirectUrl: String?
+        val redirectUrl: String?,
+        @Json(name = "removing_allowed", ignore = true) //TODO: remove ignore when ready
+        val removingAllowed: Boolean = true //TODO: remove default value when ready
     )
 
     /**

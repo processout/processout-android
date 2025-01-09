@@ -155,6 +155,7 @@ private fun InvoiceResponse.toModel(clientSecret: String?) =
             amount = amount,
             currency = currency,
             returnUrl = returnUrl,
+            customerId = customerId,
             transaction = transaction,
             paymentMethods = paymentMethods,
             clientSecret = clientSecret
