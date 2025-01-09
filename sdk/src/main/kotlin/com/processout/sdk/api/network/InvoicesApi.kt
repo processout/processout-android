@@ -5,20 +5,17 @@ import com.processout.sdk.api.model.request.NativeAPMRequestBody
 import com.processout.sdk.api.model.request.NativeAlternativePaymentCaptureRequest
 import com.processout.sdk.api.model.request.POCreateInvoiceRequest
 import com.processout.sdk.api.model.response.*
+import com.processout.sdk.api.network.HeaderConstants.CLIENT_SECRET
 import retrofit2.Response
 import retrofit2.http.*
 
 internal interface InvoicesApi {
 
-    companion object {
-        const val HEADER_CLIENT_SECRET = "x-processout-client-secret"
-    }
-
     @POST("/invoices/{id}/authorize")
     suspend fun authorizeInvoice(
         @Path("id") invoiceId: String,
         @Body request: InvoiceAuthorizationRequestWithDeviceData,
-        @Header(HEADER_CLIENT_SECRET) clientSecret: String?
+        @Header(CLIENT_SECRET) clientSecret: String?
     ): Response<InvoiceAuthorizationResponse>
 
     @POST("/invoices/{id}/native-payment")
@@ -42,7 +39,7 @@ internal interface InvoicesApi {
     @GET("/invoices/{id}?expand=transaction")
     suspend fun invoice(
         @Path("id") invoiceId: String,
-        @Header(HEADER_CLIENT_SECRET) clientSecret: String?
+        @Header(CLIENT_SECRET) clientSecret: String?
     ): Response<InvoiceResponse>
 
     @POST("/invoices")
