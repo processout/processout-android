@@ -179,7 +179,7 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
 
     private fun handleControls(uiState: CardPaymentUiState) {
         when (uiState) {
-            Initial -> enableControls(true)
+            Initial, is Failure -> enableControls(true)
             else -> enableControls(false)
         }
     }

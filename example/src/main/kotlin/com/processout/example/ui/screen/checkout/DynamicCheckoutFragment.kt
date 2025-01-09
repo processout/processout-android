@@ -142,7 +142,7 @@ class DynamicCheckoutFragment : BaseFragment<FragmentDynamicCheckoutBinding>(
 
     private fun handleControls(uiState: DynamicCheckoutUiState) {
         when (uiState) {
-            Initial -> enableControls(true)
+            Initial, is Failure -> enableControls(true)
             else -> enableControls(false)
         }
     }

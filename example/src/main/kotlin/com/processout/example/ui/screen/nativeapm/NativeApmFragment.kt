@@ -112,7 +112,7 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
 
     private fun handleControls(uiState: NativeApmUiState) {
         when (uiState) {
-            Initial -> enableControls(true)
+            Initial, is Failure -> enableControls(true)
             else -> enableControls(false)
         }
     }
