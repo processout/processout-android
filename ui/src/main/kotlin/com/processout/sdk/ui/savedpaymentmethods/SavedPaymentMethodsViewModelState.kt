@@ -1,0 +1,24 @@
+package com.processout.sdk.ui.savedpaymentmethods
+
+import androidx.compose.runtime.Immutable
+import com.processout.sdk.ui.core.state.POImmutableList
+
+@Immutable
+internal data class SavedPaymentMethodsViewModelState(
+    val title: String,
+    val content: Content
+) {
+
+    @Immutable
+    sealed interface Content {
+        data class SavedPaymentMethods(
+            val loading: Boolean,
+            val paymentMethods: POImmutableList<String>
+        ) : Content
+
+        data class Empty(
+            val message: String,
+            val description: String
+        ) : Content
+    }
+}
