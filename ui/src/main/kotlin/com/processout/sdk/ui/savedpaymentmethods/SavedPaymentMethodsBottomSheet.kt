@@ -57,7 +57,7 @@ internal class SavedPaymentMethodsBottomSheet : BaseBottomSheetDialogFragment<PO
                 dismiss(
                     ProcessOutResult.Failure(
                         code = Generic(),
-                        message = "Invalid configuration."
+                        message = "Invalid configuration: invoice ID is blank."
                     )
                 )
             }

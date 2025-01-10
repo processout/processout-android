@@ -55,7 +55,7 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
                 dismiss(
                     ProcessOutResult.Failure(
                         code = POFailure.Code.Generic(),
-                        message = "Card ID is blank."
+                        message = "Invalid configuration: card ID is blank."
                     )
                 )
             }
