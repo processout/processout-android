@@ -65,11 +65,9 @@ internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCar
                 with(viewModel.completion.collectAsStateWithLifecycle()) {
                     LaunchedEffect(value) { handle(value) }
                 }
-
                 with(screenModeAsState(viewHeight = defaultViewHeight + displayCutoutHeight())) {
                     LaunchedEffect(value) { apply(value) }
                 }
-
                 CardTokenizationScreen(
                     state = viewModel.state.collectAsStateWithLifecycle().value,
                     onEvent = remember { viewModel::onEvent },

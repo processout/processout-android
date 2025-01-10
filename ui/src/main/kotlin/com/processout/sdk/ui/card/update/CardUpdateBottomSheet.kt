@@ -73,11 +73,9 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
                 with(viewModel.completion.collectAsStateWithLifecycle()) {
                     LaunchedEffect(value) { handle(value) }
                 }
-
                 with(screenModeAsState(viewHeight = defaultViewHeight)) {
                     LaunchedEffect(value) { apply(value) }
                 }
-
                 CardUpdateScreen(
                     state = viewModel.state.collectAsStateWithLifecycle().value,
                     onEvent = remember { viewModel::onEvent },

@@ -193,6 +193,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                 viewModel.sideEffects.collectImmediately(
                     minActiveState = Lifecycle.State.CREATED
                 ) { handle(it) }
+
                 DynamicCheckoutScreen(
                     state = viewModel.state.collectAsStateWithLifecycle().value,
                     onEvent = remember { viewModel::onEvent },
