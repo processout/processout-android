@@ -6,6 +6,8 @@ import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.logger.POLogAttribute
 import com.processout.sdk.ui.base.BaseInteractor
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsCompletion.Awaiting
+import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsEvent.Action
+import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsEvent.Dismiss
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsInteractorState.ActionId
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -45,4 +47,14 @@ internal class SavedPaymentMethodsInteractor(
         deleteActionId = ActionId.DELETE,
         cancelActionId = ActionId.CANCEL
     )
+
+    fun onEvent(event: SavedPaymentMethodsEvent) {
+        when (event) {
+            is Action -> when (event.actionId) {
+                ActionId.DELETE -> {}
+                ActionId.CANCEL -> {}
+            }
+            is Dismiss -> {}
+        }
+    }
 }
