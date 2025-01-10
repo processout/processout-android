@@ -30,6 +30,12 @@
             android:launchMode="singleTop"
             android:theme="@style/Theme.ProcessOut.BottomSheet" />
 
+        <activity
+            android:name=".savedpaymentmethods.SavedPaymentMethodsActivity"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.ProcessOut.BottomSheet" />
+
         <meta-data
             android:name="com.google.android.gms.wallet.api.enabled"
             android:value="true" />
