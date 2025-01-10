@@ -25,6 +25,7 @@ import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsActivityCont
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsCompletion.Failure
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsCompletion.Success
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsEvent.Dismiss
+import com.processout.sdk.ui.shared.component.screenModeAsState
 import kotlin.math.roundToInt
 
 internal class SavedPaymentMethodsBottomSheet : BaseBottomSheetDialogFragment<POUnit>() {
@@ -74,7 +75,9 @@ internal class SavedPaymentMethodsBottomSheet : BaseBottomSheetDialogFragment<PO
                 with(viewModel.completion.collectAsStateWithLifecycle()) {
                     LaunchedEffect(value) { handle(value) }
                 }
-
+                with(screenModeAsState(viewHeight = defaultViewHeight)) {
+                    LaunchedEffect(value) { apply(value) }
+                }
                 POText(text = Companion.tag)
             }
         }
