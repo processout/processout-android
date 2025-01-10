@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
@@ -18,7 +19,6 @@ import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.toActivityResult
 import com.processout.sdk.ui.base.BaseBottomSheetDialogFragment
-import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsActivityContract.Companion.EXTRA_CONFIGURATION
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsActivityContract.Companion.EXTRA_RESULT
@@ -78,7 +78,11 @@ internal class SavedPaymentMethodsBottomSheet : BaseBottomSheetDialogFragment<PO
                 with(screenModeAsState(viewHeight = defaultViewHeight)) {
                     LaunchedEffect(value) { apply(value) }
                 }
-                POText(text = Companion.tag)
+                SavedPaymentMethodsScreen(
+                    state = viewModel.state.collectAsStateWithLifecycle().value,
+                    onEvent = remember { viewModel::onEvent },
+                    style = SavedPaymentMethodsScreen.style(custom = configuration?.style)
+                )
             }
         }
     }
