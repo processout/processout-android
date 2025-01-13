@@ -13,6 +13,11 @@
     <string name="po_dynamic_checkout_error_method_unavailable">طريقة الدفع المطلوبة غير متاحة، يرجى تجربة طريقة دفع أخرى.</string>
     <string name="po_dynamic_checkout_success_message">نجاح! تمت الموافقة على الدفع</string>
 
+    <!-- Saved Payment Methods -->
+    <string name="po_saved_payment_methods_title">إدارة طرق الدفع المحفوظة</string>
+    <string name="po_saved_payment_methods_empty_message">لا توجد طرق دفع محفوظة</string>
+    <string name="po_saved_payment_methods_empty_description">جميع وسائل الدفع المحفوظة ستظهر هنا في المرة القادمة.</string>
+
     <!-- Native Alternative Payment Method -->
     <string name="po_native_apm_title_format">الدفع بواسطة %s</string>
     <string name="po_native_apm_submit_button_text_format">الدفع %s</string>

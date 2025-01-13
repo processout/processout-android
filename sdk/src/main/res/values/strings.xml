@@ -13,6 +13,11 @@
     <string name="po_dynamic_checkout_error_method_unavailable">The requested payment method is not available, please try another payment method.</string>
     <string name="po_dynamic_checkout_success_message">Success!\nPayment approved.</string>
 
+    <!-- Saved Payment Methods -->
+    <string name="po_saved_payment_methods_title">Manage saved payment methods</string>
+    <string name="po_saved_payment_methods_empty_message">No saved payment methods</string>
+    <string name="po_saved_payment_methods_empty_description">The next time you save a payment method, it will appear here.</string>
+
     <!-- Native Alternative Payment Method -->
     <string name="po_native_apm_title_format">Pay with %s</string>
     <string name="po_native_apm_submit_button_text_format">Pay %s</string>

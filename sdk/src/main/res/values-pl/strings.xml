@@ -13,6 +13,11 @@
     <string name="po_dynamic_checkout_error_method_unavailable">Wybrana metoda płatności nie jest obsługiwana. Proszę wybierz inną metodę.</string>
     <string name="po_dynamic_checkout_success_message">Sukces!\nPłatność przyjęta.</string>
 
+    <!-- Saved Payment Methods -->
+    <string name="po_saved_payment_methods_title">Zarządzaj zapisanymi metodami płatności</string>
+    <string name="po_saved_payment_methods_empty_message">Brak zapisanych metod płatności</string>
+    <string name="po_saved_payment_methods_empty_description">Gdy następnym razem zapiszesz metodę płatności, pojawi się tutaj.</string>
+
     <!-- Native Alternative Payment Method -->
     <string name="po_native_apm_title_format">Zapłać przy pomocy %s</string>
     <string name="po_native_apm_submit_button_text_format">Zapłać %s</string>
