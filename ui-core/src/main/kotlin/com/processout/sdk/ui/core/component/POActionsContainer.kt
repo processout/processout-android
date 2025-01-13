@@ -26,9 +26,9 @@ fun POActionsContainer(
     actions: POImmutableList<POActionState>,
     onClick: (ActionId) -> Unit,
     modifier: Modifier = Modifier,
-    onConfirmationRequested: ((ActionId) -> Unit)? = null,
     containerStyle: POActionsContainer.Style = POActionsContainer.default,
     confirmationDialogStyle: PODialog.Style = PODialog.default,
+    onConfirmationRequested: ((ActionId) -> Unit)? = null,
     animationDurationMillis: Int = 0
 ) {
     var currentActions by remember {
