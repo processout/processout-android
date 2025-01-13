@@ -26,6 +26,7 @@ import com.processout.sdk.ui.core.component.POButton.colors
 import com.processout.sdk.ui.core.component.POButton.contentPadding
 import com.processout.sdk.ui.core.component.POButton.elevation
 import com.processout.sdk.ui.core.extension.conditional
+import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.style.POButtonDefaults
 import com.processout.sdk.ui.core.style.POButtonStateStyle
 import com.processout.sdk.ui.core.style.POButtonStyle
@@ -91,6 +92,60 @@ fun POButton(
                     style = if (enabled) style.normal.text.textStyle else style.disabled.text.textStyle,
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1
+                )
+            }
+        }
+    }
+}
+
+/** @suppress */
+@ProcessOutInternalApi
+@Composable
+fun POButton(
+    state: POActionState,
+    onClick: (ActionId) -> Unit,
+    modifier: Modifier = Modifier,
+    style: POButton.Style = POButton.primary,
+    confirmationDialogStyle: PODialog.Style = PODialog.default,
+    onConfirmationRequested: ((ActionId) -> Unit)? = null,
+    leadingContent: @Composable RowScope.() -> Unit = {},
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+) {
+    with(state) {
+        var requestConfirmation by remember { mutableStateOf(false) }
+        POButton(
+            text = text,
+            onClick = {
+                if (confirmation != null) {
+                    requestConfirmation = true
+                    onConfirmationRequested?.invoke(id)
+                } else {
+                    onClick(id)
+                }
+            },
+            modifier = modifier,
+            style = style,
+            enabled = enabled,
+            loading = loading,
+            leadingContent = leadingContent,
+            iconResId = iconResId,
+            interactionSource = interactionSource
+        )
+        if (requestConfirmation) {
+            confirmation?.run {
+                PODialog(
+                    title = title,
+                    message = message,
+                    confirmActionText = confirmActionText,
+                    dismissActionText = dismissActionText,
+                    onConfirm = {
+                        onClick(id)
+                        requestConfirmation = false
+                    },
+                    onDismiss = {
+                        requestConfirmation = false
+                    },
+                    style = confirmationDialogStyle
                 )
             }
         }
