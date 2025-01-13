@@ -103,4 +103,9 @@
     <string name="po_cancel_confirmation_confirm">إلغاء</string>
     <string name="po_cancel_confirmation_dismiss">ليس الآن</string>
 
+    <!-- Delete Confirmation -->
+    <string name="po_delete_confirmation_title">هل أنت متأكد أنك تريد حذف هذا العنصر؟</string>
+    <string name="po_delete_confirmation_confirm">حذف</string>
+    <string name="po_delete_confirmation_cancel">إلغاء</string>
+
 </resources>

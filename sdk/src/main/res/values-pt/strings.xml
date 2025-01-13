@@ -101,4 +101,9 @@
     <string name="po_cancel_confirmation_confirm">Cancelar</string>
     <string name="po_cancel_confirmation_dismiss">Agora não</string>
 
+    <!-- Delete Confirmation -->
+    <string name="po_delete_confirmation_title">Tem certeza de que deseja excluir este item?</string>
+    <string name="po_delete_confirmation_confirm">Excluir</string>
+    <string name="po_delete_confirmation_cancel">Cancelar</string>
+
 </resources>
