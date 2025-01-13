@@ -4,6 +4,7 @@
     <string name="po_locale_language_code">pt</string>
 
     <!-- Dynamic Checkout -->
+    <string name="po_dynamic_checkout_express_checkout">Pagamento expresso</string>
     <string name="po_dynamic_checkout_button_pay">Pagar</string>
     <string name="po_dynamic_checkout_button_cancel">Cancelar</string>
     <string name="po_dynamic_checkout_save_payment_method">Guardar este método para futuros pagamentos</string>
