@@ -249,8 +249,8 @@ sealed class PODynamicCheckoutPaymentMethod {
         val customerTokenId: String,
         @Json(name = "redirect_url")
         val redirectUrl: String?,
-        @Json(name = "removing_allowed", ignore = true) //TODO: remove ignore when ready
-        val removingAllowed: Boolean = true //TODO: remove default value when ready
+        @Json(name = "deleting_allowed")
+        val deletingAllowed: Boolean
     )
 
     /**
