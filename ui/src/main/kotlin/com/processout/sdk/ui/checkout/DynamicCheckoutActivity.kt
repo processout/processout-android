@@ -216,7 +216,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                     Dismiss(
                         ProcessOutResult.Failure(
                             code = Generic(),
-                            message = "Invalid configuration: invoice ID is blank."
+                            message = "Invalid configuration: 'invoiceId' is required."
                         )
                     )
                 )

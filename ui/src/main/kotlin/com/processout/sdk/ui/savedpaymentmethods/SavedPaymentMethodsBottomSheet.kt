@@ -53,11 +53,11 @@ internal class SavedPaymentMethodsBottomSheet : BaseBottomSheetDialogFragment<PO
         @Suppress("DEPRECATION")
         configuration = arguments?.getParcelable(EXTRA_CONFIGURATION)
         configuration?.run {
-            if (invoiceRequest.invoiceId.isBlank()) {
+            if (invoiceRequest.invoiceId.isBlank() || invoiceRequest.clientSecret.isNullOrBlank()) {
                 dismiss(
                     ProcessOutResult.Failure(
                         code = Generic(),
-                        message = "Invalid configuration: invoice ID is blank."
+                        message = "Invalid configuration: 'invoiceId' and 'clientSecret' is required."
                     )
                 )
             }

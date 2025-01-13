@@ -73,7 +73,7 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
                 dismiss(
                     ProcessOutResult.Failure(
                         code = POFailure.Code.Generic(),
-                        message = "Invalid configuration."
+                        message = "Invalid configuration: 'invoiceId' and 'gatewayConfigurationId' is required."
                     )
                 )
                 return
