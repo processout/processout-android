@@ -28,7 +28,7 @@ fun POActionsContainer(
     modifier: Modifier = Modifier,
     onConfirmationRequested: ((ActionId) -> Unit)? = null,
     containerStyle: POActionsContainer.Style = POActionsContainer.default,
-    dialogStyle: PODialog.Style = PODialog.default,
+    confirmationDialogStyle: PODialog.Style = PODialog.default,
     animationDurationMillis: Int = 0
 ) {
     var currentActions by remember {
@@ -59,7 +59,7 @@ fun POActionsContainer(
                         onConfirmationRequested = onConfirmationRequested,
                         primaryActionStyle = containerStyle.primary,
                         secondaryActionStyle = containerStyle.secondary,
-                        dialogStyle = dialogStyle
+                        confirmationDialogStyle = confirmationDialogStyle
                     )
                 }
                 POAxis.Horizontal -> Row(
@@ -74,7 +74,7 @@ fun POActionsContainer(
                         onConfirmationRequested = onConfirmationRequested,
                         primaryActionStyle = containerStyle.primary,
                         secondaryActionStyle = containerStyle.secondary,
-                        dialogStyle = dialogStyle,
+                        confirmationDialogStyle = confirmationDialogStyle,
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -90,7 +90,7 @@ private fun Actions(
     onConfirmationRequested: ((ActionId) -> Unit)?,
     primaryActionStyle: POButton.Style,
     secondaryActionStyle: POButton.Style,
-    dialogStyle: PODialog.Style,
+    confirmationDialogStyle: PODialog.Style,
     modifier: Modifier = Modifier
 ) {
     actions.elements.forEach {
@@ -126,7 +126,7 @@ private fun Actions(
                         onDismiss = {
                             requestConfirmation = false
                         },
-                        style = dialogStyle
+                        style = confirmationDialogStyle
                     )
                 }
             }

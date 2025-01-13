@@ -576,7 +576,7 @@ private fun Actions(
         onClick = { onEvent(Action(id = it)) },
         onConfirmationRequested = { onEvent(ActionConfirmationRequested(id = it)) },
         containerStyle = containerStyle,
-        dialogStyle = dialogStyle,
+        confirmationDialogStyle = dialogStyle,
         animationDurationMillis = AnimationDurationMillis
     )
 }

@@ -559,7 +559,7 @@ private fun Actions(
         },
         onConfirmationRequested = { onEvent(ActionConfirmationRequested(id = it)) },
         containerStyle = containerStyle,
-        dialogStyle = dialogStyle,
+        confirmationDialogStyle = dialogStyle,
         animationDurationMillis = CrossfadeAnimationDurationMillis
     )
 }
