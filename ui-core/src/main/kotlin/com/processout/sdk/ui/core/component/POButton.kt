@@ -31,6 +31,7 @@ import com.processout.sdk.ui.core.style.POButtonDefaults
 import com.processout.sdk.ui.core.style.POButtonStateStyle
 import com.processout.sdk.ui.core.style.POButtonStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 
 /** @suppress */
@@ -45,6 +46,7 @@ fun POButton(
     loading: Boolean = false,
     leadingContent: @Composable RowScope.() -> Unit = {},
     @DrawableRes iconResId: Int? = null,
+    iconSize: Dp = dimensions.iconSizeMedium,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
     val pressed by interactionSource.collectIsPressedAsState()
@@ -81,7 +83,7 @@ fun POButton(
                             .conditional(text.isNotBlank()) {
                                 padding(end = spacing.small)
                             }
-                            .requiredSize(20.dp),
+                            .requiredSize(iconSize),
                         colorFilter = ColorFilter.tint(color = iconColor)
                     )
                 }
@@ -107,6 +109,7 @@ fun POButton(
     confirmationDialogStyle: PODialog.Style = PODialog.default,
     onConfirmationRequested: ((ActionId) -> Unit)? = null,
     leadingContent: @Composable RowScope.() -> Unit = {},
+    iconSize: Dp = dimensions.iconSizeMedium,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
     with(state) {
@@ -127,6 +130,7 @@ fun POButton(
             loading = loading,
             leadingContent = leadingContent,
             iconResId = iconResId,
+            iconSize = iconSize,
             interactionSource = interactionSource
         )
         if (requestConfirmation) {
