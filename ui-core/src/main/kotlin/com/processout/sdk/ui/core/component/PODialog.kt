@@ -83,12 +83,14 @@ fun PODialog(
                                 POButton(
                                     text = dismissActionText,
                                     onClick = onDismiss,
+                                    modifier = Modifier.requiredHeightIn(min = dimensions.interactiveComponentMinSize),
                                     style = style.dismissButton
                                 )
                             }
                             POButton(
                                 text = confirmActionText,
                                 onClick = onConfirm,
+                                modifier = Modifier.requiredHeightIn(min = dimensions.interactiveComponentMinSize),
                                 style = style.confirmButton
                             )
                         }

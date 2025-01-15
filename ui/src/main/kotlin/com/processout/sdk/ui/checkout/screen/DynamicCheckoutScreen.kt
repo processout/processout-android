@@ -68,6 +68,7 @@ import com.processout.sdk.ui.core.style.POBrandButtonStyle
 import com.processout.sdk.ui.core.theme.PODarkColorPalette
 import com.processout.sdk.ui.core.theme.POLightColorPalette
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
@@ -267,7 +268,9 @@ private fun ExpressPayment(
                     )
                 )
             },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .requiredHeightIn(min = dimensions.interactiveComponentMinSize),
             style = style.toButtonStyle(
                 brandColor = payment.brandColor,
                 isLightTheme = isLightTheme
@@ -439,8 +442,9 @@ private fun RegularPaymentContent(
                             )
                         },
                         modifier = Modifier
+                            .padding(top = spacing.extraLarge)
                             .fillMaxWidth()
-                            .padding(top = spacing.extraLarge),
+                            .requiredHeightIn(min = dimensions.interactiveComponentMinSize),
                         style = style.actionsContainer.primary,
                         enabled = enabled,
                         loading = loading,

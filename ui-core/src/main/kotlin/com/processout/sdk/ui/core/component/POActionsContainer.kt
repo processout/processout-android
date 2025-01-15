@@ -18,6 +18,7 @@ import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POActionsContainerStyle
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -98,7 +99,9 @@ private fun Actions(
             state = state,
             onClick = onClick,
             onConfirmationRequested = onConfirmationRequested,
-            modifier = modifier.fillMaxWidth(),
+            modifier = modifier
+                .fillMaxWidth()
+                .requiredHeightIn(min = dimensions.interactiveComponentMinSize),
             style = if (state.primary) primaryActionStyle else secondaryActionStyle,
             confirmationDialogStyle = confirmationDialogStyle
         )

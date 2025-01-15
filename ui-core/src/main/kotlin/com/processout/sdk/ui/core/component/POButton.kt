@@ -52,9 +52,7 @@ fun POButton(
     CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
         Button(
             onClick = onClick,
-            modifier = modifier.requiredHeightIn(
-                min = ProcessOutTheme.dimensions.interactiveComponentMinSize
-            ),
+            modifier = modifier,
             enabled = enabled && !loading,
             colors = colors,
             shape = if (enabled) style.normal.shape else style.disabled.shape,
