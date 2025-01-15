@@ -246,13 +246,13 @@ object POButton {
             )
         }
 
-    val tertiary: Style
+    val ghost: Style
         @Composable get() = with(ProcessOutTheme) {
             Style(
                 normal = StateStyle(
                     text = POText.Style(
                         color = colors.text.primary,
-                        textStyle = typography.body1
+                        textStyle = typography.button
                     ),
                     shape = shapes.roundedCornersSmall,
                     border = POBorderStroke(width = 0.dp, color = Color.Transparent),
@@ -263,7 +263,7 @@ object POButton {
                 disabled = StateStyle(
                     text = POText.Style(
                         color = colors.text.disabled,
-                        textStyle = typography.body1
+                        textStyle = typography.button
                     ),
                     shape = shapes.roundedCornersSmall,
                     border = POBorderStroke(width = 0.dp, color = Color.Transparent),
@@ -274,7 +274,7 @@ object POButton {
                 highlighted = HighlightedStyle(
                     textColor = colors.text.primary,
                     borderColor = Color.Transparent,
-                    backgroundColor = colors.button.tertiaryBackgroundPressed
+                    backgroundColor = colors.button.ghostBackgroundPressed
                 ),
                 progressIndicatorColor = colors.text.primary
             )
