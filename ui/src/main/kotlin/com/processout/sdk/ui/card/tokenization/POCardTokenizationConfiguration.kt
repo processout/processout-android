@@ -2,9 +2,9 @@ package com.processout.sdk.ui.card.tokenization
 
 import android.os.Parcelable
 import androidx.annotation.ColorRes
-import androidx.annotation.DrawableRes
 import com.processout.sdk.api.model.request.POContact
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode
+import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import com.processout.sdk.ui.core.style.*
 import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
@@ -115,28 +115,26 @@ data class POCardTokenizationConfiguration(
      * Submit button configuration.
      *
      * @param[text] Button text. Pass _null_ to use default text.
-     * @param[iconResId] Button icon drawable resource ID. Pass _null_ to hide.
+     * @param[icon] Button icon drawable resource. Pass _null_ to hide.
      */
     @Parcelize
     data class SubmitButton(
         val text: String? = null,
-        @DrawableRes
-        val iconResId: Int? = null
+        val icon: PODrawableImage? = null
     ) : Parcelable
 
     /**
      * Cancel button configuration.
      *
      * @param[text] Button text. Pass _null_ to use default text.
-     * @param[iconResId] Button icon drawable resource ID. Pass _null_ to hide.
+     * @param[icon] Button icon drawable resource. Pass _null_ to hide.
      * @param[confirmation] Specifies action confirmation configuration (e.g. dialog).
      * Use _null_ to disable, this is a default behaviour.
      */
     @Parcelize
     data class CancelButton(
         val text: String? = null,
-        @DrawableRes
-        val iconResId: Int? = null,
+        val icon: PODrawableImage? = null,
         val confirmation: POActionConfirmationConfiguration? = null
     ) : Parcelable
 

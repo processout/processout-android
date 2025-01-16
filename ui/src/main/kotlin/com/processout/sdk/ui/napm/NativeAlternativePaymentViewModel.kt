@@ -142,7 +142,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 primary = true,
                 enabled = submitAllowed,
                 loading = submitting,
-                iconResId = options.submitButton.iconResId
+                icon = options.submitButton.icon
             ),
             secondaryAction = options.cancelButton?.toActionState(
                 id = secondaryAction.id,
@@ -168,7 +168,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                         id = id,
                         text = it.text ?: app.getString(R.string.po_native_apm_confirm_payment_button_text),
                         primary = true,
-                        iconResId = it.iconResId
+                        icon = it.icon
                     )
                 }
             }
@@ -189,7 +189,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                                 it.type.rawType.uppercase()
                             ),
                         primary = false,
-                        iconResId = options.barcode.saveButton.iconResId
+                        icon = options.barcode.saveButton.icon
                     )
                 },
                 confirmationDialog = confirmationDialog(),
@@ -369,7 +369,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
         text = text ?: app.getString(R.string.po_native_apm_cancel_button_text),
         primary = false,
         enabled = enabled,
-        iconResId = iconResId,
+        icon = icon,
         confirmation = confirmation?.run {
             Confirmation(
                 title = title ?: app.getString(R.string.po_cancel_payment_confirmation_title),

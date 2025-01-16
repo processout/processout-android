@@ -3,6 +3,7 @@ package com.processout.sdk.ui.napm
 import android.os.Parcelable
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
+import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import com.processout.sdk.ui.core.style.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.SecondaryAction
@@ -104,20 +105,19 @@ data class PONativeAlternativePaymentConfiguration(
      * Submit button configuration.
      *
      * @param[text] Button text. Pass _null_ to use default text.
-     * @param[iconResId] Button icon drawable resource ID. Pass _null_ to hide.
+     * @param[icon] Button icon drawable resource. Pass _null_ to hide.
      */
     @Parcelize
     data class SubmitButton(
         val text: String? = null,
-        @DrawableRes
-        val iconResId: Int? = null
+        val icon: PODrawableImage? = null
     ) : Parcelable
 
     /**
      * Cancel button configuration.
      *
      * @param[text] Button text. Pass _null_ to use default text.
-     * @param[iconResId] Button icon drawable resource ID. Pass _null_ to hide.
+     * @param[icon] Button icon drawable resource. Pass _null_ to hide.
      * @param[disabledForSeconds] Initially disables the button for the given amount of time in seconds.
      * By default user can interact with the button immediately when it's visible.
      * @param[confirmation] Specifies action confirmation configuration (e.g. dialog).
@@ -126,8 +126,7 @@ data class PONativeAlternativePaymentConfiguration(
     @Parcelize
     data class CancelButton(
         val text: String? = null,
-        @DrawableRes
-        val iconResId: Int? = null,
+        val icon: PODrawableImage? = null,
         val disabledForSeconds: Int = 0,
         val confirmation: POActionConfirmationConfiguration? = null
     ) : Parcelable

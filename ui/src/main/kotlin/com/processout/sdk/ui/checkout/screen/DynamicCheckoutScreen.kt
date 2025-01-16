@@ -448,7 +448,7 @@ private fun RegularPaymentContent(
                         style = style.actionsContainer.primary,
                         enabled = enabled,
                         loading = loading,
-                        iconResId = iconResId
+                        icon = icon
                     )
                 }
             }

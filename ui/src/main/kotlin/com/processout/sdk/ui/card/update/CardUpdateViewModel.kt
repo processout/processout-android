@@ -103,14 +103,14 @@ internal class CardUpdateViewModel private constructor(
                 id = ActionId.SUBMIT,
                 text = submitButton.text ?: app.getString(R.string.po_card_update_button_submit),
                 primary = true,
-                iconResId = submitButton.iconResId
+                icon = submitButton.icon
             ),
             secondaryAction = cancelButton?.let {
                 POActionState(
                     id = ActionId.CANCEL,
                     text = it.text ?: app.getString(R.string.po_card_update_button_cancel),
                     primary = false,
-                    iconResId = it.iconResId,
+                    icon = it.icon,
                     confirmation = it.confirmation?.run {
                         Confirmation(
                             title = title ?: app.getString(R.string.po_cancel_confirmation_title),

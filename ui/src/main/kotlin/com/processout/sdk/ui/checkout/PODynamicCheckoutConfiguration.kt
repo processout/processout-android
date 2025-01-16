@@ -7,6 +7,7 @@ import com.google.android.gms.wallet.WalletConstants
 import com.processout.sdk.api.model.request.POContact
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import com.processout.sdk.ui.core.style.*
 import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
 import com.processout.sdk.ui.shared.configuration.POBarcodeConfiguration
@@ -108,15 +109,13 @@ data class PODynamicCheckoutConfiguration(
     @Parcelize
     data class SubmitButton(
         val text: String? = null,
-        @DrawableRes
-        val iconResId: Int? = null
+        val icon: PODrawableImage? = null
     ) : Parcelable
 
     @Parcelize
     data class CancelButton(
         val text: String? = null,
-        @DrawableRes
-        val iconResId: Int? = null,
+        val icon: PODrawableImage? = null,
         val disabledForSeconds: Int = 0,
         val confirmation: POActionConfirmationConfiguration? = null
     ) : Parcelable

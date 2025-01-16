@@ -1,6 +1,5 @@
 package com.processout.sdk.ui.core.component
 
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -26,6 +25,9 @@ import com.processout.sdk.ui.core.component.POButton.colors
 import com.processout.sdk.ui.core.component.POButton.contentPadding
 import com.processout.sdk.ui.core.component.POButton.elevation
 import com.processout.sdk.ui.core.extension.conditional
+import com.processout.sdk.ui.core.shared.image.PODrawableImage
+import com.processout.sdk.ui.core.shared.image.POImageRenderingMode.ORIGINAL
+import com.processout.sdk.ui.core.shared.image.POImageRenderingMode.TEMPLATE
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.style.POButtonDefaults
 import com.processout.sdk.ui.core.style.POButtonStateStyle
@@ -45,7 +47,7 @@ fun POButton(
     enabled: Boolean = true,
     loading: Boolean = false,
     leadingContent: @Composable RowScope.() -> Unit = {},
-    @DrawableRes iconResId: Int? = null,
+    icon: PODrawableImage? = null,
     iconSize: Dp = dimensions.iconSizeMedium,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
@@ -74,17 +76,22 @@ fun POButton(
                 }
             } else {
                 leadingContent()
-                iconResId?.let {
-                    val iconColor = if (enabled) colors.contentColor else colors.disabledContentColor
+                icon?.let {
+                    val iconColorFilter = when (it.renderingMode) {
+                        ORIGINAL -> null
+                        TEMPLATE -> ColorFilter.tint(
+                            color = if (enabled) colors.contentColor else colors.disabledContentColor
+                        )
+                    }
                     Image(
-                        painter = painterResource(it),
+                        painter = painterResource(it.resId),
                         contentDescription = null,
                         modifier = Modifier
                             .conditional(text.isNotBlank()) {
                                 padding(end = spacing.small)
                             }
                             .requiredSize(iconSize),
-                        colorFilter = ColorFilter.tint(color = iconColor)
+                        colorFilter = iconColorFilter
                     )
                 }
                 POText(
@@ -129,7 +136,7 @@ fun POButton(
             enabled = enabled,
             loading = loading,
             leadingContent = leadingContent,
-            iconResId = iconResId,
+            icon = icon,
             iconSize = iconSize,
             interactionSource = interactionSource
         )

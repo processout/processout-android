@@ -108,13 +108,13 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
             submitButton = configuration?.submitButton?.let {
                 POCardTokenizationConfiguration.SubmitButton(
                     text = it.text,
-                    iconResId = it.iconResId
+                    icon = it.icon
                 )
             } ?: POCardTokenizationConfiguration.SubmitButton(),
             cancelButton = configuration?.cancelButton?.let {
                 POCardTokenizationConfiguration.CancelButton(
                     text = it.text,
-                    iconResId = it.iconResId,
+                    icon = it.icon,
                     confirmation = it.confirmation
                 )
             },
@@ -144,12 +144,12 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
 
     private fun SubmitButton.map() = PONativeAlternativePaymentConfiguration.SubmitButton(
         text = text,
-        iconResId = iconResId
+        icon = icon
     )
 
     private fun CancelButton.map() = PONativeAlternativePaymentConfiguration.CancelButton(
         text = text,
-        iconResId = iconResId,
+        icon = icon,
         disabledForSeconds = disabledForSeconds,
         confirmation = confirmation
     )

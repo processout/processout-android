@@ -407,7 +407,7 @@ private fun Capture(
                             .fillMaxWidth()
                             .requiredHeightIn(min = dimensions.interactiveComponentMinSize),
                         style = style.actionsContainer.primary,
-                        iconResId = action.iconResId
+                        icon = action.icon
                     )
                 }
                 state.saveBarcodeAction?.let { action ->
@@ -425,7 +425,7 @@ private fun Capture(
                             .fillMaxWidth()
                             .requiredHeightIn(min = dimensions.interactiveComponentMinSize),
                         style = style.actionsContainer.secondary,
-                        iconResId = action.iconResId
+                        icon = action.icon
                     )
                 }
             }

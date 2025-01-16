@@ -148,7 +148,7 @@ internal class DynamicCheckoutViewModel private constructor(
             else -> defaultCancelAction
         }?.copy(
             id = interactorState.cancelActionId,
-            iconResId = configuration.cancelButton?.iconResId
+            icon = configuration.cancelButton?.icon
         )
     }
 
@@ -249,7 +249,7 @@ internal class DynamicCheckoutViewModel private constructor(
                     submitAction = if (selected)
                         cardTokenizationState.primaryAction.copy(
                             text = submitButtonText,
-                            iconResId = configuration.submitButton.iconResId
+                            icon = configuration.submitButton.icon
                         ) else null
                 )
                 is AlternativePayment -> if (!paymentMethod.isExpress)
@@ -268,7 +268,7 @@ internal class DynamicCheckoutViewModel private constructor(
                             primary = true,
                             loading = id == interactorState.processingPaymentMethod?.id ||
                                     interactorState.invoice == null,
-                            iconResId = configuration.submitButton.iconResId
+                            icon = configuration.submitButton.icon
                         )
                     ) else null
                 is NativeAlternativePayment -> RegularPayment(
@@ -283,7 +283,7 @@ internal class DynamicCheckoutViewModel private constructor(
                     submitAction = if (selected && nativeAlternativePaymentState is UserInput)
                         nativeAlternativePaymentState.primaryAction.copy(
                             text = submitButtonText,
-                            iconResId = configuration.submitButton.iconResId
+                            icon = configuration.submitButton.icon
                         ) else null
                 )
                 else -> null
