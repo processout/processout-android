@@ -137,7 +137,7 @@ data class PONativeAlternativePaymentConfiguration(
      * @param[text] Action text. Pass _null_ to use default text.
      */
     @Parcelize
-    @Deprecated(message = "Use 'SubmitButton' instead.")
+    @Deprecated(message = "Use 'Button' instead.")
     data class ConfirmAction(
         val text: String? = null
     ) : Parcelable
