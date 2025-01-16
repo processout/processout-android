@@ -125,7 +125,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
     private fun nativeAlternativePaymentConfiguration(): Options {
         val paymentConfirmation = configuration?.alternativePayment?.paymentConfirmation
         return Options(
-            submitButton = configuration?.submitButton?.map() ?: PONativeAlternativePaymentConfiguration.SubmitButton(),
+            submitButton = configuration?.submitButton?.map() ?: PONativeAlternativePaymentConfiguration.Button(),
             cancelButton = configuration?.cancelButton?.map(),
             paymentConfirmation = PaymentConfirmationConfiguration(
                 waitsConfirmation = true,
@@ -142,7 +142,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         )
     }
 
-    private fun SubmitButton.map() = PONativeAlternativePaymentConfiguration.SubmitButton(
+    private fun SubmitButton.map() = PONativeAlternativePaymentConfiguration.Button(
         text = text,
         icon = icon
     )

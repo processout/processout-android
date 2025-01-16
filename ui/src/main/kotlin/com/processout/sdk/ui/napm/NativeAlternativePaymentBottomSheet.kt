@@ -28,8 +28,8 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.PermissionReques
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.AnimationDurationMillis
 import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.PermissionRequest
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Capture
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Button
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
-import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.SubmitButton
 import com.processout.sdk.ui.shared.component.isImeVisibleAsState
 import com.processout.sdk.ui.shared.component.screenModeAsState
 import com.processout.sdk.ui.shared.extension.collectImmediately
@@ -54,7 +54,7 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
             app = requireActivity().application,
             invoiceId = configuration?.invoiceId ?: String(),
             gatewayConfigurationId = configuration?.gatewayConfigurationId ?: String(),
-            options = configuration?.options ?: Options(submitButton = SubmitButton()),
+            options = configuration?.options ?: Options(submitButton = Button()),
             eventDispatcher = PODefaultEventDispatchers.defaultNativeAlternativePaymentMethod
         )
     }

@@ -24,7 +24,7 @@ import kotlinx.parcelize.Parcelize
 data class PONativeAlternativePaymentConfiguration(
     val invoiceId: String,
     val gatewayConfigurationId: String,
-    val options: Options = Options(submitButton = SubmitButton()),
+    val options: Options = Options(submitButton = Button()),
     val style: Style? = null
 ) : Parcelable {
 
@@ -46,7 +46,7 @@ data class PONativeAlternativePaymentConfiguration(
     @Parcelize
     data class Options(
         val title: String? = null,
-        val submitButton: SubmitButton = SubmitButton(),
+        val submitButton: Button = Button(),
         val cancelButton: CancelButton? = null,
         val cancellation: POCancellationConfiguration = POCancellationConfiguration(),
         val paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration(confirmButton = null),
@@ -84,7 +84,7 @@ data class PONativeAlternativePaymentConfiguration(
             successMessage: String? = null
         ) : this(
             title = title,
-            submitButton = SubmitButton(text = primaryActionText),
+            submitButton = Button(text = primaryActionText),
             cancelButton = secondaryAction?.toCancelButton(),
             cancellation = with(cancellation) {
                 POCancellationConfiguration(
@@ -102,13 +102,13 @@ data class PONativeAlternativePaymentConfiguration(
     }
 
     /**
-     * Submit button configuration.
+     * Button configuration.
      *
      * @param[text] Button text. Pass _null_ to use default text.
      * @param[icon] Button icon drawable resource. Pass _null_ to hide.
      */
     @Parcelize
-    data class SubmitButton(
+    data class Button(
         val text: String? = null,
         val icon: PODrawableImage? = null
     ) : Parcelable
@@ -200,7 +200,7 @@ data class PONativeAlternativePaymentConfiguration(
         val timeoutSeconds: Int = DEFAULT_TIMEOUT_SECONDS,
         val showProgressIndicatorAfterSeconds: Int? = null,
         val hideGatewayDetails: Boolean = false,
-        val confirmButton: SubmitButton? = null,
+        val confirmButton: Button? = null,
         val cancelButton: CancelButton? = null
     ) : Parcelable {
 
@@ -238,7 +238,7 @@ data class PONativeAlternativePaymentConfiguration(
             timeoutSeconds = timeoutSeconds,
             showProgressIndicatorAfterSeconds = showProgressIndicatorAfterSeconds,
             hideGatewayDetails = hideGatewayDetails,
-            confirmButton = primaryAction?.let { SubmitButton(text = it.text) },
+            confirmButton = primaryAction?.let { Button(text = it.text) },
             cancelButton = secondaryAction?.toCancelButton()
         )
     }
