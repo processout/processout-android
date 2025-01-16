@@ -16,6 +16,7 @@ import com.processout.example.ui.screen.nativeapm.NativeApmUiState.*
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Button
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentLauncher
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodLauncher
@@ -96,7 +97,8 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
             launcherCompose.launch(
                 PONativeAlternativePaymentConfiguration(
                     invoiceId = uiModel.invoiceId,
-                    gatewayConfigurationId = uiModel.gatewayConfigurationId
+                    gatewayConfigurationId = uiModel.gatewayConfigurationId,
+                    submitButton = Button()
                 )
             )
         } else {

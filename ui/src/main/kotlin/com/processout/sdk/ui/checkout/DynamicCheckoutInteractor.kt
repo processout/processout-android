@@ -470,8 +470,10 @@ internal class DynamicCheckoutInteractor(
                     .apply(paymentMethod.configuration)
             )
             is NativeAlternativePayment -> nativeAlternativePayment.start(
-                invoiceId = configuration.invoiceRequest.invoiceId,
-                gatewayConfigurationId = paymentMethod.gatewayConfigurationId
+                configuration = nativeAlternativePayment.configuration.copy(
+                    invoiceId = configuration.invoiceRequest.invoiceId,
+                    gatewayConfigurationId = paymentMethod.gatewayConfigurationId
+                )
             )
             else -> {}
         }

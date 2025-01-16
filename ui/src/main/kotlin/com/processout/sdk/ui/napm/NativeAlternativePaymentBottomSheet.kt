@@ -29,7 +29,6 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.AnimationDurati
 import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.PermissionRequest
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Capture
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Button
-import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
 import com.processout.sdk.ui.shared.component.isImeVisibleAsState
 import com.processout.sdk.ui.shared.component.screenModeAsState
 import com.processout.sdk.ui.shared.extension.collectImmediately
@@ -52,9 +51,11 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
     private val viewModel: NativeAlternativePaymentViewModel by viewModels {
         NativeAlternativePaymentViewModel.Factory(
             app = requireActivity().application,
-            invoiceId = configuration?.invoiceId ?: String(),
-            gatewayConfigurationId = configuration?.gatewayConfigurationId ?: String(),
-            options = configuration?.options ?: Options(submitButton = Button()),
+            configuration = configuration ?: PONativeAlternativePaymentConfiguration(
+                invoiceId = String(),
+                gatewayConfigurationId = String(),
+                submitButton = Button()
+            ),
             eventDispatcher = PODefaultEventDispatchers.defaultNativeAlternativePaymentMethod
         )
     }
@@ -132,7 +133,7 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        configuration?.let { apply(it.options.cancellation) }
+        configuration?.let { apply(it.cancellation) }
     }
 
     private fun handle(sideEffect: NativeAlternativePaymentSideEffect) {

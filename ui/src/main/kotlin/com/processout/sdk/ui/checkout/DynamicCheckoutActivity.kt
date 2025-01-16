@@ -53,7 +53,6 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.googlepay.POGooglePayCardTokenizationLauncher
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
-import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.DEFAULT_TIMEOUT_SECONDS
 import com.processout.sdk.ui.shared.configuration.POBarcodeConfiguration
@@ -80,9 +79,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         val nativeAlternativePayment: NativeAlternativePaymentViewModel by viewModels {
             NativeAlternativePaymentViewModel.Factory(
                 app = application,
-                invoiceId = configuration?.invoiceRequest?.invoiceId ?: String(),
-                gatewayConfigurationId = String(),
-                options = nativeAlternativePaymentConfiguration(),
+                configuration = nativeAlternativePaymentConfiguration(),
                 eventDispatcher = nativeAlternativePaymentEventDispatcher
             )
         }
@@ -122,9 +119,11 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         )
     }
 
-    private fun nativeAlternativePaymentConfiguration(): Options {
+    private fun nativeAlternativePaymentConfiguration(): PONativeAlternativePaymentConfiguration {
         val paymentConfirmation = configuration?.alternativePayment?.paymentConfirmation
-        return Options(
+        return PONativeAlternativePaymentConfiguration(
+            invoiceId = configuration?.invoiceRequest?.invoiceId ?: String(),
+            gatewayConfigurationId = String(),
             submitButton = configuration?.submitButton?.map() ?: PONativeAlternativePaymentConfiguration.Button(),
             cancelButton = configuration?.cancelButton?.map(),
             paymentConfirmation = PaymentConfirmationConfiguration(
