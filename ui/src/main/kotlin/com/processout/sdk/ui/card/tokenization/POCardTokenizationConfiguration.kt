@@ -31,7 +31,7 @@ data class POCardTokenizationConfiguration(
     val isCardholderNameFieldVisible: Boolean = true,
     val billingAddress: BillingAddressConfiguration = BillingAddressConfiguration(),
     val savingAllowed: Boolean = false,
-    val submitButton: SubmitButton = SubmitButton(),
+    val submitButton: Button = Button(),
     val cancelButton: CancelButton? = CancelButton(),
     val cancellation: POCancellationConfiguration = POCancellationConfiguration(),
     val metadata: Map<String, String>? = null,
@@ -70,7 +70,7 @@ data class POCardTokenizationConfiguration(
         isCardholderNameFieldVisible = isCardholderNameFieldVisible,
         billingAddress = billingAddress,
         savingAllowed = savingAllowed,
-        submitButton = SubmitButton(text = primaryActionText),
+        submitButton = Button(text = primaryActionText),
         cancelButton = if (cancellation.secondaryAction)
             CancelButton(text = secondaryActionText) else null,
         cancellation = cancellation,
@@ -112,13 +112,13 @@ data class POCardTokenizationConfiguration(
     }
 
     /**
-     * Submit button configuration.
+     * Button configuration.
      *
      * @param[text] Button text. Pass _null_ to use default text.
      * @param[icon] Button icon drawable resource. Pass _null_ to hide.
      */
     @Parcelize
-    data class SubmitButton(
+    data class Button(
         val text: String? = null,
         val icon: PODrawableImage? = null
     ) : Parcelable

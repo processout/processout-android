@@ -106,11 +106,11 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                 attachDefaultsToPaymentMethod = billingAddress?.attachDefaultsToPaymentMethod ?: false
             ),
             submitButton = configuration?.submitButton?.let {
-                POCardTokenizationConfiguration.SubmitButton(
+                POCardTokenizationConfiguration.Button(
                     text = it.text,
                     icon = it.icon
                 )
-            } ?: POCardTokenizationConfiguration.SubmitButton(),
+            } ?: POCardTokenizationConfiguration.Button(),
             cancelButton = configuration?.cancelButton?.let {
                 POCardTokenizationConfiguration.CancelButton(
                     text = it.text,
