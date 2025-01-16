@@ -46,8 +46,8 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Failure
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Success
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutSideEffect.*
+import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.Button
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.CancelButton
-import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.SubmitButton
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.googlepay.POGooglePayCardTokenizationLauncher
@@ -142,7 +142,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         )
     }
 
-    private fun SubmitButton.map() = PONativeAlternativePaymentConfiguration.Button(
+    private fun Button.map() = PONativeAlternativePaymentConfiguration.Button(
         text = text,
         icon = icon
     )

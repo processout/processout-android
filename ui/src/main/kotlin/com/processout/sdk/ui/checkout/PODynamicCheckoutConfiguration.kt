@@ -21,7 +21,7 @@ data class PODynamicCheckoutConfiguration(
     val card: CardConfiguration = CardConfiguration(),
     val googlePay: GooglePayConfiguration = GooglePayConfiguration(),
     val alternativePayment: AlternativePaymentConfiguration = AlternativePaymentConfiguration(),
-    val submitButton: SubmitButton = SubmitButton(),
+    val submitButton: Button = Button(),
     val cancelButton: CancelButton? = CancelButton(),
     val cancelOnBackPressed: Boolean = true,
     val preselectSinglePaymentMethod: Boolean = true,
@@ -101,13 +101,13 @@ data class PODynamicCheckoutConfiguration(
         data class PaymentConfirmationConfiguration(
             val timeoutSeconds: Int = 3 * 60,
             val showProgressIndicatorAfterSeconds: Int? = null,
-            val confirmButton: SubmitButton? = null,
+            val confirmButton: Button? = null,
             val cancelButton: CancelButton? = CancelButton()
         ) : Parcelable
     }
 
     @Parcelize
-    data class SubmitButton(
+    data class Button(
         val text: String? = null,
         val icon: PODrawableImage? = null
     ) : Parcelable
