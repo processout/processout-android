@@ -20,7 +20,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class POCardUpdateConfiguration(
     val cardId: String,
-    val options: Options = Options(submitButton = SubmitButton()),
+    val options: Options = Options(submitButton = Button()),
     val style: Style? = null
 ) : Parcelable {
 
@@ -37,7 +37,7 @@ data class POCardUpdateConfiguration(
     data class Options(
         val title: String? = null,
         val cardInformation: CardInformation? = null,
-        val submitButton: SubmitButton = SubmitButton(),
+        val submitButton: Button = Button(),
         val cancelButton: CancelButton? = CancelButton(),
         val cancellation: POCancellationConfiguration = POCancellationConfiguration()
     ) : Parcelable {
@@ -61,7 +61,7 @@ data class POCardUpdateConfiguration(
         ) : this(
             title = title,
             cardInformation = cardInformation,
-            submitButton = SubmitButton(text = primaryActionText),
+            submitButton = Button(text = primaryActionText),
             cancelButton = if (cancellation.secondaryAction)
                 CancelButton(text = secondaryActionText) else null,
             cancellation = cancellation
@@ -69,13 +69,13 @@ data class POCardUpdateConfiguration(
     }
 
     /**
-     * Submit button configuration.
+     * Button configuration.
      *
      * @param[text] Button text. Pass _null_ to use default text.
      * @param[icon] Button icon drawable resource. Pass _null_ to hide.
      */
     @Parcelize
-    data class SubmitButton(
+    data class Button(
         val text: String? = null,
         val icon: PODrawableImage? = null
     ) : Parcelable

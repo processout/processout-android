@@ -21,8 +21,8 @@ import com.processout.sdk.ui.base.BaseBottomSheetDialogFragment
 import com.processout.sdk.ui.card.update.CardUpdateCompletion.Failure
 import com.processout.sdk.ui.card.update.CardUpdateCompletion.Success
 import com.processout.sdk.ui.card.update.CardUpdateEvent.Dismiss
+import com.processout.sdk.ui.card.update.POCardUpdateConfiguration.Button
 import com.processout.sdk.ui.card.update.POCardUpdateConfiguration.Options
-import com.processout.sdk.ui.card.update.POCardUpdateConfiguration.SubmitButton
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.component.screenModeAsState
 import com.processout.sdk.ui.shared.extension.dpToPx
@@ -42,7 +42,7 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
         CardUpdateViewModel.Factory(
             app = requireActivity().application,
             cardId = configuration?.cardId ?: String(),
-            options = configuration?.options ?: Options(submitButton = SubmitButton())
+            options = configuration?.options ?: Options(submitButton = Button())
         )
     }
 

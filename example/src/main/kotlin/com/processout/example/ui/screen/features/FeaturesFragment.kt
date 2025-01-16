@@ -98,7 +98,7 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
                                 scheme = card?.scheme,
                                 preferredScheme = card?.coScheme
                             ),
-                            submitButton = SubmitButton(),
+                            submitButton = Button(),
                             cancellation = POCancellationConfiguration(
                                 backPressed = true,
                                 dragDown = true,
