@@ -22,7 +22,6 @@ import com.processout.sdk.ui.card.update.CardUpdateCompletion.Failure
 import com.processout.sdk.ui.card.update.CardUpdateCompletion.Success
 import com.processout.sdk.ui.card.update.CardUpdateEvent.Dismiss
 import com.processout.sdk.ui.card.update.POCardUpdateConfiguration.Button
-import com.processout.sdk.ui.card.update.POCardUpdateConfiguration.Options
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.component.screenModeAsState
 import com.processout.sdk.ui.shared.extension.dpToPx
@@ -41,8 +40,10 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
     private val viewModel: CardUpdateViewModel by viewModels {
         CardUpdateViewModel.Factory(
             app = requireActivity().application,
-            cardId = configuration?.cardId ?: String(),
-            options = configuration?.options ?: Options(submitButton = Button())
+            configuration = configuration ?: POCardUpdateConfiguration(
+                cardId = String(),
+                submitButton = Button()
+            )
         )
     }
 
@@ -87,7 +88,7 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        configuration?.let { apply(it.options.cancellation) }
+        configuration?.let { apply(it.cancellation) }
     }
 
     private fun handle(completion: CardUpdateCompletion) =

@@ -41,8 +41,7 @@ import kotlinx.coroutines.launch
 
 internal class CardUpdateViewModel private constructor(
     private val app: Application,
-    private val cardId: String,
-    private val options: POCardUpdateConfiguration.Options,
+    private val configuration: POCardUpdateConfiguration,
     private val cardsRepository: POCardsRepository,
     private val eventDispatcher: PODefaultCardUpdateEventDispatcher,
     private val logAttributes: Map<String, String>
@@ -50,18 +49,16 @@ internal class CardUpdateViewModel private constructor(
 
     class Factory(
         private val app: Application,
-        private val cardId: String,
-        private val options: POCardUpdateConfiguration.Options
+        private val configuration: POCardUpdateConfiguration
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
             CardUpdateViewModel(
                 app = app,
-                cardId = cardId,
-                options = options,
+                configuration = configuration,
                 cardsRepository = ProcessOut.instance.cards,
                 eventDispatcher = PODefaultCardUpdateEventDispatcher,
-                logAttributes = mapOf(POLogAttribute.CARD_ID to cardId)
+                logAttributes = mapOf(POLogAttribute.CARD_ID to configuration.cardId)
             ) as T
     }
 
@@ -94,7 +91,7 @@ internal class CardUpdateViewModel private constructor(
         resolveScheme()
     }
 
-    private fun initState() = with(options) {
+    private fun initState() = with(configuration) {
         CardUpdateState(
             title = title ?: app.getString(R.string.po_card_update_title),
             fields = POImmutableList(initFields()),
@@ -135,7 +132,7 @@ internal class CardUpdateViewModel private constructor(
     }
 
     private fun cardNumberField(): FieldState? =
-        with(options.cardInformation) {
+        with(configuration.cardInformation) {
             this?.maskedNumber?.let { maskedNumber ->
                 if (maskedNumber.isBlank()) return null
                 FieldState(
@@ -155,7 +152,7 @@ internal class CardUpdateViewModel private constructor(
         placeholder = app.getString(R.string.po_card_update_cvc),
         forceTextDirectionLtr = true,
         iconResId = com.processout.sdk.ui.R.drawable.po_card_back,
-        inputFilter = CardSecurityCodeInputFilter(scheme = options.cardInformation?.scheme),
+        inputFilter = CardSecurityCodeInputFilter(scheme = configuration.cardInformation?.scheme),
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.NumberPassword,
             imeAction = ImeAction.Done
@@ -164,7 +161,7 @@ internal class CardUpdateViewModel private constructor(
     )
 
     private fun resolveScheme() {
-        with(options.cardInformation) {
+        with(configuration.cardInformation) {
             if (this?.scheme == null) {
                 POLogger.info(
                     message = "Attempt to resolve card scheme.",
@@ -340,7 +337,10 @@ internal class CardUpdateViewModel private constructor(
         dispatch(WillUpdateCard)
         viewModelScope.launch {
             cardsRepository.updateCard(
-                request = POCardUpdateRequest(cardId = cardId, cvc = cvc)
+                request = POCardUpdateRequest(
+                    cardId = configuration.cardId,
+                    cvc = cvc
+                )
             ).onSuccess { card ->
                 POLogger.info(
                     message = "Card updated successfully.",
@@ -360,7 +360,10 @@ internal class CardUpdateViewModel private constructor(
 
     private fun requestIfShouldContinue(failure: ProcessOutResult.Failure) {
         viewModelScope.launch {
-            val request = POCardUpdateShouldContinueRequest(cardId, failure)
+            val request = POCardUpdateShouldContinueRequest(
+                cardId = configuration.cardId,
+                failure = failure
+            )
             latestShouldContinueRequest = request
             eventDispatcher.send(request)
             POLogger.info(

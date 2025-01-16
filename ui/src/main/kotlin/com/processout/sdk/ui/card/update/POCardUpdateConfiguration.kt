@@ -14,59 +14,65 @@ import kotlinx.parcelize.Parcelize
  * Defines card update configuration.
  *
  * @param[cardId] Card ID.
- * @param[options] Allows to customize behaviour and pre-define the values.
+ * @param[cardInformation] Allows to provide card information that will be visible in UI.
+ * @param[title] Custom title.
+ * @param[submitButton] Submit button configuration.
+ * @param[cancelButton] Cancel button configuration. Use _null_ to hide.
+ * @param[cancellation] Specifies cancellation behaviour.
  * @param[style] Allows to customize the look and feel.
  */
 @Parcelize
 data class POCardUpdateConfiguration(
     val cardId: String,
-    val options: Options = Options(submitButton = Button()),
+    val cardInformation: CardInformation? = null,
+    val title: String? = null,
+    val submitButton: Button = Button(),
+    val cancelButton: CancelButton? = CancelButton(),
+    val cancellation: POCancellationConfiguration = POCancellationConfiguration(),
     val style: Style? = null
 ) : Parcelable {
+
+    /**
+     * Defines card update configuration.
+     *
+     * @param[cardId] Card ID.
+     * @param[options] Allows to customize behaviour and pre-define the values.
+     * @param[style] Allows to customize the look and feel.
+     */
+    @Deprecated(message = "Use alternative constructor.")
+    constructor(
+        cardId: String,
+        options: Options = Options(),
+        style: Style? = null
+    ) : this(
+        cardId = cardId,
+        cardInformation = options.cardInformation,
+        title = options.title,
+        submitButton = Button(text = options.primaryActionText),
+        cancelButton = if (options.cancellation.secondaryAction)
+            CancelButton(text = options.secondaryActionText) else null,
+        cancellation = options.cancellation,
+        style = style
+    )
 
     /**
      * Allows to customize behaviour and pre-define the values.
      *
      * @param[title] Custom title.
      * @param[cardInformation] Allows to provide card information that will be visible in UI.
-     * @param[submitButton] Submit button configuration.
-     * @param[cancelButton] Cancel button configuration. Use _null_ to hide.
+     * @param[primaryActionText] Custom primary action text (e.g. "Submit").
+     * @param[secondaryActionText] Custom secondary action text (e.g. "Cancel").
      * @param[cancellation] Specifies cancellation behaviour.
      */
     @Parcelize
+    @Deprecated(message = "Use 'POCardUpdateConfiguration' instead.")
     data class Options(
         val title: String? = null,
         val cardInformation: CardInformation? = null,
-        val submitButton: Button = Button(),
-        val cancelButton: CancelButton? = CancelButton(),
+        val primaryActionText: String? = null,
+        val secondaryActionText: String? = null,
         val cancellation: POCancellationConfiguration = POCancellationConfiguration()
-    ) : Parcelable {
-
-        /**
-         * Allows to customize behaviour and pre-define the values.
-         *
-         * @param[title] Custom title.
-         * @param[cardInformation] Allows to provide card information that will be visible in UI.
-         * @param[primaryActionText] Custom primary action text (e.g. "Submit").
-         * @param[secondaryActionText] Custom secondary action text (e.g. "Cancel").
-         * @param[cancellation] Specifies cancellation behaviour.
-         */
-        @Deprecated(message = "Use alternative constructor.")
-        constructor(
-            title: String? = null,
-            cardInformation: CardInformation? = null,
-            primaryActionText: String? = null,
-            secondaryActionText: String? = null,
-            cancellation: POCancellationConfiguration = POCancellationConfiguration()
-        ) : this(
-            title = title,
-            cardInformation = cardInformation,
-            submitButton = Button(text = primaryActionText),
-            cancelButton = if (cancellation.secondaryAction)
-                CancelButton(text = secondaryActionText) else null,
-            cancellation = cancellation
-        )
-    }
+    ) : Parcelable
 
     /**
      * Button configuration.
