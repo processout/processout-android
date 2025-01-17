@@ -620,6 +620,7 @@ internal object DynamicCheckoutScreen {
 
     @Immutable
     data class Style(
+        val sectionHeader: SectionHeaderStyle,
         val googlePayButton: GooglePayButton.Style,
         val expressPaymentButton: POBrandButtonStyle?,
         val regularPayment: RegularPaymentStyle,
@@ -637,6 +638,12 @@ internal object DynamicCheckoutScreen {
         val backgroundColor: Color,
         val progressIndicatorColor: Color,
         val paymentSuccess: PaymentSuccessStyle
+    )
+
+    @Immutable
+    data class SectionHeaderStyle(
+        val title: POText.Style,
+        val trailingButton: POButton.Style
     )
 
     @Immutable
@@ -659,6 +666,7 @@ internal object DynamicCheckoutScreen {
         custom: PODynamicCheckoutConfiguration.Style?,
         isLightTheme: Boolean
     ) = Style(
+        sectionHeader = custom?.sectionHeader?.custom() ?: defaultSectionHeader,
         googlePayButton = custom?.googlePayButton?.let {
             GooglePayButton.custom(style = it, isLightTheme)
         } ?: GooglePayButton.default(isLightTheme),
@@ -709,6 +717,19 @@ internal object DynamicCheckoutScreen {
         } ?: colors.button.primaryBackgroundDefault,
         paymentSuccess = custom?.paymentSuccess?.custom() ?: defaultPaymentSuccess
     )
+
+    private val defaultSectionHeader: SectionHeaderStyle
+        @Composable get() = SectionHeaderStyle(
+            title = POText.title,
+            trailingButton = POButton.ghost
+        )
+
+    @Composable
+    private fun PODynamicCheckoutConfiguration.SectionHeaderStyle.custom() =
+        SectionHeaderStyle(
+            title = POText.custom(style = title),
+            trailingButton = POButton.custom(style = trailingButton)
+        )
 
     private val defaultRegularPayment: RegularPaymentStyle
         @Composable get() {

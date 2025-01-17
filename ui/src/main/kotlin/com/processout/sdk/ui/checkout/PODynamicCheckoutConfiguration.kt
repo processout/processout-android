@@ -18,6 +18,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class PODynamicCheckoutConfiguration(
     val invoiceRequest: POInvoiceRequest,
+    val expressCheckout: ExpressCheckout = ExpressCheckout(),
     val card: CardConfiguration = CardConfiguration(),
     val googlePay: GooglePayConfiguration = GooglePayConfiguration(),
     val alternativePayment: AlternativePaymentConfiguration = AlternativePaymentConfiguration(),
@@ -28,6 +29,12 @@ data class PODynamicCheckoutConfiguration(
     val paymentSuccess: PaymentSuccess? = PaymentSuccess(),
     val style: Style? = null
 ) : Parcelable {
+
+    @Parcelize
+    data class ExpressCheckout(
+        val title: String? = null,
+        val settingsButton: Button? = null
+    ) : Parcelable
 
     @Parcelize
     data class CardConfiguration(
@@ -128,6 +135,7 @@ data class PODynamicCheckoutConfiguration(
 
     @Parcelize
     data class Style(
+        val sectionHeader: SectionHeaderStyle? = null,
         val googlePayButton: POGooglePayButtonStyle? = null,
         val expressPaymentButton: POBrandButtonStyle? = null,
         val regularPayment: RegularPaymentStyle? = null,
@@ -149,6 +157,12 @@ data class PODynamicCheckoutConfiguration(
         @ColorRes
         val controlsTintColorResId: Int? = null,
         val paymentSuccess: PaymentSuccessStyle? = null
+    ) : Parcelable
+
+    @Parcelize
+    data class SectionHeaderStyle(
+        val title: POTextStyle,
+        val trailingButton: POButtonStyle
     ) : Parcelable
 
     @Parcelize
