@@ -721,7 +721,7 @@ internal object DynamicCheckoutScreen {
     private val defaultSectionHeader: SectionHeaderStyle
         @Composable get() = SectionHeaderStyle(
             title = POText.title,
-            trailingButton = POButton.ghost
+            trailingButton = POButton.ghostEqualPadding
         )
 
     @Composable

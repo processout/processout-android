@@ -266,8 +266,7 @@ object POButton {
                     shape = shapes.roundedCornersSmall,
                     border = POBorderStroke(width = 0.dp, color = Color.Transparent),
                     backgroundColor = Color.Transparent,
-                    elevation = 0.dp,
-                    paddingHorizontal = spacing.large
+                    elevation = 0.dp
                 ),
                 disabled = StateStyle(
                     text = POText.Style(
@@ -277,8 +276,7 @@ object POButton {
                     shape = shapes.roundedCornersSmall,
                     border = POBorderStroke(width = 0.dp, color = Color.Transparent),
                     backgroundColor = Color.Transparent,
-                    elevation = 0.dp,
-                    paddingHorizontal = spacing.large
+                    elevation = 0.dp
                 ),
                 highlighted = HighlightedStyle(
                     textColor = colors.text.primary,
@@ -286,6 +284,20 @@ object POButton {
                     backgroundColor = colors.button.ghostBackgroundPressed
                 ),
                 progressIndicatorColor = colors.text.primary
+            )
+        }
+
+    val ghostEqualPadding: Style
+        @Composable get() = with(ghost) {
+            copy(
+                normal = normal.copy(
+                    paddingHorizontal = spacing.small,
+                    paddingVertical = spacing.small
+                ),
+                disabled = disabled.copy(
+                    paddingHorizontal = spacing.small,
+                    paddingVertical = spacing.small
+                )
             )
         }
 
