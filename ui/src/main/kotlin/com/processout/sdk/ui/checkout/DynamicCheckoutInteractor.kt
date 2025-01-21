@@ -121,9 +121,7 @@ internal class DynamicCheckoutInteractor(
     private fun initState() = DynamicCheckoutInteractorState(
         loading = true,
         invoice = null,
-        paymentMethods = emptyList(),
-        submitActionId = ActionId.SUBMIT,
-        cancelActionId = ActionId.CANCEL
+        paymentMethods = emptyList()
     )
 
     private suspend fun start() {
@@ -554,6 +552,7 @@ internal class DynamicCheckoutInteractor(
                 )
             }
             ActionId.CANCEL -> cancel()
+            ActionId.EXPRESS_CHECKOUT_SETTINGS -> onExpressCheckoutSettingsAction()
             else -> when (paymentMethod) {
                 is Card -> cardTokenization.onEvent(
                     CardTokenizationEvent.Action(event.actionId)
@@ -584,6 +583,10 @@ internal class DynamicCheckoutInteractor(
             )
             else -> {}
         }
+    }
+
+    private fun onExpressCheckoutSettingsAction() {
+        // TODO
     }
 
     private fun PaymentMethod.isExpress(): Boolean =

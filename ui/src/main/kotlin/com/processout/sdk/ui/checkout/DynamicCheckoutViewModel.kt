@@ -14,11 +14,14 @@ import com.processout.sdk.api.service.googlepay.PODefaultGooglePayService
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.Field
+import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.Field.CheckboxField
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment.Content
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.CancelButton
+import com.processout.sdk.ui.core.shared.image.PODrawableImage
+import com.processout.sdk.ui.core.shared.image.POImageRenderingMode
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.core.state.POImmutableList
@@ -101,7 +104,7 @@ internal class DynamicCheckoutViewModel private constructor(
             Starting(cancelAction = cancelAction)
         } else {
             Started(
-                expressPayments = expressPayments(interactorState),
+                expressCheckout = expressCheckout(interactorState),
                 regularPayments = regularPayments(interactorState, cardTokenizationState, nativeAlternativePaymentState),
                 cancelAction = if (interactorState.delayedSuccess) null else cancelAction,
                 errorMessage = interactorState.errorMessage,
@@ -147,7 +150,7 @@ internal class DynamicCheckoutViewModel private constructor(
             }
             else -> defaultCancelAction
         }?.copy(
-            id = interactorState.cancelActionId,
+            id = interactorState.actions.cancelId,
             icon = configuration.cancelButton?.icon
         )
     }
@@ -156,7 +159,7 @@ internal class DynamicCheckoutViewModel private constructor(
         interactorState: DynamicCheckoutInteractorState,
         defaultText: String
     ) = POActionState(
-        id = interactorState.cancelActionId,
+        id = interactorState.actions.cancelId,
         text = text ?: defaultText,
         primary = false,
         confirmation = confirmation?.map()
@@ -171,6 +174,41 @@ internal class DynamicCheckoutViewModel private constructor(
             ?: app.getString(R.string.po_cancel_payment_confirmation_dismiss)
     )
 
+    private fun expressCheckout(
+        interactorState: DynamicCheckoutInteractorState
+    ) = ExpressCheckout(
+        header = SectionHeader(
+            title = configuration.expressCheckout.title
+                ?: app.getString(R.string.po_dynamic_checkout_express_checkout),
+            action = expressCheckoutSettingsAction(interactorState)
+        ),
+        expressPayments = expressPayments(interactorState)
+    )
+
+    private fun expressCheckoutSettingsAction(
+        interactorState: DynamicCheckoutInteractorState
+    ): POActionState? = with(configuration.expressCheckout) {
+        if (interactorState.paymentMethods.deletingAllowed)
+            POActionState(
+                id = interactorState.actions.expressCheckoutSettingsId,
+                text = settingsButton?.text ?: String(),
+                primary = false,
+                icon = settingsButton?.icon
+                    ?: PODrawableImage(
+                        resId = com.processout.sdk.ui.R.drawable.po_icon_settings,
+                        renderingMode = POImageRenderingMode.ORIGINAL
+                    )
+            ) else null
+    }
+
+    private val List<PaymentMethod>.deletingAllowed: Boolean
+        get() = any {
+            when (it) {
+                is CustomerToken -> it.configuration.deletingAllowed
+                else -> false
+            }
+        }
+
     private fun expressPayments(
         interactorState: DynamicCheckoutInteractorState
     ): POImmutableList<ExpressPayment> =
@@ -181,7 +219,7 @@ internal class DynamicCheckoutViewModel private constructor(
                     id = id,
                     allowedPaymentMethods = paymentMethod.allowedPaymentMethods,
                     submitAction = POActionState(
-                        id = interactorState.submitActionId,
+                        id = interactorState.actions.submitId,
                         text = String(),
                         primary = true,
                         enabled = id != interactorState.processingPaymentMethod?.id
@@ -219,7 +257,7 @@ internal class DynamicCheckoutViewModel private constructor(
             logoResource = display.logo,
             brandColor = display.brandColor,
             submitAction = POActionState(
-                id = interactorState.submitActionId,
+                id = interactorState.actions.submitId,
                 text = text,
                 primary = true,
                 enabled = !processing,
@@ -236,7 +274,8 @@ internal class DynamicCheckoutViewModel private constructor(
         interactorState.paymentMethods.mapNotNull { paymentMethod ->
             val id = paymentMethod.id
             val selected = id == interactorState.selectedPaymentMethod?.id
-            val submitButtonText = configuration.submitButton.text ?: app.getString(R.string.po_dynamic_checkout_button_pay)
+            val submitButtonText = configuration.submitButton.text
+                ?: app.getString(R.string.po_dynamic_checkout_button_pay)
             when (paymentMethod) {
                 is Card -> RegularPayment(
                     id = id,
@@ -263,7 +302,7 @@ internal class DynamicCheckoutViewModel private constructor(
                         ),
                         content = alternativePaymentContent(paymentMethod),
                         submitAction = POActionState(
-                            id = interactorState.submitActionId,
+                            id = interactorState.actions.submitId,
                             text = submitButtonText,
                             primary = true,
                             loading = id == interactorState.processingPaymentMethod?.id ||

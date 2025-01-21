@@ -13,7 +13,9 @@ data class PODimensions(
     val formComponentMinHeight: Dp = 48.dp,
     val interactiveComponentMinSize: Dp = 44.dp,
     val iconSizeSmall: Dp = 16.dp,
-    val iconSizeMedium: Dp = 20.dp
+    val iconSizeMedium: Dp = 20.dp,
+    val buttonIconSizeSmall: Dp = iconSizeSmall * 2,
+    val buttonIconSizeMedium: Dp = iconSizeMedium * 2
 )
 
 internal val LocalPODimensions = staticCompositionLocalOf { PODimensions() }

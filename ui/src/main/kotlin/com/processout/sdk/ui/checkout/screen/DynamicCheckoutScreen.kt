@@ -44,6 +44,7 @@ import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.LongAnimation
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.PaymentLogoSize
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.PaymentSuccessStyle
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.RowComponentSpacing
+import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.SectionHeaderStyle
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.ShortAnimationDurationMillis
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.SuccessImageHeight
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.SuccessImageWidth
@@ -168,13 +169,13 @@ private fun Content(
             POMessageBox(
                 text = state.errorMessage,
                 style = style.messageBox,
-                modifier = Modifier.padding(bottom = spacing.extraLarge),
+                modifier = Modifier.padding(bottom = spacing.large),
                 horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing),
                 enterAnimationDelayMillis = ShortAnimationDurationMillis
             )
-            if (state.expressPayments.elements.isNotEmpty()) {
-                ExpressPayments(
-                    payments = state.expressPayments,
+            if (state.expressCheckout.expressPayments.elements.isNotEmpty()) {
+                ExpressCheckout(
+                    state = state.expressCheckout,
                     onEvent = onEvent,
                     style = style,
                     isLightTheme = isLightTheme
@@ -188,6 +189,70 @@ private fun Content(
                     isLightTheme = isLightTheme
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun ExpressCheckout(
+    state: ExpressCheckout,
+    onEvent: (DynamicCheckoutEvent) -> Unit,
+    style: DynamicCheckoutScreen.Style,
+    isLightTheme: Boolean
+) {
+    ExpressCheckoutHeader(
+        state = state.header,
+        onEvent = onEvent,
+        style = style.sectionHeader
+    )
+    ExpressPayments(
+        payments = state.expressPayments,
+        onEvent = onEvent,
+        style = style,
+        isLightTheme = isLightTheme
+    )
+}
+
+@Composable
+private fun ExpressCheckoutHeader(
+    state: SectionHeader,
+    onEvent: (DynamicCheckoutEvent) -> Unit,
+    style: SectionHeaderStyle,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = spacing.large),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        POText(
+            text = state.title,
+            modifier = Modifier.weight(1f, fill = false),
+            color = style.title.color,
+            style = style.title.textStyle
+        )
+        state.action?.let { action ->
+            POButton(
+                text = action.text,
+                onClick = {
+                    onEvent(
+                        Action(
+                            actionId = action.id,
+                            paymentMethodId = null
+                        )
+                    )
+                },
+                modifier = Modifier
+                    .padding(start = spacing.small)
+                    .requiredSizeIn(
+                        minWidth = dimensions.buttonIconSizeSmall,
+                        minHeight = dimensions.buttonIconSizeSmall
+                    ),
+                style = style.trailingButton,
+                icon = action.icon,
+                iconSize = dimensions.iconSizeSmall
+            )
         }
     }
 }
@@ -720,7 +785,7 @@ internal object DynamicCheckoutScreen {
 
     private val defaultSectionHeader: SectionHeaderStyle
         @Composable get() = SectionHeaderStyle(
-            title = POText.title,
+            title = POText.subheading,
             trailingButton = POButton.ghostEqualPadding
         )
 
@@ -738,7 +803,7 @@ internal object DynamicCheckoutScreen {
                 textStyle = typography.body2
             )
             return RegularPaymentStyle(
-                title = POText.subheading,
+                title = POText.body1,
                 shape = shapes.roundedCornersSmall,
                 border = POBorderStroke(width = 1.dp, color = colors.border.subtle),
                 description = POTextWithIcon.Style(
