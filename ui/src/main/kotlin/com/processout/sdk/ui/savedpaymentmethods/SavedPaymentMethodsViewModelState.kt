@@ -6,7 +6,8 @@ import com.processout.sdk.ui.core.state.POImmutableList
 @Immutable
 internal data class SavedPaymentMethodsViewModelState(
     val title: String,
-    val content: Content
+    val content: Content,
+    val draggable: Boolean
 ) {
 
     @Immutable

@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsViewModelState.Content.PaymentMethods
@@ -45,11 +46,12 @@ internal class SavedPaymentMethodsViewModel(
 
     private fun map(state: SavedPaymentMethodsInteractorState) = with(configuration) {
         SavedPaymentMethodsViewModelState(
-            title = "Title",
+            title = title ?: app.getString(R.string.po_saved_payment_methods_title),
             content = PaymentMethods(
                 loading = state.loading,
                 paymentMethods = POImmutableList(state.paymentMethods)
-            )
+            ),
+            draggable = cancellation.dragDown
         )
     }
 }
