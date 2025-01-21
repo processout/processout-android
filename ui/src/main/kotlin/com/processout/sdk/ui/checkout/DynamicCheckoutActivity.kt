@@ -55,6 +55,8 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.DEFAULT_TIMEOUT_SECONDS
+import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsConfiguration
+import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsLauncher
 import com.processout.sdk.ui.shared.configuration.POBarcodeConfiguration
 import com.processout.sdk.ui.shared.extension.collectImmediately
 import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivity
@@ -159,6 +161,8 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
     private lateinit var alternativePaymentLauncher: POAlternativePaymentMethodCustomTabLauncher
     private var pendingAlternativePayment: AlternativePayment? = null
 
+    private lateinit var savedPaymentMethodsLauncher: POSavedPaymentMethodsLauncher
+
     private val permissionsLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions(),
         ::handlePermissions
@@ -182,6 +186,10 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         alternativePaymentLauncher = POAlternativePaymentMethodCustomTabLauncher.create(
             from = this,
             callback = ::handleAlternativePayment
+        )
+        savedPaymentMethodsLauncher = POSavedPaymentMethodsLauncher.create(
+            from = this,
+            callback = ::handleSavedPaymentMethods
         )
         setContent {
             val isLightTheme = !isSystemInDarkTheme()
@@ -251,6 +259,11 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                     returnUrl = sideEffect.returnUrl
                 )
             }
+            is SavedPaymentMethods -> savedPaymentMethodsLauncher.launch(
+                POSavedPaymentMethodsConfiguration(
+                    invoiceRequest = sideEffect.invoiceRequest
+                )
+            )
             is PermissionRequest -> requestPermission(sideEffect)
             is CancelWebAuthorization -> cancelWebAuthorization()
         }
@@ -278,6 +291,10 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                 )
             )
         }
+    }
+
+    private fun handleSavedPaymentMethods(result: ProcessOutActivityResult<POUnit>) {
+        // TODO
     }
 
     private fun requestPermission(request: PermissionRequest) {

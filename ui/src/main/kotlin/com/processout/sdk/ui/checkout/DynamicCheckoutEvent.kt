@@ -1,6 +1,7 @@
 package com.processout.sdk.ui.checkout
 
 import androidx.compose.ui.text.input.TextFieldValue
+import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.model.response.POGooglePayCardTokenizationData
 import com.processout.sdk.core.ProcessOutResult
@@ -69,6 +70,10 @@ internal sealed interface DynamicCheckoutSideEffect {
         val paymentMethodId: String,
         val redirectUrl: String,
         val returnUrl: String
+    ) : DynamicCheckoutSideEffect
+
+    data class SavedPaymentMethods(
+        val invoiceRequest: POInvoiceRequest
     ) : DynamicCheckoutSideEffect
 
     data class PermissionRequest(

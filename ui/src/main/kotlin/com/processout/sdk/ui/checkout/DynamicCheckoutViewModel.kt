@@ -180,17 +180,17 @@ internal class DynamicCheckoutViewModel private constructor(
         header = SectionHeader(
             title = configuration.expressCheckout.title
                 ?: app.getString(R.string.po_dynamic_checkout_express_checkout),
-            action = expressCheckoutSettingsAction(interactorState)
+            action = savedPaymentMethodsAction(interactorState)
         ),
         expressPayments = expressPayments(interactorState)
     )
 
-    private fun expressCheckoutSettingsAction(
+    private fun savedPaymentMethodsAction(
         interactorState: DynamicCheckoutInteractorState
     ): POActionState? = with(configuration.expressCheckout) {
         if (interactorState.paymentMethods.deletingAllowed)
             POActionState(
-                id = interactorState.actions.expressCheckoutSettingsId,
+                id = interactorState.actions.savedPaymentMethodsId,
                 text = settingsButton?.text ?: String(),
                 primary = false,
                 icon = settingsButton?.icon

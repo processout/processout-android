@@ -71,7 +71,7 @@ internal data class DynamicCheckoutInteractorState(
     data class Actions(
         val submitId: String = ActionId.SUBMIT,
         val cancelId: String = ActionId.CANCEL,
-        val expressCheckoutSettingsId: String = ActionId.EXPRESS_CHECKOUT_SETTINGS
+        val savedPaymentMethodsId: String = ActionId.SAVED_PAYMENT_METHODS
     )
 
     object PaymentMethodId {
@@ -85,6 +85,6 @@ internal data class DynamicCheckoutInteractorState(
     object ActionId {
         const val SUBMIT = "dc-submit"
         const val CANCEL = "dc-cancel"
-        const val EXPRESS_CHECKOUT_SETTINGS = "dc-express-checkout-settings"
+        const val SAVED_PAYMENT_METHODS = "dc-saved-payment-methods"
     }
 }

@@ -552,7 +552,7 @@ internal class DynamicCheckoutInteractor(
                 )
             }
             ActionId.CANCEL -> cancel()
-            ActionId.EXPRESS_CHECKOUT_SETTINGS -> onExpressCheckoutSettingsAction()
+            ActionId.SAVED_PAYMENT_METHODS -> onSavedPaymentMethodsAction()
             else -> when (paymentMethod) {
                 is Card -> cardTokenization.onEvent(
                     CardTokenizationEvent.Action(event.actionId)
@@ -585,8 +585,14 @@ internal class DynamicCheckoutInteractor(
         }
     }
 
-    private fun onExpressCheckoutSettingsAction() {
-        // TODO
+    private fun onSavedPaymentMethodsAction() {
+        interactorScope.launch {
+            _sideEffects.send(
+                DynamicCheckoutSideEffect.SavedPaymentMethods(
+                    invoiceRequest = configuration.invoiceRequest
+                )
+            )
+        }
     }
 
     private fun PaymentMethod.isExpress(): Boolean =
