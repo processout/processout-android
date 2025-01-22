@@ -11,7 +11,7 @@ import com.processout.sdk.ui.core.shared.image.POImageRenderingMode
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.core.state.POImmutableList
-import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsViewModelState.Content.PaymentMethods
+import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsViewModelState.Content
 import com.processout.sdk.ui.shared.extension.map
 
 internal class SavedPaymentMethodsViewModel(
@@ -52,10 +52,7 @@ internal class SavedPaymentMethodsViewModel(
         SavedPaymentMethodsViewModelState(
             title = title ?: app.getString(R.string.po_saved_payment_methods_title),
             cancelAction = cancelAction(id = state.cancelActionId),
-            content = PaymentMethods(
-                loading = state.loading,
-                paymentMethods = POImmutableList(state.paymentMethods)
-            ),
+            content = content(state),
             draggable = cancellation.dragDown
         )
     }
@@ -80,6 +77,20 @@ internal class SavedPaymentMethodsViewModel(
                             ?: app.getString(R.string.po_cancel_confirmation_dismiss)
                     )
                 }
+            )
+        }
+
+    private fun content(state: SavedPaymentMethodsInteractorState): Content =
+        if (state.loading) {
+            Content.Starting
+        } else if (state.paymentMethods.isEmpty()) {
+            Content.Empty(
+                message = app.getString(R.string.po_saved_payment_methods_empty_message),
+                description = app.getString(R.string.po_saved_payment_methods_empty_description)
+            )
+        } else {
+            Content.Started(
+                paymentMethods = POImmutableList(state.paymentMethods)
             )
         }
 }

@@ -1,16 +1,14 @@
 package com.processout.sdk.ui.savedpaymentmethods
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredSizeIn
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -25,6 +23,7 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsEvent.Action
+import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsViewModelState.Content.*
 
 @Composable
 internal fun SavedPaymentMethodsScreen(
@@ -79,9 +78,19 @@ internal fun SavedPaymentMethodsScreen(
                 .fillMaxSize()
                 .padding(scaffoldPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(ProcessOutTheme.spacing.extraLarge)
+                .padding(ProcessOutTheme.spacing.extraLarge),
+            verticalArrangement = if (state.content is Starting) Arrangement.Center else Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // TODO
+            when (state.content) {
+                Starting -> POCircularProgressIndicator.Large(color = style.progressIndicatorColor)
+                is Started -> {
+                    // TODO
+                }
+                is Empty -> {
+                    // TODO
+                }
+            }
         }
     }
 }

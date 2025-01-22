@@ -14,8 +14,9 @@ internal data class SavedPaymentMethodsViewModelState(
 
     @Immutable
     sealed interface Content {
-        data class PaymentMethods(
-            val loading: Boolean,
+        data object Starting : Content
+
+        data class Started(
             val paymentMethods: POImmutableList<String>
         ) : Content
 
