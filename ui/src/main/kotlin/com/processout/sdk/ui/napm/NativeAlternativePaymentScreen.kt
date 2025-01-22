@@ -388,7 +388,7 @@ private fun Capture(
     AnimatedVisibility(enterDelayMillis = AnimationDurationMillis) {
         Column(
             modifier = Modifier.padding(
-                top = ProcessOutTheme.spacing.extraSmall,
+                top = ProcessOutTheme.spacing.large,
                 bottom = ProcessOutTheme.spacing.extraLarge
             ),
             verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.extraLarge),
