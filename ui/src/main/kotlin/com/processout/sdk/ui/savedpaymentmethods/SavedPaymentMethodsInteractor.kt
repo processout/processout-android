@@ -3,14 +3,19 @@ package com.processout.sdk.ui.savedpaymentmethods
 import android.app.Application
 import com.processout.sdk.api.service.POCustomerTokensService
 import com.processout.sdk.api.service.POInvoicesService
+import com.processout.sdk.core.POFailure.Code.Cancelled
+import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogAttribute
+import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.base.BaseInteractor
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsCompletion.Awaiting
+import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsCompletion.Failure
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsEvent.Action
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsEvent.Dismiss
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsInteractorState.ActionId
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 internal class SavedPaymentMethodsInteractor(
@@ -52,9 +57,20 @@ internal class SavedPaymentMethodsInteractor(
         when (event) {
             is Action -> when (event.actionId) {
                 ActionId.DELETE -> {}
-                ActionId.CANCEL -> {}
+                ActionId.CANCEL -> cancel()
             }
             is Dismiss -> {}
+        }
+    }
+
+    private fun cancel() {
+        _completion.update {
+            Failure(
+                ProcessOutResult.Failure(
+                    code = Cancelled,
+                    message = "Cancelled by the user with cancel action."
+                ).also { POLogger.info("Cancelled: %s", it) }
+            )
         }
     }
 }
