@@ -4,7 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -12,13 +14,17 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
-import com.processout.sdk.ui.core.component.POHeader
-import com.processout.sdk.ui.core.component.POText
+import androidx.compose.ui.unit.dp
+import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
+import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsEvent.Action
 
 @Composable
 internal fun SavedPaymentMethodsScreen(
@@ -29,7 +35,7 @@ internal fun SavedPaymentMethodsScreen(
     Scaffold(
         modifier = Modifier
             .nestedScroll(rememberNestedScrollInteropConnection())
-            .clip(shape = ProcessOutTheme.shapes.topRoundedCornersLarge),
+            .clip(shape = shapes.topRoundedCornersLarge),
         containerColor = style.backgroundColor,
         topBar = {
             POHeader(
@@ -41,7 +47,31 @@ internal fun SavedPaymentMethodsScreen(
                 dividerColor = style.headerStyle.dividerColor,
                 dragHandleColor = style.headerStyle.dragHandleColor,
                 withDragHandle = state.draggable
-            )
+            ) {
+                state.cancelAction?.let { action ->
+                    POButton(
+                        state = action,
+                        onClick = {
+                            onEvent(
+                                Action(
+                                    actionId = it,
+                                    paymentMethodId = null
+                                )
+                            )
+                        },
+                        modifier = Modifier
+                            .padding(end = 10.dp)
+                            .requiredSizeIn(
+                                minWidth = dimensions.buttonIconSizeMedium,
+                                minHeight = dimensions.buttonIconSizeMedium
+                            ),
+                        style = style.cancelButton,
+                        confirmationDialogStyle = style.dialog,
+                        onConfirmationRequested = {}, // TODO
+                        iconSize = dimensions.iconSizeMedium
+                    )
+                }
+            }
         }
     ) { scaffoldPadding ->
         Column(
@@ -61,7 +91,12 @@ internal object SavedPaymentMethodsScreen {
     @Immutable
     data class Style(
         val headerStyle: HeaderStyle,
-        val backgroundColor: Color
+        val paymentMethod: PaymentMethodStyle,
+        val messageBox: POMessageBox.Style,
+        val cancelButton: POButton.Style,
+        val dialog: PODialog.Style,
+        val backgroundColor: Color,
+        val progressIndicatorColor: Color
     )
 
     @Immutable
@@ -72,15 +107,36 @@ internal object SavedPaymentMethodsScreen {
         val backgroundColor: Color
     )
 
-    @Composable
-    fun style(custom: POSavedPaymentMethodsConfiguration.Style? = null) = Style(
-        headerStyle = custom?.headerStyle?.custom() ?: defaultHeaderStyle,
-        backgroundColor = custom?.backgroundColorResId?.let {
-            colorResource(id = it)
-        } ?: colors.surface.default
+    @Immutable
+    data class PaymentMethodStyle(
+        val description: POText.Style,
+        val deleteButton: POButton.Style,
+        val shape: Shape,
+        val border: POBorderStroke
     )
 
-    private val defaultHeaderStyle: HeaderStyle
+    @Composable
+    fun style(custom: POSavedPaymentMethodsConfiguration.Style? = null) = Style(
+        headerStyle = custom?.header?.custom() ?: defaultHeader,
+        paymentMethod = custom?.paymentMethod?.custom() ?: defaultPaymentMethod,
+        messageBox = custom?.messageBox?.let {
+            POMessageBox.custom(style = it)
+        } ?: POMessageBox.error,
+        cancelButton = custom?.cancelButton?.let {
+            POButton.custom(style = it)
+        } ?: POButton.ghostEqualPadding,
+        dialog = custom?.dialog?.let {
+            PODialog.custom(style = it)
+        } ?: PODialog.default,
+        backgroundColor = custom?.backgroundColorResId?.let {
+            colorResource(id = it)
+        } ?: colors.surface.default,
+        progressIndicatorColor = custom?.progressIndicatorColorResId?.let {
+            colorResource(id = it)
+        } ?: colors.button.primaryBackgroundDefault
+    )
+
+    private val defaultHeader: HeaderStyle
         @Composable get() = HeaderStyle(
             title = POText.title,
             dividerColor = colors.border.subtle,
@@ -94,12 +150,32 @@ internal object SavedPaymentMethodsScreen {
             title = POText.custom(style = title),
             dividerColor = dividerColorResId?.let {
                 colorResource(id = it)
-            } ?: defaultHeaderStyle.dividerColor,
+            } ?: defaultHeader.dividerColor,
             dragHandleColor = dragHandleColorResId?.let {
                 colorResource(id = it)
-            } ?: defaultHeaderStyle.dragHandleColor,
+            } ?: defaultHeader.dragHandleColor,
             backgroundColor = backgroundColorResId?.let {
                 colorResource(id = it)
-            } ?: defaultHeaderStyle.backgroundColor
+            } ?: defaultHeader.backgroundColor
+        )
+
+    private val defaultPaymentMethod: PaymentMethodStyle
+        @Composable get() = PaymentMethodStyle(
+            description = POText.body1,
+            deleteButton = POButton.ghostEqualPadding,
+            shape = shapes.roundedCornersSmall,
+            border = POBorderStroke(width = 1.dp, color = colors.border.subtle)
+        )
+
+    @Composable
+    private fun POSavedPaymentMethodsConfiguration.PaymentMethodStyle.custom() =
+        PaymentMethodStyle(
+            description = POText.custom(style = description),
+            deleteButton = POButton.custom(style = deleteButton),
+            shape = RoundedCornerShape(size = border.radiusDp.dp),
+            border = POBorderStroke(
+                width = border.widthDp.dp,
+                color = colorResource(id = border.colorResId)
+            )
         )
 }
