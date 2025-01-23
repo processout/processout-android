@@ -699,8 +699,8 @@ internal object DynamicCheckoutScreen {
         val bodyText: TextAndroidView.Style,
         val errorText: POText.Style,
         val messageBox: POMessageBox.Style,
-        val actionsContainer: POActionsContainer.Style,
         val dialog: PODialog.Style,
+        val actionsContainer: POActionsContainer.Style,
         val backgroundColor: Color,
         val progressIndicatorColor: Color,
         val paymentSuccess: PaymentSuccessStyle
@@ -770,12 +770,12 @@ internal object DynamicCheckoutScreen {
         messageBox = custom?.messageBox?.let {
             POMessageBox.custom(style = it)
         } ?: POMessageBox.error,
-        actionsContainer = custom?.actionsContainer?.let {
-            POActionsContainer.custom(style = it)
-        } ?: POActionsContainer.default,
         dialog = custom?.dialog?.let {
             PODialog.custom(style = it)
         } ?: PODialog.default,
+        actionsContainer = custom?.actionsContainer?.let {
+            POActionsContainer.custom(style = it)
+        } ?: POActionsContainer.default,
         backgroundColor = custom?.backgroundColorResId?.let {
             colorResource(id = it)
         } ?: colors.surface.default,

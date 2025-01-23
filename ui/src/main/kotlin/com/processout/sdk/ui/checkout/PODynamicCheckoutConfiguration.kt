@@ -148,8 +148,8 @@ data class PODynamicCheckoutConfiguration(
         val bodyText: POTextStyle? = null,
         val errorText: POTextStyle? = null,
         val messageBox: POMessageBoxStyle? = null,
-        val actionsContainer: POActionsContainerStyle? = null,
         val dialog: PODialogStyle? = null,
+        val actionsContainer: POActionsContainerStyle? = null,
         @ColorRes
         val backgroundColorResId: Int? = null,
         @ColorRes
