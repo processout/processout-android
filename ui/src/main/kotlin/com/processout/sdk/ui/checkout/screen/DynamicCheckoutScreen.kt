@@ -828,11 +828,15 @@ internal object DynamicCheckoutScreen {
                 iconColorFilter = if (descriptionIconResId != null) null else
                     ColorFilter.tint(color = description.color)
             ),
-            shape = RoundedCornerShape(size = border.radiusDp.dp),
-            border = POBorderStroke(
-                width = border.widthDp.dp,
-                color = colorResource(id = border.colorResId)
-            ),
+            shape = border?.let {
+                RoundedCornerShape(size = it.radiusDp.dp)
+            } ?: defaultRegularPayment.shape,
+            border = border?.let {
+                POBorderStroke(
+                    width = it.widthDp.dp,
+                    color = colorResource(id = it.colorResId)
+                )
+            } ?: defaultRegularPayment.border,
             backgroundColor = backgroundColorResId?.let {
                 colorResource(id = it)
             } ?: defaultRegularPayment.backgroundColor

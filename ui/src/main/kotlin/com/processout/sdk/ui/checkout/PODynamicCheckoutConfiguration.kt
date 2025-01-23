@@ -171,7 +171,7 @@ data class PODynamicCheckoutConfiguration(
         val description: POTextStyle,
         @DrawableRes
         val descriptionIconResId: Int? = null,
-        val border: POBorderStyle,
+        val border: POBorderStyle? = null,
         @ColorRes
         val backgroundColorResId: Int? = null
     ) : Parcelable
