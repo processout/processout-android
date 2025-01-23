@@ -219,11 +219,15 @@ internal object SavedPaymentMethodsScreen {
         PaymentMethodStyle(
             description = POText.custom(style = description),
             deleteButton = POButton.custom(style = deleteButton),
-            shape = RoundedCornerShape(size = border.radiusDp.dp),
-            border = POBorderStroke(
-                width = border.widthDp.dp,
-                color = colorResource(id = border.colorResId)
-            )
+            shape = border?.let {
+                RoundedCornerShape(size = it.radiusDp.dp)
+            } ?: defaultPaymentMethod.shape,
+            border = border?.let {
+                POBorderStroke(
+                    width = it.widthDp.dp,
+                    color = colorResource(id = it.colorResId)
+                )
+            } ?: defaultPaymentMethod.border
         )
 
     val AnimationDurationMillis = 300

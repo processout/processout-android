@@ -57,6 +57,6 @@ data class POSavedPaymentMethodsConfiguration(
     data class PaymentMethodStyle(
         val description: POTextStyle,
         val deleteButton: POButtonStyle,
-        val border: POBorderStyle
+        val border: POBorderStyle? = null
     ) : Parcelable
 }
