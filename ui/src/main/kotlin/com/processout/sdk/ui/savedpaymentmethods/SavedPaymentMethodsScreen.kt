@@ -1,5 +1,11 @@
+@file:Suppress("MayBeConstant")
+
 package com.processout.sdk.ui.savedpaymentmethods
 
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -8,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,6 +30,7 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsEvent.Action
+import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsScreen.AnimationDurationMillis
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsViewModelState.Content.*
 
 @Composable
@@ -48,7 +56,7 @@ internal fun SavedPaymentMethodsScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             when (state.content) {
-                Starting -> POCircularProgressIndicator.Large(color = style.progressIndicatorColor)
+                Starting -> Loading(progressIndicatorColor = style.progressIndicatorColor)
                 is Started -> {
                     // TODO
                 }
@@ -98,6 +106,30 @@ private fun Header(
                 iconSize = dimensions.iconSizeMedium
             )
         }
+    }
+}
+
+@Composable
+private fun Loading(progressIndicatorColor: Color) {
+    AnimatedVisibility {
+        POCircularProgressIndicator.Large(color = progressIndicatorColor)
+    }
+}
+
+@Composable
+private fun AnimatedVisibility(
+    visibleState: MutableTransitionState<Boolean> = remember {
+        MutableTransitionState(initialState = false)
+            .apply { targetState = true }
+    },
+    content: @Composable () -> Unit
+) {
+    androidx.compose.animation.AnimatedVisibility(
+        visibleState = visibleState,
+        enter = fadeIn(animationSpec = tween(durationMillis = AnimationDurationMillis)),
+        exit = fadeOut(animationSpec = tween(durationMillis = AnimationDurationMillis))
+    ) {
+        content()
     }
 }
 
@@ -193,4 +225,6 @@ internal object SavedPaymentMethodsScreen {
                 color = colorResource(id = border.colorResId)
             )
         )
+
+    val AnimationDurationMillis = 300
 }
