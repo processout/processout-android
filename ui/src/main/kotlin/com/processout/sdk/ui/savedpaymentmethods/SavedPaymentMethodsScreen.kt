@@ -69,11 +69,11 @@ private fun Header(
     POHeader(
         modifier = Modifier
             .verticalScroll(rememberScrollState())
-            .background(color = style.headerStyle.backgroundColor),
+            .background(color = style.header.backgroundColor),
         title = state.title,
-        style = style.headerStyle.title,
-        dividerColor = style.headerStyle.dividerColor,
-        dragHandleColor = style.headerStyle.dragHandleColor,
+        style = style.header.title,
+        dividerColor = style.header.dividerColor,
+        dragHandleColor = style.header.dragHandleColor,
         withDragHandle = state.draggable
     ) {
         state.cancelAction?.let { action ->
@@ -105,10 +105,10 @@ internal object SavedPaymentMethodsScreen {
 
     @Immutable
     data class Style(
-        val headerStyle: HeaderStyle,
+        val header: HeaderStyle,
         val paymentMethod: PaymentMethodStyle,
-        val messageBox: POMessageBox.Style,
         val cancelButton: POButton.Style,
+        val messageBox: POMessageBox.Style,
         val dialog: PODialog.Style,
         val backgroundColor: Color,
         val progressIndicatorColor: Color
@@ -132,14 +132,14 @@ internal object SavedPaymentMethodsScreen {
 
     @Composable
     fun style(custom: POSavedPaymentMethodsConfiguration.Style? = null) = Style(
-        headerStyle = custom?.header?.custom() ?: defaultHeader,
+        header = custom?.header?.custom() ?: defaultHeader,
         paymentMethod = custom?.paymentMethod?.custom() ?: defaultPaymentMethod,
-        messageBox = custom?.messageBox?.let {
-            POMessageBox.custom(style = it)
-        } ?: POMessageBox.error,
         cancelButton = custom?.cancelButton?.let {
             POButton.custom(style = it)
         } ?: POButton.ghostEqualPadding,
+        messageBox = custom?.messageBox?.let {
+            POMessageBox.custom(style = it)
+        } ?: POMessageBox.error,
         dialog = custom?.dialog?.let {
             PODialog.custom(style = it)
         } ?: PODialog.default,

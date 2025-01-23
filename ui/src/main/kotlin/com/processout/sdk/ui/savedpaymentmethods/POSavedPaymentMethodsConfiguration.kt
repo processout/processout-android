@@ -33,8 +33,8 @@ data class POSavedPaymentMethodsConfiguration(
     data class Style(
         val header: HeaderStyle? = null,
         val paymentMethod: PaymentMethodStyle? = null,
-        val messageBox: POMessageBoxStyle? = null,
         val cancelButton: POButtonStyle? = null,
+        val messageBox: POMessageBoxStyle? = null,
         val dialog: PODialogStyle? = null,
         @ColorRes
         val backgroundColorResId: Int? = null,
