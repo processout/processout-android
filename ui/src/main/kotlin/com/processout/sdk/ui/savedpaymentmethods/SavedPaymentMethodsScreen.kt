@@ -66,7 +66,6 @@ internal fun SavedPaymentMethodsScreen(
                             ),
                         style = style.cancelButton,
                         confirmationDialogStyle = style.dialog,
-                        onConfirmationRequested = {}, // TODO
                         iconSize = dimensions.iconSizeMedium
                     )
                 }
