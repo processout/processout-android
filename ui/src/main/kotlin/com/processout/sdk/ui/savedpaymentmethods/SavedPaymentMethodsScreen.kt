@@ -149,8 +149,8 @@ internal object SavedPaymentMethodsScreen {
     @Immutable
     data class HeaderStyle(
         val title: POText.Style,
-        val dividerColor: Color,
         val dragHandleColor: Color,
+        val dividerColor: Color,
         val backgroundColor: Color
     )
 
@@ -186,8 +186,8 @@ internal object SavedPaymentMethodsScreen {
     private val defaultHeader: HeaderStyle
         @Composable get() = HeaderStyle(
             title = POText.title,
-            dividerColor = colors.border.subtle,
             dragHandleColor = colors.border.subtle,
+            dividerColor = colors.border.subtle,
             backgroundColor = colors.surface.default
         )
 
@@ -195,12 +195,12 @@ internal object SavedPaymentMethodsScreen {
     private fun POSavedPaymentMethodsConfiguration.HeaderStyle.custom() =
         HeaderStyle(
             title = POText.custom(style = title),
-            dividerColor = dividerColorResId?.let {
-                colorResource(id = it)
-            } ?: defaultHeader.dividerColor,
             dragHandleColor = dragHandleColorResId?.let {
                 colorResource(id = it)
             } ?: defaultHeader.dragHandleColor,
+            dividerColor = dividerColorResId?.let {
+                colorResource(id = it)
+            } ?: defaultHeader.dividerColor,
             backgroundColor = backgroundColorResId?.let {
                 colorResource(id = it)
             } ?: defaultHeader.backgroundColor

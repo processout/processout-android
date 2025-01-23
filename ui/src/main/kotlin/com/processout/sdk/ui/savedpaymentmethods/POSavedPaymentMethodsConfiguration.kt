@@ -46,9 +46,9 @@ data class POSavedPaymentMethodsConfiguration(
     data class HeaderStyle(
         val title: POTextStyle,
         @ColorRes
-        val dividerColorResId: Int? = null,
-        @ColorRes
         val dragHandleColorResId: Int? = null,
+        @ColorRes
+        val dividerColorResId: Int? = null,
         @ColorRes
         val backgroundColorResId: Int? = null
     ) : Parcelable
