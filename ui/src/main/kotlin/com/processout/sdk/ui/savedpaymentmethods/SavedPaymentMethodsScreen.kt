@@ -139,11 +139,11 @@ internal object SavedPaymentMethodsScreen {
     data class Style(
         val header: HeaderStyle,
         val paymentMethod: PaymentMethodStyle,
-        val cancelButton: POButton.Style,
         val messageBox: POMessageBox.Style,
         val dialog: PODialog.Style,
-        val backgroundColor: Color,
-        val progressIndicatorColor: Color
+        val cancelButton: POButton.Style,
+        val progressIndicatorColor: Color,
+        val backgroundColor: Color
     )
 
     @Immutable
@@ -166,21 +166,21 @@ internal object SavedPaymentMethodsScreen {
     fun style(custom: POSavedPaymentMethodsConfiguration.Style? = null) = Style(
         header = custom?.header?.custom() ?: defaultHeader,
         paymentMethod = custom?.paymentMethod?.custom() ?: defaultPaymentMethod,
-        cancelButton = custom?.cancelButton?.let {
-            POButton.custom(style = it)
-        } ?: POButton.ghostEqualPadding,
         messageBox = custom?.messageBox?.let {
             POMessageBox.custom(style = it)
         } ?: POMessageBox.error,
         dialog = custom?.dialog?.let {
             PODialog.custom(style = it)
         } ?: PODialog.default,
-        backgroundColor = custom?.backgroundColorResId?.let {
-            colorResource(id = it)
-        } ?: colors.surface.default,
+        cancelButton = custom?.cancelButton?.let {
+            POButton.custom(style = it)
+        } ?: POButton.ghostEqualPadding,
         progressIndicatorColor = custom?.progressIndicatorColorResId?.let {
             colorResource(id = it)
-        } ?: colors.button.primaryBackgroundDefault
+        } ?: colors.button.primaryBackgroundDefault,
+        backgroundColor = custom?.backgroundColorResId?.let {
+            colorResource(id = it)
+        } ?: colors.surface.default
     )
 
     private val defaultHeader: HeaderStyle

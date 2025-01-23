@@ -33,13 +33,13 @@ data class POSavedPaymentMethodsConfiguration(
     data class Style(
         val header: HeaderStyle? = null,
         val paymentMethod: PaymentMethodStyle? = null,
-        val cancelButton: POButtonStyle? = null,
         val messageBox: POMessageBoxStyle? = null,
         val dialog: PODialogStyle? = null,
+        val cancelButton: POButtonStyle? = null,
         @ColorRes
-        val backgroundColorResId: Int? = null,
+        val progressIndicatorColorResId: Int? = null,
         @ColorRes
-        val progressIndicatorColorResId: Int? = null
+        val backgroundColorResId: Int? = null
     ) : Parcelable
 
     @Parcelize
