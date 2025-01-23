@@ -159,7 +159,8 @@ internal object SavedPaymentMethodsScreen {
         val description: POText.Style,
         val deleteButton: POButton.Style,
         val shape: Shape,
-        val border: POBorderStroke
+        val border: POBorderStroke,
+        val backgroundColor: Color
     )
 
     @Composable
@@ -211,7 +212,8 @@ internal object SavedPaymentMethodsScreen {
             description = POText.body1,
             deleteButton = POButton.ghostEqualPadding,
             shape = shapes.roundedCornersSmall,
-            border = POBorderStroke(width = 1.dp, color = colors.border.subtle)
+            border = POBorderStroke(width = 1.dp, color = colors.border.subtle),
+            backgroundColor = colors.surface.default
         )
 
     @Composable
@@ -227,7 +229,10 @@ internal object SavedPaymentMethodsScreen {
                     width = it.widthDp.dp,
                     color = colorResource(id = it.colorResId)
                 )
-            } ?: defaultPaymentMethod.border
+            } ?: defaultPaymentMethod.border,
+            backgroundColor = backgroundColorResId?.let {
+                colorResource(id = it)
+            } ?: defaultPaymentMethod.backgroundColor
         )
 
     val AnimationDurationMillis = 300
