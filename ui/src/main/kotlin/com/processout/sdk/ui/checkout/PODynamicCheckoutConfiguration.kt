@@ -168,10 +168,12 @@ data class PODynamicCheckoutConfiguration(
     @Parcelize
     data class RegularPaymentStyle(
         val title: POTextStyle,
-        val border: POBorderStyle,
         val description: POTextStyle,
         @DrawableRes
-        val descriptionIconResId: Int? = null
+        val descriptionIconResId: Int? = null,
+        val border: POBorderStyle,
+        @ColorRes
+        val backgroundColorResId: Int? = null
     ) : Parcelable
 
     @Parcelize

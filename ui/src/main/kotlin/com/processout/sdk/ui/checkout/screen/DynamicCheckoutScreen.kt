@@ -371,7 +371,8 @@ private fun RegularPayments(
                 shape = containerShape
             )
             .clip(shape = containerShape)
-            .padding(borderWidth),
+            .padding(borderWidth)
+            .background(style.regularPayment.backgroundColor)
     ) {
         payments.elements.forEachIndexed { index, payment ->
             RegularPayment(
@@ -714,9 +715,10 @@ internal object DynamicCheckoutScreen {
     @Immutable
     data class RegularPaymentStyle(
         val title: POText.Style,
+        val description: POTextWithIcon.Style,
         val shape: Shape,
         val border: POBorderStroke,
-        val description: POTextWithIcon.Style
+        val backgroundColor: Color
     )
 
     @Immutable
@@ -804,13 +806,14 @@ internal object DynamicCheckoutScreen {
             )
             return RegularPaymentStyle(
                 title = POText.body1,
-                shape = shapes.roundedCornersSmall,
-                border = POBorderStroke(width = 1.dp, color = colors.border.subtle),
                 description = POTextWithIcon.Style(
                     text = description,
                     iconResId = R.drawable.po_info_icon,
                     iconColorFilter = ColorFilter.tint(color = description.color)
-                )
+                ),
+                shape = shapes.roundedCornersSmall,
+                border = POBorderStroke(width = 1.dp, color = colors.border.subtle),
+                backgroundColor = colors.surface.default
             )
         }
 
@@ -819,17 +822,20 @@ internal object DynamicCheckoutScreen {
         val description = POText.custom(style = description)
         return RegularPaymentStyle(
             title = POText.custom(style = title),
-            shape = RoundedCornerShape(size = border.radiusDp.dp),
-            border = POBorderStroke(
-                width = border.widthDp.dp,
-                color = colorResource(id = border.colorResId)
-            ),
             description = POTextWithIcon.Style(
                 text = description,
                 iconResId = descriptionIconResId ?: defaultRegularPayment.description.iconResId,
                 iconColorFilter = if (descriptionIconResId != null) null else
                     ColorFilter.tint(color = description.color)
-            )
+            ),
+            shape = RoundedCornerShape(size = border.radiusDp.dp),
+            border = POBorderStroke(
+                width = border.widthDp.dp,
+                color = colorResource(id = border.colorResId)
+            ),
+            backgroundColor = backgroundColorResId?.let {
+                colorResource(id = it)
+            } ?: defaultRegularPayment.backgroundColor
         )
     }
 
@@ -848,8 +854,9 @@ internal object DynamicCheckoutScreen {
         PaymentSuccessStyle(
             message = POText.custom(style = message),
             successImageResId = successImageResId ?: defaultPaymentSuccess.successImageResId,
-            backgroundColor = backgroundColorResId?.let { colorResource(id = it) }
-                ?: defaultPaymentSuccess.backgroundColor
+            backgroundColor = backgroundColorResId?.let {
+                colorResource(id = it)
+            } ?: defaultPaymentSuccess.backgroundColor
         )
 
     @Composable
