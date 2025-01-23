@@ -36,41 +36,7 @@ internal fun SavedPaymentMethodsScreen(
             .nestedScroll(rememberNestedScrollInteropConnection())
             .clip(shape = shapes.topRoundedCornersLarge),
         containerColor = style.backgroundColor,
-        topBar = {
-            POHeader(
-                modifier = Modifier
-                    .verticalScroll(rememberScrollState())
-                    .background(color = style.headerStyle.backgroundColor),
-                title = state.title,
-                style = style.headerStyle.title,
-                dividerColor = style.headerStyle.dividerColor,
-                dragHandleColor = style.headerStyle.dragHandleColor,
-                withDragHandle = state.draggable
-            ) {
-                state.cancelAction?.let { action ->
-                    POButton(
-                        state = action,
-                        onClick = {
-                            onEvent(
-                                Action(
-                                    actionId = it,
-                                    paymentMethodId = null
-                                )
-                            )
-                        },
-                        modifier = Modifier
-                            .padding(end = 10.dp)
-                            .requiredSizeIn(
-                                minWidth = dimensions.buttonIconSizeMedium,
-                                minHeight = dimensions.buttonIconSizeMedium
-                            ),
-                        style = style.cancelButton,
-                        confirmationDialogStyle = style.dialog,
-                        iconSize = dimensions.iconSizeMedium
-                    )
-                }
-            }
-        }
+        topBar = { Header(state, onEvent, style) }
     ) { scaffoldPadding ->
         Column(
             modifier = Modifier
@@ -90,6 +56,47 @@ internal fun SavedPaymentMethodsScreen(
                     // TODO
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun Header(
+    state: SavedPaymentMethodsViewModelState,
+    onEvent: (SavedPaymentMethodsEvent) -> Unit,
+    style: SavedPaymentMethodsScreen.Style = SavedPaymentMethodsScreen.style()
+) {
+    POHeader(
+        modifier = Modifier
+            .verticalScroll(rememberScrollState())
+            .background(color = style.headerStyle.backgroundColor),
+        title = state.title,
+        style = style.headerStyle.title,
+        dividerColor = style.headerStyle.dividerColor,
+        dragHandleColor = style.headerStyle.dragHandleColor,
+        withDragHandle = state.draggable
+    ) {
+        state.cancelAction?.let { action ->
+            POButton(
+                state = action,
+                onClick = {
+                    onEvent(
+                        Action(
+                            actionId = it,
+                            paymentMethodId = null
+                        )
+                    )
+                },
+                modifier = Modifier
+                    .padding(end = 10.dp)
+                    .requiredSizeIn(
+                        minWidth = dimensions.buttonIconSizeMedium,
+                        minHeight = dimensions.buttonIconSizeMedium
+                    ),
+                style = style.cancelButton,
+                confirmationDialogStyle = style.dialog,
+                iconSize = dimensions.iconSizeMedium
+            )
         }
     }
 }
