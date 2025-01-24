@@ -110,7 +110,7 @@ internal fun DynamicCheckoutScreen(
         ) { scaffoldPadding ->
             Crossfade(
                 targetState = when (state) {
-                    is Started -> state.successMessage != null
+                    is Loaded -> state.successMessage != null
                     else -> false
                 },
                 animationSpec = tween(
@@ -118,7 +118,7 @@ internal fun DynamicCheckoutScreen(
                     easing = LinearEasing
                 )
             ) { isSuccess ->
-                if (isSuccess && state is Started) {
+                if (isSuccess && state is Loaded) {
                     Success(
                         message = state.successMessage ?: String(),
                         style = style.paymentSuccess
@@ -129,12 +129,12 @@ internal fun DynamicCheckoutScreen(
                             .fillMaxSize()
                             .padding(scaffoldPadding)
                             .verticalScroll(rememberScrollState()),
-                        verticalArrangement = if (state is Starting) Arrangement.Center else Arrangement.Top,
+                        verticalArrangement = if (state is Loading) Arrangement.Center else Arrangement.Top,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         when (state) {
-                            is Starting -> Loading(progressIndicatorColor = style.progressIndicatorColor)
-                            is Started -> Content(
+                            is Loading -> Loading(progressIndicatorColor = style.progressIndicatorColor)
+                            is Loaded -> Content(
                                 state = state,
                                 onEvent = onEvent,
                                 style = style,
@@ -157,7 +157,7 @@ private fun Loading(progressIndicatorColor: Color) {
 
 @Composable
 private fun Content(
-    state: Started,
+    state: Loaded,
     onEvent: (DynamicCheckoutEvent) -> Unit,
     style: DynamicCheckoutScreen.Style,
     isLightTheme: Boolean
@@ -613,8 +613,8 @@ private fun Actions(
 ) {
     val actions = mutableListOf<POActionState>()
     val cancelAction: POActionState? = when (state) {
-        is Starting -> state.cancelAction
-        is Started -> state.cancelAction
+        is Loading -> state.cancelAction
+        is Loaded -> state.cancelAction
     }
     cancelAction?.let { actions.add(it) }
     POActionsContainer(
@@ -934,7 +934,7 @@ internal object DynamicCheckoutScreen {
         successColor: Color
     ): Color = animateColorAsState(
         targetValue = when (state) {
-            is Started -> if (state.successMessage != null) successColor else normalColor
+            is Loaded -> if (state.successMessage != null) successColor else normalColor
             else -> normalColor
         },
         animationSpec = tween(

@@ -15,12 +15,12 @@ internal sealed interface DynamicCheckoutViewModelState {
     //region States
 
     @Immutable
-    data class Starting(
+    data class Loading(
         val cancelAction: POActionState?
     ) : DynamicCheckoutViewModelState
 
     @Immutable
-    data class Started(
+    data class Loaded(
         val expressCheckout: ExpressCheckout,
         val regularPayments: POImmutableList<RegularPayment>,
         val cancelAction: POActionState?,

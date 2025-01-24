@@ -27,7 +27,6 @@ import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState
-import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.*
 import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
 import com.processout.sdk.ui.shared.state.FieldState
 import kotlinx.coroutines.flow.SharingStarted
@@ -83,7 +82,7 @@ internal class DynamicCheckoutViewModel private constructor(
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
-        initialValue = Starting(cancelAction = null)
+        initialValue = Loading(cancelAction = null)
     )
 
     val sideEffects = interactor.sideEffects
@@ -101,9 +100,9 @@ internal class DynamicCheckoutViewModel private constructor(
     ): DynamicCheckoutViewModelState {
         val cancelAction = cancelAction(interactorState, cardTokenizationState, nativeAlternativePaymentState)
         return if (interactorState.loading) {
-            Starting(cancelAction = cancelAction)
+            Loading(cancelAction = cancelAction)
         } else {
-            Started(
+            Loaded(
                 expressCheckout = expressCheckout(interactorState),
                 regularPayments = regularPayments(interactorState, cardTokenizationState, nativeAlternativePaymentState),
                 cancelAction = if (interactorState.delayedSuccess) null else cancelAction,
@@ -134,18 +133,21 @@ internal class DynamicCheckoutViewModel private constructor(
                     .cancelButton?.toActionState(interactorState, defaultText)
                 val paymentConfirmationCancelActionText = paymentConfirmationCancelAction?.text ?: defaultText
                 when (nativeAlternativePaymentState) {
-                    is Loading -> nativeAlternativePaymentState.secondaryAction?.copy(
-                        text = paymentConfirmationCancelActionText,
-                        confirmation = paymentConfirmationCancelAction?.confirmation
-                    ) ?: defaultCancelAction
-                    is UserInput -> nativeAlternativePaymentState.secondaryAction?.copy(
-                        text = defaultCancelActionText,
-                        confirmation = defaultCancelAction?.confirmation
-                    )
-                    is Capture -> nativeAlternativePaymentState.secondaryAction?.copy(
-                        text = paymentConfirmationCancelActionText,
-                        confirmation = paymentConfirmationCancelAction?.confirmation
-                    )
+                    is NativeAlternativePaymentViewModelState.Loading ->
+                        nativeAlternativePaymentState.secondaryAction?.copy(
+                            text = paymentConfirmationCancelActionText,
+                            confirmation = paymentConfirmationCancelAction?.confirmation
+                        ) ?: defaultCancelAction
+                    is NativeAlternativePaymentViewModelState.UserInput ->
+                        nativeAlternativePaymentState.secondaryAction?.copy(
+                            text = defaultCancelActionText,
+                            confirmation = defaultCancelAction?.confirmation
+                        )
+                    is NativeAlternativePaymentViewModelState.Capture ->
+                        nativeAlternativePaymentState.secondaryAction?.copy(
+                            text = paymentConfirmationCancelActionText,
+                            confirmation = paymentConfirmationCancelAction?.confirmation
+                        )
                 }
             }
             else -> defaultCancelAction
@@ -315,11 +317,11 @@ internal class DynamicCheckoutViewModel private constructor(
                     state = regularPaymentState(
                         display = paymentMethod.display,
                         loading = interactorState.invoice == null ||
-                                nativeAlternativePaymentState is Loading,
+                                nativeAlternativePaymentState is NativeAlternativePaymentViewModelState.Loading,
                         selected = selected
                     ),
                     content = if (selected) Content.NativeAlternativePayment(nativeAlternativePaymentState) else null,
-                    submitAction = if (selected && nativeAlternativePaymentState is UserInput)
+                    submitAction = if (selected && nativeAlternativePaymentState is NativeAlternativePaymentViewModelState.UserInput)
                         nativeAlternativePaymentState.primaryAction.copy(
                             text = submitButtonText,
                             icon = configuration.submitButton.icon
