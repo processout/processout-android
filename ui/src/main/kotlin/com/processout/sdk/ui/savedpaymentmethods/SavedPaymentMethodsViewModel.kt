@@ -82,14 +82,14 @@ internal class SavedPaymentMethodsViewModel(
 
     private fun content(state: SavedPaymentMethodsInteractorState): Content =
         if (state.loading) {
-            Content.Starting
+            Content.Loading
         } else if (state.paymentMethods.isEmpty()) {
             Content.Empty(
                 message = app.getString(R.string.po_saved_payment_methods_empty_message),
                 description = app.getString(R.string.po_saved_payment_methods_empty_description)
             )
         } else {
-            Content.Started(
+            Content.Loaded(
                 paymentMethods = POImmutableList(state.paymentMethods)
             )
         }

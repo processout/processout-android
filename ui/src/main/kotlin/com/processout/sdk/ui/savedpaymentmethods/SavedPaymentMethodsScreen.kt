@@ -52,12 +52,12 @@ internal fun SavedPaymentMethodsScreen(
                 .padding(scaffoldPadding)
                 .verticalScroll(rememberScrollState())
                 .padding(ProcessOutTheme.spacing.extraLarge),
-            verticalArrangement = if (state.content is Starting) Arrangement.Center else Arrangement.Top,
+            verticalArrangement = if (state.content is Loading) Arrangement.Center else Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             when (state.content) {
-                Starting -> Loading(progressIndicatorColor = style.progressIndicatorColor)
-                is Started -> {
+                Loading -> Loading(progressIndicatorColor = style.progressIndicatorColor)
+                is Loaded -> {
                     // TODO
                 }
                 is Empty -> {
