@@ -362,12 +362,13 @@ private fun RegularPayments(
     isLightTheme: Boolean
 ) {
     val borderWidth = style.regularPayment.border.width
+    val borderColor = style.regularPayment.border.color
     val containerShape = style.regularPayment.shape
     Column(
         modifier = Modifier
             .border(
                 width = borderWidth,
-                color = style.regularPayment.border.color,
+                color = borderColor,
                 shape = containerShape
             )
             .clip(shape = containerShape)
@@ -389,7 +390,7 @@ private fun RegularPayments(
             if (index != payments.elements.lastIndex) {
                 HorizontalDivider(
                     thickness = borderWidth,
-                    color = style.regularPayment.border.color
+                    color = borderColor
                 )
             }
         }
