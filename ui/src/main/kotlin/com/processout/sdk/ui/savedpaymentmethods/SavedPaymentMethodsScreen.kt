@@ -52,7 +52,7 @@ internal fun SavedPaymentMethodsScreen(
                 .padding(scaffoldPadding)
                 .verticalScroll(rememberScrollState())
                 .padding(ProcessOutTheme.spacing.extraLarge),
-            verticalArrangement = if (state.content is Loading) Arrangement.Center else Arrangement.Top,
+            verticalArrangement = if (state.content is Loaded) Arrangement.Top else Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             when (state.content) {
