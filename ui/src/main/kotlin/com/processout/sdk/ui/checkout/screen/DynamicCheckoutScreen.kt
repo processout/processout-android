@@ -1,4 +1,4 @@
-@file:Suppress("MayBeConstant", "MemberVisibilityCanBePrivate", "AnimateAsStateLabel", "CrossfadeLabel")
+@file:Suppress("MayBeConstant")
 
 package com.processout.sdk.ui.checkout.screen
 
