@@ -86,7 +86,6 @@ internal class SavedPaymentMethodsViewModel(
             Loading
         } else if (state.paymentMethods.isEmpty()) {
             Empty(
-                imageResId = com.processout.sdk.ui.R.drawable.po_card_credit,
                 message = app.getString(R.string.po_saved_payment_methods_empty_message),
                 description = app.getString(R.string.po_saved_payment_methods_empty_description)
             )

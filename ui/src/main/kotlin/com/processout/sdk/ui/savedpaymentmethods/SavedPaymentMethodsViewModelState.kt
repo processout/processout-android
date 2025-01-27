@@ -1,6 +1,5 @@
 package com.processout.sdk.ui.savedpaymentmethods
 
-import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Immutable
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
@@ -22,8 +21,6 @@ internal data class SavedPaymentMethodsViewModelState(
         ) : Content
 
         data class Empty(
-            @DrawableRes
-            val imageResId: Int,
             val message: String,
             val description: String
         ) : Content
