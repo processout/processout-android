@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
@@ -71,7 +72,8 @@ internal class SavedPaymentMethodsBottomSheet : BaseBottomSheetDialogFragment<PO
     ): View = ComposeView(requireContext()).apply {
         setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
         setContent {
-            ProcessOutTheme {
+            val isLightTheme = !isSystemInDarkTheme()
+            ProcessOutTheme(isLightTheme = isLightTheme) {
                 with(viewModel.completion.collectAsStateWithLifecycle()) {
                     LaunchedEffect(value) { handle(value) }
                 }
@@ -81,7 +83,8 @@ internal class SavedPaymentMethodsBottomSheet : BaseBottomSheetDialogFragment<PO
                 SavedPaymentMethodsScreen(
                     state = viewModel.state.collectAsStateWithLifecycle().value,
                     onEvent = remember { viewModel::onEvent },
-                    style = SavedPaymentMethodsScreen.style(custom = configuration?.style)
+                    style = SavedPaymentMethodsScreen.style(custom = configuration?.style),
+                    isLightTheme = isLightTheme
                 )
             }
         }

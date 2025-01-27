@@ -9,16 +9,12 @@ import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,9 +25,13 @@ import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import com.processout.sdk.api.model.response.POImageResource
 import com.processout.sdk.ui.R
 import com.processout.sdk.ui.core.component.*
+import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
@@ -42,14 +42,18 @@ import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsScreen.Anima
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsScreen.CrossfadeAnimationDurationMillis
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsScreen.EmptyContentImageSize
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsScreen.EmptyContentStyle
+import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsScreen.PaymentLogoSize
+import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsScreen.RowComponentSpacing
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsViewModelState.Content.*
+import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsViewModelState.PaymentMethod
 
 @Composable
 @SuppressLint("UnusedCrossfadeTargetStateParameter")
 internal fun SavedPaymentMethodsScreen(
     state: SavedPaymentMethodsViewModelState,
     onEvent: (SavedPaymentMethodsEvent) -> Unit,
-    style: SavedPaymentMethodsScreen.Style = SavedPaymentMethodsScreen.style()
+    style: SavedPaymentMethodsScreen.Style = SavedPaymentMethodsScreen.style(),
+    isLightTheme: Boolean
 ) {
     Scaffold(
         modifier = Modifier
@@ -82,9 +86,12 @@ internal fun SavedPaymentMethodsScreen(
                 ) {
                     when (state.content) {
                         Loading -> Loading(progressIndicatorColor = style.progressIndicatorColor)
-                        is Loaded -> {
-                            // TODO
-                        }
+                        is Loaded -> Content(
+                            paymentMethods = state.content.paymentMethods,
+                            onEvent = onEvent,
+                            style = style,
+                            isLightTheme = isLightTheme
+                        )
                         else -> {}
                     }
                 }
@@ -138,6 +145,135 @@ private fun Header(
 private fun Loading(progressIndicatorColor: Color) {
     AnimatedVisibility {
         POCircularProgressIndicator.Large(color = progressIndicatorColor)
+    }
+}
+
+@Composable
+private fun Content(
+    paymentMethods: POImmutableList<PaymentMethod>,
+    onEvent: (SavedPaymentMethodsEvent) -> Unit,
+    style: SavedPaymentMethodsScreen.Style,
+    isLightTheme: Boolean
+) {
+    AnimatedVisibility {
+        val borderWidth = style.paymentMethod.border.width
+        val borderColor = style.paymentMethod.border.color
+        val containerShape = style.paymentMethod.shape
+        Column(
+            modifier = Modifier
+                .border(
+                    width = borderWidth,
+                    color = borderColor,
+                    shape = containerShape
+                )
+                .clip(shape = containerShape)
+                .padding(borderWidth)
+                .background(style.paymentMethod.backgroundColor)
+        ) {
+            paymentMethods.elements.forEachIndexed { index, paymentMethod ->
+                PaymentMethod(
+                    paymentMethod = paymentMethod,
+                    onEvent = onEvent,
+                    style = style,
+                    isLightTheme = isLightTheme
+                )
+                if (index != paymentMethods.elements.lastIndex) {
+                    HorizontalDivider(
+                        thickness = borderWidth,
+                        color = borderColor
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PaymentMethod(
+    paymentMethod: PaymentMethod,
+    onEvent: (SavedPaymentMethodsEvent) -> Unit,
+    style: SavedPaymentMethodsScreen.Style,
+    isLightTheme: Boolean
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                start = spacing.extraLarge,
+                end = spacing.medium,
+                top = spacing.large,
+                bottom = spacing.large
+            ),
+        horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        PaymentLogo(
+            logoResource = paymentMethod.logo,
+            fallbackBoxColor = style.paymentMethod.description.color,
+            isLightTheme = isLightTheme
+        )
+        POText(
+            text = paymentMethod.description,
+            modifier = Modifier.weight(1f),
+            color = style.paymentMethod.description.color,
+            style = style.paymentMethod.description.textStyle,
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1
+        )
+        paymentMethod.deleteAction?.let { action ->
+            POButton(
+                state = action,
+                onClick = {
+                    onEvent(
+                        Action(
+                            actionId = it,
+                            paymentMethodId = paymentMethod.id
+                        )
+                    )
+                },
+                modifier = Modifier.requiredSizeIn(
+                    minWidth = dimensions.buttonIconSizeSmall,
+                    minHeight = dimensions.buttonIconSizeSmall
+                ),
+                style = style.paymentMethod.deleteButton,
+                confirmationDialogStyle = style.dialog,
+                iconSize = dimensions.iconSizeSmall
+            )
+        }
+    }
+}
+
+@Composable
+private fun PaymentLogo(
+    logoResource: POImageResource,
+    fallbackBoxColor: Color,
+    modifier: Modifier = Modifier,
+    isLightTheme: Boolean
+) {
+    var showLogo by remember { mutableStateOf(true) }
+    if (showLogo) {
+        val logoUrl = with(logoResource) {
+            if (isLightTheme) {
+                lightUrl.raster
+            } else {
+                darkUrl?.raster ?: lightUrl.raster
+            }
+        }
+        AsyncImage(
+            model = logoUrl,
+            contentDescription = null,
+            modifier = modifier.requiredSize(PaymentLogoSize),
+            onError = { showLogo = false }
+        )
+    } else {
+        Box(
+            modifier = modifier
+                .requiredSize(PaymentLogoSize)
+                .background(
+                    color = fallbackBoxColor,
+                    shape = shapes.roundedCornersSmall
+                )
+        )
     }
 }
 
@@ -313,5 +449,8 @@ internal object SavedPaymentMethodsScreen {
     val AnimationDurationMillis = 300
     val CrossfadeAnimationDurationMillis = 400
 
+    val RowComponentSpacing = 10.dp
+
+    val PaymentLogoSize = 24.dp
     val EmptyContentImageSize = 48.dp
 }
