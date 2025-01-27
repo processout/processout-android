@@ -1,18 +1,31 @@
 package com.processout.sdk.ui.savedpaymentmethods
 
 import android.app.Application
+import coil.imageLoader
+import coil.request.CachePolicy
+import coil.request.ImageRequest
+import coil.request.ImageResult
+import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
+import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.*
+import com.processout.sdk.api.model.response.POImageResource
 import com.processout.sdk.api.service.POCustomerTokensService
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogAttribute
 import com.processout.sdk.core.logger.POLogger
+import com.processout.sdk.core.onFailure
+import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.base.BaseInteractor
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsCompletion.Awaiting
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsCompletion.Failure
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsEvent.Action
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsEvent.Dismiss
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsInteractorState.ActionId
+import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsInteractorState.PaymentMethod
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -41,17 +54,83 @@ internal class SavedPaymentMethodsInteractor(
 
     init {
         interactorScope.launch {
-            // TODO
+            fetchPaymentMethods()
         }
     }
 
     private fun initState() = SavedPaymentMethodsInteractorState(
         loading = true,
-        invoice = null,
         paymentMethods = emptyList(),
         deleteActionId = ActionId.DELETE,
         cancelActionId = ActionId.CANCEL
     )
+
+    private suspend fun fetchPaymentMethods() {
+        invoicesService.invoice(configuration.invoiceRequest)
+            .onSuccess { invoice ->
+                val mappedPaymentMethods = invoice.paymentMethods?.map() ?: emptyList()
+                preloadAllImages(paymentMethods = mappedPaymentMethods)
+                _state.update {
+                    it.copy(
+                        loading = false,
+                        paymentMethods = mappedPaymentMethods
+                    )
+                }
+            }.onFailure { failure ->
+                _completion.update { Failure(failure) }
+            }
+    }
+
+    private fun List<PODynamicCheckoutPaymentMethod>.map(): List<PaymentMethod> =
+        mapNotNull {
+            when (it) {
+                is CardCustomerToken -> paymentMethod(it.display, it.configuration)
+                is AlternativePaymentCustomerToken -> paymentMethod(it.display, it.configuration)
+                else -> null
+            }
+        }
+
+    private fun paymentMethod(
+        display: Display,
+        configuration: CustomerTokenConfiguration
+    ) = PaymentMethod(
+        id = configuration.customerTokenId,
+        logo = display.logo,
+        description = display.description ?: display.name,
+        deletingAllowed = configuration.deletingAllowed
+    )
+
+    //region Images
+
+    private suspend fun preloadAllImages(paymentMethods: List<PaymentMethod>) {
+        coroutineScope {
+            val logoUrls = mutableListOf<String>()
+            paymentMethods.forEach {
+                logoUrls.addAll(it.logo.urls())
+            }
+            val deferredResults = logoUrls.map { url ->
+                async { preloadImage(url) }
+            }
+            deferredResults.awaitAll()
+        }
+    }
+
+    private fun POImageResource.urls(): List<String> {
+        val urls = mutableListOf(lightUrl.raster)
+        darkUrl?.raster?.let { urls.add(it) }
+        return urls
+    }
+
+    private suspend fun preloadImage(url: String): ImageResult {
+        val request = ImageRequest.Builder(app)
+            .data(url)
+            .memoryCachePolicy(CachePolicy.ENABLED)
+            .diskCachePolicy(CachePolicy.DISABLED)
+            .build()
+        return app.imageLoader.execute(request)
+    }
+
+    //endregion
 
     fun onEvent(event: SavedPaymentMethodsEvent) {
         when (event) {

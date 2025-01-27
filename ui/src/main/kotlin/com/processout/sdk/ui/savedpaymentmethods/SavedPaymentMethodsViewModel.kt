@@ -13,6 +13,7 @@ import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsViewModelState.Content
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsViewModelState.Content.*
+import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsViewModelState.PaymentMethod
 import com.processout.sdk.ui.shared.extension.map
 
 internal class SavedPaymentMethodsViewModel(
@@ -90,6 +91,39 @@ internal class SavedPaymentMethodsViewModel(
                 description = app.getString(R.string.po_saved_payment_methods_empty_description)
             )
         } else {
-            Loaded(paymentMethods = POImmutableList(state.paymentMethods))
+            Loaded(paymentMethods = POImmutableList(state.mapPaymentMethods()))
+        }
+
+    private fun SavedPaymentMethodsInteractorState.mapPaymentMethods(): List<PaymentMethod> =
+        paymentMethods.map {
+            PaymentMethod(
+                id = it.id,
+                logo = it.logo,
+                description = it.description,
+                deleteAction = if (it.deletingAllowed) deleteAction(id = deleteActionId) else null
+            )
+        }
+
+    private fun deleteAction(id: String): POActionState =
+        with(configuration.deleteButton) {
+            POActionState(
+                id = id,
+                text = text ?: String(),
+                primary = false,
+                icon = icon ?: PODrawableImage(
+                    resId = com.processout.sdk.ui.R.drawable.po_icon_delete,
+                    renderingMode = POImageRenderingMode.ORIGINAL
+                ),
+                confirmation = confirmation?.run {
+                    Confirmation(
+                        title = title ?: app.getString(R.string.po_delete_confirmation_title),
+                        message = message,
+                        confirmActionText = confirmActionText
+                            ?: app.getString(R.string.po_delete_confirmation_confirm),
+                        dismissActionText = dismissActionText
+                            ?: app.getString(R.string.po_delete_confirmation_cancel)
+                    )
+                }
+            )
         }
 }
