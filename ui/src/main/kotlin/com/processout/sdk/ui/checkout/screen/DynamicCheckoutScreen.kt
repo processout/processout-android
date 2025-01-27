@@ -173,9 +173,9 @@ private fun Content(
                 horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing),
                 enterAnimationDelayMillis = ShortAnimationDurationMillis
             )
-            if (state.expressCheckout.expressPayments.elements.isNotEmpty()) {
+            state.expressCheckout?.let {
                 ExpressCheckout(
-                    state = state.expressCheckout,
+                    state = it,
                     onEvent = onEvent,
                     style = style,
                     isLightTheme = isLightTheme

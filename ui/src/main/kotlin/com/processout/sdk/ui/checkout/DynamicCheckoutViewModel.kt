@@ -179,14 +179,20 @@ internal class DynamicCheckoutViewModel private constructor(
 
     private fun expressCheckout(
         interactorState: DynamicCheckoutInteractorState
-    ) = ExpressCheckout(
-        header = SectionHeader(
-            title = configuration.expressCheckout.title
-                ?: app.getString(R.string.po_dynamic_checkout_express_checkout),
-            action = savedPaymentMethodsAction(interactorState)
-        ),
-        expressPayments = expressPayments(interactorState)
-    )
+    ): ExpressCheckout? {
+        val expressPayments = expressPayments(interactorState)
+        if (expressPayments.isEmpty()) {
+            return null
+        }
+        return ExpressCheckout(
+            header = SectionHeader(
+                title = configuration.expressCheckout.title
+                    ?: app.getString(R.string.po_dynamic_checkout_express_checkout),
+                action = savedPaymentMethodsAction(interactorState)
+            ),
+            expressPayments = POImmutableList(expressPayments)
+        )
+    }
 
     private fun savedPaymentMethodsAction(
         interactorState: DynamicCheckoutInteractorState
@@ -214,7 +220,7 @@ internal class DynamicCheckoutViewModel private constructor(
 
     private fun expressPayments(
         interactorState: DynamicCheckoutInteractorState
-    ): POImmutableList<ExpressPayment> =
+    ): List<ExpressPayment> =
         interactorState.paymentMethods.mapNotNull { paymentMethod ->
             val id = paymentMethod.id
             when (paymentMethod) {
@@ -244,7 +250,7 @@ internal class DynamicCheckoutViewModel private constructor(
                     ) else null
                 else -> null
             }
-        }.let { POImmutableList(it) }
+        }
 
     private fun expressPayment(
         id: String,
