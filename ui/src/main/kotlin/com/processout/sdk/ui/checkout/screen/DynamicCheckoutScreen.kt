@@ -2,6 +2,7 @@
 
 package com.processout.sdk.ui.checkout.screen
 
+import android.annotation.SuppressLint
 import android.view.Gravity
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.*
@@ -80,6 +81,7 @@ import com.processout.sdk.ui.shared.extension.*
 import com.processout.sdk.ui.shared.state.FieldState
 
 @Composable
+@SuppressLint("UnusedCrossfadeTargetStateParameter")
 internal fun DynamicCheckoutScreen(
     state: DynamicCheckoutViewModelState,
     onEvent: (DynamicCheckoutEvent) -> Unit,
@@ -109,18 +111,15 @@ internal fun DynamicCheckoutScreen(
             }
         ) { scaffoldPadding ->
             Crossfade(
-                targetState = when (state) {
-                    is Loaded -> state.successMessage != null
-                    else -> false
-                },
+                targetState = state is Success,
                 animationSpec = tween(
                     durationMillis = CrossfadeAnimationDurationMillis,
                     easing = LinearEasing
                 )
-            ) { isSuccess ->
-                if (isSuccess && state is Loaded) {
+            ) {
+                if (state is Success) {
                     Success(
-                        message = state.successMessage ?: String(),
+                        message = state.message,
                         style = style.paymentSuccess
                     )
                 } else {
@@ -140,6 +139,7 @@ internal fun DynamicCheckoutScreen(
                                 style = style,
                                 isLightTheme = isLightTheme
                             )
+                            else -> {}
                         }
                     }
                 }
@@ -615,6 +615,7 @@ private fun Actions(
     val cancelAction: POActionState? = when (state) {
         is Loading -> state.cancelAction
         is Loaded -> state.cancelAction
+        else -> null
     }
     cancelAction?.let { actions.add(it) }
     POActionsContainer(
@@ -934,7 +935,7 @@ internal object DynamicCheckoutScreen {
         successColor: Color
     ): Color = animateColorAsState(
         targetValue = when (state) {
-            is Loaded -> if (state.successMessage != null) successColor else normalColor
+            is Success -> successColor
             else -> normalColor
         },
         animationSpec = tween(

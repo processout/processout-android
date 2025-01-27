@@ -101,16 +101,17 @@ internal class DynamicCheckoutViewModel private constructor(
         val cancelAction = cancelAction(interactorState, cardTokenizationState, nativeAlternativePaymentState)
         return if (interactorState.loading) {
             Loading(cancelAction = cancelAction)
+        } else if (interactorState.delayedSuccess) {
+            Success(
+                message = configuration.paymentSuccess?.message
+                    ?: app.getString(R.string.po_dynamic_checkout_success_message)
+            )
         } else {
             Loaded(
                 expressCheckout = expressCheckout(interactorState),
                 regularPayments = regularPayments(interactorState, cardTokenizationState, nativeAlternativePaymentState),
-                cancelAction = if (interactorState.delayedSuccess) null else cancelAction,
-                errorMessage = interactorState.errorMessage,
-                successMessage = if (interactorState.delayedSuccess) {
-                    configuration.paymentSuccess?.message
-                        ?: app.getString(R.string.po_dynamic_checkout_success_message)
-                } else null
+                cancelAction = cancelAction,
+                errorMessage = interactorState.errorMessage
             )
         }
     }
