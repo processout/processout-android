@@ -60,29 +60,6 @@ internal class SavedPaymentMethodsViewModel(
         )
     }
 
-    private fun cancelAction(id: String): POActionState? =
-        configuration.cancelButton?.let {
-            POActionState(
-                id = id,
-                text = it.text ?: String(),
-                primary = false,
-                icon = it.icon ?: PODrawableImage(
-                    resId = com.processout.sdk.ui.R.drawable.po_icon_close,
-                    renderingMode = POImageRenderingMode.ORIGINAL
-                ),
-                confirmation = it.confirmation?.run {
-                    Confirmation(
-                        title = title ?: app.getString(R.string.po_cancel_confirmation_title),
-                        message = message,
-                        confirmActionText = confirmActionText
-                            ?: app.getString(R.string.po_cancel_confirmation_confirm),
-                        dismissActionText = dismissActionText
-                            ?: app.getString(R.string.po_cancel_confirmation_dismiss)
-                    )
-                }
-            )
-        }
-
     private fun content(state: SavedPaymentMethodsInteractorState): Content =
         if (state.loading) {
             Loading
@@ -126,6 +103,29 @@ internal class SavedPaymentMethodsViewModel(
                             ?: app.getString(R.string.po_delete_confirmation_confirm),
                         dismissActionText = dismissActionText
                             ?: app.getString(R.string.po_delete_confirmation_cancel)
+                    )
+                }
+            )
+        }
+
+    private fun cancelAction(id: String): POActionState? =
+        configuration.cancelButton?.let {
+            POActionState(
+                id = id,
+                text = it.text ?: String(),
+                primary = false,
+                icon = it.icon ?: PODrawableImage(
+                    resId = com.processout.sdk.ui.R.drawable.po_icon_close,
+                    renderingMode = POImageRenderingMode.ORIGINAL
+                ),
+                confirmation = it.confirmation?.run {
+                    Confirmation(
+                        title = title ?: app.getString(R.string.po_cancel_confirmation_title),
+                        message = message,
+                        confirmActionText = confirmActionText
+                            ?: app.getString(R.string.po_cancel_confirmation_confirm),
+                        dismissActionText = dismissActionText
+                            ?: app.getString(R.string.po_cancel_confirmation_dismiss)
                     )
                 }
             )
