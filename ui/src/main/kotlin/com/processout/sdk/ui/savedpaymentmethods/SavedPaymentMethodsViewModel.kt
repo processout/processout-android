@@ -11,6 +11,7 @@ import com.processout.sdk.ui.core.shared.image.POImageRenderingMode
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.core.state.POImmutableList
+import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsInteractorState.Action
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsViewModelState.Content
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsViewModelState.Content.*
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsViewModelState.PaymentMethod
@@ -100,16 +101,19 @@ internal class SavedPaymentMethodsViewModel(
                 id = it.id,
                 logo = it.logo,
                 description = it.description,
-                deleteAction = if (it.deletingAllowed) deleteAction(id = deleteActionId) else null
+                deleteAction = it.deleteAction?.let { action ->
+                    deleteAction(action)
+                }
             )
         }
 
-    private fun deleteAction(id: String): POActionState =
+    private fun deleteAction(action: Action): POActionState =
         with(configuration.deleteButton) {
             POActionState(
-                id = id,
+                id = action.id,
                 text = text ?: String(),
                 primary = false,
+                loading = action.processing,
                 icon = icon ?: PODrawableImage(
                     resId = com.processout.sdk.ui.R.drawable.po_icon_delete,
                     renderingMode = POImageRenderingMode.ORIGINAL

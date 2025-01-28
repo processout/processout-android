@@ -61,7 +61,6 @@ internal class SavedPaymentMethodsInteractor(
     private fun initState() = SavedPaymentMethodsInteractorState(
         loading = true,
         paymentMethods = emptyList(),
-        deleteActionId = ActionId.DELETE,
         cancelActionId = ActionId.CANCEL
     )
 
@@ -97,7 +96,11 @@ internal class SavedPaymentMethodsInteractor(
         id = configuration.customerTokenId,
         logo = display.logo,
         description = display.description ?: display.name,
-        deletingAllowed = configuration.deletingAllowed
+        deleteAction = if (configuration.deletingAllowed)
+            SavedPaymentMethodsInteractorState.Action(
+                id = ActionId.DELETE,
+                processing = false
+            ) else null
     )
 
     //region Images

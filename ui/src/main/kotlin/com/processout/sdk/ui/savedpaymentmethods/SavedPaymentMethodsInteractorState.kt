@@ -5,7 +5,6 @@ import com.processout.sdk.api.model.response.POImageResource
 internal data class SavedPaymentMethodsInteractorState(
     val loading: Boolean,
     val paymentMethods: List<PaymentMethod>,
-    val deleteActionId: String,
     val cancelActionId: String,
     val errorMessage: String? = null
 ) {
@@ -14,7 +13,12 @@ internal data class SavedPaymentMethodsInteractorState(
         val id: String,
         val logo: POImageResource,
         val description: String,
-        val deletingAllowed: Boolean
+        val deleteAction: Action?
+    )
+
+    data class Action(
+        val id: String,
+        val processing: Boolean
     )
 
     object ActionId {
