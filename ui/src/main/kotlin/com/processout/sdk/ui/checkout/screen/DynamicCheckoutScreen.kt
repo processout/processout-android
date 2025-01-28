@@ -2,7 +2,6 @@
 
 package com.processout.sdk.ui.checkout.screen
 
-import android.annotation.SuppressLint
 import android.view.Gravity
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.*
@@ -81,7 +80,6 @@ import com.processout.sdk.ui.shared.extension.*
 import com.processout.sdk.ui.shared.state.FieldState
 
 @Composable
-@SuppressLint("UnusedCrossfadeTargetStateParameter")
 internal fun DynamicCheckoutScreen(
     state: DynamicCheckoutViewModelState,
     onEvent: (DynamicCheckoutEvent) -> Unit,
@@ -116,8 +114,8 @@ internal fun DynamicCheckoutScreen(
                     durationMillis = CrossfadeAnimationDurationMillis,
                     easing = LinearEasing
                 )
-            ) {
-                if (state is Success) {
+            ) { crossfade ->
+                if (crossfade && state is Success) {
                     Success(
                         message = state.message,
                         style = style.paymentSuccess

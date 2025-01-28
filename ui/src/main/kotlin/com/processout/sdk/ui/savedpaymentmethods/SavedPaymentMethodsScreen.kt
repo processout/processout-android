@@ -2,7 +2,6 @@
 
 package com.processout.sdk.ui.savedpaymentmethods
 
-import android.annotation.SuppressLint
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.MutableTransitionState
@@ -48,7 +47,6 @@ import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsViewModelSta
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsViewModelState.PaymentMethod
 
 @Composable
-@SuppressLint("UnusedCrossfadeTargetStateParameter")
 internal fun SavedPaymentMethodsScreen(
     state: SavedPaymentMethodsViewModelState,
     onEvent: (SavedPaymentMethodsEvent) -> Unit,
@@ -68,8 +66,8 @@ internal fun SavedPaymentMethodsScreen(
                 durationMillis = CrossfadeAnimationDurationMillis,
                 easing = LinearEasing
             )
-        ) {
-            if (state.content is Empty) {
+        ) { crossfade ->
+            if (crossfade && state.content is Empty) {
                 Empty(
                     state = state.content,
                     style = style.emptyContentStyle
