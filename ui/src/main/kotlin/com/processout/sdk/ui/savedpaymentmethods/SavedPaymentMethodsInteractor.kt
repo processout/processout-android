@@ -5,6 +5,7 @@ import coil.imageLoader
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.request.ImageResult
+import com.processout.sdk.R
 import com.processout.sdk.api.model.request.PODeleteCustomerTokenRequest
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.*
@@ -150,16 +151,12 @@ internal class SavedPaymentMethodsInteractor(
     }
 
     private fun delete(customerTokenId: String) {
-        _state.update { state ->
-            state.copy(
-                paymentMethods = state.paymentMethods.map {
-                    if (it.customerTokenId == customerTokenId)
-                        it.copy(deleteAction = it.deleteAction?.copy(processing = true))
-                    else it
-                }
-            )
-        }
         interactorScope.launch {
+            update(
+                customerTokenId = customerTokenId,
+                processing = true,
+                errorMessage = null
+            )
             customerTokensService.deleteCustomerToken(
                 PODeleteCustomerTokenRequest(
                     customerId = _state.value.customerId ?: String(),
@@ -169,8 +166,29 @@ internal class SavedPaymentMethodsInteractor(
             ).onSuccess {
                 fetchPaymentMethods()
             }.onFailure {
-                // TODO
+                update(
+                    customerTokenId = customerTokenId,
+                    processing = false,
+                    errorMessage = app.getString(R.string.po_saved_payment_methods_error_generic)
+                )
             }
+        }
+    }
+
+    private fun update(
+        customerTokenId: String,
+        processing: Boolean,
+        errorMessage: String?
+    ) {
+        _state.update { state ->
+            state.copy(
+                paymentMethods = state.paymentMethods.map {
+                    if (it.customerTokenId == customerTokenId)
+                        it.copy(deleteAction = it.deleteAction?.copy(processing = processing))
+                    else it
+                },
+                errorMessage = errorMessage
+            )
         }
     }
 

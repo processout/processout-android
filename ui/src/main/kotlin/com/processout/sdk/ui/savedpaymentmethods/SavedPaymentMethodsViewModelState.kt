@@ -18,7 +18,8 @@ internal data class SavedPaymentMethodsViewModelState(
         data object Loading : Content
 
         data class Loaded(
-            val paymentMethods: POImmutableList<PaymentMethod>
+            val paymentMethods: POImmutableList<PaymentMethod>,
+            val errorMessage: String?
         ) : Content
 
         data class Empty(

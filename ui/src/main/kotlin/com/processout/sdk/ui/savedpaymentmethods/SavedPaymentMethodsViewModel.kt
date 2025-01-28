@@ -69,7 +69,10 @@ internal class SavedPaymentMethodsViewModel(
                 description = app.getString(R.string.po_saved_payment_methods_empty_description)
             )
         } else {
-            Loaded(paymentMethods = POImmutableList(state.mapPaymentMethods()))
+            Loaded(
+                paymentMethods = POImmutableList(state.mapPaymentMethods()),
+                errorMessage = state.errorMessage
+            )
         }
 
     private fun SavedPaymentMethodsInteractorState.mapPaymentMethods(): List<PaymentMethod> =

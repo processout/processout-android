@@ -30,7 +30,6 @@ import coil.compose.AsyncImage
 import com.processout.sdk.api.model.response.POImageResource
 import com.processout.sdk.ui.R
 import com.processout.sdk.ui.core.component.*
-import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
@@ -88,7 +87,7 @@ internal fun SavedPaymentMethodsScreen(
                 when (content) {
                     Loading -> POCircularProgressIndicator.Large(color = style.progressIndicatorColor)
                     is Loaded -> Content(
-                        paymentMethods = content.paymentMethods,
+                        state = content,
                         onEvent = onEvent,
                         style = style,
                         isLightTheme = isLightTheme
@@ -146,11 +145,17 @@ private fun Header(
 
 @Composable
 private fun Content(
-    paymentMethods: POImmutableList<PaymentMethod>,
+    state: Loaded,
     onEvent: (SavedPaymentMethodsEvent) -> Unit,
     style: SavedPaymentMethodsScreen.Style,
     isLightTheme: Boolean
 ) {
+    POMessageBox(
+        text = state.errorMessage,
+        style = style.messageBox,
+        modifier = Modifier.padding(bottom = spacing.extraLarge),
+        horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing)
+    )
     val borderWidth = style.paymentMethod.border.width
     val borderColor = style.paymentMethod.border.color
     val containerShape = style.paymentMethod.shape
@@ -165,14 +170,14 @@ private fun Content(
             .padding(borderWidth)
             .background(style.paymentMethod.backgroundColor)
     ) {
-        paymentMethods.elements.forEachIndexed { index, paymentMethod ->
+        state.paymentMethods.elements.forEachIndexed { index, paymentMethod ->
             PaymentMethod(
                 paymentMethod = paymentMethod,
                 onEvent = onEvent,
                 style = style,
                 isLightTheme = isLightTheme
             )
-            if (index != paymentMethods.elements.lastIndex) {
+            if (index != state.paymentMethods.elements.lastIndex) {
                 HorizontalDivider(
                     thickness = borderWidth,
                     color = borderColor
