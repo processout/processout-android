@@ -2,12 +2,12 @@
 
 package com.processout.sdk.ui.savedpaymentmethods
 
-import androidx.compose.animation.Crossfade
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,7 +38,6 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsEvent.Action
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsScreen.AnimationDurationMillis
-import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsScreen.CrossfadeAnimationDurationMillis
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsScreen.EmptyContentImageSize
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsScreen.EmptyContentStyle
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsScreen.PaymentLogoSize
@@ -60,38 +59,44 @@ internal fun SavedPaymentMethodsScreen(
         containerColor = style.backgroundColor,
         topBar = { Header(state, onEvent, style) }
     ) { scaffoldPadding ->
-        Crossfade(
-            targetState = state.content is Empty,
-            animationSpec = tween(
-                durationMillis = CrossfadeAnimationDurationMillis,
-                easing = LinearEasing
-            )
-        ) { crossfade ->
-            if (crossfade && state.content is Empty) {
-                Empty(
-                    state = state.content,
-                    style = style.emptyContentStyle
+        AnimatedContent(
+            targetState = state.content,
+            contentKey = { it::class.java },
+            transitionSpec = {
+                fadeIn(
+                    animationSpec = tween(
+                        durationMillis = AnimationDurationMillis,
+                        easing = LinearEasing
+                    )
+                ) togetherWith fadeOut(
+                    animationSpec = tween(
+                        durationMillis = AnimationDurationMillis,
+                        easing = LinearEasing
+                    )
                 )
-            } else {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(scaffoldPadding)
-                        .verticalScroll(rememberScrollState())
-                        .padding(spacing.extraLarge),
-                    verticalArrangement = if (state.content is Loaded) Arrangement.Top else Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    when (state.content) {
-                        Loading -> Loading(progressIndicatorColor = style.progressIndicatorColor)
-                        is Loaded -> Content(
-                            paymentMethods = state.content.paymentMethods,
-                            onEvent = onEvent,
-                            style = style,
-                            isLightTheme = isLightTheme
-                        )
-                        else -> {}
-                    }
+            }
+        ) { content ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(scaffoldPadding)
+                    .verticalScroll(rememberScrollState())
+                    .padding(spacing.extraLarge),
+                verticalArrangement = if (content is Loaded) Arrangement.Top else Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                when (content) {
+                    Loading -> POCircularProgressIndicator.Large(color = style.progressIndicatorColor)
+                    is Loaded -> Content(
+                        paymentMethods = content.paymentMethods,
+                        onEvent = onEvent,
+                        style = style,
+                        isLightTheme = isLightTheme
+                    )
+                    is Empty -> Empty(
+                        state = content,
+                        style = style.emptyContentStyle
+                    )
                 }
             }
         }
@@ -140,47 +145,38 @@ private fun Header(
 }
 
 @Composable
-private fun Loading(progressIndicatorColor: Color) {
-    AnimatedVisibility {
-        POCircularProgressIndicator.Large(color = progressIndicatorColor)
-    }
-}
-
-@Composable
 private fun Content(
     paymentMethods: POImmutableList<PaymentMethod>,
     onEvent: (SavedPaymentMethodsEvent) -> Unit,
     style: SavedPaymentMethodsScreen.Style,
     isLightTheme: Boolean
 ) {
-    AnimatedVisibility {
-        val borderWidth = style.paymentMethod.border.width
-        val borderColor = style.paymentMethod.border.color
-        val containerShape = style.paymentMethod.shape
-        Column(
-            modifier = Modifier
-                .border(
-                    width = borderWidth,
-                    color = borderColor,
-                    shape = containerShape
+    val borderWidth = style.paymentMethod.border.width
+    val borderColor = style.paymentMethod.border.color
+    val containerShape = style.paymentMethod.shape
+    Column(
+        modifier = Modifier
+            .border(
+                width = borderWidth,
+                color = borderColor,
+                shape = containerShape
+            )
+            .clip(shape = containerShape)
+            .padding(borderWidth)
+            .background(style.paymentMethod.backgroundColor)
+    ) {
+        paymentMethods.elements.forEachIndexed { index, paymentMethod ->
+            PaymentMethod(
+                paymentMethod = paymentMethod,
+                onEvent = onEvent,
+                style = style,
+                isLightTheme = isLightTheme
+            )
+            if (index != paymentMethods.elements.lastIndex) {
+                HorizontalDivider(
+                    thickness = borderWidth,
+                    color = borderColor
                 )
-                .clip(shape = containerShape)
-                .padding(borderWidth)
-                .background(style.paymentMethod.backgroundColor)
-        ) {
-            paymentMethods.elements.forEachIndexed { index, paymentMethod ->
-                PaymentMethod(
-                    paymentMethod = paymentMethod,
-                    onEvent = onEvent,
-                    style = style,
-                    isLightTheme = isLightTheme
-                )
-                if (index != paymentMethods.elements.lastIndex) {
-                    HorizontalDivider(
-                        thickness = borderWidth,
-                        color = borderColor
-                    )
-                }
             }
         }
     }
@@ -282,10 +278,6 @@ private fun Empty(
     style: EmptyContentStyle
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(spacing.extraLarge),
         verticalArrangement = Arrangement.spacedBy(
             space = spacing.medium,
             alignment = Alignment.CenterVertically
@@ -311,23 +303,6 @@ private fun Empty(
             style = style.description.textStyle,
             textAlign = TextAlign.Center
         )
-    }
-}
-
-@Composable
-private fun AnimatedVisibility(
-    visibleState: MutableTransitionState<Boolean> = remember {
-        MutableTransitionState(initialState = false)
-            .apply { targetState = true }
-    },
-    content: @Composable () -> Unit
-) {
-    androidx.compose.animation.AnimatedVisibility(
-        visibleState = visibleState,
-        enter = fadeIn(animationSpec = tween(durationMillis = AnimationDurationMillis)),
-        exit = fadeOut(animationSpec = tween(durationMillis = AnimationDurationMillis))
-    ) {
-        content()
     }
 }
 
@@ -448,7 +423,6 @@ internal object SavedPaymentMethodsScreen {
         )
 
     val AnimationDurationMillis = 300
-    val CrossfadeAnimationDurationMillis = 400
 
     val RowComponentSpacing = 10.dp
 
