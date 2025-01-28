@@ -288,7 +288,7 @@ private fun Empty(
             .verticalScroll(rememberScrollState())
             .padding(spacing.extraLarge),
         verticalArrangement = Arrangement.spacedBy(
-            space = spacing.large,
+            space = spacing.medium,
             alignment = Alignment.CenterVertically
         ),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -296,7 +296,9 @@ private fun Empty(
         Image(
             painter = painterResource(id = R.drawable.po_card_credit),
             contentDescription = null,
-            modifier = Modifier.requiredSize(EmptyContentImageSize)
+            modifier = Modifier
+                .padding(bottom = spacing.small)
+                .requiredSize(EmptyContentImageSize)
         )
         POText(
             text = state.message,
