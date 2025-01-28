@@ -20,6 +20,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.core.component.POButton.ProgressIndicatorSize.Medium
+import com.processout.sdk.ui.core.component.POButton.ProgressIndicatorSize.Small
 import com.processout.sdk.ui.core.component.POButton.border
 import com.processout.sdk.ui.core.component.POButton.colors
 import com.processout.sdk.ui.core.component.POButton.contentPadding
@@ -49,6 +51,7 @@ fun POButton(
     leadingContent: @Composable RowScope.() -> Unit = {},
     icon: PODrawableImage? = null,
     iconSize: Dp = dimensions.iconSizeMedium,
+    progressIndicatorSize: POButton.ProgressIndicatorSize = Medium,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
     val pressed by interactionSource.collectIsPressedAsState()
@@ -67,7 +70,10 @@ fun POButton(
         ) {
             if (loading) {
                 Box(contentAlignment = Alignment.Center) {
-                    POCircularProgressIndicator.Small(color = style.progressIndicatorColor)
+                    when (progressIndicatorSize) {
+                        Small -> POCircularProgressIndicator.Small(color = style.progressIndicatorColor)
+                        Medium -> POCircularProgressIndicator.Medium(color = style.progressIndicatorColor)
+                    }
                     // This empty POText ensures that button height matches with provided text style while loading.
                     POText(
                         text = String(),
@@ -117,6 +123,7 @@ fun POButton(
     onConfirmationRequested: ((ActionId) -> Unit)? = null,
     leadingContent: @Composable RowScope.() -> Unit = {},
     iconSize: Dp = dimensions.iconSizeMedium,
+    progressIndicatorSize: POButton.ProgressIndicatorSize = Medium,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
     with(state) {
@@ -138,6 +145,7 @@ fun POButton(
             leadingContent = leadingContent,
             icon = icon,
             iconSize = iconSize,
+            progressIndicatorSize = progressIndicatorSize,
             interactionSource = interactionSource
         )
         if (requestConfirmation) {
@@ -190,6 +198,10 @@ object POButton {
         val borderColor: Color,
         val backgroundColor: Color
     )
+
+    enum class ProgressIndicatorSize {
+        Small, Medium
+    }
 
     val primary: Style
         @Composable get() = with(ProcessOutTheme) {

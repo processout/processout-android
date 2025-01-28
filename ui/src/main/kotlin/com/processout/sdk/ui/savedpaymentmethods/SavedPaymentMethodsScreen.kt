@@ -237,7 +237,8 @@ private fun PaymentMethod(
                 ),
                 style = style.paymentMethod.deleteButton,
                 confirmationDialogStyle = style.dialog,
-                iconSize = dimensions.iconSizeSmall
+                iconSize = dimensions.iconSizeSmall,
+                progressIndicatorSize = POButton.ProgressIndicatorSize.Small
             )
         }
     }
