@@ -17,6 +17,7 @@
     <string name="po_saved_payment_methods_title">Gerir formas de pagamento guardadas</string>
     <string name="po_saved_payment_methods_empty_message">Nenhuma forma de pagamento guardada</string>
     <string name="po_saved_payment_methods_empty_description">Depois de guardar uma forma de pagamento, ela aparecerá aqui.</string>
+    <string name="po_saved_payment_methods_error_generic">Ocorreu um erro ao processar o seu cartão, por favor tente novamente.</string>
 
     <!-- Native Alternative Payment Method -->
     <string name="po_native_apm_title_format">Pagar com %s</string>

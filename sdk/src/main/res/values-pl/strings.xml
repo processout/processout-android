@@ -17,6 +17,7 @@
     <string name="po_saved_payment_methods_title">Zarządzaj zapisanymi metodami płatności</string>
     <string name="po_saved_payment_methods_empty_message">Brak zapisanych metod płatności</string>
     <string name="po_saved_payment_methods_empty_description">Gdy następnym razem zapiszesz metodę płatności, pojawi się tutaj.</string>
+    <string name="po_saved_payment_methods_error_generic">Coś poszło nie tak, spróbuj ponownie.</string>
 
     <!-- Native Alternative Payment Method -->
     <string name="po_native_apm_title_format">Zapłać przy pomocy %s</string>

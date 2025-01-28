@@ -17,6 +17,7 @@
     <string name="po_saved_payment_methods_title">Manage saved payment methods</string>
     <string name="po_saved_payment_methods_empty_message">No saved payment methods</string>
     <string name="po_saved_payment_methods_empty_description">The next time you save a payment method, it will appear here.</string>
+    <string name="po_saved_payment_methods_error_generic">Something went wrong, please try again.</string>
 
     <!-- Native Alternative Payment Method -->
     <string name="po_native_apm_title_format">Pay with %s</string>

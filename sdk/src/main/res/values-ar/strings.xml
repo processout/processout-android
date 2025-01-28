@@ -17,6 +17,7 @@
     <string name="po_saved_payment_methods_title">إدارة طرق الدفع المحفوظة</string>
     <string name="po_saved_payment_methods_empty_message">لا توجد طرق دفع محفوظة</string>
     <string name="po_saved_payment_methods_empty_description">جميع وسائل الدفع المحفوظة ستظهر هنا في المرة القادمة.</string>
+    <string name="po_saved_payment_methods_error_generic">حدث خطأ ما، يرجى المحاولة مرة أخرى</string>
 
     <!-- Native Alternative Payment Method -->
     <string name="po_native_apm_title_format">الدفع بواسطة %s</string>
