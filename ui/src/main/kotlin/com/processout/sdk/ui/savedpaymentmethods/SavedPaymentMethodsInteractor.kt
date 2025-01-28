@@ -5,6 +5,7 @@ import coil.imageLoader
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.request.ImageResult
+import com.processout.sdk.api.model.request.PODeleteCustomerTokenRequest
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.*
 import com.processout.sdk.api.model.response.POImageResource
@@ -60,6 +61,7 @@ internal class SavedPaymentMethodsInteractor(
 
     private fun initState() = SavedPaymentMethodsInteractorState(
         loading = true,
+        customerId = null,
         paymentMethods = emptyList(),
         cancelActionId = ActionId.CANCEL
     )
@@ -72,6 +74,7 @@ internal class SavedPaymentMethodsInteractor(
                 _state.update {
                     it.copy(
                         loading = false,
+                        customerId = invoice.customerId,
                         paymentMethods = mappedPaymentMethods
                     )
                 }
@@ -93,9 +96,10 @@ internal class SavedPaymentMethodsInteractor(
         display: Display,
         configuration: CustomerTokenConfiguration
     ) = PaymentMethod(
-        id = configuration.customerTokenId,
+        customerTokenId = configuration.customerTokenId,
         logo = display.logo,
-        description = display.description ?: display.name,
+        name = display.name,
+        description = display.description,
         deleteAction = if (configuration.deletingAllowed)
             SavedPaymentMethodsInteractorState.Action(
                 id = ActionId.DELETE,
@@ -138,10 +142,35 @@ internal class SavedPaymentMethodsInteractor(
     fun onEvent(event: SavedPaymentMethodsEvent) {
         when (event) {
             is Action -> when (event.actionId) {
-                ActionId.DELETE -> {}
+                ActionId.DELETE -> event.paymentMethodId?.let { delete(it) }
                 ActionId.CANCEL -> cancel()
             }
             is Dismiss -> {}
+        }
+    }
+
+    private fun delete(customerTokenId: String) {
+        _state.update { state ->
+            state.copy(
+                paymentMethods = state.paymentMethods.map {
+                    if (it.customerTokenId == customerTokenId)
+                        it.copy(deleteAction = it.deleteAction?.copy(processing = true))
+                    else it
+                }
+            )
+        }
+        interactorScope.launch {
+            customerTokensService.deleteCustomerToken(
+                PODeleteCustomerTokenRequest(
+                    customerId = _state.value.customerId ?: String(),
+                    tokenId = customerTokenId,
+                    clientSecret = configuration.invoiceRequest.clientSecret ?: String()
+                )
+            ).onSuccess {
+                fetchPaymentMethods()
+            }.onFailure {
+                // TODO
+            }
         }
     }
 

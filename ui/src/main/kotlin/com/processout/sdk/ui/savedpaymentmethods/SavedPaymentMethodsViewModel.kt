@@ -98,9 +98,9 @@ internal class SavedPaymentMethodsViewModel(
     private fun SavedPaymentMethodsInteractorState.mapPaymentMethods(): List<PaymentMethod> =
         paymentMethods.map {
             PaymentMethod(
-                id = it.id,
+                id = it.customerTokenId,
                 logo = it.logo,
-                description = it.description,
+                description = it.description ?: it.name,
                 deleteAction = it.deleteAction?.let { action ->
                     deleteAction(action)
                 }

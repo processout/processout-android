@@ -4,15 +4,17 @@ import com.processout.sdk.api.model.response.POImageResource
 
 internal data class SavedPaymentMethodsInteractorState(
     val loading: Boolean,
+    val customerId: String?,
     val paymentMethods: List<PaymentMethod>,
     val cancelActionId: String,
     val errorMessage: String? = null
 ) {
 
     data class PaymentMethod(
-        val id: String,
+        val customerTokenId: String,
         val logo: POImageResource,
-        val description: String,
+        val name: String,
+        val description: String?,
         val deleteAction: Action?
     )
 
