@@ -56,6 +56,7 @@ import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.DEFAULT_TIMEOUT_SECONDS
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsConfiguration
+import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsDelegate
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsLauncher
 import com.processout.sdk.ui.shared.configuration.POBarcodeConfiguration
 import com.processout.sdk.ui.shared.extension.collectImmediately
@@ -189,6 +190,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         )
         savedPaymentMethodsLauncher = POSavedPaymentMethodsLauncher.create(
             from = this,
+            delegate = object : POSavedPaymentMethodsDelegate {},
             callback = ::handleSavedPaymentMethods
         )
         setContent {
