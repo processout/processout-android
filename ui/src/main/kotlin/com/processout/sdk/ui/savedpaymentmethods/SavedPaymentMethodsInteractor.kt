@@ -164,7 +164,12 @@ internal class SavedPaymentMethodsInteractor(
                     clientSecret = configuration.invoiceRequest.clientSecret ?: String()
                 )
             ).onSuccess {
-                fetchPaymentMethods()
+                _state.update { state ->
+                    state.copy(
+                        paymentMethods = state.paymentMethods
+                            .filterNot { it.customerTokenId == customerTokenId }
+                    )
+                }
             }.onFailure {
                 update(
                     customerTokenId = customerTokenId,
