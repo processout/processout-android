@@ -202,6 +202,7 @@ internal class DynamicCheckoutViewModel private constructor(
                 id = interactorState.actions.savedPaymentMethodsId,
                 text = settingsButton?.text ?: String(),
                 primary = false,
+                enabled = interactorState.processingPaymentMethod == null,
                 icon = settingsButton?.icon
                     ?: PODrawableImage(
                         resId = com.processout.sdk.ui.R.drawable.po_icon_settings,
