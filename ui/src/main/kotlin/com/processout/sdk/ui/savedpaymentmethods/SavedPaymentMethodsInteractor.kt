@@ -6,6 +6,9 @@ import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.request.ImageResult
 import com.processout.sdk.R
+import com.processout.sdk.api.dispatcher.POEventDispatcher
+import com.processout.sdk.api.model.event.POSavedPaymentMethodsEvent
+import com.processout.sdk.api.model.event.POSavedPaymentMethodsEvent.*
 import com.processout.sdk.api.model.request.PODeleteCustomerTokenRequest
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.*
@@ -38,6 +41,7 @@ internal class SavedPaymentMethodsInteractor(
     private val configuration: POSavedPaymentMethodsConfiguration,
     private val invoicesService: POInvoicesService,
     private val customerTokensService: POCustomerTokensService,
+    private val eventDispatcher: POEventDispatcher = POEventDispatcher,
     private var logAttributes: Map<String, String> = logAttributes(
         invoiceId = configuration.invoiceRequest.invoiceId
     )
@@ -56,7 +60,12 @@ internal class SavedPaymentMethodsInteractor(
 
     init {
         interactorScope.launch {
+            POLogger.info("Starting saved payment methods.")
+            dispatch(WillStart)
+            dispatchFailure()
             fetchPaymentMethods()
+            POLogger.info("Started.")
+            dispatch(DidStart)
         }
     }
 
@@ -151,6 +160,7 @@ internal class SavedPaymentMethodsInteractor(
     }
 
     private fun delete(customerTokenId: String) {
+        val customerId = _state.value.customerId ?: return
         interactorScope.launch {
             update(
                 customerTokenId = customerTokenId,
@@ -159,7 +169,7 @@ internal class SavedPaymentMethodsInteractor(
             )
             customerTokensService.deleteCustomerToken(
                 PODeleteCustomerTokenRequest(
-                    customerId = _state.value.customerId ?: String(),
+                    customerId = customerId,
                     tokenId = customerTokenId,
                     clientSecret = configuration.invoiceRequest.clientSecret ?: String()
                 )
@@ -170,6 +180,12 @@ internal class SavedPaymentMethodsInteractor(
                             .filterNot { it.customerTokenId == customerTokenId }
                     )
                 }
+                dispatch(
+                    DidDeleteCustomerToken(
+                        customerId = customerId,
+                        tokenId = customerTokenId
+                    )
+                )
             }.onFailure {
                 update(
                     customerTokenId = customerTokenId,
@@ -205,6 +221,22 @@ internal class SavedPaymentMethodsInteractor(
                     message = "Cancelled by the user with cancel action."
                 ).also { POLogger.info("Cancelled: %s", it) }
             )
+        }
+    }
+
+    private fun dispatch(event: POSavedPaymentMethodsEvent) {
+        interactorScope.launch {
+            eventDispatcher.send(event)
+        }
+    }
+
+    private fun dispatchFailure() {
+        interactorScope.launch {
+            _completion.collect {
+                if (it is Failure) {
+                    dispatch(DidFail(it.failure))
+                }
+            }
         }
     }
 }
