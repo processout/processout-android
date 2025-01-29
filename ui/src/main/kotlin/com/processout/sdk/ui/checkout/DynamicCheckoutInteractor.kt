@@ -62,6 +62,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent
 import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
+import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsConfiguration
 import com.processout.sdk.ui.shared.extension.orElse
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
@@ -132,6 +133,7 @@ internal class DynamicCheckoutInteractor(
         collectTokenizedCard()
         collectPreferredScheme()
         collectDefaultValues()
+        collectSavedPaymentMethodsConfiguration()
         fetchConfiguration()
     }
 
@@ -588,11 +590,27 @@ internal class DynamicCheckoutInteractor(
 
     private fun onSavedPaymentMethodsAction() {
         interactorScope.launch {
-            _sideEffects.send(
-                DynamicCheckoutSideEffect.SavedPaymentMethods(
-                    invoiceRequest = configuration.invoiceRequest
+            eventDispatcher.send(
+                DynamicCheckoutSavedPaymentMethodsRequest(
+                    configuration = POSavedPaymentMethodsConfiguration(
+                        invoiceRequest = configuration.invoiceRequest
+                    )
                 )
             )
+        }
+    }
+
+    private fun collectSavedPaymentMethodsConfiguration() {
+        eventDispatcher.subscribeForResponse<DynamicCheckoutSavedPaymentMethodsResponse>(
+            coroutineScope = interactorScope
+        ) { response ->
+            interactorScope.launch {
+                _sideEffects.send(
+                    DynamicCheckoutSideEffect.SavedPaymentMethods(
+                        configuration = response.configuration
+                    )
+                )
+            }
         }
     }
 

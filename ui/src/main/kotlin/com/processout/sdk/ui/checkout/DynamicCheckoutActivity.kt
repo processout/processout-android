@@ -57,7 +57,6 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.DEFAULT_TIMEOUT_SECONDS
-import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsConfiguration
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsDelegate
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsLauncher
 import com.processout.sdk.ui.shared.configuration.POBarcodeConfiguration
@@ -263,11 +262,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                     returnUrl = sideEffect.returnUrl
                 )
             }
-            is SavedPaymentMethods -> savedPaymentMethodsLauncher.launch(
-                POSavedPaymentMethodsConfiguration(
-                    invoiceRequest = sideEffect.invoiceRequest
-                )
-            )
+            is SavedPaymentMethods -> savedPaymentMethodsLauncher.launch(sideEffect.configuration)
             is PermissionRequest -> requestPermission(sideEffect)
             is CancelWebAuthorization -> cancelWebAuthorization()
         }
