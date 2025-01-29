@@ -94,6 +94,7 @@ class PODynamicCheckoutLauncher private constructor(
         dispatchInvoiceAuthorizationRequest()
         dispatchPreferredScheme()
         dispatchDefaultValues()
+        dispatchSavedPaymentMethodsConfiguration()
         dispatch3DSService()
     }
 
@@ -158,6 +159,17 @@ class PODynamicCheckoutLauncher private constructor(
             scope.launch {
                 val defaultValues = delegate.defaultValues(request)
                 eventDispatcher.send(request.toResponse(defaultValues))
+            }
+        }
+    }
+
+    private fun dispatchSavedPaymentMethodsConfiguration() {
+        eventDispatcher.subscribeForRequest<DynamicCheckoutSavedPaymentMethodsRequest>(
+            coroutineScope = scope
+        ) { request ->
+            scope.launch {
+                val configuration = delegate.savedPaymentMethods(request.configuration)
+                eventDispatcher.send(request.toResponse(configuration))
             }
         }
     }

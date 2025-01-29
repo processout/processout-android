@@ -8,6 +8,7 @@ import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.POInvoice
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsConfiguration
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -45,4 +46,8 @@ interface PODynamicCheckoutDelegate {
     suspend fun defaultValues(
         request: PONativeAlternativePaymentMethodDefaultValuesRequest
     ): Map<String, String> = emptyMap()
+
+    suspend fun savedPaymentMethods(
+        configuration: POSavedPaymentMethodsConfiguration
+    ): POSavedPaymentMethodsConfiguration = configuration
 }
