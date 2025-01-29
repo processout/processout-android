@@ -247,7 +247,6 @@ private fun ExpressCheckoutHeader(
                         minWidth = dimensions.buttonIconSizeSmall,
                         minHeight = dimensions.buttonIconSizeSmall
                     ),
-                enabled = action.enabled,
                 style = style.trailingButton,
                 icon = action.icon,
                 iconSize = dimensions.iconSizeSmall
