@@ -3,6 +3,7 @@ package com.processout.sdk.ui.checkout
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
 import com.processout.sdk.api.model.event.PODynamicCheckoutEvent
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
+import com.processout.sdk.api.model.event.POSavedPaymentMethodsEvent
 import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.POInvoice
@@ -17,6 +18,8 @@ interface PODynamicCheckoutDelegate {
     fun onEvent(event: POCardTokenizationEvent) {}
 
     fun onEvent(event: PONativeAlternativePaymentMethodEvent) {}
+
+    fun onEvent(event: POSavedPaymentMethodsEvent) {}
 
     /**
      * __Note:__ please make sure to invalidate current invoice before creating the new one.
