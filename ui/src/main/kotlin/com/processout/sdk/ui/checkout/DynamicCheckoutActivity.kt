@@ -26,6 +26,8 @@ import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
+import com.processout.sdk.api.model.event.POSavedPaymentMethodsEvent
+import com.processout.sdk.api.model.event.POSavedPaymentMethodsEvent.DidDeleteCustomerToken
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.model.response.POGooglePayCardTokenizationData
@@ -190,8 +192,8 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         )
         savedPaymentMethodsLauncher = POSavedPaymentMethodsLauncher.create(
             from = this,
-            delegate = object : POSavedPaymentMethodsDelegate {},
-            callback = ::handleSavedPaymentMethods
+            delegate = savedPaymentMethodsDelegate,
+            callback = {}
         )
         setContent {
             val isLightTheme = !isSystemInDarkTheme()
@@ -295,8 +297,12 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         }
     }
 
-    private fun handleSavedPaymentMethods(result: ProcessOutActivityResult<POUnit>) {
-        // TODO
+    private val savedPaymentMethodsDelegate = object : POSavedPaymentMethodsDelegate {
+        override fun onEvent(event: POSavedPaymentMethodsEvent) {
+            if (event is DidDeleteCustomerToken) {
+                viewModel.onEvent(CustomerTokenDeleted(tokenId = event.tokenId))
+            }
+        }
     }
 
     private fun requestPermission(request: PermissionRequest) {

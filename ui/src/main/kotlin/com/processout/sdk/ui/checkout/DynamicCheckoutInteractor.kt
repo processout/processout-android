@@ -417,6 +417,7 @@ internal class DynamicCheckoutInteractor(
             is GooglePayResult -> handleGooglePay(event.paymentMethodId, event.result)
             is AlternativePaymentResult -> handleAlternativePayment(event.paymentMethodId, event.result)
             is PermissionRequestResult -> handlePermission(event)
+            is CustomerTokenDeleted -> deleteLocalCustomerToken(event.tokenId)
             is Dismiss -> dismiss(event)
         }
     }
@@ -1005,6 +1006,14 @@ internal class DynamicCheckoutInteractor(
                 )
             )
             else -> {}
+        }
+    }
+
+    private fun deleteLocalCustomerToken(tokenId: String) {
+        _state.update { state ->
+            state.copy(
+                paymentMethods = state.paymentMethods
+                    .filterNot { it.id == tokenId })
         }
     }
 

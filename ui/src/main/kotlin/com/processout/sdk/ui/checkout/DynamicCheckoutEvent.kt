@@ -55,6 +55,10 @@ internal sealed interface DynamicCheckoutEvent {
         val isGranted: Boolean
     ) : DynamicCheckoutEvent
 
+    data class CustomerTokenDeleted(
+        val tokenId: String
+    ) : DynamicCheckoutEvent
+
     data class Dismiss(
         val failure: ProcessOutResult.Failure
     ) : DynamicCheckoutEvent
