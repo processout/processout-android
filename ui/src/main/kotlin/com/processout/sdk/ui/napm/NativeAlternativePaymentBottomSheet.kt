@@ -42,7 +42,7 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
         val tag: String = NativeAlternativePaymentBottomSheet::class.java.simpleName
     }
 
-    override val expandable = true
+    override var expandable = true
     override val defaultViewHeight by lazy { 460.dpToPx(requireContext()) }
     private val maxPeekHeight by lazy { (screenHeight * 0.8).roundToInt() }
 

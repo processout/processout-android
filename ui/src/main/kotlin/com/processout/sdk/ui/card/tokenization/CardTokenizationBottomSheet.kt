@@ -34,7 +34,7 @@ internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCar
         val tag: String = CardTokenizationBottomSheet::class.java.simpleName
     }
 
-    override val expandable = false
+    override var expandable = false
     override val defaultViewHeight by lazy { screenHeight }
 
     private var configuration: POCardTokenizationConfiguration? = null
@@ -79,7 +79,10 @@ internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCar
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        configuration?.let { apply(it.bottomSheet.cancellation) }
+        configuration?.let {
+            expandable = it.bottomSheet.expandable
+            apply(it.bottomSheet.cancellation)
+        }
     }
 
     private fun handle(completion: CardTokenizationCompletion) =
