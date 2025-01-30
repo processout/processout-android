@@ -117,7 +117,7 @@ internal class CardTokenizationViewModel private constructor(
                     }
                 )
             },
-            draggable = cancellation.dragDown
+            draggable = bottomSheet.cancellation.dragDown
         )
     }
 

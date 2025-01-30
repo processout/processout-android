@@ -79,7 +79,7 @@ internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCar
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        configuration?.let { apply(it.cancellation) }
+        configuration?.let { apply(it.bottomSheet.cancellation) }
     }
 
     private fun handle(completion: CardTokenizationCompletion) =
