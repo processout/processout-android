@@ -14,8 +14,8 @@ import kotlinx.parcelize.Parcelize
  * Defines card tokenization configuration.
  *
  * @param[title] Custom title.
- * @param[cvcRequired] Specifies whether the card CVC should be collected. Default value is _true_.
- * @param[isCardholderNameFieldVisible] Specifies whether the cardholder name field should be displayed. Default value is _true_.
+ * @param[cvcRequired] Specifies whether the CVC field should be displayed. Default value is _true_.
+ * @param[cardholderNameRequired] Specifies whether the cardholder name field should be displayed. Default value is _true_.
  * @param[billingAddress] Allows to customize the collection of billing address.
  * @param[savingAllowed] Displays checkbox that allows to save the card details for future payments.
  * @param[submitButton] Submit button configuration.
@@ -28,7 +28,7 @@ import kotlinx.parcelize.Parcelize
 data class POCardTokenizationConfiguration(
     val title: String? = null,
     val cvcRequired: Boolean = true,
-    val isCardholderNameFieldVisible: Boolean = true,
+    val cardholderNameRequired: Boolean = true,
     val billingAddress: BillingAddressConfiguration = BillingAddressConfiguration(),
     val savingAllowed: Boolean = false,
     val submitButton: Button = Button(),
@@ -42,7 +42,7 @@ data class POCardTokenizationConfiguration(
      * Defines card tokenization configuration.
      *
      * @param[title] Custom title.
-     * @param[cvcRequired] Specifies whether the card CVC should be collected. Default value is _true_.
+     * @param[cvcRequired] Specifies whether the CVC field should be displayed. Default value is _true_.
      * @param[isCardholderNameFieldVisible] Specifies whether the cardholder name field should be displayed. Default value is _true_.
      * @param[billingAddress] Allows to customize the collection of billing address.
      * @param[savingAllowed] Displays checkbox that allows to save the card details for future payments.
@@ -67,7 +67,7 @@ data class POCardTokenizationConfiguration(
     ) : this(
         title = title,
         cvcRequired = cvcRequired,
-        isCardholderNameFieldVisible = isCardholderNameFieldVisible,
+        cardholderNameRequired = isCardholderNameFieldVisible,
         billingAddress = billingAddress,
         savingAllowed = savingAllowed,
         submitButton = Button(text = primaryActionText),

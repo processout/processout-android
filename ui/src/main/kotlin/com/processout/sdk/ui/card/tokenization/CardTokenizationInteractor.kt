@@ -129,7 +129,7 @@ internal class CardTokenizationInteractor(
         ),
         Field(
             id = CardFieldId.CARDHOLDER,
-            shouldCollect = configuration.isCardholderNameFieldVisible
+            shouldCollect = configuration.cardholderNameRequired
         )
     )
 
