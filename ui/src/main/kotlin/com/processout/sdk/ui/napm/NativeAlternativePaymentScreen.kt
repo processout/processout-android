@@ -99,13 +99,13 @@ internal fun NativeAlternativePaymentScreen(
         bottomBar = {
             DynamicFooter {
                 Actions(
-                    modifier = Modifier.onGloballyPositioned {
-                        bottomBarHeight = it.size.height
-                    },
                     state = state,
                     onEvent = onEvent,
                     containerStyle = style.actionsContainer,
-                    dialogStyle = style.dialog
+                    dialogStyle = style.dialog,
+                    modifier = Modifier.onGloballyPositioned {
+                        bottomBarHeight = it.size.height
+                    }
                 )
             }
         }
