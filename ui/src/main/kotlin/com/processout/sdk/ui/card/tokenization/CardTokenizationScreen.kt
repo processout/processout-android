@@ -5,9 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
@@ -16,6 +14,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
@@ -33,25 +32,36 @@ import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
-import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.shared.component.DynamicFooter
 import com.processout.sdk.ui.shared.component.rememberLifecycleEvent
+import com.processout.sdk.ui.shared.extension.dpToPx
 import com.processout.sdk.ui.shared.state.FieldState
 
 @Composable
 internal fun CardTokenizationScreen(
     state: CardTokenizationViewModelState,
     onEvent: (CardTokenizationEvent) -> Unit,
+    onContentHeightChanged: (Int) -> Unit,
     style: CardTokenizationScreen.Style = CardTokenizationScreen.style()
 ) {
+    var topBarHeight by remember { mutableIntStateOf(0) }
+    var bottomBarHeight by remember { mutableIntStateOf(0) }
     Scaffold(
         modifier = Modifier
             .nestedScroll(rememberNestedScrollInteropConnection())
-            .clip(shape = ProcessOutTheme.shapes.topRoundedCornersLarge),
+            .clip(shape = shapes.topRoundedCornersLarge),
         containerColor = style.backgroundColor,
         topBar = {
             POHeader(
-                modifier = Modifier.verticalScroll(rememberScrollState()),
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .onGloballyPositioned {
+                        topBarHeight = it.size.height
+                    },
                 title = state.title,
                 style = style.title,
                 dividerColor = style.dividerColor,
@@ -65,7 +75,10 @@ internal fun CardTokenizationScreen(
                     primary = state.primaryAction,
                     secondary = state.secondaryAction,
                     onEvent = onEvent,
-                    style = style.actionsContainer
+                    style = style.actionsContainer,
+                    modifier = Modifier.onGloballyPositioned {
+                        bottomBarHeight = it.size.height
+                    }
                 )
             }
         }
@@ -75,13 +88,21 @@ internal fun CardTokenizationScreen(
                 .fillMaxSize()
                 .padding(scaffoldPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(ProcessOutTheme.spacing.extraLarge)
+                .padding(spacing.extraLarge)
         ) {
-            Sections(
-                state = state,
-                onEvent = onEvent,
-                style = style
-            )
+            val verticalSpacingPx = (spacing.extraLarge * 4 + 10.dp).dpToPx()
+            Column(
+                modifier = Modifier.onGloballyPositioned {
+                    val contentHeight = it.size.height + topBarHeight + bottomBarHeight + verticalSpacingPx
+                    onContentHeightChanged(contentHeight)
+                }
+            ) {
+                Sections(
+                    state = state,
+                    onEvent = onEvent,
+                    style = style
+                )
+            }
         }
     }
 }
@@ -98,14 +119,14 @@ private fun Sections(
     val lifecycleEvent = rememberLifecycleEvent()
     state.sections.elements.forEachIndexed { index, section ->
         val padding = if (section.id == FUTURE_PAYMENTS) {
-            ProcessOutTheme.spacing.small
+            spacing.small
         } else when (index) {
             0 -> 0.dp
-            else -> ProcessOutTheme.spacing.extraLarge
+            else -> spacing.extraLarge
         }
         Spacer(Modifier.requiredHeight(padding))
         Column(
-            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
+            verticalArrangement = Arrangement.spacedBy(spacing.small)
         ) {
             section.title?.let {
                 with(style.sectionTitle) {
@@ -133,7 +154,7 @@ private fun Sections(
             style = style.errorMessage,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = ProcessOutTheme.spacing.small)
+                .padding(top = spacing.small)
         )
     }
 }
@@ -172,7 +193,7 @@ private fun Item(
             modifier = modifier
         )
         is Item.Group -> Row(
-            horizontalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.small)
+            horizontalArrangement = Arrangement.spacedBy(spacing.small)
         ) {
             item.items.elements.forEach { groupItem ->
                 Item(
@@ -305,7 +326,7 @@ private fun AnimatedFieldIcon(@DrawableRes id: Int) {
     POAnimatedImage(
         id = id,
         modifier = Modifier
-            .requiredHeight(ProcessOutTheme.dimensions.formComponentMinHeight)
+            .requiredHeight(dimensions.formComponentMinHeight)
             .padding(POField.contentPadding),
         contentScale = ContentScale.FillHeight
     )
@@ -316,11 +337,13 @@ private fun Actions(
     primary: POActionState,
     secondary: POActionState?,
     onEvent: (CardTokenizationEvent) -> Unit,
-    style: POActionsContainer.Style
+    style: POActionsContainer.Style,
+    modifier: Modifier = Modifier
 ) {
     val actions = mutableListOf(primary)
     secondary?.let { actions.add(it) }
     POActionsContainer(
+        modifier = modifier,
         actions = POImmutableList(
             if (style.axis == POAxis.Horizontal) actions.reversed() else actions
         ),
@@ -370,12 +393,12 @@ internal object CardTokenizationScreen {
         } ?: POActionsContainer.default,
         backgroundColor = custom?.backgroundColorResId?.let {
             colorResource(id = it)
-        } ?: ProcessOutTheme.colors.surface.default,
+        } ?: colors.surface.default,
         dividerColor = custom?.dividerColorResId?.let {
             colorResource(id = it)
-        } ?: ProcessOutTheme.colors.border.subtle,
+        } ?: colors.border.subtle,
         dragHandleColor = custom?.dragHandleColorResId?.let {
             colorResource(id = it)
-        } ?: ProcessOutTheme.colors.border.subtle
+        } ?: colors.border.subtle
     )
 }
