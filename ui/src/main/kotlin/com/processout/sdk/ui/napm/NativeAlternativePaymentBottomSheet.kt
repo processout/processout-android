@@ -28,8 +28,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.PermissionReques
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.AnimationDurationMillis
 import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.PermissionRequest
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Capture
-import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
-import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.SubmitButton
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Button
 import com.processout.sdk.ui.shared.component.isImeVisibleAsState
 import com.processout.sdk.ui.shared.component.screenModeAsState
 import com.processout.sdk.ui.shared.extension.collectImmediately
@@ -52,9 +51,11 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
     private val viewModel: NativeAlternativePaymentViewModel by viewModels {
         NativeAlternativePaymentViewModel.Factory(
             app = requireActivity().application,
-            invoiceId = configuration?.invoiceId ?: String(),
-            gatewayConfigurationId = configuration?.gatewayConfigurationId ?: String(),
-            options = configuration?.options ?: Options(submitButton = SubmitButton()),
+            configuration = configuration ?: PONativeAlternativePaymentConfiguration(
+                invoiceId = String(),
+                gatewayConfigurationId = String(),
+                submitButton = Button()
+            ),
             eventDispatcher = PODefaultEventDispatchers.defaultNativeAlternativePaymentMethod
         )
     }
@@ -73,7 +74,7 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
                 dismiss(
                     ProcessOutResult.Failure(
                         code = POFailure.Code.Generic(),
-                        message = "Invalid configuration."
+                        message = "Invalid configuration: 'invoiceId' and 'gatewayConfigurationId' is required."
                     )
                 )
                 return
@@ -132,7 +133,7 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        configuration?.let { apply(it.options.cancellation) }
+        configuration?.let { apply(it.cancellation) }
     }
 
     private fun handle(sideEffect: NativeAlternativePaymentSideEffect) {

@@ -36,6 +36,7 @@ import com.processout.sdk.ui.core.component.field.radio.POLabeledRadioField
 import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
 import com.processout.sdk.ui.core.component.field.text.POLabeledTextField
 import com.processout.sdk.ui.core.state.POImmutableList
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.*
@@ -402,9 +403,11 @@ private fun Capture(
                                 )
                             )
                         },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .requiredHeightIn(min = dimensions.interactiveComponentMinSize),
                         style = style.actionsContainer.primary,
-                        iconResId = action.iconResId
+                        icon = action.icon
                     )
                 }
                 state.saveBarcodeAction?.let { action ->
@@ -418,9 +421,11 @@ private fun Capture(
                                 )
                             )
                         },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .requiredHeightIn(min = dimensions.interactiveComponentMinSize),
                         style = style.actionsContainer.secondary,
-                        iconResId = action.iconResId
+                        icon = action.icon
                     )
                 }
             }

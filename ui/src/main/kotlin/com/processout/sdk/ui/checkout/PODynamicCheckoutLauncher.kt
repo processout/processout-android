@@ -11,6 +11,7 @@ import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
 import com.processout.sdk.api.model.event.PODynamicCheckoutEvent
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
+import com.processout.sdk.api.model.event.POSavedPaymentMethodsEvent
 import com.processout.sdk.api.model.request.POCardTokenizationPreferredSchemeRequest
 import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceAuthorizationRequest
 import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceRequest
@@ -93,6 +94,7 @@ class PODynamicCheckoutLauncher private constructor(
         dispatchInvoiceAuthorizationRequest()
         dispatchPreferredScheme()
         dispatchDefaultValues()
+        dispatchSavedPaymentMethodsConfiguration()
         dispatch3DSService()
     }
 
@@ -104,6 +106,9 @@ class PODynamicCheckoutLauncher private constructor(
             coroutineScope = scope
         ) { delegate.onEvent(it) }
         eventDispatcher.subscribe<PONativeAlternativePaymentMethodEvent>(
+            coroutineScope = scope
+        ) { delegate.onEvent(it) }
+        eventDispatcher.subscribe<POSavedPaymentMethodsEvent>(
             coroutineScope = scope
         ) { delegate.onEvent(it) }
     }
@@ -154,6 +159,17 @@ class PODynamicCheckoutLauncher private constructor(
             scope.launch {
                 val defaultValues = delegate.defaultValues(request)
                 eventDispatcher.send(request.toResponse(defaultValues))
+            }
+        }
+    }
+
+    private fun dispatchSavedPaymentMethodsConfiguration() {
+        eventDispatcher.subscribeForRequest<DynamicCheckoutSavedPaymentMethodsRequest>(
+            coroutineScope = scope
+        ) { request ->
+            scope.launch {
+                val configuration = delegate.savedPaymentMethods(request.configuration)
+                eventDispatcher.send(request.toResponse(configuration))
             }
         }
     }

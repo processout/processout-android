@@ -4,6 +4,7 @@
     <string name="po_locale_language_code">pl</string>
 
     <!-- Dynamic Checkout -->
+    <string name="po_dynamic_checkout_express_checkout">Szybka płatność</string>
     <string name="po_dynamic_checkout_button_pay">Zapłać</string>
     <string name="po_dynamic_checkout_button_cancel">Anuluj</string>
     <string name="po_dynamic_checkout_save_payment_method">Zapisz tę metodę płatności na przyszłe płatności</string>
@@ -11,6 +12,12 @@
     <string name="po_dynamic_checkout_error_generic">Nie byliśmy w stanie sfinalizować Twojej płatności. Zweryfikuj swoje dane lub wybierz inną metody płatności.</string>
     <string name="po_dynamic_checkout_error_method_unavailable">Wybrana metoda płatności nie jest obsługiwana. Proszę wybierz inną metodę.</string>
     <string name="po_dynamic_checkout_success_message">Sukces!\nPłatność przyjęta.</string>
+
+    <!-- Saved Payment Methods -->
+    <string name="po_saved_payment_methods_title">Zarządzaj zapisanymi metodami płatności</string>
+    <string name="po_saved_payment_methods_empty_message">Brak zapisanych metod płatności</string>
+    <string name="po_saved_payment_methods_empty_description">Gdy następnym razem zapiszesz metodę płatności, pojawi się tutaj.</string>
+    <string name="po_saved_payment_methods_error_generic">Coś poszło nie tak, spróbuj ponownie.</string>
 
     <!-- Native Alternative Payment Method -->
     <string name="po_native_apm_title_format">Zapłać przy pomocy %s</string>
@@ -95,5 +102,10 @@
     <string name="po_cancel_confirmation_title">Anulować?</string>
     <string name="po_cancel_confirmation_confirm">Anuluj</string>
     <string name="po_cancel_confirmation_dismiss">Nie teraz</string>
+
+    <!-- Delete Confirmation -->
+    <string name="po_delete_confirmation_title">Czy na pewno chcesz usunąć ten element?</string>
+    <string name="po_delete_confirmation_confirm">Usuń</string>
+    <string name="po_delete_confirmation_cancel">Anuluj</string>
 
 </resources>

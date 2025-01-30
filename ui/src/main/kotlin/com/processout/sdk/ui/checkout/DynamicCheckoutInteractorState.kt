@@ -10,8 +10,7 @@ internal data class DynamicCheckoutInteractorState(
     val loading: Boolean,
     val invoice: POInvoice?,
     val paymentMethods: List<PaymentMethod>,
-    val submitActionId: String,
-    val cancelActionId: String,
+    val actions: Actions = Actions(),
     val selectedPaymentMethod: PaymentMethod? = null,
     val processingPaymentMethod: PaymentMethod? = null,
     val pendingSubmitPaymentMethod: PaymentMethod? = null,
@@ -69,6 +68,12 @@ internal data class DynamicCheckoutInteractorState(
         val value: TextFieldValue = TextFieldValue()
     )
 
+    data class Actions(
+        val submitId: String = ActionId.SUBMIT,
+        val cancelId: String = ActionId.CANCEL,
+        val savedPaymentMethodsId: String = ActionId.SAVED_PAYMENT_METHODS
+    )
+
     object PaymentMethodId {
         const val CARD = "card"
     }
@@ -80,5 +85,6 @@ internal data class DynamicCheckoutInteractorState(
     object ActionId {
         const val SUBMIT = "dc-submit"
         const val CANCEL = "dc-cancel"
+        const val SAVED_PAYMENT_METHODS = "dc-saved-payment-methods"
     }
 }

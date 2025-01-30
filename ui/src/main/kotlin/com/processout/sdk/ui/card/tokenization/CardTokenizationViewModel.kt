@@ -96,7 +96,7 @@ internal class CardTokenizationViewModel private constructor(
                 primary = true,
                 enabled = state.submitAllowed,
                 loading = state.submitting,
-                iconResId = submitButton.iconResId
+                icon = submitButton.icon
             ),
             secondaryAction = cancelButton?.let {
                 POActionState(
@@ -104,7 +104,7 @@ internal class CardTokenizationViewModel private constructor(
                     text = it.text ?: app.getString(R.string.po_card_tokenization_button_cancel),
                     primary = false,
                     enabled = !state.submitting,
-                    iconResId = it.iconResId,
+                    icon = it.icon,
                     confirmation = it.confirmation?.run {
                         Confirmation(
                             title = title ?: app.getString(R.string.po_cancel_confirmation_title),

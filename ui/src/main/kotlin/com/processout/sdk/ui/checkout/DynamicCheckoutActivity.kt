@@ -26,6 +26,8 @@ import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
+import com.processout.sdk.api.model.event.POSavedPaymentMethodsEvent
+import com.processout.sdk.api.model.event.POSavedPaymentMethodsEvent.DidDeleteCustomerToken
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.model.response.POGooglePayCardTokenizationData
@@ -46,16 +48,17 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Failure
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Success
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutSideEffect.*
+import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.Button
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.CancelButton
-import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.SubmitButton
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.googlepay.POGooglePayCardTokenizationLauncher
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
-import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.DEFAULT_TIMEOUT_SECONDS
+import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsDelegate
+import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsLauncher
 import com.processout.sdk.ui.shared.configuration.POBarcodeConfiguration
 import com.processout.sdk.ui.shared.extension.collectImmediately
 import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivity
@@ -80,9 +83,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         val nativeAlternativePayment: NativeAlternativePaymentViewModel by viewModels {
             NativeAlternativePaymentViewModel.Factory(
                 app = application,
-                invoiceId = configuration?.invoiceRequest?.invoiceId ?: String(),
-                gatewayConfigurationId = String(),
-                options = nativeAlternativePaymentConfiguration(),
+                configuration = nativeAlternativePaymentConfiguration(),
                 eventDispatcher = nativeAlternativePaymentEventDispatcher
             )
         }
@@ -106,15 +107,15 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                 attachDefaultsToPaymentMethod = billingAddress?.attachDefaultsToPaymentMethod ?: false
             ),
             submitButton = configuration?.submitButton?.let {
-                POCardTokenizationConfiguration.SubmitButton(
+                POCardTokenizationConfiguration.Button(
                     text = it.text,
-                    iconResId = it.iconResId
+                    icon = it.icon
                 )
-            } ?: POCardTokenizationConfiguration.SubmitButton(),
+            } ?: POCardTokenizationConfiguration.Button(),
             cancelButton = configuration?.cancelButton?.let {
                 POCardTokenizationConfiguration.CancelButton(
                     text = it.text,
-                    iconResId = it.iconResId,
+                    icon = it.icon,
                     confirmation = it.confirmation
                 )
             },
@@ -122,10 +123,12 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         )
     }
 
-    private fun nativeAlternativePaymentConfiguration(): Options {
+    private fun nativeAlternativePaymentConfiguration(): PONativeAlternativePaymentConfiguration {
         val paymentConfirmation = configuration?.alternativePayment?.paymentConfirmation
-        return Options(
-            submitButton = configuration?.submitButton?.map() ?: PONativeAlternativePaymentConfiguration.SubmitButton(),
+        return PONativeAlternativePaymentConfiguration(
+            invoiceId = configuration?.invoiceRequest?.invoiceId ?: String(),
+            gatewayConfigurationId = String(),
+            submitButton = configuration?.submitButton?.map() ?: PONativeAlternativePaymentConfiguration.Button(),
             cancelButton = configuration?.cancelButton?.map(),
             paymentConfirmation = PaymentConfirmationConfiguration(
                 waitsConfirmation = true,
@@ -142,14 +145,14 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         )
     }
 
-    private fun SubmitButton.map() = PONativeAlternativePaymentConfiguration.SubmitButton(
+    private fun Button.map() = PONativeAlternativePaymentConfiguration.Button(
         text = text,
-        iconResId = iconResId
+        icon = icon
     )
 
     private fun CancelButton.map() = PONativeAlternativePaymentConfiguration.CancelButton(
         text = text,
-        iconResId = iconResId,
+        icon = icon,
         disabledForSeconds = disabledForSeconds,
         confirmation = confirmation
     )
@@ -159,6 +162,8 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
 
     private lateinit var alternativePaymentLauncher: POAlternativePaymentMethodCustomTabLauncher
     private var pendingAlternativePayment: AlternativePayment? = null
+
+    private lateinit var savedPaymentMethodsLauncher: POSavedPaymentMethodsLauncher
 
     private val permissionsLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions(),
@@ -184,6 +189,11 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
             from = this,
             callback = ::handleAlternativePayment
         )
+        savedPaymentMethodsLauncher = POSavedPaymentMethodsLauncher.create(
+            from = this,
+            delegate = savedPaymentMethodsDelegate,
+            callback = {}
+        )
         setContent {
             val isLightTheme = !isSystemInDarkTheme()
             ProcessOutTheme(isLightTheme = isLightTheme) {
@@ -193,6 +203,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                 viewModel.sideEffects.collectImmediately(
                     minActiveState = Lifecycle.State.CREATED
                 ) { handle(it) }
+
                 DynamicCheckoutScreen(
                     state = viewModel.state.collectAsStateWithLifecycle().value,
                     onEvent = remember { viewModel::onEvent },
@@ -215,7 +226,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                     Dismiss(
                         ProcessOutResult.Failure(
                             code = Generic(),
-                            message = "Invalid configuration."
+                            message = "Invalid configuration: 'invoiceId' is required."
                         )
                     )
                 )
@@ -251,6 +262,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                     returnUrl = sideEffect.returnUrl
                 )
             }
+            is SavedPaymentMethods -> savedPaymentMethodsLauncher.launch(sideEffect.configuration)
             is PermissionRequest -> requestPermission(sideEffect)
             is CancelWebAuthorization -> cancelWebAuthorization()
         }
@@ -277,6 +289,14 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                     result = result
                 )
             )
+        }
+    }
+
+    private val savedPaymentMethodsDelegate = object : POSavedPaymentMethodsDelegate {
+        override fun onEvent(event: POSavedPaymentMethodsEvent) {
+            if (event is DidDeleteCustomerToken) {
+                viewModel.onEvent(CustomerTokenDeleted(tokenId = event.tokenId))
+            }
         }
     }
 

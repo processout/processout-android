@@ -1,6 +1,5 @@
 package com.processout.sdk.ui.core.component
 
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -21,15 +20,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.core.component.POButton.ProgressIndicatorSize.Medium
+import com.processout.sdk.ui.core.component.POButton.ProgressIndicatorSize.Small
 import com.processout.sdk.ui.core.component.POButton.border
 import com.processout.sdk.ui.core.component.POButton.colors
 import com.processout.sdk.ui.core.component.POButton.contentPadding
 import com.processout.sdk.ui.core.component.POButton.elevation
 import com.processout.sdk.ui.core.extension.conditional
+import com.processout.sdk.ui.core.shared.image.PODrawableImage
+import com.processout.sdk.ui.core.shared.image.POImageRenderingMode.ORIGINAL
+import com.processout.sdk.ui.core.shared.image.POImageRenderingMode.TEMPLATE
+import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.style.POButtonDefaults
 import com.processout.sdk.ui.core.style.POButtonStateStyle
 import com.processout.sdk.ui.core.style.POButtonStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 
 /** @suppress */
@@ -43,7 +49,9 @@ fun POButton(
     enabled: Boolean = true,
     loading: Boolean = false,
     leadingContent: @Composable RowScope.() -> Unit = {},
-    @DrawableRes iconResId: Int? = null,
+    icon: PODrawableImage? = null,
+    iconSize: Dp = dimensions.iconSizeMedium,
+    progressIndicatorSize: POButton.ProgressIndicatorSize = Medium,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
     val pressed by interactionSource.collectIsPressedAsState()
@@ -51,9 +59,7 @@ fun POButton(
     CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
         Button(
             onClick = onClick,
-            modifier = modifier.requiredHeightIn(
-                min = ProcessOutTheme.dimensions.interactiveComponentMinSize
-            ),
+            modifier = modifier,
             enabled = enabled && !loading,
             colors = colors,
             shape = if (enabled) style.normal.shape else style.disabled.shape,
@@ -64,7 +70,10 @@ fun POButton(
         ) {
             if (loading) {
                 Box(contentAlignment = Alignment.Center) {
-                    POCircularProgressIndicator.Small(color = style.progressIndicatorColor)
+                    when (progressIndicatorSize) {
+                        Small -> POCircularProgressIndicator.Small(color = style.progressIndicatorColor)
+                        Medium -> POCircularProgressIndicator.Medium(color = style.progressIndicatorColor)
+                    }
                     // This empty POText ensures that button height matches with provided text style while loading.
                     POText(
                         text = String(),
@@ -73,17 +82,22 @@ fun POButton(
                 }
             } else {
                 leadingContent()
-                iconResId?.let {
-                    val iconColor = if (enabled) colors.contentColor else colors.disabledContentColor
+                icon?.let {
+                    val iconColorFilter = when (it.renderingMode) {
+                        ORIGINAL -> null
+                        TEMPLATE -> ColorFilter.tint(
+                            color = if (enabled) colors.contentColor else colors.disabledContentColor
+                        )
+                    }
                     Image(
-                        painter = painterResource(it),
+                        painter = painterResource(it.resId),
                         contentDescription = null,
                         modifier = Modifier
                             .conditional(text.isNotBlank()) {
                                 padding(end = spacing.small)
                             }
-                            .requiredSize(20.dp),
-                        colorFilter = ColorFilter.tint(color = iconColor)
+                            .requiredSize(iconSize),
+                        colorFilter = iconColorFilter
                     )
                 }
                 POText(
@@ -91,6 +105,64 @@ fun POButton(
                     style = if (enabled) style.normal.text.textStyle else style.disabled.text.textStyle,
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1
+                )
+            }
+        }
+    }
+}
+
+/** @suppress */
+@ProcessOutInternalApi
+@Composable
+fun POButton(
+    state: POActionState,
+    onClick: (ActionId) -> Unit,
+    modifier: Modifier = Modifier,
+    style: POButton.Style = POButton.primary,
+    confirmationDialogStyle: PODialog.Style = PODialog.default,
+    onConfirmationRequested: ((ActionId) -> Unit)? = null,
+    leadingContent: @Composable RowScope.() -> Unit = {},
+    iconSize: Dp = dimensions.iconSizeMedium,
+    progressIndicatorSize: POButton.ProgressIndicatorSize = Medium,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+) {
+    with(state) {
+        var requestConfirmation by remember { mutableStateOf(false) }
+        POButton(
+            text = text,
+            onClick = {
+                if (confirmation != null) {
+                    requestConfirmation = true
+                    onConfirmationRequested?.invoke(id)
+                } else {
+                    onClick(id)
+                }
+            },
+            modifier = modifier,
+            style = style,
+            enabled = enabled,
+            loading = loading,
+            leadingContent = leadingContent,
+            icon = icon,
+            iconSize = iconSize,
+            progressIndicatorSize = progressIndicatorSize,
+            interactionSource = interactionSource
+        )
+        if (requestConfirmation) {
+            confirmation?.run {
+                PODialog(
+                    title = title,
+                    message = message,
+                    confirmActionText = confirmActionText,
+                    dismissActionText = dismissActionText,
+                    onConfirm = {
+                        onClick(id)
+                        requestConfirmation = false
+                    },
+                    onDismiss = {
+                        requestConfirmation = false
+                    },
+                    style = confirmationDialogStyle
                 )
             }
         }
@@ -126,6 +198,10 @@ object POButton {
         val borderColor: Color,
         val backgroundColor: Color
     )
+
+    enum class ProgressIndicatorSize {
+        Small, Medium
+    }
 
     val primary: Style
         @Composable get() = with(ProcessOutTheme) {
@@ -191,37 +267,49 @@ object POButton {
             )
         }
 
-    val tertiary: Style
+    val ghost: Style
         @Composable get() = with(ProcessOutTheme) {
             Style(
                 normal = StateStyle(
                     text = POText.Style(
                         color = colors.text.primary,
-                        textStyle = typography.body1
+                        textStyle = typography.button
                     ),
                     shape = shapes.roundedCornersSmall,
                     border = POBorderStroke(width = 0.dp, color = Color.Transparent),
                     backgroundColor = Color.Transparent,
-                    elevation = 0.dp,
-                    paddingHorizontal = spacing.large
+                    elevation = 0.dp
                 ),
                 disabled = StateStyle(
                     text = POText.Style(
                         color = colors.text.disabled,
-                        textStyle = typography.body1
+                        textStyle = typography.button
                     ),
                     shape = shapes.roundedCornersSmall,
                     border = POBorderStroke(width = 0.dp, color = Color.Transparent),
                     backgroundColor = Color.Transparent,
-                    elevation = 0.dp,
-                    paddingHorizontal = spacing.large
+                    elevation = 0.dp
                 ),
                 highlighted = HighlightedStyle(
                     textColor = colors.text.primary,
                     borderColor = Color.Transparent,
-                    backgroundColor = colors.button.tertiaryBackgroundPressed
+                    backgroundColor = colors.button.ghostBackgroundPressed
                 ),
                 progressIndicatorColor = colors.text.primary
+            )
+        }
+
+    val ghostEqualPadding: Style
+        @Composable get() = with(ghost) {
+            copy(
+                normal = normal.copy(
+                    paddingHorizontal = spacing.small,
+                    paddingVertical = spacing.small
+                ),
+                disabled = disabled.copy(
+                    paddingHorizontal = spacing.small,
+                    paddingVertical = spacing.small
+                )
             )
         }
 

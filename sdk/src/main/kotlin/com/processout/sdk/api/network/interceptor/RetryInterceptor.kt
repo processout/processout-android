@@ -41,7 +41,7 @@ internal class RetryInterceptor(
 
     private fun Request.addIdempotencyKey(): Request =
         when (method) {
-            "POST" -> newBuilder()
+            "POST", "PUT", "DELETE" -> newBuilder()
                 .header("Idempotency-Key", UUID.randomUUID().toString())
                 .build()
             else -> this

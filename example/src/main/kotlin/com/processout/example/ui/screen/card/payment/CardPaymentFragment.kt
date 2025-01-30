@@ -27,7 +27,7 @@ import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
-import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.SubmitButton
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.Button
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationLauncher
 import com.processout.sdk.ui.shared.view.dialog.POAlertDialog
 import com.processout.sdk.ui.threeds.PO3DSRedirectCustomTabLauncher
@@ -100,7 +100,7 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
         launcher.launch(
             POCardTokenizationConfiguration(
                 savingAllowed = true,
-                submitButton = SubmitButton()
+                submitButton = Button()
             )
         )
     }
@@ -179,7 +179,7 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
 
     private fun handleControls(uiState: CardPaymentUiState) {
         when (uiState) {
-            Initial -> enableControls(true)
+            Initial, is Failure -> enableControls(true)
             else -> enableControls(false)
         }
     }

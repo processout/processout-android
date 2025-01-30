@@ -1,4 +1,4 @@
-@file:Suppress("MayBeConstant", "MemberVisibilityCanBePrivate", "AnimateAsStateLabel", "CrossfadeLabel")
+@file:Suppress("MayBeConstant")
 
 package com.processout.sdk.ui.checkout.screen
 
@@ -44,6 +44,7 @@ import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.LongAnimation
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.PaymentLogoSize
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.PaymentSuccessStyle
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.RowComponentSpacing
+import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.SectionHeaderStyle
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.ShortAnimationDurationMillis
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.SuccessImageHeight
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.SuccessImageWidth
@@ -68,6 +69,7 @@ import com.processout.sdk.ui.core.style.POBrandButtonStyle
 import com.processout.sdk.ui.core.theme.PODarkColorPalette
 import com.processout.sdk.ui.core.theme.POLightColorPalette
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
@@ -107,18 +109,15 @@ internal fun DynamicCheckoutScreen(
             }
         ) { scaffoldPadding ->
             Crossfade(
-                targetState = when (state) {
-                    is Started -> state.successMessage != null
-                    else -> false
-                },
+                targetState = state is Success,
                 animationSpec = tween(
                     durationMillis = CrossfadeAnimationDurationMillis,
                     easing = LinearEasing
                 )
-            ) { isSuccess ->
-                if (isSuccess && state is Started) {
+            ) { crossfade ->
+                if (crossfade && state is Success) {
                     Success(
-                        message = state.successMessage ?: String(),
+                        message = state.message,
                         style = style.paymentSuccess
                     )
                 } else {
@@ -127,17 +126,18 @@ internal fun DynamicCheckoutScreen(
                             .fillMaxSize()
                             .padding(scaffoldPadding)
                             .verticalScroll(rememberScrollState()),
-                        verticalArrangement = if (state is Starting) Arrangement.Center else Arrangement.Top,
+                        verticalArrangement = if (state is Loading) Arrangement.Center else Arrangement.Top,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         when (state) {
-                            is Starting -> Loading(progressIndicatorColor = style.progressIndicatorColor)
-                            is Started -> Content(
+                            is Loading -> Loading(progressIndicatorColor = style.progressIndicatorColor)
+                            is Loaded -> Content(
                                 state = state,
                                 onEvent = onEvent,
                                 style = style,
                                 isLightTheme = isLightTheme
                             )
+                            else -> {}
                         }
                     }
                 }
@@ -155,7 +155,7 @@ private fun Loading(progressIndicatorColor: Color) {
 
 @Composable
 private fun Content(
-    state: Started,
+    state: Loaded,
     onEvent: (DynamicCheckoutEvent) -> Unit,
     style: DynamicCheckoutScreen.Style,
     isLightTheme: Boolean
@@ -167,13 +167,13 @@ private fun Content(
             POMessageBox(
                 text = state.errorMessage,
                 style = style.messageBox,
-                modifier = Modifier.padding(bottom = spacing.extraLarge),
+                modifier = Modifier.padding(bottom = spacing.large),
                 horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing),
                 enterAnimationDelayMillis = ShortAnimationDurationMillis
             )
-            if (state.expressPayments.elements.isNotEmpty()) {
-                ExpressPayments(
-                    payments = state.expressPayments,
+            state.expressCheckout?.let {
+                ExpressCheckout(
+                    state = it,
                     onEvent = onEvent,
                     style = style,
                     isLightTheme = isLightTheme
@@ -187,6 +187,70 @@ private fun Content(
                     isLightTheme = isLightTheme
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun ExpressCheckout(
+    state: ExpressCheckout,
+    onEvent: (DynamicCheckoutEvent) -> Unit,
+    style: DynamicCheckoutScreen.Style,
+    isLightTheme: Boolean
+) {
+    ExpressCheckoutHeader(
+        state = state.header,
+        onEvent = onEvent,
+        style = style.sectionHeader
+    )
+    ExpressPayments(
+        payments = state.expressPayments,
+        onEvent = onEvent,
+        style = style,
+        isLightTheme = isLightTheme
+    )
+}
+
+@Composable
+private fun ExpressCheckoutHeader(
+    state: SectionHeader,
+    onEvent: (DynamicCheckoutEvent) -> Unit,
+    style: SectionHeaderStyle,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = spacing.large),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        POText(
+            text = state.title,
+            modifier = Modifier.weight(1f, fill = false),
+            color = style.title.color,
+            style = style.title.textStyle
+        )
+        state.action?.let { action ->
+            POButton(
+                text = action.text,
+                onClick = {
+                    onEvent(
+                        Action(
+                            actionId = action.id,
+                            paymentMethodId = null
+                        )
+                    )
+                },
+                modifier = Modifier
+                    .padding(start = spacing.small)
+                    .requiredSizeIn(
+                        minWidth = dimensions.buttonIconSizeSmall,
+                        minHeight = dimensions.buttonIconSizeSmall
+                    ),
+                style = style.trailingButton,
+                icon = action.icon,
+                iconSize = dimensions.iconSizeSmall
+            )
         }
     }
 }
@@ -267,7 +331,9 @@ private fun ExpressPayment(
                     )
                 )
             },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .requiredHeightIn(min = dimensions.interactiveComponentMinSize),
             style = style.toButtonStyle(
                 brandColor = payment.brandColor,
                 isLightTheme = isLightTheme
@@ -294,16 +360,18 @@ private fun RegularPayments(
     isLightTheme: Boolean
 ) {
     val borderWidth = style.regularPayment.border.width
+    val borderColor = style.regularPayment.border.color
     val containerShape = style.regularPayment.shape
     Column(
         modifier = Modifier
             .border(
                 width = borderWidth,
-                color = style.regularPayment.border.color,
+                color = borderColor,
                 shape = containerShape
             )
             .clip(shape = containerShape)
-            .padding(borderWidth),
+            .padding(borderWidth)
+            .background(style.regularPayment.backgroundColor)
     ) {
         payments.elements.forEachIndexed { index, payment ->
             RegularPayment(
@@ -320,7 +388,7 @@ private fun RegularPayments(
             if (index != payments.elements.lastIndex) {
                 HorizontalDivider(
                     thickness = borderWidth,
-                    color = style.regularPayment.border.color
+                    color = borderColor
                 )
             }
         }
@@ -364,7 +432,7 @@ private fun RegularPayment(
         )
         with(payment.state) {
             if (selected && loading) {
-                POCircularProgressIndicator.Small(color = style.progressIndicatorColor)
+                POCircularProgressIndicator.Medium(color = style.progressIndicatorColor)
             }
         }
         PORadioButton(
@@ -439,12 +507,13 @@ private fun RegularPaymentContent(
                             )
                         },
                         modifier = Modifier
+                            .padding(top = spacing.extraLarge)
                             .fillMaxWidth()
-                            .padding(top = spacing.extraLarge),
+                            .requiredHeightIn(min = dimensions.interactiveComponentMinSize),
                         style = style.actionsContainer.primary,
                         enabled = enabled,
                         loading = loading,
-                        iconResId = iconResId
+                        icon = icon
                     )
                 }
             }
@@ -543,8 +612,9 @@ private fun Actions(
 ) {
     val actions = mutableListOf<POActionState>()
     val cancelAction: POActionState? = when (state) {
-        is Starting -> state.cancelAction
-        is Started -> state.cancelAction
+        is Loading -> state.cancelAction
+        is Loaded -> state.cancelAction
+        else -> null
     }
     cancelAction?.let { actions.add(it) }
     POActionsContainer(
@@ -559,7 +629,7 @@ private fun Actions(
         },
         onConfirmationRequested = { onEvent(ActionConfirmationRequested(id = it)) },
         containerStyle = containerStyle,
-        dialogStyle = dialogStyle,
+        confirmationDialogStyle = dialogStyle,
         animationDurationMillis = CrossfadeAnimationDurationMillis
     )
 }
@@ -616,6 +686,7 @@ internal object DynamicCheckoutScreen {
 
     @Immutable
     data class Style(
+        val sectionHeader: SectionHeaderStyle,
         val googlePayButton: GooglePayButton.Style,
         val expressPaymentButton: POBrandButtonStyle?,
         val regularPayment: RegularPaymentStyle,
@@ -628,19 +699,26 @@ internal object DynamicCheckoutScreen {
         val bodyText: TextAndroidView.Style,
         val errorText: POText.Style,
         val messageBox: POMessageBox.Style,
-        val actionsContainer: POActionsContainer.Style,
         val dialog: PODialog.Style,
+        val actionsContainer: POActionsContainer.Style,
         val backgroundColor: Color,
         val progressIndicatorColor: Color,
         val paymentSuccess: PaymentSuccessStyle
     )
 
     @Immutable
+    data class SectionHeaderStyle(
+        val title: POText.Style,
+        val trailingButton: POButton.Style
+    )
+
+    @Immutable
     data class RegularPaymentStyle(
         val title: POText.Style,
+        val description: POTextWithIcon.Style,
         val shape: Shape,
         val border: POBorderStroke,
-        val description: POTextWithIcon.Style
+        val backgroundColor: Color
     )
 
     @Immutable
@@ -655,6 +733,7 @@ internal object DynamicCheckoutScreen {
         custom: PODynamicCheckoutConfiguration.Style?,
         isLightTheme: Boolean
     ) = Style(
+        sectionHeader = custom?.sectionHeader?.custom() ?: defaultSectionHeader,
         googlePayButton = custom?.googlePayButton?.let {
             GooglePayButton.custom(style = it, isLightTheme)
         } ?: GooglePayButton.default(isLightTheme),
@@ -691,12 +770,12 @@ internal object DynamicCheckoutScreen {
         messageBox = custom?.messageBox?.let {
             POMessageBox.custom(style = it)
         } ?: POMessageBox.error,
-        actionsContainer = custom?.actionsContainer?.let {
-            POActionsContainer.custom(style = it)
-        } ?: POActionsContainer.default,
         dialog = custom?.dialog?.let {
             PODialog.custom(style = it)
         } ?: PODialog.default,
+        actionsContainer = custom?.actionsContainer?.let {
+            POActionsContainer.custom(style = it)
+        } ?: POActionsContainer.default,
         backgroundColor = custom?.backgroundColorResId?.let {
             colorResource(id = it)
         } ?: colors.surface.default,
@@ -706,6 +785,19 @@ internal object DynamicCheckoutScreen {
         paymentSuccess = custom?.paymentSuccess?.custom() ?: defaultPaymentSuccess
     )
 
+    private val defaultSectionHeader: SectionHeaderStyle
+        @Composable get() = SectionHeaderStyle(
+            title = POText.subheading,
+            trailingButton = POButton.ghostEqualPadding
+        )
+
+    @Composable
+    private fun PODynamicCheckoutConfiguration.SectionHeaderStyle.custom() =
+        SectionHeaderStyle(
+            title = POText.custom(style = title),
+            trailingButton = POButton.custom(style = trailingButton)
+        )
+
     private val defaultRegularPayment: RegularPaymentStyle
         @Composable get() {
             val description = Style(
@@ -713,14 +805,15 @@ internal object DynamicCheckoutScreen {
                 textStyle = typography.body2
             )
             return RegularPaymentStyle(
-                title = POText.subheading,
-                shape = shapes.roundedCornersSmall,
-                border = POBorderStroke(width = 1.dp, color = colors.border.subtle),
+                title = POText.body1,
                 description = POTextWithIcon.Style(
                     text = description,
                     iconResId = R.drawable.po_info_icon,
                     iconColorFilter = ColorFilter.tint(color = description.color)
-                )
+                ),
+                shape = shapes.roundedCornersSmall,
+                border = POBorderStroke(width = 1.dp, color = colors.border.subtle),
+                backgroundColor = colors.surface.default
             )
         }
 
@@ -729,17 +822,24 @@ internal object DynamicCheckoutScreen {
         val description = POText.custom(style = description)
         return RegularPaymentStyle(
             title = POText.custom(style = title),
-            shape = RoundedCornerShape(size = border.radiusDp.dp),
-            border = POBorderStroke(
-                width = border.widthDp.dp,
-                color = colorResource(id = border.colorResId)
-            ),
             description = POTextWithIcon.Style(
                 text = description,
                 iconResId = descriptionIconResId ?: defaultRegularPayment.description.iconResId,
                 iconColorFilter = if (descriptionIconResId != null) null else
                     ColorFilter.tint(color = description.color)
-            )
+            ),
+            shape = border?.let {
+                RoundedCornerShape(size = it.radiusDp.dp)
+            } ?: defaultRegularPayment.shape,
+            border = border?.let {
+                POBorderStroke(
+                    width = it.widthDp.dp,
+                    color = colorResource(id = it.colorResId)
+                )
+            } ?: defaultRegularPayment.border,
+            backgroundColor = backgroundColorResId?.let {
+                colorResource(id = it)
+            } ?: defaultRegularPayment.backgroundColor
         )
     }
 
@@ -758,8 +858,9 @@ internal object DynamicCheckoutScreen {
         PaymentSuccessStyle(
             message = POText.custom(style = message),
             successImageResId = successImageResId ?: defaultPaymentSuccess.successImageResId,
-            backgroundColor = backgroundColorResId?.let { colorResource(id = it) }
-                ?: defaultPaymentSuccess.backgroundColor
+            backgroundColor = backgroundColorResId?.let {
+                colorResource(id = it)
+            } ?: defaultPaymentSuccess.backgroundColor
         )
 
     @Composable
@@ -833,7 +934,7 @@ internal object DynamicCheckoutScreen {
         successColor: Color
     ): Color = animateColorAsState(
         targetValue = when (state) {
-            is Started -> if (state.successMessage != null) successColor else normalColor
+            is Success -> successColor
             else -> normalColor
         },
         animationSpec = tween(

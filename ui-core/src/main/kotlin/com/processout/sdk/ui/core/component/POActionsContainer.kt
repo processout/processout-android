@@ -18,6 +18,7 @@ import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POActionsContainerStyle
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -26,9 +27,9 @@ fun POActionsContainer(
     actions: POImmutableList<POActionState>,
     onClick: (ActionId) -> Unit,
     modifier: Modifier = Modifier,
-    onConfirmationRequested: ((ActionId) -> Unit)? = null,
     containerStyle: POActionsContainer.Style = POActionsContainer.default,
-    dialogStyle: PODialog.Style = PODialog.default,
+    confirmationDialogStyle: PODialog.Style = PODialog.default,
+    onConfirmationRequested: ((ActionId) -> Unit)? = null,
     animationDurationMillis: Int = 0
 ) {
     var currentActions by remember {
@@ -59,7 +60,7 @@ fun POActionsContainer(
                         onConfirmationRequested = onConfirmationRequested,
                         primaryActionStyle = containerStyle.primary,
                         secondaryActionStyle = containerStyle.secondary,
-                        dialogStyle = dialogStyle
+                        confirmationDialogStyle = confirmationDialogStyle
                     )
                 }
                 POAxis.Horizontal -> Row(
@@ -74,7 +75,7 @@ fun POActionsContainer(
                         onConfirmationRequested = onConfirmationRequested,
                         primaryActionStyle = containerStyle.primary,
                         secondaryActionStyle = containerStyle.secondary,
-                        dialogStyle = dialogStyle,
+                        confirmationDialogStyle = confirmationDialogStyle,
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -90,47 +91,20 @@ private fun Actions(
     onConfirmationRequested: ((ActionId) -> Unit)?,
     primaryActionStyle: POButton.Style,
     secondaryActionStyle: POButton.Style,
-    dialogStyle: PODialog.Style,
+    confirmationDialogStyle: PODialog.Style,
     modifier: Modifier = Modifier
 ) {
-    actions.elements.forEach {
-        with(it) {
-            var requestConfirmation by remember { mutableStateOf(false) }
-            POButton(
-                text = text,
-                onClick = {
-                    if (confirmation != null) {
-                        requestConfirmation = true
-                        onConfirmationRequested?.invoke(id)
-                    } else {
-                        onClick(id)
-                    }
-                },
-                modifier = modifier.fillMaxWidth(),
-                style = if (primary) primaryActionStyle else secondaryActionStyle,
-                enabled = enabled,
-                loading = loading,
-                iconResId = iconResId
-            )
-            if (requestConfirmation) {
-                confirmation?.run {
-                    PODialog(
-                        title = title,
-                        message = message,
-                        confirmActionText = confirmActionText,
-                        dismissActionText = dismissActionText,
-                        onConfirm = {
-                            onClick(id)
-                            requestConfirmation = false
-                        },
-                        onDismiss = {
-                            requestConfirmation = false
-                        },
-                        style = dialogStyle
-                    )
-                }
-            }
-        }
+    actions.elements.forEach { state ->
+        POButton(
+            state = state,
+            onClick = onClick,
+            onConfirmationRequested = onConfirmationRequested,
+            modifier = modifier
+                .fillMaxWidth()
+                .requiredHeightIn(min = dimensions.interactiveComponentMinSize),
+            style = if (state.primary) primaryActionStyle else secondaryActionStyle,
+            confirmationDialogStyle = confirmationDialogStyle
+        )
     }
 }
 

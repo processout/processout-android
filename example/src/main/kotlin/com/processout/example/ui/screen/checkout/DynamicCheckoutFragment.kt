@@ -25,8 +25,6 @@ import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.AlternativePaymentConfiguration
-import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.AlternativePaymentConfiguration.PaymentConfirmationConfiguration
-import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.SubmitButton
 import com.processout.sdk.ui.checkout.PODynamicCheckoutLauncher
 import com.processout.sdk.ui.shared.view.dialog.POAlertDialog
 import com.processout.sdk.ui.threeds.PO3DSRedirectCustomTabLauncher
@@ -97,10 +95,7 @@ class DynamicCheckoutFragment : BaseFragment<FragmentDynamicCheckoutBinding>(
                     clientSecret = uiModel.clientSecret
                 ),
                 alternativePayment = AlternativePaymentConfiguration(
-                    returnUrl = Constants.RETURN_URL,
-                    paymentConfirmation = PaymentConfirmationConfiguration(
-                        confirmButton = SubmitButton()
-                    )
+                    returnUrl = Constants.RETURN_URL
                 )
             )
         )
@@ -142,7 +137,7 @@ class DynamicCheckoutFragment : BaseFragment<FragmentDynamicCheckoutBinding>(
 
     private fun handleControls(uiState: DynamicCheckoutUiState) {
         when (uiState) {
-            Initial -> enableControls(true)
+            Initial, is Failure -> enableControls(true)
             else -> enableControls(false)
         }
     }

@@ -5,11 +5,9 @@ import com.processout.sdk.api.model.request.POCreateCustomerRequest
 import com.processout.sdk.api.model.request.POCreateCustomerTokenRequestBody
 import com.processout.sdk.api.model.response.CustomerResponse
 import com.processout.sdk.api.model.response.CustomerTokenResponse
+import com.processout.sdk.api.network.HeaderConstants.CLIENT_SECRET
 import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.POST
-import retrofit2.http.PUT
-import retrofit2.http.Path
+import retrofit2.http.*
 
 internal interface CustomerTokensApi {
 
@@ -20,6 +18,13 @@ internal interface CustomerTokensApi {
         @Body request: AssignCustomerTokenRequestWithDeviceData
     ): Response<CustomerTokenResponse>
 
+    @DELETE("/customers/{customer_id}/tokens/{token_id}")
+    suspend fun deleteCustomerToken(
+        @Path("customer_id") customerId: String,
+        @Path("token_id") tokenId: String,
+        @Header(CLIENT_SECRET) clientSecret: String
+    ): Response<Unit>
+
     @POST("/customers/{customer_id}/tokens")
     suspend fun createCustomerToken(
         @Path("customer_id") customerId: String,
@@ -27,5 +32,7 @@ internal interface CustomerTokensApi {
     ): Response<CustomerTokenResponse>
 
     @POST("/customers")
-    suspend fun createCustomer(@Body request: POCreateCustomerRequest): Response<CustomerResponse>
+    suspend fun createCustomer(
+        @Body request: POCreateCustomerRequest
+    ): Response<CustomerResponse>
 }

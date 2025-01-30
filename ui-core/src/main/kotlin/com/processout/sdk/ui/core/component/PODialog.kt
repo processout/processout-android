@@ -16,6 +16,8 @@ import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.PODialog.cardColors
 import com.processout.sdk.ui.core.style.PODialogStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -83,12 +85,14 @@ fun PODialog(
                                 POButton(
                                     text = dismissActionText,
                                     onClick = onDismiss,
+                                    modifier = Modifier.requiredHeightIn(min = dimensions.interactiveComponentMinSize),
                                     style = style.dismissButton
                                 )
                             }
                             POButton(
                                 text = confirmActionText,
                                 onClick = onConfirm,
+                                modifier = Modifier.requiredHeightIn(min = dimensions.interactiveComponentMinSize),
                                 style = style.confirmButton
                             )
                         }
@@ -115,11 +119,19 @@ object PODialog {
     val default: Style
         @Composable get() = Style(
             title = POText.title,
-            message = POText.body1,
-            confirmButton = POButton.tertiary,
-            dismissButton = POButton.tertiary,
-            backgroundColor = ProcessOutTheme.colors.surface.default
+            message = POText.body2,
+            confirmButton = defaultButton,
+            dismissButton = defaultButton,
+            backgroundColor = colors.surface.default
         )
+
+    private val defaultButton: POButton.Style
+        @Composable get() = with(POButton.ghost) {
+            copy(
+                normal = normal.copy(paddingHorizontal = spacing.large),
+                disabled = disabled.copy(paddingHorizontal = spacing.large)
+            )
+        }
 
     @Composable
     fun custom(style: PODialogStyle) = with(style) {

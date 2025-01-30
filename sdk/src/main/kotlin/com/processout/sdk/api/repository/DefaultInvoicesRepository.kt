@@ -2,8 +2,8 @@ package com.processout.sdk.api.repository
 
 import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.response.*
+import com.processout.sdk.api.network.HeaderConstants.CLIENT_SECRET
 import com.processout.sdk.api.network.InvoicesApi
-import com.processout.sdk.api.network.InvoicesApi.Companion.HEADER_CLIENT_SECRET
 import com.processout.sdk.core.*
 import com.processout.sdk.di.ContextGraph
 import kotlinx.coroutines.launch
@@ -134,7 +134,7 @@ internal class DefaultInvoicesRepository(
         onSuccess = { response ->
             response.body()?.let { invoice ->
                 ProcessOutResult.Success(
-                    invoice.toModel(clientSecret = response.headers()[HEADER_CLIENT_SECRET])
+                    invoice.toModel(clientSecret = response.headers()[CLIENT_SECRET])
                 )
             } ?: response.nullBodyFailure()
         },
@@ -155,6 +155,7 @@ private fun InvoiceResponse.toModel(clientSecret: String?) =
             amount = amount,
             currency = currency,
             returnUrl = returnUrl,
+            customerId = customerId,
             transaction = transaction,
             paymentMethods = paymentMethods,
             clientSecret = clientSecret

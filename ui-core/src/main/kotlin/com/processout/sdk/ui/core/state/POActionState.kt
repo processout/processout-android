@@ -1,8 +1,8 @@
 package com.processout.sdk.ui.core.state
 
-import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Immutable
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.core.shared.image.PODrawableImage
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -13,7 +13,7 @@ data class POActionState(
     val primary: Boolean,
     val enabled: Boolean = true,
     val loading: Boolean = false,
-    @DrawableRes val iconResId: Int? = null,
+    val icon: PODrawableImage? = null,
     val confirmation: Confirmation? = null
 ) {
 

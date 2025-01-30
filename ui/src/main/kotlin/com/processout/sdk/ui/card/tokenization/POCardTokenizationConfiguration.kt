@@ -2,9 +2,9 @@ package com.processout.sdk.ui.card.tokenization
 
 import android.os.Parcelable
 import androidx.annotation.ColorRes
-import androidx.annotation.DrawableRes
 import com.processout.sdk.api.model.request.POContact
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode
+import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import com.processout.sdk.ui.core.style.*
 import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
@@ -31,7 +31,7 @@ data class POCardTokenizationConfiguration(
     val isCardholderNameFieldVisible: Boolean = true,
     val billingAddress: BillingAddressConfiguration = BillingAddressConfiguration(),
     val savingAllowed: Boolean = false,
-    val submitButton: SubmitButton = SubmitButton(),
+    val submitButton: Button = Button(),
     val cancelButton: CancelButton? = CancelButton(),
     val cancellation: POCancellationConfiguration = POCancellationConfiguration(),
     val metadata: Map<String, String>? = null,
@@ -70,7 +70,7 @@ data class POCardTokenizationConfiguration(
         isCardholderNameFieldVisible = isCardholderNameFieldVisible,
         billingAddress = billingAddress,
         savingAllowed = savingAllowed,
-        submitButton = SubmitButton(text = primaryActionText),
+        submitButton = Button(text = primaryActionText),
         cancelButton = if (cancellation.secondaryAction)
             CancelButton(text = secondaryActionText) else null,
         cancellation = cancellation,
@@ -112,31 +112,29 @@ data class POCardTokenizationConfiguration(
     }
 
     /**
-     * Submit button configuration.
+     * Button configuration.
      *
      * @param[text] Button text. Pass _null_ to use default text.
-     * @param[iconResId] Button icon drawable resource ID. Pass _null_ to hide.
+     * @param[icon] Button icon drawable resource. Pass _null_ to hide.
      */
     @Parcelize
-    data class SubmitButton(
+    data class Button(
         val text: String? = null,
-        @DrawableRes
-        val iconResId: Int? = null
+        val icon: PODrawableImage? = null
     ) : Parcelable
 
     /**
      * Cancel button configuration.
      *
      * @param[text] Button text. Pass _null_ to use default text.
-     * @param[iconResId] Button icon drawable resource ID. Pass _null_ to hide.
+     * @param[icon] Button icon drawable resource. Pass _null_ to hide.
      * @param[confirmation] Specifies action confirmation configuration (e.g. dialog).
      * Use _null_ to disable, this is a default behaviour.
      */
     @Parcelize
     data class CancelButton(
         val text: String? = null,
-        @DrawableRes
-        val iconResId: Int? = null,
+        val icon: PODrawableImage? = null,
         val confirmation: POActionConfirmationConfiguration? = null
     ) : Parcelable
 

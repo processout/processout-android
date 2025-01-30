@@ -21,7 +21,7 @@ import java.util.Date
  * @param captureAmount Amount of money to capture when partial captures are available. Note that this only applies if you are also using the [autoCaptureAt] option.
  * @param authorizeOnly Boolean value indicating whether should only authorize the invoice or also capture it. Default value is _true_.
  * @param allowFallbackToSale Boolean value indicating whether should fallback to sale if the gateway does not support separation between authorization and capture. Default value is _false_.
- * @param clientSecret Client secret is a value of __x-processout-client-secret__ header of the invoice.
+ * @param clientSecret Client secret is a value of __X-ProcessOut-Client-Secret__ header of the invoice.
  * @param metadata Additional metadata.
  */
 data class POInvoiceAuthorizationRequest(

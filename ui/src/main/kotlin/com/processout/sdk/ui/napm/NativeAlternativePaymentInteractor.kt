@@ -46,7 +46,6 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.Action
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.PermissionRequest
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
-import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Options
 import com.processout.sdk.ui.shared.extension.dpToPx
 import com.processout.sdk.ui.shared.provider.BarcodeBitmapProvider
 import com.processout.sdk.ui.shared.provider.MediaStorageProvider
@@ -59,17 +58,15 @@ import kotlinx.coroutines.flow.update
 
 internal class NativeAlternativePaymentInteractor(
     private val app: Application,
-    private var invoiceId: String,
-    private var gatewayConfigurationId: String,
-    private val options: Options,
+    private var configuration: PONativeAlternativePaymentConfiguration,
     private val invoicesService: POInvoicesService,
     private val barcodeBitmapProvider: BarcodeBitmapProvider,
     private val mediaStorageProvider: MediaStorageProvider,
     private val captureRetryStrategy: PORetryStrategy,
     private val eventDispatcher: PODefaultNativeAlternativePaymentMethodEventDispatcher,
     private var logAttributes: Map<String, String> = logAttributes(
-        invoiceId = invoiceId,
-        gatewayConfigurationId = gatewayConfigurationId
+        invoiceId = configuration.invoiceId,
+        gatewayConfigurationId = configuration.gatewayConfigurationId
     )
 ) : BaseInteractor() {
 
@@ -113,18 +110,14 @@ internal class NativeAlternativePaymentInteractor(
         fetchTransactionDetails()
     }
 
-    fun start(
-        invoiceId: String,
-        gatewayConfigurationId: String
-    ) {
+    fun start(configuration: PONativeAlternativePaymentConfiguration) {
         if (_state.value !is Idle) {
             return
         }
-        this.invoiceId = invoiceId
-        this.gatewayConfigurationId = gatewayConfigurationId
+        this.configuration = configuration
         logAttributes = logAttributes(
-            invoiceId = invoiceId,
-            gatewayConfigurationId = gatewayConfigurationId
+            invoiceId = configuration.invoiceId,
+            gatewayConfigurationId = configuration.gatewayConfigurationId
         )
         start()
     }
@@ -142,8 +135,8 @@ internal class NativeAlternativePaymentInteractor(
     private fun fetchTransactionDetails() {
         interactorScope.launch {
             invoicesService.fetchNativeAlternativePaymentMethodTransactionDetails(
-                invoiceId = invoiceId,
-                gatewayConfigurationId = gatewayConfigurationId
+                invoiceId = configuration.invoiceId,
+                gatewayConfigurationId = configuration.gatewayConfigurationId
             ).onSuccess { details ->
                 with(details) {
                     handleState(
@@ -218,7 +211,7 @@ internal class NativeAlternativePaymentInteractor(
         if (parameterValues?.providerName != null) {
             return parameterValues.providerLogoUrl
         }
-        if (options.paymentConfirmation.hideGatewayDetails) {
+        if (configuration.paymentConfirmation.hideGatewayDetails) {
             return null
         }
         return gateway.logoUrl
@@ -370,8 +363,8 @@ internal class NativeAlternativePaymentInteractor(
     private fun requestDefaultValues(parameters: List<PONativeAlternativePaymentMethodParameter>) {
         interactorScope.launch {
             val request = PONativeAlternativePaymentMethodDefaultValuesRequest(
-                gatewayConfigurationId = gatewayConfigurationId,
-                invoiceId = invoiceId,
+                invoiceId = configuration.invoiceId,
+                gatewayConfigurationId = configuration.gatewayConfigurationId,
                 parameters = parameters
             )
             latestDefaultValuesRequest = request
@@ -586,8 +579,8 @@ internal class NativeAlternativePaymentInteractor(
         _state.whenUserInput { stateValue ->
             interactorScope.launch {
                 val request = PONativeAlternativePaymentMethodRequest(
-                    invoiceId = invoiceId,
-                    gatewayConfigurationId = gatewayConfigurationId,
+                    invoiceId = configuration.invoiceId,
+                    gatewayConfigurationId = configuration.gatewayConfigurationId,
                     parameters = stateValue.fields.values()
                 )
                 invoicesService.initiatePayment(request)
@@ -680,7 +673,7 @@ internal class NativeAlternativePaymentInteractor(
     ) {
         POLogger.info("All payment parameters has been submitted.")
         dispatch(DidSubmitParameters(additionalParametersExpected = false))
-        if (!options.paymentConfirmation.waitsConfirmation) {
+        if (!configuration.paymentConfirmation.waitsConfirmation) {
             POLogger.info("Finished: did not wait for capture confirmation.")
             _completion.update { Success }
             return
@@ -713,7 +706,7 @@ internal class NativeAlternativePaymentInteractor(
         dispatch(WillWaitForCaptureConfirmation(additionalActionExpected = additionalActionExpected))
         _state.update { Capturing(captureStateValue) }
         enableCapturingSecondaryAction()
-        if (!additionalActionExpected || options.paymentConfirmation.confirmButton == null) {
+        if (!additionalActionExpected || configuration.paymentConfirmation.confirmButton == null) {
             capture()
         }
     }
@@ -735,8 +728,11 @@ internal class NativeAlternativePaymentInteractor(
         enableCapturingProgressIndicator()
         interactorScope.launch {
             val iterator = captureRetryStrategy.iterator
-            while (capturePassedTimestamp < options.paymentConfirmation.timeoutSeconds * 1000) {
-                val result = invoicesService.captureNativeAlternativePayment(invoiceId, gatewayConfigurationId)
+            while (capturePassedTimestamp < configuration.paymentConfirmation.timeoutSeconds * 1000) {
+                val result = invoicesService.captureNativeAlternativePayment(
+                    invoiceId = configuration.invoiceId,
+                    gatewayConfigurationId = configuration.gatewayConfigurationId
+                )
                 POLogger.debug("Attempted to capture the payment.")
                 if (isCaptureRetryable(result)) {
                     delay(iterator.next())
@@ -783,12 +779,12 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun handleCaptured(stateValue: CaptureStateValue) {
         POLogger.info("Success: capture confirmed.")
-        if (!options.paymentConfirmation.waitsConfirmation) {
+        if (!configuration.paymentConfirmation.waitsConfirmation) {
             _completion.update { Success }
             return
         }
         dispatch(DidCompletePayment)
-        if (options.skipSuccessScreen) {
+        if (configuration.skipSuccessScreen) {
             _completion.update { Success }
         } else {
             _state.update { Captured(stateValue) }
@@ -832,7 +828,7 @@ internal class NativeAlternativePaymentInteractor(
         get() = this?.disabledForSeconds?.let { it * 1000L } ?: 0
 
     private fun enableUserInputSecondaryAction() {
-        handler.postDelayed(delayInMillis = options.cancelButton.disabledForMillis) {
+        handler.postDelayed(delayInMillis = configuration.cancelButton.disabledForMillis) {
             _state.whenUserInput { stateValue ->
                 _state.update {
                     with(stateValue) {
@@ -844,7 +840,7 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private fun enableCapturingSecondaryAction() {
-        handler.postDelayed(delayInMillis = options.paymentConfirmation.cancelButton.disabledForMillis) {
+        handler.postDelayed(delayInMillis = configuration.paymentConfirmation.cancelButton.disabledForMillis) {
             _state.whenCapturing { stateValue ->
                 _state.update {
                     with(stateValue) {
@@ -856,7 +852,7 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private fun enableCapturingProgressIndicator() {
-        options.paymentConfirmation.showProgressIndicatorAfterSeconds?.let { afterSeconds ->
+        configuration.paymentConfirmation.showProgressIndicatorAfterSeconds?.let { afterSeconds ->
             handler.postDelayed(delayInMillis = afterSeconds * 1000L) {
                 _state.whenCapturing { stateValue ->
                     _state.update { Capturing(stateValue.copy(withProgressIndicator = true)) }

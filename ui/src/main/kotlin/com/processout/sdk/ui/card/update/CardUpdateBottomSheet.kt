@@ -21,8 +21,7 @@ import com.processout.sdk.ui.base.BaseBottomSheetDialogFragment
 import com.processout.sdk.ui.card.update.CardUpdateCompletion.Failure
 import com.processout.sdk.ui.card.update.CardUpdateCompletion.Success
 import com.processout.sdk.ui.card.update.CardUpdateEvent.Dismiss
-import com.processout.sdk.ui.card.update.POCardUpdateConfiguration.Options
-import com.processout.sdk.ui.card.update.POCardUpdateConfiguration.SubmitButton
+import com.processout.sdk.ui.card.update.POCardUpdateConfiguration.Button
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.component.screenModeAsState
 import com.processout.sdk.ui.shared.extension.dpToPx
@@ -41,8 +40,10 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
     private val viewModel: CardUpdateViewModel by viewModels {
         CardUpdateViewModel.Factory(
             app = requireActivity().application,
-            cardId = configuration?.cardId ?: String(),
-            options = configuration?.options ?: Options(submitButton = SubmitButton())
+            configuration = configuration ?: POCardUpdateConfiguration(
+                cardId = String(),
+                submitButton = Button()
+            )
         )
     }
 
@@ -55,7 +56,7 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
                 dismiss(
                     ProcessOutResult.Failure(
                         code = POFailure.Code.Generic(),
-                        message = "Card ID is blank."
+                        message = "Invalid configuration: 'cardId' is required."
                     )
                 )
             }
@@ -73,11 +74,9 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
                 with(viewModel.completion.collectAsStateWithLifecycle()) {
                     LaunchedEffect(value) { handle(value) }
                 }
-
                 with(screenModeAsState(viewHeight = defaultViewHeight)) {
                     LaunchedEffect(value) { apply(value) }
                 }
-
                 CardUpdateScreen(
                     state = viewModel.state.collectAsStateWithLifecycle().value,
                     onEvent = remember { viewModel::onEvent },
@@ -89,7 +88,7 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        configuration?.let { apply(it.options.cancellation) }
+        configuration?.let { apply(it.cancellation) }
     }
 
     private fun handle(completion: CardUpdateCompletion) =

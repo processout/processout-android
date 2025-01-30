@@ -7,6 +7,7 @@ import com.google.android.gms.wallet.WalletConstants
 import com.processout.sdk.api.model.request.POContact
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import com.processout.sdk.ui.core.style.*
 import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
 import com.processout.sdk.ui.shared.configuration.POBarcodeConfiguration
@@ -17,16 +18,23 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class PODynamicCheckoutConfiguration(
     val invoiceRequest: POInvoiceRequest,
+    val expressCheckout: ExpressCheckout = ExpressCheckout(),
     val card: CardConfiguration = CardConfiguration(),
     val googlePay: GooglePayConfiguration = GooglePayConfiguration(),
     val alternativePayment: AlternativePaymentConfiguration = AlternativePaymentConfiguration(),
-    val submitButton: SubmitButton = SubmitButton(),
+    val submitButton: Button = Button(),
     val cancelButton: CancelButton? = CancelButton(),
     val cancelOnBackPressed: Boolean = true,
     val preselectSinglePaymentMethod: Boolean = true,
     val paymentSuccess: PaymentSuccess? = PaymentSuccess(),
     val style: Style? = null
 ) : Parcelable {
+
+    @Parcelize
+    data class ExpressCheckout(
+        val title: String? = null,
+        val settingsButton: Button? = null
+    ) : Parcelable
 
     @Parcelize
     data class CardConfiguration(
@@ -100,23 +108,21 @@ data class PODynamicCheckoutConfiguration(
         data class PaymentConfirmationConfiguration(
             val timeoutSeconds: Int = 3 * 60,
             val showProgressIndicatorAfterSeconds: Int? = null,
-            val confirmButton: SubmitButton? = null,
+            val confirmButton: Button? = null,
             val cancelButton: CancelButton? = CancelButton()
         ) : Parcelable
     }
 
     @Parcelize
-    data class SubmitButton(
+    data class Button(
         val text: String? = null,
-        @DrawableRes
-        val iconResId: Int? = null
+        val icon: PODrawableImage? = null
     ) : Parcelable
 
     @Parcelize
     data class CancelButton(
         val text: String? = null,
-        @DrawableRes
-        val iconResId: Int? = null,
+        val icon: PODrawableImage? = null,
         val disabledForSeconds: Int = 0,
         val confirmation: POActionConfirmationConfiguration? = null
     ) : Parcelable
@@ -129,6 +135,7 @@ data class PODynamicCheckoutConfiguration(
 
     @Parcelize
     data class Style(
+        val sectionHeader: SectionHeaderStyle? = null,
         val googlePayButton: POGooglePayButtonStyle? = null,
         val expressPaymentButton: POBrandButtonStyle? = null,
         val regularPayment: RegularPaymentStyle? = null,
@@ -141,8 +148,8 @@ data class PODynamicCheckoutConfiguration(
         val bodyText: POTextStyle? = null,
         val errorText: POTextStyle? = null,
         val messageBox: POMessageBoxStyle? = null,
-        val actionsContainer: POActionsContainerStyle? = null,
         val dialog: PODialogStyle? = null,
+        val actionsContainer: POActionsContainerStyle? = null,
         @ColorRes
         val backgroundColorResId: Int? = null,
         @ColorRes
@@ -153,12 +160,20 @@ data class PODynamicCheckoutConfiguration(
     ) : Parcelable
 
     @Parcelize
+    data class SectionHeaderStyle(
+        val title: POTextStyle,
+        val trailingButton: POButtonStyle
+    ) : Parcelable
+
+    @Parcelize
     data class RegularPaymentStyle(
         val title: POTextStyle,
-        val border: POBorderStyle,
         val description: POTextStyle,
         @DrawableRes
-        val descriptionIconResId: Int? = null
+        val descriptionIconResId: Int? = null,
+        val border: POBorderStyle? = null,
+        @ColorRes
+        val backgroundColorResId: Int? = null
     ) : Parcelable
 
     @Parcelize

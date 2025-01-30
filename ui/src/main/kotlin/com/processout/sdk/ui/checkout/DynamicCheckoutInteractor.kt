@@ -62,6 +62,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent
 import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
+import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsConfiguration
 import com.processout.sdk.ui.shared.extension.orElse
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
@@ -121,9 +122,7 @@ internal class DynamicCheckoutInteractor(
     private fun initState() = DynamicCheckoutInteractorState(
         loading = true,
         invoice = null,
-        paymentMethods = emptyList(),
-        submitActionId = ActionId.SUBMIT,
-        cancelActionId = ActionId.CANCEL
+        paymentMethods = emptyList()
     )
 
     private suspend fun start() {
@@ -134,6 +133,7 @@ internal class DynamicCheckoutInteractor(
         collectTokenizedCard()
         collectPreferredScheme()
         collectDefaultValues()
+        collectSavedPaymentMethodsConfiguration()
         fetchConfiguration()
     }
 
@@ -419,6 +419,7 @@ internal class DynamicCheckoutInteractor(
             is GooglePayResult -> handleGooglePay(event.paymentMethodId, event.result)
             is AlternativePaymentResult -> handleAlternativePayment(event.paymentMethodId, event.result)
             is PermissionRequestResult -> handlePermission(event)
+            is CustomerTokenDeleted -> deleteLocalCustomerToken(event.tokenId)
             is Dismiss -> dismiss(event)
         }
     }
@@ -470,8 +471,10 @@ internal class DynamicCheckoutInteractor(
                     .apply(paymentMethod.configuration)
             )
             is NativeAlternativePayment -> nativeAlternativePayment.start(
-                invoiceId = configuration.invoiceRequest.invoiceId,
-                gatewayConfigurationId = paymentMethod.gatewayConfigurationId
+                configuration = nativeAlternativePayment.configuration.copy(
+                    invoiceId = configuration.invoiceRequest.invoiceId,
+                    gatewayConfigurationId = paymentMethod.gatewayConfigurationId
+                )
             )
             else -> {}
         }
@@ -552,6 +555,7 @@ internal class DynamicCheckoutInteractor(
                 )
             }
             ActionId.CANCEL -> cancel()
+            ActionId.SAVED_PAYMENT_METHODS -> onSavedPaymentMethodsAction()
             else -> when (paymentMethod) {
                 is Card -> cardTokenization.onEvent(
                     CardTokenizationEvent.Action(event.actionId)
@@ -581,6 +585,32 @@ internal class DynamicCheckoutInteractor(
                 )
             )
             else -> {}
+        }
+    }
+
+    private fun onSavedPaymentMethodsAction() {
+        interactorScope.launch {
+            eventDispatcher.send(
+                DynamicCheckoutSavedPaymentMethodsRequest(
+                    configuration = POSavedPaymentMethodsConfiguration(
+                        invoiceRequest = configuration.invoiceRequest
+                    )
+                )
+            )
+        }
+    }
+
+    private fun collectSavedPaymentMethodsConfiguration() {
+        eventDispatcher.subscribeForResponse<DynamicCheckoutSavedPaymentMethodsResponse>(
+            coroutineScope = interactorScope
+        ) { response ->
+            interactorScope.launch {
+                _sideEffects.send(
+                    DynamicCheckoutSideEffect.SavedPaymentMethods(
+                        configuration = response.configuration
+                    )
+                )
+            }
         }
     }
 
@@ -994,6 +1024,14 @@ internal class DynamicCheckoutInteractor(
                 )
             )
             else -> {}
+        }
+    }
+
+    private fun deleteLocalCustomerToken(tokenId: String) {
+        _state.update { state ->
+            state.copy(
+                paymentMethods = state.paymentMethods
+                    .filterNot { it.id == tokenId })
         }
     }
 

@@ -1,9 +1,6 @@
 package com.processout.sdk.api.repository
 
-import com.processout.sdk.api.model.request.AssignCustomerTokenRequestWithDeviceData
-import com.processout.sdk.api.model.request.POAssignCustomerTokenRequest
-import com.processout.sdk.api.model.request.POCreateCustomerRequest
-import com.processout.sdk.api.model.request.POCreateCustomerTokenRequest
+import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.network.CustomerTokensApi
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
@@ -20,9 +17,19 @@ internal class DefaultCustomerTokensRepository(
         request: POAssignCustomerTokenRequest
     ) = apiCall {
         api.assignCustomerToken(
-            request.customerId,
-            request.tokenId,
-            request.withDeviceData()
+            customerId = request.customerId,
+            tokenId = request.tokenId,
+            request = request.withDeviceData()
+        )
+    }
+
+    override suspend fun deleteCustomerToken(
+        request: PODeleteCustomerTokenRequest
+    ) = apiCall {
+        api.deleteCustomerToken(
+            customerId = request.customerId,
+            tokenId = request.tokenId,
+            clientSecret = request.clientSecret
         )
     }
 

@@ -4,6 +4,7 @@
     <string name="po_locale_language_code">fr</string>
 
     <!-- Dynamic Checkout -->
+    <string name="po_dynamic_checkout_express_checkout">Paiement express</string>
     <string name="po_dynamic_checkout_button_pay">Payer</string>
     <string name="po_dynamic_checkout_button_cancel">Annuler</string>
     <string name="po_dynamic_checkout_save_payment_method">Enregistrer cette méthode pour les paiements futurs</string>
@@ -11,6 +12,12 @@
     <string name="po_dynamic_checkout_error_generic">Nous n\'avons pas pu finaliser votre paiement. Veuillez vérifier vos informations ou essayer un autre mode de paiement.</string>
     <string name="po_dynamic_checkout_error_method_unavailable">Le mode de paiement demandé n\'est pas disponible, veuillez essayer un autre mode de paiement.</string>
     <string name="po_dynamic_checkout_success_message">Succès !\nPaiement confirmé.</string>
+
+    <!-- Saved Payment Methods -->
+    <string name="po_saved_payment_methods_title">Gérer les méthodes de paiement enregistrées</string>
+    <string name="po_saved_payment_methods_empty_message">Aucune méthode de paiement enregistrée</string>
+    <string name="po_saved_payment_methods_empty_description">La prochaine fois que vous enregistrez une méthode de paiement, elle apparaîtra ici.</string>
+    <string name="po_saved_payment_methods_error_generic">Une erreur s\'est produite, veuillez réessayer.</string>
 
     <!-- Native Alternative Payment Method -->
     <string name="po_native_apm_title_format">Payer avec %s</string>
@@ -94,5 +101,10 @@
     <string name="po_cancel_confirmation_title">Annuler ?</string>
     <string name="po_cancel_confirmation_confirm">Annuler</string>
     <string name="po_cancel_confirmation_dismiss">Pas maintenant</string>
+
+    <!-- Delete Confirmation -->
+    <string name="po_delete_confirmation_title">Êtes-vous sûr de vouloir supprimer cet élément ?</string>
+    <string name="po_delete_confirmation_confirm">Supprimer</string>
+    <string name="po_delete_confirmation_cancel">Annuler</string>
 
 </resources>

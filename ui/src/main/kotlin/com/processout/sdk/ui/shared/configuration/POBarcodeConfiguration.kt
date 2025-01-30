@@ -1,7 +1,7 @@
 package com.processout.sdk.ui.shared.configuration
 
 import android.os.Parcelable
-import androidx.annotation.DrawableRes
+import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import kotlinx.parcelize.Parcelize
 
 /**
@@ -35,12 +35,11 @@ data class POBarcodeConfiguration(
      * Button configuration.
      *
      * @param[text] Button text. Pass _null_ to use default text.
-     * @param[iconResId] Button icon drawable resource ID. Pass _null_ to hide.
+     * @param[icon] Button icon drawable resource. Pass _null_ to hide.
      */
     @Parcelize
     data class Button(
         val text: String? = null,
-        @DrawableRes
-        val iconResId: Int? = null
+        val icon: PODrawableImage? = null
     ) : Parcelable
 }
