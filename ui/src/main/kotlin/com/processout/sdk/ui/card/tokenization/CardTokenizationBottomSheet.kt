@@ -6,8 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
@@ -27,6 +26,9 @@ import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.B
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.component.displayCutoutHeight
 import com.processout.sdk.ui.shared.component.screenModeAsState
+import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration.Height.Fixed
+import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration.Height.WrapContent
+import kotlin.math.roundToInt
 
 internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
 
@@ -35,9 +37,10 @@ internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCar
     }
 
     override var expandable = false
-    override val defaultViewHeight by lazy { screenHeight }
+    override val defaultViewHeight by lazy { (screenHeight * 0.3).roundToInt() }
 
     private var configuration: POCardTokenizationConfiguration? = null
+    private val viewHeightConfiguration by lazy { configuration?.bottomSheet?.height ?: WrapContent }
 
     private val viewModel: CardTokenizationViewModel by viewModels {
         CardTokenizationViewModel.Factory(
@@ -65,14 +68,19 @@ internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCar
                 with(viewModel.completion.collectAsStateWithLifecycle()) {
                     LaunchedEffect(value) { handle(value) }
                 }
-                with(screenModeAsState(viewHeight = defaultViewHeight + displayCutoutHeight())) {
+                var viewHeight by remember { mutableIntStateOf(defaultViewHeight) }
+                with(screenModeAsState(viewHeight = viewHeight)) {
                     LaunchedEffect(value) { apply(value) }
                 }
+                val displayCutoutHeight = displayCutoutHeight()
                 CardTokenizationScreen(
                     state = viewModel.state.collectAsStateWithLifecycle().value,
                     onEvent = remember { viewModel::onEvent },
                     onContentHeightChanged = { contentHeight ->
-                        // TODO
+                        viewHeight = when (val height = viewHeightConfiguration) {
+                            is Fixed -> (screenHeight * height.fraction + displayCutoutHeight).roundToInt()
+                            WrapContent -> contentHeight
+                        }
                     },
                     style = CardTokenizationScreen.style(custom = configuration?.style)
                 )
