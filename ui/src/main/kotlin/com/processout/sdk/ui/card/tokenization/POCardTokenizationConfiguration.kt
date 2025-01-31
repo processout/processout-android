@@ -7,6 +7,9 @@ import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.B
 import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import com.processout.sdk.ui.core.style.*
 import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
+import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration
+import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration.Height.Fixed
+import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration.Height.WrapContent
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import kotlinx.parcelize.Parcelize
 
@@ -14,13 +17,13 @@ import kotlinx.parcelize.Parcelize
  * Defines card tokenization configuration.
  *
  * @param[title] Custom title.
- * @param[cvcRequired] Specifies whether the card CVC should be collected. Default value is _true_.
- * @param[isCardholderNameFieldVisible] Specifies whether the cardholder name field should be displayed. Default value is _true_.
+ * @param[cvcRequired] Specifies whether the CVC field should be displayed. Default value is _true_.
+ * @param[cardholderNameRequired] Specifies whether the cardholder name field should be displayed. Default value is _true_.
  * @param[billingAddress] Allows to customize the collection of billing address.
  * @param[savingAllowed] Displays checkbox that allows to save the card details for future payments.
  * @param[submitButton] Submit button configuration.
  * @param[cancelButton] Cancel button configuration. Use _null_ to hide.
- * @param[cancellation] Specifies cancellation behaviour.
+ * @param[bottomSheet] Specifies bottom sheet configuration. By default is [WrapContent] and non-expandable.
  * @param[metadata] Metadata related to the card.
  * @param[style] Allows to customize the look and feel.
  */
@@ -28,12 +31,15 @@ import kotlinx.parcelize.Parcelize
 data class POCardTokenizationConfiguration(
     val title: String? = null,
     val cvcRequired: Boolean = true,
-    val isCardholderNameFieldVisible: Boolean = true,
+    val cardholderNameRequired: Boolean = true,
     val billingAddress: BillingAddressConfiguration = BillingAddressConfiguration(),
     val savingAllowed: Boolean = false,
     val submitButton: Button = Button(),
     val cancelButton: CancelButton? = CancelButton(),
-    val cancellation: POCancellationConfiguration = POCancellationConfiguration(),
+    val bottomSheet: POBottomSheetConfiguration = POBottomSheetConfiguration(
+        height = WrapContent,
+        expandable = false
+    ),
     val metadata: Map<String, String>? = null,
     val style: Style? = null
 ) : Parcelable {
@@ -42,7 +48,7 @@ data class POCardTokenizationConfiguration(
      * Defines card tokenization configuration.
      *
      * @param[title] Custom title.
-     * @param[cvcRequired] Specifies whether the card CVC should be collected. Default value is _true_.
+     * @param[cvcRequired] Specifies whether the CVC field should be displayed. Default value is _true_.
      * @param[isCardholderNameFieldVisible] Specifies whether the cardholder name field should be displayed. Default value is _true_.
      * @param[billingAddress] Allows to customize the collection of billing address.
      * @param[savingAllowed] Displays checkbox that allows to save the card details for future payments.
@@ -67,13 +73,17 @@ data class POCardTokenizationConfiguration(
     ) : this(
         title = title,
         cvcRequired = cvcRequired,
-        isCardholderNameFieldVisible = isCardholderNameFieldVisible,
+        cardholderNameRequired = isCardholderNameFieldVisible,
         billingAddress = billingAddress,
         savingAllowed = savingAllowed,
         submitButton = Button(text = primaryActionText),
         cancelButton = if (cancellation.secondaryAction)
             CancelButton(text = secondaryActionText) else null,
-        cancellation = cancellation,
+        bottomSheet = POBottomSheetConfiguration(
+            height = Fixed(1f),
+            expandable = false,
+            cancellation = cancellation
+        ),
         metadata = metadata,
         style = style
     )

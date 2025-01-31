@@ -483,7 +483,7 @@ internal class DynamicCheckoutInteractor(
     private fun POCardTokenizationConfiguration.apply(configuration: CardConfiguration) =
         copy(
             cvcRequired = configuration.cvcRequired,
-            isCardholderNameFieldVisible = configuration.cardholderNameRequired,
+            cardholderNameRequired = configuration.cardholderNameRequired,
             billingAddress = billingAddress.copy(
                 mode = configuration.billingAddress.collectionMode.map(),
                 countryCodes = configuration.billingAddress.restrictToCountryCodes

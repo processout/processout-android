@@ -32,7 +32,7 @@ import com.processout.sdk.ui.shared.extension.screenSize
 
 internal abstract class BaseBottomSheetDialogFragment<T : Parcelable> : BottomSheetDialogFragment() {
 
-    protected abstract val expandable: Boolean
+    protected abstract var expandable: Boolean
     protected abstract val defaultViewHeight: Int
     protected val screenHeight by lazy { requireContext().screenSize().height }
     protected var animationDurationMillis: Long = 400

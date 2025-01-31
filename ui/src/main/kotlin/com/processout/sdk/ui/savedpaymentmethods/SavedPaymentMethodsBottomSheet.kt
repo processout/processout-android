@@ -35,7 +35,7 @@ internal class SavedPaymentMethodsBottomSheet : BaseBottomSheetDialogFragment<PO
         val tag: String = SavedPaymentMethodsBottomSheet::class.java.simpleName
     }
 
-    override val expandable = false
+    override var expandable = false
     override val defaultViewHeight by lazy { screenHeight }
 
     private var configuration: POSavedPaymentMethodsConfiguration? = null

@@ -32,7 +32,7 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
         val tag: String = CardUpdateBottomSheet::class.java.simpleName
     }
 
-    override val expandable = false
+    override var expandable = false
     override val defaultViewHeight by lazy { 440.dpToPx(requireContext()) }
 
     private var configuration: POCardUpdateConfiguration? = null
