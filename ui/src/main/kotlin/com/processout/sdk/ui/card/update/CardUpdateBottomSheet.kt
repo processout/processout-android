@@ -21,9 +21,10 @@ import com.processout.sdk.ui.base.BaseBottomSheetDialogFragment
 import com.processout.sdk.ui.card.update.CardUpdateCompletion.Failure
 import com.processout.sdk.ui.card.update.CardUpdateCompletion.Success
 import com.processout.sdk.ui.card.update.CardUpdateEvent.Dismiss
-import com.processout.sdk.ui.card.update.POCardUpdateConfiguration.Button
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.component.screenModeAsState
+import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration
+import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration.Height.WrapContent
 import com.processout.sdk.ui.shared.extension.dpToPx
 
 internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
@@ -42,7 +43,10 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
             app = requireActivity().application,
             configuration = configuration ?: POCardUpdateConfiguration(
                 cardId = String(),
-                submitButton = Button()
+                bottomSheet = POBottomSheetConfiguration(
+                    height = WrapContent,
+                    expandable = false
+                )
             )
         )
     }
@@ -88,7 +92,10 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        configuration?.let { apply(it.cancellation) }
+        configuration?.let {
+            expandable = it.bottomSheet.expandable
+            apply(it.bottomSheet.cancellation)
+        }
     }
 
     private fun handle(completion: CardUpdateCompletion) =

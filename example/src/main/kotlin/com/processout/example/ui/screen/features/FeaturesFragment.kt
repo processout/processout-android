@@ -23,7 +23,8 @@ import com.processout.sdk.ui.card.update.POCardUpdateConfiguration
 import com.processout.sdk.ui.card.update.POCardUpdateConfiguration.CardInformation
 import com.processout.sdk.ui.card.update.POCardUpdateLauncher
 import com.processout.sdk.ui.googlepay.POGooglePayCardTokenizationLauncher
-import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
+import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration
+import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration.Height.WrapContent
 import com.processout.sdk.ui.shared.view.dialog.POAlertDialog
 import kotlinx.coroutines.launch
 
@@ -97,10 +98,9 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
                             scheme = card?.scheme,
                             preferredScheme = card?.coScheme
                         ),
-                        cancellation = POCancellationConfiguration(
-                            backPressed = true,
-                            dragDown = true,
-                            touchOutside = false
+                        bottomSheet = POBottomSheetConfiguration(
+                            height = WrapContent,
+                            expandable = false
                         )
                     )
                 )

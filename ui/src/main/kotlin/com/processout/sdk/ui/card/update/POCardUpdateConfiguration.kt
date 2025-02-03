@@ -7,6 +7,8 @@ import com.processout.sdk.ui.core.style.POActionsContainerStyle
 import com.processout.sdk.ui.core.style.POFieldStyle
 import com.processout.sdk.ui.core.style.POTextStyle
 import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
+import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration
+import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration.Height.WrapContent
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import kotlinx.parcelize.Parcelize
 
@@ -18,7 +20,7 @@ import kotlinx.parcelize.Parcelize
  * @param[title] Custom title.
  * @param[submitButton] Submit button configuration.
  * @param[cancelButton] Cancel button configuration. Use _null_ to hide.
- * @param[cancellation] Specifies cancellation behaviour.
+ * @param[bottomSheet] Specifies bottom sheet configuration. By default is [WrapContent] and non-expandable.
  * @param[style] Allows to customize the look and feel.
  */
 @Parcelize
@@ -28,9 +30,46 @@ data class POCardUpdateConfiguration(
     val title: String? = null,
     val submitButton: Button = Button(),
     val cancelButton: CancelButton? = CancelButton(),
-    val cancellation: POCancellationConfiguration = POCancellationConfiguration(),
+    val bottomSheet: POBottomSheetConfiguration = POBottomSheetConfiguration(
+        height = WrapContent,
+        expandable = false
+    ),
     val style: Style? = null
 ) : Parcelable {
+
+    /**
+     * Defines card update configuration.
+     *
+     * @param[cardId] Card ID.
+     * @param[cardInformation] Allows to provide card information that will be visible in UI.
+     * @param[title] Custom title.
+     * @param[submitButton] Submit button configuration.
+     * @param[cancelButton] Cancel button configuration. Use _null_ to hide.
+     * @param[cancellation] Specifies cancellation behaviour.
+     * @param[style] Allows to customize the look and feel.
+     */
+    @Deprecated(message = "Use alternative constructor.")
+    constructor(
+        cardId: String,
+        cardInformation: CardInformation? = null,
+        title: String? = null,
+        submitButton: Button = Button(),
+        cancelButton: CancelButton? = CancelButton(),
+        cancellation: POCancellationConfiguration = POCancellationConfiguration(),
+        style: Style? = null
+    ) : this(
+        cardId = cardId,
+        cardInformation = cardInformation,
+        title = title,
+        submitButton = submitButton,
+        cancelButton = cancelButton,
+        bottomSheet = POBottomSheetConfiguration(
+            height = WrapContent,
+            expandable = false,
+            cancellation = cancellation
+        ),
+        style = style
+    )
 
     /**
      * Defines card update configuration.

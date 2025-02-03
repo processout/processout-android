@@ -120,7 +120,7 @@ internal class CardUpdateViewModel private constructor(
                     }
                 )
             },
-            draggable = cancellation.dragDown
+            draggable = bottomSheet.cancellation.dragDown || bottomSheet.expandable
         )
     }
 
