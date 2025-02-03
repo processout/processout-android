@@ -6,8 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
@@ -22,10 +21,12 @@ import com.processout.sdk.ui.card.update.CardUpdateCompletion.Failure
 import com.processout.sdk.ui.card.update.CardUpdateCompletion.Success
 import com.processout.sdk.ui.card.update.CardUpdateEvent.Dismiss
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.shared.component.displayCutoutHeight
 import com.processout.sdk.ui.shared.component.screenModeAsState
 import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration
+import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration.Height.Fixed
 import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration.Height.WrapContent
-import com.processout.sdk.ui.shared.extension.dpToPx
+import kotlin.math.roundToInt
 
 internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
 
@@ -34,9 +35,10 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
     }
 
     override var expandable = false
-    override val defaultViewHeight by lazy { 440.dpToPx(requireContext()) }
+    override val defaultViewHeight by lazy { (screenHeight * 0.3).roundToInt() }
 
     private var configuration: POCardUpdateConfiguration? = null
+    private val viewHeightConfiguration by lazy { configuration?.bottomSheet?.height ?: WrapContent }
 
     private val viewModel: CardUpdateViewModel by viewModels {
         CardUpdateViewModel.Factory(
@@ -78,12 +80,20 @@ internal class CardUpdateBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
                 with(viewModel.completion.collectAsStateWithLifecycle()) {
                     LaunchedEffect(value) { handle(value) }
                 }
-                with(screenModeAsState(viewHeight = defaultViewHeight)) {
+                var viewHeight by remember { mutableIntStateOf(defaultViewHeight) }
+                with(screenModeAsState(viewHeight = viewHeight)) {
                     LaunchedEffect(value) { apply(value) }
                 }
+                val displayCutoutHeight = displayCutoutHeight()
                 CardUpdateScreen(
                     state = viewModel.state.collectAsStateWithLifecycle().value,
                     onEvent = remember { viewModel::onEvent },
+                    onContentHeightChanged = { contentHeight ->
+                        viewHeight = when (val height = viewHeightConfiguration) {
+                            is Fixed -> (screenHeight * height.fraction + displayCutoutHeight).roundToInt()
+                            WrapContent -> contentHeight
+                        }
+                    },
                     style = CardUpdateScreen.style(custom = configuration?.style)
                 )
             }
