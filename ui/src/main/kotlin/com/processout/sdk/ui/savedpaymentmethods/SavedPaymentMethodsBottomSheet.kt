@@ -130,7 +130,7 @@ internal class SavedPaymentMethodsBottomSheet : BaseBottomSheetDialogFragment<PO
 
     override fun onCancellation(failure: ProcessOutResult.Failure) = dismiss(failure)
 
-    private fun dismiss(failure: ProcessOutResult.Failure) {
+    fun dismiss(failure: ProcessOutResult.Failure) {
         viewModel.onEvent(Dismiss(failure))
         finishWithActivityResult(
             resultCode = Activity.RESULT_CANCELED,

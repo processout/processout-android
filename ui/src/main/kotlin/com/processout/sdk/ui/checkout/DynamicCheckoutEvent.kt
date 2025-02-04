@@ -86,6 +86,8 @@ internal sealed interface DynamicCheckoutSideEffect {
     ) : DynamicCheckoutSideEffect
 
     data object CancelWebAuthorization : DynamicCheckoutSideEffect
+
+    data object BeforeSuccess : DynamicCheckoutSideEffect
 }
 
 internal sealed interface DynamicCheckoutCompletion {

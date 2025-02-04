@@ -164,6 +164,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
     private var pendingAlternativePayment: AlternativePayment? = null
 
     private lateinit var savedPaymentMethodsLauncher: POSavedPaymentMethodsLauncher
+    private var pendingSavedPaymentMethods = false
 
     private val permissionsLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions(),
@@ -192,7 +193,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         savedPaymentMethodsLauncher = POSavedPaymentMethodsLauncher.create(
             from = this,
             delegate = savedPaymentMethodsDelegate,
-            callback = {}
+            callback = { pendingSavedPaymentMethods = false }
         )
         setContent {
             val isLightTheme = !isSystemInDarkTheme()
@@ -262,9 +263,15 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                     returnUrl = sideEffect.returnUrl
                 )
             }
-            is SavedPaymentMethods -> savedPaymentMethodsLauncher.launch(sideEffect.configuration)
+            is SavedPaymentMethods -> {
+                pendingSavedPaymentMethods = true
+                savedPaymentMethodsLauncher.launch(sideEffect.configuration)
+            }
             is PermissionRequest -> requestPermission(sideEffect)
-            is CancelWebAuthorization -> cancelWebAuthorization()
+            CancelWebAuthorization -> cancelWebAuthorization()
+            BeforeSuccess -> if (pendingSavedPaymentMethods) {
+                savedPaymentMethodsLauncher.finish()
+            }
         }
     }
 
