@@ -219,8 +219,9 @@ private fun ExpressCheckoutHeader(
 ) {
     Row(
         modifier = Modifier
+            .padding(bottom = spacing.large)
             .fillMaxWidth()
-            .padding(bottom = spacing.large),
+            .requiredHeightIn(min = dimensions.buttonIconSizeSmall),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
