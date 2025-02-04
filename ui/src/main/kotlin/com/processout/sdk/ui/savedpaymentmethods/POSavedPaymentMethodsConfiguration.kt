@@ -7,7 +7,8 @@ import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import com.processout.sdk.ui.core.style.*
 import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
-import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
+import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration
+import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration.Height.WrapContent
 import kotlinx.parcelize.Parcelize
 
 /** @suppress */
@@ -18,7 +19,10 @@ data class POSavedPaymentMethodsConfiguration(
     val title: String? = null,
     val deleteButton: Button = Button(),
     val cancelButton: Button? = Button(),
-    val cancellation: POCancellationConfiguration = POCancellationConfiguration(),
+    val bottomSheet: POBottomSheetConfiguration = POBottomSheetConfiguration(
+        height = WrapContent,
+        expandable = false
+    ),
     val style: Style? = null
 ) : Parcelable {
 

@@ -7,8 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
@@ -28,6 +27,9 @@ import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsCompletion.S
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsEvent.Dismiss
 import com.processout.sdk.ui.shared.component.displayCutoutHeight
 import com.processout.sdk.ui.shared.component.screenModeAsState
+import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration.Height.Fixed
+import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration.Height.WrapContent
+import kotlin.math.roundToInt
 
 internal class SavedPaymentMethodsBottomSheet : BaseBottomSheetDialogFragment<POUnit>() {
 
@@ -36,9 +38,10 @@ internal class SavedPaymentMethodsBottomSheet : BaseBottomSheetDialogFragment<PO
     }
 
     override var expandable = false
-    override val defaultViewHeight by lazy { screenHeight }
+    override val defaultViewHeight by lazy { (screenHeight * 0.38).roundToInt() }
 
     private var configuration: POSavedPaymentMethodsConfiguration? = null
+    private val viewHeightConfiguration by lazy { configuration?.bottomSheet?.height ?: WrapContent }
 
     private val viewModel: SavedPaymentMethodsViewModel by viewModels {
         SavedPaymentMethodsViewModel.Factory(
@@ -77,14 +80,28 @@ internal class SavedPaymentMethodsBottomSheet : BaseBottomSheetDialogFragment<PO
                 with(viewModel.completion.collectAsStateWithLifecycle()) {
                     LaunchedEffect(value) { handle(value) }
                 }
-                with(screenModeAsState(viewHeight = defaultViewHeight + displayCutoutHeight())) {
-                    LaunchedEffect(value) { apply(value) }
+                val displayCutoutHeight = displayCutoutHeight()
+                val defaultViewHeight = defaultViewHeight + displayCutoutHeight
+                var viewHeight by remember { mutableIntStateOf(defaultViewHeight) }
+                with(screenModeAsState(viewHeight = viewHeight)) {
+                    LaunchedEffect(value) {
+                        apply(
+                            screenMode = value,
+                            animate = viewHeightConfiguration is WrapContent
+                        )
+                    }
                 }
                 SavedPaymentMethodsScreen(
                     state = viewModel.state.collectAsStateWithLifecycle().value,
                     onEvent = remember { viewModel::onEvent },
-                    style = SavedPaymentMethodsScreen.style(custom = configuration?.style),
-                    isLightTheme = isLightTheme
+                    onContentHeightChanged = { contentHeight ->
+                        viewHeight = when (val height = viewHeightConfiguration) {
+                            is Fixed -> (screenHeight * height.fraction + displayCutoutHeight).roundToInt()
+                            WrapContent -> contentHeight.coerceAtLeast(defaultViewHeight)
+                        }
+                    },
+                    isLightTheme = isLightTheme,
+                    style = SavedPaymentMethodsScreen.style(custom = configuration?.style)
                 )
             }
         }
@@ -92,7 +109,10 @@ internal class SavedPaymentMethodsBottomSheet : BaseBottomSheetDialogFragment<PO
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        configuration?.let { apply(it.cancellation) }
+        configuration?.let {
+            expandable = it.bottomSheet.expandable
+            apply(it.bottomSheet.cancellation)
+        }
     }
 
     private fun handle(completion: SavedPaymentMethodsCompletion) =

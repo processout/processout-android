@@ -56,7 +56,7 @@ internal class SavedPaymentMethodsViewModel(
             title = title ?: app.getString(R.string.po_saved_payment_methods_title),
             content = content(state),
             cancelAction = cancelAction(id = state.cancelActionId),
-            draggable = cancellation.dragDown
+            draggable = bottomSheet.cancellation.dragDown || bottomSheet.expandable
         )
     }
 

@@ -20,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -43,20 +44,32 @@ import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsScreen.Payme
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsScreen.RowComponentSpacing
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsViewModelState.Content.*
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsViewModelState.PaymentMethod
+import com.processout.sdk.ui.shared.extension.dpToPx
 
 @Composable
 internal fun SavedPaymentMethodsScreen(
     state: SavedPaymentMethodsViewModelState,
     onEvent: (SavedPaymentMethodsEvent) -> Unit,
-    style: SavedPaymentMethodsScreen.Style = SavedPaymentMethodsScreen.style(),
-    isLightTheme: Boolean
+    onContentHeightChanged: (Int) -> Unit,
+    isLightTheme: Boolean,
+    style: SavedPaymentMethodsScreen.Style = SavedPaymentMethodsScreen.style()
 ) {
+    var topBarHeight by remember { mutableIntStateOf(0) }
     Scaffold(
         modifier = Modifier
             .nestedScroll(rememberNestedScrollInteropConnection())
             .clip(shape = shapes.topRoundedCornersLarge),
         containerColor = style.backgroundColor,
-        topBar = { Header(state, onEvent, style) }
+        topBar = {
+            Header(
+                state = state,
+                onEvent = onEvent,
+                style = style,
+                modifier = Modifier.onGloballyPositioned {
+                    topBarHeight = it.size.height
+                }
+            )
+        }
     ) { scaffoldPadding ->
         AnimatedContent(
             targetState = state.content,
@@ -84,18 +97,26 @@ internal fun SavedPaymentMethodsScreen(
                 verticalArrangement = if (content is Loaded) Arrangement.Top else Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                when (content) {
-                    Loading -> POCircularProgressIndicator.Large(color = style.progressIndicatorColor)
-                    is Loaded -> Content(
-                        state = content,
-                        onEvent = onEvent,
-                        style = style,
-                        isLightTheme = isLightTheme
-                    )
-                    is Empty -> Empty(
-                        state = content,
-                        style = style.emptyContentStyle
-                    )
+                val verticalSpacingPx = (spacing.extraLarge * 4 + spacing.small).dpToPx()
+                Column(
+                    modifier = Modifier.onGloballyPositioned {
+                        val contentHeight = it.size.height + topBarHeight + verticalSpacingPx
+                        onContentHeightChanged(contentHeight)
+                    }
+                ) {
+                    when (content) {
+                        Loading -> POCircularProgressIndicator.Large(color = style.progressIndicatorColor)
+                        is Loaded -> Content(
+                            state = content,
+                            onEvent = onEvent,
+                            style = style,
+                            isLightTheme = isLightTheme
+                        )
+                        is Empty -> Empty(
+                            state = content,
+                            style = style.emptyContentStyle
+                        )
+                    }
                 }
             }
         }
@@ -106,10 +127,11 @@ internal fun SavedPaymentMethodsScreen(
 private fun Header(
     state: SavedPaymentMethodsViewModelState,
     onEvent: (SavedPaymentMethodsEvent) -> Unit,
-    style: SavedPaymentMethodsScreen.Style = SavedPaymentMethodsScreen.style()
+    style: SavedPaymentMethodsScreen.Style,
+    modifier: Modifier = Modifier
 ) {
     POHeader(
-        modifier = Modifier
+        modifier = modifier
             .verticalScroll(rememberScrollState())
             .background(color = style.header.backgroundColor),
         title = state.title,
