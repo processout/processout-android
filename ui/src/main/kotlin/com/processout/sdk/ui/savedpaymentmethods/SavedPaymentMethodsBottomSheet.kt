@@ -40,6 +40,7 @@ internal class SavedPaymentMethodsBottomSheet : BaseBottomSheetDialogFragment<PO
 
     override var expandable = false
     override val defaultViewHeight by lazy { 330.dpToPx(requireContext()) }
+    override val animationDurationMillis: Long = 300
 
     private var configuration: POSavedPaymentMethodsConfiguration? = null
     private val viewHeightConfiguration by lazy { configuration?.bottomSheet?.height ?: WrapContent }

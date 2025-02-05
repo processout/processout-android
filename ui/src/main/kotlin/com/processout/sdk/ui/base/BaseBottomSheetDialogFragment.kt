@@ -35,7 +35,7 @@ internal abstract class BaseBottomSheetDialogFragment<T : Parcelable> : BottomSh
     protected abstract var expandable: Boolean
     protected abstract val defaultViewHeight: Int
     protected val screenHeight by lazy { requireContext().screenSize().height }
-    protected var animationDurationMillis: Long = 400
+    protected open val animationDurationMillis: Long = 400
 
     private val bottomSheetDialog by lazy { requireDialog() as BottomSheetDialog }
     private val bottomSheetBehavior by lazy { bottomSheetDialog.behavior }
