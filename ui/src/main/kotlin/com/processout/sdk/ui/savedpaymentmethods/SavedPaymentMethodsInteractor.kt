@@ -155,7 +155,9 @@ internal class SavedPaymentMethodsInteractor(
                 ActionId.DELETE -> event.paymentMethodId?.let { delete(it) }
                 ActionId.CANCEL -> cancel()
             }
-            is Dismiss -> {}
+            is Dismiss -> {
+                // TODO
+            }
         }
     }
 

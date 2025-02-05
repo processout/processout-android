@@ -962,6 +962,9 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun handleSuccess() {
+        interactorScope.launch {
+            _sideEffects.send(DynamicCheckoutSideEffect.BeforeSuccess)
+        }
         configuration.paymentSuccess?.let { paymentSuccess ->
             _state.update { it.copy(delayedSuccess = true) }
             handler.postDelayed(delayInMillis = paymentSuccess.durationSeconds * 1000L) {

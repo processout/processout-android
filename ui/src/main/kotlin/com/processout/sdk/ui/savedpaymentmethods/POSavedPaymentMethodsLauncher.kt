@@ -1,6 +1,7 @@
 package com.processout.sdk.ui.savedpaymentmethods
 
 import android.content.Context
+import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.app.ActivityOptionsCompat
@@ -12,6 +13,7 @@ import com.processout.sdk.api.model.event.POSavedPaymentMethodsEvent
 import com.processout.sdk.core.POUnit
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsActivityContract.Companion.EXTRA_FORCE_FINISH
 import kotlinx.coroutines.CoroutineScope
 
 /**
@@ -20,6 +22,7 @@ import kotlinx.coroutines.CoroutineScope
 /** @suppress */
 @ProcessOutInternalApi
 class POSavedPaymentMethodsLauncher private constructor(
+    private val parentActivity: ComponentActivity,
     private val scope: CoroutineScope,
     private val launcher: ActivityResultLauncher<POSavedPaymentMethodsConfiguration>,
     private val activityOptions: ActivityOptionsCompat,
@@ -37,6 +40,7 @@ class POSavedPaymentMethodsLauncher private constructor(
             delegate: POSavedPaymentMethodsDelegate,
             callback: (ProcessOutActivityResult<POUnit>) -> Unit
         ) = POSavedPaymentMethodsLauncher(
+            parentActivity = from.requireActivity(),
             scope = from.lifecycleScope,
             launcher = from.registerForActivityResult(
                 SavedPaymentMethodsActivityContract(),
@@ -55,6 +59,7 @@ class POSavedPaymentMethodsLauncher private constructor(
             delegate: POSavedPaymentMethodsDelegate,
             callback: (ProcessOutActivityResult<POUnit>) -> Unit
         ) = POSavedPaymentMethodsLauncher(
+            parentActivity = from,
             scope = from.lifecycleScope,
             launcher = from.registerForActivityResult(
                 SavedPaymentMethodsActivityContract(),
@@ -86,5 +91,16 @@ class POSavedPaymentMethodsLauncher private constructor(
      */
     fun launch(configuration: POSavedPaymentMethodsConfiguration) {
         launcher.launch(configuration, activityOptions)
+    }
+
+    /**
+     * Finishes the activity.
+     */
+    fun finish() {
+        Intent(parentActivity, SavedPaymentMethodsActivity::class.java).let {
+            it.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+            it.putExtra(EXTRA_FORCE_FINISH, true)
+            parentActivity.startActivity(it)
+        }
     }
 }

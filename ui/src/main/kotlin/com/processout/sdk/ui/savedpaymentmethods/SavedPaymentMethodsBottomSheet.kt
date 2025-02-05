@@ -29,6 +29,7 @@ import com.processout.sdk.ui.shared.component.displayCutoutHeight
 import com.processout.sdk.ui.shared.component.screenModeAsState
 import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration.Height.Fixed
 import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration.Height.WrapContent
+import com.processout.sdk.ui.shared.extension.dpToPx
 import kotlin.math.roundToInt
 
 internal class SavedPaymentMethodsBottomSheet : BaseBottomSheetDialogFragment<POUnit>() {
@@ -38,7 +39,8 @@ internal class SavedPaymentMethodsBottomSheet : BaseBottomSheetDialogFragment<PO
     }
 
     override var expandable = false
-    override val defaultViewHeight by lazy { (screenHeight * 0.38).roundToInt() }
+    override val defaultViewHeight by lazy { 330.dpToPx(requireContext()) }
+    override val animationDurationMillis: Long = 300
 
     private var configuration: POSavedPaymentMethodsConfiguration? = null
     private val viewHeightConfiguration by lazy { configuration?.bottomSheet?.height ?: WrapContent }
@@ -130,7 +132,7 @@ internal class SavedPaymentMethodsBottomSheet : BaseBottomSheetDialogFragment<PO
 
     override fun onCancellation(failure: ProcessOutResult.Failure) = dismiss(failure)
 
-    private fun dismiss(failure: ProcessOutResult.Failure) {
+    fun dismiss(failure: ProcessOutResult.Failure) {
         viewModel.onEvent(Dismiss(failure))
         finishWithActivityResult(
             resultCode = Activity.RESULT_CANCELED,
