@@ -1,4 +1,4 @@
-@file:Suppress("MayBeConstant")
+@file:Suppress("MayBeConstant", "MemberVisibilityCanBePrivate")
 
 package com.processout.sdk.ui.checkout.screen
 
@@ -6,7 +6,6 @@ import android.view.Gravity
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.*
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -39,7 +38,6 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.Field.CheckboxField
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment.Content.*
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration
-import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.CrossfadeAnimationDurationMillis
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.LongAnimationDurationMillis
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.PaymentLogoSize
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.PaymentSuccessStyle
@@ -108,48 +106,47 @@ internal fun DynamicCheckoutScreen(
                 }
             }
         ) { scaffoldPadding ->
-            Crossfade(
-                targetState = state is Success,
-                animationSpec = tween(
-                    durationMillis = CrossfadeAnimationDurationMillis,
-                    easing = LinearEasing
-                )
-            ) { crossfade ->
-                if (crossfade && state is Success) {
-                    Success(
-                        message = state.message,
-                        style = style.paymentSuccess
+            AnimatedContent(
+                targetState = state,
+                contentKey = { it::class.java },
+                transitionSpec = {
+                    fadeIn(
+                        animationSpec = tween(
+                            durationMillis = ShortAnimationDurationMillis,
+                            easing = LinearEasing
+                        )
+                    ) togetherWith fadeOut(
+                        animationSpec = tween(
+                            durationMillis = ShortAnimationDurationMillis,
+                            easing = LinearEasing
+                        )
                     )
-                } else {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(scaffoldPadding)
-                            .verticalScroll(rememberScrollState()),
-                        verticalArrangement = if (state is Loading) Arrangement.Center else Arrangement.Top,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        when (state) {
-                            is Loading -> Loading(progressIndicatorColor = style.progressIndicatorColor)
-                            is Loaded -> Content(
-                                state = state,
-                                onEvent = onEvent,
-                                style = style,
-                                isLightTheme = isLightTheme
-                            )
-                            else -> {}
-                        }
+                }
+            ) { state ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(scaffoldPadding)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = if (state is Loading) Arrangement.Center else Arrangement.Top,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    when (state) {
+                        is Loading -> POCircularProgressIndicator.Large(color = style.progressIndicatorColor)
+                        is Loaded -> Content(
+                            state = state,
+                            onEvent = onEvent,
+                            style = style,
+                            isLightTheme = isLightTheme
+                        )
+                        is Success -> Success(
+                            message = state.message,
+                            style = style.paymentSuccess
+                        )
                     }
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun Loading(progressIndicatorColor: Color) {
-    AnimatedVisibility {
-        POCircularProgressIndicator.Large(color = progressIndicatorColor)
     }
 }
 
@@ -160,33 +157,33 @@ private fun Content(
     style: DynamicCheckoutScreen.Style,
     isLightTheme: Boolean
 ) {
-    AnimatedVisibility {
-        Column(
-            modifier = Modifier.padding(spacing.extraLarge)
-        ) {
-            POMessageBox(
-                text = state.errorMessage,
-                style = style.messageBox,
-                modifier = Modifier.padding(bottom = spacing.large),
-                horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing),
-                enterAnimationDelayMillis = ShortAnimationDurationMillis
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(spacing.extraLarge)
+    ) {
+        POMessageBox(
+            text = state.errorMessage,
+            style = style.messageBox,
+            modifier = Modifier.padding(bottom = spacing.large),
+            horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing),
+            enterAnimationDelayMillis = ShortAnimationDurationMillis
+        )
+        state.expressCheckout?.let {
+            ExpressCheckout(
+                state = it,
+                onEvent = onEvent,
+                style = style,
+                isLightTheme = isLightTheme
             )
-            state.expressCheckout?.let {
-                ExpressCheckout(
-                    state = it,
-                    onEvent = onEvent,
-                    style = style,
-                    isLightTheme = isLightTheme
-                )
-            }
-            if (state.regularPayments.elements.isNotEmpty()) {
-                RegularPayments(
-                    payments = state.regularPayments,
-                    onEvent = onEvent,
-                    style = style,
-                    isLightTheme = isLightTheme
-                )
-            }
+        }
+        if (state.regularPayments.elements.isNotEmpty()) {
+            RegularPayments(
+                payments = state.regularPayments,
+                onEvent = onEvent,
+                style = style,
+                isLightTheme = isLightTheme
+            )
         }
     }
 }
@@ -631,7 +628,7 @@ private fun Actions(
         onConfirmationRequested = { onEvent(ActionConfirmationRequested(id = it)) },
         containerStyle = containerStyle,
         confirmationDialogStyle = dialogStyle,
-        animationDurationMillis = CrossfadeAnimationDurationMillis
+        animationDurationMillis = ShortAnimationDurationMillis
     )
 }
 
@@ -642,7 +639,7 @@ private fun Success(
 ) {
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .padding(top = spacing.extraLarge * 2),
         verticalArrangement = Arrangement.spacedBy(spacing.extraLarge),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -663,23 +660,6 @@ private fun Success(
             alignment = Alignment.Center,
             contentScale = ContentScale.Fit
         )
-    }
-}
-
-@Composable
-private fun AnimatedVisibility(
-    visibleState: MutableTransitionState<Boolean> = remember {
-        MutableTransitionState(initialState = false)
-            .apply { targetState = true }
-    },
-    content: @Composable () -> Unit
-) {
-    AnimatedVisibility(
-        visibleState = visibleState,
-        enter = fadeIn(animationSpec = tween(durationMillis = ShortAnimationDurationMillis)),
-        exit = fadeOut(animationSpec = tween(durationMillis = ShortAnimationDurationMillis))
-    ) {
-        content()
     }
 }
 
