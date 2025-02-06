@@ -2,11 +2,15 @@ package com.processout.sdk.ui.core.component
 
 import android.os.Build
 import android.view.ViewGroup
-import android.view.WindowInsets
 import android.view.WindowManager
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Surface
@@ -44,11 +48,11 @@ fun PODialog(
         properties = DialogProperties(
             dismissOnBackPress = false,
             dismissOnClickOutside = false,
-            usePlatformDefaultWidth = true, // needs to be 'true', otherwise breaks insets, window adjusted below
-            decorFitsSystemWindows = Build.VERSION.SDK_INT < Build.VERSION_CODES.R
+            usePlatformDefaultWidth = true, // needs to be 'true', otherwise breaks edge-to-edge insets
+            decorFitsSystemWindows = false
         )
     ) {
-        AdjustWindow()
+        EnableEdgeToEdge()
         var scrimAlpha by remember { mutableFloatStateOf(0f) }
         LaunchedEffect(Unit) { scrimAlpha = 0.32f }
         Box(
@@ -67,57 +71,66 @@ fun PODialog(
                 ),
             contentAlignment = Alignment.Center
         ) {
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(spacing.extraLarge),
-                shape = shapes.roundedCornersLarge,
-                color = style.backgroundColor,
-                contentColor = Color.Unspecified,
-                shadowElevation = 3.dp
+            AnimatedVisibility(
+                visibleState = remember {
+                    MutableTransitionState(initialState = false)
+                        .apply { targetState = true }
+                },
+                enter = fadeIn() + scaleIn(initialScale = 0.9f),
+                exit = fadeOut()
             ) {
-                Column(
+                Surface(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(spacing.extraLarge)
+                        .padding(spacing.extraLarge),
+                    shape = shapes.roundedCornersLarge,
+                    color = style.backgroundColor,
+                    contentColor = Color.Unspecified,
+                    shadowElevation = 3.dp
                 ) {
-                    POText(
-                        text = title,
-                        color = style.title.color,
-                        style = style.title.textStyle
-                    )
-                    if (!message.isNullOrBlank()) {
-                        POText(
-                            text = message,
-                            modifier = Modifier.padding(top = spacing.large),
-                            color = style.message.color,
-                            style = style.message.textStyle
-                        )
-                    }
-                    Row(
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = spacing.extraLarge),
-                        horizontalArrangement = Arrangement.spacedBy(
-                            space = spacing.small,
-                            alignment = Alignment.End
-                        ),
-                        verticalAlignment = Alignment.CenterVertically
+                            .padding(spacing.extraLarge)
                     ) {
-                        if (!dismissActionText.isNullOrBlank()) {
-                            POButton(
-                                text = dismissActionText,
-                                onClick = onDismiss,
-                                modifier = Modifier.requiredHeightIn(min = dimensions.interactiveComponentMinSize),
-                                style = style.dismissButton
+                        POText(
+                            text = title,
+                            color = style.title.color,
+                            style = style.title.textStyle
+                        )
+                        if (!message.isNullOrBlank()) {
+                            POText(
+                                text = message,
+                                modifier = Modifier.padding(top = spacing.large),
+                                color = style.message.color,
+                                style = style.message.textStyle
                             )
                         }
-                        POButton(
-                            text = confirmActionText,
-                            onClick = onConfirm,
-                            modifier = Modifier.requiredHeightIn(min = dimensions.interactiveComponentMinSize),
-                            style = style.confirmButton
-                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = spacing.extraLarge),
+                            horizontalArrangement = Arrangement.spacedBy(
+                                space = spacing.small,
+                                alignment = Alignment.End
+                            ),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (!dismissActionText.isNullOrBlank()) {
+                                POButton(
+                                    text = dismissActionText,
+                                    onClick = onDismiss,
+                                    modifier = Modifier.requiredHeightIn(min = dimensions.interactiveComponentMinSize),
+                                    style = style.dismissButton
+                                )
+                            }
+                            POButton(
+                                text = confirmActionText,
+                                onClick = onConfirm,
+                                modifier = Modifier.requiredHeightIn(min = dimensions.interactiveComponentMinSize),
+                                style = style.confirmButton
+                            )
+                        }
                     }
                 }
             }
@@ -126,14 +139,14 @@ fun PODialog(
 }
 
 @Composable
-private fun AdjustWindow() {
+private fun EnableEdgeToEdge() {
     with((LocalView.current.parent as DialogWindowProvider).window) {
         setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-        setDimAmount(0f)
         setWindowAnimations(-1)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            attributes.fitInsetsSides = WindowInsets.Side.TOP
+            attributes.fitInsetsTypes = 0
+            attributes.fitInsetsSides = 0
         }
     }
 }
