@@ -4,12 +4,14 @@ import android.os.Build
 import android.view.ViewGroup
 import android.view.WindowInsets
 import android.view.WindowManager
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,10 +49,22 @@ fun PODialog(
         )
     ) {
         AdjustWindow()
+        var scrimAlpha by remember { mutableFloatStateOf(0f) }
+        LaunchedEffect(Unit) { scrimAlpha = 0.32f }
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = PODialog.ScrimColor),
+                .background(
+                    color = Color.Black.copy(
+                        alpha = animateFloatAsState(
+                            targetValue = scrimAlpha,
+                            animationSpec = tween(
+                                durationMillis = 200,
+                                easing = FastOutLinearInEasing
+                            )
+                        ).value
+                    )
+                ),
             contentAlignment = Alignment.Center
         ) {
             with(ProcessOutTheme) {
@@ -163,8 +177,6 @@ object PODialog {
             backgroundColor = colorResource(id = backgroundColorResId)
         )
     }
-
-    internal val ScrimColor = Color.Black.copy(alpha = 0.32f)
 
     internal fun cardColors(backgroundColor: Color) = CardColors(
         containerColor = backgroundColor,
