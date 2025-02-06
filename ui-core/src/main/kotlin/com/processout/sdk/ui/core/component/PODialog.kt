@@ -23,8 +23,9 @@ import androidx.compose.ui.window.DialogWindowProvider
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.PODialog.cardColors
 import com.processout.sdk.ui.core.style.PODialogStyle
-import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 
 /** @suppress */
@@ -67,57 +68,55 @@ fun PODialog(
                 ),
             contentAlignment = Alignment.Center
         ) {
-            with(ProcessOutTheme) {
-                Card(
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(spacing.extraLarge),
+                shape = shapes.roundedCornersLarge,
+                colors = cardColors(style.backgroundColor)
+            ) {
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(spacing.extraLarge),
-                    shape = shapes.roundedCornersLarge,
-                    colors = cardColors(style.backgroundColor)
+                        .padding(spacing.extraLarge)
                 ) {
-                    Column(
+                    POText(
+                        text = title,
+                        color = style.title.color,
+                        style = style.title.textStyle
+                    )
+                    if (!message.isNullOrBlank()) {
+                        POText(
+                            text = message,
+                            modifier = Modifier.padding(top = spacing.large),
+                            color = style.message.color,
+                            style = style.message.textStyle
+                        )
+                    }
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(spacing.extraLarge)
+                            .padding(top = spacing.extraLarge),
+                        horizontalArrangement = Arrangement.spacedBy(
+                            space = spacing.small,
+                            alignment = Alignment.End
+                        ),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        POText(
-                            text = title,
-                            color = style.title.color,
-                            style = style.title.textStyle
-                        )
-                        if (!message.isNullOrBlank()) {
-                            POText(
-                                text = message,
-                                modifier = Modifier.padding(top = spacing.large),
-                                color = style.message.color,
-                                style = style.message.textStyle
-                            )
-                        }
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = spacing.extraLarge),
-                            horizontalArrangement = Arrangement.spacedBy(
-                                space = spacing.small,
-                                alignment = Alignment.End
-                            ),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            if (!dismissActionText.isNullOrBlank()) {
-                                POButton(
-                                    text = dismissActionText,
-                                    onClick = onDismiss,
-                                    modifier = Modifier.requiredHeightIn(min = dimensions.interactiveComponentMinSize),
-                                    style = style.dismissButton
-                                )
-                            }
+                        if (!dismissActionText.isNullOrBlank()) {
                             POButton(
-                                text = confirmActionText,
-                                onClick = onConfirm,
+                                text = dismissActionText,
+                                onClick = onDismiss,
                                 modifier = Modifier.requiredHeightIn(min = dimensions.interactiveComponentMinSize),
-                                style = style.confirmButton
+                                style = style.dismissButton
                             )
                         }
+                        POButton(
+                            text = confirmActionText,
+                            onClick = onConfirm,
+                            modifier = Modifier.requiredHeightIn(min = dimensions.interactiveComponentMinSize),
+                            style = style.confirmButton
+                        )
                     }
                 }
             }
