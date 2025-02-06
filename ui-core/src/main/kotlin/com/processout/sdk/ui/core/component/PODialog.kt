@@ -9,19 +9,18 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
-import com.processout.sdk.ui.core.component.PODialog.cardColors
 import com.processout.sdk.ui.core.style.PODialogStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
@@ -68,12 +67,14 @@ fun PODialog(
                 ),
             contentAlignment = Alignment.Center
         ) {
-            Card(
+            Surface(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(spacing.extraLarge),
                 shape = shapes.roundedCornersLarge,
-                colors = cardColors(style.backgroundColor)
+                color = style.backgroundColor,
+                contentColor = Color.Unspecified,
+                shadowElevation = 3.dp
             ) {
                 Column(
                     modifier = Modifier
@@ -129,6 +130,7 @@ private fun AdjustWindow() {
     with((LocalView.current.parent as DialogWindowProvider).window) {
         setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        setDimAmount(0f)
         setWindowAnimations(-1)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             attributes.fitInsetsSides = WindowInsets.Side.TOP
@@ -176,11 +178,4 @@ object PODialog {
             backgroundColor = colorResource(id = backgroundColorResId)
         )
     }
-
-    internal fun cardColors(backgroundColor: Color) = CardColors(
-        containerColor = backgroundColor,
-        contentColor = Color.Unspecified,
-        disabledContainerColor = Color.Unspecified,
-        disabledContentColor = Color.Unspecified
-    )
 }
