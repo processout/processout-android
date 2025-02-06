@@ -1,5 +1,9 @@
 package com.processout.sdk.ui.core.component
 
+import android.os.Build
+import android.view.ViewGroup
+import android.view.WindowInsets
+import android.view.WindowManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Card
@@ -9,9 +13,11 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.DialogWindowProvider
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.PODialog.cardColors
 import com.processout.sdk.ui.core.style.PODialogStyle
@@ -36,9 +42,11 @@ fun PODialog(
         properties = DialogProperties(
             dismissOnBackPress = false,
             dismissOnClickOutside = false,
-            usePlatformDefaultWidth = false
+            usePlatformDefaultWidth = true, // needs to be 'true', otherwise breaks insets, window adjusted below
+            decorFitsSystemWindows = Build.VERSION.SDK_INT < Build.VERSION_CODES.R
         )
     ) {
+        AdjustWindow()
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -99,6 +107,18 @@ fun PODialog(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun AdjustWindow() {
+    with((LocalView.current.parent as DialogWindowProvider).window) {
+        setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        setWindowAnimations(-1)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            attributes.fitInsetsSides = WindowInsets.Side.TOP
         }
     }
 }
