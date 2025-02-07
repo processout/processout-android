@@ -1,22 +1,34 @@
 package com.processout.sdk.ui.core.component
 
+import android.os.Build
+import android.view.ViewGroup
+import android.view.WindowManager
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.DialogWindowProvider
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
-import com.processout.sdk.ui.core.component.PODialog.cardColors
 import com.processout.sdk.ui.core.style.PODialogStyle
-import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 
 /** @suppress */
@@ -36,22 +48,45 @@ fun PODialog(
         properties = DialogProperties(
             dismissOnBackPress = false,
             dismissOnClickOutside = false,
-            usePlatformDefaultWidth = false
+            usePlatformDefaultWidth = true, // needs to be 'true', otherwise breaks edge-to-edge insets
+            decorFitsSystemWindows = false
         )
     ) {
+        EnableEdgeToEdge()
+        var scrimAlpha by remember { mutableFloatStateOf(0f) }
+        LaunchedEffect(Unit) { scrimAlpha = 0.32f }
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = PODialog.ScrimColor),
+                .background(
+                    color = Color.Black.copy(
+                        alpha = animateFloatAsState(
+                            targetValue = scrimAlpha,
+                            animationSpec = tween(
+                                durationMillis = 200,
+                                easing = FastOutLinearInEasing
+                            )
+                        ).value
+                    )
+                ),
             contentAlignment = Alignment.Center
         ) {
-            with(ProcessOutTheme) {
-                Card(
+            AnimatedVisibility(
+                visibleState = remember {
+                    MutableTransitionState(initialState = false)
+                        .apply { targetState = true }
+                },
+                enter = fadeIn() + scaleIn(initialScale = 0.9f),
+                exit = fadeOut()
+            ) {
+                Surface(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(spacing.extraLarge),
                     shape = shapes.roundedCornersLarge,
-                    colors = cardColors(style.backgroundColor)
+                    color = style.backgroundColor,
+                    contentColor = Color.Unspecified,
+                    shadowElevation = 3.dp
                 ) {
                     Column(
                         modifier = Modifier
@@ -103,6 +138,19 @@ fun PODialog(
     }
 }
 
+@Composable
+private fun EnableEdgeToEdge() {
+    with((LocalView.current.parent as DialogWindowProvider).window) {
+        setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        setWindowAnimations(-1)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            attributes.fitInsetsTypes = 0
+            attributes.fitInsetsSides = 0
+        }
+    }
+}
+
 /** @suppress */
 @ProcessOutInternalApi
 object PODialog {
@@ -143,13 +191,4 @@ object PODialog {
             backgroundColor = colorResource(id = backgroundColorResId)
         )
     }
-
-    internal val ScrimColor = Color.Black.copy(alpha = 0.32f)
-
-    internal fun cardColors(backgroundColor: Color) = CardColors(
-        containerColor = backgroundColor,
-        contentColor = Color.Unspecified,
-        disabledContainerColor = Color.Unspecified,
-        disabledContentColor = Color.Unspecified
-    )
 }
