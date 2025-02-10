@@ -71,8 +71,8 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
+import com.processout.sdk.ui.shared.component.AndroidTextView
 import com.processout.sdk.ui.shared.component.GooglePayButton
-import com.processout.sdk.ui.shared.component.TextAndroidView
 import com.processout.sdk.ui.shared.extension.*
 import com.processout.sdk.ui.shared.state.FieldState
 
@@ -674,7 +674,7 @@ internal object DynamicCheckoutScreen {
         val radioGroup: PORadioGroup.Style,
         val checkbox: POCheckbox.Style,
         val dropdownMenu: PODropdownField.MenuStyle,
-        val bodyText: TextAndroidView.Style,
+        val bodyText: AndroidTextView.Style,
         val errorText: POText.Style,
         val messageBox: POMessageBox.Style,
         val dialog: PODialog.Style,
@@ -737,11 +737,11 @@ internal object DynamicCheckoutScreen {
         } ?: PODropdownField.defaultMenu,
         bodyText = custom?.bodyText?.let { style ->
             val controlsTintColor = custom.controlsTintColorResId?.let { colorResource(id = it) }
-            TextAndroidView.custom(
+            AndroidTextView.custom(
                 style = style,
                 controlsTintColor = controlsTintColor ?: colors.text.primary
             )
-        } ?: TextAndroidView.default,
+        } ?: AndroidTextView.default,
         errorText = custom?.errorText?.let {
             POText.custom(style = it)
         } ?: POText.errorLabel,

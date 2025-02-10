@@ -58,7 +58,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.codeFieldHorizo
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.messageGravity
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Field.*
-import com.processout.sdk.ui.shared.component.TextAndroidView
+import com.processout.sdk.ui.shared.component.AndroidTextView
 import com.processout.sdk.ui.shared.component.rememberLifecycleEvent
 import com.processout.sdk.ui.shared.extension.dpToPx
 import com.processout.sdk.ui.shared.state.FieldState
@@ -448,7 +448,7 @@ private fun CaptureContent(
     if (state.withProgressIndicator) {
         AnimatedProgressIndicator(style.progressIndicatorColor)
     }
-    TextAndroidView(
+    AndroidTextView(
         text = state.message,
         style = style.message,
         modifier = Modifier.fillMaxWidth(),
@@ -615,7 +615,7 @@ internal object NativeAlternativePaymentScreen {
         val dialog: PODialog.Style,
         val normalBackgroundColor: Color,
         val successBackgroundColor: Color,
-        val message: TextAndroidView.Style,
+        val message: AndroidTextView.Style,
         val errorMessage: POText.Style,
         val successMessage: POText.Style,
         @DrawableRes val successImageResId: Int,
@@ -660,11 +660,11 @@ internal object NativeAlternativePaymentScreen {
                 } ?: colors.surface.success,
                 message = custom?.message?.let { style ->
                     val controlsTintColor = custom.controlsTintColorResId?.let { colorResource(id = it) }
-                    TextAndroidView.custom(
+                    AndroidTextView.custom(
                         style = style,
                         controlsTintColor = controlsTintColor ?: colors.text.primary
                     )
-                } ?: TextAndroidView.default,
+                } ?: AndroidTextView.default,
                 errorMessage = custom?.errorMessage?.let {
                     POText.custom(style = it)
                 } ?: POText.errorLabel,

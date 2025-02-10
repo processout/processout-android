@@ -41,7 +41,7 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Field.*
-import com.processout.sdk.ui.shared.component.TextAndroidView
+import com.processout.sdk.ui.shared.component.AndroidTextView
 import com.processout.sdk.ui.shared.component.rememberLifecycleEvent
 import com.processout.sdk.ui.shared.extension.conditional
 import com.processout.sdk.ui.shared.state.FieldState
@@ -349,7 +349,7 @@ private fun Capture(
             if (state.withProgressIndicator) {
                 AnimatedProgressIndicator(style.progressIndicatorColor)
             }
-            TextAndroidView(
+            AndroidTextView(
                 text = state.message,
                 style = style.bodyText,
                 modifier = Modifier.fillMaxWidth(),
