@@ -30,7 +30,6 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
-import com.processout.sdk.ui.shared.component.DynamicFooter
 import com.processout.sdk.ui.shared.component.rememberLifecycleEvent
 import com.processout.sdk.ui.shared.extension.dpToPx
 import com.processout.sdk.ui.shared.state.FieldState
@@ -64,17 +63,15 @@ internal fun CardUpdateScreen(
             )
         },
         bottomBar = {
-            DynamicFooter {
-                Actions(
-                    primary = state.primaryAction,
-                    secondary = state.secondaryAction,
-                    onEvent = onEvent,
-                    style = style.actionsContainer,
-                    modifier = Modifier.onGloballyPositioned {
-                        bottomBarHeight = it.size.height
-                    }
-                )
-            }
+            Actions(
+                primary = state.primaryAction,
+                secondary = state.secondaryAction,
+                onEvent = onEvent,
+                style = style.actionsContainer,
+                modifier = Modifier.onGloballyPositioned {
+                    bottomBarHeight = it.size.height
+                }
+            )
         }
     ) { scaffoldPadding ->
         Column(

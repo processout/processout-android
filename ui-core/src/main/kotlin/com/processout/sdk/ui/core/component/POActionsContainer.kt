@@ -43,41 +43,45 @@ fun POActionsContainer(
         enter = fadeIn(animationSpec = tween(durationMillis = animationDurationMillis)),
         exit = fadeOut(animationSpec = tween(durationMillis = animationDurationMillis)),
     ) {
-        Column(modifier = modifier) {
-            HorizontalDivider(thickness = 1.dp, color = containerStyle.dividerColor)
-            val padding = ProcessOutTheme.spacing.extraLarge
-            val spacing = ProcessOutTheme.spacing.small
-            when (containerStyle.axis) {
-                POAxis.Vertical -> Column(
-                    modifier = Modifier
-                        .background(color = containerStyle.backgroundColor)
-                        .padding(padding),
-                    verticalArrangement = Arrangement.spacedBy(spacing)
-                ) {
-                    Actions(
-                        actions = currentActions,
-                        onClick = onClick,
-                        onConfirmationRequested = onConfirmationRequested,
-                        primaryActionStyle = containerStyle.primary,
-                        secondaryActionStyle = containerStyle.secondary,
-                        confirmationDialogStyle = confirmationDialogStyle
-                    )
-                }
-                POAxis.Horizontal -> Row(
-                    modifier = Modifier
-                        .background(color = containerStyle.backgroundColor)
-                        .padding(padding),
-                    horizontalArrangement = Arrangement.spacedBy(spacing)
-                ) {
-                    Actions(
-                        actions = currentActions,
-                        onClick = onClick,
-                        onConfirmationRequested = onConfirmationRequested,
-                        primaryActionStyle = containerStyle.primary,
-                        secondaryActionStyle = containerStyle.secondary,
-                        confirmationDialogStyle = confirmationDialogStyle,
-                        modifier = Modifier.weight(1f)
-                    )
+        PODynamicFooter(
+            spacerBackgroundColor = containerStyle.backgroundColor
+        ) {
+            Column(modifier = modifier) {
+                HorizontalDivider(thickness = 1.dp, color = containerStyle.dividerColor)
+                val padding = ProcessOutTheme.spacing.extraLarge
+                val spacing = ProcessOutTheme.spacing.small
+                when (containerStyle.axis) {
+                    POAxis.Vertical -> Column(
+                        modifier = Modifier
+                            .background(color = containerStyle.backgroundColor)
+                            .padding(padding),
+                        verticalArrangement = Arrangement.spacedBy(spacing)
+                    ) {
+                        Actions(
+                            actions = currentActions,
+                            onClick = onClick,
+                            onConfirmationRequested = onConfirmationRequested,
+                            primaryActionStyle = containerStyle.primary,
+                            secondaryActionStyle = containerStyle.secondary,
+                            confirmationDialogStyle = confirmationDialogStyle
+                        )
+                    }
+                    POAxis.Horizontal -> Row(
+                        modifier = Modifier
+                            .background(color = containerStyle.backgroundColor)
+                            .padding(padding),
+                        horizontalArrangement = Arrangement.spacedBy(spacing)
+                    ) {
+                        Actions(
+                            actions = currentActions,
+                            onClick = onClick,
+                            onConfirmationRequested = onConfirmationRequested,
+                            primaryActionStyle = containerStyle.primary,
+                            secondaryActionStyle = containerStyle.secondary,
+                            confirmationDialogStyle = confirmationDialogStyle,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
                 }
             }
         }

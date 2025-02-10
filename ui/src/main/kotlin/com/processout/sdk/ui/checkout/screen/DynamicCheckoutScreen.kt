@@ -71,7 +71,6 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
-import com.processout.sdk.ui.shared.component.DynamicFooter
 import com.processout.sdk.ui.shared.component.GooglePayButton
 import com.processout.sdk.ui.shared.component.TextAndroidView
 import com.processout.sdk.ui.shared.extension.*
@@ -96,14 +95,12 @@ internal fun DynamicCheckoutScreen(
                 successColor = style.paymentSuccess.backgroundColor
             ),
             bottomBar = {
-                DynamicFooter {
-                    Actions(
-                        state = state,
-                        onEvent = onEvent,
-                        containerStyle = style.actionsContainer,
-                        dialogStyle = style.dialog
-                    )
-                }
+                Actions(
+                    state = state,
+                    onEvent = onEvent,
+                    containerStyle = style.actionsContainer,
+                    dialogStyle = style.dialog
+                )
             }
         ) { scaffoldPadding ->
             AnimatedContent(

@@ -18,6 +18,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.processout.sdk.api.dispatcher.PODefaultEventDispatchers
 import com.processout.sdk.core.*
 import com.processout.sdk.ui.base.BaseBottomSheetDialogFragment
+import com.processout.sdk.ui.core.component.POIme.isImeVisibleAsState
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.napm.NativeAlternativePaymentActivityContract.Companion.EXTRA_CONFIGURATION
 import com.processout.sdk.ui.napm.NativeAlternativePaymentActivityContract.Companion.EXTRA_RESULT
@@ -29,7 +30,6 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.AnimationDurati
 import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.PermissionRequest
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Capture
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Button
-import com.processout.sdk.ui.shared.component.isImeVisibleAsState
 import com.processout.sdk.ui.shared.component.screenModeAsState
 import com.processout.sdk.ui.shared.extension.collectImmediately
 import com.processout.sdk.ui.shared.extension.dpToPx
