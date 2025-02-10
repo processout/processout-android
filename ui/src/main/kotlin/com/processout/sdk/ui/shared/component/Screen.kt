@@ -6,6 +6,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.processout.sdk.ui.core.component.POIme.imeHeight
+import com.processout.sdk.ui.core.component.POIme.isImeVisibleAsState
 import com.processout.sdk.ui.shared.component.ScreenMode.Fullscreen
 import com.processout.sdk.ui.shared.component.ScreenMode.Window
 import com.processout.sdk.ui.shared.extension.screenSize

@@ -30,15 +30,15 @@ import com.processout.sdk.ui.core.style.POTextType
 import com.processout.sdk.ui.core.style.POTextType.Weight
 import com.processout.sdk.ui.core.style.POTextType.Weight.*
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
-import com.processout.sdk.ui.shared.component.TextAndroidView.apply
+import com.processout.sdk.ui.shared.component.AndroidTextView.apply
 import com.processout.sdk.ui.shared.extension.spToPx
 import com.processout.sdk.ui.shared.view.extension.POTextViewExtensions.setMarkdown
 
 @Composable
-internal fun TextAndroidView(
+internal fun AndroidTextView(
     text: String,
     modifier: Modifier = Modifier,
-    style: TextAndroidView.Style = TextAndroidView.default,
+    style: AndroidTextView.Style = AndroidTextView.default,
     gravity: Int = Gravity.START,
     selectable: Boolean = false,
     linksClickable: Boolean = false
@@ -69,7 +69,7 @@ internal fun TextAndroidView(
     )
 }
 
-internal object TextAndroidView {
+internal object AndroidTextView {
 
     @Immutable
     data class Style(
