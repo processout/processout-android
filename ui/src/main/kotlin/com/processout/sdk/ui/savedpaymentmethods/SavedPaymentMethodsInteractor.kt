@@ -156,7 +156,8 @@ internal class SavedPaymentMethodsInteractor(
                 ActionId.CANCEL -> cancel()
             }
             is Dismiss -> {
-                // TODO
+                POLogger.info("Dismissed: %s", event.failure)
+                dispatch(DidFail(event.failure))
             }
         }
     }
