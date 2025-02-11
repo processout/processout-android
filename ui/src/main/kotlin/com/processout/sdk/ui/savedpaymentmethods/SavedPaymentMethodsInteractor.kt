@@ -64,7 +64,7 @@ internal class SavedPaymentMethodsInteractor(
             dispatch(WillStart)
             dispatchFailure()
             fetchPaymentMethods()
-            POLogger.info("Started.")
+            POLogger.info("Started saved payment methods.")
             dispatch(DidStart)
         }
     }
