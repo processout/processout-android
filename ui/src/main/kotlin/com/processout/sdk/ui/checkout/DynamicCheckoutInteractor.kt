@@ -1073,7 +1073,7 @@ internal class DynamicCheckoutInteractor(
         if (_state.value.delayedSuccess) {
             _completion.update { Success }
         } else {
-            POLogger.warn("Dismissed: %s", event.failure)
+            POLogger.info("Dismissed: %s", event.failure)
             _completion.update { Failure(event.failure) }
         }
     }

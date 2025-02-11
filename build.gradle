@@ -57,10 +57,10 @@ ext {
     retrofitVersion = '2.11.0'
     moshiVersion = '1.15.2'
     okhttpVersion = '4.12.0'
-    okioVersion = '3.9.1'
+    okioVersion = '3.10.2'
     coilVersion = '2.7.0'
     commonMarkVersion = '0.24.0'
-    libphonenumberVersion = '8.13.52'
+    libphonenumberVersion = '8.13.54'
     zxingVersion = '3.5.3'
 
     checkout3dsSdkVersion = '3.2.4'

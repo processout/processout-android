@@ -177,7 +177,7 @@ internal class CardTokenizationInteractor(
                 ActionId.SUBMIT -> submit()
                 ActionId.CANCEL -> cancel()
             }
-            is Dismiss -> POLogger.warn("Dismissed: %s", event.failure)
+            is Dismiss -> POLogger.info("Dismissed: %s", event.failure)
         }
     }
 

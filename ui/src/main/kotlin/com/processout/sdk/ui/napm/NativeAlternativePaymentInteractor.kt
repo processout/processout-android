@@ -432,7 +432,7 @@ internal class NativeAlternativePaymentInteractor(
             }
             is PermissionRequestResult -> handlePermission(event)
             is Dismiss -> {
-                POLogger.warn("Dismissed: %s", event.failure, attributes = logAttributes)
+                POLogger.info("Dismissed: %s", event.failure)
                 dispatch(DidFail(event.failure))
             }
         }

@@ -64,7 +64,7 @@ internal class SavedPaymentMethodsInteractor(
             dispatch(WillStart)
             dispatchFailure()
             fetchPaymentMethods()
-            POLogger.info("Started.")
+            POLogger.info("Started saved payment methods.")
             dispatch(DidStart)
         }
     }
@@ -89,6 +89,7 @@ internal class SavedPaymentMethodsInteractor(
                     )
                 }
             }.onFailure { failure ->
+                POLogger.warn("Failed to fetch the invoice: %s", failure, attributes = logAttributes)
                 _completion.update { Failure(failure) }
             }
     }
@@ -156,13 +157,18 @@ internal class SavedPaymentMethodsInteractor(
                 ActionId.CANCEL -> cancel()
             }
             is Dismiss -> {
-                // TODO
+                POLogger.info("Dismissed: %s", event.failure)
+                dispatch(DidFail(event.failure))
             }
         }
     }
 
     private fun delete(customerTokenId: String) {
         val customerId = _state.value.customerId ?: return
+        val logAttributes = logAttributes.toMutableMap().apply {
+            put(POLogAttribute.CUSTOMER_ID, customerId)
+            put(POLogAttribute.CUSTOMER_TOKEN_ID, customerTokenId)
+        }
         interactorScope.launch {
             update(
                 customerTokenId = customerTokenId,
@@ -182,13 +188,15 @@ internal class SavedPaymentMethodsInteractor(
                             .filterNot { it.customerTokenId == customerTokenId }
                     )
                 }
+                POLogger.info("Deleted the customer token.", attributes = logAttributes)
                 dispatch(
                     DidDeleteCustomerToken(
                         customerId = customerId,
                         tokenId = customerTokenId
                     )
                 )
-            }.onFailure {
+            }.onFailure { failure ->
+                POLogger.warn("Failed to delete the customer token: %s", failure, attributes = logAttributes)
                 update(
                     customerTokenId = customerTokenId,
                     processing = false,

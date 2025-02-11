@@ -1,13 +1,10 @@
 package com.processout.sdk.api.model.event
 
 import com.processout.sdk.core.ProcessOutResult
-import com.processout.sdk.core.annotation.ProcessOutInternalApi
 
 /**
  * Defines saved payment methods lifecycle events.
  */
-/** @suppress */
-@ProcessOutInternalApi
 sealed class POSavedPaymentMethodsEvent {
 
     /**
