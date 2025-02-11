@@ -229,10 +229,7 @@ internal class CardUpdateViewModel private constructor(
                 ActionId.SUBMIT -> submit()
                 ActionId.CANCEL -> cancel()
             }
-            is Dismiss -> POLogger.warn(
-                message = "Dismissed: %s", event.failure,
-                attributes = logAttributes
-            )
+            is Dismiss -> POLogger.info("Dismissed: %s", event.failure)
         }
     }
 
