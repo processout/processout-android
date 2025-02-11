@@ -594,7 +594,6 @@ internal class CardTokenizationInteractor(
     ) {
         interactorScope.launch {
             _state.update { it.copy(focusedFieldId = null) }
-            initAddressFields()
             if (useDeprecated) {
                 @Suppress("DEPRECATION")
                 eventDispatcher.processTokenizedCard(request.card)
