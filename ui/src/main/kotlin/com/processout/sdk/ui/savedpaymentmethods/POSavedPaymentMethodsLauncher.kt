@@ -12,15 +12,12 @@ import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.event.POSavedPaymentMethodsEvent
 import com.processout.sdk.core.POUnit
 import com.processout.sdk.core.ProcessOutActivityResult
-import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsActivityContract.Companion.EXTRA_FORCE_FINISH
 import kotlinx.coroutines.CoroutineScope
 
 /**
  * Launcher that starts [SavedPaymentMethodsActivity] and provides the result.
  */
-/** @suppress */
-@ProcessOutInternalApi
 class POSavedPaymentMethodsLauncher private constructor(
     private val parentActivity: ComponentActivity,
     private val scope: CoroutineScope,

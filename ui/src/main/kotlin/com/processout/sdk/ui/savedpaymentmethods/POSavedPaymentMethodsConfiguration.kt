@@ -3,7 +3,6 @@ package com.processout.sdk.ui.savedpaymentmethods
 import android.os.Parcelable
 import androidx.annotation.ColorRes
 import com.processout.sdk.api.model.request.POInvoiceRequest
-import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import com.processout.sdk.ui.core.style.*
 import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
@@ -11,8 +10,6 @@ import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration
 import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration.Height.WrapContent
 import kotlinx.parcelize.Parcelize
 
-/** @suppress */
-@ProcessOutInternalApi
 @Parcelize
 data class POSavedPaymentMethodsConfiguration(
     val invoiceRequest: POInvoiceRequest,
