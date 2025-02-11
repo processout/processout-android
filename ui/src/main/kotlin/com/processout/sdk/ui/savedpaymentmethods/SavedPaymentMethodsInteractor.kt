@@ -165,6 +165,10 @@ internal class SavedPaymentMethodsInteractor(
 
     private fun delete(customerTokenId: String) {
         val customerId = _state.value.customerId ?: return
+        val logAttributes = logAttributes.toMutableMap().apply {
+            put(POLogAttribute.CUSTOMER_ID, customerId)
+            put(POLogAttribute.CUSTOMER_TOKEN_ID, customerTokenId)
+        }
         interactorScope.launch {
             update(
                 customerTokenId = customerTokenId,
@@ -184,6 +188,7 @@ internal class SavedPaymentMethodsInteractor(
                             .filterNot { it.customerTokenId == customerTokenId }
                     )
                 }
+                POLogger.info("Deleted the customer token.", attributes = logAttributes)
                 dispatch(
                     DidDeleteCustomerToken(
                         customerId = customerId,
@@ -191,10 +196,6 @@ internal class SavedPaymentMethodsInteractor(
                     )
                 )
             }.onFailure { failure ->
-                val logAttributes = logAttributes.toMutableMap().apply {
-                    put(POLogAttribute.CUSTOMER_ID, customerId)
-                    put(POLogAttribute.CUSTOMER_TOKEN_ID, customerTokenId)
-                }
                 POLogger.warn("Failed to delete the customer token: %s", failure, attributes = logAttributes)
                 update(
                     customerTokenId = customerTokenId,
