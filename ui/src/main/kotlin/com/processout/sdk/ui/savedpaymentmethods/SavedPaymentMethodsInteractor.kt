@@ -89,6 +89,7 @@ internal class SavedPaymentMethodsInteractor(
                     )
                 }
             }.onFailure { failure ->
+                POLogger.warn("Failed to fetch the invoice: %s", failure, attributes = logAttributes)
                 _completion.update { Failure(failure) }
             }
     }
@@ -189,7 +190,12 @@ internal class SavedPaymentMethodsInteractor(
                         tokenId = customerTokenId
                     )
                 )
-            }.onFailure {
+            }.onFailure { failure ->
+                val logAttributes = logAttributes.toMutableMap().apply {
+                    put(POLogAttribute.CUSTOMER_ID, customerId)
+                    put(POLogAttribute.CUSTOMER_TOKEN_ID, customerTokenId)
+                }
+                POLogger.warn("Failed to delete the customer token: %s", failure, attributes = logAttributes)
                 update(
                     customerTokenId = customerTokenId,
                     processing = false,
