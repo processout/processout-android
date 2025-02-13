@@ -8,8 +8,9 @@ import com.squareup.moshi.JsonClass
 /**
  * Transaction details.
  */
-@JsonClass(generateAdapter = true)
+/** @suppress */
 @ProcessOutInternalApi
+@JsonClass(generateAdapter = true)
 data class POTransaction(
     @Json(name = "status")
     val rawStatus: String
