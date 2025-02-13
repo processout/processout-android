@@ -111,10 +111,10 @@ internal class DynamicCheckoutInteractor(
 
     init {
         interactorScope.launch {
-            POLogger.info("Starting dynamic checkout.")
+            POLogger.info("Starting.", attributes = logAttributes)
             dispatch(WillStart)
             start()
-            POLogger.info("Started: waiting for user input.")
+            POLogger.info("Started.", attributes = logAttributes)
             dispatch(DidStart)
         }
     }
@@ -143,7 +143,10 @@ internal class DynamicCheckoutInteractor(
         cancelWebAuthorization()
         configuration = configuration.copy(invoiceRequest = invoiceRequest)
         logAttributes = logAttributes(invoiceId = invoiceRequest.invoiceId)
-        interactorScope.launch { start() }
+        interactorScope.launch {
+            start()
+            POLogger.info("Restarted with the new invoice.", attributes = logAttributes)
+        }
     }
 
     private fun cancelWebAuthorization() {
@@ -162,16 +165,17 @@ internal class DynamicCheckoutInteractor(
                 when (invoice.transaction?.status()) {
                     WAITING -> setStartedState(invoice)
                     AUTHORIZED, COMPLETED -> handleSuccess()
-                    else -> _completion.update {
-                        Failure(
-                            ProcessOutResult.Failure(
-                                code = Generic(),
-                                message = "Unsupported invoice state. Please create new invoice and restart dynamic checkout."
-                            )
+                    else -> {
+                        val failure = ProcessOutResult.Failure(
+                            code = Generic(),
+                            message = "Unsupported invoice state. Please create the new invoice and restart the dynamic checkout."
                         )
+                        POLogger.warn("%s", failure, attributes = logAttributes)
+                        _completion.update { Failure(failure) }
                     }
                 }
             }.onFailure { failure ->
+                POLogger.warn("Failed to fetch the invoice: %s", failure, attributes = logAttributes)
                 _completion.update { Failure(failure) }
             }
     }
@@ -179,14 +183,12 @@ internal class DynamicCheckoutInteractor(
     private suspend fun setStartedState(invoice: POInvoice) {
         val paymentMethods = invoice.paymentMethods
         if (paymentMethods.isNullOrEmpty()) {
-            _completion.update {
-                Failure(
-                    ProcessOutResult.Failure(
-                        code = Generic(),
-                        message = "Missing payment methods configuration."
-                    )
-                )
-            }
+            val failure = ProcessOutResult.Failure(
+                code = Generic(),
+                message = "Missing payment methods configuration."
+            )
+            POLogger.warn("%s", failure, attributes = logAttributes)
+            _completion.update { Failure(failure) }
             return
         }
         val mappedPaymentMethods = paymentMethods.map(
@@ -438,6 +440,7 @@ internal class DynamicCheckoutInteractor(
             return
         }
         paymentMethod(event.id)?.let { paymentMethod ->
+            POLogger.info("Selected payment method: %s", paymentMethod.original)
             dispatch(DidSelectPaymentMethod(paymentMethod = paymentMethod.original))
             resetPaymentMethods()
             if (state.processingPaymentMethod != null) {
@@ -462,6 +465,7 @@ internal class DynamicCheckoutInteractor(
         nativeAlternativePayment.reset()
         authorizeInvoiceJob?.cancel()
         authorizeInvoiceJob = null
+        POLogger.info("All payment methods has been reset.")
     }
 
     private fun start(paymentMethod: PaymentMethod) {
@@ -576,6 +580,7 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun onDialogAction(event: DialogAction) {
+        POLogger.debug("Dialog action: %s", event)
         val paymentMethod = event.paymentMethodId?.let { paymentMethod(it) }
         when (paymentMethod) {
             is NativeAlternativePayment -> nativeAlternativePayment.onEvent(
@@ -589,6 +594,7 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun onSavedPaymentMethodsAction() {
+        POLogger.debug("Invoked saved payment methods.")
         interactorScope.launch {
             eventDispatcher.send(
                 DynamicCheckoutSavedPaymentMethodsRequest(
@@ -631,6 +637,7 @@ internal class DynamicCheckoutInteractor(
         }
         if (paymentMethod.isExpress()) {
             if (dispatchEvents) {
+                POLogger.info("Selected payment method: %s", paymentMethod.original)
                 dispatch(DidSelectPaymentMethod(paymentMethod = paymentMethod.original))
             }
             resetPaymentMethods()
@@ -652,6 +659,7 @@ internal class DynamicCheckoutInteractor(
             )
             return
         }
+        POLogger.info("Submitting payment method: %s", paymentMethod.original)
         when (paymentMethod) {
             is GooglePay -> submitGooglePay(paymentMethod)
             is AlternativePayment -> submitAlternativePayment(paymentMethod)
@@ -782,6 +790,7 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun invalidateInvoice(reason: PODynamicCheckoutInvoiceInvalidationReason) {
+        POLogger.info("Invalidating invoice. Reason: %s", reason, attributes = logAttributes)
         var errorMessage: String? = null
         if (reason is PODynamicCheckoutInvoiceInvalidationReason.Failure) {
             _state.value.processingPaymentMethod?.let { paymentMethod ->
@@ -812,6 +821,7 @@ internal class DynamicCheckoutInteractor(
             latestInvoiceRequest = request
             interactorScope.launch {
                 eventDispatcher.send(request)
+                POLogger.info("Requested to provide the new invoice.")
             }
         }
     }
@@ -834,6 +844,10 @@ internal class DynamicCheckoutInteractor(
                             )
                         is PODynamicCheckoutInvoiceInvalidationReason.Failure -> reason.failure
                     }
+                    POLogger.warn(
+                        message = "New invoice has not been provided. Invalidation failure: %s", failure,
+                        attributes = logAttributes
+                    )
                     _completion.update { Failure(failure) }
                 }
             }
@@ -883,6 +897,7 @@ internal class DynamicCheckoutInteractor(
         eventDispatcher.subscribeForResponse<PODynamicCheckoutInvoiceAuthorizationResponse>(
             coroutineScope = interactorScope
         ) { response ->
+            POLogger.info("Authorizing the invoice.", attributes = logAttributes)
             val threeDSService = PODefaultProxy3DSService()
             val job = invoicesService.authorizeInvoice(
                 request = response.request,
@@ -927,13 +942,25 @@ internal class DynamicCheckoutInteractor(
         }
     }
 
+    private fun handleSuccess() {
+        POLogger.info("Success: payment completed.", attributes = logAttributes)
+        dispatch(DidCompletePayment)
+        interactorScope.launch {
+            _sideEffects.send(DynamicCheckoutSideEffect.BeforeSuccess)
+        }
+        configuration.paymentSuccess?.let { paymentSuccess ->
+            _state.update { it.copy(delayedSuccess = true) }
+            handler.postDelayed(delayInMillis = paymentSuccess.durationSeconds * 1000L) {
+                _completion.update { Success }
+            }
+        } ?: _completion.update { Success }
+    }
+
     private fun handleCompletions() {
         interactorScope.launch {
             _completion.collect { completion ->
-                when (completion) {
-                    Success -> dispatch(DidCompletePayment)
-                    is Failure -> dispatch(DidFail(completion.failure))
-                    else -> {}
+                if (completion is Failure) {
+                    dispatch(DidFail(completion.failure))
                 }
             }
         }
@@ -961,21 +988,10 @@ internal class DynamicCheckoutInteractor(
         }
     }
 
-    private fun handleSuccess() {
-        interactorScope.launch {
-            _sideEffects.send(DynamicCheckoutSideEffect.BeforeSuccess)
-        }
-        configuration.paymentSuccess?.let { paymentSuccess ->
-            _state.update { it.copy(delayedSuccess = true) }
-            handler.postDelayed(delayInMillis = paymentSuccess.durationSeconds * 1000L) {
-                _completion.update { Success }
-            }
-        } ?: _completion.update { Success }
-    }
-
     private fun dispatch(event: PODynamicCheckoutEvent) {
         interactorScope.launch {
             eventDispatcher.send(event)
+            POLogger.debug("Event has been sent: %s", event)
         }
     }
 
@@ -1006,12 +1022,12 @@ internal class DynamicCheckoutInteractor(
                 when (sideEffect) {
                     is NativeAlternativePaymentSideEffect.PermissionRequest ->
                         activePaymentMethod()?.let { paymentMethod ->
-                            _sideEffects.send(
-                                DynamicCheckoutSideEffect.PermissionRequest(
-                                    paymentMethodId = paymentMethod.id,
-                                    permission = sideEffect.permission
-                                )
+                            val permissionRequest = DynamicCheckoutSideEffect.PermissionRequest(
+                                paymentMethodId = paymentMethod.id,
+                                permission = sideEffect.permission
                             )
+                            _sideEffects.send(permissionRequest)
+                            POLogger.info("System permission requested: %s", permissionRequest)
                         }
                 }
             }
@@ -1019,6 +1035,7 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun handlePermission(result: PermissionRequestResult) {
+        POLogger.info("System permission result: %s", result)
         when (paymentMethod(result.paymentMethodId)) {
             is NativeAlternativePayment -> nativeAlternativePayment.onEvent(
                 NativeAlternativePaymentEvent.PermissionRequestResult(
@@ -1036,6 +1053,7 @@ internal class DynamicCheckoutInteractor(
                 paymentMethods = state.paymentMethods
                     .filterNot { it.id == tokenId })
         }
+        POLogger.debug("Deleted local customer token: %s", tokenId)
     }
 
     private fun collectPreferredScheme() {
@@ -1059,14 +1077,12 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun cancel() {
-        _completion.update {
-            Failure(
-                ProcessOutResult.Failure(
-                    code = Cancelled,
-                    message = "Cancelled by the user with cancel action."
-                ).also { POLogger.info("Cancelled: %s", it) }
-            )
-        }
+        val failure = ProcessOutResult.Failure(
+            code = Cancelled,
+            message = "Cancelled by the user with the cancel action."
+        )
+        POLogger.info("Cancelled: %s", failure)
+        _completion.update { Failure(failure) }
     }
 
     private fun dismiss(event: Dismiss) {
