@@ -10,20 +10,38 @@ import com.processout.sdk.api.model.response.POInvoice
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsConfiguration
 
+/**
+ * Delegate that allows to handle events during dynamic checkout flow.
+ */
 /** @suppress */
 @ProcessOutInternalApi
 interface PODynamicCheckoutDelegate {
 
+    /**
+     * Invoked on dynamic checkout lifecycle events.
+     */
     fun onEvent(event: PODynamicCheckoutEvent) {}
 
+    /**
+     * Invoked on card tokenization lifecycle events.
+     */
     fun onEvent(event: POCardTokenizationEvent) {}
 
+    /**
+     * Invoked on native alternative payment lifecycle events.
+     */
     fun onEvent(event: PONativeAlternativePaymentMethodEvent) {}
 
+    /**
+     * Invoked on saved payment methods lifecycle events.
+     */
     fun onEvent(event: POSavedPaymentMethodsEvent) {}
 
     /**
-     * __Note:__ please make sure to invalidate current invoice before creating the new one.
+     * Invoked in a state when payment can't be continued with the current invoice.
+     * Create new invoice and return [POInvoiceRequest] to recover the flow.
+     * Return _null_ to complete the flow with the failure.
+     * __Note:__ Please make sure to invalidate the current invoice before creating a new one.
      */
     suspend fun newInvoice(
         currentInvoice: POInvoice,
@@ -31,7 +49,7 @@ interface PODynamicCheckoutDelegate {
     ): POInvoiceRequest? = null
 
     /**
-     * Called before invoice authorization.
+     * Invoked before invoice authorization.
      * Allows to alter request parameters but please make sure that _invoiceId_ and _source_ are unmodified.
      */
     suspend fun invoiceAuthorizationRequest(
