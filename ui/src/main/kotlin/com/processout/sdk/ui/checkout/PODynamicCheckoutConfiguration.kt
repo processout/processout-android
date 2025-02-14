@@ -133,6 +133,29 @@ data class PODynamicCheckoutConfiguration(
         val durationSeconds: Int = 3
     ) : Parcelable
 
+    /**
+     * Specifies screen style.
+     *
+     * @param[sectionHeader] Section header style.
+     * @param[googlePayButton] Google Pay button style.
+     * @param[expressPaymentButton] Branded express payment button style.
+     * @param[regularPayment] Regular payment style.
+     * @param[label] Field label style.
+     * @param[field] Field style.
+     * @param[codeField] Code field style.
+     * @param[radioButton] Radio button style.
+     * @param[checkbox] Checkbox style.
+     * @param[dropdownMenu] Dropdown menu style.
+     * @param[bodyText] Body text style.
+     * @param[errorText] Error text style.
+     * @param[messageBox] Message box style.
+     * @param[dialog] Dialog style.
+     * @param[actionsContainer] Style of action buttons and their container.
+     * @param[backgroundColorResId] Color resource ID for background.
+     * @param[progressIndicatorColorResId] Color resource ID for progress indicator.
+     * @param[controlsTintColorResId] Color resource ID for tint that applies to generic components (e.g. selectable text).
+     * @param[paymentSuccess] Payment success style.
+     */
     @Parcelize
     data class Style(
         val sectionHeader: SectionHeaderStyle? = null,
@@ -159,12 +182,27 @@ data class PODynamicCheckoutConfiguration(
         val paymentSuccess: PaymentSuccessStyle? = null
     ) : Parcelable
 
+    /**
+     * Specifies section header style.
+     *
+     * @param[title] Title style.
+     * @param[trailingButton] Trailing button style.
+     */
     @Parcelize
     data class SectionHeaderStyle(
         val title: POTextStyle,
         val trailingButton: POButtonStyle
     ) : Parcelable
 
+    /**
+     * Specifies regular payment style.
+     *
+     * @param[title] Title style.
+     * @param[description] Description style.
+     * @param[descriptionIconResId] Description icon drawable resource ID.
+     * @param[border] Border style.
+     * @param[backgroundColorResId] Color resource ID for background.
+     */
     @Parcelize
     data class RegularPaymentStyle(
         val title: POTextStyle,
@@ -176,6 +214,13 @@ data class PODynamicCheckoutConfiguration(
         val backgroundColorResId: Int? = null
     ) : Parcelable
 
+    /**
+     * Specifies payment success style.
+     *
+     * @param[message] Message style.
+     * @param[successImageResId] Success image drawable resource ID.
+     * @param[backgroundColorResId] Color resource ID for background.
+     */
     @Parcelize
     data class PaymentSuccessStyle(
         val message: POTextStyle,
