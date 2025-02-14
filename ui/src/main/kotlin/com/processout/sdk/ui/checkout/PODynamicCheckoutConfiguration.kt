@@ -97,6 +97,16 @@ data class PODynamicCheckoutConfiguration(
         ) : Parcelable
     }
 
+    /**
+     * Specifies alternative payment configuration.
+     *
+     * @param[returnUrl] Deep link return URL for web authorization.
+     * @param[inlineSingleSelectValuesLimit] Defines maximum number of options that will be
+     * displayed inline for parameters where user should select single option (e.g. radio buttons).
+     * Default value is _5_.
+     * @param[barcode] Specifies barcode configuration.
+     * @param[paymentConfirmation] Specifies payment confirmation configuration.
+     */
     @Parcelize
     data class AlternativePaymentConfiguration(
         val returnUrl: String? = null,
@@ -105,6 +115,16 @@ data class PODynamicCheckoutConfiguration(
         val paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration()
     ) : Parcelable {
 
+        /**
+         * Specifies payment confirmation configuration.
+         *
+         * @param[timeoutSeconds] Amount of time (in seconds) to wait for final payment confirmation.
+         * Default value is 3 minutes, while maximum value is 15 minutes.
+         * @param[showProgressIndicatorAfterSeconds] Show progress indicator during payment confirmation after provided delay (in seconds).
+         * Use _null_ to hide, this is a default behaviour.
+         * @param[confirmButton] Confirm button configuration.
+         * @param[cancelButton] Cancel button configuration.
+         */
         @Parcelize
         data class PaymentConfirmationConfiguration(
             @IntRange(from = 0, to = 15 * 60)
