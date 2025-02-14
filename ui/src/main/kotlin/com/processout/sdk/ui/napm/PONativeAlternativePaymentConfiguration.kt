@@ -213,8 +213,8 @@ data class PONativeAlternativePaymentConfiguration(
     ) : Parcelable {
 
         companion object {
-            const val MAX_TIMEOUT_SECONDS = 15 * 60
             const val DEFAULT_TIMEOUT_SECONDS = 3 * 60
+            const val MAX_TIMEOUT_SECONDS = 15 * 60
         }
 
         /**
