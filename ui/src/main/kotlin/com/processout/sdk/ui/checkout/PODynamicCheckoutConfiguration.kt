@@ -111,19 +111,50 @@ data class PODynamicCheckoutConfiguration(
             val confirmButton: Button? = null,
             val cancelButton: CancelButton? = CancelButton()
         ) : Parcelable
+
+        /**
+         * Cancel button configuration.
+         *
+         * @param[text] Button text. Pass _null_ to use default text.
+         * @param[icon] Button icon drawable resource. Pass _null_ to hide.
+         * @param[disabledForSeconds] Initially disables the button for the given amount of time in seconds.
+         * By default user can interact with the button immediately when it's visible.
+         * @param[confirmation] Specifies action confirmation configuration (e.g. dialog).
+         * Use _null_ to disable, this is a default behaviour.
+         */
+        @Parcelize
+        data class CancelButton(
+            val text: String? = null,
+            val icon: PODrawableImage? = null,
+            val disabledForSeconds: Int = 0,
+            val confirmation: POActionConfirmationConfiguration? = null
+        ) : Parcelable
     }
 
+    /**
+     * Button configuration.
+     *
+     * @param[text] Button text. Pass _null_ to use default text.
+     * @param[icon] Button icon drawable resource. Pass _null_ to hide.
+     */
     @Parcelize
     data class Button(
         val text: String? = null,
         val icon: PODrawableImage? = null
     ) : Parcelable
 
+    /**
+     * Cancel button configuration.
+     *
+     * @param[text] Button text. Pass _null_ to use default text.
+     * @param[icon] Button icon drawable resource. Pass _null_ to hide.
+     * @param[confirmation] Specifies action confirmation configuration (e.g. dialog).
+     * Use _null_ to disable, this is a default behaviour.
+     */
     @Parcelize
     data class CancelButton(
         val text: String? = null,
         val icon: PODrawableImage? = null,
-        val disabledForSeconds: Int = 0,
         val confirmation: POActionConfirmationConfiguration? = null
     ) : Parcelable
 
