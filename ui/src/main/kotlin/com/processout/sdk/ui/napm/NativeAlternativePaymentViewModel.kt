@@ -23,8 +23,6 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Field.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Image
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
-import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.DEFAULT_TIMEOUT_SECONDS
-import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.MAX_TIMEOUT_SECONDS
 import com.processout.sdk.ui.shared.extension.map
 import com.processout.sdk.ui.shared.filter.PhoneNumberInputFilter
 import com.processout.sdk.ui.shared.provider.BarcodeBitmapProvider
@@ -53,7 +51,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 configuration = configuration,
                 interactor = NativeAlternativePaymentInteractor(
                     app = app,
-                    configuration = configuration.validated(),
+                    configuration = configuration,
                     invoicesService = ProcessOut.instance.invoices,
                     barcodeBitmapProvider = BarcodeBitmapProvider(),
                     mediaStorageProvider = MediaStorageProvider(app),
@@ -67,15 +65,6 @@ internal class NativeAlternativePaymentViewModel private constructor(
                     eventDispatcher = eventDispatcher
                 )
             ) as T
-
-        private fun PONativeAlternativePaymentConfiguration.validated() = copy(
-            paymentConfirmation = with(paymentConfirmation) {
-                copy(
-                    timeoutSeconds = if (timeoutSeconds in 0..MAX_TIMEOUT_SECONDS)
-                        timeoutSeconds else DEFAULT_TIMEOUT_SECONDS
-                )
-            }
-        )
     }
 
     private companion object {

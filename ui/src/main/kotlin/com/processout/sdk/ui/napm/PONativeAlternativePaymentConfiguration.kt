@@ -3,6 +3,7 @@ package com.processout.sdk.ui.napm
 import android.os.Parcelable
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
+import androidx.annotation.IntRange
 import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import com.processout.sdk.ui.core.style.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
@@ -205,6 +206,7 @@ data class PONativeAlternativePaymentConfiguration(
     @Parcelize
     data class PaymentConfirmationConfiguration(
         val waitsConfirmation: Boolean = true,
+        @IntRange(from = 0, to = 15 * 60)
         val timeoutSeconds: Int = DEFAULT_TIMEOUT_SECONDS,
         val showProgressIndicatorAfterSeconds: Int? = null,
         val hideGatewayDetails: Boolean = false,
@@ -236,6 +238,7 @@ data class PONativeAlternativePaymentConfiguration(
         @Deprecated(message = "Use alternative constructor.")
         constructor(
             waitsConfirmation: Boolean = true,
+            @IntRange(from = 0, to = 15 * 60)
             timeoutSeconds: Int = DEFAULT_TIMEOUT_SECONDS,
             showProgressIndicatorAfterSeconds: Int? = null,
             hideGatewayDetails: Boolean = false,

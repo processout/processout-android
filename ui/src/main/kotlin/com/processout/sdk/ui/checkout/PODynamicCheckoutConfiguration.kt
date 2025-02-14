@@ -3,6 +3,7 @@ package com.processout.sdk.ui.checkout
 import android.os.Parcelable
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
+import androidx.annotation.IntRange
 import com.google.android.gms.wallet.WalletConstants
 import com.processout.sdk.api.model.request.POContact
 import com.processout.sdk.api.model.request.POInvoiceRequest
@@ -106,6 +107,7 @@ data class PODynamicCheckoutConfiguration(
 
         @Parcelize
         data class PaymentConfirmationConfiguration(
+            @IntRange(from = 0, to = 15 * 60)
             val timeoutSeconds: Int = 3 * 60,
             val showProgressIndicatorAfterSeconds: Int? = null,
             val confirmButton: Button? = null,
@@ -158,6 +160,13 @@ data class PODynamicCheckoutConfiguration(
         val confirmation: POActionConfirmationConfiguration? = null
     ) : Parcelable
 
+    /**
+     * Payment success configuration.
+     *
+     * @param[message] Custom success message.
+     * @param[durationSeconds] Defines for how long user will stay on success screen before calling completion.
+     * Default value is 3 seconds.
+     */
     @Parcelize
     data class PaymentSuccess(
         val message: String? = null,
