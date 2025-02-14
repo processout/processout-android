@@ -21,7 +21,7 @@ import kotlinx.parcelize.Parcelize
  * @param[submitButton] Submit button configuration.
  * @param[cancelButton] Cancel button configuration. Use _null_ to hide, this is a default behaviour.
  * @param[cancellation] Specifies cancellation behaviour.
- * @param[paymentConfirmation] Specifies payment confirmation behaviour.
+ * @param[paymentConfirmation] Specifies payment confirmation configuration.
  * @param[barcode] Specifies barcode configuration.
  * @param[inlineSingleSelectValuesLimit] Defines maximum number of options that will be
  * displayed inline for parameters where user should select single option (e.g. radio buttons).
@@ -88,7 +88,7 @@ data class PONativeAlternativePaymentConfiguration(
      * @param[primaryActionText] Custom primary action text (e.g. "Pay").
      * @param[secondaryAction] Secondary action (e.g. "Cancel"). Use _null_ to hide, this is a default behaviour.
      * @param[cancellation] Specifies cancellation behaviour.
-     * @param[paymentConfirmation] Specifies payment confirmation behaviour.
+     * @param[paymentConfirmation] Specifies payment confirmation configuration.
      * @param[barcode] Specifies barcode configuration.
      * @param[inlineSingleSelectValuesLimit] Defines maximum number of options that will be
      * displayed inline for parameters where user should select single option (e.g. radio buttons).
@@ -190,7 +190,7 @@ data class PONativeAlternativePaymentConfiguration(
     ) : Parcelable
 
     /**
-     * Specifies payment confirmation behaviour.
+     * Specifies payment confirmation configuration.
      *
      * @param[waitsConfirmation] Specifies whether flow should wait for payment confirmation from PSP
      * or will complete right after all user input is submitted. Default value is _true_.
@@ -220,7 +220,7 @@ data class PONativeAlternativePaymentConfiguration(
         }
 
         /**
-         * Specifies payment confirmation behaviour.
+         * Specifies payment confirmation configuration.
          *
          * @param[waitsConfirmation] Specifies whether flow should wait for payment confirmation from PSP
          * or will complete right after all user input is submitted. Default value is _true_.
