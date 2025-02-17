@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.processout.sdk.ui.checkout
 
 import android.os.Parcelable
@@ -38,12 +40,25 @@ data class PODynamicCheckoutConfiguration(
         val settingsButton: Button? = null
     ) : Parcelable
 
+    /**
+     * Specifies card payment configuration.
+     *
+     * @param[billingAddress] Specifies billing address configuration.
+     * @param[metadata] Metadata related to the card.
+     */
     @Parcelize
     data class CardConfiguration(
         val billingAddress: BillingAddressConfiguration = BillingAddressConfiguration(),
         val metadata: Map<String, String>? = null
     ) : Parcelable {
 
+        /**
+         * Specifies billing address configuration.
+         *
+         * @param[defaultAddress] Default address information.
+         * @param[attachDefaultsToPaymentMethod] Specifies whether the [defaultAddress] values should be attached to the card,
+         * including fields that aren't displayed in the form.
+         */
         @Parcelize
         data class BillingAddressConfiguration(
             val defaultAddress: POContact? = null,
