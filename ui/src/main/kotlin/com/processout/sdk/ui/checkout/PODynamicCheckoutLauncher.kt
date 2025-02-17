@@ -146,7 +146,7 @@ class PODynamicCheckoutLauncher private constructor(
             coroutineScope = scope
         ) { request ->
             scope.launch {
-                val preferredScheme = delegate.preferredScheme(request)
+                val preferredScheme = delegate.preferredScheme(request.issuerInformation)
                 eventDispatcher.send(request.toResponse(preferredScheme))
             }
         }
@@ -157,7 +157,10 @@ class PODynamicCheckoutLauncher private constructor(
             coroutineScope = scope
         ) { request ->
             scope.launch {
-                val defaultValues = delegate.defaultValues(request)
+                val defaultValues = delegate.defaultValues(
+                    gatewayConfigurationId = request.gatewayConfigurationId,
+                    parameters = request.parameters
+                )
                 eventDispatcher.send(request.toResponse(defaultValues))
             }
         }

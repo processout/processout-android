@@ -37,8 +37,8 @@ internal data class InvoiceResponseBody(
  */
 data class POInvoice(
     val id: String,
-    val amount: String = String(),
-    val currency: String = String(),
+    val amount: String,
+    val currency: String,
     val returnUrl: String? = null,
     val customerId: String? = null,
     @ProcessOutInternalApi val transaction: POTransaction? = null,
@@ -49,6 +49,7 @@ data class POInvoice(
 /**
  * Dynamic checkout configuration.
  */
+/** @suppress */
 @ProcessOutInternalApi
 sealed class PODynamicCheckoutPaymentMethod {
 
@@ -240,8 +241,9 @@ sealed class PODynamicCheckoutPaymentMethod {
      * Customer token payment configuration.
      *
      * @param[customerTokenId] Customer token ID.
-     * @param[redirectUrl] Redirect URL to payment method that was previously saved by the customer.
+     * @param[redirectUrl] Redirect URL to authorize alternative payment.
      * If it's _null_, then payment can be authorized with [customerTokenId].
+     * @param[deletingAllowed] Defines whether deleting of this customer token is allowed.
      */
     @JsonClass(generateAdapter = true)
     data class CustomerTokenConfiguration(

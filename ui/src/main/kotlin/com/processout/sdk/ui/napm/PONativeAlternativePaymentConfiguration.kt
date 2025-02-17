@@ -3,6 +3,7 @@ package com.processout.sdk.ui.napm
 import android.os.Parcelable
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
+import androidx.annotation.IntRange
 import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import com.processout.sdk.ui.core.style.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
@@ -20,7 +21,7 @@ import kotlinx.parcelize.Parcelize
  * @param[submitButton] Submit button configuration.
  * @param[cancelButton] Cancel button configuration. Use _null_ to hide, this is a default behaviour.
  * @param[cancellation] Specifies cancellation behaviour.
- * @param[paymentConfirmation] Specifies payment confirmation behaviour.
+ * @param[paymentConfirmation] Specifies payment confirmation configuration.
  * @param[barcode] Specifies barcode configuration.
  * @param[inlineSingleSelectValuesLimit] Defines maximum number of options that will be
  * displayed inline for parameters where user should select single option (e.g. radio buttons).
@@ -87,7 +88,7 @@ data class PONativeAlternativePaymentConfiguration(
      * @param[primaryActionText] Custom primary action text (e.g. "Pay").
      * @param[secondaryAction] Secondary action (e.g. "Cancel"). Use _null_ to hide, this is a default behaviour.
      * @param[cancellation] Specifies cancellation behaviour.
-     * @param[paymentConfirmation] Specifies payment confirmation behaviour.
+     * @param[paymentConfirmation] Specifies payment confirmation configuration.
      * @param[barcode] Specifies barcode configuration.
      * @param[inlineSingleSelectValuesLimit] Defines maximum number of options that will be
      * displayed inline for parameters where user should select single option (e.g. radio buttons).
@@ -189,7 +190,7 @@ data class PONativeAlternativePaymentConfiguration(
     ) : Parcelable
 
     /**
-     * Specifies payment confirmation behaviour.
+     * Specifies payment confirmation configuration.
      *
      * @param[waitsConfirmation] Specifies whether flow should wait for payment confirmation from PSP
      * or will complete right after all user input is submitted. Default value is _true_.
@@ -205,6 +206,7 @@ data class PONativeAlternativePaymentConfiguration(
     @Parcelize
     data class PaymentConfirmationConfiguration(
         val waitsConfirmation: Boolean = true,
+        @IntRange(from = 0, to = 15 * 60)
         val timeoutSeconds: Int = DEFAULT_TIMEOUT_SECONDS,
         val showProgressIndicatorAfterSeconds: Int? = null,
         val hideGatewayDetails: Boolean = false,
@@ -213,12 +215,12 @@ data class PONativeAlternativePaymentConfiguration(
     ) : Parcelable {
 
         companion object {
-            const val MAX_TIMEOUT_SECONDS = 15 * 60
             const val DEFAULT_TIMEOUT_SECONDS = 3 * 60
+            const val MAX_TIMEOUT_SECONDS = 15 * 60
         }
 
         /**
-         * Specifies payment confirmation behaviour.
+         * Specifies payment confirmation configuration.
          *
          * @param[waitsConfirmation] Specifies whether flow should wait for payment confirmation from PSP
          * or will complete right after all user input is submitted. Default value is _true_.
@@ -236,6 +238,7 @@ data class PONativeAlternativePaymentConfiguration(
         @Deprecated(message = "Use alternative constructor.")
         constructor(
             waitsConfirmation: Boolean = true,
+            @IntRange(from = 0, to = 15 * 60)
             timeoutSeconds: Int = DEFAULT_TIMEOUT_SECONDS,
             showProgressIndicatorAfterSeconds: Int? = null,
             hideGatewayDetails: Boolean = false,

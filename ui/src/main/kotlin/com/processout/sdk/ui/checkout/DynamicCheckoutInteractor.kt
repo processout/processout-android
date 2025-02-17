@@ -803,7 +803,12 @@ internal class DynamicCheckoutInteractor(
                 errorMessage = app.getString(R.string.po_dynamic_checkout_error_generic)
             }
         }
-        val currentInvoice = _state.value.invoice ?: POInvoice(id = configuration.invoiceRequest.invoiceId)
+        val currentInvoice = _state.value.invoice
+            ?: POInvoice(
+                id = configuration.invoiceRequest.invoiceId,
+                amount = String(),
+                currency = String()
+            )
         resetPaymentMethods()
         _state.update {
             it.copy(

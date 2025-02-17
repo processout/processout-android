@@ -19,6 +19,7 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMeth
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.Field.CheckboxField
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment.Content
+import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.AlternativePaymentConfiguration
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.CancelButton
 import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import com.processout.sdk.ui.core.shared.image.POImageRenderingMode
@@ -159,6 +160,16 @@ internal class DynamicCheckoutViewModel private constructor(
     }
 
     private fun CancelButton.toActionState(
+        interactorState: DynamicCheckoutInteractorState,
+        defaultText: String
+    ) = POActionState(
+        id = interactorState.actions.cancelId,
+        text = text ?: defaultText,
+        primary = false,
+        confirmation = confirmation?.map()
+    )
+
+    private fun AlternativePaymentConfiguration.CancelButton.toActionState(
         interactorState: DynamicCheckoutInteractorState,
         defaultText: String
     ) = POActionState(
