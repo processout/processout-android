@@ -7,6 +7,7 @@ import androidx.annotation.IntRange
 import com.google.android.gms.wallet.WalletConstants
 import com.processout.sdk.api.model.request.POContact
 import com.processout.sdk.api.model.request.POInvoiceRequest
+import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration.Environment
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import com.processout.sdk.ui.core.style.*
@@ -50,6 +51,19 @@ data class PODynamicCheckoutConfiguration(
         ) : Parcelable
     }
 
+    /**
+     * Google Pay configuration.
+     *
+     * @param[environment] Google Pay environment.
+     * @param[merchantName] Merchant name encoded as UTF-8. Merchant name is rendered in the payment sheet.
+     * In [Environment.TEST], or if a merchant isn't recognized, a "Pay Unverified Merchant" message is displayed in the payment sheet.
+     * @param[totalPriceLabel] Custom label for the total price within the display items.
+     * @param[totalPriceStatus] The status of the total price used.
+     * @param[checkoutOption] Affects the submit button text displayed in the Google Pay payment sheet.
+     * @param[emailRequired] Set to _true_ to request an email address.
+     * @param[billingAddress] Allows to set additional fields to be returned for a requested billing address.
+     * @param[shippingAddress] Allows to set shipping restrictions.
+     */
     @Parcelize
     data class GooglePayConfiguration(
         val environment: Environment = Environment.TEST,
@@ -62,34 +76,83 @@ data class PODynamicCheckoutConfiguration(
         val shippingAddress: ShippingAddressConfiguration? = null
     ) : Parcelable {
 
+        /**
+         * Google Pay environment.
+         */
         @Parcelize
         enum class Environment(val value: Int) : Parcelable {
+            /**
+             * Corresponds to
+             * [WalletConstants.ENVIRONMENT_TEST](https://developers.google.com/android/reference/com/google/android/gms/wallet/WalletConstants#ENVIRONMENT_TEST).
+             */
             TEST(WalletConstants.ENVIRONMENT_TEST),
+
+            /**
+             * Corresponds to
+             * [WalletConstants.ENVIRONMENT_PRODUCTION](https://developers.google.com/android/reference/com/google/android/gms/wallet/WalletConstants#ENVIRONMENT_PRODUCTION).
+             */
             PRODUCTION(WalletConstants.ENVIRONMENT_PRODUCTION)
         }
 
+        /**
+         * The status of the total price used.
+         */
         @Parcelize
         enum class TotalPriceStatus : Parcelable {
-            FINAL, ESTIMATED
+            /** Total price doesn't change from the amount presented to the shopper. */
+            FINAL,
+
+            /** Total price might adjust based on the details of the response, such as sales tax collected that's based on a billing address. */
+            ESTIMATED
         }
 
+        /**
+         * Affects the submit button text displayed in the Google Pay payment sheet.
+         */
         @Parcelize
         enum class CheckoutOption : Parcelable {
-            DEFAULT, COMPLETE_IMMEDIATE_PURCHASE
+            /** Standard text applies for the given [totalPriceStatus] (default). */
+            DEFAULT,
+
+            /**
+             * The selected payment method is charged immediately after the payer confirms their selections.
+             * This option is only available when [totalPriceStatus] is set to [TotalPriceStatus.FINAL].
+             */
+            COMPLETE_IMMEDIATE_PURCHASE
         }
 
+        /**
+         * Allows to set additional fields to be returned for a requested billing address.
+         *
+         * @param[format] Billing address format required to complete the transaction.
+         * @param[phoneNumberRequired] Set to _true_ if a phone number is required to process the transaction.
+         */
         @Parcelize
         data class BillingAddressConfiguration(
             val format: Format,
             val phoneNumberRequired: Boolean
         ) : Parcelable {
 
+            /**
+             * Billing address format required to complete the transaction.
+             */
             @Parcelize
             enum class Format : Parcelable {
-                MIN, FULL
+                /** Name, country code, and postal code (default). */
+                MIN,
+
+                /** Name, street address, locality, region, country code, and postal code. */
+                FULL
             }
         }
 
+        /**
+         * Allows to set shipping restrictions.
+         *
+         * @param[allowedCountryCodes] ISO 3166-1 alpha-2 country code values of the countries where shipping is allowed.
+         * If this object isn't specified, all shipping address countries are allowed.
+         * @param[phoneNumberRequired] Set to _true_ if a phone number is required for the provided shipping address.
+         */
         @Parcelize
         data class ShippingAddressConfiguration(
             val allowedCountryCodes: Set<String>,
