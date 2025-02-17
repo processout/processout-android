@@ -17,6 +17,21 @@ import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfigurat
 import com.processout.sdk.ui.shared.configuration.POBarcodeConfiguration
 import kotlinx.parcelize.Parcelize
 
+/**
+ * @param[invoiceRequest] Request to fetch invoice for payment.
+ * @param[expressCheckout] Express checkout section configuration.
+ * @param[card] Card payment configuration.
+ * @param[googlePay] Google Pay configuration.
+ * @param[alternativePayment] Alternative payment configuration.
+ * @param[submitButton] Submit button configuration.
+ * @param[cancelButton] Cancel button configuration.
+ * @param[cancelOnBackPressed] Specifies whether the screen should be cancelled on back button press or back gesture.
+ * Default value is _true_.
+ * @param[preselectSinglePaymentMethod] Specifies whether the single non-express payment method should be preselected automatically.
+ * Default value is _true_.
+ * @param[paymentSuccess] Payment success screen configuration. Pass _null_ to skip the success screen.
+ * @param[style] Custom style.
+ */
 /** @suppress */
 @ProcessOutInternalApi
 @Parcelize
@@ -34,6 +49,12 @@ data class PODynamicCheckoutConfiguration(
     val style: Style? = null
 ) : Parcelable {
 
+    /**
+     * Specifies express checkout section configuration.
+     *
+     * @param[title] Custom section title.
+     * @param[settingsButton] Settings button configuration.
+     */
     @Parcelize
     data class ExpressCheckout(
         val title: String? = null,
@@ -67,7 +88,7 @@ data class PODynamicCheckoutConfiguration(
     }
 
     /**
-     * Google Pay configuration.
+     * Specifies Google Pay configuration.
      *
      * @param[environment] Google Pay environment.
      * @param[merchantName] Merchant name encoded as UTF-8. Merchant name is rendered in the payment sheet.
@@ -259,7 +280,7 @@ data class PODynamicCheckoutConfiguration(
     ) : Parcelable
 
     /**
-     * Payment success configuration.
+     * Specifies payment success screen configuration.
      *
      * @param[message] Custom success message.
      * @param[durationSeconds] Defines for how long user will stay on success screen before calling completion.
