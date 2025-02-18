@@ -9,5 +9,14 @@ internal class CardScannerActivity : BaseTransparentPortraitActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        if (savedInstanceState == null) {
+            val bottomSheet = supportFragmentManager.findFragmentByTag(CardScannerBottomSheet.tag)
+            if (bottomSheet == null) {
+                CardScannerBottomSheet().apply {
+                    arguments = intent.extras
+                    show(supportFragmentManager, CardScannerBottomSheet.tag)
+                }
+            }
+        }
     }
 }
