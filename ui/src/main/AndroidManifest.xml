@@ -31,6 +31,12 @@
             android:theme="@style/Theme.ProcessOut.BottomSheet" />
 
         <activity
+            android:name=".card.scanner.CardScannerActivity"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.ProcessOut.BottomSheet" />
+
+        <activity
             android:name=".savedpaymentmethods.SavedPaymentMethodsActivity"
             android:exported="false"
             android:launchMode="singleTop"
