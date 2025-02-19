@@ -32,6 +32,8 @@ internal class CardScannerViewModel(
 
     val state = interactor.state.map(viewModelScope, ::map)
 
+    val sideEffects = interactor.sideEffects
+
     init {
         addCloseable(interactor.interactorScope)
     }

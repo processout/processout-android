@@ -1,15 +1,20 @@
 package com.processout.sdk.ui.card.scanner
 
+import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.processout.sdk.core.ProcessOutActivityResult
@@ -20,9 +25,12 @@ import com.processout.sdk.ui.card.scanner.CardScannerActivityContract.Companion.
 import com.processout.sdk.ui.card.scanner.CardScannerActivityContract.Companion.EXTRA_RESULT
 import com.processout.sdk.ui.card.scanner.CardScannerCompletion.Failure
 import com.processout.sdk.ui.card.scanner.CardScannerCompletion.Success
+import com.processout.sdk.ui.card.scanner.CardScannerEvent.CameraPermissionResult
 import com.processout.sdk.ui.card.scanner.CardScannerEvent.Dismiss
+import com.processout.sdk.ui.card.scanner.CardScannerSideEffect.CameraPermissionRequest
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.component.screenModeAsState
+import com.processout.sdk.ui.shared.extension.collectImmediately
 import kotlin.math.roundToInt
 
 internal class CardScannerBottomSheet : BaseBottomSheetDialogFragment<POScannedCard>() {
@@ -43,6 +51,12 @@ internal class CardScannerBottomSheet : BaseBottomSheetDialogFragment<POScannedC
         )
     }
 
+    private val cameraPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        viewModel.onEvent(CameraPermissionResult(isGranted = isGranted))
+    }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         @Suppress("DEPRECATION")
@@ -60,6 +74,7 @@ internal class CardScannerBottomSheet : BaseBottomSheetDialogFragment<POScannedC
                 with(viewModel.completion.collectAsStateWithLifecycle()) {
                     LaunchedEffect(value) { handle(value) }
                 }
+                viewModel.sideEffects.collectImmediately { handle(it) }
                 with(screenModeAsState(viewHeight = defaultViewHeight)) {
                     LaunchedEffect(value) { apply(value) }
                 }
@@ -75,6 +90,27 @@ internal class CardScannerBottomSheet : BaseBottomSheetDialogFragment<POScannedC
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         configuration?.let { apply(it.cancellation) }
+    }
+
+    private fun handle(sideEffect: CardScannerSideEffect) {
+        when (sideEffect) {
+            CameraPermissionRequest -> requestCameraPermission()
+        }
+    }
+
+    private fun requestCameraPermission() {
+        when {
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED ->
+                viewModel.onEvent(CameraPermissionResult(isGranted = true))
+            ActivityCompat.shouldShowRequestPermissionRationale(
+                requireActivity(),
+                Manifest.permission.CAMERA
+            ) -> viewModel.onEvent(CameraPermissionResult(isGranted = false))
+            else -> cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
     }
 
     private fun handle(completion: CardScannerCompletion) =
