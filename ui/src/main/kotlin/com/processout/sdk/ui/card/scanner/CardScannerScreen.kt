@@ -29,9 +29,7 @@ internal fun CardScannerScreen(
         Column(
             modifier = Modifier.padding(spacing.extraLarge)
         ) {
-            POText(text = "111")
-            POText(text = "222")
-            POText(text = "333")
+
         }
     }
 }

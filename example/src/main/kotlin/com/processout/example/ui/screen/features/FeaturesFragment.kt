@@ -19,6 +19,9 @@ import com.processout.sdk.api.model.request.POCardTokenizationRequest
 import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.api.model.response.POGooglePayCardTokenizationData
 import com.processout.sdk.core.*
+import com.processout.sdk.ui.card.scanner.POCardScannerConfiguration
+import com.processout.sdk.ui.card.scanner.POCardScannerLauncher
+import com.processout.sdk.ui.card.scanner.POScannedCard
 import com.processout.sdk.ui.card.update.POCardUpdateConfiguration
 import com.processout.sdk.ui.card.update.POCardUpdateConfiguration.CardInformation
 import com.processout.sdk.ui.card.update.POCardUpdateLauncher
@@ -35,6 +38,7 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
     private val cardsRepository = ProcessOut.instance.cards
 
     private lateinit var cardUpdateLauncher: POCardUpdateLauncher
+    private lateinit var cardScannerLauncher: POCardScannerLauncher
     private lateinit var googlePayLauncher: POGooglePayCardTokenizationLauncher
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,6 +46,10 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
         cardUpdateLauncher = POCardUpdateLauncher.create(
             from = this,
             callback = ::handleCardUpdateResult
+        )
+        cardScannerLauncher = POCardScannerLauncher.create(
+            from = this,
+            callback = ::handleCardScannerResult
         )
         googlePayLauncher = POGooglePayCardTokenizationLauncher.create(
             from = this,
@@ -76,6 +84,7 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
             }
         }
         setupCardUpdate()
+        setupCardScanner()
         setupGooglePay()
     }
 
@@ -129,6 +138,28 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
             .onFailure {
                 showAlert(
                     title = getString(R.string.card_update),
+                    message = it.toMessage()
+                )
+            }
+    }
+
+    private fun setupCardScanner() {
+        binding.cardScannerButton.setOnClickListener {
+            cardScannerLauncher.launch(POCardScannerConfiguration())
+        }
+    }
+
+    private fun handleCardScannerResult(result: ProcessOutActivityResult<POScannedCard>) {
+        result
+            .onSuccess {
+                showAlert(
+                    title = getString(R.string.card_scanner),
+                    message = it.toString()
+                )
+            }
+            .onFailure {
+                showAlert(
+                    title = getString(R.string.card_scanner),
                     message = it.toMessage()
                 )
             }

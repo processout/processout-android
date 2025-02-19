@@ -32,7 +32,7 @@ internal class CardScannerBottomSheet : BaseBottomSheetDialogFragment<POScannedC
     }
 
     override var expandable = false
-    override val defaultViewHeight by lazy { (screenHeight * 0.5).roundToInt() }
+    override val defaultViewHeight by lazy { (screenHeight * 0.6).roundToInt() }
 
     private var configuration: POCardScannerConfiguration? = null
 
