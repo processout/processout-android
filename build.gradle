@@ -45,6 +45,7 @@ ext {
     androidxRecyclerViewVersion = '1.4.0'
     androidxSwipeRefreshLayoutVersion = '1.1.0'
     androidxBrowserVersion = '1.8.0'
+    androidxCameraVersion = '1.4.1'
 
     androidxComposeBOMVersion = '2025.02.00'
     composeGooglePayButtonVersion = '1.0.0'
