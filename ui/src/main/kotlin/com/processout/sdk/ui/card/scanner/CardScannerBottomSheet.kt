@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
@@ -62,7 +63,11 @@ internal class CardScannerBottomSheet : BaseBottomSheetDialogFragment<POScannedC
                 with(screenModeAsState(viewHeight = defaultViewHeight)) {
                     LaunchedEffect(value) { apply(value) }
                 }
-                // TODO
+                CardScannerScreen(
+                    state = viewModel.state.collectAsStateWithLifecycle().value,
+                    onEvent = remember { viewModel::onEvent },
+                    style = null
+                )
             }
         }
     }
