@@ -5,9 +5,11 @@ import androidx.camera.view.PreviewView
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 
 @Composable
 internal fun CameraPreview(
@@ -21,10 +23,11 @@ internal fun CameraPreview(
         }
     }
     AndroidView(
-        modifier = modifier,
+        modifier = modifier.clip(shapes.roundedCornersLarge),
         factory = {
             PreviewView(it).apply {
                 controller = cameraController
+                clipToOutline = true
                 scaleType = PreviewView.ScaleType.FILL_START
                 implementationMode = PreviewView.ImplementationMode.COMPATIBLE
             }
