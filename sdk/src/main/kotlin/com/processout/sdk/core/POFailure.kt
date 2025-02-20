@@ -126,7 +126,6 @@ class POFailure private constructor() {
         invalidGatewayData("request.validation.invalid-gateway-data"),
         invalidId("request.validation.invalid-id"),
         invalidIpAddress("request.validation.invalid-ip-address"),
-        invalidInvoice("request.validation.invalid-invoice"),
         invalidLegalDocument("request.validation.invalid-legal-document"),
         invalidMetadata("request.validation.invalid-metadata"),
         invalidName("request.validation.invalid-name"),
