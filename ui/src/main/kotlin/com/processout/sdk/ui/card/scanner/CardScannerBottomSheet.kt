@@ -9,8 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.app.ActivityCompat
@@ -31,7 +30,6 @@ import com.processout.sdk.ui.card.scanner.CardScannerSideEffect.CameraPermission
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.component.screenModeAsState
 import com.processout.sdk.ui.shared.extension.collectImmediately
-import kotlin.math.roundToInt
 
 internal class CardScannerBottomSheet : BaseBottomSheetDialogFragment<POScannedCard>() {
 
@@ -40,7 +38,7 @@ internal class CardScannerBottomSheet : BaseBottomSheetDialogFragment<POScannedC
     }
 
     override var expandable = false
-    override val defaultViewHeight by lazy { (screenHeight * 0.6).roundToInt() }
+    override val defaultViewHeight = 0
 
     private var configuration: POCardScannerConfiguration? = null
 
@@ -75,12 +73,17 @@ internal class CardScannerBottomSheet : BaseBottomSheetDialogFragment<POScannedC
                     LaunchedEffect(value) { handle(value) }
                 }
                 viewModel.sideEffects.collectImmediately { handle(it) }
-                with(screenModeAsState(viewHeight = defaultViewHeight)) {
+
+                var viewHeight by remember { mutableIntStateOf(defaultViewHeight) }
+                with(screenModeAsState(viewHeight = viewHeight)) {
                     LaunchedEffect(value) { apply(value) }
                 }
                 CardScannerScreen(
                     state = viewModel.state.collectAsStateWithLifecycle().value,
                     onEvent = remember { viewModel::onEvent },
+                    onContentHeightChanged = { contentHeight ->
+                        viewHeight = contentHeight
+                    },
                     style = null
                 )
             }

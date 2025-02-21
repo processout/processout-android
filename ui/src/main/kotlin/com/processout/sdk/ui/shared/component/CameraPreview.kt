@@ -23,7 +23,7 @@ internal fun CameraPreview(
         }
     }
     AndroidView(
-        modifier = modifier.clip(shapes.roundedCornersLarge),
+        modifier = modifier.clip(shapes.roundedCornersMedium),
         factory = {
             PreviewView(it).apply {
                 controller = cameraController
