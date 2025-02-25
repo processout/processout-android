@@ -57,6 +57,7 @@ internal fun CardScannerScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .requiredHeight(cameraPreviewHeight)
+                    .clip(shapes.roundedCornersMedium)
             )
         }
     }
