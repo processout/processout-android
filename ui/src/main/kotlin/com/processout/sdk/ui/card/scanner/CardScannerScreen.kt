@@ -69,7 +69,7 @@ internal fun CardScannerScreen(
                 .padding(spacing.extraLarge)
                 .onGloballyPositioned {
                     with(density) {
-                        cameraPreviewHeight = (it.size.width * 0.63f).toDp()
+                        cameraPreviewHeight = (it.size.width * 0.63f).toDp() // ISO/IEC 7810
                     }
                 }
         ) {
