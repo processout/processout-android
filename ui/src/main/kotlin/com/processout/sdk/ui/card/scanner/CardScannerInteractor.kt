@@ -1,6 +1,7 @@
 package com.processout.sdk.ui.card.scanner
 
 import android.app.Application
+import android.graphics.Bitmap
 import androidx.camera.core.ImageProxy
 import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.ProcessOutResult
@@ -58,6 +59,11 @@ internal class CardScannerInteractor(
     }
 
     private fun analyze(imageProxy: ImageProxy) {
+        val croppedBitmap = Bitmap.createBitmap(
+            imageProxy.toBitmap(), 0, 0,
+            imageProxy.cropRect.width(),
+            imageProxy.cropRect.height()
+        )
         // TODO
     }
 
