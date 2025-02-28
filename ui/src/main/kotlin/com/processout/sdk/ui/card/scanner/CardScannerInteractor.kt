@@ -1,6 +1,7 @@
 package com.processout.sdk.ui.card.scanner
 
 import android.app.Application
+import androidx.camera.core.ImageProxy
 import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
@@ -48,11 +49,16 @@ internal class CardScannerInteractor(
             } else {
                 cancel(message = "Camera permission is not granted.")
             }
+            is ImageAnalysis -> analyze(event.imageProxy)
             is Action -> when (event.id) {
                 ActionId.CANCEL -> cancel(message = "Cancelled by the user with cancel action.")
             }
             is Dismiss -> POLogger.info("Dismissed: %s", event.failure)
         }
+    }
+
+    private fun analyze(imageProxy: ImageProxy) {
+        // TODO
     }
 
     private fun cancel(message: String) {
