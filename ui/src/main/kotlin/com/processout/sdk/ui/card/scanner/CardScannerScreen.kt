@@ -127,13 +127,12 @@ private fun rememberLifecycleCameraController(
                     .setAllowedResolutionMode(PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION)
                     .setResolutionStrategy(
                         ResolutionStrategy(
-                            Size(1280, 960),
+                            Size(1024, 768),
                             FALLBACK_RULE_CLOSEST_LOWER
                         )
                     ).build()
                 setImageAnalysisAnalyzer(executor) { imageProxy ->
                     onAnalyze(imageProxy)
-                    imageProxy.close()
                 }
                 bindToLifecycle(lifecycleOwner)
             },

@@ -110,7 +110,7 @@ dependencies {
 
     api "com.google.android.material:material:$materialVersion"
     api "com.google.android.gms:play-services-wallet:$gmsWalletVersion"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$kotlinxCoroutinesPlayServicesVersion"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$kotlinxCoroutinesPlayServicesVersion"
 
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "com.squareup.retrofit2:converter-moshi:$retrofitVersion"
