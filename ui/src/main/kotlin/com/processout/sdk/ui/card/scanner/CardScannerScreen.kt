@@ -3,7 +3,7 @@ package com.processout.sdk.ui.card.scanner
 import android.content.Context
 import android.util.Size
 import androidx.camera.core.CameraSelector.DEFAULT_BACK_CAMERA
-import androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888
+import androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888
 import androidx.camera.core.ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST
 import androidx.camera.core.ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
 import androidx.camera.core.ImageProxy
@@ -121,13 +121,13 @@ private fun rememberLifecycleCameraController(
             {
                 setEnabledUseCases(IMAGE_CAPTURE or IMAGE_ANALYSIS)
                 imageCaptureMode = CAPTURE_MODE_MAXIMIZE_QUALITY
-                imageAnalysisOutputImageFormat = OUTPUT_IMAGE_FORMAT_RGBA_8888
+                imageAnalysisOutputImageFormat = OUTPUT_IMAGE_FORMAT_YUV_420_888
                 imageAnalysisBackpressureStrategy = STRATEGY_KEEP_ONLY_LATEST
                 imageAnalysisResolutionSelector = ResolutionSelector.Builder()
                     .setAllowedResolutionMode(PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION)
                     .setResolutionStrategy(
                         ResolutionStrategy(
-                            Size(1024, 768),
+                            Size(1280, 960),
                             FALLBACK_RULE_CLOSEST_LOWER
                         )
                     ).build()
