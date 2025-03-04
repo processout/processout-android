@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.processout.sdk.ui.card.scanner.recognition.CardRecognitionSession
 import com.processout.sdk.ui.shared.extension.map
 
 internal class CardScannerViewModel(
@@ -23,7 +24,8 @@ internal class CardScannerViewModel(
                 configuration = configuration,
                 interactor = CardScannerInteractor(
                     app = app,
-                    configuration = configuration
+                    configuration = configuration,
+                    cardRecognitionSession = CardRecognitionSession()
                 )
             ) as T
     }
@@ -46,5 +48,9 @@ internal class CardScannerViewModel(
             description = "Description",
             cancelAction = null
         )
+    }
+
+    override fun onCleared() {
+        interactor.onCleared()
     }
 }

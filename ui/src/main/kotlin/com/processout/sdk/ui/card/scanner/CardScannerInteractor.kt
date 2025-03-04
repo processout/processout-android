@@ -1,27 +1,28 @@
 package com.processout.sdk.ui.card.scanner
 
 import android.app.Application
-import android.graphics.Bitmap
-import androidx.camera.core.ImageProxy
 import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.base.BaseInteractor
-import com.processout.sdk.ui.card.scanner.CardScannerCompletion.Awaiting
-import com.processout.sdk.ui.card.scanner.CardScannerCompletion.Failure
+import com.processout.sdk.ui.card.scanner.CardScannerCompletion.*
 import com.processout.sdk.ui.card.scanner.CardScannerEvent.*
 import com.processout.sdk.ui.card.scanner.CardScannerInteractorState.ActionId
 import com.processout.sdk.ui.card.scanner.CardScannerSideEffect.CameraPermissionRequest
+import com.processout.sdk.ui.card.scanner.recognition.CardRecognitionSession
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 internal class CardScannerInteractor(
     private val app: Application,
-    private val configuration: POCardScannerConfiguration
+    private val configuration: POCardScannerConfiguration,
+    private val cardRecognitionSession: CardRecognitionSession
 ) : BaseInteractor() {
 
     private val _completion = MutableStateFlow<CardScannerCompletion>(Awaiting)
@@ -35,13 +36,12 @@ internal class CardScannerInteractor(
 
     init {
         interactorScope.launch {
+            collectCardRecognitionResult()
             _sideEffects.send(CameraPermissionRequest)
         }
     }
 
-    private fun initState() = CardScannerInteractorState(
-        card = null
-    )
+    private fun initState() = CardScannerInteractorState(currentCard = null)
 
     fun onEvent(event: CardScannerEvent) {
         when (event) {
@@ -50,7 +50,7 @@ internal class CardScannerInteractor(
             } else {
                 cancel(message = "Camera permission is not granted.")
             }
-            is ImageAnalysis -> analyze(event.imageProxy)
+            is ImageAnalysis -> cardRecognitionSession.recognize(event.imageProxy)
             is Action -> when (event.id) {
                 ActionId.CANCEL -> cancel(message = "Cancelled by the user with cancel action.")
             }
@@ -58,18 +58,24 @@ internal class CardScannerInteractor(
         }
     }
 
-    private fun analyze(imageProxy: ImageProxy) {
-        val croppedBitmap = Bitmap.createBitmap(
-            imageProxy.toBitmap(), 0, 0,
-            imageProxy.cropRect.width(),
-            imageProxy.cropRect.height()
-        )
-        // TODO
+    private suspend fun collectCardRecognitionResult() {
+        withContext(Dispatchers.Main.immediate) {
+            cardRecognitionSession.currentResult.collect { card ->
+                _state.update { it.copy(currentCard = card) }
+            }
+            cardRecognitionSession.bestResult.collect { card ->
+                _completion.update { Success(card) }
+            }
+        }
     }
 
     private fun cancel(message: String) {
         val failure = ProcessOutResult.Failure(code = Cancelled, message = message)
         POLogger.info("Cancelled: %s", failure)
         _completion.update { Failure(failure) }
+    }
+
+    fun onCleared() {
+        cardRecognitionSession.close()
     }
 }

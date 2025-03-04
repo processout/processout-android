@@ -2,6 +2,7 @@ package com.processout.sdk.ui.card.scanner
 
 import androidx.camera.core.ImageProxy
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.ui.card.scanner.recognition.POScannedCard
 
 internal sealed interface CardScannerEvent {
     data class CameraPermissionResult(val isGranted: Boolean) : CardScannerEvent

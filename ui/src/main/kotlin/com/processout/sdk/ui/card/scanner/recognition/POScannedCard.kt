@@ -1,4 +1,4 @@
-package com.processout.sdk.ui.card.scanner
+package com.processout.sdk.ui.card.scanner.recognition
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

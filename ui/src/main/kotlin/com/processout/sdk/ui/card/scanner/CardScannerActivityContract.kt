@@ -7,6 +7,7 @@ import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.BuildConfig
+import com.processout.sdk.ui.card.scanner.recognition.POScannedCard
 
 internal class CardScannerActivityContract : ActivityResultContract
 <POCardScannerConfiguration, ProcessOutActivityResult<POScannedCard>>() {

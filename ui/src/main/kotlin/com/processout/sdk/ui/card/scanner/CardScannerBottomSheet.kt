@@ -27,6 +27,7 @@ import com.processout.sdk.ui.card.scanner.CardScannerCompletion.Success
 import com.processout.sdk.ui.card.scanner.CardScannerEvent.CameraPermissionResult
 import com.processout.sdk.ui.card.scanner.CardScannerEvent.Dismiss
 import com.processout.sdk.ui.card.scanner.CardScannerSideEffect.CameraPermissionRequest
+import com.processout.sdk.ui.card.scanner.recognition.POScannedCard
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.component.screenModeAsState
 import com.processout.sdk.ui.shared.extension.collectImmediately

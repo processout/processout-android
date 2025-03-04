@@ -7,6 +7,7 @@ import androidx.core.app.ActivityOptionsCompat
 import androidx.fragment.app.Fragment
 import com.processout.sdk.R
 import com.processout.sdk.core.ProcessOutActivityResult
+import com.processout.sdk.ui.card.scanner.recognition.POScannedCard
 
 /**
  * Launcher that starts [CardScannerActivity] and provides the result.

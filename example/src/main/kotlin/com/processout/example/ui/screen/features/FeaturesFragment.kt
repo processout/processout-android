@@ -21,7 +21,7 @@ import com.processout.sdk.api.model.response.POGooglePayCardTokenizationData
 import com.processout.sdk.core.*
 import com.processout.sdk.ui.card.scanner.POCardScannerConfiguration
 import com.processout.sdk.ui.card.scanner.POCardScannerLauncher
-import com.processout.sdk.ui.card.scanner.POScannedCard
+import com.processout.sdk.ui.card.scanner.recognition.POScannedCard
 import com.processout.sdk.ui.card.update.POCardUpdateConfiguration
 import com.processout.sdk.ui.card.update.POCardUpdateConfiguration.CardInformation
 import com.processout.sdk.ui.card.update.POCardUpdateLauncher
