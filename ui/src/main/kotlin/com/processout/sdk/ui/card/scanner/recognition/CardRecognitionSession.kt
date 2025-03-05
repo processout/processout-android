@@ -15,8 +15,9 @@ import kotlinx.coroutines.tasks.await
 import java.io.Closeable
 
 internal class CardRecognitionSession(
-    private val scope: CoroutineScope = MainScope(),
-    private val recognizer: TextRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+    private val numberDetector: CardAttributeDetector<String>,
+    private val textRecognizer: TextRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS),
+    private val scope: CoroutineScope = MainScope()
 ) : Closeable {
 
     private companion object {
@@ -30,7 +31,7 @@ internal class CardRecognitionSession(
     val bestResult = _bestResult.receiveAsFlow()
 
     suspend fun recognize(imageProxy: ImageProxy) {
-        val text = recognizer.process(
+        val text = textRecognizer.process(
             imageProxy.croppedBitmap(),
             imageProxy.imageInfo.rotationDegrees
         ).await()
