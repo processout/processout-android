@@ -2,6 +2,7 @@ package com.processout.sdk.ui.card.scanner.recognition
 
 import android.graphics.Bitmap
 import androidx.camera.core.ImageProxy
+import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.TextRecognizer
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
@@ -18,6 +19,10 @@ internal class CardRecognitionSession(
     private val recognizer: TextRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 ) : Closeable {
 
+    private companion object {
+        const val MIN_CONFIDENCE = 0.8f
+    }
+
     private val _currentResult = Channel<POScannedCard>()
     val currentResult = _currentResult.receiveAsFlow()
 
@@ -25,16 +30,32 @@ internal class CardRecognitionSession(
     val bestResult = _bestResult.receiveAsFlow()
 
     suspend fun recognize(imageProxy: ImageProxy) {
-        val croppedBitmap = Bitmap.createBitmap(
-            imageProxy.toBitmap(), 0, 0,
-            imageProxy.cropRect.width(),
-            imageProxy.cropRect.height()
-        )
         val text = recognizer.process(
-            croppedBitmap,
+            imageProxy.croppedBitmap(),
             imageProxy.imageInfo.rotationDegrees
         ).await()
+        val confidentLines = text.confidentLines(MIN_CONFIDENCE)
+        // TODO
         imageProxy.close()
+    }
+
+    private fun ImageProxy.croppedBitmap() =
+        Bitmap.createBitmap(
+            toBitmap(), 0, 0,
+            cropRect.width(),
+            cropRect.height()
+        )
+
+    private fun Text.confidentLines(minConfidence: Float): List<String> {
+        val confidentLines = mutableListOf<String>()
+        textBlocks.forEach { textBlock ->
+            textBlock.lines.forEach { line ->
+                if (line.confidence >= minConfidence) {
+                    confidentLines.add(line.text)
+                }
+            }
+        }
+        return confidentLines
     }
 
     override fun close() {
