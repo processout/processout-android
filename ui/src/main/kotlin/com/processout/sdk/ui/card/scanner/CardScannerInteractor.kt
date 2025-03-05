@@ -50,7 +50,9 @@ internal class CardScannerInteractor(
             } else {
                 cancel(message = "Camera permission is not granted.")
             }
-            is ImageAnalysis -> cardRecognitionSession.recognize(event.imageProxy)
+            is ImageAnalysis -> interactorScope.launch {
+                cardRecognitionSession.recognize(event.imageProxy)
+            }
             is Action -> when (event.id) {
                 ActionId.CANCEL -> cancel(message = "Cancelled by the user with cancel action.")
             }
