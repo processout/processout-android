@@ -1,6 +1,12 @@
 package com.processout.sdk.ui.card.scanner.recognition
 
-internal class CardNumberDetector : CardAttributeDetector<String> {
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.input.VisualTransformation
+import com.processout.sdk.ui.shared.transformation.CardNumberVisualTransformation
+
+internal class CardNumberDetector(
+    private val visualTransformation: VisualTransformation = CardNumberVisualTransformation()
+) : CardAttributeDetector<String> {
 
     private val numberRegex = Regex("(?:\\d\\s*){12,19}")
 
@@ -9,7 +15,7 @@ internal class CardNumberDetector : CardAttributeDetector<String> {
             numberRegex.find(candidate)?.let { match ->
                 val number = match.value.filterNot { it.isWhitespace() }
                 if (isLuhnChecksumValid(number)) {
-                    return number
+                    return visualTransformation.filter(AnnotatedString(number)).text.text
                 }
             }
         }

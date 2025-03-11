@@ -14,6 +14,7 @@ data class POScannedCard(
     data class Expiration(
         val month: Int,
         val year: Int,
-        val isExpired: Boolean
+        val isExpired: Boolean,
+        val formatted: String
     ) : Parcelable
 }

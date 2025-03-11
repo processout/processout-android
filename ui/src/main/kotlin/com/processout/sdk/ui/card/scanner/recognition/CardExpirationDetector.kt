@@ -20,18 +20,13 @@ internal class CardExpirationDetector(
                     POScannedCard.Expiration(
                         month = month,
                         year = year,
-                        isExpired = isExpired(month = month, year = year)
+                        isExpired = isExpired(month = month, year = year),
+                        formatted = formatted(month = month, year = year)
                     )
                 )
             }
         }
         return matches.find { !it.isExpired } ?: matches.firstOrNull()
-    }
-
-    private fun isExpired(month: Int, year: Int): Boolean {
-        val currentMonth = calendar.get(Calendar.MONTH)
-        val currentYear = calendar.get(Calendar.YEAR)
-        return year < currentYear || (year == currentYear && month < currentMonth)
     }
 
     private fun normalized(year: Int): Int {
@@ -40,5 +35,17 @@ internal class CardExpirationDetector(
         }
         val currentYear = calendar.get(Calendar.YEAR)
         return (currentYear / 100) * 100 + year
+    }
+
+    private fun isExpired(month: Int, year: Int): Boolean {
+        val currentMonth = calendar.get(Calendar.MONTH)
+        val currentYear = calendar.get(Calendar.YEAR)
+        return year < currentYear || (year == currentYear && month < currentMonth)
+    }
+
+    private fun formatted(month: Int, year: Int): String {
+        val formattedMonth = month.toString().padStart(length = 2, padChar = '0')
+        val formattedYear = year % 100
+        return "$formattedMonth / $formattedYear"
     }
 }
