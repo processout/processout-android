@@ -4,12 +4,22 @@ import java.text.Normalizer
 
 internal class CardholderNameDetector : CardAttributeDetector<String> {
 
+    private val delimiterRegex = Regex("[^\\w'-]+")
     private val diacriticsRegex = Regex("\\p{InCombiningDiacriticalMarks}+")
 
-    override fun firstMatch(candidates: List<String>): String? {
-        // TODO
-        return null
-    }
+    override fun firstMatch(candidates: List<String>): String? =
+        candidates.reversed().find { candidate ->
+            candidate
+                .stripDiacritics()
+                .uppercase()
+                .split(delimiterRegex)
+                .forEach { word ->
+                    if (restrictedWords.contains(word)) {
+                        return@find false
+                    }
+                }
+            true
+        }
 
     private fun String.stripDiacritics(): String {
         val normalized = Normalizer.normalize(this, Normalizer.Form.NFD)
