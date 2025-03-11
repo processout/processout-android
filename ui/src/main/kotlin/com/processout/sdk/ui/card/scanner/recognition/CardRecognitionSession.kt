@@ -16,6 +16,7 @@ import java.io.Closeable
 
 internal class CardRecognitionSession(
     private val numberDetector: CardAttributeDetector<String>,
+    private val expirationDetector: CardAttributeDetector<POScannedCard.Expiration>,
     private val textRecognizer: TextRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS),
     private val scope: CoroutineScope = MainScope()
 ) : Closeable {
@@ -36,6 +37,8 @@ internal class CardRecognitionSession(
             imageProxy.imageInfo.rotationDegrees
         ).await()
         val confidentLines = text.confidentLines(MIN_CONFIDENCE)
+        val number = numberDetector.firstMatch(confidentLines)
+        val expiration = expirationDetector.firstMatch(confidentLines)
         // TODO
         imageProxy.close()
     }

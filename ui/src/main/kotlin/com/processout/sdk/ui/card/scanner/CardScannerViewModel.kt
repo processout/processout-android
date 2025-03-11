@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.processout.sdk.ui.card.scanner.recognition.CardExpirationDetector
 import com.processout.sdk.ui.card.scanner.recognition.CardNumberDetector
 import com.processout.sdk.ui.card.scanner.recognition.CardRecognitionSession
 import com.processout.sdk.ui.shared.extension.map
@@ -27,7 +28,10 @@ internal class CardScannerViewModel(
                     app = app,
                     configuration = configuration,
                     cardRecognitionSession = CardRecognitionSession(
-                        numberDetector = CardNumberDetector()
+                        numberDetector = CardNumberDetector(),
+                        expirationDetector = CardExpirationDetector(
+                            includingExpired = configuration.shouldScanExpiredCard
+                        )
                     )
                 )
             ) as T

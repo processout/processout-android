@@ -14,6 +14,7 @@ data class POCardScannerConfiguration(
     val description: String? = null,
     val cancelButton: CancelButton? = CancelButton(),
     val cancellation: POCancellationConfiguration = POCancellationConfiguration(),
+    val shouldScanExpiredCard: Boolean = false,
     val style: Style? = null
 ) : Parcelable {
 
