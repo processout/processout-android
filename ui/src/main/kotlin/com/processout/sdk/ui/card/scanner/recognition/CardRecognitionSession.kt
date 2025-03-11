@@ -17,6 +17,7 @@ import java.io.Closeable
 internal class CardRecognitionSession(
     private val numberDetector: CardAttributeDetector<String>,
     private val expirationDetector: CardAttributeDetector<POScannedCard.Expiration>,
+    private val shouldScanExpiredCard: Boolean,
     private val textRecognizer: TextRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS),
     private val scope: CoroutineScope = MainScope()
 ) : Closeable {

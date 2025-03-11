@@ -13,6 +13,7 @@ data class POScannedCard(
     @Parcelize
     data class Expiration(
         val month: Int,
-        val year: Int
+        val year: Int,
+        val isExpired: Boolean
     ) : Parcelable
 }

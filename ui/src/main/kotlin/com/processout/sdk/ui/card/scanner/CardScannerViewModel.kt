@@ -29,9 +29,8 @@ internal class CardScannerViewModel(
                     configuration = configuration,
                     cardRecognitionSession = CardRecognitionSession(
                         numberDetector = CardNumberDetector(),
-                        expirationDetector = CardExpirationDetector(
-                            includingExpired = configuration.shouldScanExpiredCard
-                        )
+                        expirationDetector = CardExpirationDetector(),
+                        shouldScanExpiredCard = configuration.shouldScanExpiredCard
                     )
                 )
             ) as T

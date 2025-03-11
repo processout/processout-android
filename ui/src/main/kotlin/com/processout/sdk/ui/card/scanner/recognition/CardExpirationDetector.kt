@@ -3,7 +3,6 @@ package com.processout.sdk.ui.card.scanner.recognition
 import java.util.Calendar
 
 internal class CardExpirationDetector(
-    private val includingExpired: Boolean,
     private val calendar: Calendar = Calendar.getInstance()
 ) : CardAttributeDetector<POScannedCard.Expiration> {
 
@@ -11,21 +10,25 @@ internal class CardExpirationDetector(
     private val separators = listOf('/', '\\', '.', '-')
 
     override fun firstMatch(candidates: List<String>): POScannedCard.Expiration? {
+        val matches = mutableListOf<POScannedCard.Expiration>()
         candidates.reversed().forEach { candidate ->
             val filtered = candidate.filter { it.isDigit() || separators.contains(it) }
             expirationRegex.find(filtered)?.let { match ->
                 val month = match.groupValues[1].toInt()
                 val year = normalized(match.groupValues[2].toInt())
-                if (!includingExpired && hasExpired(month = month, year = year)) {
-                    return null
-                }
-                return POScannedCard.Expiration(month = month, year = year)
+                matches.add(
+                    POScannedCard.Expiration(
+                        month = month,
+                        year = year,
+                        isExpired = isExpired(month = month, year = year)
+                    )
+                )
             }
         }
-        return null
+        return matches.find { !it.isExpired } ?: matches.firstOrNull()
     }
 
-    private fun hasExpired(month: Int, year: Int): Boolean {
+    private fun isExpired(month: Int, year: Int): Boolean {
         val currentMonth = calendar.get(Calendar.MONTH)
         val currentYear = calendar.get(Calendar.YEAR)
         return year < currentYear || (year == currentYear && month < currentMonth)
