@@ -7,7 +7,7 @@ internal class CardExpirationDetector(
 ) : CardAttributeDetector<POScannedCard.Expiration> {
 
     private val expirationRegex = """(0?[1-9]|1[0-2])[/\\.-](\d{4}|\d{2})""".toRegex()
-    private val separators = listOf('/', '\\', '.', '-')
+    private val separators = setOf('/', '\\', '.', '-')
 
     override fun firstMatch(candidates: List<String>): POScannedCard.Expiration? {
         val matches = mutableListOf<POScannedCard.Expiration>()
