@@ -1,10 +1,19 @@
 package com.processout.sdk.ui.card.scanner.recognition
 
+import java.text.Normalizer
+
 internal class CardholderNameDetector : CardAttributeDetector<String> {
+
+    private val diacriticsRegex = Regex("\\p{InCombiningDiacriticalMarks}+")
 
     override fun firstMatch(candidates: List<String>): String? {
         // TODO
         return null
+    }
+
+    private fun String.stripDiacritics(): String {
+        val normalized = Normalizer.normalize(this, Normalizer.Form.NFD)
+        return diacriticsRegex.replace(normalized, String())
     }
 
     private val restrictedWords = setOf(
