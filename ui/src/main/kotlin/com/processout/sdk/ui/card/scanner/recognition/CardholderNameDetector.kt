@@ -4,7 +4,7 @@ import java.text.Normalizer
 
 internal class CardholderNameDetector : CardAttributeDetector<String> {
 
-    private val delimiterRegex = Regex("[^\\w'-]+")
+    private val delimiterRegex = Regex("\\W+")
     private val diacriticsRegex = Regex("\\p{InCombiningDiacriticalMarks}+")
 
     override fun firstMatch(candidates: List<String>): String? =
@@ -14,7 +14,8 @@ internal class CardholderNameDetector : CardAttributeDetector<String> {
                 .uppercase()
                 .split(delimiterRegex)
                 .forEach { word ->
-                    if (restrictedWords.contains(word)) {
+                    if (word.any { it.isDigit() || it == '_' } ||
+                        restrictedWords.contains(word)) {
                         return@find false
                     }
                 }
