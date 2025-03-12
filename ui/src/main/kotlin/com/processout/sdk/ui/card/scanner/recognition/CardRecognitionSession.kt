@@ -41,6 +41,7 @@ internal class CardRecognitionSession(
         val confidentLines = text.confidentLines(MIN_CONFIDENCE)
         val number = numberDetector.firstMatch(confidentLines)
         val expiration = expirationDetector.firstMatch(confidentLines)
+        val cardholderName = cardholderNameDetector.firstMatch(confidentLines)
         // TODO
         imageProxy.close()
     }
@@ -55,8 +56,10 @@ internal class CardRecognitionSession(
     private fun Text.confidentLines(minConfidence: Float): List<String> {
         val confidentLines = mutableListOf<String>()
         textBlocks.forEach { textBlock ->
-            textBlock.lines.forEach { line ->
-                if (line.confidence >= minConfidence) {
+            textBlock.lines.forEach forEachLine@{ line ->
+                if (line.elements.isEmpty()) return@forEachLine
+                val isConfident = line.elements.all { it.confidence >= minConfidence }
+                if (isConfident) {
                     confidentLines.add(line.text)
                 }
             }
