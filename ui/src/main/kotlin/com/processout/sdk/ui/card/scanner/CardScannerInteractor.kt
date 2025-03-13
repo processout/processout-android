@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 internal class CardScannerInteractor(
     private val app: Application,
@@ -35,8 +34,8 @@ internal class CardScannerInteractor(
     val sideEffects = _sideEffects.receiveAsFlow()
 
     init {
+        collectCardRecognitionResult()
         interactorScope.launch {
-            collectCardRecognitionResult()
             _sideEffects.send(CameraPermissionRequest)
         }
     }
@@ -60,11 +59,13 @@ internal class CardScannerInteractor(
         }
     }
 
-    private suspend fun collectCardRecognitionResult() {
-        withContext(Dispatchers.Main.immediate) {
+    private fun collectCardRecognitionResult() {
+        interactorScope.launch(Dispatchers.Main.immediate) {
             cardRecognitionSession.currentResult.collect { card ->
                 _state.update { it.copy(currentCard = card) }
             }
+        }
+        interactorScope.launch(Dispatchers.Main.immediate) {
             cardRecognitionSession.bestResult.collect { card ->
                 _completion.update { Success(card) }
             }
