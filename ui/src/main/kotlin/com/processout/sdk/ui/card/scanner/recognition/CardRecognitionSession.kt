@@ -25,6 +25,7 @@ internal class CardRecognitionSession(
 
     private companion object {
         const val MIN_CONFIDENCE = 0.8f
+        const val RECOGNITION_DURATION_MS = 3000L
     }
 
     private val _currentResult = Channel<POScannedCard>()
@@ -33,6 +34,9 @@ internal class CardRecognitionSession(
     private val _bestResult = Channel<POScannedCard>()
     val bestResult = _bestResult.receiveAsFlow()
 
+    private var startTimestamp = 0L
+    private val recognizedCards = mutableListOf<POScannedCard>()
+
     suspend fun recognize(imageProxy: ImageProxy) {
         val text = textRecognizer.process(
             imageProxy.croppedBitmap(),
@@ -40,9 +44,25 @@ internal class CardRecognitionSession(
         ).await()
         val confidentLines = text.confidentLines(MIN_CONFIDENCE)
         val number = numberDetector.firstMatch(confidentLines)
-        val expiration = expirationDetector.firstMatch(confidentLines)
-        val cardholderName = cardholderNameDetector.firstMatch(confidentLines)
-        // TODO
+        if (number == null) {
+            imageProxy.close()
+            return
+        }
+        if (startTimestamp == 0L) {
+            startTimestamp = System.currentTimeMillis()
+        }
+        val card = POScannedCard(
+            number = number,
+            expiration = expirationDetector.firstMatch(confidentLines),
+            cardholderName = cardholderNameDetector.firstMatch(confidentLines)
+        )
+        recognizedCards.add(card)
+        _currentResult.send(card)
+        if (System.currentTimeMillis() - startTimestamp > RECOGNITION_DURATION_MS) {
+            bestCard()?.let { _bestResult.send(it) }
+            recognizedCards.clear()
+            startTimestamp = 0L
+        }
         imageProxy.close()
     }
 
@@ -66,6 +86,29 @@ internal class CardRecognitionSession(
         }
         return confidentLines
     }
+
+    private fun bestCard(): POScannedCard? {
+        val reversedCards = recognizedCards.reversed()
+        val number = reversedCards.map { it.number }.mostFrequent()
+        if (number != null) {
+            val card = POScannedCard(
+                number = number,
+                expiration = reversedCards.mapNotNull { it.expiration }.mostFrequent(),
+                cardholderName = reversedCards.mapNotNull { it.cardholderName }.mostFrequent()
+            )
+            if (!shouldScanExpiredCard && card.expiration?.isExpired == true) {
+                return null
+            }
+            return card
+        }
+        return null
+    }
+
+    private fun <T : Any> List<T>.mostFrequent(): T? =
+        this.groupingBy { it }
+            .eachCount()
+            .maxByOrNull { it.value }
+            ?.key
 
     override fun close() {
         scope.cancel()
