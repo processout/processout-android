@@ -58,8 +58,4 @@ internal class CardScannerViewModel(
             currentCard = state.currentCard
         )
     }
-
-    override fun onCleared() {
-        interactor.onCleared()
-    }
 }

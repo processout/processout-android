@@ -77,8 +77,4 @@ internal class CardScannerInteractor(
         POLogger.info("Cancelled: %s", failure)
         _completion.update { Failure(failure) }
     }
-
-    fun onCleared() {
-        cardRecognitionSession.close()
-    }
 }

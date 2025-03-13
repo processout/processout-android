@@ -4,24 +4,17 @@ import android.graphics.Bitmap
 import androidx.camera.core.ImageProxy
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.TextRecognizer
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.tasks.await
-import java.io.Closeable
 
 internal class CardRecognitionSession(
     private val numberDetector: CardAttributeDetector<String>,
     private val expirationDetector: CardAttributeDetector<POScannedCard.Expiration>,
     private val cardholderNameDetector: CardAttributeDetector<String>,
-    private val shouldScanExpiredCard: Boolean,
-    private val textRecognizer: TextRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS),
-    private val scope: CoroutineScope = MainScope()
-) : Closeable {
+    private val shouldScanExpiredCard: Boolean
+) {
 
     private companion object {
         const val MIN_CONFIDENCE = 0.8f
@@ -33,6 +26,8 @@ internal class CardRecognitionSession(
 
     private val _bestResult = Channel<POScannedCard>()
     val bestResult = _bestResult.receiveAsFlow()
+
+    private val textRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 
     private var startTimestamp = 0L
     private val recognizedCards = mutableListOf<POScannedCard>()
@@ -109,8 +104,4 @@ internal class CardRecognitionSession(
             .eachCount()
             .maxByOrNull { it.value }
             ?.key
-
-    override fun close() {
-        scope.cancel()
-    }
 }
