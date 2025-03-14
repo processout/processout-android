@@ -21,6 +21,7 @@ internal class UserAgentInterceptor(
         )
         val request = chain.request().newBuilder()
             .header("User-Agent", userAgentComponents.joinToString(separator = "/"))
+            .header("Accept", "*/*")
             .header("Accept-Language", contextGraph.configuration.application.currentSdkLocale().toLanguageTag())
             .header("Session-Id", contextGraph.configuration.sessionId)
             .header("Installation-Id", preferences.installationId)
