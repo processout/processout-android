@@ -54,8 +54,8 @@ internal class CardScannerViewModel(
         CardScannerViewModelState(
             title = "Title",
             description = "Description",
-            cancelAction = null,
-            currentCard = state.currentCard
+            currentCard = state.currentCard,
+            cancelAction = null
         )
     }
 }
