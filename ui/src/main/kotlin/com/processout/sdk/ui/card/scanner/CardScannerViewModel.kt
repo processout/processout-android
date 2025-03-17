@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.processout.sdk.R
 import com.processout.sdk.ui.card.scanner.recognition.CardExpirationDetector
 import com.processout.sdk.ui.card.scanner.recognition.CardNumberDetector
 import com.processout.sdk.ui.card.scanner.recognition.CardRecognitionSession
@@ -50,12 +51,13 @@ internal class CardScannerViewModel(
 
     fun onEvent(event: CardScannerEvent) = interactor.onEvent(event)
 
-    private fun map(state: CardScannerInteractorState) = with(configuration) {
-        CardScannerViewModelState(
-            title = "Title",
-            description = "Description",
-            currentCard = state.currentCard,
-            cancelAction = null
-        )
-    }
+    private fun map(state: CardScannerInteractorState) =
+        with(configuration) {
+            CardScannerViewModelState(
+                title = title ?: app.getString(R.string.po_card_scanner_title),
+                description = description ?: app.getString(R.string.po_card_scanner_description),
+                currentCard = state.currentCard,
+                cancelAction = null
+            )
+        }
 }
