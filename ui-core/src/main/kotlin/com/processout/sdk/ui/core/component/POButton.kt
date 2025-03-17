@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.processout.sdk.ui.core.component
 
 import androidx.compose.foundation.BorderStroke
@@ -48,22 +50,36 @@ fun POButton(
     style: POButton.Style = POButton.primary,
     enabled: Boolean = true,
     loading: Boolean = false,
+    checked: Boolean = false,
+    onCheckedChange: ((Boolean) -> Unit)? = null,
     leadingContent: @Composable RowScope.() -> Unit = {},
     icon: PODrawableImage? = null,
     iconSize: Dp = dimensions.iconSizeMedium,
     progressIndicatorSize: POButton.ProgressIndicatorSize = Medium,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
+    val onClickHandler = if (onCheckedChange != null) {
+        {
+            onClick()
+            onCheckedChange(!checked)
+        }
+    } else {
+        onClick
+    }
     val pressed by interactionSource.collectIsPressedAsState()
-    val colors = colors(style = style, enabled = enabled, loading = loading, pressed = pressed)
-    CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
+    val colors = colors(style = style, enabled = enabled, loading = loading, pressed = pressed, checked = checked)
+    val rippleConfiguration = if (onCheckedChange != null) null else LocalRippleConfiguration.current
+    CompositionLocalProvider(
+        LocalRippleConfiguration provides rippleConfiguration,
+        LocalMinimumInteractiveComponentSize provides Dp.Unspecified
+    ) {
         Button(
-            onClick = onClick,
+            onClick = onClickHandler,
             modifier = modifier,
             enabled = enabled && !loading,
             colors = colors,
             shape = if (enabled) style.normal.shape else style.disabled.shape,
-            border = border(style = style, enabled = enabled, pressed = pressed),
+            border = border(style = style, enabled = enabled, pressed = pressed, checked = checked),
             elevation = elevation(style = style, enabled = enabled, loading = loading),
             contentPadding = contentPadding(style = style, enabled = enabled),
             interactionSource = interactionSource
@@ -343,11 +359,12 @@ object POButton {
         style: Style,
         enabled: Boolean,
         loading: Boolean,
-        pressed: Boolean
+        pressed: Boolean,
+        checked: Boolean
     ): ButtonColors {
         val normalTextColor: Color
         val normalBackgroundColor: Color
-        if (pressed) with(style.highlighted) {
+        if (pressed || checked) with(style.highlighted) {
             normalTextColor = textColor
             normalBackgroundColor = backgroundColor
         } else with(style.normal) {
@@ -376,9 +393,10 @@ object POButton {
     internal fun border(
         style: Style,
         enabled: Boolean,
-        pressed: Boolean
+        pressed: Boolean,
+        checked: Boolean
     ): BorderStroke {
-        val normalBorderColor = if (pressed) style.highlighted.borderColor else style.normal.border.color
+        val normalBorderColor = if (pressed || checked) style.highlighted.borderColor else style.normal.border.color
         return if (enabled) style.normal.border.solid(color = normalBorderColor)
         else style.disabled.border.solid()
     }
