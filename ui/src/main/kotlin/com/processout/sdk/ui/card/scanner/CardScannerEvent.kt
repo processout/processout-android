@@ -7,7 +7,8 @@ import com.processout.sdk.ui.card.scanner.recognition.POScannedCard
 internal sealed interface CardScannerEvent {
     data class CameraPermissionResult(val isGranted: Boolean) : CardScannerEvent
     data class ImageAnalysis(val imageProxy: ImageProxy) : CardScannerEvent
-    data class Action(val id: String) : CardScannerEvent
+    data class TorchToggle(val isEnabled: Boolean) : CardScannerEvent
+    data object Cancel : CardScannerEvent
     data class Dismiss(val failure: ProcessOutResult.Failure) : CardScannerEvent
 }
 

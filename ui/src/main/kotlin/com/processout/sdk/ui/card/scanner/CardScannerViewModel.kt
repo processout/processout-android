@@ -10,6 +10,8 @@ import com.processout.sdk.ui.card.scanner.recognition.CardExpirationDetector
 import com.processout.sdk.ui.card.scanner.recognition.CardNumberDetector
 import com.processout.sdk.ui.card.scanner.recognition.CardRecognitionSession
 import com.processout.sdk.ui.card.scanner.recognition.CardholderNameDetector
+import com.processout.sdk.ui.core.shared.image.PODrawableImage
+import com.processout.sdk.ui.core.shared.image.POImageRenderingMode
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.shared.extension.map
@@ -60,13 +62,28 @@ internal class CardScannerViewModel(
                 title = title ?: app.getString(R.string.po_card_scanner_title),
                 description = description ?: app.getString(R.string.po_card_scanner_description),
                 currentCard = state.currentCard,
-                cancelAction = cancelButton?.toActionState(id = state.cancelActionId)
+                torchAction = torchAction(state.isTorchEnabled),
+                cancelAction = cancelButton?.toAction()
             )
         }
 
-    private fun CancelButton.toActionState(id: String) =
+    private fun torchAction(isTorchEnabled: Boolean) =
         POActionState(
-            id = id,
+            id = "torch",
+            text = String(),
+            primary = false,
+            checked = isTorchEnabled,
+            icon = PODrawableImage(
+                resId = if (isTorchEnabled)
+                    com.processout.sdk.ui.R.drawable.po_icon_lightning_slash else
+                    com.processout.sdk.ui.R.drawable.po_icon_lightning,
+                renderingMode = POImageRenderingMode.ORIGINAL
+            )
+        )
+
+    private fun CancelButton.toAction() =
+        POActionState(
+            id = "cancel",
             text = text ?: app.getString(R.string.po_card_scanner_button_cancel),
             primary = false,
             icon = icon,

@@ -7,5 +7,6 @@ internal data class CardScannerViewModelState(
     val title: String,
     val description: String,
     val currentCard: POScannedCard?,
-    val cancelAction: POActionState?
+    val torchAction: POActionState,
+    val cancelAction: POActionState?,
 )

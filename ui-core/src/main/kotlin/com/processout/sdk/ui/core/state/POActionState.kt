@@ -13,6 +13,7 @@ data class POActionState(
     val primary: Boolean,
     val enabled: Boolean = true,
     val loading: Boolean = false,
+    val checked: Boolean = false,
     val icon: PODrawableImage? = null,
     val confirmation: Confirmation? = null
 ) {

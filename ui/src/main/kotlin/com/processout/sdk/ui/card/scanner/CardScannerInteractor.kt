@@ -7,7 +7,6 @@ import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.base.BaseInteractor
 import com.processout.sdk.ui.card.scanner.CardScannerCompletion.*
 import com.processout.sdk.ui.card.scanner.CardScannerEvent.*
-import com.processout.sdk.ui.card.scanner.CardScannerInteractorState.ActionId
 import com.processout.sdk.ui.card.scanner.CardScannerSideEffect.CameraPermissionRequest
 import com.processout.sdk.ui.card.scanner.recognition.CardRecognitionSession
 import kotlinx.coroutines.Dispatchers
@@ -42,7 +41,7 @@ internal class CardScannerInteractor(
 
     private fun initState() = CardScannerInteractorState(
         currentCard = null,
-        cancelActionId = ActionId.CANCEL
+        isTorchEnabled = false
     )
 
     fun onEvent(event: CardScannerEvent) {
@@ -55,9 +54,8 @@ internal class CardScannerInteractor(
             is ImageAnalysis -> interactorScope.launch {
                 cardRecognitionSession.recognize(event.imageProxy)
             }
-            is Action -> when (event.id) {
-                ActionId.CANCEL -> cancel(message = "Cancelled by the user with cancel action.")
-            }
+            is TorchToggle -> _state.update { it.copy(isTorchEnabled = event.isEnabled) }
+            is Cancel -> cancel(message = "Cancelled by the user with the cancel action.")
             is Dismiss -> POLogger.info("Dismissed: %s", event.failure)
         }
     }

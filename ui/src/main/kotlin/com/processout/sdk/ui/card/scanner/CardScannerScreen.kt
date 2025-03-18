@@ -15,30 +15,34 @@ import androidx.camera.view.CameraController.IMAGE_ANALYSIS
 import androidx.camera.view.CameraController.IMAGE_CAPTURE
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.processout.sdk.ui.card.scanner.CardScannerEvent.ImageAnalysis
+import com.processout.sdk.ui.card.scanner.CardScannerEvent.*
 import com.processout.sdk.ui.core.component.POButton
+import com.processout.sdk.ui.core.component.POButtonToggle
+import com.processout.sdk.ui.core.component.PODialog
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 import com.processout.sdk.ui.shared.extension.dpToPx
 
 @Composable
@@ -46,15 +50,13 @@ internal fun CardScannerScreen(
     state: CardScannerViewModelState,
     onEvent: (CardScannerEvent) -> Unit,
     onContentHeightChanged: (Int) -> Unit,
-    style: CardScannerScreen.Style?
+    style: CardScannerScreen.Style = CardScannerScreen.style()
 ) {
     Scaffold(
         modifier = Modifier.clip(shape = shapes.topRoundedCornersLarge),
-        containerColor = colors.surface.default
+        containerColor = style.backgroundColor
     ) { scaffoldPadding ->
-        val density = LocalDensity.current
-        var cameraPreviewHeight by remember { mutableStateOf(0.dp) }
-        val verticalSpacingPx = spacing.extraLarge.dpToPx()
+        val verticalSpacingPx = (spacing.large * 2).dpToPx()
         Column(
             modifier = Modifier
                 .verticalScroll(
@@ -66,20 +68,71 @@ internal fun CardScannerScreen(
                     onContentHeightChanged(contentHeight)
                 }
                 .padding(scaffoldPadding)
-                .padding(spacing.extraLarge)
-                .onGloballyPositioned {
-                    with(density) {
-                        cameraPreviewHeight = (it.size.width * 0.63f).toDp() // ISO/IEC 7810
-                    }
-                }
         ) {
-            CameraPreview(
-                onEvent = onEvent,
+            POButtonToggle(
+                checked = state.torchAction.checked,
+                onCheckedChange = { onEvent(TorchToggle(isEnabled = it)) },
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .requiredHeight(cameraPreviewHeight)
-                    .clip(shapes.roundedCornersMedium)
+                    .padding(
+                        top = spacing.medium,
+                        start = spacing.medium
+                    )
+                    .requiredSizeIn(
+                        minWidth = dimensions.buttonIconSizeSmall,
+                        minHeight = dimensions.buttonIconSizeSmall
+                    ),
+                style = style.torchToggle,
+                icon = state.torchAction.icon,
+                iconSize = dimensions.iconSizeSmall
             )
+            val density = LocalDensity.current
+            var cameraPreviewHeight by remember { mutableStateOf(0.dp) }
+            Column(
+                modifier = Modifier
+                    .padding(
+                        start = spacing.large,
+                        end = spacing.large,
+                        bottom = spacing.large
+                    )
+                    .onGloballyPositioned {
+                        with(density) {
+                            cameraPreviewHeight = (it.size.width * 0.63f).toDp() // ISO/IEC 7810
+                        }
+                    },
+                verticalArrangement = Arrangement.spacedBy(spacing.large),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                POText(
+                    text = state.title,
+                    color = style.title.color,
+                    style = style.title.textStyle
+                )
+                POText(
+                    text = state.description,
+                    color = style.description.color,
+                    style = style.description.textStyle
+                )
+                CameraPreview(
+                    onEvent = onEvent,
+                    isTorchEnabled = state.torchAction.checked,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .requiredHeight(cameraPreviewHeight)
+                        .clip(shapes.roundedCornersMedium)
+                )
+                state.cancelAction?.let {
+                    POButton(
+                        state = it,
+                        onClick = { onEvent(Cancel) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .requiredHeightIn(min = dimensions.buttonIconSizeSmall),
+                        style = style.cancelButton,
+                        confirmationDialogStyle = style.dialog,
+                        iconSize = dimensions.iconSizeSmall
+                    )
+                }
+            }
         }
     }
 }
@@ -87,6 +140,7 @@ internal fun CardScannerScreen(
 @Composable
 private fun CameraPreview(
     onEvent: (CardScannerEvent) -> Unit,
+    isTorchEnabled: Boolean,
     modifier: Modifier = Modifier
 ) {
     val cameraController = rememberLifecycleCameraController(
@@ -94,6 +148,9 @@ private fun CameraPreview(
             onEvent(ImageAnalysis(imageProxy))
         }
     )
+    LaunchedEffect(isTorchEnabled) {
+        cameraController.enableTorch(isTorchEnabled)
+    }
     AndroidView(
         modifier = modifier,
         factory = {
@@ -147,6 +204,34 @@ internal object CardScannerScreen {
     data class Style(
         val title: POText.Style,
         val description: POText.Style,
-        val cancelButton: POButton.Style
+        val torchToggle: POButton.Style,
+        val cancelButton: POButton.Style,
+        val dialog: PODialog.Style,
+        val backgroundColor: Color
+    )
+
+    @Composable
+    fun style(custom: POCardScannerConfiguration.Style? = null) = Style(
+        title = custom?.title?.let {
+            POText.custom(style = it)
+        } ?: POText.body1,
+        description = custom?.description?.let {
+            POText.custom(style = it)
+        } ?: POText.Style(
+            color = colors.text.muted,
+            textStyle = typography.body2
+        ),
+        torchToggle = custom?.torchToggle?.let {
+            POButton.custom(style = it)
+        } ?: POButton.ghostEqualPadding,
+        cancelButton = custom?.cancelButton?.let {
+            POButton.custom(style = it)
+        } ?: POButton.secondary,
+        dialog = custom?.dialog?.let {
+            PODialog.custom(style = it)
+        } ?: PODialog.default,
+        backgroundColor = custom?.backgroundColorResId?.let {
+            colorResource(id = it)
+        } ?: colors.surface.default
     )
 }

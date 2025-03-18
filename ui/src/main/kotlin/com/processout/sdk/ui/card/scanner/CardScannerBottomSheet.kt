@@ -85,7 +85,7 @@ internal class CardScannerBottomSheet : BaseBottomSheetDialogFragment<POScannedC
                     onContentHeightChanged = { contentHeight ->
                         viewHeight = contentHeight
                     },
-                    style = null
+                    style = CardScannerScreen.style(custom = configuration?.style)
                 )
             }
         }

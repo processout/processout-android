@@ -158,6 +158,7 @@ fun POButton(
             style = style,
             enabled = enabled,
             loading = loading,
+            checked = checked,
             leadingContent = leadingContent,
             icon = icon,
             iconSize = iconSize,
