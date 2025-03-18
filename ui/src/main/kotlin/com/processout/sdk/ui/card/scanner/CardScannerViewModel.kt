@@ -5,10 +5,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.processout.sdk.R
+import com.processout.sdk.ui.card.scanner.POCardScannerConfiguration.CancelButton
 import com.processout.sdk.ui.card.scanner.recognition.CardExpirationDetector
 import com.processout.sdk.ui.card.scanner.recognition.CardNumberDetector
 import com.processout.sdk.ui.card.scanner.recognition.CardRecognitionSession
 import com.processout.sdk.ui.card.scanner.recognition.CardholderNameDetector
+import com.processout.sdk.ui.core.state.POActionState
+import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.shared.extension.map
 
 internal class CardScannerViewModel(
@@ -57,7 +60,25 @@ internal class CardScannerViewModel(
                 title = title ?: app.getString(R.string.po_card_scanner_title),
                 description = description ?: app.getString(R.string.po_card_scanner_description),
                 currentCard = state.currentCard,
-                cancelAction = null
+                cancelAction = cancelButton?.toActionState(id = state.cancelActionId)
             )
         }
+
+    private fun CancelButton.toActionState(id: String) =
+        POActionState(
+            id = id,
+            text = text ?: app.getString(R.string.po_card_scanner_button_cancel),
+            primary = false,
+            icon = icon,
+            confirmation = confirmation?.run {
+                Confirmation(
+                    title = title ?: app.getString(R.string.po_cancel_confirmation_title),
+                    message = message,
+                    confirmActionText = confirmActionText
+                        ?: app.getString(R.string.po_cancel_confirmation_confirm),
+                    dismissActionText = dismissActionText
+                        ?: app.getString(R.string.po_cancel_confirmation_dismiss)
+                )
+            }
+        )
 }

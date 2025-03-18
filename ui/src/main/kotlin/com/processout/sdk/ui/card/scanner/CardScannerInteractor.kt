@@ -40,7 +40,10 @@ internal class CardScannerInteractor(
         }
     }
 
-    private fun initState() = CardScannerInteractorState(currentCard = null)
+    private fun initState() = CardScannerInteractorState(
+        currentCard = null,
+        cancelActionId = ActionId.CANCEL
+    )
 
     fun onEvent(event: CardScannerEvent) {
         when (event) {
