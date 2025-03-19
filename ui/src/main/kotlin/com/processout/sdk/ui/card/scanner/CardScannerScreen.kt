@@ -1,3 +1,5 @@
+@file:Suppress("MayBeConstant")
+
 package com.processout.sdk.ui.card.scanner
 
 import android.content.Context
@@ -17,23 +19,31 @@ import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.processout.sdk.ui.card.scanner.CardScannerEvent.*
+import com.processout.sdk.ui.card.scanner.CardScannerScreen.CardHeightToWidthRatio
 import com.processout.sdk.ui.core.component.POButton
 import com.processout.sdk.ui.core.component.POButtonToggle
 import com.processout.sdk.ui.core.component.PODialog
@@ -44,6 +54,7 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 import com.processout.sdk.ui.shared.extension.dpToPx
+import com.processout.sdk.ui.shared.extension.drawWithLayer
 
 @Composable
 internal fun CardScannerScreen(
@@ -87,6 +98,7 @@ internal fun CardScannerScreen(
             )
             val density = LocalDensity.current
             var cameraPreviewHeight by remember { mutableStateOf(0.dp) }
+            val cameraPreviewOffsetCorrelation = spacing.large
             Column(
                 modifier = Modifier
                     .padding(
@@ -96,7 +108,8 @@ internal fun CardScannerScreen(
                     )
                     .onGloballyPositioned {
                         with(density) {
-                            cameraPreviewHeight = (it.size.width * 0.63f).toDp() // ISO/IEC 7810
+                            val height = (it.size.width * CardHeightToWidthRatio).toDp()
+                            cameraPreviewHeight = height + cameraPreviewOffsetCorrelation
                         }
                     },
                 verticalArrangement = Arrangement.spacedBy(spacing.large),
@@ -118,7 +131,6 @@ internal fun CardScannerScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .requiredHeight(cameraPreviewHeight)
-                        .clip(shapes.roundedCornersMedium)
                 )
                 state.cancelAction?.let {
                     POButton(
@@ -141,7 +153,9 @@ internal fun CardScannerScreen(
 private fun CameraPreview(
     onEvent: (CardScannerEvent) -> Unit,
     isTorchEnabled: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    offsetSize: Dp = spacing.extraLarge,
+    cornerRadiusSize: Dp = 8.dp
 ) {
     val cameraController = rememberLifecycleCameraController(
         onAnalyze = { imageProxy ->
@@ -151,18 +165,55 @@ private fun CameraPreview(
     LaunchedEffect(isTorchEnabled) {
         cameraController.enableTorch(isTorchEnabled)
     }
-    AndroidView(
-        modifier = modifier,
-        factory = {
-            PreviewView(it).apply {
-                controller = cameraController
-                clipToOutline = true
-                scaleType = PreviewView.ScaleType.FILL_START
-                implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+    val shape = RoundedCornerShape(cornerRadiusSize)
+    Box(
+        modifier = modifier
+            .clip(shape)
+            .drawWithContent {
+                val offsetSizePx = offsetSize.toPx()
+                val size = androidx.compose.ui.geometry.Size(
+                    width = size.width - offsetSizePx * 2,
+                    height = size.height - offsetSizePx * 2
+                )
+                val topLeftOffset = Offset(offsetSizePx, offsetSizePx)
+                val cornerRadiusSizePx = cornerRadiusSize.toPx()
+                val cornerRadius = CornerRadius(cornerRadiusSizePx, cornerRadiusSizePx)
+                drawContent()
+                drawWithLayer {
+                    drawRect(
+                        color = Color.Black,
+                        alpha = 0.4f
+                    )
+                    drawRoundRect(
+                        size = size,
+                        topLeft = topLeftOffset,
+                        cornerRadius = cornerRadius,
+                        color = Color.Transparent,
+                        blendMode = BlendMode.SrcIn
+                    )
+                }
+                drawRoundRect(
+                    size = size,
+                    topLeft = topLeftOffset,
+                    cornerRadius = cornerRadius,
+                    style = Stroke(width = 1.dp.toPx()),
+                    color = Color.White
+                )
             }
-        },
-        onRelease = { cameraController.unbind() }
-    )
+    ) {
+        AndroidView(
+            modifier = modifier.clip(shape),
+            factory = {
+                PreviewView(it).apply {
+                    controller = cameraController
+                    clipToOutline = true
+                    scaleType = PreviewView.ScaleType.FILL_START
+                    implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+                }
+            },
+            onRelease = { cameraController.unbind() }
+        )
+    }
 }
 
 @Composable
@@ -234,4 +285,7 @@ internal object CardScannerScreen {
             colorResource(id = it)
         } ?: colors.surface.default
     )
+
+    /** Height to width ratio of a card by ISO/IEC 7810 standard. */
+    val CardHeightToWidthRatio = 0.63f
 }
