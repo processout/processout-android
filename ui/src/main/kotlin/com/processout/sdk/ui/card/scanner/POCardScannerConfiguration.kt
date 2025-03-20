@@ -42,7 +42,15 @@ data class POCardScannerConfiguration(
         val torchToggle: POButtonStyle? = null,
         val cancelButton: POButtonStyle? = null,
         val dialog: PODialogStyle? = null,
+        val card: Card? = null,
         @ColorRes
         val backgroundColorResId: Int? = null
+    ) : Parcelable
+
+    @Parcelize
+    data class Card(
+        val number: POTextStyle,
+        val expiration: POTextStyle,
+        val cardholderName: POTextStyle
     ) : Parcelable
 }

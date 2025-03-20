@@ -38,16 +38,15 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.processout.sdk.ui.card.scanner.CardScannerEvent.*
 import com.processout.sdk.ui.card.scanner.CardScannerScreen.CardHeightToWidthRatio
-import com.processout.sdk.ui.core.component.POButton
-import com.processout.sdk.ui.core.component.POButtonToggle
-import com.processout.sdk.ui.core.component.PODialog
-import com.processout.sdk.ui.core.component.POText
+import com.processout.sdk.ui.card.scanner.recognition.POScannedCard
+import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
@@ -126,8 +125,10 @@ internal fun CardScannerScreen(
                     style = style.description.textStyle
                 )
                 CameraPreview(
-                    onEvent = onEvent,
+                    currentCard = state.currentCard,
                     isTorchEnabled = state.torchAction.checked,
+                    onEvent = onEvent,
+                    style = style,
                     modifier = Modifier
                         .fillMaxWidth()
                         .requiredHeight(cameraPreviewHeight)
@@ -151,8 +152,10 @@ internal fun CardScannerScreen(
 
 @Composable
 private fun CameraPreview(
-    onEvent: (CardScannerEvent) -> Unit,
+    currentCard: POScannedCard?,
     isTorchEnabled: Boolean,
+    onEvent: (CardScannerEvent) -> Unit,
+    style: CardScannerScreen.Style,
     modifier: Modifier = Modifier,
     offsetSize: Dp = spacing.extraLarge,
     cornerRadiusSize: Dp = 8.dp
@@ -213,6 +216,47 @@ private fun CameraPreview(
             },
             onRelease = { cameraController.unbind() }
         )
+        ScannedCard(
+            card = currentCard,
+            style = style.card
+        )
+    }
+}
+
+@Composable
+private fun ScannedCard(
+    card: POScannedCard?,
+    style: CardScannerScreen.CardStyle
+) {
+    Column(
+        modifier = Modifier
+            .padding(
+                top = 80.dp,
+                start = 44.dp,
+                end = 44.dp
+            ),
+        verticalArrangement = Arrangement.spacedBy(space = 10.dp)
+    ) {
+        POTextAutoSize(
+            text = card?.number ?: String(),
+            color = style.number.color,
+            style = style.number.textStyle
+        )
+        Row {
+            POText(
+                text = card?.cardholderName ?: String(),
+                modifier = Modifier.weight(1f),
+                color = style.cardholderName.color,
+                style = style.cardholderName.textStyle,
+                maxLines = 3
+            )
+            POTextAutoSize(
+                text = card?.expiration?.formatted ?: String(),
+                modifier = Modifier.padding(horizontal = spacing.large),
+                color = style.expiration.color,
+                style = style.expiration.textStyle
+            )
+        }
     }
 }
 
@@ -258,8 +302,32 @@ internal object CardScannerScreen {
         val torchToggle: POButton.Style,
         val cancelButton: POButton.Style,
         val dialog: PODialog.Style,
+        val card: CardStyle,
         val backgroundColor: Color
     )
+
+    @Immutable
+    data class CardStyle(
+        val number: POText.Style,
+        val expiration: POText.Style,
+        val cardholderName: POText.Style
+    )
+
+    private val defaultCard: CardStyle
+        @Composable get() = CardStyle(
+            number = POText.Style(
+                color = Color.White,
+                textStyle = typography.largeTitle.copy(lineHeight = 30.sp)
+            ),
+            expiration = POText.Style(
+                color = Color.White,
+                textStyle = typography.body3.copy(lineHeight = 20.sp)
+            ),
+            cardholderName = POText.Style(
+                color = Color.White,
+                textStyle = typography.body3.copy(lineHeight = 20.sp)
+            )
+        )
 
     @Composable
     fun style(custom: POCardScannerConfiguration.Style? = null) = Style(
@@ -281,10 +349,19 @@ internal object CardScannerScreen {
         dialog = custom?.dialog?.let {
             PODialog.custom(style = it)
         } ?: PODialog.default,
+        card = custom?.card?.custom() ?: defaultCard,
         backgroundColor = custom?.backgroundColorResId?.let {
             colorResource(id = it)
         } ?: colors.surface.default
     )
+
+    @Composable
+    private fun POCardScannerConfiguration.Card.custom() =
+        CardStyle(
+            number = POText.custom(style = number),
+            expiration = POText.custom(style = expiration),
+            cardholderName = POText.custom(style = cardholderName)
+        )
 
     /** Height to width ratio of a card by ISO/IEC 7810 standard. */
     val CardHeightToWidthRatio = 0.63f
