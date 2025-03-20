@@ -1,6 +1,5 @@
 package com.processout.sdk.ui.card.scanner
 
-import android.app.Application
 import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
@@ -18,8 +17,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 internal class CardScannerInteractor(
-    private val app: Application,
-    private val configuration: POCardScannerConfiguration,
     private val cardRecognitionSession: CardRecognitionSession
 ) : BaseInteractor() {
 

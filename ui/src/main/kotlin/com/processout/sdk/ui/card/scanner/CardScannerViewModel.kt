@@ -32,8 +32,6 @@ internal class CardScannerViewModel(
                 app = app,
                 configuration = configuration,
                 interactor = CardScannerInteractor(
-                    app = app,
-                    configuration = configuration,
                     cardRecognitionSession = CardRecognitionSession(
                         numberDetector = CardNumberDetector(),
                         expirationDetector = CardExpirationDetector(),
