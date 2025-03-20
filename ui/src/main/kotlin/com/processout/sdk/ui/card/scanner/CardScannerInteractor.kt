@@ -33,7 +33,7 @@ internal class CardScannerInteractor(
     val sideEffects = _sideEffects.receiveAsFlow()
 
     init {
-        collectCardRecognitionResult()
+        collectRecognizedCards()
         interactorScope.launch {
             _sideEffects.send(CameraPermissionRequest)
         }
@@ -60,14 +60,14 @@ internal class CardScannerInteractor(
         }
     }
 
-    private fun collectCardRecognitionResult() {
+    private fun collectRecognizedCards() {
         interactorScope.launch(Dispatchers.Main.immediate) {
-            cardRecognitionSession.currentResult.collect { card ->
+            cardRecognitionSession.currentCard.collect { card ->
                 _state.update { it.copy(currentCard = card) }
             }
         }
         interactorScope.launch(Dispatchers.Main.immediate) {
-            cardRecognitionSession.bestResult.collect { card ->
+            cardRecognitionSession.mostFrequentCard.collect { card ->
                 _completion.update { Success(card) }
             }
         }

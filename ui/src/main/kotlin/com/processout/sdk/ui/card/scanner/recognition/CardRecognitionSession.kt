@@ -21,11 +21,11 @@ internal class CardRecognitionSession(
         const val RECOGNITION_DURATION_MS = 3000L
     }
 
-    private val _currentResult = Channel<POScannedCard>()
-    val currentResult = _currentResult.receiveAsFlow()
+    private val _currentCard = Channel<POScannedCard?>()
+    val currentCard = _currentCard.receiveAsFlow()
 
-    private val _bestResult = Channel<POScannedCard>()
-    val bestResult = _bestResult.receiveAsFlow()
+    private val _mostFrequentCard = Channel<POScannedCard>()
+    val mostFrequentCard = _mostFrequentCard.receiveAsFlow()
 
     private val textRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 
@@ -37,8 +37,8 @@ internal class CardRecognitionSession(
             imageProxy.croppedBitmap(),
             imageProxy.imageInfo.rotationDegrees
         ).await()
-        val confidentLines = text.confidentLines(MIN_CONFIDENCE)
-        val number = numberDetector.firstMatch(confidentLines)
+        val candidates = text.candidates(MIN_CONFIDENCE)
+        val number = numberDetector.firstMatch(candidates)
         if (number == null) {
             imageProxy.close()
             return
@@ -48,13 +48,17 @@ internal class CardRecognitionSession(
         }
         val card = POScannedCard(
             number = number,
-            expiration = expirationDetector.firstMatch(confidentLines),
-            cardholderName = cardholderNameDetector.firstMatch(confidentLines)
+            expiration = expirationDetector.firstMatch(candidates),
+            cardholderName = cardholderNameDetector.firstMatch(candidates)
         )
         recognizedCards.add(card)
-        _currentResult.send(card)
+        if (!shouldScanExpiredCard && card.expiration?.isExpired == true) {
+            _currentCard.send(null)
+        } else {
+            _currentCard.send(card)
+        }
         if (System.currentTimeMillis() - startTimestamp > RECOGNITION_DURATION_MS) {
-            bestCard()?.let { _bestResult.send(it) }
+            sendMostFrequentCard()
             recognizedCards.clear()
             startTimestamp = 0L
         }
@@ -68,35 +72,37 @@ internal class CardRecognitionSession(
             cropRect.height()
         )
 
-    private fun Text.confidentLines(minConfidence: Float): List<String> {
-        val confidentLines = mutableListOf<String>()
+    private fun Text.candidates(minConfidence: Float): List<String> {
+        val candidates = mutableListOf<String>()
         textBlocks.forEach { textBlock ->
             textBlock.lines.forEach forEachLine@{ line ->
-                if (line.elements.isEmpty()) return@forEachLine
+                if (line.elements.isEmpty()) {
+                    return@forEachLine
+                }
                 val isConfident = line.elements.all { it.confidence >= minConfidence }
                 if (isConfident) {
-                    confidentLines.add(line.text)
+                    candidates.add(line.text)
                 }
             }
         }
-        return confidentLines
+        return candidates
     }
 
-    private fun bestCard(): POScannedCard? {
+    private suspend fun sendMostFrequentCard() {
         val reversedCards = recognizedCards.reversed()
         val number = reversedCards.map { it.number }.mostFrequent()
-        if (number != null) {
-            val card = POScannedCard(
-                number = number,
-                expiration = reversedCards.mapNotNull { it.expiration }.mostFrequent(),
-                cardholderName = reversedCards.mapNotNull { it.cardholderName }.mostFrequent()
-            )
-            if (!shouldScanExpiredCard && card.expiration?.isExpired == true) {
-                return null
-            }
-            return card
+        if (number == null) {
+            return
         }
-        return null
+        val card = POScannedCard(
+            number = number,
+            expiration = reversedCards.mapNotNull { it.expiration }.mostFrequent(),
+            cardholderName = reversedCards.mapNotNull { it.cardholderName }.mostFrequent()
+        )
+        if (!shouldScanExpiredCard && card.expiration?.isExpired == true) {
+            return
+        }
+        return _mostFrequentCard.send(card)
     }
 
     private fun <T : Any> List<T>.mostFrequent(): T? =
