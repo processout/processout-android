@@ -19,7 +19,8 @@ fun POTextAutoSize(
     color: Color = Color.Unspecified,
     style: TextStyle = ProcessOutTheme.typography.body1,
     fontStyle: FontStyle? = null,
-    textAlign: TextAlign? = null
+    textAlign: TextAlign? = null,
+    step: Float = 0.01f
 ) {
     var resizedStyle by remember { mutableStateOf(style) }
     var readyToDraw by remember { mutableStateOf(false) }
@@ -37,8 +38,8 @@ fun POTextAutoSize(
         onTextLayout = { result ->
             if (result.didOverflowWidth) {
                 resizedStyle = resizedStyle.copy(
-                    fontSize = resizedStyle.fontSize * 0.98,
-                    lineHeight = resizedStyle.lineHeight * 0.98
+                    fontSize = resizedStyle.fontSize * (1 - step),
+                    lineHeight = resizedStyle.lineHeight * (1 - step)
                 )
             } else {
                 readyToDraw = true
