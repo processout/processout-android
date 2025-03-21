@@ -317,7 +317,7 @@ internal object CardScannerScreen {
         @Composable get() = CardStyle(
             number = POText.Style(
                 color = Color.White,
-                textStyle = typography.largeTitle.copy(lineHeight = 30.sp)
+                textStyle = typography.largeTitle.copy(lineHeight = 28.sp)
             ),
             expiration = POText.Style(
                 color = Color.White,

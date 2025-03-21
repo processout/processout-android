@@ -31,8 +31,8 @@ data class POTypography(
     val largeTitle: TextStyle = TextStyle(
         fontFamily = WorkSans,
         fontWeight = FontWeight.Normal,
-        fontSize = 30.sp,
-        lineHeight = 34.sp
+        fontSize = 28.sp,
+        lineHeight = 32.sp
     ),
     val subheading: TextStyle = TextStyle(
         fontFamily = WorkSans,
