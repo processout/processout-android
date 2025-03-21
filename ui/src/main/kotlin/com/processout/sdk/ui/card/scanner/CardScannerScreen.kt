@@ -17,6 +17,8 @@ import androidx.camera.view.CameraController.IMAGE_ANALYSIS
 import androidx.camera.view.CameraController.IMAGE_CAPTURE
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -44,6 +46,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.processout.sdk.ui.card.scanner.CardScannerEvent.*
+import com.processout.sdk.ui.card.scanner.CardScannerScreen.AnimationDurationMillis
 import com.processout.sdk.ui.card.scanner.CardScannerScreen.CardHeightToWidthRatio
 import com.processout.sdk.ui.card.scanner.recognition.POScannedCard
 import com.processout.sdk.ui.core.component.*
@@ -228,34 +231,52 @@ private fun ScannedCard(
     card: POScannedCard?,
     style: CardScannerScreen.CardStyle
 ) {
-    Column(
-        modifier = Modifier
-            .padding(
-                top = 80.dp,
-                start = 44.dp,
-                end = 44.dp
-            ),
-        verticalArrangement = Arrangement.spacedBy(space = 10.dp)
+    AnimatedVisibility(
+        visible = card != null,
+        enter = fadeIn(animationSpec = tween(durationMillis = AnimationDurationMillis)),
+        exit = fadeOut(animationSpec = tween(durationMillis = AnimationDurationMillis))
     ) {
-        POTextAutoSize(
-            text = card?.number ?: String(),
-            color = style.number.color,
-            style = style.number.textStyle
-        )
-        Row {
-            POText(
-                text = card?.cardholderName ?: String(),
-                modifier = Modifier.weight(1f),
-                color = style.cardholderName.color,
-                style = style.cardholderName.textStyle,
-                maxLines = 3
-            )
-            POTextAutoSize(
-                text = card?.expiration?.formatted ?: String(),
-                modifier = Modifier.padding(horizontal = spacing.large),
-                color = style.expiration.color,
-                style = style.expiration.textStyle
-            )
+        Column(
+            modifier = Modifier
+                .padding(
+                    top = 80.dp,
+                    start = 44.dp,
+                    end = 44.dp
+                ),
+            verticalArrangement = Arrangement.spacedBy(space = 10.dp)
+        ) {
+            AnimatedContent(
+                targetState = card?.number,
+                transitionSpec = {
+                    fadeIn(
+                        animationSpec = tween(durationMillis = AnimationDurationMillis)
+                    ) togetherWith fadeOut(
+                        animationSpec = tween(durationMillis = AnimationDurationMillis)
+                    )
+                }
+            ) { number ->
+                POTextAutoSize(
+                    text = number ?: String(),
+                    modifier = Modifier.fillMaxWidth(),
+                    color = style.number.color,
+                    style = style.number.textStyle
+                )
+            }
+            Row {
+                POText(
+                    text = card?.cardholderName ?: String(),
+                    modifier = Modifier.weight(1f),
+                    color = style.cardholderName.color,
+                    style = style.cardholderName.textStyle,
+                    maxLines = 3
+                )
+                POTextAutoSize(
+                    text = card?.expiration?.formatted ?: String(),
+                    modifier = Modifier.padding(horizontal = spacing.large),
+                    color = style.expiration.color,
+                    style = style.expiration.textStyle
+                )
+            }
         }
     }
 }
@@ -365,4 +386,6 @@ internal object CardScannerScreen {
 
     /** Height to width ratio of a card by ISO/IEC 7810 standard. */
     val CardHeightToWidthRatio = 0.63f
+
+    val AnimationDurationMillis = 250
 }
