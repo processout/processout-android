@@ -1,6 +1,7 @@
 package com.processout.sdk.ui.card.scanner
 
 import com.processout.sdk.core.POFailure.Code.Cancelled
+import com.processout.sdk.core.POFailure.Code.Generic
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.base.BaseInteractor
@@ -43,16 +44,24 @@ internal class CardScannerInteractor(
 
     fun onEvent(event: CardScannerEvent) {
         when (event) {
-            is CameraPermissionResult -> if (event.isGranted) {
-                // TODO
-            } else {
-                cancel(message = "Camera permission is not granted.")
+            is CameraPermissionResult -> if (!event.isGranted) {
+                cancel(
+                    ProcessOutResult.Failure(
+                        code = Generic(),
+                        message = "Camera permission is not granted."
+                    )
+                )
             }
             is ImageAnalysis -> interactorScope.launch {
                 cardRecognitionSession.recognize(event.imageProxy)
             }
             is TorchToggle -> _state.update { it.copy(isTorchEnabled = event.isEnabled) }
-            is Cancel -> cancel(message = "Cancelled by the user with the cancel action.")
+            is Cancel -> cancel(
+                ProcessOutResult.Failure(
+                    code = Cancelled,
+                    message = "Cancelled by the user with the cancel action."
+                )
+            )
             is Dismiss -> POLogger.info("Dismissed: %s", event.failure)
         }
     }
@@ -70,8 +79,7 @@ internal class CardScannerInteractor(
         }
     }
 
-    private fun cancel(message: String) {
-        val failure = ProcessOutResult.Failure(code = Cancelled, message = message)
+    private fun cancel(failure: ProcessOutResult.Failure) {
         POLogger.info("Cancelled: %s", failure)
         _completion.update { Failure(failure) }
     }
