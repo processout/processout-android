@@ -8,8 +8,8 @@ internal sealed interface CardScannerEvent {
     data class CameraPermissionResult(val isGranted: Boolean) : CardScannerEvent
     data class ImageAnalysis(val imageProxy: ImageProxy) : CardScannerEvent
     data class TorchToggle(val isEnabled: Boolean) : CardScannerEvent
-    data object Cancel : CardScannerEvent
     data class Dismiss(val failure: ProcessOutResult.Failure) : CardScannerEvent
+    data object Cancel : CardScannerEvent
 }
 
 internal sealed interface CardScannerSideEffect {

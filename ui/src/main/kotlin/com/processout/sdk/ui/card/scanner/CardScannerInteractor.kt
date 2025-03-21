@@ -44,6 +44,10 @@ internal class CardScannerInteractor(
 
     fun onEvent(event: CardScannerEvent) {
         when (event) {
+            is ImageAnalysis -> interactorScope.launch {
+                cardRecognitionSession.recognize(event.imageProxy)
+            }
+            is TorchToggle -> _state.update { it.copy(isTorchEnabled = event.isEnabled) }
             is CameraPermissionResult -> if (!event.isGranted) {
                 cancel(
                     ProcessOutResult.Failure(
@@ -52,10 +56,6 @@ internal class CardScannerInteractor(
                     )
                 )
             }
-            is ImageAnalysis -> interactorScope.launch {
-                cardRecognitionSession.recognize(event.imageProxy)
-            }
-            is TorchToggle -> _state.update { it.copy(isTorchEnabled = event.isEnabled) }
             is Cancel -> cancel(
                 ProcessOutResult.Failure(
                     code = Cancelled,
