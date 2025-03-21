@@ -236,46 +236,48 @@ private fun ScannedCard(
         enter = fadeIn(animationSpec = tween(durationMillis = AnimationDurationMillis)),
         exit = fadeOut(animationSpec = tween(durationMillis = AnimationDurationMillis))
     ) {
-        Column(
+        Box(
             modifier = Modifier
-                .padding(
-                    top = 80.dp,
-                    start = 44.dp,
-                    end = 44.dp
-                ),
-            verticalArrangement = Arrangement.spacedBy(space = 10.dp)
+                .fillMaxSize()
+                .padding(horizontal = 44.dp),
+            contentAlignment = Alignment.Center
         ) {
-            AnimatedContent(
-                targetState = card?.number,
-                transitionSpec = {
-                    fadeIn(
-                        animationSpec = tween(durationMillis = AnimationDurationMillis)
-                    ) togetherWith fadeOut(
-                        animationSpec = tween(durationMillis = AnimationDurationMillis)
+            Column(
+                modifier = Modifier.requiredHeightIn(min = 90.dp),
+                verticalArrangement = Arrangement.spacedBy(space = 10.dp)
+            ) {
+                AnimatedContent(
+                    targetState = card?.number,
+                    transitionSpec = {
+                        fadeIn(
+                            animationSpec = tween(durationMillis = AnimationDurationMillis)
+                        ) togetherWith fadeOut(
+                            animationSpec = tween(durationMillis = AnimationDurationMillis)
+                        )
+                    }
+                ) { number ->
+                    POTextAutoSize(
+                        text = number ?: String(),
+                        modifier = Modifier.fillMaxWidth(),
+                        color = style.number.color,
+                        style = style.number.textStyle
                     )
                 }
-            ) { number ->
-                POTextAutoSize(
-                    text = number ?: String(),
-                    modifier = Modifier.fillMaxWidth(),
-                    color = style.number.color,
-                    style = style.number.textStyle
-                )
-            }
-            Row {
-                POText(
-                    text = card?.cardholderName ?: String(),
-                    modifier = Modifier.weight(1f),
-                    color = style.cardholderName.color,
-                    style = style.cardholderName.textStyle,
-                    maxLines = 3
-                )
-                POTextAutoSize(
-                    text = card?.expiration?.formatted ?: String(),
-                    modifier = Modifier.padding(horizontal = spacing.large),
-                    color = style.expiration.color,
-                    style = style.expiration.textStyle
-                )
+                Row {
+                    POText(
+                        text = card?.cardholderName ?: String(),
+                        modifier = Modifier.weight(1f),
+                        color = style.cardholderName.color,
+                        style = style.cardholderName.textStyle,
+                        maxLines = 2
+                    )
+                    POTextAutoSize(
+                        text = card?.expiration?.formatted ?: String(),
+                        modifier = Modifier.padding(horizontal = spacing.large),
+                        color = style.expiration.color,
+                        style = style.expiration.textStyle
+                    )
+                }
             }
         }
     }
