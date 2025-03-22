@@ -6,7 +6,7 @@ internal class CardExpirationDetector(
     private val calendar: Calendar = Calendar.getInstance()
 ) : CardAttributeDetector<POScannedCard.Expiration> {
 
-    private val expirationRegex = """(?<!\d)([1-9]|0[1-9]|1[0-2])\s*[\\/.-]\s*(\d{4}|\d{2})(?!\d)""".toRegex()
+    private val expirationRegex = """(?<!\d)([1-9]|0[1-9]|1[0-2])\s*[/\\|.-]\s*(\d{4}|\d{2})(?!\d)""".toRegex()
 
     override fun firstMatch(candidates: List<String>): POScannedCard.Expiration? {
         val matches = mutableListOf<POScannedCard.Expiration>()
