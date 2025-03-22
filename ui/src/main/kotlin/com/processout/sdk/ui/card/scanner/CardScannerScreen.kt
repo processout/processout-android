@@ -19,6 +19,7 @@ import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,6 +34,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
@@ -47,7 +49,9 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.processout.sdk.ui.card.scanner.CardScannerEvent.*
 import com.processout.sdk.ui.card.scanner.CardScannerScreen.AnimationDurationMillis
+import com.processout.sdk.ui.card.scanner.CardScannerScreen.CameraPreviewStyle
 import com.processout.sdk.ui.card.scanner.CardScannerScreen.CardHeightToWidthRatio
+import com.processout.sdk.ui.card.scanner.CardScannerScreen.CardStyle
 import com.processout.sdk.ui.card.scanner.recognition.POScannedCard
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
@@ -128,10 +132,11 @@ internal fun CardScannerScreen(
                     style = style.description.textStyle
                 )
                 CameraPreview(
-                    currentCard = state.currentCard,
                     isTorchEnabled = state.torchAction.checked,
+                    currentCard = state.currentCard,
                     onEvent = onEvent,
-                    style = style,
+                    cameraPreviewStyle = style.cameraPreview,
+                    cardStyle = style.card,
                     modifier = Modifier
                         .fillMaxWidth()
                         .requiredHeight(cameraPreviewHeight)
@@ -155,13 +160,13 @@ internal fun CardScannerScreen(
 
 @Composable
 private fun CameraPreview(
-    currentCard: POScannedCard?,
     isTorchEnabled: Boolean,
+    currentCard: POScannedCard?,
     onEvent: (CardScannerEvent) -> Unit,
-    style: CardScannerScreen.Style,
+    cameraPreviewStyle: CameraPreviewStyle,
+    cardStyle: CardStyle,
     modifier: Modifier = Modifier,
-    offsetSize: Dp = spacing.extraLarge,
-    cornerRadiusSize: Dp = 8.dp
+    offsetSize: Dp = spacing.extraLarge
 ) {
     val cameraController = rememberLifecycleCameraController(
         onAnalyze = { imageProxy ->
@@ -171,27 +176,28 @@ private fun CameraPreview(
     LaunchedEffect(isTorchEnabled) {
         cameraController.enableTorch(isTorchEnabled)
     }
-    val shape = RoundedCornerShape(cornerRadiusSize)
     Box(
         modifier = modifier
-            .clip(shape)
+            .border(
+                width = cameraPreviewStyle.border.width,
+                color = cameraPreviewStyle.border.color,
+                shape = cameraPreviewStyle.shape
+            )
+            .clip(cameraPreviewStyle.shape)
             .drawWithContent {
                 val offsetSizePx = offsetSize.toPx()
-                val size = androidx.compose.ui.geometry.Size(
+                val cardSize = androidx.compose.ui.geometry.Size(
                     width = size.width - offsetSizePx * 2,
                     height = size.height - offsetSizePx * 2
                 )
                 val topLeftOffset = Offset(offsetSizePx, offsetSizePx)
-                val cornerRadiusSizePx = cornerRadiusSize.toPx()
+                val cornerRadiusSizePx = cardStyle.borderRadius.toPx()
                 val cornerRadius = CornerRadius(cornerRadiusSizePx, cornerRadiusSizePx)
                 drawContent()
                 drawWithLayer {
-                    drawRect(
-                        color = Color.Black,
-                        alpha = 0.4f
-                    )
+                    drawRect(color = cameraPreviewStyle.overlayColor)
                     drawRoundRect(
-                        size = size,
+                        size = cardSize,
                         topLeft = topLeftOffset,
                         cornerRadius = cornerRadius,
                         color = Color.Transparent,
@@ -199,16 +205,16 @@ private fun CameraPreview(
                     )
                 }
                 drawRoundRect(
-                    size = size,
+                    size = cardSize,
                     topLeft = topLeftOffset,
                     cornerRadius = cornerRadius,
-                    style = Stroke(width = 1.dp.toPx()),
-                    color = Color.White
+                    style = Stroke(width = cardStyle.border.width.toPx()),
+                    color = cardStyle.border.color
                 )
             }
     ) {
         AndroidView(
-            modifier = modifier.clip(shape),
+            modifier = modifier.clip(cameraPreviewStyle.shape),
             factory = {
                 PreviewView(it).apply {
                     controller = cameraController
@@ -221,7 +227,7 @@ private fun CameraPreview(
         )
         ScannedCard(
             card = currentCard,
-            style = style.card
+            style = cardStyle
         )
     }
 }
@@ -229,7 +235,7 @@ private fun CameraPreview(
 @Composable
 private fun ScannedCard(
     card: POScannedCard?,
-    style: CardScannerScreen.CardStyle
+    style: CardStyle
 ) {
     AnimatedVisibility(
         visible = card != null,
@@ -322,19 +328,74 @@ internal object CardScannerScreen {
     data class Style(
         val title: POText.Style,
         val description: POText.Style,
+        val cameraPreview: CameraPreviewStyle,
+        val card: CardStyle,
         val torchToggle: POButton.Style,
         val cancelButton: POButton.Style,
         val dialog: PODialog.Style,
-        val card: CardStyle,
         val backgroundColor: Color
+    )
+
+    @Immutable
+    data class CameraPreviewStyle(
+        val shape: Shape,
+        val border: POBorderStroke,
+        val overlayColor: Color
     )
 
     @Immutable
     data class CardStyle(
         val number: POText.Style,
         val expiration: POText.Style,
-        val cardholderName: POText.Style
+        val cardholderName: POText.Style,
+        val border: POBorderStroke,
+        val borderRadius: Dp
     )
+
+    @Composable
+    fun style(custom: POCardScannerConfiguration.Style? = null) = Style(
+        title = custom?.title?.let {
+            POText.custom(style = it)
+        } ?: POText.body1,
+        description = custom?.description?.let {
+            POText.custom(style = it)
+        } ?: POText.Style(
+            color = colors.text.muted,
+            textStyle = typography.body2
+        ),
+        cameraPreview = custom?.cameraPreview?.custom() ?: defaultCameraPreview,
+        card = custom?.card?.custom() ?: defaultCard,
+        torchToggle = custom?.torchToggle?.let {
+            POButton.custom(style = it)
+        } ?: POButton.ghostEqualPadding,
+        cancelButton = custom?.cancelButton?.let {
+            POButton.custom(style = it)
+        } ?: POButton.secondary,
+        dialog = custom?.dialog?.let {
+            PODialog.custom(style = it)
+        } ?: PODialog.default,
+        backgroundColor = custom?.backgroundColorResId?.let {
+            colorResource(id = it)
+        } ?: colors.surface.default
+    )
+
+    private val defaultCameraPreview: CameraPreviewStyle
+        @Composable get() = CameraPreviewStyle(
+            shape = shapes.roundedCornersMedium,
+            border = POBorderStroke(width = 0.dp, color = Color.Transparent),
+            overlayColor = Color.Black.copy(alpha = 0.4f)
+        )
+
+    @Composable
+    private fun POCardScannerConfiguration.CameraPreviewStyle.custom() =
+        CameraPreviewStyle(
+            shape = RoundedCornerShape(size = border.radiusDp.dp),
+            border = POBorderStroke(
+                width = border.widthDp.dp,
+                color = colorResource(id = border.colorResId)
+            ),
+            overlayColor = colorResource(id = overlayColorResId)
+        )
 
     private val defaultCard: CardStyle
         @Composable get() = CardStyle(
@@ -349,41 +410,22 @@ internal object CardScannerScreen {
             cardholderName = POText.Style(
                 color = Color.White,
                 textStyle = typography.body3.copy(lineHeight = 20.sp)
-            )
+            ),
+            border = POBorderStroke(width = 1.dp, color = Color.White),
+            borderRadius = 8.dp
         )
 
     @Composable
-    fun style(custom: POCardScannerConfiguration.Style? = null) = Style(
-        title = custom?.title?.let {
-            POText.custom(style = it)
-        } ?: POText.body1,
-        description = custom?.description?.let {
-            POText.custom(style = it)
-        } ?: POText.Style(
-            color = colors.text.muted,
-            textStyle = typography.body2
-        ),
-        torchToggle = custom?.torchToggle?.let {
-            POButton.custom(style = it)
-        } ?: POButton.ghostEqualPadding,
-        cancelButton = custom?.cancelButton?.let {
-            POButton.custom(style = it)
-        } ?: POButton.secondary,
-        dialog = custom?.dialog?.let {
-            PODialog.custom(style = it)
-        } ?: PODialog.default,
-        card = custom?.card?.custom() ?: defaultCard,
-        backgroundColor = custom?.backgroundColorResId?.let {
-            colorResource(id = it)
-        } ?: colors.surface.default
-    )
-
-    @Composable
-    private fun POCardScannerConfiguration.Card.custom() =
+    private fun POCardScannerConfiguration.CardStyle.custom() =
         CardStyle(
             number = POText.custom(style = number),
             expiration = POText.custom(style = expiration),
-            cardholderName = POText.custom(style = cardholderName)
+            cardholderName = POText.custom(style = cardholderName),
+            border = POBorderStroke(
+                width = border.widthDp.dp,
+                color = colorResource(id = border.colorResId)
+            ),
+            borderRadius = border.radiusDp.dp
         )
 
     /** Height to width ratio of a card by ISO/IEC 7810 standard. */

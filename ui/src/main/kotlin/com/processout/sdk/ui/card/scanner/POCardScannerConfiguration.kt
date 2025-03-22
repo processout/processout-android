@@ -3,6 +3,7 @@ package com.processout.sdk.ui.card.scanner
 import android.os.Parcelable
 import androidx.annotation.ColorRes
 import com.processout.sdk.ui.core.shared.image.PODrawableImage
+import com.processout.sdk.ui.core.style.POBorderStyle
 import com.processout.sdk.ui.core.style.POButtonStyle
 import com.processout.sdk.ui.core.style.PODialogStyle
 import com.processout.sdk.ui.core.style.POTextStyle
@@ -39,18 +40,27 @@ data class POCardScannerConfiguration(
     data class Style(
         val title: POTextStyle? = null,
         val description: POTextStyle? = null,
+        val cameraPreview: CameraPreviewStyle? = null,
+        val card: CardStyle? = null,
         val torchToggle: POButtonStyle? = null,
         val cancelButton: POButtonStyle? = null,
         val dialog: PODialogStyle? = null,
-        val card: Card? = null,
         @ColorRes
         val backgroundColorResId: Int? = null
     ) : Parcelable
 
     @Parcelize
-    data class Card(
+    data class CameraPreviewStyle(
+        val border: POBorderStyle,
+        @ColorRes
+        val overlayColorResId: Int
+    ) : Parcelable
+
+    @Parcelize
+    data class CardStyle(
         val number: POTextStyle,
         val expiration: POTextStyle,
-        val cardholderName: POTextStyle
+        val cardholderName: POTextStyle,
+        val border: POBorderStyle
     ) : Parcelable
 }
