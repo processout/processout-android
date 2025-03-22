@@ -36,7 +36,7 @@ internal class CardExpirationDetector(
     }
 
     private fun isExpired(month: Int, year: Int): Boolean {
-        val currentMonth = calendar.get(Calendar.MONTH)
+        val currentMonth = calendar.get(Calendar.MONTH) + 1
         val currentYear = calendar.get(Calendar.YEAR)
         return year < currentYear || (year == currentYear && month < currentMonth)
     }
