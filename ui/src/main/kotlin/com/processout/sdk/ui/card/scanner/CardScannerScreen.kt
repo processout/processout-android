@@ -59,6 +59,7 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
+import com.processout.sdk.ui.shared.extension.conditional
 import com.processout.sdk.ui.shared.extension.dpToPx
 import com.processout.sdk.ui.shared.extension.drawWithLayer
 
@@ -277,9 +278,14 @@ private fun ScannedCard(
                         style = style.cardholderName.textStyle,
                         maxLines = 2
                     )
+                    val expiration = card?.expiration?.formatted ?: String()
                     POTextAutoSize(
-                        text = card?.expiration?.formatted ?: String(),
-                        modifier = Modifier.padding(horizontal = spacing.large),
+                        text = expiration,
+                        modifier = Modifier.conditional(
+                            condition = expiration.isBlank(),
+                            whenTrue = { requiredWidthIn(min = 88.dp) },
+                            whenFalse = { padding(horizontal = spacing.large) }
+                        ),
                         color = style.expiration.color,
                         style = style.expiration.textStyle
                     )
