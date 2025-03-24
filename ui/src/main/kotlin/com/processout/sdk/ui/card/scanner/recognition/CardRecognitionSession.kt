@@ -39,27 +39,27 @@ internal class CardRecognitionSession(
         ).await()
         val candidates = text.candidates(MIN_CONFIDENCE)
         val number = numberDetector.firstMatch(candidates)
-        if (number == null) {
-            imageProxy.close()
-            return
-        }
-        if (startTimestamp == 0L) {
-            startTimestamp = System.currentTimeMillis()
-        }
-        val card = POScannedCard(
-            number = number,
-            expiration = expirationDetector.firstMatch(candidates),
-            cardholderName = cardholderNameDetector.firstMatch(candidates)
-        )
-        recognizedCards.add(card)
-        if (!shouldScanExpiredCard && card.expiration?.isExpired == true) {
-            _currentCard.send(null)
-        } else {
-            _currentCard.send(card)
+        if (number != null) {
+            if (startTimestamp == 0L) {
+                startTimestamp = System.currentTimeMillis()
+            }
+            val card = POScannedCard(
+                number = number,
+                expiration = expirationDetector.firstMatch(candidates),
+                cardholderName = cardholderNameDetector.firstMatch(candidates)
+            )
+            recognizedCards.add(card)
+            if (!shouldScanExpiredCard && card.expiration?.isExpired == true) {
+                _currentCard.send(null)
+            } else {
+                _currentCard.send(card)
+            }
         }
         if (System.currentTimeMillis() - startTimestamp > RECOGNITION_DURATION_MS) {
-            sendMostFrequentCard()
-            recognizedCards.clear()
+            if (recognizedCards.isNotEmpty()) {
+                sendMostFrequentCard()
+                recognizedCards.clear()
+            }
             startTimestamp = 0L
         }
         imageProxy.close()
