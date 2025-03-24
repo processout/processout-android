@@ -47,7 +47,7 @@ ext {
     androidxBrowserVersion = '1.8.0'
     androidxCameraVersion = '1.4.1'
 
-    androidxComposeBOMVersion = '2025.02.00'
+    androidxComposeBOMVersion = '2025.03.00'
     composeGooglePayButtonVersion = '1.0.0'
 
     materialVersion = '1.12.0'
