@@ -13,7 +13,7 @@
 
     <string name="card_payment" translatable="false">Card Payment</string>
     <string name="card_update" translatable="false">Card Update</string>
-    <string name="card_scanner" translatable="false">Card Scanner (WIP)</string>
+    <string name="card_scanner" translatable="false">Card Scanner</string>
     <string name="card_details" translatable="false">Card Details</string>
     <string name="card_number" translatable="false">Number</string>
     <string name="card_expiration_month" translatable="false">Expiration Month</string>
