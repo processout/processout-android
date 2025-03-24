@@ -42,6 +42,11 @@
         <item quantity="other">Invalid length, expected %d characters.</item>
     </plurals>
 
+    <!-- Card Scanner -->
+    <string name="po_card_scanner_title">Scan card</string>
+    <string name="po_card_scanner_description">Position your card in the frame to scan it.</string>
+    <string name="po_card_scanner_button_cancel">Add manually</string>
+
     <!-- Card Update -->
     <string name="po_card_update_title">Payment Details</string>
     <string name="po_card_update_cvc">CVC</string>

@@ -43,6 +43,11 @@
         <item quantity="other">Longueur incorrecte, %d caractères sont attendus.</item>
     </plurals>
 
+    <!-- Card Scanner -->
+    <string name="po_card_scanner_title">Scanner la carte</string>
+    <string name="po_card_scanner_description">Placez votre carte dans le cadre pour la scanner.</string>
+    <string name="po_card_scanner_button_cancel">Ajouter manuellement</string>
+
     <!-- Card Update -->
     <string name="po_card_update_title">Informations de Paiement</string>
     <string name="po_card_update_cvc">CVV</string>

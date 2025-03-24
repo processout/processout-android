@@ -93,10 +93,15 @@ dependencies {
     api "androidx.activity:activity-compose:$androidxActivityVersion"
     api "androidx.lifecycle:lifecycle-viewmodel-compose:$androidxLifecycleVersion"
 
-    implementation "io.coil-kt:coil-compose:$coilVersion"
+    implementation "androidx.camera:camera-camera2:$androidxCameraVersion"
+    implementation "androidx.camera:camera-lifecycle:$androidxCameraVersion"
+    implementation "androidx.camera:camera-view:$androidxCameraVersion"
+
+    implementation "com.google.android.gms:play-services-mlkit-text-recognition:$mlkitTextRecognitionVersion"
     implementation "com.google.pay.button:compose-pay-button:$composeGooglePayButtonVersion"
     implementation "com.google.zxing:core:$zxingVersion"
     implementation "com.googlecode.libphonenumber:libphonenumber:$libphonenumberVersion"
+    implementation "io.coil-kt:coil-compose:$coilVersion"
 
     ksp "com.squareup.moshi:moshi-kotlin-codegen:$moshiVersion"
 }

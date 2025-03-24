@@ -18,6 +18,8 @@ import com.processout.sdk.ui.shared.configuration.POBarcodeConfiguration
 import kotlinx.parcelize.Parcelize
 
 /**
+ * Specifies dynamic checkout configuration.
+ *
  * @param[invoiceRequest] Request to fetch invoice for payment.
  * @param[expressCheckout] Express checkout section configuration.
  * @param[card] Card payment configuration.
@@ -293,7 +295,7 @@ data class PODynamicCheckoutConfiguration(
     ) : Parcelable
 
     /**
-     * Specifies screen style.
+     * Specifies dynamic checkout style.
      *
      * @param[sectionHeader] Section header style.
      * @param[googlePayButton] Google Pay button style.

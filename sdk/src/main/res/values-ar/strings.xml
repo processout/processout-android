@@ -45,6 +45,11 @@
         <item quantity="other">الطول غير صالح، المتوقع %d أحرف</item>
     </plurals>
 
+    <!-- Card Scanner -->
+    <string name="po_card_scanner_title">امسح البطاقة</string>
+    <string name="po_card_scanner_description">ضع بطاقتك داخل الإطار لمسحها ضوئيًا</string>
+    <string name="po_card_scanner_button_cancel">إضافة يدويًا</string>
+
     <!-- Card Update -->
     <string name="po_card_update_title">تفاصيل الدفع</string>
     <string name="po_card_update_cvc">كود التحقق CVV</string>

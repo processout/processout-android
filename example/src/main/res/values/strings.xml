@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name" translatable="false">ProcessOut SDK Example</string>
 
-    <string name="dynamic_checkout" translatable="false">Dynamic Checkout (WIP)</string>
+    <string name="dynamic_checkout" translatable="false">Dynamic Checkout (Beta)</string>
     <string name="native_apm" translatable="false">Native Alternative Payment</string>
     <string name="launch_native_apm" translatable="false">Launch Native APM</string>
     <string name="launch_native_apm_compose" translatable="false">Launch Native APM (Compose)</string>
@@ -13,6 +13,7 @@
 
     <string name="card_payment" translatable="false">Card Payment</string>
     <string name="card_update" translatable="false">Card Update</string>
+    <string name="card_scanner" translatable="false">Card Scanner</string>
     <string name="card_details" translatable="false">Card Details</string>
     <string name="card_number" translatable="false">Number</string>
     <string name="card_expiration_month" translatable="false">Expiration Month</string>

@@ -44,6 +44,11 @@
         <item quantity="other">Nieprawidłowa długość. Oczekiwano %d znaków.</item>
     </plurals>
 
+    <!-- Card Scanner -->
+    <string name="po_card_scanner_title">Skanowanie karty</string>
+    <string name="po_card_scanner_description">Umieść kartę w ramce, aby ją zeskanować.</string>
+    <string name="po_card_scanner_button_cancel">Dodaj ręcznie</string>
+
     <!-- Card Update -->
     <string name="po_card_update_title">Szczegóły Płatności</string>
     <string name="po_card_update_cvc">CVC</string>
