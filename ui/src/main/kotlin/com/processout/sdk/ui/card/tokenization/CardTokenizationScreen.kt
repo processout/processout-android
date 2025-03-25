@@ -94,6 +94,18 @@ internal fun CardTokenizationScreen(
                     onContentHeightChanged(contentHeight)
                 }
             ) {
+                state.scanAction?.let { action ->
+                    POButton(
+                        state = action,
+                        onClick = { onEvent(Action(id = it)) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .requiredHeightIn(min = dimensions.buttonIconSizeSmall)
+                            .padding(bottom = spacing.small),
+                        style = style.scanButton,
+                        iconSize = dimensions.iconSizeSmall
+                    )
+                }
                 Sections(
                     state = state,
                     onEvent = onEvent,
@@ -359,6 +371,7 @@ internal object CardTokenizationScreen {
         val checkbox: POCheckbox.Style,
         val dropdownMenu: PODropdownField.MenuStyle,
         val errorMessage: POText.Style,
+        val scanButton: POButton.Style,
         val actionsContainer: POActionsContainer.Style,
         val backgroundColor: Color,
         val dividerColor: Color,
@@ -385,6 +398,9 @@ internal object CardTokenizationScreen {
         errorMessage = custom?.errorMessage?.let {
             POText.custom(style = it)
         } ?: POText.errorLabel,
+        scanButton = custom?.scanButton?.let {
+            POButton.custom(style = it)
+        } ?: POButton.secondary,
         actionsContainer = custom?.actionsContainer?.let {
             POActionsContainer.custom(style = it)
         } ?: POActionsContainer.default,

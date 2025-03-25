@@ -15,6 +15,7 @@ internal data class CardTokenizationInteractorState(
     val focusedFieldId: String?,
     val primaryActionId: String,
     val secondaryActionId: String,
+    val scanActionId: String,
     val submitAllowed: Boolean = true,
     val submitting: Boolean = false,
     val errorMessage: String? = null,
@@ -54,5 +55,6 @@ internal data class CardTokenizationInteractorState(
     object ActionId {
         const val SUBMIT = "submit"
         const val CANCEL = "cancel"
+        const val SCAN = "scan"
     }
 }

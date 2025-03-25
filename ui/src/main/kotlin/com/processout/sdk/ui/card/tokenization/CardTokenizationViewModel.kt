@@ -15,6 +15,8 @@ import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.ui.card.tokenization.CardTokenizationInteractorState.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.*
+import com.processout.sdk.ui.core.shared.image.PODrawableImage
+import com.processout.sdk.ui.core.shared.image.POImageRenderingMode
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.core.state.POImmutableList
@@ -115,6 +117,17 @@ internal class CardTokenizationViewModel private constructor(
                                 ?: app.getString(R.string.po_cancel_confirmation_dismiss)
                         )
                     }
+                )
+            },
+            scanAction = cardScanner?.scanButton?.let {
+                POActionState(
+                    id = state.scanActionId,
+                    text = it.text ?: app.getString(R.string.po_card_tokenization_button_scan),
+                    primary = false,
+                    icon = it.icon ?: PODrawableImage(
+                        resId = com.processout.sdk.ui.R.drawable.po_icon_camera,
+                        renderingMode = POImageRenderingMode.TEMPLATE
+                    )
                 )
             },
             draggable = bottomSheet.cancellation.dragDown || bottomSheet.expandable
