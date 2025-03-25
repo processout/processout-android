@@ -20,6 +20,7 @@ import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.base.BaseInteractor
+import com.processout.sdk.ui.card.scanner.recognition.POScannedCard
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationInteractorState.*
@@ -28,6 +29,8 @@ import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.B
 import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.shared.extension.currentAppLocale
 import com.processout.sdk.ui.shared.extension.orElse
+import com.processout.sdk.ui.shared.filter.CardExpirationInputFilter
+import com.processout.sdk.ui.shared.filter.CardNumberInputFilter
 import com.processout.sdk.ui.shared.provider.CardSchemeProvider
 import com.processout.sdk.ui.shared.provider.address.AddressSpecification
 import com.processout.sdk.ui.shared.provider.address.AddressSpecification.AddressUnit
@@ -69,6 +72,9 @@ internal class CardTokenizationInteractor(
 
     private val _sideEffects = Channel<CardTokenizationSideEffect>()
     val sideEffects = _sideEffects.receiveAsFlow()
+
+    private val cardNumberInputFilter = CardNumberInputFilter()
+    private val cardExpirationInputFilter = CardExpirationInputFilter()
 
     private var latestPreferredSchemeRequest: POCardTokenizationPreferredSchemeRequest? = null
     private var latestShouldContinueRequest: POCardTokenizationShouldContinueRequest? = null
@@ -187,9 +193,7 @@ internal class CardTokenizationInteractor(
                     _sideEffects.send(CardScanner)
                 }
             }
-            is CardScannerResult -> {
-                // TODO
-            }
+            is CardScannerResult -> update(event.card)
             is Dismiss -> POLogger.info("Dismissed: %s", event.failure)
         }
     }
@@ -246,6 +250,38 @@ internal class CardTokenizationInteractor(
                 field.copy(value = value)
             }
         } else field
+
+    private fun update(card: POScannedCard) {
+        updateFieldValue(
+            id = CardFieldId.NUMBER,
+            value = cardNumberInputFilter.filter(
+                TextFieldValue(
+                    text = card.number,
+                    selection = TextRange(index = card.number.length)
+                )
+            )
+        )
+        card.expiration?.let {
+            updateFieldValue(
+                id = CardFieldId.EXPIRATION,
+                value = cardExpirationInputFilter.filter(
+                    TextFieldValue(
+                        text = it.formatted,
+                        selection = TextRange(index = it.formatted.length)
+                    )
+                )
+            )
+        }
+        card.cardholderName?.let {
+            updateFieldValue(
+                id = CardFieldId.CARDHOLDER,
+                value = TextFieldValue(
+                    text = it,
+                    selection = TextRange(index = it.length)
+                )
+            )
+        }
+    }
 
     private fun updateFieldFocus(id: String, isFocused: Boolean) {
         if (isFocused) {
