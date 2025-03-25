@@ -95,7 +95,7 @@ internal fun CardTokenizationScreen(
                 }
             ) {
                 var clearFocus by remember { mutableStateOf(false) }
-                state.scanAction?.let { action ->
+                state.cardScannerAction?.let { action ->
                     POButton(
                         state = action,
                         onClick = {

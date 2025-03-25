@@ -124,7 +124,7 @@ internal class CardTokenizationInteractor(
         focusedFieldId = CardFieldId.NUMBER,
         primaryActionId = ActionId.SUBMIT,
         secondaryActionId = ActionId.CANCEL,
-        scanActionId = ActionId.SCAN
+        cardScannerActionId = ActionId.CARD_SCANNER
     )
 
     private fun cardFields(): List<Field> = mutableListOf(
@@ -183,7 +183,7 @@ internal class CardTokenizationInteractor(
             is Action -> when (event.id) {
                 ActionId.SUBMIT -> submit()
                 ActionId.CANCEL -> cancel()
-                ActionId.SCAN -> interactorScope.launch {
+                ActionId.CARD_SCANNER -> interactorScope.launch {
                     _sideEffects.send(CardScanner)
                 }
             }

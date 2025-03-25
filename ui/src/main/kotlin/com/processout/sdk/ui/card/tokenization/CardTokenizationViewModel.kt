@@ -121,9 +121,9 @@ internal class CardTokenizationViewModel private constructor(
                     }
                 )
             },
-            scanAction = cardScanner?.scanButton?.let {
+            cardScannerAction = cardScanner?.scanButton?.let {
                 POActionState(
-                    id = state.scanActionId,
+                    id = state.cardScannerActionId,
                     text = it.text ?: app.getString(R.string.po_card_tokenization_button_scan),
                     primary = false,
                     icon = it.icon ?: PODrawableImage(

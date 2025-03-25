@@ -12,7 +12,7 @@ internal data class CardTokenizationViewModelState(
     val focusedFieldId: String?,
     val primaryAction: POActionState,
     val secondaryAction: POActionState?,
-    val scanAction: POActionState?,
+    val cardScannerAction: POActionState?,
     val draggable: Boolean
 ) {
 
