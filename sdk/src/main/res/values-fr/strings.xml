@@ -60,6 +60,7 @@
     <string name="po_card_tokenization_title">Ajouter une nouvelle carte</string>
     <string name="po_card_tokenization_button_submit">Envoyer</string>
     <string name="po_card_tokenization_button_cancel">Annuler</string>
+    <string name="po_card_tokenization_button_scan">Scanner la carte</string>
     <string name="po_card_tokenization_preferred_scheme">Réseau de Carte Préféré</string>
     <string name="po_card_tokenization_card_details_cardholder_placeholder">Nom du porteur de carte</string>
     <string name="po_card_tokenization_card_details_cvc_placeholder">CVV</string>
