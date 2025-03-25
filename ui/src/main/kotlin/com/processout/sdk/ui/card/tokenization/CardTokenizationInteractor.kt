@@ -23,6 +23,7 @@ import com.processout.sdk.ui.base.BaseInteractor
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationInteractorState.*
+import com.processout.sdk.ui.card.tokenization.CardTokenizationSideEffect.CardScanner
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode.*
 import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.shared.extension.currentAppLocale
@@ -33,8 +34,10 @@ import com.processout.sdk.ui.shared.provider.address.AddressSpecification.Addres
 import com.processout.sdk.ui.shared.provider.address.AddressSpecificationProvider
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -63,6 +66,9 @@ internal class CardTokenizationInteractor(
 
     private val _state = MutableStateFlow(initState())
     val state = _state.asStateFlow()
+
+    private val _sideEffects = Channel<CardTokenizationSideEffect>()
+    val sideEffects = _sideEffects.receiveAsFlow()
 
     private var latestPreferredSchemeRequest: POCardTokenizationPreferredSchemeRequest? = null
     private var latestShouldContinueRequest: POCardTokenizationShouldContinueRequest? = null
@@ -177,7 +183,12 @@ internal class CardTokenizationInteractor(
             is Action -> when (event.id) {
                 ActionId.SUBMIT -> submit()
                 ActionId.CANCEL -> cancel()
-                ActionId.SCAN -> {}
+                ActionId.SCAN -> interactorScope.launch {
+                    _sideEffects.send(CardScanner)
+                }
+            }
+            is CardScannerResult -> {
+                // TODO
             }
             is Dismiss -> POLogger.info("Dismissed: %s", event.failure)
         }
