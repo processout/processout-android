@@ -17,8 +17,10 @@ import androidx.camera.view.CameraController.IMAGE_ANALYSIS
 import androidx.camera.view.CameraController.IMAGE_CAPTURE
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -253,23 +255,12 @@ private fun ScannedCard(
                 modifier = Modifier.requiredHeightIn(min = 90.dp),
                 verticalArrangement = Arrangement.spacedBy(space = 10.dp)
             ) {
-                AnimatedContent(
-                    targetState = card?.number,
-                    transitionSpec = {
-                        fadeIn(
-                            animationSpec = tween(durationMillis = AnimationDurationMillis)
-                        ) togetherWith fadeOut(
-                            animationSpec = tween(durationMillis = AnimationDurationMillis)
-                        )
-                    }
-                ) { number ->
-                    POTextAutoSize(
-                        text = number ?: String(),
-                        modifier = Modifier.fillMaxWidth(),
-                        color = style.number.color,
-                        style = style.number.textStyle
-                    )
-                }
+                POTextAutoSize(
+                    text = card?.number ?: String(),
+                    modifier = Modifier.fillMaxWidth(),
+                    color = style.number.color,
+                    style = style.number.textStyle
+                )
                 Row {
                     POText(
                         text = card?.cardholderName ?: String(),
@@ -437,5 +428,5 @@ internal object CardScannerScreen {
     /** Height to width ratio of a card by ISO/IEC 7810 standard. */
     val CardHeightToWidthRatio = 0.63f
 
-    val AnimationDurationMillis = 250
+    val AnimationDurationMillis = 300
 }
