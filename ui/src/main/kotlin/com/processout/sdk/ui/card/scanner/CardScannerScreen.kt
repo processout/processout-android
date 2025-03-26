@@ -21,6 +21,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -135,10 +136,9 @@ internal fun CardScannerScreen(
                     style = style.description.textStyle
                 )
                 CameraPreview(
-                    isTorchEnabled = state.torchAction.checked,
-                    currentCard = state.currentCard,
+                    state = state,
                     onEvent = onEvent,
-                    cameraPreviewStyle = style.cameraPreview,
+                    style = style.cameraPreview,
                     cardStyle = style.card,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -163,30 +163,21 @@ internal fun CardScannerScreen(
 
 @Composable
 private fun CameraPreview(
-    isTorchEnabled: Boolean,
-    currentCard: POScannedCard?,
+    state: CardScannerViewModelState,
     onEvent: (CardScannerEvent) -> Unit,
-    cameraPreviewStyle: CameraPreviewStyle,
+    style: CameraPreviewStyle,
     cardStyle: CardStyle,
     modifier: Modifier = Modifier,
     offsetSize: Dp = spacing.extraLarge
 ) {
-    val cameraController = rememberLifecycleCameraController(
-        onAnalyze = { imageProxy ->
-            onEvent(ImageAnalysis(imageProxy))
-        }
-    )
-    LaunchedEffect(isTorchEnabled) {
-        cameraController.enableTorch(isTorchEnabled)
-    }
     Box(
         modifier = modifier
             .border(
-                width = cameraPreviewStyle.border.width,
-                color = cameraPreviewStyle.border.color,
-                shape = cameraPreviewStyle.shape
+                width = style.border.width,
+                color = style.border.color,
+                shape = style.shape
             )
-            .clip(cameraPreviewStyle.shape)
+            .clip(style.shape)
             .drawWithContent {
                 val offsetSizePx = offsetSize.toPx()
                 val cardSize = androidx.compose.ui.geometry.Size(
@@ -198,7 +189,7 @@ private fun CameraPreview(
                 val cornerRadius = CornerRadius(cornerRadiusSizePx, cornerRadiusSizePx)
                 drawContent()
                 drawWithLayer {
-                    drawRect(color = cameraPreviewStyle.overlayColor)
+                    drawRect(color = style.overlayColor)
                     drawRoundRect(
                         size = cardSize,
                         topLeft = topLeftOffset,
@@ -216,20 +207,32 @@ private fun CameraPreview(
                 )
             }
     ) {
-        AndroidView(
-            modifier = modifier.clip(cameraPreviewStyle.shape),
-            factory = {
-                PreviewView(it).apply {
-                    controller = cameraController
-                    clipToOutline = true
-                    scaleType = PreviewView.ScaleType.FILL_START
-                    implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+        if (state.isCameraPermissionGranted) {
+            val cameraController = rememberLifecycleCameraController(
+                onAnalyze = { imageProxy ->
+                    onEvent(ImageAnalysis(imageProxy))
                 }
-            },
-            onRelease = { cameraController.unbind() }
-        )
+            )
+            val isTorchEnabled = state.torchAction.checked
+            LaunchedEffect(isTorchEnabled) {
+                cameraController.enableTorch(isTorchEnabled)
+            }
+            AndroidView(
+                modifier = modifier,
+                factory = {
+                    PreviewView(it).apply {
+                        controller = cameraController
+                        scaleType = PreviewView.ScaleType.FILL_START
+                        implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+                    }
+                },
+                onRelease = { cameraController.unbind() }
+            )
+        } else {
+            Box(modifier.background(Color.Black))
+        }
         ScannedCard(
-            card = currentCard,
+            card = state.currentCard,
             style = cardStyle
         )
     }

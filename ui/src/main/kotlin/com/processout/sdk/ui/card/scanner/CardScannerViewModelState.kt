@@ -8,5 +8,6 @@ internal data class CardScannerViewModelState(
     val description: String,
     val currentCard: POScannedCard?,
     val torchAction: POActionState,
-    val cancelAction: POActionState?
+    val cancelAction: POActionState?,
+    val isCameraPermissionGranted: Boolean
 )

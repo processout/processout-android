@@ -11,6 +11,7 @@ import com.processout.sdk.ui.card.scanner.CardScannerSideEffect.CameraPermission
 import com.processout.sdk.ui.card.scanner.recognition.CardRecognitionSession
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -20,6 +21,10 @@ import kotlinx.coroutines.launch
 internal class CardScannerInteractor(
     private val cardRecognitionSession: CardRecognitionSession
 ) : BaseInteractor() {
+
+    private companion object {
+        const val INIT_DELAY_MS = 500L
+    }
 
     private val _completion = MutableStateFlow<CardScannerCompletion>(Awaiting)
     val completion = _completion.asStateFlow()
@@ -33,29 +38,25 @@ internal class CardScannerInteractor(
     init {
         collectRecognizedCards()
         interactorScope.launch {
+            // Delay permission request and camera preview initialization for smooth behaviour.
+            delay(INIT_DELAY_MS)
             _sideEffects.send(CameraPermissionRequest)
         }
     }
 
     private fun initState() = CardScannerInteractorState(
-        currentCard = null,
-        isTorchEnabled = false
+        isCameraPermissionGranted = false,
+        isTorchEnabled = false,
+        currentCard = null
     )
 
     fun onEvent(event: CardScannerEvent) {
         when (event) {
+            is CameraPermissionResult -> handle(event)
             is ImageAnalysis -> interactorScope.launch {
                 cardRecognitionSession.recognize(event.imageProxy)
             }
             is TorchToggle -> _state.update { it.copy(isTorchEnabled = event.isEnabled) }
-            is CameraPermissionResult -> if (!event.isGranted) {
-                cancel(
-                    ProcessOutResult.Failure(
-                        code = Generic(),
-                        message = "Camera permission is not granted."
-                    )
-                )
-            }
             is Cancel -> cancel(
                 ProcessOutResult.Failure(
                     code = Cancelled,
@@ -63,6 +64,18 @@ internal class CardScannerInteractor(
                 )
             )
             is Dismiss -> POLogger.info("Dismissed: %s", event.failure)
+        }
+    }
+
+    private fun handle(event: CameraPermissionResult) {
+        _state.update { it.copy(isCameraPermissionGranted = event.isGranted) }
+        if (!event.isGranted) {
+            cancel(
+                ProcessOutResult.Failure(
+                    code = Generic(),
+                    message = "Camera permission is not granted."
+                )
+            )
         }
     }
 
