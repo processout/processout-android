@@ -9,7 +9,7 @@ internal sealed interface CardTokenizationEvent {
     data class FieldValueChanged(val id: String, val value: TextFieldValue) : CardTokenizationEvent
     data class FieldFocusChanged(val id: String, val isFocused: Boolean) : CardTokenizationEvent
     data class Action(val id: String) : CardTokenizationEvent
-    data class CardScannerResult(val card: POScannedCard) : CardTokenizationEvent
+    data class CardScannerResult(val card: POScannedCard?) : CardTokenizationEvent
     data class Dismiss(val failure: ProcessOutResult.Failure) : CardTokenizationEvent
 }
 

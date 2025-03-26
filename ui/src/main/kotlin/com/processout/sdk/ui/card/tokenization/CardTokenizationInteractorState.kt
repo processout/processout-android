@@ -13,6 +13,7 @@ internal data class CardTokenizationInteractorState(
     val addressSpecification: AddressSpecification? = null,
     val saveCardField: Field,
     val focusedFieldId: String?,
+    val pendingFocusedFieldId: String?,
     val primaryActionId: String,
     val secondaryActionId: String,
     val cardScannerActionId: String,

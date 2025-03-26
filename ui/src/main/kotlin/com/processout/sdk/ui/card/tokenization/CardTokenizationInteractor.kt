@@ -38,6 +38,7 @@ import com.processout.sdk.ui.shared.provider.address.AddressSpecificationProvide
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -57,6 +58,7 @@ internal class CardTokenizationInteractor(
     private companion object {
         const val IIN_LENGTH = 6
         const val EXPIRATION_DATE_PART_LENGTH = 2
+        const val CARD_SCANNER_DELAY_MS = 350L
     }
 
     private data class Expiration(
@@ -128,6 +130,7 @@ internal class CardTokenizationInteractor(
             shouldCollect = configuration.savingAllowed
         ),
         focusedFieldId = CardFieldId.NUMBER,
+        pendingFocusedFieldId = null,
         primaryActionId = ActionId.SUBMIT,
         secondaryActionId = ActionId.CANCEL,
         cardScannerActionId = ActionId.CARD_SCANNER
@@ -189,13 +192,24 @@ internal class CardTokenizationInteractor(
             is Action -> when (event.id) {
                 ActionId.SUBMIT -> submit()
                 ActionId.CANCEL -> cancel()
-                ActionId.CARD_SCANNER -> interactorScope.launch {
-                    _sideEffects.send(CardScanner)
-                }
+                ActionId.CARD_SCANNER -> startCardScanner()
             }
-            is CardScannerResult -> update(event.card)
+            is CardScannerResult -> handle(event)
             is Dismiss -> POLogger.info("Dismissed: %s", event.failure)
         }
+    }
+
+    private fun startCardScanner() {
+        interactorScope.launch {
+            rememberFocusedField()
+            delay(CARD_SCANNER_DELAY_MS)
+            _sideEffects.send(CardScanner)
+        }
+    }
+
+    private fun handle(event: CardScannerResult) {
+        event.card?.let { updateCardFields(it) }
+        restoreFocusedField()
     }
 
     //endregion
@@ -251,7 +265,7 @@ internal class CardTokenizationInteractor(
             }
         } else field
 
-    private fun update(card: POScannedCard) {
+    private fun updateCardFields(card: POScannedCard) {
         updateFieldValue(
             id = CardFieldId.NUMBER,
             value = cardNumberInputFilter.filter(
@@ -286,6 +300,26 @@ internal class CardTokenizationInteractor(
     private fun updateFieldFocus(id: String, isFocused: Boolean) {
         if (isFocused) {
             _state.update { it.copy(focusedFieldId = id) }
+        }
+    }
+
+    private fun rememberFocusedField() {
+        _state.update {
+            val focusedFieldId = it.focusedFieldId
+            it.copy(
+                focusedFieldId = null,
+                pendingFocusedFieldId = focusedFieldId
+            )
+        }
+    }
+
+    private fun restoreFocusedField() {
+        _state.update {
+            val pendingFocusedFieldId = it.pendingFocusedFieldId
+            it.copy(
+                focusedFieldId = pendingFocusedFieldId,
+                pendingFocusedFieldId = null
+            )
         }
     }
 

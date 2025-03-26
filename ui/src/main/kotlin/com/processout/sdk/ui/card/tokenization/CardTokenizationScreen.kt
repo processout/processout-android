@@ -94,14 +94,10 @@ internal fun CardTokenizationScreen(
                     onContentHeightChanged(contentHeight)
                 }
             ) {
-                var clearFocus by remember { mutableStateOf(false) }
                 state.cardScannerAction?.let { action ->
                     POButton(
                         state = action,
-                        onClick = {
-                            clearFocus = true
-                            onEvent(Action(id = it))
-                        },
+                        onClick = { onEvent(Action(id = it)) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .requiredHeightIn(min = dimensions.buttonIconSizeSmall)
@@ -115,10 +111,6 @@ internal fun CardTokenizationScreen(
                     onEvent = onEvent,
                     style = style
                 )
-                if (clearFocus || state.focusedFieldId == null) {
-                    LocalFocusManager.current.clearFocus(force = true)
-                    clearFocus = false
-                }
             }
         }
     }
@@ -130,6 +122,9 @@ private fun Sections(
     onEvent: (CardTokenizationEvent) -> Unit,
     style: CardTokenizationScreen.Style
 ) {
+    if (state.focusedFieldId == null) {
+        LocalFocusManager.current.clearFocus(force = true)
+    }
     val lifecycleEvent = rememberLifecycleEvent()
     state.sections.elements.forEachIndexed { index, section ->
         val padding = if (section.id == FUTURE_PAYMENTS) {

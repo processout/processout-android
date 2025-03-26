@@ -15,7 +15,7 @@ import com.processout.sdk.api.dispatcher.PODefaultEventDispatchers
 import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.ProcessOutResult
-import com.processout.sdk.core.onSuccess
+import com.processout.sdk.core.getOrNull
 import com.processout.sdk.core.toActivityResult
 import com.processout.sdk.ui.base.BaseBottomSheetDialogFragment
 import com.processout.sdk.ui.card.scanner.POCardScannerLauncher
@@ -65,9 +65,7 @@ internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCar
         cardScannerLauncher = POCardScannerLauncher.create(
             from = this,
             callback = { result ->
-                result.onSuccess { card ->
-                    viewModel.onEvent(CardScannerResult(card))
-                }
+                viewModel.onEvent(CardScannerResult(result.getOrNull()))
             }
         )
         viewModel.start()

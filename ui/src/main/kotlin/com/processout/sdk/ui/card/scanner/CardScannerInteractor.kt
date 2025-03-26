@@ -38,7 +38,6 @@ internal class CardScannerInteractor(
     init {
         collectRecognizedCards()
         interactorScope.launch {
-            // Delay permission request and camera preview initialization for smooth behaviour.
             delay(INIT_DELAY_MS)
             _sideEffects.send(CameraPermissionRequest)
         }
