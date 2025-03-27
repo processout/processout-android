@@ -31,14 +31,12 @@ import com.processout.sdk.api.model.event.POSavedPaymentMethodsEvent.DidDeleteCu
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.model.response.POGooglePayCardTokenizationData
+import com.processout.sdk.core.*
 import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.POFailure.Code.Generic
-import com.processout.sdk.core.POUnit
-import com.processout.sdk.core.ProcessOutActivityResult
-import com.processout.sdk.core.ProcessOutResult
-import com.processout.sdk.core.toActivityResult
 import com.processout.sdk.ui.apm.POAlternativePaymentMethodCustomTabLauncher
 import com.processout.sdk.ui.base.BaseTransparentPortraitActivity
+import com.processout.sdk.ui.card.scanner.POCardScannerLauncher
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration
@@ -190,6 +188,8 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
     )
     private var pendingPermissionRequest: PermissionRequest? = null
 
+    private lateinit var cardScannerLauncher: POCardScannerLauncher
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
@@ -212,6 +212,12 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
             from = this,
             delegate = savedPaymentMethodsDelegate,
             callback = { pendingSavedPaymentMethods = false }
+        )
+        cardScannerLauncher = POCardScannerLauncher.create(
+            from = this,
+            callback = { result ->
+                viewModel.onEvent(CardScannerResult(result.getOrNull()))
+            }
         )
         setContent {
             val isLightTheme = !isSystemInDarkTheme()
@@ -286,6 +292,9 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                 savedPaymentMethodsLauncher.launch(sideEffect.configuration)
             }
             is PermissionRequest -> requestPermission(sideEffect)
+            CardScanner -> configuration?.card?.cardScanner?.configuration?.let {
+                cardScannerLauncher.launch(configuration = it)
+            }
             CancelWebAuthorization -> cancelWebAuthorization()
             BeforeSuccess -> if (pendingSavedPaymentMethods) {
                 savedPaymentMethodsLauncher.finish()

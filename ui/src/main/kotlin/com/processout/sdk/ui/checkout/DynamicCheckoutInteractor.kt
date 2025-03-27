@@ -419,6 +419,7 @@ internal class DynamicCheckoutInteractor(
             is GooglePayResult -> handleGooglePay(event.paymentMethodId, event.result)
             is AlternativePaymentResult -> handleAlternativePayment(event.paymentMethodId, event.result)
             is PermissionRequestResult -> handlePermission(event)
+            is CardScannerResult -> handleCardScanner(event)
             is CustomerTokenDeleted -> deleteLocalCustomerToken(event.tokenId)
             is Dismiss -> dismiss(event)
         }
@@ -1027,7 +1028,6 @@ internal class DynamicCheckoutInteractor(
             cardTokenization.sideEffects.collect { sideEffect ->
                 when (sideEffect) {
                     CardTokenizationSideEffect.CardScanner -> {
-                        POLogger.info("Starting card scanner.")
                         _sideEffects.send(DynamicCheckoutSideEffect.CardScanner)
                     }
                 }
@@ -1061,6 +1061,13 @@ internal class DynamicCheckoutInteractor(
             )
             else -> {}
         }
+    }
+
+    private fun handleCardScanner(result: CardScannerResult) {
+        result.card?.let { POLogger.debug("Scanned card: $it") }
+        cardTokenization.onEvent(
+            CardTokenizationEvent.CardScannerResult(result.card)
+        )
     }
 
     private fun deleteLocalCustomerToken(tokenId: String) {

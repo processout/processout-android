@@ -87,13 +87,11 @@ internal class CardScannerInteractor(
     private fun collectRecognizedCards() {
         interactorScope.launch(Dispatchers.Main.immediate) {
             cardRecognitionSession.currentCard.collect { card ->
-                POLogger.debug("Current card: $card.")
                 _state.update { it.copy(currentCard = card) }
             }
         }
         interactorScope.launch(Dispatchers.Main.immediate) {
             cardRecognitionSession.mostFrequentCard.collect { card ->
-                POLogger.debug("Most frequent card: $card.")
                 _completion.update { Success(card) }
             }
         }
