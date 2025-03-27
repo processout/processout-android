@@ -201,7 +201,7 @@ internal class CardTokenizationInteractor(
 
     private fun startCardScanner() {
         interactorScope.launch {
-            clearAndRememberFieldFocus()
+            rememberAndClearFieldFocus()
             delay(CARD_SCANNER_DELAY_MS)
             _sideEffects.send(CardScanner)
         }
@@ -266,6 +266,7 @@ internal class CardTokenizationInteractor(
         } else field
 
     private fun updateCardFields(card: POScannedCard) {
+        POLogger.debug("Updating card field values with the scanned card: $card.")
         updateFieldValue(
             id = CardFieldId.NUMBER,
             value = cardNumberInputFilter.filter(
@@ -303,7 +304,7 @@ internal class CardTokenizationInteractor(
         }
     }
 
-    private fun clearAndRememberFieldFocus() {
+    private fun rememberAndClearFieldFocus() {
         _state.update {
             val focusedFieldId = it.focusedFieldId
             it.copy(
