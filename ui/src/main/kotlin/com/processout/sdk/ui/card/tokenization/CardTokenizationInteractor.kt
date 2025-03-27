@@ -201,7 +201,7 @@ internal class CardTokenizationInteractor(
 
     private fun startCardScanner() {
         interactorScope.launch {
-            rememberFocusedField()
+            clearAndRememberFieldFocus()
             delay(CARD_SCANNER_DELAY_MS)
             _sideEffects.send(CardScanner)
         }
@@ -209,7 +209,7 @@ internal class CardTokenizationInteractor(
 
     private fun handle(event: CardScannerResult) {
         event.card?.let { updateCardFields(it) }
-        restoreFocusedField()
+        restoreFieldFocus()
     }
 
     //endregion
@@ -303,7 +303,7 @@ internal class CardTokenizationInteractor(
         }
     }
 
-    private fun rememberFocusedField() {
+    private fun clearAndRememberFieldFocus() {
         _state.update {
             val focusedFieldId = it.focusedFieldId
             it.copy(
@@ -313,7 +313,7 @@ internal class CardTokenizationInteractor(
         }
     }
 
-    private fun restoreFocusedField() {
+    private fun restoreFieldFocus() {
         _state.update {
             val pendingFocusedFieldId = it.pendingFocusedFieldId
             it.copy(
