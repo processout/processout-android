@@ -204,6 +204,7 @@ internal class CardTokenizationInteractor(
             rememberAndClearFieldFocus()
             delay(CARD_SCANNER_DELAY_MS)
             _sideEffects.send(CardScanner)
+            POLogger.info("Starting card scanner.")
         }
     }
 
