@@ -1027,8 +1027,8 @@ internal class DynamicCheckoutInteractor(
             cardTokenization.sideEffects.collect { sideEffect ->
                 when (sideEffect) {
                     CardTokenizationSideEffect.CardScanner -> {
-                        _sideEffects.send(DynamicCheckoutSideEffect.CardScanner)
                         POLogger.info("Starting card scanner.")
+                        _sideEffects.send(DynamicCheckoutSideEffect.CardScanner)
                     }
                 }
             }
