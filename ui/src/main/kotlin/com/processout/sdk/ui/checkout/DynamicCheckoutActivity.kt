@@ -42,6 +42,7 @@ import com.processout.sdk.ui.base.BaseTransparentPortraitActivity
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.CardScannerConfiguration
 import com.processout.sdk.ui.checkout.DynamicCheckoutActivityContract.Companion.EXTRA_CONFIGURATION
 import com.processout.sdk.ui.checkout.DynamicCheckoutActivityContract.Companion.EXTRA_RESULT
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Failure
@@ -101,6 +102,15 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
     private fun cardTokenizationConfiguration(): POCardTokenizationConfiguration {
         val billingAddress = configuration?.card?.billingAddress
         return POCardTokenizationConfiguration(
+            cardScanner = configuration?.card?.cardScanner?.let {
+                CardScannerConfiguration(
+                    scanButton = POCardTokenizationConfiguration.Button(
+                        text = it.scanButton.text,
+                        icon = it.scanButton.icon
+                    ),
+                    configuration = it.configuration
+                )
+            },
             billingAddress = BillingAddressConfiguration(
                 defaultAddress = billingAddress?.defaultAddress,
                 attachDefaultsToPaymentMethod = billingAddress?.attachDefaultsToPaymentMethod ?: false
