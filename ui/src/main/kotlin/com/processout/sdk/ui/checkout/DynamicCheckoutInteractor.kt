@@ -1022,7 +1022,7 @@ internal class DynamicCheckoutInteractor(
                 eventDispatcher.send(request)
             }
         }
-        interactorScope.launch {
+        interactorScope.launch(Dispatchers.Main.immediate) {
             nativeAlternativePayment.sideEffects.collect { sideEffect ->
                 when (sideEffect) {
                     is NativeAlternativePaymentSideEffect.PermissionRequest ->
