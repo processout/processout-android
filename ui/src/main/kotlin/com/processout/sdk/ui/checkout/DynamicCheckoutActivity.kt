@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.SystemBarStyle
@@ -18,6 +17,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.wallet.Wallet.WalletOptions
@@ -281,7 +281,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
             is AlternativePayment -> {
                 pendingAlternativePayment = sideEffect
                 alternativePaymentLauncher.launch(
-                    uri = Uri.parse(sideEffect.redirectUrl),
+                    uri = sideEffect.redirectUrl.toUri(),
                     returnUrl = sideEffect.returnUrl
                 )
             }
