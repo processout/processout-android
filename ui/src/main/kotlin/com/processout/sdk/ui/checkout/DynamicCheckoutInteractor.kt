@@ -39,10 +39,7 @@ import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.base.BaseInteractor
-import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion
-import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent
-import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
-import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
+import com.processout.sdk.ui.card.tokenization.*
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
@@ -128,6 +125,7 @@ internal class DynamicCheckoutInteractor(
     private suspend fun start() {
         handleCompletions()
         dispatchEvents()
+        dispatchSideEffects()
         collectInvoice()
         collectInvoiceAuthorizationRequest()
         collectTokenizedCard()
@@ -1020,6 +1018,19 @@ internal class DynamicCheckoutInteractor(
         interactorScope.launch {
             nativeAlternativePaymentEventDispatcher.defaultValuesRequest.collect { request ->
                 eventDispatcher.send(request)
+            }
+        }
+    }
+
+    private fun dispatchSideEffects() {
+        interactorScope.launch(Dispatchers.Main.immediate) {
+            cardTokenization.sideEffects.collect { sideEffect ->
+                when (sideEffect) {
+                    CardTokenizationSideEffect.CardScanner -> {
+                        _sideEffects.send(DynamicCheckoutSideEffect.CardScanner)
+                        POLogger.info("Starting card scanner.")
+                    }
+                }
             }
         }
         interactorScope.launch(Dispatchers.Main.immediate) {

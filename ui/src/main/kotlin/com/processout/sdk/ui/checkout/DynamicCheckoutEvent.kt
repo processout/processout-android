@@ -85,6 +85,8 @@ internal sealed interface DynamicCheckoutSideEffect {
         val permission: String
     ) : DynamicCheckoutSideEffect
 
+    data object CardScanner : DynamicCheckoutSideEffect
+
     data object CancelWebAuthorization : DynamicCheckoutSideEffect
 
     data object BeforeSuccess : DynamicCheckoutSideEffect
