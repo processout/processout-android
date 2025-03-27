@@ -94,18 +94,6 @@ internal fun CardTokenizationScreen(
                     onContentHeightChanged(contentHeight)
                 }
             ) {
-                state.cardScannerAction?.let { action ->
-                    POButton(
-                        state = action,
-                        onClick = { onEvent(Action(id = it)) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .requiredHeightIn(min = dimensions.buttonIconSizeSmall)
-                            .padding(bottom = spacing.small),
-                        style = style.scanButton,
-                        iconSize = dimensions.iconSizeSmall
-                    )
-                }
                 Sections(
                     state = state,
                     onEvent = onEvent,
@@ -124,6 +112,18 @@ private fun Sections(
 ) {
     if (state.focusedFieldId == null) {
         LocalFocusManager.current.clearFocus(force = true)
+    }
+    state.cardScannerAction?.let { action ->
+        POButton(
+            state = action,
+            onClick = { onEvent(Action(id = it)) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .requiredHeightIn(min = dimensions.buttonIconSizeSmall)
+                .padding(bottom = spacing.small),
+            style = style.scanButton,
+            iconSize = dimensions.iconSizeSmall
+        )
     }
     val lifecycleEvent = rememberLifecycleEvent()
     state.sections.elements.forEachIndexed { index, section ->
