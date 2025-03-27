@@ -36,6 +36,7 @@ internal class CardScannerInteractor(
     val sideEffects = _sideEffects.receiveAsFlow()
 
     init {
+        POLogger.info("Starting card scanner.")
         collectRecognizedCards()
         interactorScope.launch {
             delay(INIT_DELAY_MS)
@@ -55,7 +56,10 @@ internal class CardScannerInteractor(
             is ImageAnalysis -> interactorScope.launch {
                 cardRecognitionSession.recognize(event.imageProxy)
             }
-            is TorchToggle -> _state.update { it.copy(isTorchEnabled = event.isEnabled) }
+            is TorchToggle -> {
+                POLogger.debug("Torch toggle: ${event.isEnabled}.")
+                _state.update { it.copy(isTorchEnabled = event.isEnabled) }
+            }
             is Cancel -> cancel(
                 ProcessOutResult.Failure(
                     code = Cancelled,
@@ -68,7 +72,9 @@ internal class CardScannerInteractor(
 
     private fun handle(event: CameraPermissionResult) {
         _state.update { it.copy(isCameraPermissionGranted = event.isGranted) }
-        if (!event.isGranted) {
+        if (event.isGranted) {
+            POLogger.info("Started: camera permission is granted.")
+        } else {
             cancel(
                 ProcessOutResult.Failure(
                     code = Generic(),
@@ -81,11 +87,13 @@ internal class CardScannerInteractor(
     private fun collectRecognizedCards() {
         interactorScope.launch(Dispatchers.Main.immediate) {
             cardRecognitionSession.currentCard.collect { card ->
+                POLogger.debug("Current card: $card.")
                 _state.update { it.copy(currentCard = card) }
             }
         }
         interactorScope.launch(Dispatchers.Main.immediate) {
             cardRecognitionSession.mostFrequentCard.collect { card ->
+                POLogger.debug("Most frequent card: $card.")
                 _completion.update { Success(card) }
             }
         }
