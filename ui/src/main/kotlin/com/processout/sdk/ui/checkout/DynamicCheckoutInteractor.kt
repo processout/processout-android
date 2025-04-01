@@ -39,10 +39,7 @@ import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.base.BaseInteractor
-import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion
-import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent
-import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
-import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
+import com.processout.sdk.ui.card.tokenization.*
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
@@ -128,6 +125,7 @@ internal class DynamicCheckoutInteractor(
     private suspend fun start() {
         handleCompletions()
         dispatchEvents()
+        dispatchSideEffects()
         collectInvoice()
         collectInvoiceAuthorizationRequest()
         collectTokenizedCard()
@@ -421,6 +419,7 @@ internal class DynamicCheckoutInteractor(
             is GooglePayResult -> handleGooglePay(event.paymentMethodId, event.result)
             is AlternativePaymentResult -> handleAlternativePayment(event.paymentMethodId, event.result)
             is PermissionRequestResult -> handlePermission(event)
+            is CardScannerResult -> handleCardScanner(event)
             is CustomerTokenDeleted -> deleteLocalCustomerToken(event.tokenId)
             is Dismiss -> dismiss(event)
         }
@@ -1022,7 +1021,19 @@ internal class DynamicCheckoutInteractor(
                 eventDispatcher.send(request)
             }
         }
-        interactorScope.launch {
+    }
+
+    private fun dispatchSideEffects() {
+        interactorScope.launch(Dispatchers.Main.immediate) {
+            cardTokenization.sideEffects.collect { sideEffect ->
+                when (sideEffect) {
+                    CardTokenizationSideEffect.CardScanner -> {
+                        _sideEffects.send(DynamicCheckoutSideEffect.CardScanner)
+                    }
+                }
+            }
+        }
+        interactorScope.launch(Dispatchers.Main.immediate) {
             nativeAlternativePayment.sideEffects.collect { sideEffect ->
                 when (sideEffect) {
                     is NativeAlternativePaymentSideEffect.PermissionRequest ->
@@ -1050,6 +1061,13 @@ internal class DynamicCheckoutInteractor(
             )
             else -> {}
         }
+    }
+
+    private fun handleCardScanner(result: CardScannerResult) {
+        result.card?.let { POLogger.debug("Scanned card: $it") }
+        cardTokenization.onEvent(
+            CardTokenizationEvent.CardScannerResult(result.card)
+        )
     }
 
     private fun deleteLocalCustomerToken(tokenId: String) {

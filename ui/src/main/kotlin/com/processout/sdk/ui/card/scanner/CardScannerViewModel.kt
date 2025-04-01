@@ -61,7 +61,8 @@ internal class CardScannerViewModel(
                 description = description ?: app.getString(R.string.po_card_scanner_description),
                 currentCard = state.currentCard,
                 torchAction = torchAction(state.isTorchEnabled),
-                cancelAction = cancelButton?.toAction()
+                cancelAction = cancelButton?.toAction(),
+                isCameraPermissionGranted = state.isCameraPermissionGranted
             )
         }
 

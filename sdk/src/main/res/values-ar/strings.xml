@@ -62,6 +62,7 @@
     <string name="po_card_tokenization_title">إضافة بطاقة جديدة</string>
     <string name="po_card_tokenization_button_submit">إرسال</string>
     <string name="po_card_tokenization_button_cancel">إلغاء</string>
+    <string name="po_card_tokenization_button_scan">امسح البطاقة</string>
     <string name="po_card_tokenization_preferred_scheme">النظام المفضل للبطاقة</string>
     <string name="po_card_tokenization_card_details_cardholder_placeholder">اسم حامل البطاقة</string>
     <string name="po_card_tokenization_card_details_cvc_placeholder">كود التحقق CVV</string>

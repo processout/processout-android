@@ -17,12 +17,8 @@ import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.Item
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.SectionId.FUTURE_PAYMENTS
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent
-import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.FieldFocusChanged
-import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.FieldValueChanged
-import com.processout.sdk.ui.core.component.POAnimatedImage
-import com.processout.sdk.ui.core.component.POExpandableText
-import com.processout.sdk.ui.core.component.PORequestFocus
-import com.processout.sdk.ui.core.component.POText
+import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
+import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
@@ -42,6 +38,25 @@ internal fun CardTokenization(
 ) {
     if (state.focusedFieldId == null) {
         LocalFocusManager.current.clearFocus(force = true)
+    }
+    state.cardScannerAction?.let { action ->
+        POButton(
+            state = action,
+            onClick = {
+                onEvent(
+                    Action(
+                        actionId = it,
+                        paymentMethodId = id
+                    )
+                )
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .requiredHeightIn(min = dimensions.buttonIconSizeSmall)
+                .padding(bottom = spacing.small),
+            style = style.scanCardButton,
+            iconSize = dimensions.iconSizeSmall
+        )
     }
     val lifecycleEvent = rememberLifecycleEvent()
     state.sections.elements.forEachIndexed { index, section ->
@@ -191,7 +206,7 @@ private fun TextField(
             enabled = isPrimaryActionEnabled,
             onClick = {
                 onEvent(
-                    DynamicCheckoutEvent.Action(
+                    Action(
                         actionId = it,
                         paymentMethodId = id
                     )

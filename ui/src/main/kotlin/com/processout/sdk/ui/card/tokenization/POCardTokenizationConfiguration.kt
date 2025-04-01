@@ -3,6 +3,7 @@ package com.processout.sdk.ui.card.tokenization
 import android.os.Parcelable
 import androidx.annotation.ColorRes
 import com.processout.sdk.api.model.request.POContact
+import com.processout.sdk.ui.card.scanner.POCardScannerConfiguration
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode
 import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import com.processout.sdk.ui.core.style.*
@@ -19,6 +20,7 @@ import kotlinx.parcelize.Parcelize
  * @param[title] Custom title.
  * @param[cvcRequired] Specifies whether the CVC field should be displayed. Default value is _true_.
  * @param[cardholderNameRequired] Specifies whether the cardholder name field should be displayed. Default value is _true_.
+ * @param[cardScanner] Card scanner configuration. Use _null_ to hide, this is a default behaviour.
  * @param[billingAddress] Allows to customize the collection of billing address.
  * @param[savingAllowed] Displays checkbox that allows to save the card details for future payments.
  * @param[submitButton] Submit button configuration.
@@ -32,6 +34,7 @@ data class POCardTokenizationConfiguration(
     val title: String? = null,
     val cvcRequired: Boolean = true,
     val cardholderNameRequired: Boolean = true,
+    val cardScanner: CardScannerConfiguration? = null,
     val billingAddress: BillingAddressConfiguration = BillingAddressConfiguration(),
     val savingAllowed: Boolean = false,
     val submitButton: Button = Button(),
@@ -87,6 +90,18 @@ data class POCardTokenizationConfiguration(
         metadata = metadata,
         style = style
     )
+
+    /**
+     * Defines card scanner configuration.
+     *
+     * @param[scanButton] Scan button configuration.
+     * @param[configuration] Card scanner configuration.
+     */
+    @Parcelize
+    data class CardScannerConfiguration(
+        val scanButton: Button = Button(),
+        val configuration: POCardScannerConfiguration = POCardScannerConfiguration()
+    ) : Parcelable
 
     /**
      * Defines billing address configuration.
@@ -170,6 +185,7 @@ data class POCardTokenizationConfiguration(
         val checkbox: POCheckboxStyle? = null,
         val dropdownMenu: PODropdownMenuStyle? = null,
         val errorMessage: POTextStyle? = null,
+        val scanButton: POButtonStyle? = null,
         val actionsContainer: POActionsContainerStyle? = null,
         @ColorRes
         val backgroundColorResId: Int? = null,

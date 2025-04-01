@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.SystemBarStyle
@@ -18,10 +17,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.wallet.Wallet.WalletOptions
-import com.google.android.gms.wallet.WalletConstants
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
@@ -31,17 +30,16 @@ import com.processout.sdk.api.model.event.POSavedPaymentMethodsEvent.DidDeleteCu
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.model.response.POGooglePayCardTokenizationData
+import com.processout.sdk.core.*
 import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.POFailure.Code.Generic
-import com.processout.sdk.core.POUnit
-import com.processout.sdk.core.ProcessOutActivityResult
-import com.processout.sdk.core.ProcessOutResult
-import com.processout.sdk.core.toActivityResult
 import com.processout.sdk.ui.apm.POAlternativePaymentMethodCustomTabLauncher
 import com.processout.sdk.ui.base.BaseTransparentPortraitActivity
+import com.processout.sdk.ui.card.scanner.POCardScannerLauncher
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.CardScannerConfiguration
 import com.processout.sdk.ui.checkout.DynamicCheckoutActivityContract.Companion.EXTRA_CONFIGURATION
 import com.processout.sdk.ui.checkout.DynamicCheckoutActivityContract.Companion.EXTRA_RESULT
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Failure
@@ -55,10 +53,8 @@ import com.processout.sdk.ui.googlepay.POGooglePayCardTokenizationLauncher
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration
-import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration.Companion.DEFAULT_TIMEOUT_SECONDS
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsDelegate
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsLauncher
-import com.processout.sdk.ui.shared.configuration.POBarcodeConfiguration
 import com.processout.sdk.ui.shared.extension.collectImmediately
 import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivity
 import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivityContract
@@ -67,7 +63,7 @@ import com.processout.sdk.ui.web.webview.POWebViewAuthorizationActivityContract
 
 internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
 
-    private var configuration: PODynamicCheckoutConfiguration? = null
+    private lateinit var configuration: PODynamicCheckoutConfiguration
 
     private val viewModel: DynamicCheckoutViewModel by viewModels {
         val cardTokenizationEventDispatcher = PODefaultCardTokenizationEventDispatcher()
@@ -88,9 +84,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
         }
         DynamicCheckoutViewModel.Factory(
             app = application,
-            configuration = configuration ?: PODynamicCheckoutConfiguration(
-                invoiceRequest = POInvoiceRequest(invoiceId = String())
-            ),
+            configuration = configuration,
             cardTokenization = cardTokenization,
             cardTokenizationEventDispatcher = cardTokenizationEventDispatcher,
             nativeAlternativePayment = nativeAlternativePayment,
@@ -99,55 +93,64 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
     }
 
     private fun cardTokenizationConfiguration(): POCardTokenizationConfiguration {
-        val billingAddress = configuration?.card?.billingAddress
+        val billingAddress = configuration.card.billingAddress
         return POCardTokenizationConfiguration(
+            cardScanner = configuration.card.cardScanner?.let {
+                CardScannerConfiguration(
+                    scanButton = POCardTokenizationConfiguration.Button(
+                        text = it.scanButton.text,
+                        icon = it.scanButton.icon
+                    ),
+                    configuration = it.configuration
+                )
+            },
             billingAddress = BillingAddressConfiguration(
-                defaultAddress = billingAddress?.defaultAddress,
-                attachDefaultsToPaymentMethod = billingAddress?.attachDefaultsToPaymentMethod ?: false
+                defaultAddress = billingAddress.defaultAddress,
+                attachDefaultsToPaymentMethod = billingAddress.attachDefaultsToPaymentMethod
             ),
-            submitButton = configuration?.submitButton?.let {
+            submitButton = configuration.submitButton.let {
                 POCardTokenizationConfiguration.Button(
                     text = it.text,
                     icon = it.icon
                 )
-            } ?: POCardTokenizationConfiguration.Button(),
-            cancelButton = configuration?.cancelButton?.let {
+            },
+            cancelButton = configuration.cancelButton?.let {
                 POCardTokenizationConfiguration.CancelButton(
                     text = it.text,
                     icon = it.icon,
                     confirmation = it.confirmation
                 )
             },
-            metadata = configuration?.card?.metadata
+            metadata = configuration.card.metadata
         )
     }
 
     private fun nativeAlternativePaymentConfiguration(): PONativeAlternativePaymentConfiguration {
-        val paymentConfirmation = configuration?.alternativePayment?.paymentConfirmation
+        val paymentConfirmation = configuration.alternativePayment.paymentConfirmation
         return PONativeAlternativePaymentConfiguration(
-            invoiceId = configuration?.invoiceRequest?.invoiceId ?: String(),
+            invoiceId = configuration.invoiceRequest.invoiceId,
             gatewayConfigurationId = String(),
-            submitButton = configuration?.submitButton?.map() ?: PONativeAlternativePaymentConfiguration.Button(),
-            cancelButton = configuration?.cancelButton?.map(),
+            submitButton = configuration.submitButton.map(),
+            cancelButton = configuration.cancelButton?.map(),
             paymentConfirmation = PaymentConfirmationConfiguration(
                 waitsConfirmation = true,
-                timeoutSeconds = paymentConfirmation?.timeoutSeconds ?: DEFAULT_TIMEOUT_SECONDS,
-                showProgressIndicatorAfterSeconds = paymentConfirmation?.showProgressIndicatorAfterSeconds,
+                timeoutSeconds = paymentConfirmation.timeoutSeconds,
+                showProgressIndicatorAfterSeconds = paymentConfirmation.showProgressIndicatorAfterSeconds,
                 hideGatewayDetails = true,
-                confirmButton = paymentConfirmation?.confirmButton?.map(),
-                cancelButton = paymentConfirmation?.cancelButton?.map()
+                confirmButton = paymentConfirmation.confirmButton?.map(),
+                cancelButton = paymentConfirmation.cancelButton?.map()
             ),
-            barcode = configuration?.alternativePayment?.barcode
-                ?: POBarcodeConfiguration(saveButton = POBarcodeConfiguration.Button()),
-            inlineSingleSelectValuesLimit = configuration?.alternativePayment?.inlineSingleSelectValuesLimit ?: 5,
+            barcode = configuration.alternativePayment.barcode,
+            inlineSingleSelectValuesLimit = configuration.alternativePayment.inlineSingleSelectValuesLimit,
             skipSuccessScreen = true
         )
     }
 
-    private fun Button.map() = PONativeAlternativePaymentConfiguration.Button(
-        text = text,
-        icon = icon
-    )
+    private fun Button.map() =
+        PONativeAlternativePaymentConfiguration.Button(
+            text = text,
+            icon = icon
+        )
 
     private fun CancelButton.map() =
         PONativeAlternativePaymentConfiguration.CancelButton(
@@ -180,17 +183,17 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
     )
     private var pendingPermissionRequest: PermissionRequest? = null
 
+    private lateinit var cardScannerLauncher: POCardScannerLauncher
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
-        if (savedInstanceState == null) {
-            initConfiguration()
-        }
+        initConfiguration()
         dispatchBackPressed()
         googlePayLauncher = POGooglePayCardTokenizationLauncher.create(
             from = this,
             walletOptions = WalletOptions.Builder()
-                .setEnvironment(configuration?.googlePay?.environment?.value ?: WalletConstants.ENVIRONMENT_TEST)
+                .setEnvironment(configuration.googlePay.environment.value)
                 .build(),
             callback = ::handleGooglePay
         )
@@ -202,6 +205,12 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
             from = this,
             delegate = savedPaymentMethodsDelegate,
             callback = { pendingSavedPaymentMethods = false }
+        )
+        cardScannerLauncher = POCardScannerLauncher.create(
+            from = this,
+            callback = { result ->
+                viewModel.onEvent(CardScannerResult(result.getOrNull()))
+            }
         )
         setContent {
             val isLightTheme = !isSystemInDarkTheme()
@@ -217,7 +226,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                     state = viewModel.state.collectAsStateWithLifecycle().value,
                     onEvent = remember { viewModel::onEvent },
                     style = DynamicCheckoutScreen.style(
-                        custom = configuration?.style,
+                        custom = configuration.style,
                         isLightTheme = isLightTheme
                     ),
                     isLightTheme = isLightTheme
@@ -229,23 +238,22 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
     private fun initConfiguration() {
         @Suppress("DEPRECATION")
         configuration = intent.getParcelableExtra(EXTRA_CONFIGURATION)
-        configuration?.run {
-            if (invoiceRequest.invoiceId.isBlank()) {
-                viewModel.onEvent(
-                    Dismiss(
-                        ProcessOutResult.Failure(
-                            code = Generic(),
-                            message = "Invalid configuration: 'invoiceId' is required."
-                        )
+            ?: PODynamicCheckoutConfiguration(invoiceRequest = POInvoiceRequest(invoiceId = String()))
+        if (configuration.invoiceRequest.invoiceId.isBlank()) {
+            viewModel.onEvent(
+                Dismiss(
+                    ProcessOutResult.Failure(
+                        code = Generic(),
+                        message = "Invalid configuration: 'invoiceId' is required."
                     )
                 )
-            }
+            )
         }
     }
 
     private fun dispatchBackPressed() {
         onBackPressedDispatcher.addCallback(this) {
-            if (configuration?.cancelOnBackPressed == true) {
+            if (configuration.cancelOnBackPressed) {
                 viewModel.onEvent(
                     Dismiss(
                         ProcessOutResult.Failure(
@@ -267,7 +275,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
             is AlternativePayment -> {
                 pendingAlternativePayment = sideEffect
                 alternativePaymentLauncher.launch(
-                    uri = Uri.parse(sideEffect.redirectUrl),
+                    uri = sideEffect.redirectUrl.toUri(),
                     returnUrl = sideEffect.returnUrl
                 )
             }
@@ -276,6 +284,9 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                 savedPaymentMethodsLauncher.launch(sideEffect.configuration)
             }
             is PermissionRequest -> requestPermission(sideEffect)
+            CardScanner -> configuration.card.cardScanner?.configuration?.let {
+                cardScannerLauncher.launch(configuration = it)
+            }
             CancelWebAuthorization -> cancelWebAuthorization()
             BeforeSuccess -> if (pendingSavedPaymentMethods) {
                 savedPaymentMethodsLauncher.finish()

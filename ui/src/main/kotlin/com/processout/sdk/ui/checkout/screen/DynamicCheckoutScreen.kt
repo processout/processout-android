@@ -678,6 +678,7 @@ internal object DynamicCheckoutScreen {
         val errorText: POText.Style,
         val messageBox: POMessageBox.Style,
         val dialog: PODialog.Style,
+        val scanCardButton: POButton.Style,
         val actionsContainer: POActionsContainer.Style,
         val backgroundColor: Color,
         val progressIndicatorColor: Color,
@@ -751,6 +752,9 @@ internal object DynamicCheckoutScreen {
         dialog = custom?.dialog?.let {
             PODialog.custom(style = it)
         } ?: PODialog.default,
+        scanCardButton = custom?.scanCardButton?.let {
+            POButton.custom(style = it)
+        } ?: POButton.secondary,
         actionsContainer = custom?.actionsContainer?.let {
             POActionsContainer.custom(style = it)
         } ?: POActionsContainer.default,

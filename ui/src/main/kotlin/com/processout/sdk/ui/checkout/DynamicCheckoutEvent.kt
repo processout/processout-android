@@ -4,6 +4,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.model.response.POGooglePayCardTokenizationData
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.ui.card.scanner.recognition.POScannedCard
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsConfiguration
 import org.json.JSONObject
 
@@ -55,6 +56,10 @@ internal sealed interface DynamicCheckoutEvent {
         val isGranted: Boolean
     ) : DynamicCheckoutEvent
 
+    data class CardScannerResult(
+        val card: POScannedCard?
+    ) : DynamicCheckoutEvent
+
     data class CustomerTokenDeleted(
         val tokenId: String
     ) : DynamicCheckoutEvent
@@ -84,6 +89,8 @@ internal sealed interface DynamicCheckoutSideEffect {
         val paymentMethodId: String,
         val permission: String
     ) : DynamicCheckoutSideEffect
+
+    data object CardScanner : DynamicCheckoutSideEffect
 
     data object CancelWebAuthorization : DynamicCheckoutSideEffect
 

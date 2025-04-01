@@ -9,6 +9,7 @@ import androidx.annotation.IntRange
 import com.google.android.gms.wallet.WalletConstants
 import com.processout.sdk.api.model.request.POContact
 import com.processout.sdk.api.model.request.POInvoiceRequest
+import com.processout.sdk.ui.card.scanner.POCardScannerConfiguration
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration.Environment
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.shared.image.PODrawableImage
@@ -66,14 +67,28 @@ data class PODynamicCheckoutConfiguration(
     /**
      * Specifies card payment configuration.
      *
+     * @param[cardScanner] Card scanner configuration. Use _null_ to hide.
      * @param[billingAddress] Specifies billing address configuration.
      * @param[metadata] Metadata related to the card.
      */
     @Parcelize
     data class CardConfiguration(
+        val cardScanner: CardScannerConfiguration? = CardScannerConfiguration(),
         val billingAddress: BillingAddressConfiguration = BillingAddressConfiguration(),
         val metadata: Map<String, String>? = null
     ) : Parcelable {
+
+        /**
+         * Specifies card scanner configuration.
+         *
+         * @param[scanButton] Scan button configuration.
+         * @param[configuration] Card scanner configuration.
+         */
+        @Parcelize
+        data class CardScannerConfiguration(
+            val scanButton: Button = Button(),
+            val configuration: POCardScannerConfiguration = POCardScannerConfiguration()
+        ) : Parcelable
 
         /**
          * Specifies billing address configuration.
@@ -311,6 +326,7 @@ data class PODynamicCheckoutConfiguration(
      * @param[errorText] Error text style.
      * @param[messageBox] Message box style.
      * @param[dialog] Dialog style.
+     * @param[scanCardButton] Scan card button style.
      * @param[actionsContainer] Style of action buttons and their container.
      * @param[backgroundColorResId] Color resource ID for background.
      * @param[progressIndicatorColorResId] Color resource ID for progress indicator.
@@ -333,6 +349,7 @@ data class PODynamicCheckoutConfiguration(
         val errorText: POTextStyle? = null,
         val messageBox: POMessageBoxStyle? = null,
         val dialog: PODialogStyle? = null,
+        val scanCardButton: POButtonStyle? = null,
         val actionsContainer: POActionsContainerStyle? = null,
         @ColorRes
         val backgroundColorResId: Int? = null,

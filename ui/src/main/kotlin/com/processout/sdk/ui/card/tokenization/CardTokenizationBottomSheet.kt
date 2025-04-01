@@ -15,19 +15,24 @@ import com.processout.sdk.api.dispatcher.PODefaultEventDispatchers
 import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.getOrNull
 import com.processout.sdk.core.toActivityResult
 import com.processout.sdk.ui.base.BaseBottomSheetDialogFragment
+import com.processout.sdk.ui.card.scanner.POCardScannerLauncher
 import com.processout.sdk.ui.card.tokenization.CardTokenizationActivityContract.Companion.EXTRA_CONFIGURATION
 import com.processout.sdk.ui.card.tokenization.CardTokenizationActivityContract.Companion.EXTRA_RESULT
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Failure
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Success
+import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.CardScannerResult
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.Dismiss
+import com.processout.sdk.ui.card.tokenization.CardTokenizationSideEffect.CardScanner
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.Button
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.component.displayCutoutHeight
 import com.processout.sdk.ui.shared.component.screenModeAsState
 import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration.Height.Fixed
 import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration.Height.WrapContent
+import com.processout.sdk.ui.shared.extension.collectImmediately
 import kotlin.math.roundToInt
 
 internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCard>() {
@@ -39,21 +44,30 @@ internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCar
     override var expandable = false
     override val defaultViewHeight by lazy { (screenHeight * 0.3).roundToInt() }
 
-    private var configuration: POCardTokenizationConfiguration? = null
-    private val viewHeightConfiguration by lazy { configuration?.bottomSheet?.height ?: WrapContent }
+    private lateinit var configuration: POCardTokenizationConfiguration
+    private val viewHeightConfiguration by lazy { configuration.bottomSheet.height }
 
     private val viewModel: CardTokenizationViewModel by viewModels {
         CardTokenizationViewModel.Factory(
             app = requireActivity().application,
-            configuration = configuration ?: POCardTokenizationConfiguration(submitButton = Button()),
+            configuration = configuration,
             eventDispatcher = PODefaultEventDispatchers.defaultCardTokenization
         )
     }
+
+    private lateinit var cardScannerLauncher: POCardScannerLauncher
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         @Suppress("DEPRECATION")
         configuration = arguments?.getParcelable(EXTRA_CONFIGURATION)
+            ?: POCardTokenizationConfiguration(submitButton = Button())
+        cardScannerLauncher = POCardScannerLauncher.create(
+            from = this,
+            callback = { result ->
+                viewModel.onEvent(CardScannerResult(result.getOrNull()))
+            }
+        )
         viewModel.start()
     }
 
@@ -68,6 +82,8 @@ internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCar
                 with(viewModel.completion.collectAsStateWithLifecycle()) {
                     LaunchedEffect(value) { handle(value) }
                 }
+                viewModel.sideEffects.collectImmediately { handle(it) }
+
                 var viewHeight by remember { mutableIntStateOf(defaultViewHeight) }
                 with(screenModeAsState(viewHeight = viewHeight)) {
                     LaunchedEffect(value) { apply(value) }
@@ -82,7 +98,7 @@ internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCar
                             WrapContent -> contentHeight
                         }
                     },
-                    style = CardTokenizationScreen.style(custom = configuration?.style)
+                    style = CardTokenizationScreen.style(custom = configuration.style)
                 )
             }
         }
@@ -90,9 +106,15 @@ internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCar
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        configuration?.let {
-            expandable = it.bottomSheet.expandable
-            apply(it.bottomSheet.cancellation)
+        expandable = configuration.bottomSheet.expandable
+        apply(configuration.bottomSheet.cancellation)
+    }
+
+    private fun handle(sideEffect: CardTokenizationSideEffect) {
+        when (sideEffect) {
+            CardScanner -> configuration.cardScanner?.configuration?.let {
+                cardScannerLauncher.launch(configuration = it)
+            }
         }
     }
 

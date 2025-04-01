@@ -20,21 +20,28 @@ import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.base.BaseInteractor
+import com.processout.sdk.ui.card.scanner.recognition.POScannedCard
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationInteractorState.*
+import com.processout.sdk.ui.card.tokenization.CardTokenizationSideEffect.CardScanner
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode.*
 import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.shared.extension.currentAppLocale
 import com.processout.sdk.ui.shared.extension.orElse
+import com.processout.sdk.ui.shared.filter.CardExpirationInputFilter
+import com.processout.sdk.ui.shared.filter.CardNumberInputFilter
 import com.processout.sdk.ui.shared.provider.CardSchemeProvider
 import com.processout.sdk.ui.shared.provider.address.AddressSpecification
 import com.processout.sdk.ui.shared.provider.address.AddressSpecification.AddressUnit
 import com.processout.sdk.ui.shared.provider.address.AddressSpecificationProvider
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -51,6 +58,7 @@ internal class CardTokenizationInteractor(
     private companion object {
         const val IIN_LENGTH = 6
         const val EXPIRATION_DATE_PART_LENGTH = 2
+        const val CARD_SCANNER_DELAY_MS = 350L
     }
 
     private data class Expiration(
@@ -63,6 +71,12 @@ internal class CardTokenizationInteractor(
 
     private val _state = MutableStateFlow(initState())
     val state = _state.asStateFlow()
+
+    private val _sideEffects = Channel<CardTokenizationSideEffect>()
+    val sideEffects = _sideEffects.receiveAsFlow()
+
+    private val cardNumberInputFilter = CardNumberInputFilter()
+    private val cardExpirationInputFilter = CardExpirationInputFilter()
 
     private var latestPreferredSchemeRequest: POCardTokenizationPreferredSchemeRequest? = null
     private var latestShouldContinueRequest: POCardTokenizationShouldContinueRequest? = null
@@ -116,8 +130,10 @@ internal class CardTokenizationInteractor(
             shouldCollect = configuration.savingAllowed
         ),
         focusedFieldId = CardFieldId.NUMBER,
+        pendingFocusedFieldId = null,
         primaryActionId = ActionId.SUBMIT,
-        secondaryActionId = ActionId.CANCEL
+        secondaryActionId = ActionId.CANCEL,
+        cardScannerActionId = ActionId.CARD_SCANNER
     )
 
     private fun cardFields(): List<Field> = mutableListOf(
@@ -176,9 +192,24 @@ internal class CardTokenizationInteractor(
             is Action -> when (event.id) {
                 ActionId.SUBMIT -> submit()
                 ActionId.CANCEL -> cancel()
+                ActionId.CARD_SCANNER -> startCardScanner()
             }
+            is CardScannerResult -> handle(event)
             is Dismiss -> POLogger.info("Dismissed: %s", event.failure)
         }
+    }
+
+    private fun startCardScanner() {
+        interactorScope.launch {
+            rememberAndClearFieldFocus()
+            delay(CARD_SCANNER_DELAY_MS)
+            _sideEffects.send(CardScanner)
+        }
+    }
+
+    private fun handle(event: CardScannerResult) {
+        event.card?.let { updateCardFields(it) }
+        restoreFieldFocus()
     }
 
     //endregion
@@ -234,9 +265,62 @@ internal class CardTokenizationInteractor(
             }
         } else field
 
+    private fun updateCardFields(card: POScannedCard) {
+        POLogger.debug("Updating card field values with the scanned card: $card.")
+        updateFieldValue(
+            id = CardFieldId.NUMBER,
+            value = cardNumberInputFilter.filter(
+                TextFieldValue(
+                    text = card.number,
+                    selection = TextRange(index = card.number.length)
+                )
+            )
+        )
+        card.expiration?.let {
+            updateFieldValue(
+                id = CardFieldId.EXPIRATION,
+                value = cardExpirationInputFilter.filter(
+                    TextFieldValue(
+                        text = it.formatted,
+                        selection = TextRange(index = it.formatted.length)
+                    )
+                )
+            )
+        }
+        card.cardholderName?.let {
+            updateFieldValue(
+                id = CardFieldId.CARDHOLDER,
+                value = TextFieldValue(
+                    text = it,
+                    selection = TextRange(index = it.length)
+                )
+            )
+        }
+    }
+
     private fun updateFieldFocus(id: String, isFocused: Boolean) {
         if (isFocused) {
             _state.update { it.copy(focusedFieldId = id) }
+        }
+    }
+
+    private fun rememberAndClearFieldFocus() {
+        _state.update {
+            val focusedFieldId = it.focusedFieldId
+            it.copy(
+                focusedFieldId = null,
+                pendingFocusedFieldId = focusedFieldId
+            )
+        }
+    }
+
+    private fun restoreFieldFocus() {
+        _state.update {
+            val pendingFocusedFieldId = it.pendingFocusedFieldId
+            it.copy(
+                focusedFieldId = pendingFocusedFieldId,
+                pendingFocusedFieldId = null
+            )
         }
     }
 

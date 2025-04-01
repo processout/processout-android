@@ -59,6 +59,7 @@
     <string name="po_card_tokenization_title">Add New Card</string>
     <string name="po_card_tokenization_button_submit">Submit</string>
     <string name="po_card_tokenization_button_cancel">Cancel</string>
+    <string name="po_card_tokenization_button_scan">Scan card</string>
     <string name="po_card_tokenization_preferred_scheme">Preferred Scheme</string>
     <string name="po_card_tokenization_card_details_cardholder_placeholder">Cardholder Name</string>
     <string name="po_card_tokenization_card_details_cvc_placeholder">CVC</string>
