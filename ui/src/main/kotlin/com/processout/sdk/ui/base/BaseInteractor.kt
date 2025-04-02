@@ -7,4 +7,7 @@ import kotlinx.coroutines.SupervisorJob
 internal abstract class BaseInteractor(
     val interactorScope: POCloseableCoroutineScope =
         POCloseableCoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
-)
+) {
+
+    open fun clear() {}
+}

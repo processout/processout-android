@@ -383,6 +383,6 @@ internal class NativeAlternativePaymentViewModel private constructor(
         }
 
     override fun onCleared() {
-        interactor.onCleared()
+        interactor.clear()
     }
 }

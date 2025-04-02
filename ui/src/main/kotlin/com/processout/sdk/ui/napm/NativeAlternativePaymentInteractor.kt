@@ -951,7 +951,7 @@ internal class NativeAlternativePaymentInteractor(
         }
     }
 
-    fun onCleared() {
+    override fun clear() {
         handler.removeCallbacksAndMessages(null)
     }
 }
