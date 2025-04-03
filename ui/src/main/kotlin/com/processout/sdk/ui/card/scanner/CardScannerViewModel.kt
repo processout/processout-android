@@ -33,6 +33,7 @@ internal class CardScannerViewModel(
                 configuration = configuration,
                 interactor = CardScannerInteractor(
                     cardRecognitionSession = CardRecognitionSession(
+                        app = app,
                         numberDetector = CardNumberDetector(),
                         expirationDetector = CardExpirationDetector(),
                         cardholderNameDetector = CardholderNameDetector(),
@@ -57,12 +58,13 @@ internal class CardScannerViewModel(
     private fun map(state: CardScannerInteractorState) =
         with(configuration) {
             CardScannerViewModelState(
+                loading = state.loading,
+                isCameraPermissionGranted = state.isCameraPermissionGranted,
                 title = title ?: app.getString(R.string.po_card_scanner_title),
                 description = description ?: app.getString(R.string.po_card_scanner_description),
                 currentCard = state.currentCard,
                 torchAction = torchAction(state.isTorchEnabled),
-                cancelAction = cancelButton?.toAction(),
-                isCameraPermissionGranted = state.isCameraPermissionGranted
+                cancelAction = cancelButton?.toAction()
             )
         }
 
@@ -97,4 +99,8 @@ internal class CardScannerViewModel(
                 )
             }
         )
+
+    override fun onCleared() {
+        interactor.clear()
+    }
 }
