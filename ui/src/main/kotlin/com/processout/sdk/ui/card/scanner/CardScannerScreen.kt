@@ -229,7 +229,14 @@ private fun CameraPreview(
                 onRelease = { cameraController.unbind() }
             )
         } else {
-            Box(modifier.background(Color.Black))
+            Box(
+                modifier = modifier.background(Color.Black),
+                contentAlignment = Alignment.Center
+            ) {
+                if (state.loading) {
+                    POCircularProgressIndicator.Large(color = Color.White)
+                }
+            }
         }
         ScannedCard(
             card = state.currentCard,
@@ -394,7 +401,8 @@ internal object CardScannerScreen {
                 width = border.widthDp.dp,
                 color = colorResource(id = border.colorResId)
             ),
-            overlayColor = colorResource(id = overlayColorResId)
+            overlayColor = overlayColorResId?.let { colorResource(id = it) }
+                ?: defaultCameraPreview.overlayColor
         )
 
     private val defaultCard: CardStyle
