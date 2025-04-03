@@ -4,6 +4,8 @@ import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.POFailure.Code.Generic
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
+import com.processout.sdk.core.onFailure
+import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.base.BaseInteractor
 import com.processout.sdk.ui.card.scanner.CardScannerCompletion.*
 import com.processout.sdk.ui.card.scanner.CardScannerEvent.*
@@ -23,7 +25,7 @@ internal class CardScannerInteractor(
 ) : BaseInteractor() {
 
     private companion object {
-        const val INIT_DELAY_MS = 500L
+        const val INIT_DELAY_MS = 400L
     }
 
     private val _completion = MutableStateFlow<CardScannerCompletion>(Awaiting)
@@ -37,25 +39,33 @@ internal class CardScannerInteractor(
 
     init {
         POLogger.info("Starting card scanner.")
+        collectSessionState()
         collectRecognizedCards()
-        interactorScope.launch {
-            delay(INIT_DELAY_MS)
-            _sideEffects.send(CameraPermissionRequest)
-        }
     }
 
     private fun initState() = CardScannerInteractorState(
+        loading = false,
         isCameraPermissionGranted = false,
         isTorchEnabled = false,
         currentCard = null
     )
 
+    private fun collectSessionState() {
+        interactorScope.launch {
+            cardRecognitionSession.isReady.collect { isReady ->
+                _state.update { it.copy(loading = !isReady) }
+                if (isReady) {
+                    delay(INIT_DELAY_MS)
+                    _sideEffects.send(CameraPermissionRequest)
+                }
+            }
+        }
+    }
+
     fun onEvent(event: CardScannerEvent) {
         when (event) {
             is CameraPermissionResult -> handle(event)
-            is ImageAnalysis -> interactorScope.launch {
-                cardRecognitionSession.recognize(event.imageProxy)
-            }
+            is ImageAnalysis -> cardRecognitionSession.recognize(event.imageProxy)
             is TorchToggle -> {
                 POLogger.debug("Torch toggle: ${event.isEnabled}.")
                 _state.update { it.copy(isTorchEnabled = event.isEnabled) }
@@ -91,8 +101,12 @@ internal class CardScannerInteractor(
             }
         }
         interactorScope.launch(Dispatchers.Main.immediate) {
-            cardRecognitionSession.mostFrequentCard.collect { card ->
-                _completion.update { Success(card) }
+            cardRecognitionSession.result.collect { result ->
+                result.onSuccess { card ->
+                    _completion.update { Success(card) }
+                }.onFailure { failure ->
+                    cancel(failure)
+                }
             }
         }
     }
@@ -100,5 +114,9 @@ internal class CardScannerInteractor(
     private fun cancel(failure: ProcessOutResult.Failure) {
         POLogger.info("Cancelled: %s", failure)
         _completion.update { Failure(failure) }
+    }
+
+    override fun clear() {
+        cardRecognitionSession.close()
     }
 }
