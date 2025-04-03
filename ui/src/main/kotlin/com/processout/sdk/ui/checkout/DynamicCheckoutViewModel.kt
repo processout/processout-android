@@ -385,6 +385,6 @@ internal class DynamicCheckoutViewModel private constructor(
         )
 
     override fun onCleared() {
-        interactor.onCleared()
+        interactor.clear()
     }
 }

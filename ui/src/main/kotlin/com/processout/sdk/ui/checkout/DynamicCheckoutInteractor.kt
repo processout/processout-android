@@ -1117,7 +1117,7 @@ internal class DynamicCheckoutInteractor(
         }
     }
 
-    fun onCleared() {
+    override fun clear() {
         handler.removeCallbacksAndMessages(null)
     }
 

@@ -82,7 +82,7 @@ data class POCardScannerConfiguration(
     data class CameraPreviewStyle(
         val border: POBorderStyle,
         @ColorRes
-        val overlayColorResId: Int
+        val overlayColorResId: Int? = null
     ) : Parcelable
 
     /**
