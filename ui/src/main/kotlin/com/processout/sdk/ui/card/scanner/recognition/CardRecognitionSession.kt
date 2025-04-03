@@ -14,6 +14,7 @@ import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.processout.sdk.core.POFailure.Code.Generic
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.logger.POLogger
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -93,6 +94,7 @@ internal class CardRecognitionSession(
             .installModules(request)
             .addOnSuccessListener {
                 if (it.areModulesAlreadyInstalled()) {
+                    POLogger.info("Text recognition module is already installed.")
                     _isReady.update { true }
                 }
             }.addOnFailureListener {
@@ -111,6 +113,7 @@ internal class CardRecognitionSession(
                     )
                 )
             }
+        POLogger.info("Requested to install text recognition module.")
     }
 
     private val moduleInstallStatusListener = object : InstallStatusListener {
@@ -119,7 +122,10 @@ internal class CardRecognitionSession(
                 moduleInstallClient.unregisterListener(this)
             }
             when (status.installState) {
-                STATE_COMPLETED -> _isReady.update { true }
+                STATE_COMPLETED -> {
+                    POLogger.info("Text recognition module has been installed successfully.")
+                    _isReady.update { true }
+                }
                 STATE_FAILED -> send(
                     ProcessOutResult.Failure(
                         code = Generic(),
@@ -230,7 +236,10 @@ internal class CardRecognitionSession(
             ?.key
 
     private fun send(failure: ProcessOutResult.Failure) {
-        scope.launch { _result.send(failure) }
+        scope.launch {
+            POLogger.info("Failure: %s", failure)
+            _result.send(failure)
+        }
     }
 
     override fun close() {
