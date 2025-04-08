@@ -51,6 +51,7 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
         super.onCreate(savedInstanceState)
         launcher = POCardTokenizationLauncher.create(
             from = this,
+            delegate = DefaultCardTokenizationDelegate(),
             callback = ::handle
         )
         customTabLauncher = PO3DSRedirectCustomTabLauncher.create(from = this)
