@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.SharedFlow
 /**
  * Dispatcher that allows to handle events during card tokenization.
  */
+@Deprecated(message = "Use POCardTokenizationDelegate instead.")
 interface POCardTokenizationEventDispatcher {
 
     /** Allows to subscribe for card tokenization lifecycle events. */

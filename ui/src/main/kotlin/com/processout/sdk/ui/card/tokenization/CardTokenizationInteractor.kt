@@ -53,7 +53,7 @@ internal class CardTokenizationInteractor(
     private val cardsRepository: POCardsRepository,
     private val cardSchemeProvider: CardSchemeProvider,
     private val addressSpecificationProvider: AddressSpecificationProvider,
-    private val legacyEventDispatcher: PODefaultCardTokenizationEventDispatcher,
+    private val legacyEventDispatcher: PODefaultCardTokenizationEventDispatcher, // TODO: remove before next major release.
     private val eventDispatcher: POEventDispatcher = POEventDispatcher
 ) : BaseInteractor() {
 
