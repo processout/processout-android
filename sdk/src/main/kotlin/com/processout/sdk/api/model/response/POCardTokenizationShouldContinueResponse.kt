@@ -1,5 +1,6 @@
 package com.processout.sdk.api.model.response
 
+import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.request.POCardTokenizationShouldContinueRequest
 import com.processout.sdk.core.ProcessOutResult
 import java.util.UUID
@@ -13,10 +14,10 @@ import java.util.UUID
  * @param[shouldContinue] Boolean that indicates whether the flow should continue or complete after the [failure].
  */
 data class POCardTokenizationShouldContinueResponse internal constructor(
-    val uuid: UUID,
+    override val uuid: UUID,
     val failure: ProcessOutResult.Failure,
     val shouldContinue: Boolean
-)
+) : POEventDispatcher.Response
 
 /**
  * Creates [POCardTokenizationShouldContinueResponse] from [POCardTokenizationShouldContinueRequest].
