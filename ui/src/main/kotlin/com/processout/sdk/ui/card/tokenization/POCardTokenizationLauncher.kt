@@ -9,9 +9,13 @@ import androidx.lifecycle.lifecycleScope
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
+import com.processout.sdk.api.model.request.POCardTokenizationPreferredSchemeRequest
+import com.processout.sdk.api.model.request.POCardTokenizationShouldContinueRequest
 import com.processout.sdk.api.model.response.POCard
+import com.processout.sdk.api.model.response.toResponse
 import com.processout.sdk.core.ProcessOutActivityResult
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * Launcher that starts [CardTokenizationActivity] and provides the result.
@@ -107,12 +111,36 @@ class POCardTokenizationLauncher private constructor(
 
     init {
         dispatchEvents()
+        dispatchPreferredScheme()
+        dispatchShouldContinue()
     }
 
     private fun dispatchEvents() {
         eventDispatcher.subscribe<POCardTokenizationEvent>(
             coroutineScope = scope
         ) { delegate.onEvent(it) }
+    }
+
+    private fun dispatchPreferredScheme() {
+        eventDispatcher.subscribeForRequest<POCardTokenizationPreferredSchemeRequest>(
+            coroutineScope = scope
+        ) { request ->
+            scope.launch {
+                val preferredScheme = delegate.preferredScheme(request.issuerInformation)
+                eventDispatcher.send(request.toResponse(preferredScheme))
+            }
+        }
+    }
+
+    private fun dispatchShouldContinue() {
+        eventDispatcher.subscribeForRequest<POCardTokenizationShouldContinueRequest>(
+            coroutineScope = scope
+        ) { request ->
+            scope.launch {
+                val shouldContinue = delegate.shouldContinue(request.failure)
+                eventDispatcher.send(request.toResponse(shouldContinue))
+            }
+        }
     }
 
     /**
