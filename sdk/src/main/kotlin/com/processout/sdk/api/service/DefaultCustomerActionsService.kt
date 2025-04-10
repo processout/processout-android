@@ -22,12 +22,12 @@ internal class DefaultCustomerActionsService(
 ) : CustomerActionsService {
 
     private companion object {
-        private const val DEVICE_CHANNEL = "app"
-        private const val TOKEN_PREFIX = "gway_req_"
-        private const val CHALLENGE_SUCCESS_RESPONSE_BODY = """{ "transStatus": "Y" }"""
-        private const val CHALLENGE_FAILURE_RESPONSE_BODY = """{ "transStatus": "N" }"""
-        private const val WEB_FINGERPRINT_TIMEOUT_RESPONSE_BODY = """{ "threeDS2FingerprintTimeout": true }"""
-        private const val WEB_FINGERPRINT_TIMEOUT_SECONDS = 10
+        const val DEVICE_CHANNEL = "app"
+        const val TOKEN_PREFIX = "gway_req_"
+        const val CHALLENGE_SUCCESS_RESPONSE_BODY = """{ "transStatus": "Y" }"""
+        const val CHALLENGE_FAILURE_RESPONSE_BODY = """{ "transStatus": "N" }"""
+        const val WEB_FINGERPRINT_TIMEOUT_RESPONSE_BODY = """{ "threeDS2FingerprintTimeout": true }"""
+        const val WEB_FINGERPRINT_TIMEOUT_SECONDS = 10
     }
 
     override suspend fun handle(
