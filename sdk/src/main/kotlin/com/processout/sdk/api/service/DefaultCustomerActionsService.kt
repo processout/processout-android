@@ -23,7 +23,7 @@ internal class DefaultCustomerActionsService(
 
     private companion object {
         const val DEVICE_CHANNEL = "app"
-        const val TOKEN_PREFIX = "gway_req_"
+        const val GATEWAY_TOKEN_PREFIX = "gway_req_"
         const val CHALLENGE_SUCCESS_RESPONSE_BODY = """{ "transStatus": "Y" }"""
         const val CHALLENGE_FAILURE_RESPONSE_BODY = """{ "transStatus": "N" }"""
         const val WEB_FINGERPRINT_TIMEOUT_RESPONSE_BODY = """{ "threeDS2FingerprintTimeout": true }"""
@@ -220,7 +220,7 @@ internal class DefaultCustomerActionsService(
 
     private fun encode(response: ChallengeResponse): String {
         val bytes = moshi.adapter(ChallengeResponse::class.java).toJson(response).toByteArray()
-        return TOKEN_PREFIX + Base64.encodeToString(bytes, Base64.NO_WRAP)
+        return GATEWAY_TOKEN_PREFIX + Base64.encodeToString(bytes, Base64.NO_WRAP)
     }
 
     @JsonClass(generateAdapter = true)
