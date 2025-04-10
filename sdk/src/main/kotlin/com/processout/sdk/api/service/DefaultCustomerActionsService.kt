@@ -11,6 +11,8 @@ import com.processout.sdk.core.POFailure.Code.Internal
 import com.processout.sdk.core.POFailure.Code.Timeout
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
+import com.processout.sdk.core.onFailure
+import com.processout.sdk.core.onSuccess
 import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
 import java.net.MalformedURLException
@@ -73,15 +75,13 @@ internal class DefaultCustomerActionsService(
                     .fromJson(String(Base64.decode(encodedConfiguration, Base64.NO_WRAP)))!!
                     .let { configuration ->
                         threeDSService.authenticationRequest(configuration) { result ->
-                            when (result) {
-                                is ProcessOutResult.Success -> {
-                                    val gatewayToken = encode(GatewayRequest(body = encode(result.value)))
-                                    continuation.resume(ProcessOutResult.Success(gatewayToken))
-                                }
-                                is ProcessOutResult.Failure -> {
-                                    POLogger.warn("Failed to create authentication request: %s", result)
-                                    continuation.resume(result)
-                                }
+                            result.onSuccess { authenticationRequest ->
+                                val gatewayRequest = GatewayRequest(body = encode(authenticationRequest))
+                                val gatewayToken = encode(gatewayRequest)
+                                continuation.resume(ProcessOutResult.Success(gatewayToken))
+                            }.onFailure { failure ->
+                                POLogger.warn("Failed to create authentication request: %s", failure)
+                                continuation.resume(failure)
                             }
                         }
                     }
@@ -106,18 +106,16 @@ internal class DefaultCustomerActionsService(
                     .fromJson(String(Base64.decode(encodedChallenge, Base64.NO_WRAP)))!!
                     .let { challenge ->
                         threeDSService.handle(challenge) { result ->
-                            when (result) {
-                                is ProcessOutResult.Success -> {
-                                    val body = if (result.value)
-                                        CHALLENGE_SUCCESS_GATEWAY_REQUEST_BODY
-                                    else CHALLENGE_FAILURE_GATEWAY_REQUEST_BODY
-                                    val gatewayToken = encode(GatewayRequest(body = body))
-                                    continuation.resume(ProcessOutResult.Success(gatewayToken))
-                                }
-                                is ProcessOutResult.Failure -> {
-                                    POLogger.warn("Failed to handle challenge: %s", result)
-                                    continuation.resume(result)
-                                }
+                            result.onSuccess { didSucceed ->
+                                val body = if (didSucceed)
+                                    CHALLENGE_SUCCESS_GATEWAY_REQUEST_BODY
+                                else CHALLENGE_FAILURE_GATEWAY_REQUEST_BODY
+
+                                val gatewayToken = encode(GatewayRequest(body = body))
+                                continuation.resume(ProcessOutResult.Success(gatewayToken))
+                            }.onFailure { failure ->
+                                POLogger.warn("Failed to handle challenge: %s", failure)
+                                continuation.resume(failure)
                             }
                         }
                     }
@@ -147,20 +145,16 @@ internal class DefaultCustomerActionsService(
                     when (result) {
                         is ProcessOutResult.Success -> continuation.resume(result)
                         is ProcessOutResult.Failure ->
-                            when (result.code == Timeout()) {
-                                true -> {
-                                    val gatewayToken = encode(
-                                        GatewayRequest(
-                                            body = WEB_FINGERPRINT_TIMEOUT_GATEWAY_REQUEST_BODY,
-                                            url = url
-                                        )
-                                    )
-                                    continuation.resume(ProcessOutResult.Success(gatewayToken))
-                                }
-                                false -> {
-                                    POLogger.warn("Failed to handle URL fingerprint: %s", result)
-                                    continuation.resume(result)
-                                }
+                            if (result.code == Timeout()) {
+                                val gatewayRequest = GatewayRequest(
+                                    body = WEB_FINGERPRINT_TIMEOUT_GATEWAY_REQUEST_BODY,
+                                    url = url
+                                )
+                                val gatewayToken = encode(gatewayRequest)
+                                continuation.resume(ProcessOutResult.Success(gatewayToken))
+                            } else {
+                                POLogger.warn("Failed to handle URL fingerprint: %s", result)
+                                continuation.resume(result)
                             }
                     }
                 }
@@ -207,7 +201,7 @@ internal class DefaultCustomerActionsService(
         else moshi.adapter(EphemeralPublicKey::class.java)
             .fromJson(request.sdkEphemeralPublicKey)!!
 
-        val authRequest = ThreeDS2AuthenticationRequest(
+        val authenticationRequest = ThreeDS2AuthenticationRequest(
             deviceChannel = DEVICE_CHANNEL,
             sdkAppID = request.sdkAppId,
             sdkEncData = request.deviceData,
@@ -215,11 +209,11 @@ internal class DefaultCustomerActionsService(
             sdkReferenceNumber = request.sdkReferenceNumber,
             sdkTransID = request.sdkTransactionId
         )
-        return moshi.adapter(ThreeDS2AuthenticationRequest::class.java).toJson(authRequest)
+        return moshi.adapter(ThreeDS2AuthenticationRequest::class.java).toJson(authenticationRequest)
     }
 
-    private fun encode(request: GatewayRequest): String {
-        val bytes = moshi.adapter(GatewayRequest::class.java).toJson(request).toByteArray()
+    private fun encode(gatewayRequest: GatewayRequest): String {
+        val bytes = moshi.adapter(GatewayRequest::class.java).toJson(gatewayRequest).toByteArray()
         return GATEWAY_TOKEN_PREFIX + Base64.encodeToString(bytes, Base64.NO_WRAP)
     }
 
