@@ -75,7 +75,7 @@ internal class DefaultCustomerActionsService(
                         threeDSService.authenticationRequest(configuration) { result ->
                             when (result) {
                                 is ProcessOutResult.Success -> {
-                                    val token = encode(ChallengeResponse(body = encode(result.value)))
+                                    val token = encode(GatewayRequest(body = encode(result.value)))
                                     continuation.resume(ProcessOutResult.Success(token))
                                 }
                                 is ProcessOutResult.Failure -> {
@@ -111,7 +111,7 @@ internal class DefaultCustomerActionsService(
                                     val body = if (result.value)
                                         CHALLENGE_SUCCESS_RESPONSE_BODY
                                     else CHALLENGE_FAILURE_RESPONSE_BODY
-                                    val token = encode(ChallengeResponse(body = body))
+                                    val token = encode(GatewayRequest(body = body))
                                     continuation.resume(ProcessOutResult.Success(token))
                                 }
                                 is ProcessOutResult.Failure -> {
@@ -150,7 +150,7 @@ internal class DefaultCustomerActionsService(
                             when (result.code == Timeout()) {
                                 true -> {
                                     val token = encode(
-                                        ChallengeResponse(
+                                        GatewayRequest(
                                             body = WEB_FINGERPRINT_TIMEOUT_RESPONSE_BODY,
                                             url = url
                                         )
@@ -218,13 +218,13 @@ internal class DefaultCustomerActionsService(
         return moshi.adapter(ThreeDS2AuthenticationRequest::class.java).toJson(authRequest)
     }
 
-    private fun encode(response: ChallengeResponse): String {
-        val bytes = moshi.adapter(ChallengeResponse::class.java).toJson(response).toByteArray()
+    private fun encode(request: GatewayRequest): String {
+        val bytes = moshi.adapter(GatewayRequest::class.java).toJson(request).toByteArray()
         return GATEWAY_TOKEN_PREFIX + Base64.encodeToString(bytes, Base64.NO_WRAP)
     }
 
     @JsonClass(generateAdapter = true)
-    internal data class ChallengeResponse(
+    internal data class GatewayRequest(
         val body: String,
         val url: String? = null
     )
