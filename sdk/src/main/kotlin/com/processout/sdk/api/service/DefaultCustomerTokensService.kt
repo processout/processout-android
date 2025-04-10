@@ -33,18 +33,16 @@ internal class DefaultCustomerTokensService(
             when (val result = repository.assignCustomerToken(request)) {
                 is ProcessOutResult.Success ->
                     result.value.customerAction?.let { action ->
-                        customerActionsService.handle(action, threeDSService) { serviceResult ->
-                            when (serviceResult) {
-                                is ProcessOutResult.Success ->
-                                    assignCustomerToken(
-                                        request.copy(source = serviceResult.value),
-                                        threeDSService
-                                    )
-                                is ProcessOutResult.Failure -> {
-                                    threeDSService.cleanup()
-                                    scope.launch {
-                                        _assignCustomerTokenResult.emit(serviceResult)
-                                    }
+                        when (val serviceResult = customerActionsService.handle(action, threeDSService)) {
+                            is ProcessOutResult.Success ->
+                                assignCustomerToken(
+                                    request.copy(source = serviceResult.value),
+                                    threeDSService
+                                )
+                            is ProcessOutResult.Failure -> {
+                                threeDSService.cleanup()
+                                scope.launch {
+                                    _assignCustomerTokenResult.emit(serviceResult)
                                 }
                             }
                         }
@@ -102,19 +100,17 @@ internal class DefaultCustomerTokensService(
             when (val result = repository.assignCustomerToken(request)) {
                 is ProcessOutResult.Success ->
                     result.value.customerAction?.let { action ->
-                        customerActionsService.handle(action, threeDSService) { serviceResult ->
-                            @Suppress("DEPRECATION")
-                            when (serviceResult) {
-                                is ProcessOutResult.Success ->
-                                    assignCustomerToken(
-                                        request.copy(source = serviceResult.value),
-                                        threeDSService,
-                                        callback
-                                    )
-                                is ProcessOutResult.Failure -> {
-                                    threeDSService.cleanup()
-                                    callback(serviceResult)
-                                }
+                        when (val serviceResult = customerActionsService.handle(action, threeDSService)) {
+                            is ProcessOutResult.Success ->
+                                @Suppress("DEPRECATION")
+                                assignCustomerToken(
+                                    request.copy(source = serviceResult.value),
+                                    threeDSService,
+                                    callback
+                                )
+                            is ProcessOutResult.Failure -> {
+                                threeDSService.cleanup()
+                                callback(serviceResult)
                             }
                         }
                     } ?: run {

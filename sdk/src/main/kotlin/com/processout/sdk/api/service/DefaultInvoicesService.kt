@@ -36,18 +36,16 @@ internal class DefaultInvoicesService(
             when (val result = repository.authorizeInvoice(request)) {
                 is ProcessOutResult.Success ->
                     result.value.customerAction?.let { action ->
-                        customerActionsService.handle(action, threeDSService) { serviceResult ->
-                            when (serviceResult) {
-                                is ProcessOutResult.Success ->
-                                    authorizeInvoice(
-                                        request.copy(source = serviceResult.value),
-                                        threeDSService
-                                    )
-                                is ProcessOutResult.Failure -> {
-                                    threeDSService.cleanup()
-                                    scope.launch {
-                                        _authorizeInvoiceResult.emit(serviceResult)
-                                    }
+                        when (val serviceResult = customerActionsService.handle(action, threeDSService)) {
+                            is ProcessOutResult.Success ->
+                                authorizeInvoice(
+                                    request.copy(source = serviceResult.value),
+                                    threeDSService
+                                )
+                            is ProcessOutResult.Failure -> {
+                                threeDSService.cleanup()
+                                scope.launch {
+                                    _authorizeInvoiceResult.emit(serviceResult)
                                 }
                             }
                         }
@@ -83,19 +81,17 @@ internal class DefaultInvoicesService(
         when (val result = repository.authorizeInvoice(request)) {
             is ProcessOutResult.Success ->
                 result.value.customerAction?.let { action ->
-                    customerActionsService.handle(action, threeDSService) { serviceResult ->
-                        @Suppress("DEPRECATION")
-                        when (serviceResult) {
-                            is ProcessOutResult.Success ->
-                                authorizeInvoice(
-                                    request.copy(source = serviceResult.value),
-                                    threeDSService,
-                                    callback
-                                )
-                            is ProcessOutResult.Failure -> {
-                                threeDSService.cleanup()
-                                callback(serviceResult)
-                            }
+                    when (val serviceResult = customerActionsService.handle(action, threeDSService)) {
+                        is ProcessOutResult.Success ->
+                            @Suppress("DEPRECATION")
+                            authorizeInvoice(
+                                request.copy(source = serviceResult.value),
+                                threeDSService,
+                                callback
+                            )
+                        is ProcessOutResult.Failure -> {
+                            threeDSService.cleanup()
+                            callback(serviceResult)
                         }
                     }
                 } ?: run {

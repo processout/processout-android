@@ -5,9 +5,8 @@ import com.processout.sdk.core.ProcessOutResult
 
 internal interface CustomerActionsService {
 
-    fun handle(
+    suspend fun handle(
         action: CustomerAction,
-        threeDSService: PO3DSService,
-        callback: (ProcessOutResult<String>) -> Unit
-    )
+        threeDSService: PO3DSService
+    ): ProcessOutResult<String>
 }
