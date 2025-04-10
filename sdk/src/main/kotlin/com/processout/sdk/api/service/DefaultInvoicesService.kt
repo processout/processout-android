@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 internal class DefaultInvoicesService(
     private val scope: CoroutineScope,
     private val repository: InvoicesRepository,
-    private val threeDSService: ThreeDSService
+    private val customerActionsService: CustomerActionsService
 ) : POInvoicesService {
 
     private val _authorizeInvoiceResult = MutableSharedFlow<ProcessOutResult<String>>()
@@ -36,22 +36,21 @@ internal class DefaultInvoicesService(
             when (val result = repository.authorizeInvoice(request)) {
                 is ProcessOutResult.Success ->
                     result.value.customerAction?.let { action ->
-                        this@DefaultInvoicesService.threeDSService
-                            .handle(action, threeDSService) { serviceResult ->
-                                when (serviceResult) {
-                                    is ProcessOutResult.Success ->
-                                        authorizeInvoice(
-                                            request.copy(source = serviceResult.value),
-                                            threeDSService
-                                        )
-                                    is ProcessOutResult.Failure -> {
-                                        threeDSService.cleanup()
-                                        scope.launch {
-                                            _authorizeInvoiceResult.emit(serviceResult)
-                                        }
+                        customerActionsService.handle(action, threeDSService) { serviceResult ->
+                            when (serviceResult) {
+                                is ProcessOutResult.Success ->
+                                    authorizeInvoice(
+                                        request.copy(source = serviceResult.value),
+                                        threeDSService
+                                    )
+                                is ProcessOutResult.Failure -> {
+                                    threeDSService.cleanup()
+                                    scope.launch {
+                                        _authorizeInvoiceResult.emit(serviceResult)
                                     }
                                 }
                             }
+                        }
                     } ?: run {
                         threeDSService.cleanup()
                         scope.launch {
@@ -84,22 +83,21 @@ internal class DefaultInvoicesService(
         when (val result = repository.authorizeInvoice(request)) {
             is ProcessOutResult.Success ->
                 result.value.customerAction?.let { action ->
-                    this@DefaultInvoicesService.threeDSService
-                        .handle(action, threeDSService) { serviceResult ->
-                            @Suppress("DEPRECATION")
-                            when (serviceResult) {
-                                is ProcessOutResult.Success ->
-                                    authorizeInvoice(
-                                        request.copy(source = serviceResult.value),
-                                        threeDSService,
-                                        callback
-                                    )
-                                is ProcessOutResult.Failure -> {
-                                    threeDSService.cleanup()
-                                    callback(serviceResult)
-                                }
+                    customerActionsService.handle(action, threeDSService) { serviceResult ->
+                        @Suppress("DEPRECATION")
+                        when (serviceResult) {
+                            is ProcessOutResult.Success ->
+                                authorizeInvoice(
+                                    request.copy(source = serviceResult.value),
+                                    threeDSService,
+                                    callback
+                                )
+                            is ProcessOutResult.Failure -> {
+                                threeDSService.cleanup()
+                                callback(serviceResult)
                             }
                         }
+                    }
                 } ?: run {
                     threeDSService.cleanup()
                     callback(ProcessOutResult.Success(Unit))

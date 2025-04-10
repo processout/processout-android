@@ -14,7 +14,9 @@ import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
 import java.net.MalformedURLException
 
-internal class DefaultThreeDSService(private val moshi: Moshi) : ThreeDSService {
+internal class DefaultCustomerActionsService(
+    private val moshi: Moshi
+) : CustomerActionsService {
 
     private companion object {
         private const val DEVICE_CHANNEL = "app"
@@ -27,19 +29,19 @@ internal class DefaultThreeDSService(private val moshi: Moshi) : ThreeDSService 
 
     override fun handle(
         action: CustomerAction,
-        delegate: PO3DSService,
+        threeDSService: PO3DSService,
         callback: (ProcessOutResult<String>) -> Unit
     ) {
         POLogger.info("Handling customer action type: %s", action.rawType)
         when (action.type()) {
             FINGERPRINT_MOBILE -> fingerprintMobile(
-                encodedConfiguration = action.value, delegate, callback
+                encodedConfiguration = action.value, threeDSService, callback
             )
             CHALLENGE_MOBILE -> challengeMobile(
-                encodedChallenge = action.value, delegate, callback
+                encodedChallenge = action.value, threeDSService, callback
             )
-            FINGERPRINT -> fingerprint(url = action.value, delegate, callback)
-            REDIRECT, URL -> redirect(url = action.value, delegate, callback)
+            FINGERPRINT -> fingerprint(url = action.value, threeDSService, callback)
+            REDIRECT, URL -> redirect(url = action.value, threeDSService, callback)
             UNSUPPORTED -> callback(
                 ProcessOutResult.Failure(
                     POFailure.Code.Internal(),
@@ -51,14 +53,14 @@ internal class DefaultThreeDSService(private val moshi: Moshi) : ThreeDSService 
 
     private fun fingerprintMobile(
         encodedConfiguration: String,
-        delegate: PO3DSService,
+        threeDSService: PO3DSService,
         callback: (ProcessOutResult<String>) -> Unit
     ) {
         try {
             moshi.adapter(PO3DS2Configuration::class.java)
                 .fromJson(String(Base64.decode(encodedConfiguration, Base64.NO_WRAP)))!!
                 .let { configuration ->
-                    delegate.authenticationRequest(configuration) { result ->
+                    threeDSService.authenticationRequest(configuration) { result ->
                         when (result) {
                             is ProcessOutResult.Success -> callback(
                                 ChallengeResponse(body = encode(result.value)), callback
@@ -82,14 +84,14 @@ internal class DefaultThreeDSService(private val moshi: Moshi) : ThreeDSService 
 
     private fun challengeMobile(
         encodedChallenge: String,
-        delegate: PO3DSService,
+        threeDSService: PO3DSService,
         callback: (ProcessOutResult<String>) -> Unit
     ) {
         try {
             moshi.adapter(PO3DS2Challenge::class.java)
                 .fromJson(String(Base64.decode(encodedChallenge, Base64.NO_WRAP)))!!
                 .let { challenge ->
-                    delegate.handle(challenge) { result ->
+                    threeDSService.handle(challenge) { result ->
                         when (result) {
                             is ProcessOutResult.Success -> {
                                 val body = if (result.value)
@@ -116,11 +118,11 @@ internal class DefaultThreeDSService(private val moshi: Moshi) : ThreeDSService 
 
     private fun fingerprint(
         url: String,
-        delegate: PO3DSService,
+        threeDSService: PO3DSService,
         callback: (ProcessOutResult<String>) -> Unit
     ) {
         try {
-            delegate.handle(
+            threeDSService.handle(
                 PO3DSRedirect(
                     url = java.net.URL(url),
                     timeoutSeconds = WEB_FINGERPRINT_TIMEOUT_SECONDS
@@ -163,11 +165,11 @@ internal class DefaultThreeDSService(private val moshi: Moshi) : ThreeDSService 
 
     private fun redirect(
         url: String,
-        delegate: PO3DSService,
+        threeDSService: PO3DSService,
         callback: (ProcessOutResult<String>) -> Unit
     ) {
         try {
-            delegate.handle(PO3DSRedirect(url = java.net.URL(url)), callback)
+            threeDSService.handle(PO3DSRedirect(url = java.net.URL(url)), callback)
         } catch (e: MalformedURLException) {
             callback(
                 ProcessOutResult.Failure(
