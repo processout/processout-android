@@ -75,8 +75,8 @@ internal class DefaultCustomerActionsService(
                         threeDSService.authenticationRequest(configuration) { result ->
                             when (result) {
                                 is ProcessOutResult.Success -> {
-                                    val token = encode(GatewayRequest(body = encode(result.value)))
-                                    continuation.resume(ProcessOutResult.Success(token))
+                                    val gatewayToken = encode(GatewayRequest(body = encode(result.value)))
+                                    continuation.resume(ProcessOutResult.Success(gatewayToken))
                                 }
                                 is ProcessOutResult.Failure -> {
                                     POLogger.warn("Failed to create authentication request: %s", result)
@@ -111,8 +111,8 @@ internal class DefaultCustomerActionsService(
                                     val body = if (result.value)
                                         CHALLENGE_SUCCESS_RESPONSE_BODY
                                     else CHALLENGE_FAILURE_RESPONSE_BODY
-                                    val token = encode(GatewayRequest(body = body))
-                                    continuation.resume(ProcessOutResult.Success(token))
+                                    val gatewayToken = encode(GatewayRequest(body = body))
+                                    continuation.resume(ProcessOutResult.Success(gatewayToken))
                                 }
                                 is ProcessOutResult.Failure -> {
                                     POLogger.warn("Failed to handle challenge: %s", result)
@@ -149,13 +149,13 @@ internal class DefaultCustomerActionsService(
                         is ProcessOutResult.Failure ->
                             when (result.code == Timeout()) {
                                 true -> {
-                                    val token = encode(
+                                    val gatewayToken = encode(
                                         GatewayRequest(
                                             body = WEB_FINGERPRINT_TIMEOUT_RESPONSE_BODY,
                                             url = url
                                         )
                                     )
-                                    continuation.resume(ProcessOutResult.Success(token))
+                                    continuation.resume(ProcessOutResult.Success(gatewayToken))
                                 }
                                 false -> {
                                     POLogger.warn("Failed to handle URL fingerprint: %s", result)
