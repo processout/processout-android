@@ -24,9 +24,9 @@ internal class DefaultCustomerActionsService(
     private companion object {
         const val DEVICE_CHANNEL = "app"
         const val GATEWAY_TOKEN_PREFIX = "gway_req_"
-        const val CHALLENGE_SUCCESS_RESPONSE_BODY = """{ "transStatus": "Y" }"""
-        const val CHALLENGE_FAILURE_RESPONSE_BODY = """{ "transStatus": "N" }"""
-        const val WEB_FINGERPRINT_TIMEOUT_RESPONSE_BODY = """{ "threeDS2FingerprintTimeout": true }"""
+        const val CHALLENGE_SUCCESS_GATEWAY_REQUEST_BODY = """{ "transStatus": "Y" }"""
+        const val CHALLENGE_FAILURE_GATEWAY_REQUEST_BODY = """{ "transStatus": "N" }"""
+        const val WEB_FINGERPRINT_TIMEOUT_GATEWAY_REQUEST_BODY = """{ "threeDS2FingerprintTimeout": true }"""
         const val WEB_FINGERPRINT_TIMEOUT_SECONDS = 10
     }
 
@@ -109,8 +109,8 @@ internal class DefaultCustomerActionsService(
                             when (result) {
                                 is ProcessOutResult.Success -> {
                                     val body = if (result.value)
-                                        CHALLENGE_SUCCESS_RESPONSE_BODY
-                                    else CHALLENGE_FAILURE_RESPONSE_BODY
+                                        CHALLENGE_SUCCESS_GATEWAY_REQUEST_BODY
+                                    else CHALLENGE_FAILURE_GATEWAY_REQUEST_BODY
                                     val gatewayToken = encode(GatewayRequest(body = body))
                                     continuation.resume(ProcessOutResult.Success(gatewayToken))
                                 }
@@ -151,7 +151,7 @@ internal class DefaultCustomerActionsService(
                                 true -> {
                                     val gatewayToken = encode(
                                         GatewayRequest(
-                                            body = WEB_FINGERPRINT_TIMEOUT_RESPONSE_BODY,
+                                            body = WEB_FINGERPRINT_TIMEOUT_GATEWAY_REQUEST_BODY,
                                             url = url
                                         )
                                     )
