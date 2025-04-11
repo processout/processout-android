@@ -33,31 +33,31 @@ internal class DefaultCustomerActionsService(
     }
 
     override suspend fun handle(
-        action: CustomerAction,
+        customerAction: CustomerAction,
         threeDSService: PO3DSService
     ): ProcessOutResult<String> {
-        POLogger.info("Handling customer action type: %s", action.rawType)
-        return when (action.type()) {
+        POLogger.info("Handling customer action type: %s", customerAction.rawType)
+        return when (customerAction.type()) {
             FINGERPRINT_MOBILE -> fingerprintMobile(
-                encodedConfiguration = action.value,
+                encodedConfiguration = customerAction.value,
                 threeDSService = threeDSService
             )
             CHALLENGE_MOBILE -> challengeMobile(
-                encodedChallenge = action.value,
+                encodedChallenge = customerAction.value,
                 threeDSService = threeDSService
             )
             FINGERPRINT -> fingerprint(
-                url = action.value,
+                url = customerAction.value,
                 threeDSService = threeDSService
             )
             REDIRECT, URL -> redirect(
-                url = action.value,
+                url = customerAction.value,
                 threeDSService = threeDSService
             )
             UNSUPPORTED -> {
                 val failure = ProcessOutResult.Failure(
                     code = Internal(),
-                    message = "Unsupported 3DS customer action type: ${action.rawType}"
+                    message = "Unsupported 3DS customer action type: ${customerAction.rawType}"
                 )
                 POLogger.error("%s", failure)
                 failure
