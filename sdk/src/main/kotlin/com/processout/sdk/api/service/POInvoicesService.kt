@@ -23,26 +23,42 @@ interface POInvoicesService {
      * Subscribe to this flow to collect result from [authorizeInvoice] invocation.
      * Result contains _invoiceId_ that was used for authorization.
      */
+    @Deprecated(message = "Use function: authorize(request, threeDSService)")
     val authorizeInvoiceResult: SharedFlow<ProcessOutResult<String>>
 
     /**
      * Authorize invoice with the given request and 3DS service implementation.
      * Collect result by subscribing to [authorizeInvoiceResult] flow before invoking invoice authorization.
      */
+    @Deprecated(
+        message = "Use replacement function.",
+        replaceWith = ReplaceWith("authorize(request, threeDSService)")
+    )
     fun authorizeInvoice(
         request: POInvoiceAuthorizationRequest,
         threeDSService: PO3DSService
     )
 
+    /**
+     * Authorize invoice with the given request and 3DS service implementation.
+     */
     @Deprecated(
-        message = "Use function authorizeInvoice(request, threeDSService)",
-        replaceWith = ReplaceWith("authorizeInvoice(request, threeDSService)")
+        message = "Use replacement function.",
+        replaceWith = ReplaceWith("authorize(request, threeDSService)")
     )
     fun authorizeInvoice(
         request: POInvoiceAuthorizationRequest,
         threeDSService: PO3DSService,
         callback: (ProcessOutResult<Unit>) -> Unit
     ): Job
+
+    /**
+     * Authorize invoice with the given request and 3DS service implementation.
+     */
+    suspend fun authorize(
+        request: POInvoiceAuthorizationRequest,
+        threeDSService: PO3DSService
+    ): ProcessOutResult<Unit>
 
     /**
      * Initiates native alternative payment with the given request.
