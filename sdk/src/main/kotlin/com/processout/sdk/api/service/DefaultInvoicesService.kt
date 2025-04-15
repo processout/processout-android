@@ -31,41 +31,39 @@ internal class DefaultInvoicesService(
     override fun authorizeInvoice(
         request: POInvoiceAuthorizationRequest,
         threeDSService: PO3DSService
-    ) {
-        scope.launch {
-            val logAttributes = mapOf(POLogAttribute.INVOICE_ID to request.invoiceId)
-            repository.authorizeInvoice(request)
-                .onSuccess { response ->
-                    if (response.customerAction == null) {
-                        threeDSService.cleanup()
-                        _authorizeInvoiceResult.emit(
-                            ProcessOutResult.Success(request.invoiceId)
-                        )
-                        return@onSuccess
-                    }
-                    customerActionsService.handle(response.customerAction, threeDSService)
-                        .onSuccess { newSource ->
-                            authorizeInvoice(
-                                request.copy(source = newSource),
-                                threeDSService
-                            )
-                        }.onFailure { failure ->
-                            POLogger.warn(
-                                message = "Failed to authorize invoice: %s", failure,
-                                attributes = logAttributes
-                            )
-                            threeDSService.cleanup()
-                            _authorizeInvoiceResult.emit(failure)
-                        }
-                }.onFailure { failure ->
-                    POLogger.warn(
-                        message = "Failed to authorize invoice: %s", failure,
-                        attributes = logAttributes
-                    )
+    ): Job = scope.launch {
+        val logAttributes = mapOf(POLogAttribute.INVOICE_ID to request.invoiceId)
+        repository.authorizeInvoice(request)
+            .onSuccess { response ->
+                if (response.customerAction == null) {
                     threeDSService.cleanup()
-                    _authorizeInvoiceResult.emit(failure)
+                    _authorizeInvoiceResult.emit(
+                        ProcessOutResult.Success(request.invoiceId)
+                    )
+                    return@onSuccess
                 }
-        }
+                customerActionsService.handle(response.customerAction, threeDSService)
+                    .onSuccess { newSource ->
+                        authorizeInvoice(
+                            request.copy(source = newSource),
+                            threeDSService
+                        )
+                    }.onFailure { failure ->
+                        POLogger.warn(
+                            message = "Failed to authorize invoice: %s", failure,
+                            attributes = logAttributes
+                        )
+                        threeDSService.cleanup()
+                        _authorizeInvoiceResult.emit(failure)
+                    }
+            }.onFailure { failure ->
+                POLogger.warn(
+                    message = "Failed to authorize invoice: %s", failure,
+                    attributes = logAttributes
+                )
+                threeDSService.cleanup()
+                _authorizeInvoiceResult.emit(failure)
+            }
     }
 
     override fun authorizeInvoice(

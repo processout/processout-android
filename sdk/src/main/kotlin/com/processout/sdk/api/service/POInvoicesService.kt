@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.SharedFlow
 interface POInvoicesService {
 
     /**
-     * Subscribe to this flow to collect result from [authorizeInvoice] invocation.
+     * Subscribe to this flow to collect the result from [authorizeInvoice] invocation.
      * Result contains _invoiceId_ that was used for authorization.
      */
     @Deprecated(message = "Use function: authorize(request, threeDSService)")
@@ -28,7 +28,8 @@ interface POInvoicesService {
 
     /**
      * Authorize invoice with the given request and 3DS service implementation.
-     * Collect result by subscribing to [authorizeInvoiceResult] flow before invoking invoice authorization.
+     * Collect the result by subscribing to [authorizeInvoiceResult] flow before invoking this function.
+     * Returns coroutine job.
      */
     @Deprecated(
         message = "Use replacement function.",
@@ -37,10 +38,12 @@ interface POInvoicesService {
     fun authorizeInvoice(
         request: POInvoiceAuthorizationRequest,
         threeDSService: PO3DSService
-    )
+    ): Job
 
     /**
      * Authorize invoice with the given request and 3DS service implementation.
+     * Result provided in the callback.
+     * Returns coroutine job.
      */
     @Deprecated(
         message = "Use replacement function.",
