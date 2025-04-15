@@ -10,6 +10,7 @@ import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
 import com.processout.sdk.api.model.request.POCardTokenizationPreferredSchemeRequest
+import com.processout.sdk.api.model.request.POCardTokenizationProcessingRequest
 import com.processout.sdk.api.model.request.POCardTokenizationShouldContinueRequest
 import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.api.model.response.toResponse
@@ -111,6 +112,7 @@ class POCardTokenizationLauncher private constructor(
 
     init {
         dispatchEvents()
+        dispatchTokenizedCard()
         dispatchPreferredScheme()
         dispatchShouldContinue()
     }
@@ -119,6 +121,20 @@ class POCardTokenizationLauncher private constructor(
         eventDispatcher.subscribe<POCardTokenizationEvent>(
             coroutineScope = scope
         ) { delegate.onEvent(it) }
+    }
+
+    private fun dispatchTokenizedCard() {
+        eventDispatcher.subscribeForRequest<POCardTokenizationProcessingRequest>(
+            coroutineScope = scope
+        ) { request ->
+            scope.launch {
+                val result = delegate.processTokenizedCard(
+                    card = request.card,
+                    saveCard = request.saveCard
+                )
+                eventDispatcher.send(request.toResponse(result))
+            }
+        }
     }
 
     private fun dispatchPreferredScheme() {
