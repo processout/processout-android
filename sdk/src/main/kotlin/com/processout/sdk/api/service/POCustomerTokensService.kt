@@ -8,6 +8,7 @@ import com.processout.sdk.api.model.response.POCustomer
 import com.processout.sdk.api.model.response.POCustomerToken
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.SharedFlow
 
 /**
@@ -18,27 +19,48 @@ interface POCustomerTokensService {
     /**
      * Subscribe to this flow to collect result from [assignCustomerToken] invocation.
      */
+    @Deprecated(message = "Use function: assign(request, threeDSService)")
     val assignCustomerTokenResult: SharedFlow<ProcessOutResult<POCustomerToken>>
 
     /**
-     * Assign new source to existing customer token and optionally verify it
+     * Assign new source to the existing customer token and optionally verify it
      * with the given request and 3DS service implementation.
-     * Collect result by subscribing to [assignCustomerTokenResult] flow before invoking token assignment.
+     * Collect the result by subscribing to [assignCustomerTokenResult] flow before invoking this function.
+     * Returns coroutine job.
      */
+    @Deprecated(
+        message = "Use replacement function.",
+        replaceWith = ReplaceWith("assign(request, threeDSService)")
+    )
     fun assignCustomerToken(
         request: POAssignCustomerTokenRequest,
         threeDSService: PO3DSService
-    )
+    ): Job
 
+    /**
+     * Assign new source to the existing customer token and optionally verify it
+     * with the given request and 3DS service implementation.
+     * Result provided in the callback.
+     * Returns coroutine job.
+     */
     @Deprecated(
-        message = "Use function assignCustomerToken(request, threeDSService)",
-        replaceWith = ReplaceWith("assignCustomerToken(request, threeDSService)")
+        message = "Use replacement function.",
+        replaceWith = ReplaceWith("assign(request, threeDSService)")
     )
     fun assignCustomerToken(
         request: POAssignCustomerTokenRequest,
         threeDSService: PO3DSService,
         callback: (ProcessOutResult<POCustomerToken>) -> Unit
-    )
+    ): Job
+
+    /**
+     * Assign new source to the existing customer token and optionally verify it
+     * with the given request and 3DS service implementation.
+     */
+    suspend fun assign(
+        request: POAssignCustomerTokenRequest,
+        threeDSService: PO3DSService
+    ): ProcessOutResult<POCustomerToken>
 
     /**
      * Deletes customer token.

@@ -1,3 +1,5 @@
+@file:Suppress("OVERRIDE_DEPRECATION")
+
 package com.processout.sdk.api.service
 
 import com.processout.sdk.api.model.request.POAssignCustomerTokenRequest
@@ -7,14 +9,17 @@ import com.processout.sdk.api.model.request.PODeleteCustomerTokenRequest
 import com.processout.sdk.api.model.response.POCustomer
 import com.processout.sdk.api.model.response.POCustomerToken
 import com.processout.sdk.api.repository.CustomerTokensRepository
-import com.processout.sdk.core.POFailure
+import com.processout.sdk.core.POFailure.Code.Cancelled
+import com.processout.sdk.core.POFailure.Code.Internal
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.fold
 import com.processout.sdk.core.logger.POLogAttribute
 import com.processout.sdk.core.logger.POLogger
-import kotlinx.coroutines.CoroutineScope
+import com.processout.sdk.core.onFailure
+import com.processout.sdk.core.onSuccess
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.launch
 
 internal class DefaultCustomerTokensService(
     private val scope: CoroutineScope,
@@ -28,121 +33,177 @@ internal class DefaultCustomerTokensService(
     override fun assignCustomerToken(
         request: POAssignCustomerTokenRequest,
         threeDSService: PO3DSService
-    ) {
-        scope.launch {
-            when (val result = repository.assignCustomerToken(request)) {
-                is ProcessOutResult.Success ->
-                    result.value.customerAction?.let { action ->
-                        when (val serviceResult = customerActionsService.handle(action, threeDSService)) {
-                            is ProcessOutResult.Success ->
-                                assignCustomerToken(
-                                    request.copy(source = serviceResult.value),
-                                    threeDSService
-                                )
-                            is ProcessOutResult.Failure -> {
-                                threeDSService.cleanup()
-                                scope.launch {
-                                    _assignCustomerTokenResult.emit(serviceResult)
-                                }
-                            }
-                        }
-                    } ?: run {
-                        threeDSService.cleanup()
-                        result.value.token?.let { token ->
-                            scope.launch {
-                                _assignCustomerTokenResult.emit(
-                                    ProcessOutResult.Success(token)
-                                )
-                            }
-                        } ?: scope.launch {
-                            _assignCustomerTokenResult.emit(
-                                ProcessOutResult.Failure(
-                                    POFailure.Code.Internal(),
-                                    "Customer token is 'null'."
-                                ).also { failure ->
-                                    POLogger.warn(
-                                        message = "Failed to assign customer token: %s", failure,
-                                        attributes = mapOf(
-                                            POLogAttribute.CUSTOMER_ID to request.customerId,
-                                            POLogAttribute.CUSTOMER_TOKEN_ID to request.tokenId
-                                        )
-                                    )
-                                }
-                            )
-                        }
-                    }
-                is ProcessOutResult.Failure -> {
-                    POLogger.warn(
-                        message = "Failed to assign customer token: %s", result,
-                        attributes = mapOf(
-                            POLogAttribute.CUSTOMER_ID to request.customerId,
-                            POLogAttribute.CUSTOMER_TOKEN_ID to request.tokenId
-                        )
-                    )
+    ): Job = scope.launch {
+        val logAttributes = mapOf(
+            POLogAttribute.CUSTOMER_ID to request.customerId,
+            POLogAttribute.CUSTOMER_TOKEN_ID to request.tokenId
+        )
+        repository.assignCustomerToken(request)
+            .onSuccess { response ->
+                if (response.customerAction == null) {
                     threeDSService.cleanup()
-                    scope.launch { _assignCustomerTokenResult.emit(result) }
+                    if (response.token == null) {
+                        val failure = ProcessOutResult.Failure(
+                            code = Internal(),
+                            message = "Customer token is null."
+                        )
+                        POLogger.warn(
+                            message = "Failed to assign customer token: %s", failure,
+                            attributes = logAttributes
+                        )
+                        _assignCustomerTokenResult.emit(failure)
+                        return@onSuccess
+                    }
+                    _assignCustomerTokenResult.emit(
+                        ProcessOutResult.Success(response.token)
+                    )
+                    return@onSuccess
                 }
+                customerActionsService.handle(response.customerAction, threeDSService)
+                    .onSuccess { newSource ->
+                        assignCustomerToken(
+                            request.copy(source = newSource),
+                            threeDSService
+                        )
+                    }.onFailure { failure ->
+                        POLogger.warn(
+                            message = "Failed to assign customer token: %s", failure,
+                            attributes = logAttributes
+                        )
+                        threeDSService.cleanup()
+                        _assignCustomerTokenResult.emit(failure)
+                    }
+            }.onFailure { failure ->
+                POLogger.warn(
+                    message = "Failed to assign customer token: %s", failure,
+                    attributes = logAttributes
+                )
+                threeDSService.cleanup()
+                _assignCustomerTokenResult.emit(failure)
             }
-        }
     }
 
-
-    @Deprecated(
-        message = "Use function assignCustomerToken(request, threeDSService)",
-        replaceWith = ReplaceWith("assignCustomerToken(request, threeDSService)")
-    )
     override fun assignCustomerToken(
         request: POAssignCustomerTokenRequest,
         threeDSService: PO3DSService,
         callback: (ProcessOutResult<POCustomerToken>) -> Unit
-    ) {
-        scope.launch {
-            when (val result = repository.assignCustomerToken(request)) {
-                is ProcessOutResult.Success ->
-                    result.value.customerAction?.let { action ->
-                        when (val serviceResult = customerActionsService.handle(action, threeDSService)) {
-                            is ProcessOutResult.Success ->
-                                @Suppress("DEPRECATION")
-                                assignCustomerToken(
-                                    request.copy(source = serviceResult.value),
-                                    threeDSService,
-                                    callback
-                                )
-                            is ProcessOutResult.Failure -> {
-                                threeDSService.cleanup()
-                                callback(serviceResult)
-                            }
-                        }
-                    } ?: run {
+    ): Job = scope.launch {
+        val logAttributes = mapOf(
+            POLogAttribute.CUSTOMER_ID to request.customerId,
+            POLogAttribute.CUSTOMER_TOKEN_ID to request.tokenId
+        )
+        repository.assignCustomerToken(request)
+            .onSuccess { response ->
+                if (response.customerAction == null) {
+                    threeDSService.cleanup()
+                    if (response.token == null) {
+                        val failure = ProcessOutResult.Failure(
+                            code = Internal(),
+                            message = "Customer token is null."
+                        )
+                        POLogger.warn(
+                            message = "Failed to assign customer token: %s", failure,
+                            attributes = logAttributes
+                        )
+                        callback(failure)
+                        return@onSuccess
+                    }
+                    callback(ProcessOutResult.Success(response.token))
+                    return@onSuccess
+                }
+                customerActionsService.handle(response.customerAction, threeDSService)
+                    .onSuccess { newSource ->
+                        assignCustomerToken(
+                            request.copy(source = newSource),
+                            threeDSService,
+                            callback
+                        )
+                    }.onFailure { failure ->
+                        POLogger.warn(
+                            message = "Failed to assign customer token: %s", failure,
+                            attributes = logAttributes
+                        )
                         threeDSService.cleanup()
-                        result.value.token?.let { token ->
-                            callback(ProcessOutResult.Success(token))
-                        } ?: callback(
-                            ProcessOutResult.Failure(
-                                POFailure.Code.Internal(),
-                                "Customer token is 'null'."
-                            ).also { failure ->
+                        callback(failure)
+                    }
+            }.onFailure { failure ->
+                POLogger.warn(
+                    message = "Failed to assign customer token: %s", failure,
+                    attributes = logAttributes
+                )
+                threeDSService.cleanup()
+                callback(failure)
+            }
+    }
+
+    override suspend fun assign(
+        request: POAssignCustomerTokenRequest,
+        threeDSService: PO3DSService
+    ): ProcessOutResult<POCustomerToken> {
+        val logAttributes = mapOf(
+            POLogAttribute.CUSTOMER_ID to request.customerId,
+            POLogAttribute.CUSTOMER_TOKEN_ID to request.tokenId
+        )
+        return try {
+            repository.assignCustomerToken(request)
+                .fold(
+                    onSuccess = { response ->
+                        if (response.customerAction == null) {
+                            threeDSService.cleanup()
+                            if (response.token == null) {
+                                val failure = ProcessOutResult.Failure(
+                                    code = Internal(),
+                                    message = "Customer token is null."
+                                )
                                 POLogger.warn(
                                     message = "Failed to assign customer token: %s", failure,
-                                    attributes = mapOf(
-                                        POLogAttribute.CUSTOMER_ID to request.customerId,
-                                        POLogAttribute.CUSTOMER_TOKEN_ID to request.tokenId
-                                    )
+                                    attributes = logAttributes
                                 )
+                                return@fold failure
                             }
+                            return@fold ProcessOutResult.Success(response.token)
+                        }
+                        customerActionsService.handle(response.customerAction, threeDSService)
+                            .fold(
+                                onSuccess = { newSource ->
+                                    assign(
+                                        request.copy(source = newSource),
+                                        threeDSService
+                                    )
+                                },
+                                onFailure = { failure ->
+                                    POLogger.warn(
+                                        message = "Failed to assign customer token: %s", failure,
+                                        attributes = logAttributes
+                                    )
+                                    threeDSService.cleanup()
+                                    failure
+                                }
+                            )
+                    },
+                    onFailure = { failure ->
+                        POLogger.warn(
+                            message = "Failed to assign customer token: %s", failure,
+                            attributes = logAttributes
                         )
+                        threeDSService.cleanup()
+                        failure
                     }
-                is ProcessOutResult.Failure -> {
-                    POLogger.warn(
-                        message = "Failed to assign customer token: %s", result,
-                        attributes = mapOf(
-                            POLogAttribute.CUSTOMER_ID to request.customerId,
-                            POLogAttribute.CUSTOMER_TOKEN_ID to request.tokenId
-                        )
-                    )
-                    threeDSService.cleanup()
-                    callback(result)
-                }
+                )
+        } catch (e: CancellationException) {
+            coroutineScope {
+                val failure = ProcessOutResult.Failure(
+                    code = Cancelled,
+                    message = e.message,
+                    cause = e
+                )
+                POLogger.info(
+                    message = "Customer token assigning has been cancelled: %s", failure,
+                    attributes = logAttributes
+                )
+                threeDSService.cleanup()
+                ensureActive()
+                failure
             }
         }
     }
