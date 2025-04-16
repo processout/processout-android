@@ -1,3 +1,5 @@
+@file:Suppress("OVERRIDE_DEPRECATION")
+
 package com.processout.sdk.api.dispatcher
 
 import com.processout.sdk.api.dispatcher.card.tokenization.POCardTokenizationEventDispatcher
