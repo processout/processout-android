@@ -10,7 +10,6 @@ internal class AddressSpecificationAdapter {
         units = specification.units ?: AddressUnit.entries,
         cityUnit = specification.cityUnit ?: CityUnit.city,
         stateUnit = specification.stateUnit ?: StateUnit.province,
-        postcodeUnit = specification.postcodeUnit ?: PostcodeUnit.postcode,
-        states = specification.states
+        postcodeUnit = specification.postcodeUnit ?: PostcodeUnit.postcode
     )
 }

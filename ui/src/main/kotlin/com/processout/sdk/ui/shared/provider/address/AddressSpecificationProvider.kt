@@ -28,8 +28,7 @@ internal class AddressSpecificationProvider(
         units = AddressUnit.entries,
         cityUnit = CityUnit.city,
         stateUnit = StateUnit.province,
-        postcodeUnit = PostcodeUnit.postcode,
-        states = null
+        postcodeUnit = PostcodeUnit.postcode
     )
 
     suspend fun countryCodes(): Set<String> {
