@@ -21,15 +21,15 @@ internal class DefaultServiceGraph(
     alternativePaymentMethodsBaseUrl: String
 ) : ServiceGraph {
 
-    private val threeDSService: ThreeDSService by lazy {
-        DefaultThreeDSService(networkGraph.moshi)
+    private val customerActionsService: CustomerActionsService by lazy {
+        DefaultCustomerActionsService(networkGraph.moshi)
     }
 
     override val invoicesService: POInvoicesService by lazy {
         DefaultInvoicesService(
             contextGraph.mainScope,
             repositoryGraph.invoicesRepository,
-            threeDSService
+            customerActionsService
         )
     }
 
@@ -37,7 +37,7 @@ internal class DefaultServiceGraph(
         DefaultCustomerTokensService(
             contextGraph.mainScope,
             repositoryGraph.customerTokensRepository,
-            threeDSService
+            customerActionsService
         )
     }
 

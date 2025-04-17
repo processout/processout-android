@@ -55,7 +55,7 @@ internal class CardTokenizationViewModel private constructor(
                     cardsRepository = ProcessOut.instance.cards,
                     cardSchemeProvider = CardSchemeProvider(),
                     addressSpecificationProvider = AddressSpecificationProvider(app),
-                    eventDispatcher = eventDispatcher
+                    legacyEventDispatcher = eventDispatcher
                 )
             ) as T
     }

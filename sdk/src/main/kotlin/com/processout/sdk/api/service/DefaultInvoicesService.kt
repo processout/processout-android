@@ -1,3 +1,5 @@
+@file:Suppress("OVERRIDE_DEPRECATION")
+
 package com.processout.sdk.api.service
 
 import com.processout.sdk.api.model.request.POCreateInvoiceRequest
@@ -9,20 +11,18 @@ import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethod
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodCapture
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails
 import com.processout.sdk.api.repository.InvoicesRepository
-import com.processout.sdk.core.ProcessOutCallback
-import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.*
+import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.logger.POLogAttribute
 import com.processout.sdk.core.logger.POLogger
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.launch
 
 internal class DefaultInvoicesService(
     private val scope: CoroutineScope,
     private val repository: InvoicesRepository,
-    private val threeDSService: ThreeDSService
+    private val customerActionsService: CustomerActionsService
 ) : POInvoicesService {
 
     private val _authorizeInvoiceResult = MutableSharedFlow<ProcessOutResult<String>>()
@@ -31,86 +31,133 @@ internal class DefaultInvoicesService(
     override fun authorizeInvoice(
         request: POInvoiceAuthorizationRequest,
         threeDSService: PO3DSService
-    ) {
-        scope.launch {
-            when (val result = repository.authorizeInvoice(request)) {
-                is ProcessOutResult.Success ->
-                    result.value.customerAction?.let { action ->
-                        this@DefaultInvoicesService.threeDSService
-                            .handle(action, threeDSService) { serviceResult ->
-                                when (serviceResult) {
-                                    is ProcessOutResult.Success ->
-                                        authorizeInvoice(
-                                            request.copy(source = serviceResult.value),
-                                            threeDSService
-                                        )
-                                    is ProcessOutResult.Failure -> {
-                                        threeDSService.cleanup()
-                                        scope.launch {
-                                            _authorizeInvoiceResult.emit(serviceResult)
-                                        }
-                                    }
-                                }
-                            }
-                    } ?: run {
-                        threeDSService.cleanup()
-                        scope.launch {
-                            _authorizeInvoiceResult.emit(
-                                ProcessOutResult.Success(request.invoiceId)
-                            )
-                        }
-                    }
-                is ProcessOutResult.Failure -> {
-                    POLogger.warn(
-                        message = "Failed to authorize invoice: %s", result,
-                        attributes = mapOf(POLogAttribute.INVOICE_ID to request.invoiceId)
-                    )
+    ): Job = scope.launch {
+        val logAttributes = mapOf(POLogAttribute.INVOICE_ID to request.invoiceId)
+        repository.authorizeInvoice(request)
+            .onSuccess { response ->
+                if (response.customerAction == null) {
                     threeDSService.cleanup()
-                    scope.launch { _authorizeInvoiceResult.emit(result) }
+                    _authorizeInvoiceResult.emit(
+                        ProcessOutResult.Success(request.invoiceId)
+                    )
+                    return@onSuccess
                 }
+                customerActionsService.handle(response.customerAction, threeDSService)
+                    .onSuccess { newSource ->
+                        authorizeInvoice(
+                            request.copy(source = newSource),
+                            threeDSService
+                        )
+                    }.onFailure { failure ->
+                        POLogger.warn(
+                            message = "Failed to authorize invoice: %s", failure,
+                            attributes = logAttributes
+                        )
+                        threeDSService.cleanup()
+                        _authorizeInvoiceResult.emit(failure)
+                    }
+            }.onFailure { failure ->
+                POLogger.warn(
+                    message = "Failed to authorize invoice: %s", failure,
+                    attributes = logAttributes
+                )
+                threeDSService.cleanup()
+                _authorizeInvoiceResult.emit(failure)
             }
-        }
     }
 
-    @Deprecated(
-        message = "Use function authorizeInvoice(request, threeDSService)",
-        replaceWith = ReplaceWith("authorizeInvoice(request, threeDSService)")
-    )
     override fun authorizeInvoice(
         request: POInvoiceAuthorizationRequest,
         threeDSService: PO3DSService,
         callback: (ProcessOutResult<Unit>) -> Unit
     ): Job = scope.launch {
-        when (val result = repository.authorizeInvoice(request)) {
-            is ProcessOutResult.Success ->
-                result.value.customerAction?.let { action ->
-                    this@DefaultInvoicesService.threeDSService
-                        .handle(action, threeDSService) { serviceResult ->
-                            @Suppress("DEPRECATION")
-                            when (serviceResult) {
-                                is ProcessOutResult.Success ->
-                                    authorizeInvoice(
-                                        request.copy(source = serviceResult.value),
-                                        threeDSService,
-                                        callback
-                                    )
-                                is ProcessOutResult.Failure -> {
-                                    threeDSService.cleanup()
-                                    callback(serviceResult)
-                                }
-                            }
-                        }
-                } ?: run {
+        val logAttributes = mapOf(POLogAttribute.INVOICE_ID to request.invoiceId)
+        repository.authorizeInvoice(request)
+            .onSuccess { response ->
+                if (response.customerAction == null) {
                     threeDSService.cleanup()
                     callback(ProcessOutResult.Success(Unit))
+                    return@onSuccess
                 }
-            is ProcessOutResult.Failure -> {
+                customerActionsService.handle(response.customerAction, threeDSService)
+                    .onSuccess { newSource ->
+                        authorizeInvoice(
+                            request.copy(source = newSource),
+                            threeDSService,
+                            callback
+                        )
+                    }.onFailure { failure ->
+                        POLogger.warn(
+                            message = "Failed to authorize invoice: %s", failure,
+                            attributes = logAttributes
+                        )
+                        threeDSService.cleanup()
+                        callback(failure)
+                    }
+            }.onFailure { failure ->
                 POLogger.warn(
-                    message = "Failed to authorize invoice: %s", result,
-                    attributes = mapOf(POLogAttribute.INVOICE_ID to request.invoiceId)
+                    message = "Failed to authorize invoice: %s", failure,
+                    attributes = logAttributes
                 )
                 threeDSService.cleanup()
-                callback(result)
+                callback(failure)
+            }
+    }
+
+    override suspend fun authorize(
+        request: POInvoiceAuthorizationRequest,
+        threeDSService: PO3DSService
+    ): ProcessOutResult<Unit> {
+        val logAttributes = mapOf(POLogAttribute.INVOICE_ID to request.invoiceId)
+        return try {
+            repository.authorizeInvoice(request)
+                .fold(
+                    onSuccess = { response ->
+                        if (response.customerAction == null) {
+                            threeDSService.cleanup()
+                            return@fold ProcessOutResult.Success(Unit)
+                        }
+                        customerActionsService.handle(response.customerAction, threeDSService)
+                            .fold(
+                                onSuccess = { newSource ->
+                                    authorize(
+                                        request.copy(source = newSource),
+                                        threeDSService
+                                    )
+                                },
+                                onFailure = { failure ->
+                                    POLogger.warn(
+                                        message = "Failed to authorize invoice: %s", failure,
+                                        attributes = logAttributes
+                                    )
+                                    threeDSService.cleanup()
+                                    failure
+                                }
+                            )
+                    },
+                    onFailure = { failure ->
+                        POLogger.warn(
+                            message = "Failed to authorize invoice: %s", failure,
+                            attributes = logAttributes
+                        )
+                        threeDSService.cleanup()
+                        failure
+                    }
+                )
+        } catch (e: CancellationException) {
+            coroutineScope {
+                val failure = ProcessOutResult.Failure(
+                    code = Cancelled,
+                    message = e.message,
+                    cause = e
+                )
+                POLogger.info(
+                    message = "Invoice authorization has been cancelled: %s", failure,
+                    attributes = logAttributes
+                )
+                threeDSService.cleanup()
+                ensureActive()
+                failure
             }
         }
     }
@@ -171,10 +218,6 @@ internal class DefaultInvoicesService(
         repository.invoice(request, callback)
     }
 
-    @Deprecated(
-        message = "Use function invoice(request)",
-        replaceWith = ReplaceWith("invoice(request)")
-    )
     override suspend fun invoice(
         invoiceId: String
     ): ProcessOutResult<POInvoice> =
@@ -185,10 +228,6 @@ internal class DefaultInvoicesService(
             )
         )
 
-    @Deprecated(
-        message = "Use function invoice(request, callback)",
-        replaceWith = ReplaceWith("invoice(request, callback)")
-    )
     override fun invoice(
         invoiceId: String,
         callback: ProcessOutCallback<POInvoice>

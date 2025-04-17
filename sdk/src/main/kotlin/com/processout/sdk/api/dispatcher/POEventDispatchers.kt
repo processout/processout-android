@@ -12,6 +12,7 @@ interface POEventDispatchers {
     val nativeAlternativePaymentMethod: PONativeAlternativePaymentMethodEventDispatcher
 
     /** Dispatcher that allows to handle events during card tokenization. */
+    @Deprecated(message = "Use API with POCardTokenizationDelegate instead.")
     val cardTokenization: POCardTokenizationEventDispatcher
 
     /** Dispatcher that allows to handle events during card updates. */

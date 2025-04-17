@@ -4,11 +4,12 @@ import android.app.Application
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import com.processout.sdk.R
+import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
 import com.processout.sdk.api.model.event.POCardTokenizationEvent.*
 import com.processout.sdk.api.model.request.*
-import com.processout.sdk.api.model.response.POCardIssuerInformation
+import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.POFailure.Code.Generic
@@ -52,7 +53,8 @@ internal class CardTokenizationInteractor(
     private val cardsRepository: POCardsRepository,
     private val cardSchemeProvider: CardSchemeProvider,
     private val addressSpecificationProvider: AddressSpecificationProvider,
-    private val eventDispatcher: PODefaultCardTokenizationEventDispatcher
+    private val legacyEventDispatcher: PODefaultCardTokenizationEventDispatcher, // TODO: remove before next major release.
+    private val eventDispatcher: POEventDispatcher = POEventDispatcher
 ) : BaseInteractor() {
 
     private companion object {
@@ -353,14 +355,7 @@ internal class CardTokenizationInteractor(
         issuerInformationJob?.cancel()
         issuerInformationJob = interactorScope.launch {
             fetchIssuerInformation(iin)?.let { issuerInformation ->
-                if (eventDispatcher.subscribedForPreferredSchemeRequest()) {
-                    requestPreferredScheme(issuerInformation)
-                } else {
-                    updateState(
-                        issuerInformation = issuerInformation,
-                        preferredScheme = null
-                    )
-                }
+                requestPreferredScheme(issuerInformation)
             }
         }
     }
@@ -377,21 +372,34 @@ internal class CardTokenizationInteractor(
     private suspend fun requestPreferredScheme(issuerInformation: POCardIssuerInformation) {
         val request = POCardTokenizationPreferredSchemeRequest(issuerInformation)
         latestPreferredSchemeRequest = request
-        eventDispatcher.send(request)
+        if (legacyEventDispatcher.subscribedForPreferredSchemeRequest()) {
+            legacyEventDispatcher.send(request)
+        } else {
+            eventDispatcher.send(request)
+        }
         POLogger.info("Requested to choose preferred scheme by issuer information: %s", issuerInformation)
     }
 
     private fun collectPreferredScheme() {
         interactorScope.launch {
-            eventDispatcher.preferredSchemeResponse.collect { response ->
-                if (response.uuid == latestPreferredSchemeRequest?.uuid) {
-                    latestPreferredSchemeRequest = null
-                    updateState(
-                        issuerInformation = response.issuerInformation,
-                        preferredScheme = response.preferredScheme
-                    )
-                }
+            legacyEventDispatcher.preferredSchemeResponse.collect { response ->
+                handlePreferredScheme(response)
             }
+        }
+        eventDispatcher.subscribeForResponse<POCardTokenizationPreferredSchemeResponse>(
+            coroutineScope = interactorScope
+        ) { response ->
+            handlePreferredScheme(response)
+        }
+    }
+
+    private fun handlePreferredScheme(response: POCardTokenizationPreferredSchemeResponse) {
+        if (response.uuid == latestPreferredSchemeRequest?.uuid) {
+            latestPreferredSchemeRequest = null
+            updateState(
+                issuerInformation = response.issuerInformation,
+                preferredScheme = response.preferredScheme
+            )
         }
     }
 
@@ -634,79 +642,76 @@ internal class CardTokenizationInteractor(
 
     //region Tokenization
 
-    @Suppress("DEPRECATION")
     private fun tokenize(request: POCardTokenizationRequest) {
         POLogger.info(message = "Submitting card information.")
         dispatch(WillTokenize)
         interactorScope.launch {
             cardsRepository.tokenize(request)
                 .onSuccess { card ->
-                    _state.update { it.copy(tokenizedCard = card) }
+                    _state.update {
+                        it.copy(
+                            tokenizedCard = card,
+                            focusedFieldId = null
+                        )
+                    }
                     POLogger.info(
                         message = "Card tokenized successfully.",
                         attributes = mapOf(POLogAttribute.CARD_ID to card.id)
                     )
                     dispatch(DidTokenize(card))
-                    val subscribedForProcessing = eventDispatcher.subscribedForProcessTokenizedCardRequest()
-                    val subscribedForProcessingDeprecated = eventDispatcher.subscribedForProcessTokenizedCard()
-                    val processingRequest = POCardTokenizationProcessingRequest(
-                        card = card,
-                        saveCard = _state.value.saveCardField.value.text.toBooleanStrictOrNull() ?: false
-                    )
-                    if (subscribedForProcessing) {
-                        requestToProcessTokenizedCard(request = processingRequest, useDeprecated = false)
-                    }
-                    if (subscribedForProcessingDeprecated) {
-                        requestToProcessTokenizedCard(request = processingRequest, useDeprecated = true)
-                    }
-                    if (!subscribedForProcessing && !subscribedForProcessingDeprecated) {
-                        complete(Success(card))
-                    }
-                }.onFailure { failure ->
-                    if (eventDispatcher.subscribedForShouldContinueRequest()) {
-                        requestIfShouldContinue(failure)
-                    } else {
-                        handle(failure)
-                    }
+                    requestToProcessTokenizedCard(card)
+                }.onFailure {
+                    requestIfShouldContinue(failure = it)
                 }
         }
     }
 
-    private fun requestToProcessTokenizedCard(
-        request: POCardTokenizationProcessingRequest,
-        useDeprecated: Boolean // TODO: remove when deprecated dispatcher method is removed.
-    ) {
-        interactorScope.launch {
-            _state.update { it.copy(focusedFieldId = null) }
-            if (useDeprecated) {
-                @Suppress("DEPRECATION")
-                eventDispatcher.processTokenizedCard(request.card)
-            } else {
-                eventDispatcher.processTokenizedCardRequest(request)
-            }
-            POLogger.info(
-                message = "Requested to process tokenized card.",
-                attributes = mapOf(POLogAttribute.CARD_ID to request.card.id)
-            )
+    @Suppress("DEPRECATION")
+    private suspend fun requestToProcessTokenizedCard(card: POCard) {
+        val request = POCardTokenizationProcessingRequest(
+            card = card,
+            saveCard = _state.value.saveCardField.value.text.toBooleanStrictOrNull() ?: false
+        )
+        if (legacyEventDispatcher.subscribedForProcessTokenizedCard()) {
+            legacyEventDispatcher.processTokenizedCard(card)
+        } else if (legacyEventDispatcher.subscribedForProcessTokenizedCardRequest()) {
+            legacyEventDispatcher.processTokenizedCardRequest(request)
+        } else {
+            eventDispatcher.send(request)
         }
+        POLogger.info(
+            message = "Requested to process tokenized card.",
+            attributes = mapOf(POLogAttribute.CARD_ID to card.id)
+        )
     }
 
     private fun handleCompletion() {
         interactorScope.launch {
-            eventDispatcher.completion.collect { result ->
+            legacyEventDispatcher.completion.collect { result ->
                 result.onSuccess {
                     _state.value.tokenizedCard?.let { card ->
-                        dispatch(DidComplete)
                         complete(Success(card))
                     }.orElse {
                         val failure = ProcessOutResult.Failure(
                             code = Generic(),
                             message = "Completion is called with Success via dispatcher before card is tokenized."
                         )
-                        handleCompletion(failure)
+                        requestIfShouldContinue(failure)
                     }
-                }.onFailure { handleCompletion(it) }
+                }.onFailure {
+                    requestIfShouldContinue(failure = it)
+                }
             }
+        }
+        eventDispatcher.subscribeForResponse<POCardTokenizationProcessingResponse>(
+            coroutineScope = interactorScope
+        ) { response ->
+            response.result
+                .onSuccess { card ->
+                    complete(Success(card))
+                }.onFailure {
+                    requestIfShouldContinue(failure = it)
+                }
         }
     }
 
@@ -715,39 +720,44 @@ internal class CardTokenizationInteractor(
             message = "Completed successfully.",
             attributes = mapOf(POLogAttribute.CARD_ID to success.card.id)
         )
+        dispatch(DidComplete)
         _completion.update { success }
-    }
-
-    private fun handleCompletion(failure: ProcessOutResult.Failure) {
-        if (eventDispatcher.subscribedForShouldContinueRequest()) {
-            requestIfShouldContinue(failure)
-        } else {
-            POLogger.info("Completed after the failure: %s", failure)
-            _completion.update { Failure(failure) }
-        }
     }
 
     private fun requestIfShouldContinue(failure: ProcessOutResult.Failure) {
         interactorScope.launch {
             val request = POCardTokenizationShouldContinueRequest(failure)
             latestShouldContinueRequest = request
-            eventDispatcher.send(request)
+            if (legacyEventDispatcher.subscribedForShouldContinueRequest()) {
+                legacyEventDispatcher.send(request)
+            } else {
+                eventDispatcher.send(request)
+            }
             POLogger.info("Requested to decide whether the flow should continue or complete after the failure: %s", failure)
         }
     }
 
     private fun shouldContinueOnFailure() {
         interactorScope.launch {
-            eventDispatcher.shouldContinueResponse.collect { response ->
-                if (response.uuid == latestShouldContinueRequest?.uuid) {
-                    latestShouldContinueRequest = null
-                    if (response.shouldContinue) {
-                        handle(response.failure)
-                    } else {
-                        POLogger.info("Completed after the failure: %s", response.failure)
-                        _completion.update { Failure(response.failure) }
-                    }
-                }
+            legacyEventDispatcher.shouldContinueResponse.collect { response ->
+                handleShouldContinue(response)
+            }
+        }
+        eventDispatcher.subscribeForResponse<POCardTokenizationShouldContinueResponse>(
+            coroutineScope = interactorScope
+        ) { response ->
+            handleShouldContinue(response)
+        }
+    }
+
+    private fun handleShouldContinue(response: POCardTokenizationShouldContinueResponse) {
+        if (response.uuid == latestShouldContinueRequest?.uuid) {
+            latestShouldContinueRequest = null
+            if (response.shouldContinue) {
+                handle(response.failure)
+            } else {
+                POLogger.info("Completed after the failure: %s", response.failure)
+                _completion.update { Failure(response.failure) }
             }
         }
     }
@@ -806,6 +816,7 @@ internal class CardTokenizationInteractor(
                 }
                 else -> app.getString(R.string.po_card_tokenization_error_generic)
             }
+            Cancelled -> null
             else -> app.getString(R.string.po_card_tokenization_error_generic)
         }
         handle(failure, invalidFieldIds, errorMessage)
@@ -814,7 +825,7 @@ internal class CardTokenizationInteractor(
     private fun handle(
         failure: ProcessOutResult.Failure,
         invalidFieldIds: Set<String>,
-        errorMessage: String
+        errorMessage: String?
     ) {
         val cardFields = _state.value.cardFields.map { field ->
             validatedField(invalidFieldIds, field)
@@ -861,6 +872,7 @@ internal class CardTokenizationInteractor(
 
     private fun dispatch(event: POCardTokenizationEvent) {
         interactorScope.launch {
+            legacyEventDispatcher.send(event)
             eventDispatcher.send(event)
         }
     }
