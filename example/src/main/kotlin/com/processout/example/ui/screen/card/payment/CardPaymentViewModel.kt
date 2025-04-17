@@ -4,19 +4,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.processout.example.shared.Constants
-import com.processout.example.ui.screen.card.payment.CardPaymentUiState.*
+import com.processout.example.ui.screen.card.payment.CardPaymentViewModelEvent.LaunchTokenization
 import com.processout.sdk.api.ProcessOut
-import com.processout.sdk.api.model.request.POCardTokenizationProcessingRequest
 import com.processout.sdk.api.model.request.POCreateCustomerRequest
 import com.processout.sdk.api.model.request.POCreateInvoiceRequest
 import com.processout.sdk.api.model.response.POCustomer
+import com.processout.sdk.api.model.response.POInvoice
 import com.processout.sdk.api.service.POCustomerTokensService
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.getOrNull
-import com.processout.sdk.core.onFailure
-import com.processout.sdk.core.onSuccess
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
 
@@ -36,40 +37,41 @@ class CardPaymentViewModel(
             }
     }
 
-    private val _uiState = MutableStateFlow<CardPaymentUiState>(Initial)
-    val uiState = _uiState.asStateFlow()
+    private val _state = MutableStateFlow(CardPaymentViewModelState())
+    val state = _state.asStateFlow()
 
-    private var customerId: String? = null
+    private val _events = Channel<CardPaymentViewModelEvent>()
+    val events = _events.receiveAsFlow()
 
-    fun submit(details: InvoiceDetails) {
-        _uiState.value = Submitting
+    fun submit(amount: String, currency: String) {
+        _state.update {
+            it.copy(
+                amount = amount,
+                currency = currency
+            )
+        }
         viewModelScope.launch {
-            if (customerId == null) {
-                customerId = createCustomer()?.id
-                createInvoice(details)
-            } else {
-                createInvoice(details)
-            }
+            _events.send(LaunchTokenization)
         }
     }
 
-    private suspend fun createInvoice(details: InvoiceDetails) =
-        invoices.createInvoice(
+    suspend fun createInvoice(): POInvoice? {
+        val state = _state.value
+        if (state.customerId == null) {
+            _state.update { it.copy(customerId = createCustomer()?.id) }
+        }
+        val invoice = invoices.createInvoice(
             POCreateInvoiceRequest(
                 name = UUID.randomUUID().toString(),
-                amount = details.amount,
-                currency = details.currency,
-                customerId = customerId,
+                amount = state.amount,
+                currency = state.currency,
+                customerId = state.customerId,
                 returnUrl = Constants.RETURN_URL
             )
-        ).onSuccess { invoice ->
-            _uiState.value = Submitted(
-                CardPaymentUiModel(
-                    invoiceId = invoice.id,
-                    clientSecret = invoice.clientSecret
-                )
-            )
-        }.onFailure { _uiState.value = Failure(it) }
+        ).getOrNull()
+        _state.update { it.copy(invoiceId = invoice?.id) }
+        return invoice
+    }
 
     private suspend fun createCustomer(): POCustomer? =
         customerTokens.createCustomer(
@@ -79,42 +81,4 @@ class CardPaymentViewModel(
                 email = "test@email.com"
             )
         ).getOrNull()
-
-    fun onTokenizing() {
-        val uiState = _uiState.value
-        if (uiState is Submitted) {
-            _uiState.value = Tokenizing(uiState.uiModel)
-        }
-    }
-
-    fun onTokenized(request: POCardTokenizationProcessingRequest) {
-        val uiState = _uiState.value
-        if (uiState is Tokenizing) {
-            _uiState.value = Tokenized(
-                uiState.uiModel.copy(
-                    cardId = request.card.id,
-                    saveCard = request.saveCard
-                )
-            )
-        }
-        if (uiState is Authorizing) {
-            _uiState.value = Tokenized(
-                uiState.uiModel.copy(
-                    cardId = request.card.id,
-                    saveCard = request.saveCard
-                )
-            )
-        }
-    }
-
-    fun onAuthorizing() {
-        val uiState = _uiState.value
-        if (uiState is Tokenized) {
-            _uiState.value = Authorizing(uiState.uiModel)
-        }
-    }
-
-    fun reset() {
-        _uiState.value = Initial
-    }
 }

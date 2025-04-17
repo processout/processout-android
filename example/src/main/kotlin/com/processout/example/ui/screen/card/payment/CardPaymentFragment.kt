@@ -17,9 +17,8 @@ import com.processout.example.shared.Constants
 import com.processout.example.shared.toMessage
 import com.processout.example.ui.screen.MainActivity
 import com.processout.example.ui.screen.base.BaseFragment
-import com.processout.example.ui.screen.card.payment.CardPaymentUiState.*
+import com.processout.example.ui.screen.card.payment.CardPaymentViewModelEvent.LaunchTokenization
 import com.processout.sdk.api.ProcessOut
-import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
 import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.api.service.PO3DSService
 import com.processout.sdk.checkout.threeds.POCheckout3DSService
@@ -32,7 +31,9 @@ import com.processout.sdk.ui.card.tokenization.POCardTokenizationLauncher
 import com.processout.sdk.ui.shared.view.dialog.POAlertDialog
 import com.processout.sdk.ui.threeds.PO3DSRedirectCustomTabLauncher
 import com.processout.sdk.ui.threeds.POTest3DSService
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
     FragmentCardPaymentBinding::inflate
@@ -42,8 +43,6 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
         CardPaymentViewModel.Factory()
     }
 
-    private val invoices = ProcessOut.instance.invoices
-    private val dispatcher = ProcessOut.instance.dispatchers.cardTokenization
     private lateinit var launcher: POCardTokenizationLauncher
     private lateinit var customTabLauncher: PO3DSRedirectCustomTabLauncher
 
@@ -51,7 +50,11 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
         super.onCreate(savedInstanceState)
         launcher = POCardTokenizationLauncher.create(
             from = this,
-            delegate = DefaultCardTokenizationDelegate(),
+            delegate = DefaultCardTokenizationDelegate(
+                viewModel = viewModel,
+                invoices = ProcessOut.instance.invoices,
+                provide3DSService = ::create3DSService
+            ),
             callback = ::handle
         )
         customTabLauncher = PO3DSRedirectCustomTabLauncher.create(from = this)
@@ -60,63 +63,41 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setOnClickListeners()
-        viewLifecycleOwner.lifecycleScope.launch {
+        lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.CREATED) {
-                viewModel.uiState.collect { handle(it) }
-            }
-        }
-        viewLifecycleOwner.lifecycleScope.launch {
-            dispatcher.processTokenizedCardRequest.collect { request ->
-                viewModel.onTokenized(request)
-            }
-        }
-        viewLifecycleOwner.lifecycleScope.launch {
-            invoices.authorizeInvoiceResult.collect { result ->
-                dispatcher.complete(result)
+                withContext(Dispatchers.Main.immediate) {
+                    viewModel.events.collect { handle(it) }
+                }
             }
         }
     }
 
     private fun handle(result: ProcessOutActivityResult<POCard>) {
-        val uiState = viewModel.uiState.value
-        val invoiceId = if (uiState is Authorizing) uiState.uiModel.invoiceId else null
-        viewModel.reset()
+        enableControls(isEnabled = true)
         result.onSuccess { card ->
+            val invoiceId = viewModel.state.value.invoiceId
             showAlert(getString(R.string.authorize_invoice_success_format, invoiceId, card.id))
-        }.onFailure { showAlert(it.toMessage()) }
-    }
-
-    private fun handle(uiState: CardPaymentUiState) {
-        handleControls(uiState)
-        when (uiState) {
-            is Submitted -> launchCardTokenization()
-            is Tokenized -> authorizeInvoice(uiState.uiModel)
-            is Failure -> showAlert(uiState.failure.toMessage())
-            else -> {}
+        }.onFailure {
+            showAlert(it.toMessage())
         }
     }
 
-    private fun launchCardTokenization() {
-        viewModel.onTokenizing()
+    private fun handle(event: CardPaymentViewModelEvent) {
+        when (event) {
+            LaunchTokenization -> {
+                enableControls(isEnabled = false)
+                launchTokenization()
+            }
+        }
+    }
+
+    private fun launchTokenization() {
         launcher.launch(
             POCardTokenizationConfiguration(
                 cardScanner = CardScannerConfiguration(),
                 savingAllowed = true
             )
         )
-    }
-
-    private fun authorizeInvoice(uiModel: CardPaymentUiModel) {
-        invoices.authorizeInvoice(
-            request = POInvoiceAuthorizationRequest(
-                invoiceId = uiModel.invoiceId,
-                source = uiModel.cardId,
-                saveSource = uiModel.saveCard,
-                clientSecret = uiModel.clientSecret
-            ),
-            threeDSService = create3DSService()
-        )
-        viewModel.onAuthorizing()
     }
 
     private fun create3DSService(): PO3DSService {
@@ -170,18 +151,10 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
 
     private fun onSubmitClick() {
         with(binding) {
-            val details = InvoiceDetails(
+            viewModel.submit(
                 amount = amountInput.text.toString(),
                 currency = currencyInput.text.toString()
             )
-            viewModel.submit(details)
-        }
-    }
-
-    private fun handleControls(uiState: CardPaymentUiState) {
-        when (uiState) {
-            Initial, is Failure -> enableControls(true)
-            else -> enableControls(false)
         }
     }
 
