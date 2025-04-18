@@ -5,8 +5,13 @@ package com.processout.sdk.ui.shared.provider.address
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
+internal data class PlainAddressSpecification(
+    val units: List<String>
+)
+
+@JsonClass(generateAdapter = true)
 internal data class AddressSpecification(
-    val units: List<AddressUnit>?,
+    val units: List<AddressUnit>,
     val cityUnit: CityUnit?,
     val stateUnit: StateUnit?,
     val postcodeUnit: PostcodeUnit?
