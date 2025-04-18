@@ -537,7 +537,7 @@ internal class CardTokenizationInteractor(
                     val supportedCountryCodes = setOf("US", "GB", "CA")
                     supportedCountryCodes.contains(countryCode)
                 }
-                else -> true
+                else -> false
             }
             Full -> true
         }
