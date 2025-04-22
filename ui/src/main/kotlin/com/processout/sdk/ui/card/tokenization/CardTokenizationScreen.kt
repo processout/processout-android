@@ -28,6 +28,7 @@ import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
+import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
 import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
@@ -369,6 +370,7 @@ internal object CardTokenizationScreen {
         val sectionTitle: POText.Style,
         val field: POField.Style,
         val checkbox: POCheckbox.Style,
+        val radioGroup: PORadioGroup.Style,
         val dropdownMenu: PODropdownField.MenuStyle,
         val errorMessage: POText.Style,
         val scanButton: POButton.Style,
@@ -392,6 +394,9 @@ internal object CardTokenizationScreen {
         checkbox = custom?.checkbox?.let {
             POCheckbox.custom(style = it)
         } ?: POCheckbox.default,
+        radioGroup = custom?.radioButton?.let {
+            PORadioGroup.custom(style = it)
+        } ?: PORadioGroup.default,
         dropdownMenu = custom?.dropdownMenu?.let {
             PODropdownField.custom(style = it)
         } ?: PODropdownField.defaultMenu,

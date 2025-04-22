@@ -198,6 +198,7 @@ data class POCardTokenizationConfiguration(
         val sectionTitle: POTextStyle? = null,
         val field: POFieldStyle? = null,
         val checkbox: POCheckboxStyle? = null,
+        val radioButton: PORadioButtonStyle? = null,
         val dropdownMenu: PODropdownMenuStyle? = null,
         val errorMessage: POTextStyle? = null,
         val scanButton: POButtonStyle? = null,
