@@ -446,7 +446,7 @@ internal class CardTokenizationInteractor(
         val state = currentAddress.state ?: defaultAddress?.state ?: String()
         val postalCode = currentAddress.zip ?: defaultAddress?.zip ?: String()
         val fields = mutableListOf<Field>()
-        specification.units?.forEach { unit ->
+        specification.units.forEach { unit ->
             when (unit) {
                 AddressUnit.street -> {
                     val streetFields = listOf(
@@ -537,7 +537,7 @@ internal class CardTokenizationInteractor(
                     val supportedCountryCodes = setOf("US", "GB", "CA")
                     supportedCountryCodes.contains(countryCode)
                 }
-                else -> true
+                else -> false
             }
             Full -> true
         }
