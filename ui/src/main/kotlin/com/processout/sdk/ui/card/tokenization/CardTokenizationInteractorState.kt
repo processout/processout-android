@@ -10,7 +10,7 @@ internal data class CardTokenizationInteractorState(
     val started: Boolean = false,
     val cardFields: List<Field>,
     val addressFields: List<Field>,
-    val addressSpecification: AddressSpecification? = null,
+    val preferredSchemeField: Field,
     val saveCardField: Field,
     val focusedFieldId: String?,
     val pendingFocusedFieldId: String?,
@@ -20,6 +20,7 @@ internal data class CardTokenizationInteractorState(
     val submitAllowed: Boolean = true,
     val submitting: Boolean = false,
     val errorMessage: String? = null,
+    val addressSpecification: AddressSpecification? = null,
     val issuerInformation: POCardIssuerInformation? = null,
     val preferredScheme: String? = null,
     val tokenizedCard: POCard? = null
@@ -50,6 +51,7 @@ internal data class CardTokenizationInteractorState(
     }
 
     object FieldId {
+        const val PREFERRED_SCHEME = "preferred-scheme"
         const val SAVE_CARD = "save-card"
     }
 

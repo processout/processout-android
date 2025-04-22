@@ -24,6 +24,7 @@ import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.Item
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.SectionId.FUTURE_PAYMENTS
+import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.SectionId.PREFERRED_SCHEME
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
@@ -128,13 +129,15 @@ private fun Sections(
     }
     val lifecycleEvent = rememberLifecycleEvent()
     state.sections.elements.forEachIndexed { index, section ->
-        val padding = if (section.id == FUTURE_PAYMENTS) {
-            spacing.small
-        } else when (index) {
-            0 -> 0.dp
-            else -> spacing.extraLarge
+        val verticalPadding = when (section.id) {
+            PREFERRED_SCHEME -> if (section.title == null) spacing.small else spacing.extraLarge
+            FUTURE_PAYMENTS -> spacing.small
+            else -> when (index) {
+                0 -> 0.dp
+                else -> spacing.extraLarge
+            }
         }
-        Spacer(Modifier.requiredHeight(padding))
+        Spacer(Modifier.requiredHeight(verticalPadding))
         Column(
             verticalArrangement = Arrangement.spacedBy(spacing.small)
         ) {
@@ -187,6 +190,12 @@ private fun Item(
             focusedFieldId = focusedFieldId,
             isPrimaryActionEnabled = isPrimaryActionEnabled,
             style = style.field,
+            modifier = modifier
+        )
+        is Item.RadioField -> RadioField(
+            state = item.state,
+            onEvent = onEvent,
+            style = style.radioGroup,
             modifier = modifier
         )
         is Item.DropdownField -> DropdownField(
@@ -269,6 +278,29 @@ private fun TextField(
     if (state.id == focusedFieldId && lifecycleEvent == Lifecycle.Event.ON_RESUME) {
         PORequestFocus(focusRequester, lifecycleEvent)
     }
+}
+
+@Composable
+private fun RadioField(
+    state: FieldState,
+    onEvent: (CardTokenizationEvent) -> Unit,
+    style: PORadioGroup.Style,
+    modifier: Modifier = Modifier
+) {
+    PORadioGroup(
+        value = state.value.text,
+        onValueChange = {
+            onEvent(
+                FieldValueChanged(
+                    id = state.id,
+                    value = TextFieldValue(text = it)
+                )
+            )
+        },
+        availableValues = state.availableValues ?: POImmutableList(emptyList()),
+        modifier = modifier,
+        style = style
+    )
 }
 
 @Composable
