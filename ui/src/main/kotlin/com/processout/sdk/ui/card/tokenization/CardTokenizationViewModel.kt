@@ -169,22 +169,19 @@ internal class CardTokenizationViewModel private constructor(
         state.cardFields.forEach { field ->
             val keyboardAction = keyboardAction(field.id, lastFocusableFieldId)
             when (field.id) {
-                CardFieldId.NUMBER -> {
-                    val scheme = state.preferredScheme ?: state.issuerInformation?.scheme
-                    cardNumberField = field(
-                        field = field,
-                        placeholder = app.getString(R.string.po_card_tokenization_card_details_number_placeholder),
-                        iconResId = scheme?.let { cardSchemeDrawableResId(it) },
-                        forceTextDirectionLtr = true,
-                        inputFilter = CardNumberInputFilter(),
-                        visualTransformation = CardNumberVisualTransformation(),
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = keyboardAction.imeAction
-                        ),
-                        keyboardActionId = keyboardAction.actionId
-                    )
-                }
+                CardFieldId.NUMBER -> cardNumberField = field(
+                    field = field,
+                    placeholder = app.getString(R.string.po_card_tokenization_card_details_number_placeholder),
+                    iconResId = cardSchemeDrawableResId(scheme = state.preferredSchemeField.value.text),
+                    forceTextDirectionLtr = true,
+                    inputFilter = CardNumberInputFilter(),
+                    visualTransformation = CardNumberVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = keyboardAction.imeAction
+                    ),
+                    keyboardActionId = keyboardAction.actionId
+                )
                 CardFieldId.EXPIRATION -> trackFields.add(
                     field(
                         field = field,

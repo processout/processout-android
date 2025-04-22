@@ -415,7 +415,9 @@ internal class CardTokenizationInteractor(
         _state.update {
             it.copy(
                 issuerInformation = issuerInformation,
-                preferredScheme = preferredScheme
+                preferredSchemeField = it.preferredSchemeField.copy(
+                    value = TextFieldValue(text = preferredScheme ?: String())
+                )
             )
         }
         POLogger.info("State updated: [issuerInformation=%s] [preferredScheme=%s]", issuerInformation, preferredScheme)
@@ -596,7 +598,7 @@ internal class CardTokenizationInteractor(
             expYear = parsedExpiration.year,
             cvc = cvc,
             name = cardholderName,
-            preferredScheme = _state.value.preferredScheme,
+            preferredScheme = _state.value.preferredSchemeField.value.text,
             contact = contact(),
             metadata = configuration.metadata
         )

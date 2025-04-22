@@ -22,7 +22,6 @@ internal data class CardTokenizationInteractorState(
     val errorMessage: String? = null,
     val addressSpecification: AddressSpecification? = null,
     val issuerInformation: POCardIssuerInformation? = null,
-    val preferredScheme: String? = null,
     val tokenizedCard: POCard? = null
 ) {
 
