@@ -141,7 +141,7 @@ internal class CardTokenizationViewModel private constructor(
         val sections = listOf(
             cardInformationSection(state, lastFocusableFieldId),
             billingAddressSection(state, lastFocusableFieldId),
-            futurePaymentsSection(state.saveCardField)
+            futurePaymentsSection(state)
         )
         return POImmutableList(sections.filterNotNull())
     }
@@ -318,7 +318,10 @@ internal class CardTokenizationViewModel private constructor(
         )
     }
 
-    private fun futurePaymentsSection(saveCardField: Field): Section? {
+    private fun futurePaymentsSection(
+        state: CardTokenizationInteractorState
+    ): Section? {
+        val saveCardField = state.saveCardField
         if (!saveCardField.shouldCollect) {
             return null
         }
