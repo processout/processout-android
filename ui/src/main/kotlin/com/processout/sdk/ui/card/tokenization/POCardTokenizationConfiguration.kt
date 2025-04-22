@@ -21,6 +21,8 @@ import kotlinx.parcelize.Parcelize
  * @param[cvcRequired] Specifies whether the CVC field should be displayed. Default value is _true_.
  * @param[cardholderNameRequired] Specifies whether the cardholder name field should be displayed. Default value is _true_.
  * @param[cardScanner] Card scanner configuration. Use _null_ to hide, this is a default behaviour.
+ * @param[preferredScheme] Preferred scheme selection configuration. Shows scheme selection if co-scheme is available.
+ * Use _null_ to hide, this is a default behaviour.
  * @param[billingAddress] Allows to customize the collection of billing address.
  * @param[savingAllowed] Displays checkbox that allows to save the card details for future payments.
  * @param[submitButton] Submit button configuration.
@@ -35,6 +37,7 @@ data class POCardTokenizationConfiguration(
     val cvcRequired: Boolean = true,
     val cardholderNameRequired: Boolean = true,
     val cardScanner: CardScannerConfiguration? = null,
+    val preferredScheme: PreferredSchemeConfiguration? = null,
     val billingAddress: BillingAddressConfiguration = BillingAddressConfiguration(),
     val savingAllowed: Boolean = false,
     val submitButton: Button = Button(),
@@ -101,6 +104,18 @@ data class POCardTokenizationConfiguration(
     data class CardScannerConfiguration(
         val scanButton: Button = Button(),
         val configuration: POCardScannerConfiguration = POCardScannerConfiguration()
+    ) : Parcelable
+
+    /**
+     * Preferred scheme selection configuration.
+     *
+     * @param[title] Preferred scheme section title. Set _null_ to use a default value or empty string to remove the title.
+     * @param[displayInline] Indicates whether selection field should be displayed inline. Default value is _true_.
+     */
+    @Parcelize
+    data class PreferredSchemeConfiguration(
+        val title: String? = null,
+        val displayInline: Boolean = true
     ) : Parcelable
 
     /**
