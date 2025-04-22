@@ -94,8 +94,8 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
 
         private fun Options.validate() = copy(
             paymentConfirmationTimeoutSeconds =
-            if (paymentConfirmationTimeoutSeconds in 0..MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS)
-                paymentConfirmationTimeoutSeconds else DEFAULT_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
+                if (paymentConfirmationTimeoutSeconds in 0..MAX_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS)
+                    paymentConfirmationTimeoutSeconds else DEFAULT_PAYMENT_CONFIRMATION_TIMEOUT_SECONDS
         )
     }
 
@@ -322,9 +322,9 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
             val invalidFields = uiModel.inputParameters.mapNotNull { it.validate() }
             if (invalidFields.isNotEmpty()) {
                 val failure = ProcessOutResult.Failure(
-                    Validation(POFailure.ValidationCode.general),
-                    "Invalid fields.",
-                    invalidFields
+                    code = Validation(POFailure.ValidationCode.general),
+                    message = "Invalid fields.",
+                    invalidFields = invalidFields
                 )
                 handlePaymentFailure(uiModel, failure, replaceToLocalMessage = false)
                 return@doWhenUserInput
@@ -620,8 +620,13 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
     fun onViewFailure(failure: PONativeAlternativePaymentMethodResult.Failure) {
         with(failure) {
             dispatch(
-                DidFail(ProcessOutResult.Failure(code, message, invalidFields)
-                    .also { POLogger.warn("View failed: %s", it, attributes = logAttributes) })
+                DidFail(
+                    ProcessOutResult.Failure(
+                        code = code,
+                        message = message,
+                        invalidFields = invalidFields
+                    ).also { POLogger.warn("View failed: %s", it, attributes = logAttributes) }
+                )
             )
         }
     }

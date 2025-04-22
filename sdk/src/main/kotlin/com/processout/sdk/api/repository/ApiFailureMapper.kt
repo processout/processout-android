@@ -26,7 +26,11 @@ internal class ApiFailureMapper(
                 append(" | Reason: $it")
             }
         }
-        return ProcessOutResult.Failure(failureCode, message, apiError?.invalidFields)
+        return ProcessOutResult.Failure(
+            code = failureCode,
+            message = message,
+            invalidFields = apiError?.invalidFields
+        )
     }
 
     private fun failureCode(statusCode: Int, errorType: String): POFailure.Code {
