@@ -768,7 +768,7 @@ internal class CardTokenizationInteractor(
 
     private fun handle(failure: ProcessOutResult.Failure) {
         val invalidFieldIds = mutableSetOf<String>()
-        val errorMessage = when (val code = failure.code) {
+        var errorMessage = when (val code = failure.code) {
             is Generic -> when (code.genericCode) {
                 requestInvalidCard,
                 cardInvalid -> {
@@ -819,6 +819,7 @@ internal class CardTokenizationInteractor(
             Cancelled -> null
             else -> app.getString(R.string.po_card_tokenization_error_generic)
         }
+        failure.localizedMessage?.let { errorMessage = it }
         handle(failure, invalidFieldIds, errorMessage)
     }
 
