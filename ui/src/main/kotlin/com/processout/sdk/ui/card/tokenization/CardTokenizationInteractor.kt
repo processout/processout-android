@@ -29,6 +29,7 @@ import com.processout.sdk.ui.card.tokenization.CardTokenizationSideEffect.CardSc
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode.*
 import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.shared.extension.currentAppLocale
+import com.processout.sdk.ui.shared.extension.findBy
 import com.processout.sdk.ui.shared.extension.orElse
 import com.processout.sdk.ui.shared.filter.CardExpirationInputFilter
 import com.processout.sdk.ui.shared.filter.CardNumberInputFilter
@@ -412,16 +413,30 @@ internal class CardTokenizationInteractor(
         issuerInformation: POCardIssuerInformation?,
         preferredScheme: String?
     ) {
+        val availableSchemes = listOfNotNull(
+            availableScheme(issuerInformation?.scheme),
+            availableScheme(issuerInformation?.coScheme)
+        )
         _state.update {
             it.copy(
                 issuerInformation = issuerInformation,
                 preferredSchemeField = it.preferredSchemeField.copy(
-                    value = TextFieldValue(text = preferredScheme ?: String())
+                    value = TextFieldValue(text = preferredScheme ?: String()),
+                    availableValues = availableSchemes,
+                    shouldCollect = configuration.preferredScheme != null && availableSchemes.size > 1
                 )
             )
         }
         POLogger.info("State updated: [issuerInformation=%s] [preferredScheme=%s]", issuerInformation, preferredScheme)
     }
+
+    private fun availableScheme(scheme: String?): POAvailableValue? =
+        POCardScheme::rawValue.findBy(scheme)?.let {
+            POAvailableValue(
+                value = it.rawValue,
+                text = it.displayName
+            )
+        }
 
     //endregion
 
