@@ -1,6 +1,7 @@
 package com.processout.sdk.ui.card.tokenization
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -23,6 +24,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.Item
+import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.Section
+import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.SectionId.CARD_INFORMATION
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.SectionId.FUTURE_PAYMENTS
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.SectionId.PREFERRED_SCHEME
 import com.processout.sdk.ui.core.component.*
@@ -128,46 +131,79 @@ private fun Sections(
         )
     }
     val lifecycleEvent = rememberLifecycleEvent()
-    state.sections.elements.forEachIndexed { index, section ->
-        val verticalPadding = when (section.id) {
-            PREFERRED_SCHEME -> if (section.title == null) spacing.small else spacing.extraLarge
-            FUTURE_PAYMENTS -> spacing.small
-            else -> when (index) {
-                0 -> 0.dp
-                else -> spacing.extraLarge
-            }
-        }
-        Spacer(Modifier.requiredHeight(verticalPadding))
-        Column(
-            verticalArrangement = Arrangement.spacedBy(spacing.small)
-        ) {
-            section.title?.let {
-                with(style.sectionTitle) {
-                    POText(
-                        text = it,
-                        color = color,
-                        style = textStyle
-                    )
-                }
-            }
-            section.items.elements.forEach { item ->
-                Item(
-                    item = item,
-                    onEvent = onEvent,
-                    lifecycleEvent = lifecycleEvent,
-                    focusedFieldId = state.focusedFieldId,
-                    isPrimaryActionEnabled = state.primaryAction.enabled && !state.primaryAction.loading,
-                    style = style,
-                    modifier = Modifier.fillMaxWidth()
+    state.sections.elements.forEach { section ->
+        Section(
+            section = section,
+            onEvent = onEvent,
+            lifecycleEvent = lifecycleEvent,
+            focusedFieldId = state.focusedFieldId,
+            isPrimaryActionEnabled = state.primaryAction.enabled && !state.primaryAction.loading,
+            style = style
+        )
+    }
+}
+
+@Composable
+private fun Section(
+    section: Section,
+    onEvent: (CardTokenizationEvent) -> Unit,
+    lifecycleEvent: Lifecycle.Event,
+    focusedFieldId: String?,
+    isPrimaryActionEnabled: Boolean,
+    style: CardTokenizationScreen.Style
+) {
+    val paddingTop = when (section.id) {
+        CARD_INFORMATION -> 0.dp
+        PREFERRED_SCHEME -> if (section.title == null) spacing.small else spacing.extraLarge
+        FUTURE_PAYMENTS -> spacing.small
+        else -> spacing.extraLarge
+    }
+    Column(
+        modifier = Modifier.padding(top = paddingTop),
+        verticalArrangement = Arrangement.spacedBy(spacing.small)
+    ) {
+        section.title?.let {
+            with(style.sectionTitle) {
+                POText(
+                    text = it,
+                    color = color,
+                    style = textStyle
                 )
             }
         }
-        POExpandableText(
-            text = section.errorMessage,
-            style = style.errorMessage,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = spacing.small)
+        section.items?.elements?.forEach { item ->
+            Item(
+                item = item,
+                onEvent = onEvent,
+                lifecycleEvent = lifecycleEvent,
+                focusedFieldId = focusedFieldId,
+                isPrimaryActionEnabled = isPrimaryActionEnabled,
+                style = style,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+    POExpandableText(
+        text = section.errorMessage,
+        style = style.errorMessage,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = spacing.small)
+    )
+    var currentSubsection by remember { mutableStateOf(Section(id = String())) }
+    currentSubsection = section.subsection ?: currentSubsection
+    AnimatedVisibility(
+        visible = section.subsection != null,
+        enter = expandVertically() + fadeIn(),
+        exit = shrinkVertically() + fadeOut()
+    ) {
+        Section(
+            section = currentSubsection,
+            onEvent = onEvent,
+            lifecycleEvent = lifecycleEvent,
+            focusedFieldId = focusedFieldId,
+            isPrimaryActionEnabled = isPrimaryActionEnabled,
+            style = style
         )
     }
 }

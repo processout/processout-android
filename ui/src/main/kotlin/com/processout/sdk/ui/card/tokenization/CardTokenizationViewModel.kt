@@ -140,7 +140,6 @@ internal class CardTokenizationViewModel private constructor(
         val lastFocusableFieldId = lastFocusableFieldId(state)
         val sections = listOf(
             cardInformationSection(state, lastFocusableFieldId),
-            preferredSchemeSection(state),
             billingAddressSection(state, lastFocusableFieldId),
             futurePaymentsSection(state)
         )
@@ -233,7 +232,8 @@ internal class CardTokenizationViewModel private constructor(
         return Section(
             id = SectionId.CARD_INFORMATION,
             items = POImmutableList(items),
-            errorMessage = state.errorMessage
+            errorMessage = state.errorMessage,
+            subsection = preferredSchemeSection(state)
         )
     }
 

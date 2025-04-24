@@ -20,8 +20,9 @@ internal data class CardTokenizationViewModelState(
     data class Section(
         val id: String,
         val title: String? = null,
-        val items: POImmutableList<Item>,
-        val errorMessage: String? = null
+        val items: POImmutableList<Item>? = null,
+        val errorMessage: String? = null,
+        val subsection: Section? = null
     )
 
     @Immutable

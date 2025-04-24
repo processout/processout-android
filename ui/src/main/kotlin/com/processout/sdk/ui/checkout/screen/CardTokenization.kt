@@ -79,7 +79,7 @@ internal fun CardTokenization(
                     )
                 }
             }
-            section.items.elements.forEach { item ->
+            section.items?.elements?.forEach { item ->
                 Item(
                     id = id,
                     item = item,
@@ -124,6 +124,9 @@ private fun Item(
             style = style.field,
             modifier = modifier
         )
+        is Item.RadioField -> {
+            // TODO
+        }
         is Item.DropdownField -> DropdownField(
             id = id,
             state = item.state,
