@@ -487,6 +487,7 @@ internal class DynamicCheckoutInteractor(
         copy(
             cvcRequired = configuration.cvcRequired,
             cardholderNameRequired = configuration.cardholderNameRequired,
+            preferredScheme = if (configuration.schemeSelectionAllowed) preferredScheme else null,
             billingAddress = billingAddress.copy(
                 mode = configuration.billingAddress.collectionMode.map(),
                 countryCodes = configuration.billingAddress.restrictToCountryCodes
