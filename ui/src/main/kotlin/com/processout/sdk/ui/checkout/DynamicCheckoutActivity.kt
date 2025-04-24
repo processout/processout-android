@@ -38,8 +38,7 @@ import com.processout.sdk.ui.base.BaseTransparentPortraitActivity
 import com.processout.sdk.ui.card.scanner.POCardScannerLauncher
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
-import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration
-import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.CardScannerConfiguration
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutActivityContract.Companion.EXTRA_CONFIGURATION
 import com.processout.sdk.ui.checkout.DynamicCheckoutActivityContract.Companion.EXTRA_RESULT
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Failure
@@ -47,6 +46,8 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.Success
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutSideEffect.*
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.*
+import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.Button
+import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.CancelButton
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.googlepay.POGooglePayCardTokenizationLauncher
@@ -93,6 +94,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
     }
 
     private fun cardTokenizationConfiguration(): POCardTokenizationConfiguration {
+        val preferredScheme = configuration.card.preferredScheme
         val billingAddress = configuration.card.billingAddress
         return POCardTokenizationConfiguration(
             cardScanner = configuration.card.cardScanner?.let {
@@ -104,6 +106,10 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                     configuration = it.configuration
                 )
             },
+            preferredScheme = PreferredSchemeConfiguration(
+                title = preferredScheme.title,
+                displayInline = preferredScheme.displayInline
+            ),
             billingAddress = BillingAddressConfiguration(
                 defaultAddress = billingAddress.defaultAddress,
                 attachDefaultsToPaymentMethod = billingAddress.attachDefaultsToPaymentMethod
