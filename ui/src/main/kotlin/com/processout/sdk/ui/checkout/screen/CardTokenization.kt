@@ -22,6 +22,7 @@ import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
+import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
 import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
@@ -124,9 +125,13 @@ private fun Item(
             style = style.field,
             modifier = modifier
         )
-        is Item.RadioField -> {
-            // TODO
-        }
+        is Item.RadioField -> RadioField(
+            id = id,
+            state = item.state,
+            onEvent = onEvent,
+            style = style.radioGroup,
+            modifier = modifier
+        )
         is Item.DropdownField -> DropdownField(
             id = id,
             state = item.state,
@@ -220,6 +225,31 @@ private fun TextField(
     if (state.id == focusedFieldId && lifecycleEvent == Lifecycle.Event.ON_RESUME) {
         PORequestFocus(focusRequester, lifecycleEvent)
     }
+}
+
+@Composable
+private fun RadioField(
+    id: String,
+    state: FieldState,
+    onEvent: (DynamicCheckoutEvent) -> Unit,
+    style: PORadioGroup.Style,
+    modifier: Modifier = Modifier
+) {
+    PORadioGroup(
+        value = state.value.text,
+        onValueChange = {
+            onEvent(
+                FieldValueChanged(
+                    paymentMethodId = id,
+                    fieldId = state.id,
+                    value = TextFieldValue(text = it)
+                )
+            )
+        },
+        availableValues = state.availableValues ?: POImmutableList(emptyList()),
+        modifier = modifier,
+        style = style
+    )
 }
 
 @Composable
