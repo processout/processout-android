@@ -11,7 +11,6 @@ import coil.request.ImageRequest
 import coil.request.ImageResult
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
-import com.processout.sdk.api.dispatcher.card.tokenization.PODefaultCardTokenizationEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.event.PODynamicCheckoutEvent
 import com.processout.sdk.api.model.event.PODynamicCheckoutEvent.*
@@ -75,7 +74,6 @@ internal class DynamicCheckoutInteractor(
     private val invoicesService: POInvoicesService,
     private val googlePayService: POGooglePayService,
     private val cardTokenization: CardTokenizationViewModel,
-    private val cardTokenizationEventDispatcher: PODefaultCardTokenizationEventDispatcher,
     private val nativeAlternativePayment: NativeAlternativePaymentViewModel,
     private val nativeAlternativePaymentEventDispatcher: PODefaultNativeAlternativePaymentMethodEventDispatcher,
     private val eventDispatcher: POEventDispatcher = POEventDispatcher,
@@ -105,6 +103,7 @@ internal class DynamicCheckoutInteractor(
 
     private var authorizeInvoiceJob: AuthorizeInvoiceJob? = null
     private var latestInvoiceRequest: PODynamicCheckoutInvoiceRequest? = null
+    private var latestCardProcessingRequest: POCardTokenizationProcessingRequest? = null
 
     init {
         interactorScope.launch {
@@ -129,7 +128,6 @@ internal class DynamicCheckoutInteractor(
         collectInvoice()
         collectInvoiceAuthorizationRequest()
         collectTokenizedCard()
-        collectPreferredScheme()
         collectDefaultValues()
         collectSavedPaymentMethodsConfiguration()
         fetchConfiguration()
@@ -860,17 +858,18 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun collectTokenizedCard() {
-        interactorScope.launch {
-            cardTokenizationEventDispatcher.processTokenizedCardRequest.collect { request ->
-                _state.value.selectedPaymentMethod?.let { paymentMethod ->
-                    _state.update { it.copy(processingPaymentMethod = paymentMethod) }
-                    authorizeInvoice(
-                        paymentMethod = paymentMethod,
-                        source = request.card.id,
-                        saveSource = request.saveCard,
-                        clientSecret = configuration.invoiceRequest.clientSecret
-                    )
-                }
+        eventDispatcher.subscribeForRequest<POCardTokenizationProcessingRequest>(
+            coroutineScope = interactorScope
+        ) { request ->
+            _state.value.selectedPaymentMethod?.let { paymentMethod ->
+                _state.update { it.copy(processingPaymentMethod = paymentMethod) }
+                latestCardProcessingRequest = request
+                authorizeInvoice(
+                    paymentMethod = paymentMethod,
+                    source = request.card.id,
+                    saveSource = request.saveCard,
+                    clientSecret = configuration.invoiceRequest.clientSecret
+                )
             }
         }
     }
@@ -930,8 +929,11 @@ internal class DynamicCheckoutInteractor(
             return
         }
         when (state.processingPaymentMethod) {
-            is Card -> interactorScope.launch {
-                cardTokenizationEventDispatcher.complete(result)
+            is Card -> latestCardProcessingRequest?.let { request ->
+                interactorScope.launch {
+                    latestCardProcessingRequest = null
+                    eventDispatcher.send(request.toResponse(result))
+                }
             }
             is GooglePay,
             is AlternativePayment,
@@ -1001,12 +1003,11 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun dispatchEvents() {
-        interactorScope.launch {
-            cardTokenizationEventDispatcher.events.collect { eventDispatcher.send(it) }
-        }
-        interactorScope.launch {
-            cardTokenizationEventDispatcher.preferredSchemeRequest.collect { request ->
-                eventDispatcher.send(request)
+        eventDispatcher.subscribeForRequest<POCardTokenizationShouldContinueRequest>(
+            coroutineScope = interactorScope
+        ) { request ->
+            interactorScope.launch {
+                eventDispatcher.send(request.toResponse(shouldContinue = false))
             }
         }
         interactorScope.launch {
@@ -1078,16 +1079,6 @@ internal class DynamicCheckoutInteractor(
                     .filterNot { it.id == tokenId })
         }
         POLogger.debug("Deleted local customer token: %s", tokenId)
-    }
-
-    private fun collectPreferredScheme() {
-        eventDispatcher.subscribeForResponse<POCardTokenizationPreferredSchemeResponse>(
-            coroutineScope = interactorScope
-        ) { response ->
-            interactorScope.launch {
-                cardTokenizationEventDispatcher.preferredScheme(response)
-            }
-        }
     }
 
     private fun collectDefaultValues() {
