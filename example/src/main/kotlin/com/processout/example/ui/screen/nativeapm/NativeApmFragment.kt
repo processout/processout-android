@@ -17,6 +17,7 @@ import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Button
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentDelegate
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentLauncher
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodLauncher
@@ -48,7 +49,10 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
                     showAlert(result.toMessage())
             }
         }
-        launcherCompose = PONativeAlternativePaymentLauncher.create(from = this) { result ->
+        launcherCompose = PONativeAlternativePaymentLauncher.create(
+            from = this,
+            delegate = object : PONativeAlternativePaymentDelegate {}
+        ) { result ->
             viewModel.reset()
             result.onSuccess {
                 showAlert(getString(R.string.success))
