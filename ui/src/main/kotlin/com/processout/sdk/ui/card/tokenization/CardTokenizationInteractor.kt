@@ -54,7 +54,7 @@ internal class CardTokenizationInteractor(
     private val cardsRepository: POCardsRepository,
     private val cardSchemeProvider: CardSchemeProvider,
     private val addressSpecificationProvider: AddressSpecificationProvider,
-    private val legacyEventDispatcher: PODefaultCardTokenizationEventDispatcher, // TODO: remove before next major release.
+    private val legacyEventDispatcher: PODefaultCardTokenizationEventDispatcher?, // TODO: remove before next major release.
     private val eventDispatcher: POEventDispatcher = POEventDispatcher
 ) : BaseInteractor() {
 
@@ -378,7 +378,7 @@ internal class CardTokenizationInteractor(
     private suspend fun requestPreferredScheme(issuerInformation: POCardIssuerInformation) {
         val request = POCardTokenizationPreferredSchemeRequest(issuerInformation)
         latestPreferredSchemeRequest = request
-        if (legacyEventDispatcher.subscribedForPreferredSchemeRequest()) {
+        if (legacyEventDispatcher?.subscribedForPreferredSchemeRequest() == true) {
             legacyEventDispatcher.send(request)
         } else {
             eventDispatcher.send(request)
@@ -388,7 +388,7 @@ internal class CardTokenizationInteractor(
 
     private fun collectPreferredScheme() {
         interactorScope.launch {
-            legacyEventDispatcher.preferredSchemeResponse.collect { response ->
+            legacyEventDispatcher?.preferredSchemeResponse?.collect { response ->
                 handlePreferredScheme(response)
             }
         }
@@ -696,9 +696,9 @@ internal class CardTokenizationInteractor(
             card = card,
             saveCard = _state.value.saveCardField.value.text.toBooleanStrictOrNull() ?: false
         )
-        if (legacyEventDispatcher.subscribedForProcessTokenizedCard()) {
+        if (legacyEventDispatcher?.subscribedForProcessTokenizedCard() == true) {
             legacyEventDispatcher.processTokenizedCard(card)
-        } else if (legacyEventDispatcher.subscribedForProcessTokenizedCardRequest()) {
+        } else if (legacyEventDispatcher?.subscribedForProcessTokenizedCardRequest() == true) {
             legacyEventDispatcher.processTokenizedCardRequest(request)
         } else {
             eventDispatcher.send(request)
@@ -711,7 +711,7 @@ internal class CardTokenizationInteractor(
 
     private fun handleCompletion() {
         interactorScope.launch {
-            legacyEventDispatcher.completion.collect { result ->
+            legacyEventDispatcher?.completion?.collect { result ->
                 result.onSuccess {
                     _state.value.tokenizedCard?.let { card ->
                         complete(Success(card))
@@ -752,7 +752,7 @@ internal class CardTokenizationInteractor(
         interactorScope.launch {
             val request = POCardTokenizationShouldContinueRequest(failure)
             latestShouldContinueRequest = request
-            if (legacyEventDispatcher.subscribedForShouldContinueRequest()) {
+            if (legacyEventDispatcher?.subscribedForShouldContinueRequest() == true) {
                 legacyEventDispatcher.send(request)
             } else {
                 eventDispatcher.send(request)
@@ -763,7 +763,7 @@ internal class CardTokenizationInteractor(
 
     private fun shouldContinueOnFailure() {
         interactorScope.launch {
-            legacyEventDispatcher.shouldContinueResponse.collect { response ->
+            legacyEventDispatcher?.shouldContinueResponse?.collect { response ->
                 handleShouldContinue(response)
             }
         }
@@ -898,7 +898,7 @@ internal class CardTokenizationInteractor(
 
     private fun dispatch(event: POCardTokenizationEvent) {
         interactorScope.launch {
-            legacyEventDispatcher.send(event)
+            legacyEventDispatcher?.send(event)
             eventDispatcher.send(event)
         }
     }

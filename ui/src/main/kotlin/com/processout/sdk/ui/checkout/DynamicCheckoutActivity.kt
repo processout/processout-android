@@ -72,7 +72,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
             CardTokenizationViewModel.Factory(
                 app = application,
                 configuration = cardTokenizationConfiguration(),
-                eventDispatcher = cardTokenizationEventDispatcher
+                legacyEventDispatcher = cardTokenizationEventDispatcher
             )
         }
         val nativeAlternativePaymentEventDispatcher = PODefaultNativeAlternativePaymentMethodEventDispatcher()
