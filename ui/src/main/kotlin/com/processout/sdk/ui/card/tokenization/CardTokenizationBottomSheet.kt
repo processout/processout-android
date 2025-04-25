@@ -51,7 +51,7 @@ internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCar
         CardTokenizationViewModel.Factory(
             app = requireActivity().application,
             configuration = configuration,
-            eventDispatcher = PODefaultEventDispatchers.defaultCardTokenization
+            legacyEventDispatcher = PODefaultEventDispatchers.defaultCardTokenization
         )
     }
 
