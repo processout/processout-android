@@ -1,5 +1,6 @@
 package com.processout.sdk.ui.shared.provider
 
+import com.processout.sdk.api.model.response.POCardScheme.*
 import com.processout.sdk.ui.shared.provider.CardSchemeProvider.IssuerNumbers.*
 import com.processout.sdk.ui.shared.provider.CardSchemeProvider.IssuerNumbers.Set
 import kotlin.math.pow
@@ -25,9 +26,9 @@ internal class CardSchemeProvider {
     // https://www.bincodes.com/bin-list
     // Sorted by length descending to handle overlapping numbers (like 622126 and 62).
     private val issuers: List<Issuer> = listOf(
-        Issuer(scheme = "discover", numbers = Range(622126..622925), length = 6),
+        Issuer(scheme = DISCOVER.rawValue, numbers = Range(622126..622925), length = 6),
         Issuer(
-            scheme = "elo",
+            scheme = ELO.rawValue,
             numbers = Set(
                 setOf(
                     401178, 401179, 431274, 438935, 451416, 457393, 457631, 457632, 504175, 506699, 506770, 506771,
@@ -46,7 +47,7 @@ internal class CardSchemeProvider {
             length = 6
         ),
         Issuer(
-            scheme = "elo",
+            scheme = ELO.rawValue,
             numbers = Set(
                 setOf(
                     50670, 50671, 50672, 50673, 50674, 50675, 50676, 65004, 65041, 65042, 65043, 65049, 65050, 65051,
@@ -56,21 +57,21 @@ internal class CardSchemeProvider {
             ),
             length = 5
         ),
-        Issuer(scheme = "discover", numbers = Exact(6011), length = 4),
-        Issuer(scheme = "jcb", numbers = Range(3528..3589), length = 4),
-        Issuer(scheme = "elo", numbers = Exact(509), length = 3),
-        Issuer(scheme = "discover", numbers = Range(644..649), length = 3),
-        Issuer(scheme = "diners club carte blanche", numbers = Range(300..305), length = 3),
-        Issuer(scheme = "diners club international", numbers = Exact(309), length = 3),
-        Issuer(scheme = "mastercard", numbers = Range(51..55), length = 2),
-        Issuer(scheme = "discover", numbers = Exact(65), length = 2),
-        Issuer(scheme = "china union pay", numbers = Exact(62), length = 2),
-        Issuer(scheme = "american express", numbers = Set(setOf(34, 37)), length = 2),
-        Issuer(scheme = "maestro", numbers = Set(setOf(50, 56, 57, 58, 59)), length = 2),
-        Issuer(scheme = "diners club international", numbers = Set(setOf(36, 38, 39)), length = 2),
-        Issuer(scheme = "diners club united states & canada", numbers = Range(54..55), length = 2),
-        Issuer(scheme = "visa", numbers = Exact(4), length = 1),
-        Issuer(scheme = "maestro", numbers = Exact(6), length = 1)
+        Issuer(scheme = DISCOVER.rawValue, numbers = Exact(6011), length = 4),
+        Issuer(scheme = JCB.rawValue, numbers = Range(3528..3589), length = 4),
+        Issuer(scheme = ELO.rawValue, numbers = Exact(509), length = 3),
+        Issuer(scheme = DISCOVER.rawValue, numbers = Range(644..649), length = 3),
+        Issuer(scheme = DINERS_CLUB_CARTE_BLANCHE.rawValue, numbers = Range(300..305), length = 3),
+        Issuer(scheme = DINERS_CLUB_INTERNATIONAL.rawValue, numbers = Exact(309), length = 3),
+        Issuer(scheme = MASTERCARD.rawValue, numbers = Range(51..55), length = 2),
+        Issuer(scheme = DISCOVER.rawValue, numbers = Exact(65), length = 2),
+        Issuer(scheme = UNION_PAY.rawValue, numbers = Exact(62), length = 2),
+        Issuer(scheme = AMEX.rawValue, numbers = Set(setOf(34, 37)), length = 2),
+        Issuer(scheme = MAESTRO.rawValue, numbers = Set(setOf(50, 56, 57, 58, 59)), length = 2),
+        Issuer(scheme = DINERS_CLUB_INTERNATIONAL.rawValue, numbers = Set(setOf(36, 38, 39)), length = 2),
+        Issuer(scheme = DINERS_CLUB_UNITED_STATES_AND_CANADA.rawValue, numbers = Range(54..55), length = 2),
+        Issuer(scheme = VISA.rawValue, numbers = Exact(4), length = 1),
+        Issuer(scheme = MAESTRO.rawValue, numbers = Exact(6), length = 1)
     )
 
     fun scheme(cardNumber: String): String? {

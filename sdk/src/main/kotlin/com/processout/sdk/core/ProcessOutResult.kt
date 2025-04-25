@@ -18,6 +18,7 @@ sealed class ProcessOutResult<out T : Any> {
     data class Failure(
         val code: POFailure.Code,
         val message: String? = null,
+        val localizedMessage: String? = null,
         val invalidFields: List<POFailure.InvalidField>? = null,
         val cause: Exception? = null
     ) : ProcessOutResult<Nothing>()

@@ -10,6 +10,7 @@ import com.google.android.gms.wallet.WalletConstants
 import com.processout.sdk.api.model.request.POContact
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.ui.card.scanner.POCardScannerConfiguration
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.PreferredSchemeConfiguration
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration.Environment
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.shared.image.PODrawableImage
@@ -68,12 +69,14 @@ data class PODynamicCheckoutConfiguration(
      * Specifies card payment configuration.
      *
      * @param[cardScanner] Card scanner configuration. Use _null_ to hide.
+     * @param[preferredScheme] Preferred scheme selection configuration.
      * @param[billingAddress] Specifies billing address configuration.
      * @param[metadata] Metadata related to the card.
      */
     @Parcelize
     data class CardConfiguration(
         val cardScanner: CardScannerConfiguration? = CardScannerConfiguration(),
+        val preferredScheme: PreferredSchemeConfiguration = PreferredSchemeConfiguration(),
         val billingAddress: BillingAddressConfiguration = BillingAddressConfiguration(),
         val metadata: Map<String, String>? = null
     ) : Parcelable {
@@ -88,6 +91,18 @@ data class PODynamicCheckoutConfiguration(
         data class CardScannerConfiguration(
             val scanButton: Button = Button(),
             val configuration: POCardScannerConfiguration = POCardScannerConfiguration()
+        ) : Parcelable
+
+        /**
+         * Preferred scheme selection configuration.
+         *
+         * @param[title] Preferred scheme section title. Set _null_ to use a default value or empty string to remove the title.
+         * @param[displayInline] Indicates whether selection field should be displayed inline. Default value is _true_.
+         */
+        @Parcelize
+        data class PreferredSchemeConfiguration(
+            val title: String? = null,
+            val displayInline: Boolean = true
         ) : Parcelable
 
         /**

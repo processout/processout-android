@@ -141,7 +141,7 @@ internal class CardTokenizationViewModel private constructor(
         val sections = listOf(
             cardInformationSection(state, lastFocusableFieldId),
             billingAddressSection(state, lastFocusableFieldId),
-            futurePaymentsSection(state.saveCardField)
+            futurePaymentsSection(state)
         )
         return POImmutableList(sections.filterNotNull())
     }
@@ -168,22 +168,19 @@ internal class CardTokenizationViewModel private constructor(
         state.cardFields.forEach { field ->
             val keyboardAction = keyboardAction(field.id, lastFocusableFieldId)
             when (field.id) {
-                CardFieldId.NUMBER -> {
-                    val scheme = state.preferredScheme ?: state.issuerInformation?.scheme
-                    cardNumberField = field(
-                        field = field,
-                        placeholder = app.getString(R.string.po_card_tokenization_card_details_number_placeholder),
-                        iconResId = scheme?.let { cardSchemeDrawableResId(it) },
-                        forceTextDirectionLtr = true,
-                        inputFilter = CardNumberInputFilter(),
-                        visualTransformation = CardNumberVisualTransformation(),
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = keyboardAction.imeAction
-                        ),
-                        keyboardActionId = keyboardAction.actionId
-                    )
-                }
+                CardFieldId.NUMBER -> cardNumberField = field(
+                    field = field,
+                    placeholder = app.getString(R.string.po_card_tokenization_card_details_number_placeholder),
+                    iconResId = cardSchemeDrawableResId(scheme = state.preferredSchemeField.value.text),
+                    forceTextDirectionLtr = true,
+                    inputFilter = CardNumberInputFilter(),
+                    visualTransformation = CardNumberVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = keyboardAction.imeAction
+                    ),
+                    keyboardActionId = keyboardAction.actionId
+                )
                 CardFieldId.EXPIRATION -> trackFields.add(
                     field(
                         field = field,
@@ -235,7 +232,8 @@ internal class CardTokenizationViewModel private constructor(
         return Section(
             id = SectionId.CARD_INFORMATION,
             items = POImmutableList(items),
-            errorMessage = state.errorMessage
+            errorMessage = state.errorMessage,
+            subsection = preferredSchemeSection(state)
         )
     }
 
@@ -318,7 +316,39 @@ internal class CardTokenizationViewModel private constructor(
         )
     }
 
-    private fun futurePaymentsSection(saveCardField: Field): Section? {
+    private fun preferredSchemeSection(
+        state: CardTokenizationInteractorState
+    ): Section? {
+        val preferredSchemeField = preferredSchemeField(state) ?: return null
+        val title = configuration.preferredScheme?.title.let { title ->
+            if (title == null)
+                app.getString(R.string.po_card_tokenization_preferred_scheme)
+            else title.ifBlank { null }
+        }
+        return Section(
+            id = SectionId.PREFERRED_SCHEME,
+            title = title,
+            items = POImmutableList(listOf(preferredSchemeField))
+        )
+    }
+
+    private fun preferredSchemeField(
+        state: CardTokenizationInteractorState
+    ): Item? {
+        val field = state.preferredSchemeField
+        if (!field.shouldCollect) {
+            return null
+        }
+        val displayInline = configuration.preferredScheme?.displayInline ?: true
+        return if (displayInline)
+            radioField(field)
+        else dropdownField(field)
+    }
+
+    private fun futurePaymentsSection(
+        state: CardTokenizationInteractorState
+    ): Section? {
+        val saveCardField = state.saveCardField
         if (!saveCardField.shouldCollect) {
             return null
         }
@@ -375,27 +405,6 @@ internal class CardTokenizationViewModel private constructor(
         )
     }
 
-    private fun dropdownField(field: Field): Item =
-        Item.DropdownField(
-            FieldState(
-                id = field.id,
-                value = field.value,
-                availableValues = POImmutableList(field.availableValues ?: emptyList())
-            )
-        )
-
-    private fun checkboxField(
-        field: Field,
-        title: String? = null
-    ): Item = Item.CheckboxField(
-        FieldState(
-            id = field.id,
-            value = field.value,
-            title = title,
-            isError = !field.isValid
-        )
-    )
-
     private fun textField(
         field: Field,
         placeholder: String? = null,
@@ -417,6 +426,36 @@ internal class CardTokenizationViewModel private constructor(
             visualTransformation = visualTransformation,
             keyboardOptions = keyboardOptions,
             keyboardActionId = keyboardActionId
+        )
+    )
+
+    private fun radioField(field: Field): Item =
+        Item.RadioField(
+            FieldState(
+                id = field.id,
+                value = field.value,
+                availableValues = POImmutableList(field.availableValues ?: emptyList())
+            )
+        )
+
+    private fun dropdownField(field: Field): Item =
+        Item.DropdownField(
+            FieldState(
+                id = field.id,
+                value = field.value,
+                availableValues = POImmutableList(field.availableValues ?: emptyList())
+            )
+        )
+
+    private fun checkboxField(
+        field: Field,
+        title: String? = null
+    ): Item = Item.CheckboxField(
+        FieldState(
+            id = field.id,
+            value = field.value,
+            title = title,
+            isError = !field.isValid
         )
     )
 }

@@ -24,7 +24,7 @@ class DefaultCardTokenizationDelegate(
         if (invoice == null) {
             return ProcessOutResult.Failure(
                 code = Generic(),
-                message = "Failed to create an invoice."
+                localizedMessage = "Failed to create an invoice."
             )
         }
         return invoices.authorize(

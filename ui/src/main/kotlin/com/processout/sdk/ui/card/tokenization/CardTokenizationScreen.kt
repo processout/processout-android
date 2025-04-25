@@ -1,6 +1,7 @@
 package com.processout.sdk.ui.card.tokenization
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -23,11 +24,15 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.Item
+import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.Section
+import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.SectionId.CARD_INFORMATION
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.SectionId.FUTURE_PAYMENTS
+import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.SectionId.PREFERRED_SCHEME
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
+import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
 import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
@@ -126,44 +131,79 @@ private fun Sections(
         )
     }
     val lifecycleEvent = rememberLifecycleEvent()
-    state.sections.elements.forEachIndexed { index, section ->
-        val padding = if (section.id == FUTURE_PAYMENTS) {
-            spacing.small
-        } else when (index) {
-            0 -> 0.dp
-            else -> spacing.extraLarge
-        }
-        Spacer(Modifier.requiredHeight(padding))
-        Column(
-            verticalArrangement = Arrangement.spacedBy(spacing.small)
-        ) {
-            section.title?.let {
-                with(style.sectionTitle) {
-                    POText(
-                        text = it,
-                        color = color,
-                        style = textStyle
-                    )
-                }
-            }
-            section.items.elements.forEach { item ->
-                Item(
-                    item = item,
-                    onEvent = onEvent,
-                    lifecycleEvent = lifecycleEvent,
-                    focusedFieldId = state.focusedFieldId,
-                    isPrimaryActionEnabled = state.primaryAction.enabled && !state.primaryAction.loading,
-                    style = style,
-                    modifier = Modifier.fillMaxWidth()
+    state.sections.elements.forEach { section ->
+        Section(
+            section = section,
+            onEvent = onEvent,
+            lifecycleEvent = lifecycleEvent,
+            focusedFieldId = state.focusedFieldId,
+            isPrimaryActionEnabled = state.primaryAction.enabled && !state.primaryAction.loading,
+            style = style
+        )
+    }
+}
+
+@Composable
+private fun Section(
+    section: Section,
+    onEvent: (CardTokenizationEvent) -> Unit,
+    lifecycleEvent: Lifecycle.Event,
+    focusedFieldId: String?,
+    isPrimaryActionEnabled: Boolean,
+    style: CardTokenizationScreen.Style
+) {
+    val paddingTop = when (section.id) {
+        CARD_INFORMATION -> 0.dp
+        PREFERRED_SCHEME -> if (section.title == null) spacing.small else spacing.extraLarge
+        FUTURE_PAYMENTS -> spacing.small
+        else -> spacing.extraLarge
+    }
+    Column(
+        modifier = Modifier.padding(top = paddingTop),
+        verticalArrangement = Arrangement.spacedBy(spacing.small)
+    ) {
+        section.title?.let {
+            with(style.sectionTitle) {
+                POText(
+                    text = it,
+                    color = color,
+                    style = textStyle
                 )
             }
         }
-        POExpandableText(
-            text = section.errorMessage,
-            style = style.errorMessage,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = spacing.small)
+        section.items?.elements?.forEach { item ->
+            Item(
+                item = item,
+                onEvent = onEvent,
+                lifecycleEvent = lifecycleEvent,
+                focusedFieldId = focusedFieldId,
+                isPrimaryActionEnabled = isPrimaryActionEnabled,
+                style = style,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+    POExpandableText(
+        text = section.errorMessage,
+        style = style.errorMessage,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = spacing.small)
+    )
+    var currentSubsection by remember { mutableStateOf(Section(id = String())) }
+    currentSubsection = section.subsection ?: currentSubsection
+    AnimatedVisibility(
+        visible = section.subsection != null,
+        enter = expandVertically() + fadeIn(),
+        exit = shrinkVertically() + fadeOut()
+    ) {
+        Section(
+            section = currentSubsection,
+            onEvent = onEvent,
+            lifecycleEvent = lifecycleEvent,
+            focusedFieldId = focusedFieldId,
+            isPrimaryActionEnabled = isPrimaryActionEnabled,
+            style = style
         )
     }
 }
@@ -186,6 +226,12 @@ private fun Item(
             focusedFieldId = focusedFieldId,
             isPrimaryActionEnabled = isPrimaryActionEnabled,
             style = style.field,
+            modifier = modifier
+        )
+        is Item.RadioField -> RadioField(
+            state = item.state,
+            onEvent = onEvent,
+            style = style.radioGroup,
             modifier = modifier
         )
         is Item.DropdownField -> DropdownField(
@@ -268,6 +314,29 @@ private fun TextField(
     if (state.id == focusedFieldId && lifecycleEvent == Lifecycle.Event.ON_RESUME) {
         PORequestFocus(focusRequester, lifecycleEvent)
     }
+}
+
+@Composable
+private fun RadioField(
+    state: FieldState,
+    onEvent: (CardTokenizationEvent) -> Unit,
+    style: PORadioGroup.Style,
+    modifier: Modifier = Modifier
+) {
+    PORadioGroup(
+        value = state.value.text,
+        onValueChange = {
+            onEvent(
+                FieldValueChanged(
+                    id = state.id,
+                    value = TextFieldValue(text = it)
+                )
+            )
+        },
+        availableValues = state.availableValues ?: POImmutableList(emptyList()),
+        modifier = modifier,
+        style = style
+    )
 }
 
 @Composable
@@ -369,6 +438,7 @@ internal object CardTokenizationScreen {
         val sectionTitle: POText.Style,
         val field: POField.Style,
         val checkbox: POCheckbox.Style,
+        val radioGroup: PORadioGroup.Style,
         val dropdownMenu: PODropdownField.MenuStyle,
         val errorMessage: POText.Style,
         val scanButton: POButton.Style,
@@ -392,6 +462,9 @@ internal object CardTokenizationScreen {
         checkbox = custom?.checkbox?.let {
             POCheckbox.custom(style = it)
         } ?: POCheckbox.default,
+        radioGroup = custom?.radioButton?.let {
+            PORadioGroup.custom(style = it)
+        } ?: PORadioGroup.default,
         dropdownMenu = custom?.dropdownMenu?.let {
             PODropdownField.custom(style = it)
         } ?: PODropdownField.defaultMenu,

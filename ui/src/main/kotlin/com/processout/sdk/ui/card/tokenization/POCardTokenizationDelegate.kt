@@ -20,7 +20,8 @@ interface POCardTokenizationDelegate {
      * for example to authorize an invoice or assign a customer token.
      * Return the result from respective ProcessOut API if it was used.
      * In case of a custom implementation you can pass
-     * _ProcessOutResult.Success(Unit)_ or appropriate _ProcessOutResult.Failure()_.
+     * _ProcessOutResult.Success(Unit)_ or appropriate _ProcessOutResult.Failure()_
+     * with _localizedMessage_ that will be shown directly to the user.
      * Failure will be propagated to [shouldContinue] function.
      *
      * @param[card] Tokenized card.
