@@ -23,7 +23,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.wallet.Wallet.WalletOptions
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
-import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.event.POSavedPaymentMethodsEvent
 import com.processout.sdk.api.model.event.POSavedPaymentMethodsEvent.DidDeleteCustomerToken
 import com.processout.sdk.api.model.request.POInvoiceRequest
@@ -73,20 +72,18 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
                 legacyEventDispatcher = null
             )
         }
-        val nativeAlternativePaymentEventDispatcher = PODefaultNativeAlternativePaymentMethodEventDispatcher()
         val nativeAlternativePayment: NativeAlternativePaymentViewModel by viewModels {
             NativeAlternativePaymentViewModel.Factory(
                 app = application,
                 configuration = nativeAlternativePaymentConfiguration(),
-                eventDispatcher = nativeAlternativePaymentEventDispatcher
+                legacyEventDispatcher = null
             )
         }
         DynamicCheckoutViewModel.Factory(
             app = application,
             configuration = configuration,
             cardTokenization = cardTokenization,
-            nativeAlternativePayment = nativeAlternativePayment,
-            nativeAlternativePaymentEventDispatcher = nativeAlternativePaymentEventDispatcher
+            nativeAlternativePayment = nativeAlternativePayment
         )
     }
 

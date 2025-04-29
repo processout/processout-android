@@ -56,7 +56,7 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
                 gatewayConfigurationId = String(),
                 submitButton = Button()
             ),
-            eventDispatcher = PODefaultEventDispatchers.defaultNativeAlternativePaymentMethod
+            legacyEventDispatcher = PODefaultEventDispatchers.defaultNativeAlternativePaymentMethod
         )
     }
 

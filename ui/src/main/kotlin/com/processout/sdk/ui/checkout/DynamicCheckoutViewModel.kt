@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.gms.wallet.Wallet.WalletOptions
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
-import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.Display
 import com.processout.sdk.api.service.googlepay.PODefaultGooglePayService
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
@@ -44,8 +43,7 @@ internal class DynamicCheckoutViewModel private constructor(
         private val app: Application,
         private val configuration: PODynamicCheckoutConfiguration,
         private val cardTokenization: CardTokenizationViewModel,
-        private val nativeAlternativePayment: NativeAlternativePaymentViewModel,
-        private val nativeAlternativePaymentEventDispatcher: PODefaultNativeAlternativePaymentMethodEventDispatcher
+        private val nativeAlternativePayment: NativeAlternativePaymentViewModel
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
@@ -63,8 +61,7 @@ internal class DynamicCheckoutViewModel private constructor(
                             .build()
                     ),
                     cardTokenization = cardTokenization,
-                    nativeAlternativePayment = nativeAlternativePayment,
-                    nativeAlternativePaymentEventDispatcher = nativeAlternativePaymentEventDispatcher
+                    nativeAlternativePayment = nativeAlternativePayment
                 )
             ) as T
     }

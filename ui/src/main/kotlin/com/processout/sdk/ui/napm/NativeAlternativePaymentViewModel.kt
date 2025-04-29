@@ -42,7 +42,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
     class Factory(
         private val app: Application,
         private val configuration: PONativeAlternativePaymentConfiguration,
-        private val eventDispatcher: PODefaultNativeAlternativePaymentMethodEventDispatcher
+        private val legacyEventDispatcher: PODefaultNativeAlternativePaymentMethodEventDispatcher?
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
@@ -62,7 +62,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                         maxDelay = 90 * 1000,
                         factor = 1.45
                     ),
-                    eventDispatcher = eventDispatcher
+                    legacyEventDispatcher = legacyEventDispatcher
                 )
             ) as T
     }
