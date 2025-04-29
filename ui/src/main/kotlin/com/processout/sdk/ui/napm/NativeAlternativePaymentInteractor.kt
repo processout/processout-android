@@ -262,21 +262,14 @@ internal class NativeAlternativePaymentInteractor(
             fields = fields,
             focusedFieldId = focusedFieldId
         )
-        val isLoading = _state.value is Loading
-        if (legacyEventDispatcher?.subscribedForDefaultValuesRequest() == true) {
-            _state.update {
-                if (isLoading) {
-                    Loaded(updatedStateValue)
-                } else {
-                    Submitted(updatedStateValue)
-                }
+        _state.update {
+            if (_state.value is Loading) {
+                Loaded(updatedStateValue)
+            } else {
+                Submitted(updatedStateValue)
             }
-            requestDefaultValues(parameters)
-        } else if (isLoading) {
-            startUserInput(updatedStateValue)
-        } else {
-            continueUserInput(updatedStateValue)
         }
+        requestDefaultValues(parameters)
     }
 
     private fun failWithUnknownInputParameter(
@@ -370,7 +363,11 @@ internal class NativeAlternativePaymentInteractor(
                 parameters = parameters
             )
             latestDefaultValuesRequest = request
-            legacyEventDispatcher?.send(request)
+            if (legacyEventDispatcher?.subscribedForDefaultValuesRequest() == true) {
+                legacyEventDispatcher.send(request)
+            } else {
+                eventDispatcher.send(request)
+            }
             POLogger.debug("Requested to provide default values for payment parameters: %s", request)
         }
     }
@@ -378,16 +375,27 @@ internal class NativeAlternativePaymentInteractor(
     private fun collectDefaultValues() {
         interactorScope.launch {
             legacyEventDispatcher?.defaultValuesResponse?.collect { response ->
-                if (response.uuid == latestDefaultValuesRequest?.uuid) {
-                    latestDefaultValuesRequest = null
-                    POLogger.debug("Collected default values for payment parameters: %s", response)
-                    _state.whenLoaded { stateValue ->
-                        startUserInput(stateValue.updateFieldValues(response.defaultValues))
-                    }
-                    _state.whenSubmitted { stateValue ->
-                        continueUserInput(stateValue.updateFieldValues(response.defaultValues))
-                    }
-                }
+                handleDefaultValues(response)
+            }
+        }
+        eventDispatcher.subscribeForResponse<PONativeAlternativePaymentMethodDefaultValuesResponse>(
+            coroutineScope = interactorScope
+        ) { response ->
+            handleDefaultValues(response)
+        }
+    }
+
+    private fun handleDefaultValues(
+        response: PONativeAlternativePaymentMethodDefaultValuesResponse
+    ) {
+        if (response.uuid == latestDefaultValuesRequest?.uuid) {
+            latestDefaultValuesRequest = null
+            POLogger.debug("Collected default values for payment parameters: %s", response)
+            _state.whenLoaded { stateValue ->
+                startUserInput(stateValue.updateFieldValues(response.defaultValues))
+            }
+            _state.whenSubmitted { stateValue ->
+                continueUserInput(stateValue.updateFieldValues(response.defaultValues))
             }
         }
     }
