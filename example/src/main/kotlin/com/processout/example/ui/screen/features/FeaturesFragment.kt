@@ -24,6 +24,7 @@ import com.processout.sdk.ui.card.scanner.POCardScannerLauncher
 import com.processout.sdk.ui.card.scanner.recognition.POScannedCard
 import com.processout.sdk.ui.card.update.POCardUpdateConfiguration
 import com.processout.sdk.ui.card.update.POCardUpdateConfiguration.CardInformation
+import com.processout.sdk.ui.card.update.POCardUpdateDelegate
 import com.processout.sdk.ui.card.update.POCardUpdateLauncher
 import com.processout.sdk.ui.googlepay.POGooglePayCardTokenizationLauncher
 import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration
@@ -45,6 +46,7 @@ class FeaturesFragment : BaseFragment<FragmentFeaturesBinding>(
         super.onCreate(savedInstanceState)
         cardUpdateLauncher = POCardUpdateLauncher.create(
             from = this,
+            delegate = object : POCardUpdateDelegate {},
             callback = ::handleCardUpdateResult
         )
         cardScannerLauncher = POCardScannerLauncher.create(
