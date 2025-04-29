@@ -11,9 +11,9 @@ import coil.request.ImageRequest
 import coil.request.ImageResult
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
-import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.event.PODynamicCheckoutEvent
 import com.processout.sdk.api.model.event.PODynamicCheckoutEvent.*
+import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.WillSubmitParameters
 import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.response.*
@@ -75,7 +75,6 @@ internal class DynamicCheckoutInteractor(
     private val googlePayService: POGooglePayService,
     private val cardTokenization: CardTokenizationViewModel,
     private val nativeAlternativePayment: NativeAlternativePaymentViewModel,
-    private val nativeAlternativePaymentEventDispatcher: PODefaultNativeAlternativePaymentMethodEventDispatcher,
     private val eventDispatcher: POEventDispatcher = POEventDispatcher,
     private var logAttributes: Map<String, String> = logAttributes(
         invoiceId = configuration.invoiceRequest.invoiceId
@@ -123,12 +122,11 @@ internal class DynamicCheckoutInteractor(
 
     private suspend fun start() {
         handleCompletions()
-        dispatchEvents()
         dispatchSideEffects()
+        collectEvents()
         collectInvoice()
         collectInvoiceAuthorizationRequest()
         collectTokenizedCard()
-        collectDefaultValues()
         collectSavedPaymentMethodsConfiguration()
         fetchConfiguration()
     }
@@ -995,14 +993,7 @@ internal class DynamicCheckoutInteractor(
         }
     }
 
-    private fun dispatch(event: PODynamicCheckoutEvent) {
-        interactorScope.launch {
-            eventDispatcher.send(event)
-            POLogger.debug("Event has been sent: %s", event)
-        }
-    }
-
-    private fun dispatchEvents() {
+    private fun collectEvents() {
         eventDispatcher.subscribeForRequest<POCardTokenizationShouldContinueRequest>(
             coroutineScope = interactorScope
         ) { request ->
@@ -1010,18 +1001,19 @@ internal class DynamicCheckoutInteractor(
                 eventDispatcher.send(request.toResponse(shouldContinue = false))
             }
         }
-        interactorScope.launch {
-            nativeAlternativePaymentEventDispatcher.events.collect { event ->
-                if (event is WillSubmitParameters) {
-                    _state.update { it.copy(processingPaymentMethod = _state.value.selectedPaymentMethod) }
-                }
-                eventDispatcher.send(event)
+        eventDispatcher.subscribe<PONativeAlternativePaymentMethodEvent>(
+            coroutineScope = interactorScope
+        ) { event ->
+            if (event is WillSubmitParameters) {
+                _state.update { it.copy(processingPaymentMethod = _state.value.selectedPaymentMethod) }
             }
         }
+    }
+
+    private fun dispatch(event: PODynamicCheckoutEvent) {
         interactorScope.launch {
-            nativeAlternativePaymentEventDispatcher.defaultValuesRequest.collect { request ->
-                eventDispatcher.send(request)
-            }
+            eventDispatcher.send(event)
+            POLogger.debug("Event has been sent: %s", event)
         }
     }
 
@@ -1079,16 +1071,6 @@ internal class DynamicCheckoutInteractor(
                     .filterNot { it.id == tokenId })
         }
         POLogger.debug("Deleted local customer token: %s", tokenId)
-    }
-
-    private fun collectDefaultValues() {
-        eventDispatcher.subscribeForResponse<PONativeAlternativePaymentMethodDefaultValuesResponse>(
-            coroutineScope = interactorScope
-        ) { response ->
-            interactorScope.launch {
-                nativeAlternativePaymentEventDispatcher.provideDefaultValues(response)
-            }
-        }
     }
 
     private fun cancel() {
