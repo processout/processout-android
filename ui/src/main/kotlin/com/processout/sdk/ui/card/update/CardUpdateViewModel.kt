@@ -17,6 +17,7 @@ import com.processout.sdk.api.model.event.POCardUpdateEvent
 import com.processout.sdk.api.model.event.POCardUpdateEvent.*
 import com.processout.sdk.api.model.request.POCardUpdateRequest
 import com.processout.sdk.api.model.request.POCardUpdateShouldContinueRequest
+import com.processout.sdk.api.model.response.POCardUpdateShouldContinueResponse
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.POFailure.Code.Generic
@@ -349,11 +350,7 @@ internal class CardUpdateViewModel private constructor(
                 dispatch(DidComplete)
                 _completion.update { Success(card) }
             }.onFailure { failure ->
-                if (legacyEventDispatcher?.subscribedForShouldContinueRequest() == true) {
-                    requestIfShouldContinue(failure)
-                } else {
-                    handle(failure)
-                }
+                requestIfShouldContinue(failure)
             }
         }
     }
@@ -365,7 +362,11 @@ internal class CardUpdateViewModel private constructor(
                 failure = failure
             )
             latestShouldContinueRequest = request
-            legacyEventDispatcher?.send(request)
+            if (legacyEventDispatcher?.subscribedForShouldContinueRequest() == true) {
+                legacyEventDispatcher.send(request)
+            } else {
+                eventDispatcher.send(request)
+            }
             POLogger.info(
                 message = "Requested to decide whether the flow should continue or complete after the failure: %s", failure,
                 attributes = logAttributes
@@ -376,18 +377,27 @@ internal class CardUpdateViewModel private constructor(
     private fun shouldContinueOnFailure() {
         viewModelScope.launch {
             legacyEventDispatcher?.shouldContinueResponse?.collect { response ->
-                if (response.uuid == latestShouldContinueRequest?.uuid) {
-                    latestShouldContinueRequest = null
-                    if (response.shouldContinue) {
-                        handle(response.failure)
-                    } else {
-                        POLogger.info(
-                            message = "Completed after the failure: %s", response.failure,
-                            attributes = logAttributes
-                        )
-                        _completion.update { Failure(response.failure) }
-                    }
-                }
+                handleShouldContinue(response)
+            }
+        }
+        eventDispatcher.subscribeForResponse<POCardUpdateShouldContinueResponse>(
+            coroutineScope = viewModelScope
+        ) { response ->
+            handleShouldContinue(response)
+        }
+    }
+
+    private fun handleShouldContinue(response: POCardUpdateShouldContinueResponse) {
+        if (response.uuid == latestShouldContinueRequest?.uuid) {
+            latestShouldContinueRequest = null
+            if (response.shouldContinue) {
+                handle(response.failure)
+            } else {
+                POLogger.info(
+                    message = "Completed after the failure: %s", response.failure,
+                    attributes = logAttributes
+                )
+                _completion.update { Failure(response.failure) }
             }
         }
     }
