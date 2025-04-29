@@ -45,7 +45,7 @@ internal class CardUpdateViewModel private constructor(
     private val app: Application,
     private val configuration: POCardUpdateConfiguration,
     private val cardsRepository: POCardsRepository,
-    private val legacyEventDispatcher: PODefaultCardUpdateEventDispatcher?, // TODO: remove before next major release.
+    private val legacyEventDispatcher: PODefaultCardUpdateEventDispatcher, // TODO: remove before next major release.
     private val eventDispatcher: POEventDispatcher,
     private val logAttributes: Map<String, String>
 ) : ViewModel() {
@@ -362,7 +362,7 @@ internal class CardUpdateViewModel private constructor(
                 failure = failure
             )
             latestShouldContinueRequest = request
-            if (legacyEventDispatcher?.subscribedForShouldContinueRequest() == true) {
+            if (legacyEventDispatcher.subscribedForShouldContinueRequest()) {
                 legacyEventDispatcher.send(request)
             } else {
                 eventDispatcher.send(request)
@@ -376,7 +376,7 @@ internal class CardUpdateViewModel private constructor(
 
     private fun shouldContinueOnFailure() {
         viewModelScope.launch {
-            legacyEventDispatcher?.shouldContinueResponse?.collect { response ->
+            legacyEventDispatcher.shouldContinueResponse.collect { response ->
                 handleShouldContinue(response)
             }
         }
@@ -462,7 +462,7 @@ internal class CardUpdateViewModel private constructor(
 
     private fun dispatch(event: POCardUpdateEvent) {
         viewModelScope.launch {
-            legacyEventDispatcher?.send(event)
+            legacyEventDispatcher.send(event)
             eventDispatcher.send(event)
         }
     }
