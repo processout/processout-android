@@ -925,6 +925,7 @@ internal class NativeAlternativePaymentInteractor(
     private fun dispatch(event: PONativeAlternativePaymentMethodEvent) {
         interactorScope.launch {
             legacyEventDispatcher?.send(event)
+            eventDispatcher.send(event)
             POLogger.debug("Event has been sent: %s", event)
         }
     }
