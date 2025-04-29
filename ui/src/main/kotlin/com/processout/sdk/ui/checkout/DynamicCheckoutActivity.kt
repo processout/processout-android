@@ -78,7 +78,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
             NativeAlternativePaymentViewModel.Factory(
                 app = application,
                 configuration = nativeAlternativePaymentConfiguration(),
-                eventDispatcher = nativeAlternativePaymentEventDispatcher
+                legacyEventDispatcher = nativeAlternativePaymentEventDispatcher
             )
         }
         DynamicCheckoutViewModel.Factory(

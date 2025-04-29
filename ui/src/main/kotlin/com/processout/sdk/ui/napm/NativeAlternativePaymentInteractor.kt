@@ -16,6 +16,7 @@ import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.request.ImageResult
 import com.processout.sdk.R
+import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.*
@@ -63,7 +64,8 @@ internal class NativeAlternativePaymentInteractor(
     private val barcodeBitmapProvider: BarcodeBitmapProvider,
     private val mediaStorageProvider: MediaStorageProvider,
     private val captureRetryStrategy: PORetryStrategy,
-    private val eventDispatcher: PODefaultNativeAlternativePaymentMethodEventDispatcher,
+    private val legacyEventDispatcher: PODefaultNativeAlternativePaymentMethodEventDispatcher?, // TODO: remove before next major release.
+    private val eventDispatcher: POEventDispatcher = POEventDispatcher,
     private var logAttributes: Map<String, String> = logAttributes(
         invoiceId = configuration.invoiceId,
         gatewayConfigurationId = configuration.gatewayConfigurationId
@@ -261,7 +263,7 @@ internal class NativeAlternativePaymentInteractor(
             focusedFieldId = focusedFieldId
         )
         val isLoading = _state.value is Loading
-        if (eventDispatcher.subscribedForDefaultValuesRequest()) {
+        if (legacyEventDispatcher?.subscribedForDefaultValuesRequest() == true) {
             _state.update {
                 if (isLoading) {
                     Loaded(updatedStateValue)
@@ -368,14 +370,14 @@ internal class NativeAlternativePaymentInteractor(
                 parameters = parameters
             )
             latestDefaultValuesRequest = request
-            eventDispatcher.send(request)
+            legacyEventDispatcher?.send(request)
             POLogger.debug("Requested to provide default values for payment parameters: %s", request)
         }
     }
 
     private fun collectDefaultValues() {
         interactorScope.launch {
-            eventDispatcher.defaultValuesResponse.collect { response ->
+            legacyEventDispatcher?.defaultValuesResponse?.collect { response ->
                 if (response.uuid == latestDefaultValuesRequest?.uuid) {
                     latestDefaultValuesRequest = null
                     POLogger.debug("Collected default values for payment parameters: %s", response)
@@ -922,7 +924,7 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun dispatch(event: PONativeAlternativePaymentMethodEvent) {
         interactorScope.launch {
-            eventDispatcher.send(event)
+            legacyEventDispatcher?.send(event)
             POLogger.debug("Event has been sent: %s", event)
         }
     }
