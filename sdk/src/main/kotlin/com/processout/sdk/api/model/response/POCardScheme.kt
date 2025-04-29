@@ -20,6 +20,12 @@ enum class POCardScheme(
         displayName = "Atos Private Label"
     ),
 
+    /** Aura is a domestic debit and credit card brand of Brazil. */
+    AURA(
+        rawValue = "aura",
+        displayName = "Aura"
+    ),
+
     /** Bancontact is the most popular online payment method in Belgium. */
     BANCONTACT(
         rawValue = "bancontact",
@@ -38,16 +44,16 @@ enum class POCardScheme(
         displayName = "Cabal"
     ),
 
-    /** Carnet is a leading brand of Mexican acceptance, with more than 50 years of experience. */
+    /** CARNET is a leading brand of Mexican acceptance, with more than 50 years of experience. */
     CARNET(
         rawValue = "carnet",
-        displayName = "Carnet"
+        displayName = "CARNET"
     ),
 
-    /** Carte Bancaire is France's local card scheme and the most widely used payment method in the region. */
+    /** Cartes Bancaires is France's local card scheme and the most widely used payment method in the region. */
     CARTE_BANCAIRE(
         rawValue = "carte bancaire",
-        displayName = "Carte Bancaire"
+        displayName = "Cartes Bancaires"
     ),
 
     /** Cirrus is a worldwide interbank network that provides cash to Mastercard cardholders. */
@@ -68,7 +74,7 @@ enum class POCardScheme(
         displayName = "Comprocard"
     ),
 
-    /** Dankort is the national debit card of Denmark. */
+    /** Dankort is a national debit card of Denmark. */
     DANKORT(
         rawValue = "dankort",
         displayName = "Dankort"
@@ -116,12 +122,6 @@ enum class POCardScheme(
         displayName = "Elo"
     ),
 
-    /** An Electron debit card. */
-    ELECTRON(
-        rawValue = "electron",
-        displayName = "Electron"
-    ),
-
     /** GE Capital is the financial services division of General Electric. */
     GE_CAPITAL(
         rawValue = "ge capital",
@@ -131,13 +131,13 @@ enum class POCardScheme(
     /** A Girocard payment method. */
     GIROCARD(
         rawValue = "girocard",
-        displayName = "Girocard"
+        displayName = "girocard"
     ),
 
     /** Giropay is an Internet payment system in Germany. */
     GIROPAY(
         rawValue = "giropay",
-        displayName = "Giropay"
+        displayName = "giropay"
     ),
 
     /** Hipercard is a domestic debit and credit card brand of Brazil. */
@@ -170,10 +170,10 @@ enum class POCardScheme(
         displayName = "Maestro"
     ),
 
-    /** Mada is the national payment scheme of Saudi Arabia. */
+    /** Mada is a national payment scheme of Saudi Arabia. */
     MADA(
         rawValue = "mada",
-        displayName = "Mada"
+        displayName = "mada"
     ),
 
     /** Mastercard is a market leading card scheme worldwide. */
@@ -197,7 +197,7 @@ enum class POCardScheme(
     /** A Nanaco payment card. */
     NANACO(
         rawValue = "nanaco",
-        displayName = "Nanaco"
+        displayName = "nanaco"
     ),
 
     /** UK Credit Cards issued by NewDay. */
@@ -218,22 +218,28 @@ enum class POCardScheme(
         displayName = "Ourocard"
     ),
 
-    /** A Bancomat payment card. */
+    /** A PagoBANCOMAT payment card. */
     PAGO_BANCOMAT(
         rawValue = "pagoBancomat",
-        displayName = "PagoBancomat"
+        displayName = "PagoBANCOMAT"
     ),
 
     /** A PostFinance AG payment card. */
     POST_FINANCE(
         rawValue = "postFinance",
-        displayName = "PostFinance"
+        displayName = "PostFinance Card"
     ),
 
     /** Private Label is a type of credit card that is branded for a specific retailer or brand. */
     PRIVATE_LABEL(
         rawValue = "private label",
         displayName = "Private Label"
+    ),
+
+    /** A QUICPay payment card. */
+    QUIC_PAY(
+        rawValue = "quicPay",
+        displayName = "QUICPay"
     ),
 
     /** RuPay is an Indian multinational financial services and payment service system. */
@@ -291,6 +297,12 @@ enum class POCardScheme(
     VISA(
         rawValue = "visa",
         displayName = "Visa"
+    ),
+
+    /** A Visa Electron debit card. */
+    VISA_ELECTRON(
+        rawValue = "electron",
+        displayName = "Visa Electron"
     ),
 
     /** A WAON payment card. */
