@@ -80,6 +80,15 @@ interface PODynamicCheckoutDelegate {
     ): Map<String, String> = emptyMap()
 
     /**
+     * Allows to override default alternative payment configuration.
+     * Invoked when payment method is about to start.
+     */
+    suspend fun alternativePayment(
+        paymentMethod: PODynamicCheckoutPaymentMethod.AlternativePayment,
+        configuration: PODynamicCheckoutConfiguration.AlternativePaymentConfiguration
+    ): PODynamicCheckoutConfiguration.AlternativePaymentConfiguration = configuration
+
+    /**
      * Allows to customize saved payment methods configuration.
      */
     suspend fun savedPaymentMethods(
