@@ -20,6 +20,7 @@ import com.processout.sdk.api.service.proxy3ds.POProxy3DSServiceRequest.*
 import com.processout.sdk.api.service.proxy3ds.POProxy3DSServiceResponse
 import com.processout.sdk.core.POUnit
 import com.processout.sdk.core.ProcessOutActivityResult
+import com.processout.sdk.ui.checkout.dispatcher.DynamicCheckoutAlternativePaymentConfigurationRequest
 import com.processout.sdk.ui.checkout.dispatcher.DynamicCheckoutSavedPaymentMethodsRequest
 import com.processout.sdk.ui.checkout.dispatcher.toResponse
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
@@ -93,6 +94,7 @@ class PODynamicCheckoutLauncher private constructor(
         dispatchInvoiceAuthorizationRequest()
         dispatchPreferredScheme()
         dispatchDefaultValues()
+        dispatchAlternativePaymentConfiguration()
         dispatchSavedPaymentMethodsConfiguration()
         dispatch3DSService()
     }
@@ -161,6 +163,20 @@ class PODynamicCheckoutLauncher private constructor(
                     parameters = request.parameters
                 )
                 eventDispatcher.send(request.toResponse(defaultValues))
+            }
+        }
+    }
+
+    private fun dispatchAlternativePaymentConfiguration() {
+        eventDispatcher.subscribeForRequest<DynamicCheckoutAlternativePaymentConfigurationRequest>(
+            coroutineScope = scope
+        ) { request ->
+            scope.launch {
+                val configuration = delegate.alternativePayment(
+                    paymentMethod = request.paymentMethod,
+                    configuration = request.configuration
+                )
+                eventDispatcher.send(request.toResponse(configuration))
             }
         }
     }
