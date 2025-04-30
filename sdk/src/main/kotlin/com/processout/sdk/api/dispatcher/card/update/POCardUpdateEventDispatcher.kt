@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.SharedFlow
 /**
  * Dispatcher that allows to handle events during card updates.
  */
+@Deprecated(message = "Use API with POCardUpdateDelegate instead.")
 interface POCardUpdateEventDispatcher {
 
     /** Allows to subscribe for card update lifecycle events. */

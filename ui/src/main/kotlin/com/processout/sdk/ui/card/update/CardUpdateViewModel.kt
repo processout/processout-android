@@ -11,11 +11,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
+import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.dispatcher.card.update.PODefaultCardUpdateEventDispatcher
 import com.processout.sdk.api.model.event.POCardUpdateEvent
 import com.processout.sdk.api.model.event.POCardUpdateEvent.*
 import com.processout.sdk.api.model.request.POCardUpdateRequest
 import com.processout.sdk.api.model.request.POCardUpdateShouldContinueRequest
+import com.processout.sdk.api.model.response.POCardUpdateShouldContinueResponse
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.POFailure.Code.Generic
@@ -43,7 +45,8 @@ internal class CardUpdateViewModel private constructor(
     private val app: Application,
     private val configuration: POCardUpdateConfiguration,
     private val cardsRepository: POCardsRepository,
-    private val eventDispatcher: PODefaultCardUpdateEventDispatcher,
+    private val legacyEventDispatcher: PODefaultCardUpdateEventDispatcher, // TODO: remove before next major release.
+    private val eventDispatcher: POEventDispatcher,
     private val logAttributes: Map<String, String>
 ) : ViewModel() {
 
@@ -57,7 +60,8 @@ internal class CardUpdateViewModel private constructor(
                 app = app,
                 configuration = configuration,
                 cardsRepository = ProcessOut.instance.cards,
-                eventDispatcher = PODefaultCardUpdateEventDispatcher,
+                legacyEventDispatcher = PODefaultCardUpdateEventDispatcher,
+                eventDispatcher = POEventDispatcher,
                 logAttributes = mapOf(POLogAttribute.CARD_ID to configuration.cardId)
             ) as T
     }
@@ -346,11 +350,7 @@ internal class CardUpdateViewModel private constructor(
                 dispatch(DidComplete)
                 _completion.update { Success(card) }
             }.onFailure { failure ->
-                if (eventDispatcher.subscribedForShouldContinueRequest()) {
-                    requestIfShouldContinue(failure)
-                } else {
-                    handle(failure)
-                }
+                requestIfShouldContinue(failure)
             }
         }
     }
@@ -362,7 +362,11 @@ internal class CardUpdateViewModel private constructor(
                 failure = failure
             )
             latestShouldContinueRequest = request
-            eventDispatcher.send(request)
+            if (legacyEventDispatcher.subscribedForShouldContinueRequest()) {
+                legacyEventDispatcher.send(request)
+            } else {
+                eventDispatcher.send(request)
+            }
             POLogger.info(
                 message = "Requested to decide whether the flow should continue or complete after the failure: %s", failure,
                 attributes = logAttributes
@@ -372,19 +376,28 @@ internal class CardUpdateViewModel private constructor(
 
     private fun shouldContinueOnFailure() {
         viewModelScope.launch {
-            eventDispatcher.shouldContinueResponse.collect { response ->
-                if (response.uuid == latestShouldContinueRequest?.uuid) {
-                    latestShouldContinueRequest = null
-                    if (response.shouldContinue) {
-                        handle(response.failure)
-                    } else {
-                        POLogger.info(
-                            message = "Completed after the failure: %s", response.failure,
-                            attributes = logAttributes
-                        )
-                        _completion.update { Failure(response.failure) }
-                    }
-                }
+            legacyEventDispatcher.shouldContinueResponse.collect { response ->
+                handleShouldContinue(response)
+            }
+        }
+        eventDispatcher.subscribeForResponse<POCardUpdateShouldContinueResponse>(
+            coroutineScope = viewModelScope
+        ) { response ->
+            handleShouldContinue(response)
+        }
+    }
+
+    private fun handleShouldContinue(response: POCardUpdateShouldContinueResponse) {
+        if (response.uuid == latestShouldContinueRequest?.uuid) {
+            latestShouldContinueRequest = null
+            if (response.shouldContinue) {
+                handle(response.failure)
+            } else {
+                POLogger.info(
+                    message = "Completed after the failure: %s", response.failure,
+                    attributes = logAttributes
+                )
+                _completion.update { Failure(response.failure) }
             }
         }
     }
@@ -449,6 +462,7 @@ internal class CardUpdateViewModel private constructor(
 
     private fun dispatch(event: POCardUpdateEvent) {
         viewModelScope.launch {
+            legacyEventDispatcher.send(event)
             eventDispatcher.send(event)
         }
     }

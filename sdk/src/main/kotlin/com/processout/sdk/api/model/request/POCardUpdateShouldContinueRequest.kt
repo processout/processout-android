@@ -1,5 +1,6 @@
 package com.processout.sdk.api.model.request
 
+import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import java.util.UUID
@@ -14,5 +15,5 @@ import java.util.UUID
 data class POCardUpdateShouldContinueRequest @ProcessOutInternalApi constructor(
     val cardId: String,
     val failure: ProcessOutResult.Failure,
-    val uuid: UUID = UUID.randomUUID()
-)
+    override val uuid: UUID = UUID.randomUUID()
+) : POEventDispatcher.Request

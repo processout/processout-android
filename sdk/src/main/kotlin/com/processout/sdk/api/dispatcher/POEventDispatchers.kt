@@ -16,5 +16,6 @@ interface POEventDispatchers {
     val cardTokenization: POCardTokenizationEventDispatcher
 
     /** Dispatcher that allows to handle events during card updates. */
+    @Deprecated(message = "Use API with POCardUpdateDelegate instead.")
     val cardUpdate: POCardUpdateEventDispatcher
 }
