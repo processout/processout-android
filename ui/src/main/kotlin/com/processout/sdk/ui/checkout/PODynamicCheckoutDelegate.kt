@@ -75,7 +75,7 @@ interface PODynamicCheckoutDelegate {
      * It's not mandatory to provide default values for all parameters.
      */
     suspend fun defaultValues(
-        gatewayConfigurationId: String,
+        paymentMethod: PODynamicCheckoutPaymentMethod.AlternativePayment,
         parameters: List<PONativeAlternativePaymentMethodParameter>
     ): Map<String, String> = emptyMap()
 

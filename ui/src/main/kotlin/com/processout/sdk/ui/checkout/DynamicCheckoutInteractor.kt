@@ -122,8 +122,8 @@ internal class DynamicCheckoutInteractor(
 
     private suspend fun start() {
         handleCompletions()
+        dispatchEvents()
         dispatchSideEffects()
-        collectEvents()
         collectInvoice()
         collectInvoiceAuthorizationRequest()
         collectTokenizedCard()
@@ -993,12 +993,35 @@ internal class DynamicCheckoutInteractor(
         }
     }
 
-    private fun collectEvents() {
+    private fun dispatch(event: PODynamicCheckoutEvent) {
+        interactorScope.launch {
+            eventDispatcher.send(event)
+            POLogger.debug("Event has been sent: %s", event)
+        }
+    }
+
+    private fun dispatchEvents() {
         eventDispatcher.subscribeForRequest<POCardTokenizationShouldContinueRequest>(
             coroutineScope = interactorScope
         ) { request ->
             interactorScope.launch {
                 eventDispatcher.send(request.toResponse(shouldContinue = false))
+            }
+        }
+        eventDispatcher.subscribeForRequest<PONativeAlternativePaymentMethodDefaultValuesRequest>(
+            coroutineScope = interactorScope
+        ) { request ->
+            activePaymentMethod()?.let { paymentMethod ->
+                if (paymentMethod is NativeAlternativePayment) {
+                    interactorScope.launch {
+                        val defaultValuesRequest = PODynamicCheckoutAlternativePaymentDefaultValuesRequest(
+                            uuid = request.uuid,
+                            paymentMethod = paymentMethod.original,
+                            parameters = request.parameters
+                        )
+                        eventDispatcher.send(defaultValuesRequest)
+                    }
+                }
             }
         }
         eventDispatcher.subscribe<PONativeAlternativePaymentMethodEvent>(
@@ -1007,13 +1030,6 @@ internal class DynamicCheckoutInteractor(
             if (event is WillSubmitParameters) {
                 _state.update { it.copy(processingPaymentMethod = _state.value.selectedPaymentMethod) }
             }
-        }
-    }
-
-    private fun dispatch(event: PODynamicCheckoutEvent) {
-        interactorScope.launch {
-            eventDispatcher.send(event)
-            POLogger.debug("Event has been sent: %s", event)
         }
     }
 

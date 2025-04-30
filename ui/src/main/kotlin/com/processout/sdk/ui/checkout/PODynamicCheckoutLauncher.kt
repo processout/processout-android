@@ -12,10 +12,7 @@ import com.processout.sdk.api.model.event.POCardTokenizationEvent
 import com.processout.sdk.api.model.event.PODynamicCheckoutEvent
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
 import com.processout.sdk.api.model.event.POSavedPaymentMethodsEvent
-import com.processout.sdk.api.model.request.POCardTokenizationPreferredSchemeRequest
-import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceAuthorizationRequest
-import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceRequest
-import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodDefaultValuesRequest
+import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.response.toResponse
 import com.processout.sdk.api.service.PO3DSService
 import com.processout.sdk.api.service.proxy3ds.POProxy3DSServiceRequest
@@ -153,12 +150,12 @@ class PODynamicCheckoutLauncher private constructor(
     }
 
     private fun dispatchDefaultValues() {
-        eventDispatcher.subscribeForRequest<PONativeAlternativePaymentMethodDefaultValuesRequest>(
+        eventDispatcher.subscribeForRequest<PODynamicCheckoutAlternativePaymentDefaultValuesRequest>(
             coroutineScope = scope
         ) { request ->
             scope.launch {
                 val defaultValues = delegate.defaultValues(
-                    gatewayConfigurationId = request.gatewayConfigurationId,
+                    paymentMethod = request.paymentMethod,
                     parameters = request.parameters
                 )
                 eventDispatcher.send(request.toResponse(defaultValues))
