@@ -100,6 +100,9 @@ def setBuildConfig(buildType) {
 }
 
 dependencies {
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinxCoroutinesVersion"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$kotlinxCoroutinesVersion"
+
     api "androidx.appcompat:appcompat:$androidxAppCompatVersion"
     api "androidx.core:core-ktx:$androidxCoreVersion"
     api "androidx.activity:activity-ktx:$androidxActivityVersion"
@@ -110,7 +113,6 @@ dependencies {
 
     api "com.google.android.material:material:$materialVersion"
     api "com.google.android.gms:play-services-wallet:$gmsWalletVersion"
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$kotlinxCoroutinesPlayServicesVersion"
 
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "com.squareup.retrofit2:converter-moshi:$retrofitVersion"

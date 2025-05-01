@@ -36,6 +36,8 @@ ext {
     publishGroupId = 'com.processout'
     publishVersion = file('version.resolved').getText().trim()
 
+    kotlinxCoroutinesVersion = '1.10.2'
+
     androidxCoreVersion = '1.15.0'
     androidxAppCompatVersion = '1.7.0'
     androidxConstraintLayoutVersion = '2.2.1'
@@ -54,7 +56,6 @@ ext {
 
     gmsWalletVersion = '19.4.0'
     mlkitTextRecognitionVersion = '19.0.1'
-    kotlinxCoroutinesPlayServicesVersion = '1.10.2'
 
     retrofitVersion = '2.11.0'
     moshiVersion = '1.15.2'
