@@ -514,6 +514,9 @@ internal class DynamicCheckoutInteractor(
                     return@let
                 }
                 if (paymentMethod is NativeAlternativePayment) {
+                    if (response.configuration.returnUrl != configuration.alternativePayment.returnUrl) {
+                        error("Changing alternative payment 'returnUrl' is not supported via delegate.")
+                    }
                     nativeAlternativePayment.start(
                         configuration = nativeAlternativePayment.configuration
                             .apply(

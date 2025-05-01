@@ -82,6 +82,7 @@ interface PODynamicCheckoutDelegate {
     /**
      * Allows to override default alternative payment configuration.
      * Invoked when payment method is about to start.
+     * __Note:__ Changing _returnUrl_ is not supported and will throw _IllegalStateException_.
      */
     suspend fun alternativePayment(
         paymentMethod: PODynamicCheckoutPaymentMethod.AlternativePayment,
