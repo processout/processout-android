@@ -65,7 +65,7 @@ interface PODynamicCheckoutDelegate {
      * Allows to choose default preferred card scheme based on issuer information.
      * Primary card scheme is used by default.
      */
-    suspend fun preferredScheme(
+    fun preferredScheme(
         issuerInformation: POCardIssuerInformation
     ): String? = issuerInformation.scheme
 
@@ -84,7 +84,7 @@ interface PODynamicCheckoutDelegate {
      * Invoked when payment method is about to start.
      * __Note:__ Changing _returnUrl_ is not supported and will throw _IllegalStateException_.
      */
-    suspend fun alternativePayment(
+    fun alternativePayment(
         paymentMethod: PODynamicCheckoutPaymentMethod.AlternativePayment,
         configuration: PODynamicCheckoutConfiguration.AlternativePaymentConfiguration
     ): PODynamicCheckoutConfiguration.AlternativePaymentConfiguration = configuration
@@ -92,7 +92,7 @@ interface PODynamicCheckoutDelegate {
     /**
      * Allows to customize saved payment methods configuration.
      */
-    suspend fun savedPaymentMethods(
+    fun savedPaymentMethods(
         configuration: POSavedPaymentMethodsConfiguration
     ): POSavedPaymentMethodsConfiguration = configuration
 }
