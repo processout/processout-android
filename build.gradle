@@ -38,7 +38,7 @@ ext {
 
     kotlinxCoroutinesVersion = '1.10.2'
 
-    androidxCoreVersion = '1.15.0'
+    androidxCoreVersion = '1.16.0'
     androidxAppCompatVersion = '1.7.0'
     androidxConstraintLayoutVersion = '2.2.1'
     androidxActivityVersion = '1.10.1'
