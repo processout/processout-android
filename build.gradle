@@ -54,7 +54,7 @@ ext {
 
     gmsWalletVersion = '19.4.0'
     mlkitTextRecognitionVersion = '19.0.1'
-    kotlinxCoroutinesPlayServicesVersion = '1.9.0'
+    kotlinxCoroutinesPlayServicesVersion = '1.10.2'
 
     retrofitVersion = '2.11.0'
     moshiVersion = '1.15.2'
