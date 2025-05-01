@@ -13,9 +13,10 @@ internal data class DynamicCheckoutAlternativePaymentConfigurationRequest(
 
 internal data class DynamicCheckoutAlternativePaymentConfigurationResponse(
     override val uuid: UUID,
+    val paymentMethod: PODynamicCheckoutPaymentMethod.AlternativePayment,
     val configuration: PODynamicCheckoutConfiguration.AlternativePaymentConfiguration
 ) : POEventDispatcher.Response
 
 internal fun DynamicCheckoutAlternativePaymentConfigurationRequest.toResponse(
     configuration: PODynamicCheckoutConfiguration.AlternativePaymentConfiguration
-) = DynamicCheckoutAlternativePaymentConfigurationResponse(uuid, configuration)
+) = DynamicCheckoutAlternativePaymentConfigurationResponse(uuid, paymentMethod, configuration)
