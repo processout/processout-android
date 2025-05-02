@@ -100,7 +100,7 @@ internal class DynamicCheckoutInteractor(
     private val handler = Handler(Looper.getMainLooper())
 
     private var authorizeInvoiceJob: AuthorizeInvoiceJob? = null
-    private var latestInvoiceRequest: PODynamicCheckoutInvoiceRequest? = null
+    private var latestInvoiceRequest: DynamicCheckoutInvoiceRequest? = null
     private var latestCardProcessingRequest: POCardTokenizationProcessingRequest? = null
 
     init {
@@ -879,7 +879,7 @@ internal class DynamicCheckoutInteractor(
             )
         }
         if (latestInvoiceRequest == null) {
-            val request = PODynamicCheckoutInvoiceRequest(
+            val request = DynamicCheckoutInvoiceRequest(
                 currentInvoice = currentInvoice,
                 invalidationReason = reason
             )
@@ -892,7 +892,7 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun collectInvoice() {
-        eventDispatcher.subscribeForResponse<PODynamicCheckoutInvoiceResponse>(
+        eventDispatcher.subscribeForResponse<DynamicCheckoutInvoiceResponse>(
             coroutineScope = interactorScope
         ) { response ->
             if (response.uuid == latestInvoiceRequest?.uuid) {

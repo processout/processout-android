@@ -112,7 +112,7 @@ class PODynamicCheckoutLauncher private constructor(
     }
 
     private fun dispatchInvoice() {
-        eventDispatcher.subscribeForRequest<PODynamicCheckoutInvoiceRequest>(
+        eventDispatcher.subscribeForRequest<DynamicCheckoutInvoiceRequest>(
             coroutineScope = scope
         ) { request ->
             scope.launch {
