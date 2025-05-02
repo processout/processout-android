@@ -10,7 +10,6 @@ import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
-import com.processout.sdk.api.model.event.POSavedPaymentMethodsEvent
 import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.response.toResponse
 import com.processout.sdk.api.service.PO3DSService
@@ -21,6 +20,7 @@ import com.processout.sdk.core.POUnit
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.ui.checkout.delegate.*
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.savedpaymentmethods.delegate.POSavedPaymentMethodsEvent
 import kotlinx.coroutines.*
 
 /**

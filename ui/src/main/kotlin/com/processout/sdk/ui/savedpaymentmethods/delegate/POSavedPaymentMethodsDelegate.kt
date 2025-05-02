@@ -1,6 +1,4 @@
-package com.processout.sdk.ui.savedpaymentmethods
-
-import com.processout.sdk.api.model.event.POSavedPaymentMethodsEvent
+package com.processout.sdk.ui.savedpaymentmethods.delegate
 
 /**
  * Delegates events during management of saved payment methods.

@@ -1,4 +1,4 @@
-package com.processout.sdk.api.model.event
+package com.processout.sdk.ui.savedpaymentmethods.delegate
 
 import com.processout.sdk.core.ProcessOutResult
 
