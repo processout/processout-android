@@ -1078,7 +1078,7 @@ internal class DynamicCheckoutInteractor(
             activePaymentMethod()?.let { paymentMethod ->
                 if (paymentMethod is NativeAlternativePayment) {
                     interactorScope.launch {
-                        val defaultValuesRequest = PODynamicCheckoutAlternativePaymentDefaultValuesRequest(
+                        val defaultValuesRequest = DynamicCheckoutAlternativePaymentDefaultValuesRequest(
                             uuid = request.uuid,
                             paymentMethod = paymentMethod.original,
                             parameters = request.parameters

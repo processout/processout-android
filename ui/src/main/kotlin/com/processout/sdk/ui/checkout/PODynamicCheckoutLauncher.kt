@@ -151,7 +151,7 @@ class PODynamicCheckoutLauncher private constructor(
     }
 
     private fun dispatchDefaultValues() {
-        eventDispatcher.subscribeForRequest<PODynamicCheckoutAlternativePaymentDefaultValuesRequest>(
+        eventDispatcher.subscribeForRequest<DynamicCheckoutAlternativePaymentDefaultValuesRequest>(
             coroutineScope = scope
         ) { request ->
             scope.launch {
