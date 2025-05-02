@@ -1,18 +1,17 @@
-package com.processout.sdk.ui.checkout
+package com.processout.sdk.ui.checkout.delegate
 
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
-import com.processout.sdk.api.model.event.PODynamicCheckoutEvent
-import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
-import com.processout.sdk.api.model.event.POSavedPaymentMethodsEvent
-import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceInvalidationReason
 import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.response.POCardIssuerInformation
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.POInvoice
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter
+import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentEvent
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsConfiguration
+import com.processout.sdk.ui.savedpaymentmethods.delegate.POSavedPaymentMethodsEvent
 
 /**
  * Delegate that allows to handle events during dynamic checkout flow.
@@ -34,7 +33,7 @@ interface PODynamicCheckoutDelegate {
     /**
      * Invoked on native alternative payment lifecycle events.
      */
-    fun onEvent(event: PONativeAlternativePaymentMethodEvent) {}
+    fun onEvent(event: PONativeAlternativePaymentEvent) {}
 
     /**
      * Invoked on saved payment methods lifecycle events.
@@ -57,8 +56,8 @@ interface PODynamicCheckoutDelegate {
      * Allows to alter request parameters but please make sure that _invoiceId_ and _source_ are unmodified.
      */
     suspend fun invoiceAuthorizationRequest(
-        request: POInvoiceAuthorizationRequest,
-        paymentMethod: PODynamicCheckoutPaymentMethod
+        paymentMethod: PODynamicCheckoutPaymentMethod,
+        request: POInvoiceAuthorizationRequest
     ): POInvoiceAuthorizationRequest = request
 
     /**

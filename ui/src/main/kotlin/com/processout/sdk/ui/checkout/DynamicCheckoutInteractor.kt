@@ -11,9 +11,6 @@ import coil.request.ImageRequest
 import coil.request.ImageResult
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
-import com.processout.sdk.api.model.event.PODynamicCheckoutEvent
-import com.processout.sdk.api.model.event.PODynamicCheckoutEvent.*
-import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.WillSubmitParameters
 import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.response.*
@@ -55,12 +52,11 @@ import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayCo
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration.CheckoutOption.DEFAULT
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration.TotalPriceStatus.ESTIMATED
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration.TotalPriceStatus.FINAL
-import com.processout.sdk.ui.checkout.dispatcher.DynamicCheckoutAlternativePaymentConfigurationRequest
-import com.processout.sdk.ui.checkout.dispatcher.DynamicCheckoutAlternativePaymentConfigurationResponse
-import com.processout.sdk.ui.checkout.dispatcher.DynamicCheckoutSavedPaymentMethodsRequest
-import com.processout.sdk.ui.checkout.dispatcher.DynamicCheckoutSavedPaymentMethodsResponse
+import com.processout.sdk.ui.checkout.delegate.*
+import com.processout.sdk.ui.checkout.delegate.PODynamicCheckoutEvent.*
 import com.processout.sdk.ui.napm.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
+import com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentEvent
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsConfiguration
 import com.processout.sdk.ui.shared.extension.orElse
 import kotlinx.coroutines.*
@@ -104,7 +100,7 @@ internal class DynamicCheckoutInteractor(
     private val handler = Handler(Looper.getMainLooper())
 
     private var authorizeInvoiceJob: AuthorizeInvoiceJob? = null
-    private var latestInvoiceRequest: PODynamicCheckoutInvoiceRequest? = null
+    private var latestInvoiceRequest: DynamicCheckoutInvoiceRequest? = null
     private var latestCardProcessingRequest: POCardTokenizationProcessingRequest? = null
 
     init {
@@ -658,7 +654,7 @@ internal class DynamicCheckoutInteractor(
         POLogger.debug("Invoked saved payment methods.")
         interactorScope.launch {
             eventDispatcher.send(
-                DynamicCheckoutSavedPaymentMethodsRequest(
+                DynamicCheckoutSavedPaymentMethodsConfigurationRequest(
                     configuration = POSavedPaymentMethodsConfiguration(
                         invoiceRequest = configuration.invoiceRequest
                     )
@@ -668,7 +664,7 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun collectSavedPaymentMethodsConfiguration() {
-        eventDispatcher.subscribeForResponse<DynamicCheckoutSavedPaymentMethodsResponse>(
+        eventDispatcher.subscribeForResponse<DynamicCheckoutSavedPaymentMethodsConfigurationResponse>(
             coroutineScope = interactorScope
         ) { response ->
             interactorScope.launch {
@@ -883,7 +879,7 @@ internal class DynamicCheckoutInteractor(
             )
         }
         if (latestInvoiceRequest == null) {
-            val request = PODynamicCheckoutInvoiceRequest(
+            val request = DynamicCheckoutInvoiceRequest(
                 currentInvoice = currentInvoice,
                 invalidationReason = reason
             )
@@ -896,7 +892,7 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun collectInvoice() {
-        eventDispatcher.subscribeForResponse<PODynamicCheckoutInvoiceResponse>(
+        eventDispatcher.subscribeForResponse<DynamicCheckoutInvoiceResponse>(
             coroutineScope = interactorScope
         ) { response ->
             if (response.uuid == latestInvoiceRequest?.uuid) {
@@ -948,22 +944,22 @@ internal class DynamicCheckoutInteractor(
         clientSecret: String? = null
     ) {
         interactorScope.launch {
-            val request = PODynamicCheckoutInvoiceAuthorizationRequest(
+            val request = DynamicCheckoutInvoiceAuthorizationRequest(
+                paymentMethod = paymentMethod.original,
                 request = POInvoiceAuthorizationRequest(
                     invoiceId = configuration.invoiceRequest.invoiceId,
                     source = source,
                     saveSource = saveSource,
                     allowFallbackToSale = allowFallbackToSale,
                     clientSecret = clientSecret
-                ),
-                paymentMethod = paymentMethod.original
+                )
             )
             eventDispatcher.send(request)
         }
     }
 
     private fun collectInvoiceAuthorizationRequest() {
-        eventDispatcher.subscribeForResponse<PODynamicCheckoutInvoiceAuthorizationResponse>(
+        eventDispatcher.subscribeForResponse<DynamicCheckoutInvoiceAuthorizationResponse>(
             coroutineScope = interactorScope
         ) { response ->
             POLogger.info("Authorizing the invoice.", attributes = logAttributes)
@@ -1082,7 +1078,7 @@ internal class DynamicCheckoutInteractor(
             activePaymentMethod()?.let { paymentMethod ->
                 if (paymentMethod is NativeAlternativePayment) {
                     interactorScope.launch {
-                        val defaultValuesRequest = PODynamicCheckoutAlternativePaymentDefaultValuesRequest(
+                        val defaultValuesRequest = DynamicCheckoutAlternativePaymentDefaultValuesRequest(
                             uuid = request.uuid,
                             paymentMethod = paymentMethod.original,
                             parameters = request.parameters
@@ -1092,7 +1088,7 @@ internal class DynamicCheckoutInteractor(
                 }
             }
         }
-        eventDispatcher.subscribe<PONativeAlternativePaymentMethodEvent>(
+        eventDispatcher.subscribe<PONativeAlternativePaymentEvent>(
             coroutineScope = interactorScope
         ) { event ->
             if (event is WillSubmitParameters) {

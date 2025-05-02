@@ -7,8 +7,6 @@ import coil.request.ImageRequest
 import coil.request.ImageResult
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
-import com.processout.sdk.api.model.event.POSavedPaymentMethodsEvent
-import com.processout.sdk.api.model.event.POSavedPaymentMethodsEvent.*
 import com.processout.sdk.api.model.request.PODeleteCustomerTokenRequest
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.*
@@ -28,6 +26,8 @@ import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsEvent.Action
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsEvent.Dismiss
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsInteractorState.ActionId
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsInteractorState.PaymentMethod
+import com.processout.sdk.ui.savedpaymentmethods.delegate.POSavedPaymentMethodsEvent
+import com.processout.sdk.ui.savedpaymentmethods.delegate.POSavedPaymentMethodsEvent.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope

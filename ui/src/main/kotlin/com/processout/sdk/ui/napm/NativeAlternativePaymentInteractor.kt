@@ -18,7 +18,6 @@ import coil.request.ImageResult
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
-import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.*
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodDefaultValuesRequest
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
@@ -47,6 +46,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.Action
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.PermissionRequest
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
+import com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentEvent
 import com.processout.sdk.ui.shared.extension.dpToPx
 import com.processout.sdk.ui.shared.provider.BarcodeBitmapProvider
 import com.processout.sdk.ui.shared.provider.MediaStorageProvider
@@ -930,7 +930,7 @@ internal class NativeAlternativePaymentInteractor(
 
     //region Dispatch Events
 
-    private fun dispatch(event: PONativeAlternativePaymentMethodEvent) {
+    private fun dispatch(event: PONativeAlternativePaymentEvent) {
         interactorScope.launch {
             legacyEventDispatcher?.send(event)
             eventDispatcher.send(event)

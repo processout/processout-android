@@ -8,11 +8,12 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
-import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodDefaultValuesRequest
 import com.processout.sdk.api.model.response.toResponse
 import com.processout.sdk.core.POUnit
 import com.processout.sdk.core.ProcessOutActivityResult
+import com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentDelegate
+import com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -114,7 +115,7 @@ class PONativeAlternativePaymentLauncher private constructor(
     }
 
     private fun dispatchEvents() {
-        eventDispatcher.subscribe<PONativeAlternativePaymentMethodEvent>(
+        eventDispatcher.subscribe<PONativeAlternativePaymentEvent>(
             coroutineScope = scope
         ) { delegate.onEvent(it) }
     }

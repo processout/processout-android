@@ -15,6 +15,7 @@ import com.processout.sdk.api.model.request.POCardTokenizationShouldContinueRequ
 import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.api.model.response.toResponse
 import com.processout.sdk.core.ProcessOutActivityResult
+import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationDelegate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

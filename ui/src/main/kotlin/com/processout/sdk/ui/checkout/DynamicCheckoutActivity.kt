@@ -23,8 +23,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.wallet.Wallet.WalletOptions
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
-import com.processout.sdk.api.model.event.POSavedPaymentMethodsEvent
-import com.processout.sdk.api.model.event.POSavedPaymentMethodsEvent.DidDeleteCustomerToken
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.model.response.POGooglePayCardTokenizationData
@@ -52,8 +50,10 @@ import com.processout.sdk.ui.googlepay.POGooglePayCardTokenizationLauncher
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration
-import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsDelegate
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsLauncher
+import com.processout.sdk.ui.savedpaymentmethods.delegate.POSavedPaymentMethodsDelegate
+import com.processout.sdk.ui.savedpaymentmethods.delegate.POSavedPaymentMethodsEvent
+import com.processout.sdk.ui.savedpaymentmethods.delegate.POSavedPaymentMethodsEvent.DidDeleteCustomerToken
 import com.processout.sdk.ui.shared.extension.collectImmediately
 import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivity
 import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivityContract

@@ -69,12 +69,13 @@
     <string name="po_card_tokenization_billing_address_street">Address line %d</string>
     <string name="po_card_tokenization_save_card">Save this card for future payments</string>
     <string name="po_card_tokenization_error_card">Your card information is invalid.</string>
-    <string name="po_card_tokenization_error_card_expiration">Your card expiration date is invalid.</string>
     <string name="po_card_tokenization_error_card_number">Your card number is invalid.</string>
-    <string name="po_card_tokenization_error_cardholder">The cardholder name is invalid.</string>
+    <string name="po_card_tokenization_error_card_expiration">Your card expiration date is invalid.</string>
     <string name="po_card_tokenization_error_cvc">Your card CVC is invalid.</string>
-    <string name="po_card_tokenization_error_generic">Something went wrong, please try again.</string>
     <string name="po_card_tokenization_error_track_data">Your card expiration date and/or CVC is invalid.</string>
+    <string name="po_card_tokenization_error_cardholder">The cardholder name is invalid.</string>
+    <string name="po_card_tokenization_error_eligibility">We can’t accept this card. Please try a different one.</string>
+    <string name="po_card_tokenization_error_generic">Something went wrong, please try again.</string>
 
     <!-- Address Specification -->
     <string name="po_address_spec_area">Area</string>
