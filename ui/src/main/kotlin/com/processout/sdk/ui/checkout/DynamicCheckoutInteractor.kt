@@ -55,10 +55,10 @@ import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayCo
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration.CheckoutOption.DEFAULT
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration.TotalPriceStatus.ESTIMATED
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration.TotalPriceStatus.FINAL
-import com.processout.sdk.ui.checkout.dispatcher.DynamicCheckoutAlternativePaymentConfigurationRequest
-import com.processout.sdk.ui.checkout.dispatcher.DynamicCheckoutAlternativePaymentConfigurationResponse
-import com.processout.sdk.ui.checkout.dispatcher.DynamicCheckoutSavedPaymentMethodsConfigurationRequest
-import com.processout.sdk.ui.checkout.dispatcher.DynamicCheckoutSavedPaymentMethodsConfigurationResponse
+import com.processout.sdk.ui.checkout.delegate.DynamicCheckoutAlternativePaymentConfigurationRequest
+import com.processout.sdk.ui.checkout.delegate.DynamicCheckoutAlternativePaymentConfigurationResponse
+import com.processout.sdk.ui.checkout.delegate.DynamicCheckoutSavedPaymentMethodsConfigurationRequest
+import com.processout.sdk.ui.checkout.delegate.DynamicCheckoutSavedPaymentMethodsConfigurationResponse
 import com.processout.sdk.ui.napm.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsConfiguration

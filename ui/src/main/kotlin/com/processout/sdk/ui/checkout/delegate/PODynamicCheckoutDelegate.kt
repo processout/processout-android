@@ -1,4 +1,4 @@
-package com.processout.sdk.ui.checkout
+package com.processout.sdk.ui.checkout.delegate
 
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
 import com.processout.sdk.api.model.event.PODynamicCheckoutEvent
@@ -11,6 +11,7 @@ import com.processout.sdk.api.model.response.POCardIssuerInformation
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.POInvoice
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter
+import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsConfiguration
 

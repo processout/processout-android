@@ -20,9 +20,10 @@ import com.processout.sdk.api.service.proxy3ds.POProxy3DSServiceRequest.*
 import com.processout.sdk.api.service.proxy3ds.POProxy3DSServiceResponse
 import com.processout.sdk.core.POUnit
 import com.processout.sdk.core.ProcessOutActivityResult
-import com.processout.sdk.ui.checkout.dispatcher.DynamicCheckoutAlternativePaymentConfigurationRequest
-import com.processout.sdk.ui.checkout.dispatcher.DynamicCheckoutSavedPaymentMethodsConfigurationRequest
-import com.processout.sdk.ui.checkout.dispatcher.toResponse
+import com.processout.sdk.ui.checkout.delegate.DynamicCheckoutAlternativePaymentConfigurationRequest
+import com.processout.sdk.ui.checkout.delegate.DynamicCheckoutSavedPaymentMethodsConfigurationRequest
+import com.processout.sdk.ui.checkout.delegate.PODynamicCheckoutDelegate
+import com.processout.sdk.ui.checkout.delegate.toResponse
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import kotlinx.coroutines.*
 
