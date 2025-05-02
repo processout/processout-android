@@ -13,6 +13,7 @@ import com.processout.sdk.api.model.request.POCardUpdateShouldContinueRequest
 import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.api.model.response.toResponse
 import com.processout.sdk.core.ProcessOutActivityResult
+import com.processout.sdk.ui.card.update.delegate.POCardUpdateDelegate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

@@ -1,4 +1,4 @@
-package com.processout.sdk.ui.card.tokenization
+package com.processout.sdk.ui.card.tokenization.delegate
 
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
 import com.processout.sdk.api.model.response.POCard

@@ -1,4 +1,4 @@
-package com.processout.sdk.ui.card.update
+package com.processout.sdk.ui.card.update.delegate
 
 import com.processout.sdk.api.model.event.POCardUpdateEvent
 import com.processout.sdk.core.ProcessOutResult

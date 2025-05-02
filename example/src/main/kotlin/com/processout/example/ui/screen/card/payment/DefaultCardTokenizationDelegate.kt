@@ -8,7 +8,7 @@ import com.processout.sdk.api.service.PO3DSService
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.POFailure.Code.Generic
 import com.processout.sdk.core.ProcessOutResult
-import com.processout.sdk.ui.card.tokenization.POCardTokenizationDelegate
+import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationDelegate
 
 class DefaultCardTokenizationDelegate(
     private val viewModel: CardPaymentViewModel,
