@@ -74,6 +74,7 @@
     <string name="po_card_tokenization_error_cvc">Your card CVC is invalid.</string>
     <string name="po_card_tokenization_error_track_data">Your card expiration date and/or CVC is invalid.</string>
     <string name="po_card_tokenization_error_cardholder">The cardholder name is invalid.</string>
+    <string name="po_card_tokenization_error_eligibility">We can’t accept this card. Please try a different one.</string>
     <string name="po_card_tokenization_error_generic">Something went wrong, please try again.</string>
 
     <!-- Address Specification -->

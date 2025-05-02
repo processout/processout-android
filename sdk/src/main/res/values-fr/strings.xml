@@ -75,6 +75,7 @@
     <string name="po_card_tokenization_error_cvc">Le code CVV de votre carte est incorrect.</string>
     <string name="po_card_tokenization_error_track_data">La date d\'expiration de votre carte ou son code CVV sont incorrects.</string>
     <string name="po_card_tokenization_error_cardholder">Le nom du porteur de carte est incorrect.</string>
+    <string name="po_card_tokenization_error_eligibility">Nous ne pouvons pas accepter cette carte. Veuillez en essayer une autre.</string>
     <string name="po_card_tokenization_error_generic">Une erreur s\'est produite, veuillez réessayer.</string>
 
     <!-- Address Specification -->

@@ -76,6 +76,7 @@
     <string name="po_card_tokenization_error_cvc">Nieprawidłowy numer CVC.</string>
     <string name="po_card_tokenization_error_track_data">Data ważności karty oraz/lub kod CVC są nieprawidłowe.</string>
     <string name="po_card_tokenization_error_cardholder">Nieprawidłowe imię i nazwisko na karcie.</string>
+    <string name="po_card_tokenization_error_eligibility">Nie możemy zaakceptować tej karty. Spróbuj użyć innej.</string>
     <string name="po_card_tokenization_error_generic">Coś poszło nie tak, spróbuj ponownie.</string>
 
     <!-- Address Specification -->

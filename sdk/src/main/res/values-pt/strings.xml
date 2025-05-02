@@ -75,6 +75,7 @@
     <string name="po_card_tokenization_error_cvc">O código de segurança do seu cartão é inválido.</string>
     <string name="po_card_tokenization_error_track_data">A data de validade e/ou o código de segurança do seu cartão são inválidos.</string>
     <string name="po_card_tokenization_error_cardholder">O nome no cartão é inválido.</string>
+    <string name="po_card_tokenization_error_eligibility">Não podemos aceitar este cartão. Por favor, tente com outro.</string>
     <string name="po_card_tokenization_error_generic">Ocorreu um erro ao processar o seu cartão, por favor tente novamente.</string>
 
     <!-- Address Specification -->

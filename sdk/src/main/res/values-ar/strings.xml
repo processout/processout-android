@@ -77,6 +77,7 @@
     <string name="po_card_tokenization_error_cvc">رقم كود التحقق CVV غير صالح</string>
     <string name="po_card_tokenization_error_track_data">تاريخ انتهاء صلاحية البطاقة و/أو كود التحقق CVV غير صالح</string>
     <string name="po_card_tokenization_error_cardholder">اسم حامل البطاقة غير صالح</string>
+    <string name="po_card_tokenization_error_eligibility">لا يمكننا قبول هذه البطاقة. يرجى المحاولة باستخدام بطاقة أخرى.</string>
     <string name="po_card_tokenization_error_generic">حدث خطأ ما، يرجى المحاولة مرة أخرى</string>
 
     <!-- Address Specification -->
