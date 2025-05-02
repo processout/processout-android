@@ -944,7 +944,7 @@ internal class DynamicCheckoutInteractor(
         clientSecret: String? = null
     ) {
         interactorScope.launch {
-            val request = PODynamicCheckoutInvoiceAuthorizationRequest(
+            val request = DynamicCheckoutInvoiceAuthorizationRequest(
                 request = POInvoiceAuthorizationRequest(
                     invoiceId = configuration.invoiceRequest.invoiceId,
                     source = source,
@@ -959,7 +959,7 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun collectInvoiceAuthorizationRequest() {
-        eventDispatcher.subscribeForResponse<PODynamicCheckoutInvoiceAuthorizationResponse>(
+        eventDispatcher.subscribeForResponse<DynamicCheckoutInvoiceAuthorizationResponse>(
             coroutineScope = interactorScope
         ) { response ->
             POLogger.info("Authorizing the invoice.", attributes = logAttributes)

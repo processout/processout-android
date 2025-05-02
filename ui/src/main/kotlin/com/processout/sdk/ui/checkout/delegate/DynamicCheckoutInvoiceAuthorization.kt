@@ -3,13 +3,19 @@ package com.processout.sdk.ui.checkout.delegate
 import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
-import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import java.util.UUID
 
-/** @suppress */
-@ProcessOutInternalApi
-data class PODynamicCheckoutInvoiceAuthorizationRequest(
+internal data class DynamicCheckoutInvoiceAuthorizationRequest(
     override val uuid: UUID = UUID.randomUUID(),
     val request: POInvoiceAuthorizationRequest,
     val paymentMethod: PODynamicCheckoutPaymentMethod
 ) : POEventDispatcher.Request
+
+internal data class DynamicCheckoutInvoiceAuthorizationResponse(
+    override val uuid: UUID,
+    val request: POInvoiceAuthorizationRequest
+) : POEventDispatcher.Response
+
+internal fun DynamicCheckoutInvoiceAuthorizationRequest.toResponse(
+    request: POInvoiceAuthorizationRequest
+) = DynamicCheckoutInvoiceAuthorizationResponse(uuid, request)
