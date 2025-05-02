@@ -1,7 +1,9 @@
 package com.processout.sdk.api.model.response
 
 import com.processout.sdk.api.dispatcher.POEventDispatcher
+import com.processout.sdk.api.model.request.PODynamicCheckoutAlternativePaymentDefaultValuesRequest
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodDefaultValuesRequest
+import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import java.util.UUID
 
 /**
@@ -22,5 +24,11 @@ data class PONativeAlternativePaymentMethodDefaultValuesResponse internal constr
  * @param[defaultValues] Map where key is [PONativeAlternativePaymentMethodParameter.key] and value is a default value for this parameter.
  */
 fun PONativeAlternativePaymentMethodDefaultValuesRequest.toResponse(
+    defaultValues: Map<String, String>
+) = PONativeAlternativePaymentMethodDefaultValuesResponse(uuid, defaultValues)
+
+/** @suppress */
+@ProcessOutInternalApi
+fun PODynamicCheckoutAlternativePaymentDefaultValuesRequest.toResponse(
     defaultValues: Map<String, String>
 ) = PONativeAlternativePaymentMethodDefaultValuesResponse(uuid, defaultValues)

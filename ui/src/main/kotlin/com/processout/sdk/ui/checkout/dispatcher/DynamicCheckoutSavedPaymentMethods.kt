@@ -1,4 +1,4 @@
-package com.processout.sdk.ui.checkout
+package com.processout.sdk.ui.checkout.dispatcher
 
 import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsConfiguration

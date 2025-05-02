@@ -47,6 +47,7 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMeth
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.AlternativePayment
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.Card
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.PaymentMethod.GooglePay
+import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.AlternativePaymentConfiguration
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration.BillingAddressConfiguration.Format.FULL
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration.BillingAddressConfiguration.Format.MIN
@@ -54,10 +55,12 @@ import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayCo
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration.CheckoutOption.DEFAULT
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration.TotalPriceStatus.ESTIMATED
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration.TotalPriceStatus.FINAL
-import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion
-import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent
-import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect
-import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
+import com.processout.sdk.ui.checkout.dispatcher.DynamicCheckoutAlternativePaymentConfigurationRequest
+import com.processout.sdk.ui.checkout.dispatcher.DynamicCheckoutAlternativePaymentConfigurationResponse
+import com.processout.sdk.ui.checkout.dispatcher.DynamicCheckoutSavedPaymentMethodsRequest
+import com.processout.sdk.ui.checkout.dispatcher.DynamicCheckoutSavedPaymentMethodsResponse
+import com.processout.sdk.ui.napm.*
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsConfiguration
 import com.processout.sdk.ui.shared.extension.orElse
 import kotlinx.coroutines.*
@@ -122,11 +125,12 @@ internal class DynamicCheckoutInteractor(
 
     private suspend fun start() {
         handleCompletions()
+        dispatchEvents()
         dispatchSideEffects()
-        collectEvents()
         collectInvoice()
         collectInvoiceAuthorizationRequest()
         collectTokenizedCard()
+        collectNativeAlternativePaymentConfiguration()
         collectSavedPaymentMethodsConfiguration()
         fetchConfiguration()
     }
@@ -438,19 +442,20 @@ internal class DynamicCheckoutInteractor(
             POLogger.info("Selected payment method: %s", paymentMethod.original)
             dispatch(DidSelectPaymentMethod(paymentMethod = paymentMethod.original))
             resetPaymentMethods()
-            if (state.processingPaymentMethod != null) {
-                invalidateInvoice(
-                    reason = PODynamicCheckoutInvoiceInvalidationReason.PaymentMethodChanged
-                )
-            } else if (state.invoice != null) {
-                start(paymentMethod)
-            }
             _state.update {
                 it.copy(
                     selectedPaymentMethod = paymentMethod,
                     pendingSubmitPaymentMethod = null,
                     errorMessage = null
                 )
+            }
+            if (state.processingPaymentMethod != null) {
+                invalidateInvoice(
+                    reason = PODynamicCheckoutInvoiceInvalidationReason.PaymentMethodChanged,
+                    selectedPaymentMethod = paymentMethod
+                )
+            } else if (state.invoice != null) {
+                start(paymentMethod)
             }
         }
     }
@@ -469,12 +474,14 @@ internal class DynamicCheckoutInteractor(
                 configuration = cardTokenization.configuration
                     .apply(paymentMethod.configuration)
             )
-            is NativeAlternativePayment -> nativeAlternativePayment.start(
-                configuration = nativeAlternativePayment.configuration.copy(
-                    invoiceId = configuration.invoiceRequest.invoiceId,
-                    gatewayConfigurationId = paymentMethod.gatewayConfigurationId
+            is NativeAlternativePayment -> interactorScope.launch {
+                eventDispatcher.send(
+                    DynamicCheckoutAlternativePaymentConfigurationRequest(
+                        paymentMethod = paymentMethod.original,
+                        configuration = configuration.alternativePayment
+                    )
                 )
-            )
+            }
             else -> {}
         }
     }
@@ -497,6 +504,64 @@ internal class DynamicCheckoutInteractor(
             automatic -> CollectionMode.Automatic
             never -> CollectionMode.Never
         }
+
+    private fun collectNativeAlternativePaymentConfiguration() {
+        eventDispatcher.subscribeForResponse<DynamicCheckoutAlternativePaymentConfigurationResponse>(
+            coroutineScope = interactorScope
+        ) { response ->
+            _state.value.selectedPaymentMethod?.let { paymentMethod ->
+                if (paymentMethod.original != response.paymentMethod) {
+                    return@let
+                }
+                if (paymentMethod is NativeAlternativePayment) {
+                    if (response.configuration.returnUrl != configuration.alternativePayment.returnUrl) {
+                        error("Changing alternative payment 'returnUrl' is not supported via delegate.")
+                    }
+                    nativeAlternativePayment.start(
+                        configuration = nativeAlternativePayment.configuration
+                            .apply(
+                                invoiceId = configuration.invoiceRequest.invoiceId,
+                                gatewayConfigurationId = paymentMethod.gatewayConfigurationId,
+                                configuration = response.configuration
+                            )
+                    )
+                }
+            }
+        }
+    }
+
+    private fun PONativeAlternativePaymentConfiguration.apply(
+        invoiceId: String,
+        gatewayConfigurationId: String,
+        configuration: AlternativePaymentConfiguration
+    ) = copy(
+        invoiceId = invoiceId,
+        gatewayConfigurationId = gatewayConfigurationId,
+        paymentConfirmation = paymentConfirmation.apply(configuration.paymentConfirmation),
+        barcode = configuration.barcode,
+        inlineSingleSelectValuesLimit = configuration.inlineSingleSelectValuesLimit
+    )
+
+    private fun PaymentConfirmationConfiguration.apply(
+        configuration: AlternativePaymentConfiguration.PaymentConfirmationConfiguration
+    ) = copy(
+        timeoutSeconds = configuration.timeoutSeconds,
+        showProgressIndicatorAfterSeconds = configuration.showProgressIndicatorAfterSeconds,
+        confirmButton = configuration.confirmButton?.let {
+            Button(
+                text = it.text,
+                icon = it.icon
+            )
+        },
+        cancelButton = configuration.cancelButton?.let {
+            CancelButton(
+                text = it.text,
+                icon = it.icon,
+                disabledForSeconds = it.disabledForSeconds,
+                confirmation = it.confirmation
+            )
+        }
+    )
 
     private fun onFieldValueChanged(event: FieldValueChanged) {
         when (val paymentMethod = paymentMethod(event.paymentMethodId)) {
@@ -785,7 +850,10 @@ internal class DynamicCheckoutInteractor(
         }
     }
 
-    private fun invalidateInvoice(reason: PODynamicCheckoutInvoiceInvalidationReason) {
+    private fun invalidateInvoice(
+        reason: PODynamicCheckoutInvoiceInvalidationReason,
+        selectedPaymentMethod: PaymentMethod? = null
+    ) {
         POLogger.info("Invalidating invoice. Reason: %s", reason, attributes = logAttributes)
         var errorMessage: String? = null
         if (reason is PODynamicCheckoutInvoiceInvalidationReason.Failure) {
@@ -809,7 +877,7 @@ internal class DynamicCheckoutInteractor(
         _state.update {
             it.copy(
                 invoice = null,
-                selectedPaymentMethod = null,
+                selectedPaymentMethod = selectedPaymentMethod,
                 processingPaymentMethod = null,
                 errorMessage = errorMessage
             )
@@ -993,12 +1061,35 @@ internal class DynamicCheckoutInteractor(
         }
     }
 
-    private fun collectEvents() {
+    private fun dispatch(event: PODynamicCheckoutEvent) {
+        interactorScope.launch {
+            eventDispatcher.send(event)
+            POLogger.debug("Event has been sent: %s", event)
+        }
+    }
+
+    private fun dispatchEvents() {
         eventDispatcher.subscribeForRequest<POCardTokenizationShouldContinueRequest>(
             coroutineScope = interactorScope
         ) { request ->
             interactorScope.launch {
                 eventDispatcher.send(request.toResponse(shouldContinue = false))
+            }
+        }
+        eventDispatcher.subscribeForRequest<PONativeAlternativePaymentMethodDefaultValuesRequest>(
+            coroutineScope = interactorScope
+        ) { request ->
+            activePaymentMethod()?.let { paymentMethod ->
+                if (paymentMethod is NativeAlternativePayment) {
+                    interactorScope.launch {
+                        val defaultValuesRequest = PODynamicCheckoutAlternativePaymentDefaultValuesRequest(
+                            uuid = request.uuid,
+                            paymentMethod = paymentMethod.original,
+                            parameters = request.parameters
+                        )
+                        eventDispatcher.send(defaultValuesRequest)
+                    }
+                }
             }
         }
         eventDispatcher.subscribe<PONativeAlternativePaymentMethodEvent>(
@@ -1007,13 +1098,6 @@ internal class DynamicCheckoutInteractor(
             if (event is WillSubmitParameters) {
                 _state.update { it.copy(processingPaymentMethod = _state.value.selectedPaymentMethod) }
             }
-        }
-    }
-
-    private fun dispatch(event: PODynamicCheckoutEvent) {
-        interactorScope.launch {
-            eventDispatcher.send(event)
-            POLogger.debug("Event has been sent: %s", event)
         }
     }
 

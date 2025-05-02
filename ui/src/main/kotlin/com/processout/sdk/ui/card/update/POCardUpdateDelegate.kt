@@ -17,7 +17,7 @@ interface POCardUpdateDelegate {
      * Allows to decide whether the card update should continue or complete after the failure.
      * Returns _true_ by default.
      */
-    suspend fun shouldContinue(
+    fun shouldContinue(
         failure: ProcessOutResult.Failure
     ): Boolean = true
 }

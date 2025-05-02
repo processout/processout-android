@@ -36,7 +36,7 @@ interface POCardTokenizationDelegate {
      * Allows to choose default preferred card scheme based on issuer information.
      * Primary card scheme is used by default.
      */
-    suspend fun preferredScheme(
+    fun preferredScheme(
         issuerInformation: POCardIssuerInformation
     ): String? = issuerInformation.scheme
 
@@ -44,7 +44,7 @@ interface POCardTokenizationDelegate {
      * Allows to decide whether the flow should continue or complete after the failure.
      * Returns _true_ by default.
      */
-    suspend fun shouldContinue(
+    fun shouldContinue(
         failure: ProcessOutResult.Failure
     ): Boolean = true
 }

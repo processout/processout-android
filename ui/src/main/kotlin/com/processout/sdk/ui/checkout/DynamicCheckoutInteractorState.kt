@@ -25,21 +25,21 @@ internal data class DynamicCheckoutInteractorState(
 
         data class Card(
             override val id: String,
-            override val original: PODynamicCheckoutPaymentMethod,
+            override val original: PODynamicCheckoutPaymentMethod.Card,
             val configuration: CardConfiguration,
             val display: Display
         ) : PaymentMethod
 
         data class GooglePay(
             override val id: String,
-            override val original: PODynamicCheckoutPaymentMethod,
+            override val original: PODynamicCheckoutPaymentMethod.GooglePay,
             val allowedPaymentMethods: String,
             val paymentDataRequest: JSONObject
         ) : PaymentMethod
 
         data class AlternativePayment(
             override val id: String,
-            override val original: PODynamicCheckoutPaymentMethod,
+            override val original: PODynamicCheckoutPaymentMethod.AlternativePayment,
             val gatewayConfigurationId: String,
             val redirectUrl: String,
             val savePaymentMethodField: Field?,
@@ -49,7 +49,7 @@ internal data class DynamicCheckoutInteractorState(
 
         data class NativeAlternativePayment(
             override val id: String,
-            override val original: PODynamicCheckoutPaymentMethod,
+            override val original: PODynamicCheckoutPaymentMethod.AlternativePayment,
             val gatewayConfigurationId: String,
             val display: Display
         ) : PaymentMethod
