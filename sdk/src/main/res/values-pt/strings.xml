@@ -70,12 +70,12 @@
     <string name="po_card_tokenization_billing_address_street">Endereço %d</string>
     <string name="po_card_tokenization_save_card">Guardar este cartão para futuros pagamentos</string>
     <string name="po_card_tokenization_error_card">Os dados do seu cartão são inválidos.</string>
-    <string name="po_card_tokenization_error_card_expiration">A data de validade do seu cartão é inválida.</string>
     <string name="po_card_tokenization_error_card_number">O número do seu cartão é inválido.</string>
-    <string name="po_card_tokenization_error_cardholder">O nome no cartão é inválido.</string>
+    <string name="po_card_tokenization_error_card_expiration">A data de validade do seu cartão é inválida.</string>
     <string name="po_card_tokenization_error_cvc">O código de segurança do seu cartão é inválido.</string>
-    <string name="po_card_tokenization_error_generic">Ocorreu um erro ao processar o seu cartão, por favor tente novamente.</string>
     <string name="po_card_tokenization_error_track_data">A data de validade e/ou o código de segurança do seu cartão são inválidos.</string>
+    <string name="po_card_tokenization_error_cardholder">O nome no cartão é inválido.</string>
+    <string name="po_card_tokenization_error_generic">Ocorreu um erro ao processar o seu cartão, por favor tente novamente.</string>
 
     <!-- Address Specification -->
     <string name="po_address_spec_area">Região</string>

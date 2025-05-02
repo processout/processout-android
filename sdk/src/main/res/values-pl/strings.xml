@@ -71,12 +71,12 @@
     <string name="po_card_tokenization_billing_address_street">Linia adresu %d</string>
     <string name="po_card_tokenization_save_card">Zapisz tę kartę na przyszłe płatności</string>
     <string name="po_card_tokenization_error_card">Niepoprawne dane karty.</string>
-    <string name="po_card_tokenization_error_card_expiration">Data ważności karty jest nieprawidłowa.</string>
     <string name="po_card_tokenization_error_card_number">Nieprawidłowy numer karty.</string>
-    <string name="po_card_tokenization_error_cardholder">Nieprawidłowe imię i nazwisko na karcie.</string>
+    <string name="po_card_tokenization_error_card_expiration">Data ważności karty jest nieprawidłowa.</string>
     <string name="po_card_tokenization_error_cvc">Nieprawidłowy numer CVC.</string>
-    <string name="po_card_tokenization_error_generic">Coś poszło nie tak, spróbuj ponownie.</string>
     <string name="po_card_tokenization_error_track_data">Data ważności karty oraz/lub kod CVC są nieprawidłowe.</string>
+    <string name="po_card_tokenization_error_cardholder">Nieprawidłowe imię i nazwisko na karcie.</string>
+    <string name="po_card_tokenization_error_generic">Coś poszło nie tak, spróbuj ponownie.</string>
 
     <!-- Address Specification -->
     <string name="po_address_spec_area">Obszar</string>
