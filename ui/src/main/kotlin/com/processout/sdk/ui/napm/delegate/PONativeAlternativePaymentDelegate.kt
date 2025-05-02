@@ -1,6 +1,5 @@
-package com.processout.sdk.ui.napm
+package com.processout.sdk.ui.napm.delegate
 
-import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter
 
 /**
@@ -11,7 +10,7 @@ interface PONativeAlternativePaymentDelegate {
     /**
      * Invoked on native alternative payment lifecycle events.
      */
-    fun onEvent(event: PONativeAlternativePaymentMethodEvent) {}
+    fun onEvent(event: PONativeAlternativePaymentEvent) {}
 
     /**
      * Allows to prefill default values for the given parameters during native alternative payment.

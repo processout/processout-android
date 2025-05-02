@@ -1,7 +1,6 @@
 package com.processout.sdk.ui.checkout.delegate
 
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
-import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
 import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.response.POCardIssuerInformation
@@ -10,6 +9,7 @@ import com.processout.sdk.api.model.response.POInvoice
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentEvent
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsConfiguration
 import com.processout.sdk.ui.savedpaymentmethods.delegate.POSavedPaymentMethodsEvent
 
@@ -33,7 +33,7 @@ interface PODynamicCheckoutDelegate {
     /**
      * Invoked on native alternative payment lifecycle events.
      */
-    fun onEvent(event: PONativeAlternativePaymentMethodEvent) {}
+    fun onEvent(event: PONativeAlternativePaymentEvent) {}
 
     /**
      * Invoked on saved payment methods lifecycle events.

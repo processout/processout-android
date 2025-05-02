@@ -2,12 +2,12 @@ package com.processout.example.ui.screen.checkout
 
 import com.processout.example.shared.Constants
 import com.processout.sdk.api.model.request.POCreateInvoiceRequest
-import com.processout.sdk.ui.checkout.delegate.PODynamicCheckoutInvoiceInvalidationReason
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.response.POInvoice
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.fold
 import com.processout.sdk.ui.checkout.delegate.PODynamicCheckoutDelegate
+import com.processout.sdk.ui.checkout.delegate.PODynamicCheckoutInvoiceInvalidationReason
 import java.util.UUID
 
 class DefaultDynamicCheckoutDelegate(

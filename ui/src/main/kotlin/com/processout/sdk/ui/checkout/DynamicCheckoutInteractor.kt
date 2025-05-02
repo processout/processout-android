@@ -11,7 +11,6 @@ import coil.request.ImageRequest
 import coil.request.ImageResult
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
-import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.WillSubmitParameters
 import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.response.*
@@ -57,6 +56,7 @@ import com.processout.sdk.ui.checkout.delegate.*
 import com.processout.sdk.ui.checkout.delegate.PODynamicCheckoutEvent.*
 import com.processout.sdk.ui.napm.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
+import com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentEvent
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsConfiguration
 import com.processout.sdk.ui.shared.extension.orElse
 import kotlinx.coroutines.*
@@ -1088,7 +1088,7 @@ internal class DynamicCheckoutInteractor(
                 }
             }
         }
-        eventDispatcher.subscribe<PONativeAlternativePaymentMethodEvent>(
+        eventDispatcher.subscribe<PONativeAlternativePaymentEvent>(
             coroutineScope = interactorScope
         ) { event ->
             if (event is WillSubmitParameters) {

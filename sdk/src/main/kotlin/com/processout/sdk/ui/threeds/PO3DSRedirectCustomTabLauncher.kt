@@ -15,8 +15,8 @@ import com.processout.sdk.ui.web.WebAuthorizationDelegate
 import com.processout.sdk.ui.web.WebAuthorizationDelegateCache
 import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivityContract
 import com.processout.sdk.ui.web.customtab.POCustomTabConfiguration
-import com.processout.sdk.ui.web.webview.WebViewAuthorizationActivityLauncher
 import com.processout.sdk.ui.web.webview.POWebViewConfiguration
+import com.processout.sdk.ui.web.webview.WebViewAuthorizationActivityLauncher
 
 /**
  * Launcher that starts [POCustomTabAuthorizationActivity][com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivity]
