@@ -1,6 +1,7 @@
-package com.processout.sdk.api.model.request
+package com.processout.sdk.ui.checkout.delegate
 
 import com.processout.sdk.api.dispatcher.POEventDispatcher
+import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import java.util.UUID

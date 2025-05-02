@@ -1,4 +1,4 @@
-package com.processout.sdk.api.model.request
+package com.processout.sdk.ui.checkout.delegate
 
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
