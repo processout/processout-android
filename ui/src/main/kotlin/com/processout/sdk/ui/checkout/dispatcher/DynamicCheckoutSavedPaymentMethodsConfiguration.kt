@@ -4,16 +4,16 @@ import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsConfiguration
 import java.util.UUID
 
-internal data class DynamicCheckoutSavedPaymentMethodsRequest(
+internal data class DynamicCheckoutSavedPaymentMethodsConfigurationRequest(
     override val uuid: UUID = UUID.randomUUID(),
     val configuration: POSavedPaymentMethodsConfiguration
 ) : POEventDispatcher.Request
 
-internal data class DynamicCheckoutSavedPaymentMethodsResponse(
+internal data class DynamicCheckoutSavedPaymentMethodsConfigurationResponse(
     override val uuid: UUID,
     val configuration: POSavedPaymentMethodsConfiguration
 ) : POEventDispatcher.Response
 
-internal fun DynamicCheckoutSavedPaymentMethodsRequest.toResponse(
+internal fun DynamicCheckoutSavedPaymentMethodsConfigurationRequest.toResponse(
     configuration: POSavedPaymentMethodsConfiguration
-) = DynamicCheckoutSavedPaymentMethodsResponse(uuid, configuration)
+) = DynamicCheckoutSavedPaymentMethodsConfigurationResponse(uuid, configuration)

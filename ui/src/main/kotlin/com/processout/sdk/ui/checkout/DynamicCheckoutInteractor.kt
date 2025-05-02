@@ -57,8 +57,8 @@ import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayCo
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration.TotalPriceStatus.FINAL
 import com.processout.sdk.ui.checkout.dispatcher.DynamicCheckoutAlternativePaymentConfigurationRequest
 import com.processout.sdk.ui.checkout.dispatcher.DynamicCheckoutAlternativePaymentConfigurationResponse
-import com.processout.sdk.ui.checkout.dispatcher.DynamicCheckoutSavedPaymentMethodsRequest
-import com.processout.sdk.ui.checkout.dispatcher.DynamicCheckoutSavedPaymentMethodsResponse
+import com.processout.sdk.ui.checkout.dispatcher.DynamicCheckoutSavedPaymentMethodsConfigurationRequest
+import com.processout.sdk.ui.checkout.dispatcher.DynamicCheckoutSavedPaymentMethodsConfigurationResponse
 import com.processout.sdk.ui.napm.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsConfiguration
@@ -658,7 +658,7 @@ internal class DynamicCheckoutInteractor(
         POLogger.debug("Invoked saved payment methods.")
         interactorScope.launch {
             eventDispatcher.send(
-                DynamicCheckoutSavedPaymentMethodsRequest(
+                DynamicCheckoutSavedPaymentMethodsConfigurationRequest(
                     configuration = POSavedPaymentMethodsConfiguration(
                         invoiceRequest = configuration.invoiceRequest
                     )
@@ -668,7 +668,7 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun collectSavedPaymentMethodsConfiguration() {
-        eventDispatcher.subscribeForResponse<DynamicCheckoutSavedPaymentMethodsResponse>(
+        eventDispatcher.subscribeForResponse<DynamicCheckoutSavedPaymentMethodsConfigurationResponse>(
             coroutineScope = interactorScope
         ) { response ->
             interactorScope.launch {
