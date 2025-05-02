@@ -56,8 +56,8 @@ interface PODynamicCheckoutDelegate {
      * Allows to alter request parameters but please make sure that _invoiceId_ and _source_ are unmodified.
      */
     suspend fun invoiceAuthorizationRequest(
-        request: POInvoiceAuthorizationRequest,
-        paymentMethod: PODynamicCheckoutPaymentMethod
+        paymentMethod: PODynamicCheckoutPaymentMethod,
+        request: POInvoiceAuthorizationRequest
     ): POInvoiceAuthorizationRequest = request
 
     /**

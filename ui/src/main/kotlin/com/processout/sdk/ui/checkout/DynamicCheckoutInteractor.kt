@@ -945,14 +945,14 @@ internal class DynamicCheckoutInteractor(
     ) {
         interactorScope.launch {
             val request = DynamicCheckoutInvoiceAuthorizationRequest(
+                paymentMethod = paymentMethod.original,
                 request = POInvoiceAuthorizationRequest(
                     invoiceId = configuration.invoiceRequest.invoiceId,
                     source = source,
                     saveSource = saveSource,
                     allowFallbackToSale = allowFallbackToSale,
                     clientSecret = clientSecret
-                ),
-                paymentMethod = paymentMethod.original
+                )
             )
             eventDispatcher.send(request)
         }

@@ -131,8 +131,8 @@ class PODynamicCheckoutLauncher private constructor(
         ) { request ->
             scope.launch {
                 val invoiceAuthorizationRequest = delegate.invoiceAuthorizationRequest(
-                    request = request.request,
-                    paymentMethod = request.paymentMethod
+                    paymentMethod = request.paymentMethod,
+                    request = request.request
                 )
                 eventDispatcher.send(request.toResponse(invoiceAuthorizationRequest))
             }

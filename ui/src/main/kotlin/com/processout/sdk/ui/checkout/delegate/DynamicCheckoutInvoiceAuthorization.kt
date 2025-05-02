@@ -7,8 +7,8 @@ import java.util.UUID
 
 internal data class DynamicCheckoutInvoiceAuthorizationRequest(
     override val uuid: UUID = UUID.randomUUID(),
-    val request: POInvoiceAuthorizationRequest,
-    val paymentMethod: PODynamicCheckoutPaymentMethod
+    val paymentMethod: PODynamicCheckoutPaymentMethod,
+    val request: POInvoiceAuthorizationRequest
 ) : POEventDispatcher.Request
 
 internal data class DynamicCheckoutInvoiceAuthorizationResponse(
