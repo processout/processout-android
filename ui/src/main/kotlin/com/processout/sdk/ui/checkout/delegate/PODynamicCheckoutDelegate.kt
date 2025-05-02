@@ -1,7 +1,6 @@
 package com.processout.sdk.ui.checkout.delegate
 
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
-import com.processout.sdk.api.model.event.PODynamicCheckoutEvent
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent
 import com.processout.sdk.api.model.event.POSavedPaymentMethodsEvent
 import com.processout.sdk.api.model.request.PODynamicCheckoutInvoiceInvalidationReason

@@ -1,11 +1,14 @@
-package com.processout.sdk.api.model.event
+package com.processout.sdk.ui.checkout.delegate
 
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 
 /**
  * Defines dynamic checkout lifecycle events.
  */
+/** @suppress */
+@ProcessOutInternalApi
 sealed class PODynamicCheckoutEvent {
 
     /**
