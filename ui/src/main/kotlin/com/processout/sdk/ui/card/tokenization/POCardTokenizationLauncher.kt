@@ -15,7 +15,9 @@ import com.processout.sdk.api.model.request.POCardTokenizationShouldContinueRequ
 import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.api.model.response.toResponse
 import com.processout.sdk.core.ProcessOutActivityResult
+import com.processout.sdk.ui.card.tokenization.delegate.CardTokenizationEligibilityRequest
 import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationDelegate
+import com.processout.sdk.ui.card.tokenization.delegate.toResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -114,6 +116,7 @@ class POCardTokenizationLauncher private constructor(
     init {
         dispatchEvents()
         dispatchTokenizedCard()
+        dispatchEligibility()
         dispatchPreferredScheme()
         dispatchShouldContinue()
     }
@@ -134,6 +137,20 @@ class POCardTokenizationLauncher private constructor(
                     saveCard = request.saveCard
                 )
                 eventDispatcher.send(request.toResponse(result))
+            }
+        }
+    }
+
+    private fun dispatchEligibility() {
+        eventDispatcher.subscribeForRequest<CardTokenizationEligibilityRequest>(
+            coroutineScope = scope
+        ) { request ->
+            scope.launch {
+                val eligibility = delegate.evaluateEligibility(
+                    iin = request.iin,
+                    issuerInformation = request.issuerInformation
+                )
+                eventDispatcher.send(request.toResponse(eligibility))
             }
         }
     }
