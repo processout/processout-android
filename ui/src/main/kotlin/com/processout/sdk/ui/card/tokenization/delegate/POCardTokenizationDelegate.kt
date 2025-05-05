@@ -4,6 +4,7 @@ import com.processout.sdk.api.model.event.POCardTokenizationEvent
 import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.api.model.response.POCardIssuerInformation
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationEligibility.Eligible
 
 /**
  * Delegate that allows to handle events during card tokenization.
@@ -31,6 +32,17 @@ interface POCardTokenizationDelegate {
         card: POCard,
         saveCard: Boolean
     ): ProcessOutResult<Any> = ProcessOutResult.Success(Unit)
+
+    /**
+     * Allows to evaluate card eligibility for tokenization based on issuer information.
+     *
+     * @param[iin] Issuer identification number.
+     * @param[issuerInformation] Resolved issuer information.
+     */
+    suspend fun evaluateEligibility(
+        iin: String,
+        issuerInformation: POCardIssuerInformation
+    ): POCardTokenizationEligibility = Eligible()
 
     /**
      * Allows to choose default preferred card scheme based on issuer information.
