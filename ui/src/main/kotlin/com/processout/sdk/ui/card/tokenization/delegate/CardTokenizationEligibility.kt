@@ -12,9 +12,10 @@ internal data class CardTokenizationEligibilityRequest(
 
 internal data class CardTokenizationEligibilityResponse(
     override val uuid: UUID,
+    val issuerInformation: POCardIssuerInformation,
     val eligibility: POCardTokenizationEligibility
 ) : POEventDispatcher.Response
 
 internal fun CardTokenizationEligibilityRequest.toResponse(
     eligibility: POCardTokenizationEligibility
-) = CardTokenizationEligibilityResponse(uuid, eligibility)
+) = CardTokenizationEligibilityResponse(uuid, issuerInformation, eligibility)
