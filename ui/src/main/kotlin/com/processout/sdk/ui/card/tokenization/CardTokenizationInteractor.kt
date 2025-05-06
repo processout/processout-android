@@ -392,17 +392,19 @@ internal class CardTokenizationInteractor(
 
     //region Eligibility
 
-    private suspend fun requestEligibility(
+    private fun requestEligibility(
         iin: String,
         issuerInformation: POCardIssuerInformation
     ) {
-        val request = CardTokenizationEligibilityRequest(
-            iin = iin,
-            issuerInformation = issuerInformation
-        )
-        latestEligibilityRequest = request
-        eventDispatcher.send(request)
-        POLogger.info("Requested to evaluate card eligibility: [iin=%s] [issuerInformation=%s]", iin, issuerInformation)
+        interactorScope.launch {
+            val request = CardTokenizationEligibilityRequest(
+                iin = iin,
+                issuerInformation = issuerInformation
+            )
+            latestEligibilityRequest = request
+            eventDispatcher.send(request)
+            POLogger.info("Requested to evaluate card eligibility: [iin=%s] [issuerInformation=%s]", iin, issuerInformation)
+        }
     }
 
     private fun collectEligibility() {
