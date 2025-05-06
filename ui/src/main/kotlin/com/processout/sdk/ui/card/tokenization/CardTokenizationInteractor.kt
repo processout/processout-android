@@ -419,6 +419,7 @@ internal class CardTokenizationInteractor(
     }
 
     private fun handleEligibility(response: CardTokenizationEligibilityResponse) {
+        POLogger.info("Card eligibility evaluation response: %s", response.eligibility)
         _state.update { it.copy(eligibility = response.eligibility) }
         if (response.eligibility is NotEligible) {
             val errorMessage = response.eligibility.failure?.localizedMessage
