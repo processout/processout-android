@@ -1,6 +1,5 @@
 package com.processout.sdk.ui.card.tokenization.delegate
 
-import com.processout.sdk.api.model.response.POCardScheme
 import com.processout.sdk.core.ProcessOutResult
 
 /**
@@ -12,7 +11,7 @@ sealed class POCardTokenizationEligibility {
      * Indicates that the card is eligible for tokenization, optionally restricted to the specific card scheme.
      */
     data class Eligible(
-        val scheme: POCardScheme? = null
+        val scheme: String? = null
     ) : POCardTokenizationEligibility()
 
     /**
