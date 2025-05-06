@@ -101,12 +101,12 @@ internal class CardTokenizationInteractor(
         interactorScope.launch {
             POLogger.info("Starting card tokenization.")
             dispatch(WillStart)
-            collectFailure()
-            initAddressFields()
-            collectEligibility()
-            collectPreferredScheme()
             handleCompletion()
             shouldContinueOnFailure()
+            collectFailure()
+            collectEligibility()
+            collectPreferredScheme()
+            initAddressFields()
             POLogger.info("Card tokenization is started: waiting for user input.")
             dispatch(DidStart)
         }
