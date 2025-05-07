@@ -420,6 +420,7 @@ internal class CardTokenizationViewModel private constructor(
             value = field.value,
             placeholder = placeholder,
             iconResId = iconResId,
+            enabled = field.enabled,
             isError = !field.isValid,
             forceTextDirectionLtr = forceTextDirectionLtr,
             inputFilter = inputFilter,
@@ -434,7 +435,8 @@ internal class CardTokenizationViewModel private constructor(
             FieldState(
                 id = field.id,
                 value = field.value,
-                availableValues = POImmutableList(field.availableValues ?: emptyList())
+                availableValues = POImmutableList(field.availableValues ?: emptyList()),
+                enabled = field.enabled
             )
         )
 
@@ -443,7 +445,8 @@ internal class CardTokenizationViewModel private constructor(
             FieldState(
                 id = field.id,
                 value = field.value,
-                availableValues = POImmutableList(field.availableValues ?: emptyList())
+                availableValues = POImmutableList(field.availableValues ?: emptyList()),
+                enabled = field.enabled
             )
         )
 
@@ -455,6 +458,7 @@ internal class CardTokenizationViewModel private constructor(
             id = field.id,
             value = field.value,
             title = title,
+            enabled = field.enabled,
             isError = !field.isValid
         )
     )

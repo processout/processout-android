@@ -32,6 +32,7 @@ internal data class CardTokenizationInteractorState(
         val id: String,
         val value: TextFieldValue = TextFieldValue(),
         val availableValues: List<POAvailableValue>? = null,
+        val enabled: Boolean = true,
         val isValid: Boolean = true,
         val shouldCollect: Boolean = true
     )
