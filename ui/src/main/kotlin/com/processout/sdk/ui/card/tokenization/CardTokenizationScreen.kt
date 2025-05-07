@@ -326,12 +326,14 @@ private fun RadioField(
     PORadioGroup(
         value = state.value.text,
         onValueChange = {
-            onEvent(
-                FieldValueChanged(
-                    id = state.id,
-                    value = TextFieldValue(text = it)
+            if (state.enabled) {
+                onEvent(
+                    FieldValueChanged(
+                        id = state.id,
+                        value = TextFieldValue(text = it)
+                    )
                 )
-            )
+            }
         },
         availableValues = state.availableValues ?: POImmutableList(emptyList()),
         modifier = modifier,

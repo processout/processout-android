@@ -39,7 +39,7 @@ fun PORadioGroup(
         modifier = modifier
     ) {
         availableValues.elements.forEach {
-            val onClick = remember { { onValueChange(it.value) } }
+            val onClick = { onValueChange(it.value) }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
