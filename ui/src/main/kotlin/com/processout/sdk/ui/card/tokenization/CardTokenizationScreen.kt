@@ -386,16 +386,17 @@ private fun CheckboxField(
         text = state.title ?: String(),
         checked = state.value.text.toBooleanStrictOrNull() ?: false,
         onCheckedChange = {
-            onEvent(
-                FieldValueChanged(
-                    id = state.id,
-                    value = TextFieldValue(text = it.toString())
+            if (state.enabled) {
+                onEvent(
+                    FieldValueChanged(
+                        id = state.id,
+                        value = TextFieldValue(text = it.toString())
+                    )
                 )
-            )
+            }
         },
         modifier = modifier,
         style = style,
-        enabled = state.enabled,
         isError = state.isError
     )
 }
