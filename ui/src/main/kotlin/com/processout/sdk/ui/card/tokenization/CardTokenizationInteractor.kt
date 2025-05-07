@@ -279,6 +279,21 @@ internal class CardTokenizationInteractor(
             }
         } else field
 
+    private fun updateAllFields(enabled: Boolean) {
+        _state.update {
+            it.copy(
+                cardFields = it.cardFields.map { field ->
+                    field.copy(enabled = enabled)
+                },
+                addressFields = it.addressFields.map { field ->
+                    field.copy(enabled = enabled)
+                },
+                preferredSchemeField = it.preferredSchemeField.copy(enabled = enabled),
+                saveCardField = it.saveCardField.copy(enabled = enabled)
+            )
+        }
+    }
+
     private fun updateCardFields(card: POScannedCard) {
         POLogger.debug("Updating card field values with the scanned card: $card.")
         updateFieldValue(
@@ -664,6 +679,7 @@ internal class CardTokenizationInteractor(
                 errorMessage = null
             )
         }
+        updateAllFields(enabled = false)
         tokenize(tokenizationRequest())
     }
 
@@ -960,6 +976,7 @@ internal class CardTokenizationInteractor(
                 errorMessage = errorMessage
             )
         }
+        updateAllFields(enabled = true)
         POLogger.info(message = "Recovered after the failure: %s", failure)
     }
 

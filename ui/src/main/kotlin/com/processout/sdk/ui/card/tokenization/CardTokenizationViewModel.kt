@@ -126,6 +126,7 @@ internal class CardTokenizationViewModel private constructor(
                     id = state.cardScannerActionId,
                     text = it.text ?: app.getString(R.string.po_card_tokenization_button_scan),
                     primary = false,
+                    enabled = !state.submitting,
                     icon = it.icon ?: PODrawableImage(
                         resId = com.processout.sdk.ui.R.drawable.po_icon_camera,
                         renderingMode = POImageRenderingMode.TEMPLATE
