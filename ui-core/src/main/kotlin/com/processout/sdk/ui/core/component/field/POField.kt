@@ -156,6 +156,7 @@ object POField {
     @Composable
     internal fun ContainerBox(
         style: StateStyle,
+        enabled: Boolean,
         isDropdown: Boolean
     ) {
         Box(
@@ -170,7 +171,7 @@ object POField {
                     shape = style.shape
                 )
                 .clip(style.shape)
-                .conditional(isDropdown) {
+                .conditional(enabled && isDropdown) {
                     clickable(
                         onClick = {},
                         interactionSource = remember { MutableInteractionSource() },

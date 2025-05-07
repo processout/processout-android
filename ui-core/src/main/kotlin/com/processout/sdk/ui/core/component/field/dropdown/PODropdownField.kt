@@ -45,6 +45,7 @@ fun PODropdownField(
     modifier: Modifier = Modifier,
     fieldStyle: POField.Style = POField.default,
     menuStyle: PODropdownField.MenuStyle = PODropdownField.defaultMenu,
+    enabled: Boolean = true,
     isError: Boolean = false,
     placeholderText: String? = null
 ) {
@@ -55,7 +56,11 @@ fun PODropdownField(
         var expanded by remember { mutableStateOf(false) }
         ExposedDropdownMenuBox(
             expanded = expanded,
-            onExpandedChange = { expanded = it }
+            onExpandedChange = {
+                if (enabled) {
+                    expanded = it
+                }
+            }
         ) {
             var isFocused by remember { mutableStateOf(false) }
             val fieldStateStyle = fieldStyle.stateStyle(isError = isError, isFocused = isFocused)
@@ -69,7 +74,7 @@ fun PODropdownField(
                         isFocused = it.isFocused
                     },
                 style = fieldStyle,
-                enabled = true,
+                enabled = enabled,
                 readOnly = true,
                 isDropdown = true,
                 isError = isError,
