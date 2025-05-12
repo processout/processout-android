@@ -450,6 +450,7 @@ internal class CardTokenizationInteractor(
                     },
                     focusedFieldId = CardFieldId.NUMBER,
                     submitAllowed = false,
+                    pendingSubmit = false,
                     submitting = false,
                     errorMessage = errorMessage
                 )
