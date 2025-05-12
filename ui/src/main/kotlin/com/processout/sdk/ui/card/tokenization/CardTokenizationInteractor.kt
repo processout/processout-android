@@ -435,8 +435,8 @@ internal class CardTokenizationInteractor(
     }
 
     private fun handleEligibility(eligibility: POCardTokenizationEligibility) {
-        POLogger.info("Card eligibility: %s", eligibility)
         _state.update { it.copy(eligibility = eligibility) }
+        POLogger.info("Card eligibility: %s", eligibility)
         if (eligibility is NotEligible) {
             val errorMessage = eligibility.failure?.localizedMessage
                 ?: app.getString(R.string.po_card_tokenization_error_eligibility)
