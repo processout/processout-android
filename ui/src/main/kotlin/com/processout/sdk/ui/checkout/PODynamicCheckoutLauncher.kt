@@ -17,6 +17,9 @@ import com.processout.sdk.api.service.proxy3ds.POProxy3DSServiceRequest.*
 import com.processout.sdk.api.service.proxy3ds.POProxy3DSServiceResponse
 import com.processout.sdk.core.POUnit
 import com.processout.sdk.core.ProcessOutActivityResult
+import com.processout.sdk.ui.card.tokenization.delegate.CardTokenizationEligibilityRequest
+import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationEligibility.Eligible
+import com.processout.sdk.ui.card.tokenization.delegate.toResponse
 import com.processout.sdk.ui.checkout.delegate.*
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentEvent
@@ -89,6 +92,7 @@ class PODynamicCheckoutLauncher private constructor(
         dispatchEvents()
         dispatchInvoice()
         dispatchInvoiceAuthorizationRequest()
+        dispatchCardEligibility()
         dispatchPreferredScheme()
         dispatchDefaultValues()
         dispatchAlternativePaymentConfiguration()
@@ -135,6 +139,16 @@ class PODynamicCheckoutLauncher private constructor(
                     request = request.request
                 )
                 eventDispatcher.send(request.toResponse(invoiceAuthorizationRequest))
+            }
+        }
+    }
+
+    private fun dispatchCardEligibility() {
+        eventDispatcher.subscribeForRequest<CardTokenizationEligibilityRequest>(
+            coroutineScope = scope
+        ) { request ->
+            scope.launch {
+                eventDispatcher.send(request.toResponse(eligibility = Eligible()))
             }
         }
     }
