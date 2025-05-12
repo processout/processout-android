@@ -443,8 +443,8 @@ internal class CardTokenizationInteractor(
                 it.copy(
                     cardFields = it.cardFields.map { field ->
                         validatedField(
-                            invalidFieldIds = setOf(CardFieldId.NUMBER),
-                            field = field
+                            field = field,
+                            invalidFieldIds = setOf(CardFieldId.NUMBER)
                         )
                     },
                     focusedFieldId = CardFieldId.NUMBER,
@@ -982,13 +982,13 @@ internal class CardTokenizationInteractor(
         errorMessage: String?
     ) {
         val cardFields = _state.value.cardFields.map { field ->
-            validatedField(invalidFieldIds, field)
+            validatedField(field, invalidFieldIds)
         }
         val addressFields = _state.value.addressFields.map { field ->
-            validatedField(invalidFieldIds, field)
+            validatedField(field, invalidFieldIds)
         }
-        val preferredSchemeField = validatedField(invalidFieldIds, _state.value.preferredSchemeField)
-        val saveCardField = validatedField(invalidFieldIds, _state.value.saveCardField)
+        val preferredSchemeField = validatedField(_state.value.preferredSchemeField, invalidFieldIds)
+        val saveCardField = validatedField(_state.value.saveCardField, invalidFieldIds)
         val allFields = cardFields + addressFields + preferredSchemeField + saveCardField
         val firstInvalidFieldId = allFields.find { !it.isValid }?.id
         _state.update { state ->
@@ -1007,7 +1007,7 @@ internal class CardTokenizationInteractor(
         POLogger.info(message = "Recovered after the failure: %s", failure)
     }
 
-    private fun validatedField(invalidFieldIds: Set<String>, field: Field): Field =
+    private fun validatedField(field: Field, invalidFieldIds: Set<String>): Field =
         if (invalidFieldIds.contains(field.id)) {
             field.copy(
                 isValid = false,
