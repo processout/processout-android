@@ -461,6 +461,7 @@ internal class CardTokenizationInteractor(
         if (eligibleSchemes.size > 1) {
             _state.value.issuerInformation?.let {
                 requestPreferredScheme(issuerInformation = it)
+                return
             }
         } else {
             eligibleSchemes.firstOrNull()?.let {
@@ -521,6 +522,10 @@ internal class CardTokenizationInteractor(
         if (response.uuid == latestPreferredSchemeRequest?.uuid) {
             latestPreferredSchemeRequest = null
             updatePreferredScheme(scheme = response.preferredScheme)
+            if (_state.value.pendingSubmit) {
+                _state.update { it.copy(pendingSubmit = false) }
+                submit()
+            }
         }
     }
 
