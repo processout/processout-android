@@ -29,6 +29,7 @@ import com.processout.sdk.ui.card.tokenization.CardTokenizationSideEffect.CardSc
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode.*
 import com.processout.sdk.ui.card.tokenization.delegate.CardTokenizationEligibilityRequest
 import com.processout.sdk.ui.card.tokenization.delegate.CardTokenizationEligibilityResponse
+import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationEligibility
 import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationEligibility.Eligible
 import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationEligibility.NotEligible
 import com.processout.sdk.ui.core.state.POAvailableValue
@@ -428,16 +429,16 @@ internal class CardTokenizationInteractor(
         ) { response ->
             if (response.uuid == latestEligibilityRequest?.uuid) {
                 latestEligibilityRequest = null
-                handleEligibility(response)
+                handleEligibility(response.eligibility)
             }
         }
     }
 
-    private fun handleEligibility(response: CardTokenizationEligibilityResponse) {
-        POLogger.info("Card eligibility evaluation response: %s", response.eligibility)
-        _state.update { it.copy(eligibility = response.eligibility) }
-        if (response.eligibility is NotEligible) {
-            val errorMessage = response.eligibility.failure?.localizedMessage
+    private fun handleEligibility(eligibility: POCardTokenizationEligibility) {
+        POLogger.info("Card eligibility: %s", eligibility)
+        _state.update { it.copy(eligibility = eligibility) }
+        if (eligibility is NotEligible) {
+            val errorMessage = eligibility.failure?.localizedMessage
                 ?: app.getString(R.string.po_card_tokenization_error_eligibility)
             _state.update {
                 it.copy(
