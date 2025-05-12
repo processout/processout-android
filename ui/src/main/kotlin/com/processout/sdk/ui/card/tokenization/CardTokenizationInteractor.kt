@@ -85,11 +85,11 @@ internal class CardTokenizationInteractor(
     private val cardNumberInputFilter = CardNumberInputFilter()
     private val cardExpirationInputFilter = CardExpirationInputFilter()
 
+    private var issuerInformationJob: Job? = null
+
     private var latestEligibilityRequest: CardTokenizationEligibilityRequest? = null
     private var latestPreferredSchemeRequest: POCardTokenizationPreferredSchemeRequest? = null
     private var latestShouldContinueRequest: POCardTokenizationShouldContinueRequest? = null
-
-    private var issuerInformationJob: Job? = null
 
     //region Initialization
 
@@ -684,7 +684,7 @@ internal class CardTokenizationInteractor(
         if (_state.value.pendingSubmit) {
             return
         }
-        if (latestEligibilityRequest != null) {
+        if (issuerInformationJob?.isActive == true || latestEligibilityRequest != null) {
             _state.update {
                 it.copy(
                     pendingSubmit = true,
