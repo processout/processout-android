@@ -441,10 +441,19 @@ internal class CardTokenizationInteractor(
                 ?: app.getString(R.string.po_card_tokenization_error_eligibility)
             _state.update {
                 it.copy(
+                    cardFields = it.cardFields.map { field ->
+                        validatedField(
+                            invalidFieldIds = setOf(CardFieldId.NUMBER),
+                            field = field
+                        )
+                    },
+                    focusedFieldId = CardFieldId.NUMBER,
                     submitAllowed = false,
+                    submitting = false,
                     errorMessage = errorMessage
                 )
             }
+            updateAllFields(enabled = true)
         }
         val eligibleSchemes = _state.value.eligibleSchemes
         if (eligibleSchemes.size > 1) {
@@ -455,6 +464,10 @@ internal class CardTokenizationInteractor(
             eligibleSchemes.firstOrNull()?.let {
                 updatePreferredScheme(scheme = it)
             }
+        }
+        if (_state.value.pendingSubmit) {
+            _state.update { it.copy(pendingSubmit = false) }
+            submit()
         }
     }
 
@@ -668,6 +681,20 @@ internal class CardTokenizationInteractor(
     //region Submit
 
     private fun submit() {
+        if (_state.value.pendingSubmit) {
+            return
+        }
+        if (latestEligibilityRequest != null) {
+            _state.update {
+                it.copy(
+                    pendingSubmit = true,
+                    submitting = true,
+                    errorMessage = null
+                )
+            }
+            updateAllFields(enabled = false)
+            return
+        }
         if (!isSubmitAllowed()) {
             POLogger.debug("Ignored attempt to tokenize the card with invalid values.")
             return

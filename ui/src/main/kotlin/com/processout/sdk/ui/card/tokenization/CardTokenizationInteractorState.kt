@@ -20,6 +20,7 @@ internal data class CardTokenizationInteractorState(
     val secondaryActionId: String,
     val cardScannerActionId: String,
     val submitAllowed: Boolean = true,
+    val pendingSubmit: Boolean = false,
     val submitting: Boolean = false,
     val errorMessage: String? = null,
     val addressSpecification: AddressSpecification? = null,
