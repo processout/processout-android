@@ -103,6 +103,7 @@ fun POTextField(
                     container = {
                         ContainerBox(
                             style = stateStyle,
+                            enabled = enabled,
                             isDropdown = isDropdown
                         )
                     }

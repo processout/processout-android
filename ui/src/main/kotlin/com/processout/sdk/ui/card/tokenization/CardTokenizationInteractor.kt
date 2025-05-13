@@ -27,6 +27,11 @@ import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationInteractorState.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationSideEffect.CardScanner
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode.*
+import com.processout.sdk.ui.card.tokenization.delegate.CardTokenizationEligibilityRequest
+import com.processout.sdk.ui.card.tokenization.delegate.CardTokenizationEligibilityResponse
+import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationEligibility
+import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationEligibility.Eligible
+import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationEligibility.NotEligible
 import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.shared.extension.currentAppLocale
 import com.processout.sdk.ui.shared.extension.findBy
@@ -59,7 +64,7 @@ internal class CardTokenizationInteractor(
 ) : BaseInteractor() {
 
     private companion object {
-        const val IIN_LENGTH = 6
+        const val IIN_LENGTH = 8
         const val EXPIRATION_DATE_PART_LENGTH = 2
         const val CARD_SCANNER_DELAY_MS = 350L
     }
@@ -81,10 +86,11 @@ internal class CardTokenizationInteractor(
     private val cardNumberInputFilter = CardNumberInputFilter()
     private val cardExpirationInputFilter = CardExpirationInputFilter()
 
+    private var issuerInformationJob: Job? = null
+
+    private var latestEligibilityRequest: CardTokenizationEligibilityRequest? = null
     private var latestPreferredSchemeRequest: POCardTokenizationPreferredSchemeRequest? = null
     private var latestShouldContinueRequest: POCardTokenizationShouldContinueRequest? = null
-
-    private var issuerInformationJob: Job? = null
 
     //region Initialization
 
@@ -96,11 +102,12 @@ internal class CardTokenizationInteractor(
         interactorScope.launch {
             POLogger.info("Starting card tokenization.")
             dispatch(WillStart)
-            collectFailure()
-            initAddressFields()
-            collectPreferredScheme()
             handleCompletion()
             shouldContinueOnFailure()
+            collectFailure()
+            collectEligibility()
+            collectPreferredScheme()
+            initAddressFields()
             POLogger.info("Card tokenization is started: waiting for user input.")
             dispatch(DidStart)
         }
@@ -241,7 +248,7 @@ internal class CardTokenizationInteractor(
         if (isTextChanged) {
             POLogger.debug(message = "Field is edited by the user: %s", id)
             dispatch(ParametersChanged)
-            if (areAllFieldsValid()) {
+            if (isSubmitAllowed()) {
                 _state.update {
                     it.copy(
                         submitAllowed = true,
@@ -272,6 +279,21 @@ internal class CardTokenizationInteractor(
                 field.copy(value = value)
             }
         } else field
+
+    private fun updateAllFields(enabled: Boolean) {
+        _state.update {
+            it.copy(
+                cardFields = it.cardFields.map { field ->
+                    field.copy(enabled = enabled)
+                },
+                addressFields = it.addressFields.map { field ->
+                    field.copy(enabled = enabled)
+                },
+                preferredSchemeField = it.preferredSchemeField.copy(enabled = enabled),
+                saveCardField = it.saveCardField.copy(enabled = enabled)
+            )
+        }
+    }
 
     private fun updateCardFields(card: POScannedCard) {
         POLogger.debug("Updating card field values with the scanned card: $card.")
@@ -334,17 +356,23 @@ internal class CardTokenizationInteractor(
 
     //endregion
 
-    //region Issuer Information & Preferred Scheme
+    //region Issuer Information
 
     private fun updateIssuerInformation(cardNumber: String, previousCardNumber: String) {
         val iin = iin(cardNumber)
         if (iin == iin(previousCardNumber)) {
             return
         }
-        updateState(
-            issuerInformation = localIssuerInformation(iin),
-            preferredScheme = null
-        )
+        val localIssuerInformation = localIssuerInformation(iin)
+        _state.update {
+            it.copy(
+                submitAllowed = areAllFieldsValid(),
+                errorMessage = null,
+                issuerInformation = localIssuerInformation,
+                eligibility = Eligible()
+            )
+        }
+        updatePreferredScheme(scheme = localIssuerInformation?.scheme)
         if (iin.length == IIN_LENGTH) {
             updateIssuerInformation(iin)
         }
@@ -361,7 +389,8 @@ internal class CardTokenizationInteractor(
         issuerInformationJob?.cancel()
         issuerInformationJob = interactorScope.launch {
             fetchIssuerInformation(iin)?.let { issuerInformation ->
-                requestPreferredScheme(issuerInformation)
+                _state.update { it.copy(issuerInformation = issuerInformation) }
+                requestEligibility(iin, issuerInformation)
             }
         }
     }
@@ -375,15 +404,105 @@ internal class CardTokenizationInteractor(
                 )
             }.getOrNull()
 
-    private suspend fun requestPreferredScheme(issuerInformation: POCardIssuerInformation) {
-        val request = POCardTokenizationPreferredSchemeRequest(issuerInformation)
-        latestPreferredSchemeRequest = request
-        if (legacyEventDispatcher?.subscribedForPreferredSchemeRequest() == true) {
-            legacyEventDispatcher.send(request)
-        } else {
+    //endregion
+
+    //region Eligibility
+
+    private fun requestEligibility(
+        iin: String,
+        issuerInformation: POCardIssuerInformation
+    ) {
+        interactorScope.launch {
+            val request = CardTokenizationEligibilityRequest(
+                iin = iin,
+                issuerInformation = issuerInformation
+            )
+            latestEligibilityRequest = request
             eventDispatcher.send(request)
+            POLogger.info("Requested to evaluate card eligibility: [iin=%s] [issuerInformation=%s]", iin, issuerInformation)
         }
-        POLogger.info("Requested to choose preferred scheme by issuer information: %s", issuerInformation)
+    }
+
+    private fun collectEligibility() {
+        eventDispatcher.subscribeForResponse<CardTokenizationEligibilityResponse>(
+            coroutineScope = interactorScope
+        ) { response ->
+            if (response.uuid == latestEligibilityRequest?.uuid) {
+                latestEligibilityRequest = null
+                handleEligibility(response.eligibility)
+            }
+        }
+    }
+
+    private fun handleEligibility(eligibility: POCardTokenizationEligibility) {
+        _state.update { it.copy(eligibility = eligibility) }
+        POLogger.info("Card eligibility: %s", eligibility)
+        if (eligibility is NotEligible) {
+            val errorMessage = eligibility.failure?.localizedMessage
+                ?: app.getString(R.string.po_card_tokenization_error_eligibility)
+            _state.update {
+                it.copy(
+                    cardFields = it.cardFields.map { field ->
+                        validatedField(
+                            field = field,
+                            invalidFieldIds = setOf(CardFieldId.NUMBER)
+                        )
+                    },
+                    focusedFieldId = CardFieldId.NUMBER,
+                    submitAllowed = false,
+                    pendingSubmit = false,
+                    submitting = false,
+                    errorMessage = errorMessage
+                )
+            }
+            updateAllFields(enabled = true)
+        }
+        val eligibleSchemes = _state.value.eligibleSchemes
+        if (eligibleSchemes.size > 1) {
+            _state.value.issuerInformation?.let {
+                requestPreferredScheme(issuerInformation = it)
+                return
+            }
+        } else {
+            eligibleSchemes.firstOrNull()?.let {
+                updatePreferredScheme(scheme = it)
+            }
+        }
+        if (_state.value.pendingSubmit) {
+            _state.update { it.copy(pendingSubmit = false) }
+            submit()
+        }
+    }
+
+    private val CardTokenizationInteractorState.eligibleSchemes: List<String>
+        get() = when (eligibility) {
+            is Eligible ->
+                if (eligibility.scheme != null) {
+                    listOf(eligibility.scheme)
+                } else {
+                    listOfNotNull(
+                        issuerInformation?.scheme,
+                        issuerInformation?.coScheme
+                    )
+                }
+            is NotEligible -> emptyList()
+        }
+
+    //endregion
+
+    //region Preferred Scheme
+
+    private fun requestPreferredScheme(issuerInformation: POCardIssuerInformation) {
+        interactorScope.launch {
+            val request = POCardTokenizationPreferredSchemeRequest(issuerInformation)
+            latestPreferredSchemeRequest = request
+            if (legacyEventDispatcher?.subscribedForPreferredSchemeRequest() == true) {
+                legacyEventDispatcher.send(request)
+            } else {
+                eventDispatcher.send(request)
+            }
+            POLogger.info("Requested to choose preferred scheme by issuer information: %s", issuerInformation)
+        }
     }
 
     private fun collectPreferredScheme() {
@@ -402,32 +521,32 @@ internal class CardTokenizationInteractor(
     private fun handlePreferredScheme(response: POCardTokenizationPreferredSchemeResponse) {
         if (response.uuid == latestPreferredSchemeRequest?.uuid) {
             latestPreferredSchemeRequest = null
-            updateState(
-                issuerInformation = response.issuerInformation,
-                preferredScheme = response.preferredScheme
-            )
+            updatePreferredScheme(scheme = response.preferredScheme)
+            if (_state.value.pendingSubmit) {
+                _state.update { it.copy(pendingSubmit = false) }
+                submit()
+            }
         }
     }
 
-    private fun updateState(
-        issuerInformation: POCardIssuerInformation?,
-        preferredScheme: String?
-    ) {
-        val availableSchemes = listOfNotNull(
-            availableScheme(issuerInformation?.scheme),
-            availableScheme(issuerInformation?.coScheme)
-        )
+    private fun updatePreferredScheme(scheme: String?) {
+        val eligibleSchemes = _state.value.eligibleSchemes.mapNotNull { availableScheme(scheme = it) }
+        val preferredScheme = availableScheme(scheme)?.let {
+            if (it in eligibleSchemes) it else {
+                POLogger.warn("Preferred scheme is not eligible: %s", it.value)
+                eligibleSchemes.firstOrNull()
+            }
+        }
         _state.update {
             it.copy(
-                issuerInformation = issuerInformation,
                 preferredSchemeField = it.preferredSchemeField.copy(
-                    value = TextFieldValue(text = preferredScheme ?: String()),
-                    availableValues = availableSchemes,
-                    shouldCollect = configuration.preferredScheme != null && availableSchemes.size > 1
+                    value = TextFieldValue(text = preferredScheme?.value ?: String()),
+                    availableValues = eligibleSchemes,
+                    shouldCollect = configuration.preferredScheme != null && eligibleSchemes.size > 1
                 )
             )
         }
-        POLogger.info("State updated: [issuerInformation=%s] [preferredScheme=%s]", issuerInformation, preferredScheme)
+        POLogger.info("Preferred scheme updated: %s", preferredScheme?.value)
     }
 
     private fun availableScheme(scheme: String?): POAvailableValue? =
@@ -569,7 +688,21 @@ internal class CardTokenizationInteractor(
     //region Submit
 
     private fun submit() {
-        if (!areAllFieldsValid()) {
+        if (_state.value.pendingSubmit) {
+            return
+        }
+        if (issuerInformationJob?.isActive == true || latestEligibilityRequest != null) {
+            _state.update {
+                it.copy(
+                    pendingSubmit = true,
+                    submitting = true,
+                    errorMessage = null
+                )
+            }
+            updateAllFields(enabled = false)
+            return
+        }
+        if (!isSubmitAllowed()) {
             POLogger.debug("Ignored attempt to tokenize the card with invalid values.")
             return
         }
@@ -580,14 +713,17 @@ internal class CardTokenizationInteractor(
                 errorMessage = null
             )
         }
+        updateAllFields(enabled = false)
         tokenize(tokenizationRequest())
     }
+
+    private fun isSubmitAllowed() = _state.value.eligibility is Eligible && areAllFieldsValid()
+
+    private fun areAllFieldsValid(): Boolean = allFields().all { it.isValid }
 
     private fun allFields(): List<Field> = with(_state.value) {
         cardFields + addressFields + preferredSchemeField + saveCardField
     }
-
-    private fun areAllFieldsValid(): Boolean = allFields().all { it.isValid }
 
     //endregion
 
@@ -853,29 +989,32 @@ internal class CardTokenizationInteractor(
         errorMessage: String?
     ) {
         val cardFields = _state.value.cardFields.map { field ->
-            validatedField(invalidFieldIds, field)
+            validatedField(field, invalidFieldIds)
         }
         val addressFields = _state.value.addressFields.map { field ->
-            validatedField(invalidFieldIds, field)
+            validatedField(field, invalidFieldIds)
         }
-        val preferredSchemeField = validatedField(invalidFieldIds, _state.value.preferredSchemeField)
-        val saveCardField = validatedField(invalidFieldIds, _state.value.saveCardField)
+        val preferredSchemeField = validatedField(_state.value.preferredSchemeField, invalidFieldIds)
+        val saveCardField = validatedField(_state.value.saveCardField, invalidFieldIds)
         val allFields = cardFields + addressFields + preferredSchemeField + saveCardField
         val firstInvalidFieldId = allFields.find { !it.isValid }?.id
         _state.update { state ->
             state.copy(
                 cardFields = cardFields,
                 addressFields = addressFields,
+                preferredSchemeField = preferredSchemeField,
+                saveCardField = saveCardField,
                 focusedFieldId = firstInvalidFieldId ?: state.focusedFieldId,
                 submitAllowed = allFields.all { it.isValid },
                 submitting = false,
                 errorMessage = errorMessage
             )
         }
+        updateAllFields(enabled = true)
         POLogger.info(message = "Recovered after the failure: %s", failure)
     }
 
-    private fun validatedField(invalidFieldIds: Set<String>, field: Field): Field =
+    private fun validatedField(field: Field, invalidFieldIds: Set<String>): Field =
         if (invalidFieldIds.contains(field.id)) {
             field.copy(
                 isValid = false,

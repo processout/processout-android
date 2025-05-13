@@ -126,6 +126,7 @@ internal class CardTokenizationViewModel private constructor(
                     id = state.cardScannerActionId,
                     text = it.text ?: app.getString(R.string.po_card_tokenization_button_scan),
                     primary = false,
+                    enabled = !state.submitting,
                     icon = it.icon ?: PODrawableImage(
                         resId = com.processout.sdk.ui.R.drawable.po_icon_camera,
                         renderingMode = POImageRenderingMode.TEMPLATE
@@ -420,6 +421,7 @@ internal class CardTokenizationViewModel private constructor(
             value = field.value,
             placeholder = placeholder,
             iconResId = iconResId,
+            enabled = field.enabled,
             isError = !field.isValid,
             forceTextDirectionLtr = forceTextDirectionLtr,
             inputFilter = inputFilter,
@@ -434,7 +436,8 @@ internal class CardTokenizationViewModel private constructor(
             FieldState(
                 id = field.id,
                 value = field.value,
-                availableValues = POImmutableList(field.availableValues ?: emptyList())
+                availableValues = POImmutableList(field.availableValues ?: emptyList()),
+                enabled = field.enabled
             )
         )
 
@@ -443,7 +446,8 @@ internal class CardTokenizationViewModel private constructor(
             FieldState(
                 id = field.id,
                 value = field.value,
-                availableValues = POImmutableList(field.availableValues ?: emptyList())
+                availableValues = POImmutableList(field.availableValues ?: emptyList()),
+                enabled = field.enabled
             )
         )
 
@@ -455,6 +459,7 @@ internal class CardTokenizationViewModel private constructor(
             id = field.id,
             value = field.value,
             title = title,
+            enabled = field.enabled,
             isError = !field.isValid
         )
     )

@@ -3,6 +3,8 @@ package com.processout.sdk.ui.card.tokenization
 import androidx.compose.ui.text.input.TextFieldValue
 import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.api.model.response.POCardIssuerInformation
+import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationEligibility
+import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationEligibility.Eligible
 import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.shared.provider.address.AddressSpecification
 
@@ -18,10 +20,12 @@ internal data class CardTokenizationInteractorState(
     val secondaryActionId: String,
     val cardScannerActionId: String,
     val submitAllowed: Boolean = true,
+    val pendingSubmit: Boolean = false,
     val submitting: Boolean = false,
     val errorMessage: String? = null,
     val addressSpecification: AddressSpecification? = null,
     val issuerInformation: POCardIssuerInformation? = null,
+    val eligibility: POCardTokenizationEligibility = Eligible(),
     val tokenizedCard: POCard? = null
 ) {
 
@@ -29,6 +33,7 @@ internal data class CardTokenizationInteractorState(
         val id: String,
         val value: TextFieldValue = TextFieldValue(),
         val availableValues: List<POAvailableValue>? = null,
+        val enabled: Boolean = true,
         val isValid: Boolean = true,
         val shouldCollect: Boolean = true
     )

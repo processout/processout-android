@@ -326,12 +326,14 @@ private fun RadioField(
     PORadioGroup(
         value = state.value.text,
         onValueChange = {
-            onEvent(
-                FieldValueChanged(
-                    id = state.id,
-                    value = TextFieldValue(text = it)
+            if (state.enabled) {
+                onEvent(
+                    FieldValueChanged(
+                        id = state.id,
+                        value = TextFieldValue(text = it)
+                    )
                 )
-            )
+            }
         },
         availableValues = state.availableValues ?: POImmutableList(emptyList()),
         modifier = modifier,
@@ -369,6 +371,7 @@ private fun DropdownField(
             },
         fieldStyle = fieldStyle,
         menuStyle = menuStyle,
+        enabled = state.enabled,
         isError = state.isError,
         placeholderText = state.placeholder
     )
@@ -385,16 +388,17 @@ private fun CheckboxField(
         text = state.title ?: String(),
         checked = state.value.text.toBooleanStrictOrNull() ?: false,
         onCheckedChange = {
-            onEvent(
-                FieldValueChanged(
-                    id = state.id,
-                    value = TextFieldValue(text = it.toString())
+            if (state.enabled) {
+                onEvent(
+                    FieldValueChanged(
+                        id = state.id,
+                        value = TextFieldValue(text = it.toString())
+                    )
                 )
-            )
+            }
         },
         modifier = modifier,
         style = style,
-        enabled = state.enabled,
         isError = state.isError
     )
 }
