@@ -66,7 +66,7 @@ ext {
     libphonenumberVersion = '8.13.54'
     zxingVersion = '3.5.3'
 
-    checkout3dsSdkVersion = '3.2.4'
+    checkout3dsSdkVersion = '3.2.6'
     adyen3dsSdkVersion = '2.2.15'
 
     junitVersion = '4.13.2'
