@@ -63,7 +63,7 @@ ext {
     okioVersion = '3.10.2'
     coilVersion = '2.7.0'
     commonMarkVersion = '0.24.0'
-    libphonenumberVersion = '8.13.54'
+    libphonenumberVersion = '9.0.5'
     zxingVersion = '3.5.3'
 
     checkout3dsSdkVersion = '3.2.6'
