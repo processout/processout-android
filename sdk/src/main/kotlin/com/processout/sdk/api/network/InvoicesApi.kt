@@ -4,7 +4,9 @@ import com.processout.sdk.api.model.request.InvoiceAuthorizationRequestWithDevic
 import com.processout.sdk.api.model.request.NativeAPMRequestBody
 import com.processout.sdk.api.model.request.NativeAlternativePaymentCaptureRequest
 import com.processout.sdk.api.model.request.POCreateInvoiceRequest
+import com.processout.sdk.api.model.request.napm.v2.NativeAlternativePaymentAuthorizationRequestBody
 import com.processout.sdk.api.model.response.*
+import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentAuthorizationResponseBody
 import com.processout.sdk.api.network.HeaderConstants.CLIENT_SECRET
 import retrofit2.Response
 import retrofit2.http.*
@@ -17,6 +19,12 @@ internal interface InvoicesApi {
         @Body request: InvoiceAuthorizationRequestWithDeviceData,
         @Header(CLIENT_SECRET) clientSecret: String?
     ): Response<InvoiceAuthorizationResponse>
+
+    @POST("/invoices/{id}/apm-payment")
+    suspend fun authorizeInvoice(
+        @Path("id") invoiceId: String,
+        @Body request: NativeAlternativePaymentAuthorizationRequestBody
+    ): Response<NativeAlternativePaymentAuthorizationResponseBody>
 
     @POST("/invoices/{id}/native-payment")
     suspend fun initiatePayment(
