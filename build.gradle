@@ -6,7 +6,7 @@ buildscript {
         kotlinVersion = '2.1.20'
         kspVersion = '2.1.20-1.0.32'
         dokkaVersion = '1.9.20'
-        androidxNavigationVersion = '2.8.9'
+        androidxNavigationVersion = '2.9.0'
         nexusPublishPluginVersion = '2.0.0'
     }
     dependencies {
@@ -43,13 +43,13 @@ ext {
     androidxConstraintLayoutVersion = '2.2.1'
     androidxActivityVersion = '1.10.1'
     androidxFragmentVersion = '1.8.6'
-    androidxLifecycleVersion = '2.8.7'
+    androidxLifecycleVersion = '2.9.0'
     androidxRecyclerViewVersion = '1.4.0'
     androidxSwipeRefreshLayoutVersion = '1.1.0'
     androidxBrowserVersion = '1.8.0'
     androidxCameraVersion = '1.4.2'
 
-    androidxComposeBOMVersion = '2025.03.00'
+    androidxComposeBOMVersion = '2025.04.00'
     composeGooglePayButtonVersion = '1.0.0'
 
     materialVersion = '1.12.0'
@@ -63,10 +63,10 @@ ext {
     okioVersion = '3.10.2'
     coilVersion = '2.7.0'
     commonMarkVersion = '0.24.0'
-    libphonenumberVersion = '8.13.54'
+    libphonenumberVersion = '9.0.5'
     zxingVersion = '3.5.3'
 
-    checkout3dsSdkVersion = '3.2.4'
+    checkout3dsSdkVersion = '3.2.6'
     adyen3dsSdkVersion = '2.2.15'
 
     junitVersion = '4.13.2'
