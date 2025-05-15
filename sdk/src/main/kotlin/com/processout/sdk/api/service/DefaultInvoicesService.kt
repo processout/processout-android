@@ -6,10 +6,12 @@ import com.processout.sdk.api.model.request.POCreateInvoiceRequest
 import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
 import com.processout.sdk.api.model.response.POInvoice
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethod
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodCapture
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse
 import com.processout.sdk.api.repository.InvoicesRepository
 import com.processout.sdk.core.*
 import com.processout.sdk.core.POFailure.Code.Cancelled
@@ -161,6 +163,11 @@ internal class DefaultInvoicesService(
             }
         }
     }
+
+    override suspend fun authorize(
+        request: PONativeAlternativePaymentAuthorizationRequest
+    ): ProcessOutResult<PONativeAlternativePaymentAuthorizationResponse> =
+        repository.authorizeInvoice(request)
 
     override suspend fun initiatePayment(
         request: PONativeAlternativePaymentMethodRequest
