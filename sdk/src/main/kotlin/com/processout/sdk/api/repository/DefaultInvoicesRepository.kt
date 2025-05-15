@@ -1,10 +1,16 @@
 package com.processout.sdk.api.repository
 
 import com.processout.sdk.api.model.request.*
+import com.processout.sdk.api.model.request.napm.v2.NativeAlternativePaymentAuthorizationRequestBody
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
 import com.processout.sdk.api.model.response.*
+import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentAuthorizationResponseBody
+import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentAuthorizationResponseBody.State.*
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse
 import com.processout.sdk.api.network.HeaderConstants.CLIENT_SECRET
 import com.processout.sdk.api.network.InvoicesApi
 import com.processout.sdk.core.*
+import com.processout.sdk.core.POFailure.Code.Generic
 import com.processout.sdk.di.ContextGraph
 import kotlinx.coroutines.launch
 import retrofit2.Response
@@ -24,6 +30,15 @@ internal class DefaultInvoicesRepository(
             clientSecret = request.clientSecret
         )
     }
+
+    override suspend fun authorizeInvoice(
+        request: PONativeAlternativePaymentAuthorizationRequest
+    ) = apiCall {
+        api.authorizeInvoice(
+            invoiceId = request.invoiceId,
+            request = request.toBody()
+        )
+    }.map()
 
     override suspend fun initiatePayment(
         request: PONativeAlternativePaymentMethodRequest
@@ -121,11 +136,41 @@ internal class DefaultInvoicesRepository(
             deviceData = contextGraph.deviceData
         )
 
+    private fun PONativeAlternativePaymentAuthorizationRequest.toBody() =
+        NativeAlternativePaymentAuthorizationRequestBody(
+            gatewayConfigurationId = gatewayConfigurationId
+        )
+
     private fun PONativeAlternativePaymentMethodRequest.toBody() =
         NativeAPMRequestBody(
             gatewayConfigurationId = gatewayConfigurationId,
             nativeApm = NativeAPMRequestParameters(parameterValues = parameters)
         )
+
+    private fun ProcessOutResult<NativeAlternativePaymentAuthorizationResponseBody>.map() = fold(
+        onSuccess = { responseBody ->
+            when (responseBody.state) {
+                FAILED -> ProcessOutResult.Failure( // TODO: map values from response body
+                    code = Generic(),
+                    message = ""
+                )
+                else -> ProcessOutResult.Success(
+                    PONativeAlternativePaymentAuthorizationResponse(
+                        state = when (responseBody.state) {
+                            NEXT_STEP_REQUIRED -> PONativeAlternativePaymentAuthorizationResponse.State.NEXT_STEP_REQUIRED
+                            PENDING_CAPTURE -> PONativeAlternativePaymentAuthorizationResponse.State.PENDING_CAPTURE
+                            CAPTURED -> PONativeAlternativePaymentAuthorizationResponse.State.CAPTURED
+                            else -> return ProcessOutResult.Failure(
+                                code = Generic(),
+                                message = "Unsupported payment state: ${responseBody.state}."
+                            )
+                        }
+                    )
+                )
+            }
+        },
+        onFailure = { it }
+    )
 
     private fun ProcessOutResult<Response<InvoiceResponse>>.map() = fold(
         onSuccess = { response ->
