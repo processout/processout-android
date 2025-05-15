@@ -2,6 +2,9 @@ name: Create Release & Publish To Maven Central
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   create-release-and-publish:
     runs-on: ubuntu-latest
