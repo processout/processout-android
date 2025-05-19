@@ -2,7 +2,10 @@ package com.processout.sdk.api.repository
 
 import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.request.napm.v2.NativeAlternativePaymentAuthorizationRequestBody
+import com.processout.sdk.api.model.request.napm.v2.NativeAlternativePaymentAuthorizationRequestBody.SubmitData
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter.Phone
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter.Value
 import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.network.HeaderConstants.CLIENT_SECRET
 import com.processout.sdk.api.network.InvoicesApi
@@ -132,16 +135,31 @@ internal class DefaultInvoicesRepository(
             deviceData = contextGraph.deviceData
         )
 
-    private fun PONativeAlternativePaymentAuthorizationRequest.toBody() =
-        NativeAlternativePaymentAuthorizationRequestBody(
-            gatewayConfigurationId = gatewayConfigurationId
-        )
-
     private fun PONativeAlternativePaymentMethodRequest.toBody() =
         NativeAPMRequestBody(
             gatewayConfigurationId = gatewayConfigurationId,
             nativeApm = NativeAPMRequestParameters(parameterValues = parameters)
         )
+
+    private fun PONativeAlternativePaymentAuthorizationRequest.toBody() =
+        NativeAlternativePaymentAuthorizationRequestBody(
+            gatewayConfigurationId = gatewayConfigurationId,
+            submitData = parameters?.let { SubmitData(parameters = it.map()) }
+        )
+
+    private fun Map<String, PONativeAlternativePaymentAuthorizationRequest.Parameter>.map() =
+        mapValues { (_, parameter) ->
+            when (parameter) {
+                is Value -> NativeAlternativePaymentAuthorizationRequestBody.Parameter(
+                    value = parameter.value,
+                    dialingCode = null
+                )
+                is Phone -> NativeAlternativePaymentAuthorizationRequestBody.Parameter(
+                    value = parameter.value,
+                    dialingCode = parameter.dialingCode
+                )
+            }
+        }
 
     private fun ProcessOutResult<Response<InvoiceResponse>>.map() = fold(
         onSuccess = { response ->
