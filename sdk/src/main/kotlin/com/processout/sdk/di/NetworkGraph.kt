@@ -2,6 +2,8 @@ package com.processout.sdk.di
 
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.*
+import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentAuthorizationResponseBody.NextStep
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.NextStep.SubmitData.Parameter
 import com.processout.sdk.api.network.*
 import com.processout.sdk.api.network.interceptor.BasicAuthInterceptor
 import com.processout.sdk.api.network.interceptor.RetryInterceptor
@@ -53,6 +55,24 @@ internal class DefaultNetworkGraph(
     override val moshi: Moshi by lazy {
         Moshi.Builder()
             .add(Date::class.java, Rfc3339DateJsonAdapter())
+            .add(
+                PolymorphicJsonAdapterFactory.of(NextStep::class.java, "type")
+                    .withSubtype(NextStep.SubmitData::class.java, "submit_data")
+                    .withSubtype(NextStep.Redirect::class.java, "redirect")
+                    .withDefaultValue(NextStep.Unknown)
+            )
+            .add(
+                PolymorphicJsonAdapterFactory.of(Parameter::class.java, "type")
+                    .withSubtype(Parameter.Text::class.java, "text")
+                    .withSubtype(Parameter.SingleSelect::class.java, "single-select")
+                    .withSubtype(Parameter.Bool::class.java, "boolean")
+                    .withSubtype(Parameter.Digits::class.java, "digits")
+                    .withSubtype(Parameter.Phone::class.java, "phone")
+                    .withSubtype(Parameter.Email::class.java, "email")
+                    .withSubtype(Parameter.Card::class.java, "card")
+                    .withSubtype(Parameter.Otp::class.java, "otp")
+                    .withDefaultValue(Parameter.Unknown)
+            )
             .add(
                 PolymorphicJsonAdapterFactory.of(PODynamicCheckoutPaymentMethod::class.java, "type")
                     .withSubtype(Card::class.java, "card")
