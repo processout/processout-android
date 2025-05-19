@@ -4,6 +4,13 @@ import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
+/**
+ * Request parameters for native alternative payment authorization.
+ *
+ * @param[invoiceId] Invoice identifier.
+ * @param[gatewayConfigurationId] Gateway configuration identifier.
+ * @param[parameters] Payment parameters.
+ */
 /** @suppress */
 @ProcessOutInternalApi
 data class PONativeAlternativePaymentAuthorizationRequest(
@@ -12,9 +19,12 @@ data class PONativeAlternativePaymentAuthorizationRequest(
     val parameters: Map<String, Parameter>? = null
 ) {
 
+    /** Payment parameter. */
     sealed class Parameter {
+        /** Arbitrary value. */
         data class Value(val value: String) : Parameter()
 
+        /** Phone number value. */
         data class Phone(
             val dialingCode: String,
             val value: String
