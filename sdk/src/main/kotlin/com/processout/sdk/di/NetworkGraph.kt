@@ -3,6 +3,7 @@ package com.processout.sdk.di
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.*
 import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentAuthorizationResponseBody.NextStep
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.CustomerInstruction
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.NextStep.SubmitData.Parameter
 import com.processout.sdk.api.network.*
 import com.processout.sdk.api.network.interceptor.BasicAuthInterceptor
@@ -60,8 +61,7 @@ internal class DefaultNetworkGraph(
                     .withSubtype(NextStep.SubmitData::class.java, "submit_data")
                     .withSubtype(NextStep.Redirect::class.java, "redirect")
                     .withDefaultValue(NextStep.Unknown)
-            )
-            .add(
+            ).add(
                 PolymorphicJsonAdapterFactory.of(Parameter::class.java, "type")
                     .withSubtype(Parameter.Text::class.java, "text")
                     .withSubtype(Parameter.SingleSelect::class.java, "single-select")
@@ -72,8 +72,14 @@ internal class DefaultNetworkGraph(
                     .withSubtype(Parameter.Card::class.java, "card")
                     .withSubtype(Parameter.Otp::class.java, "otp")
                     .withDefaultValue(Parameter.Unknown)
-            )
-            .add(
+            ).add(
+                PolymorphicJsonAdapterFactory.of(CustomerInstruction::class.java, "type")
+                    .withSubtype(CustomerInstruction.Text::class.java, "text")
+                    .withSubtype(CustomerInstruction.Image::class.java, "image_url")
+                    .withSubtype(CustomerInstruction.Barcode::class.java, "barcode")
+                    .withSubtype(CustomerInstruction.Group::class.java, "group")
+                    .withDefaultValue(CustomerInstruction.Unknown)
+            ).add(
                 PolymorphicJsonAdapterFactory.of(PODynamicCheckoutPaymentMethod::class.java, "type")
                     .withSubtype(Card::class.java, "card")
                     .withSubtype(CardCustomerToken::class.java, "card_customer_token")
@@ -81,8 +87,7 @@ internal class DefaultNetworkGraph(
                     .withSubtype(AlternativePayment::class.java, "apm")
                     .withSubtype(AlternativePaymentCustomerToken::class.java, "apm_customer_token")
                     .withDefaultValue(Unknown)
-            )
-            .build()
+            ).build()
     }
 
     private val retrofit: Retrofit by lazy {
