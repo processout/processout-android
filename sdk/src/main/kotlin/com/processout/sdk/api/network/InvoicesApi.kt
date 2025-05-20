@@ -26,6 +26,12 @@ internal interface InvoicesApi {
         @Body request: NativeAlternativePaymentAuthorizationRequestBody
     ): Response<NativeAlternativePaymentAuthorizationResponseBody>
 
+    @GET("/invoices/{invoiceId}/apm-payment/{gatewayConfigurationId}")
+    suspend fun nativeAlternativePayment(
+        @Path("invoiceId") invoiceId: String,
+        @Path("gatewayConfigurationId") gatewayConfigurationId: String
+    ): Response<NativeAlternativePaymentAuthorizationResponseBody>
+
     @POST("/invoices/{id}/native-payment")
     suspend fun initiatePayment(
         @Path("id") invoiceId: String,
