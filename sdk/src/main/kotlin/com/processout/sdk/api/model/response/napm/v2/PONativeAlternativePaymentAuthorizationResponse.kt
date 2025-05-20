@@ -80,8 +80,17 @@ data class PONativeAlternativePaymentAuthorizationResponse(
                 data class Phone(
                     val key: String,
                     val label: String,
-                    val required: Boolean
-                ) : Parameter()
+                    val required: Boolean,
+                    @Json(name = "dialing_code")
+                    val dialingCodes: List<DialingCode>?
+                ) : Parameter() {
+
+                    @JsonClass(generateAdapter = true)
+                    data class DialingCode(
+                        val id: String,
+                        val value: String
+                    )
+                }
 
                 @JsonClass(generateAdapter = true)
                 data class Email(
