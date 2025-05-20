@@ -6,7 +6,7 @@ import com.processout.sdk.api.model.request.NativeAlternativePaymentCaptureReque
 import com.processout.sdk.api.model.request.POCreateInvoiceRequest
 import com.processout.sdk.api.model.request.napm.v2.NativeAlternativePaymentAuthorizationRequestBody
 import com.processout.sdk.api.model.response.*
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse
+import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentAuthorizationResponseBody
 import com.processout.sdk.api.network.HeaderConstants.CLIENT_SECRET
 import retrofit2.Response
 import retrofit2.http.*
@@ -24,7 +24,7 @@ internal interface InvoicesApi {
     suspend fun authorizeInvoice(
         @Path("id") invoiceId: String,
         @Body request: NativeAlternativePaymentAuthorizationRequestBody
-    ): Response<PONativeAlternativePaymentAuthorizationResponse>
+    ): Response<NativeAlternativePaymentAuthorizationResponseBody>
 
     @POST("/invoices/{id}/native-payment")
     suspend fun initiatePayment(

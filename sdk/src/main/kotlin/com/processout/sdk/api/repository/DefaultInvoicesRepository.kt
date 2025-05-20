@@ -7,6 +7,9 @@ import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAu
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter.PhoneNumber
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter.Value
 import com.processout.sdk.api.model.response.*
+import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentAuthorizationResponseBody
+import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentAuthorizationResponseBody.NextStep
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse
 import com.processout.sdk.api.network.HeaderConstants.CLIENT_SECRET
 import com.processout.sdk.api.network.InvoicesApi
 import com.processout.sdk.core.*
@@ -37,7 +40,7 @@ internal class DefaultInvoicesRepository(
             invoiceId = request.invoiceId,
             request = request.toBody()
         )
-    }
+    }.map { it.toModel() }
 
     override suspend fun initiatePayment(
         request: PONativeAlternativePaymentMethodRequest
@@ -160,6 +163,23 @@ internal class DefaultInvoicesRepository(
                 )
             }
         }
+
+    private fun NativeAlternativePaymentAuthorizationResponseBody.toModel() =
+        PONativeAlternativePaymentAuthorizationResponse(
+            state = state,
+            nextStep = nextStep?.let {
+                when (it) {
+                    is NextStep.SubmitData -> PONativeAlternativePaymentAuthorizationResponse.NextStep.SubmitData(
+                        parameterDefinitions = it.parameters.parameterDefinitions
+                    )
+                    is NextStep.Redirect -> PONativeAlternativePaymentAuthorizationResponse.NextStep.Redirect(
+                        url = it.parameters.url
+                    )
+                    NextStep.Unknown -> PONativeAlternativePaymentAuthorizationResponse.NextStep.Unknown
+                }
+            },
+            customerInstructions = customerInstructions
+        )
 
     private fun ProcessOutResult<Response<InvoiceResponse>>.map() = fold(
         onSuccess = { response ->
