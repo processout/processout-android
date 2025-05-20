@@ -43,8 +43,20 @@ data class PONativeAlternativePaymentAuthorizationResponse(
                 data class SingleSelect(
                     val key: String,
                     val label: String,
-                    val required: Boolean
-                ) : Parameter()
+                    val required: Boolean,
+                    @Json(name = "available_values")
+                    val availableValues: List<AvailableValue>,
+                    @Json(ignore = true)
+                    val preselectedValue: AvailableValue? = availableValues.find { it.preselected }
+                ) : Parameter() {
+
+                    @JsonClass(generateAdapter = true)
+                    data class AvailableValue(
+                        val key: String,
+                        val label: String,
+                        val preselected: Boolean
+                    )
+                }
 
                 @JsonClass(generateAdapter = true)
                 data class Bool(
