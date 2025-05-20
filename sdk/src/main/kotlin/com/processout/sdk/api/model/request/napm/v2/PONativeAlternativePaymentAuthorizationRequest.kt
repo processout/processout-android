@@ -25,7 +25,7 @@ data class PONativeAlternativePaymentAuthorizationRequest(
         data class Value(val value: String) : Parameter()
 
         /** Phone number value. */
-        data class Phone(
+        data class PhoneNumber(
             val dialingCode: String,
             val value: String
         ) : Parameter()

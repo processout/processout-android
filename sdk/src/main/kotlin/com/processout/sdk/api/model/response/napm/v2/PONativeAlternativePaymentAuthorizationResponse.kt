@@ -83,7 +83,7 @@ data class PONativeAlternativePaymentAuthorizationResponse(
                 ) : Parameter()
 
                 @JsonClass(generateAdapter = true)
-                data class Phone(
+                data class PhoneNumber(
                     val key: String,
                     val label: String,
                     val required: Boolean,

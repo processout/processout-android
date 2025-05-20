@@ -67,7 +67,7 @@ internal class DefaultNetworkGraph(
                     .withSubtype(Parameter.SingleSelect::class.java, "single-select")
                     .withSubtype(Parameter.Bool::class.java, "boolean")
                     .withSubtype(Parameter.Digits::class.java, "digits")
-                    .withSubtype(Parameter.Phone::class.java, "phone")
+                    .withSubtype(Parameter.PhoneNumber::class.java, "phone")
                     .withSubtype(Parameter.Email::class.java, "email")
                     .withSubtype(Parameter.Card::class.java, "card")
                     .withSubtype(Parameter.Otp::class.java, "otp")

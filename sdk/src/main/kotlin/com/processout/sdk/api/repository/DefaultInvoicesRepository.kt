@@ -4,7 +4,7 @@ import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.request.napm.v2.NativeAlternativePaymentAuthorizationRequestBody
 import com.processout.sdk.api.model.request.napm.v2.NativeAlternativePaymentAuthorizationRequestBody.SubmitData
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
-import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter.Phone
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter.PhoneNumber
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter.Value
 import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.network.HeaderConstants.CLIENT_SECRET
@@ -154,7 +154,7 @@ internal class DefaultInvoicesRepository(
                     value = parameter.value,
                     dialingCode = null
                 )
-                is Phone -> NativeAlternativePaymentAuthorizationRequestBody.Parameter(
+                is PhoneNumber -> NativeAlternativePaymentAuthorizationRequestBody.Parameter(
                     value = parameter.value,
                     dialingCode = parameter.dialingCode
                 )
