@@ -3,6 +3,7 @@ package com.processout.sdk.api.model.response.napm.v2
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.NextStep.SubmitData.Parameter
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.State
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.core.util.findBy
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -113,13 +114,25 @@ data class PONativeAlternativePaymentAuthorizationResponse(
                 @JsonClass(generateAdapter = true)
                 data class Otp(
                     val key: String,
+                    @Json(name = "subtype")
+                    val rawSubtype: String,
                     val label: String,
                     val required: Boolean,
                     @Json(name = "min_length")
                     val minLength: Int?,
                     @Json(name = "max_length")
                     val maxLength: Int?
-                ) : Parameter()
+                ) : Parameter() {
+
+                    val subtype: Subtype
+                        get() = Subtype::rawValue.findBy(rawSubtype) ?: Subtype.UNKNOWN
+
+                    enum class Subtype(val rawValue: String) {
+                        TEXT("text"),
+                        DIGITS("digits"),
+                        UNKNOWN(String())
+                    }
+                }
 
                 data object Unknown : Parameter()
             }
