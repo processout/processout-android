@@ -32,7 +32,11 @@ data class PONativeAlternativePaymentAuthorizationResponse(
                 data class Text(
                     val key: String,
                     val label: String,
-                    val required: Boolean
+                    val required: Boolean,
+                    @Json(name = "min_length")
+                    val minLength: Int?,
+                    @Json(name = "max_length")
+                    val maxLength: Int?
                 ) : Parameter()
 
                 @JsonClass(generateAdapter = true)
@@ -53,7 +57,11 @@ data class PONativeAlternativePaymentAuthorizationResponse(
                 data class Digits(
                     val key: String,
                     val label: String,
-                    val required: Boolean
+                    val required: Boolean,
+                    @Json(name = "min_length")
+                    val minLength: Int?,
+                    @Json(name = "max_length")
+                    val maxLength: Int?
                 ) : Parameter()
 
                 @JsonClass(generateAdapter = true)
@@ -74,14 +82,22 @@ data class PONativeAlternativePaymentAuthorizationResponse(
                 data class Card(
                     val key: String,
                     val label: String,
-                    val required: Boolean
+                    val required: Boolean,
+                    @Json(name = "min_length")
+                    val minLength: Int?,
+                    @Json(name = "max_length")
+                    val maxLength: Int?
                 ) : Parameter()
 
                 @JsonClass(generateAdapter = true)
                 data class Otp(
                     val key: String,
                     val label: String,
-                    val required: Boolean
+                    val required: Boolean,
+                    @Json(name = "min_length")
+                    val minLength: Int?,
+                    @Json(name = "max_length")
+                    val maxLength: Int?
                 ) : Parameter()
 
                 data object Unknown : Parameter()
