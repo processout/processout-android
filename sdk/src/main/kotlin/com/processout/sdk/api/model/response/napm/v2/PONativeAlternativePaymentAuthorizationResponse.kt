@@ -10,6 +10,13 @@ import com.processout.sdk.core.util.findBy
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
+/**
+ * Specifies details of native alternative payment.
+ *
+ * @param[state] State of native alternative payment.
+ * @param[nextStep] Next required step in the payment flow.
+ * @param[customerInstructions] Instructions for the customer that provide additional information and/or describe required actions.
+ */
 /** @suppress */
 @ProcessOutInternalApi
 data class PONativeAlternativePaymentAuthorizationResponse(
@@ -18,21 +25,41 @@ data class PONativeAlternativePaymentAuthorizationResponse(
     val customerInstructions: List<CustomerInstruction>?
 ) {
 
+    /**
+     * State of native alternative payment.
+     */
     @JsonClass(generateAdapter = false)
     enum class State {
+        /** Next step is required to proceed. */
         NEXT_STEP_REQUIRED,
+
+        /** Payment is ready to be captured. */
         PENDING_CAPTURE,
+
+        /** Payment is captured. */
         CAPTURED
     }
 
+    /**
+     * Specifies the next required step in the payment flow.
+     */
     sealed class NextStep {
 
+        /**
+         * Indicates that the next required step is submitting data for the expected [parameterDefinitions].
+         */
         data class SubmitData(
             val parameterDefinitions: List<Parameter>
         ) : NextStep() {
 
+            /**
+             * Payment parameter definition.
+             */
             sealed class Parameter {
 
+                /**
+                 * Text parameter.
+                 */
                 @JsonClass(generateAdapter = true)
                 data class Text(
                     val key: String,
@@ -44,6 +71,9 @@ data class PONativeAlternativePaymentAuthorizationResponse(
                     val maxLength: Int?
                 ) : Parameter()
 
+                /**
+                 * Single selection parameter.
+                 */
                 @JsonClass(generateAdapter = true)
                 data class SingleSelect(
                     val key: String,
@@ -64,6 +94,9 @@ data class PONativeAlternativePaymentAuthorizationResponse(
                     )
                 }
 
+                /**
+                 * Boolean parameter.
+                 */
                 @JsonClass(generateAdapter = true)
                 data class Bool(
                     val key: String,
@@ -71,6 +104,9 @@ data class PONativeAlternativePaymentAuthorizationResponse(
                     val required: Boolean
                 ) : Parameter()
 
+                /**
+                 * Digits only parameter.
+                 */
                 @JsonClass(generateAdapter = true)
                 data class Digits(
                     val key: String,
@@ -82,6 +118,9 @@ data class PONativeAlternativePaymentAuthorizationResponse(
                     val maxLength: Int?
                 ) : Parameter()
 
+                /**
+                 * Phone number parameter.
+                 */
                 @JsonClass(generateAdapter = true)
                 data class PhoneNumber(
                     val key: String,
@@ -98,6 +137,9 @@ data class PONativeAlternativePaymentAuthorizationResponse(
                     )
                 }
 
+                /**
+                 * Email parameter.
+                 */
                 @JsonClass(generateAdapter = true)
                 data class Email(
                     val key: String,
@@ -105,6 +147,9 @@ data class PONativeAlternativePaymentAuthorizationResponse(
                     val required: Boolean
                 ) : Parameter()
 
+                /**
+                 * Card number parameter.
+                 */
                 @JsonClass(generateAdapter = true)
                 data class Card(
                     val key: String,
@@ -116,6 +161,9 @@ data class PONativeAlternativePaymentAuthorizationResponse(
                     val maxLength: Int?
                 ) : Parameter()
 
+                /**
+                 * One-Time Password (OTP) parameter.
+                 */
                 @JsonClass(generateAdapter = true)
                 data class Otp(
                     val key: String,
@@ -139,17 +187,29 @@ data class PONativeAlternativePaymentAuthorizationResponse(
                     }
                 }
 
+                /**
+                 * Unknown parameter.
+                 */
                 data object Unknown : Parameter()
             }
         }
 
+        /**
+         * Indicates that the next required step is a redirect to the URL.
+         */
         data class Redirect(
             val url: String
         ) : NextStep()
 
+        /**
+         * The next step is unknown.
+         */
         data object Unknown : NextStep()
     }
 
+    /**
+     * Specifies instructions for the customer, providing additional information and/or describing required actions.
+     */
     sealed class CustomerInstruction {
 
         @JsonClass(generateAdapter = true)
