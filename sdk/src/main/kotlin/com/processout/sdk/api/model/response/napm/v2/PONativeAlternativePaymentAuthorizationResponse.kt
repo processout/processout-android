@@ -274,21 +274,38 @@ data class PONativeAlternativePaymentAuthorizationResponse(
     }
 
     /**
-     * Specifies instructions for the customer, providing additional information and/or describing required actions.
+     * Specifies instruction for the customer, providing additional information and/or describing required actions.
      */
     sealed class CustomerInstruction {
 
+        /**
+         * Customer instruction provided as a markdown text.
+         *
+         * @param[label] Optional instruction display label.
+         * @param[value] Markdown text.
+         */
         @JsonClass(generateAdapter = true)
         data class Text(
             val label: String?,
             val value: String
         ) : CustomerInstruction()
 
+        /**
+         * Customer instruction provided as an image resource.
+         *
+         * @param[value] Image resource.
+         */
         @JsonClass(generateAdapter = true)
         data class Image(
             val value: POImageResource
         ) : CustomerInstruction()
 
+        /**
+         * Customer instruction provided via barcode.
+         *
+         * @param[rawSubtype] Raw barcode subtype.
+         * @param[rawValue] Base64 encoded value.
+         */
         @JsonClass(generateAdapter = true)
         data class Barcode(
             @Json(name = "subtype")
@@ -297,6 +314,7 @@ data class PONativeAlternativePaymentAuthorizationResponse(
             val rawValue: String
         ) : CustomerInstruction() {
 
+            /** Barcode value. */
             val value: POBarcode
                 get() = POBarcode(
                     rawType = rawSubtype,
@@ -304,12 +322,21 @@ data class PONativeAlternativePaymentAuthorizationResponse(
                 )
         }
 
+        /**
+         * Group of customer instructions.
+         *
+         * @param[label] Optional group display label.
+         * @param[instructions] Grouped instructions for the customer that provide additional information and/or describe required actions.
+         */
         @JsonClass(generateAdapter = true)
         data class Group(
             val label: String?,
             val instructions: List<CustomerInstruction>
         ) : CustomerInstruction()
 
+        /**
+         * Unknown customer instruction type.
+         */
         data object Unknown : CustomerInstruction()
     }
 }
