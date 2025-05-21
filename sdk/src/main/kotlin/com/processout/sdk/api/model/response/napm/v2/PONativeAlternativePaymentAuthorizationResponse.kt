@@ -86,9 +86,16 @@ data class PONativeAlternativePaymentAuthorizationResponse(
                     val preselectedValue: AvailableValue?
                         get() = availableValues.find { it.preselected }
 
+                    /**
+                     * Available parameter value.
+                     *
+                     * @param[value] Parameter value.
+                     * @param[label] Parameter display label.
+                     * @param[preselected] Indicates whether the parameter should be preselected by default.
+                     */
                     @JsonClass(generateAdapter = true)
                     data class AvailableValue(
-                        val key: String,
+                        val value: String,
                         val label: String,
                         val preselected: Boolean
                     )
