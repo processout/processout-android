@@ -87,7 +87,7 @@ data class PONativeAlternativePaymentAuthorizationResponse(
                     val key: String,
                     val label: String,
                     val required: Boolean,
-                    @Json(name = "dialing_code")
+                    @Json(name = "dialing_codes")
                     val dialingCodes: List<DialingCode>?
                 ) : Parameter() {
 
