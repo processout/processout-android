@@ -19,15 +19,24 @@ data class PONativeAlternativePaymentAuthorizationRequest(
     val parameters: Map<String, Parameter>? = null
 ) {
 
-    /** Payment parameter. */
+    /**
+     * Payment parameter.
+     */
     sealed class Parameter {
-        /** Arbitrary value. */
+        /**
+         * Arbitrary string value.
+         */
         data class Value(val value: String) : Parameter()
 
-        /** Phone number value. */
+        /**
+         * Phone number value.
+         *
+         * @param[dialingCode] International dialing code.
+         * @param[number] The rest of the number without dialing code.
+         */
         data class PhoneNumber(
             val dialingCode: String,
-            val value: String
+            val number: String
         ) : Parameter()
     }
 }

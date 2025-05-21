@@ -168,7 +168,7 @@ internal class DefaultInvoicesRepository(
                     dialingCode = null
                 )
                 is PhoneNumber -> NativeAlternativePaymentAuthorizationRequestBody.Parameter(
-                    value = parameter.value,
+                    value = parameter.number,
                     dialingCode = parameter.dialingCode
                 )
             }
