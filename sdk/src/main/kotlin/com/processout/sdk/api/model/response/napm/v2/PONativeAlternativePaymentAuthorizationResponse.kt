@@ -137,6 +137,12 @@ data class PONativeAlternativePaymentAuthorizationResponse(
                     val dialingCodes: List<DialingCode>?
                 ) : Parameter() {
 
+                    /**
+                     * International dialing code.
+                     *
+                     * @param[id] Country code identifier.
+                     * @param[value] Dialing code value.
+                     */
                     @JsonClass(generateAdapter = true)
                     data class DialingCode(
                         val id: String,
