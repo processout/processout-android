@@ -59,6 +59,12 @@ data class PONativeAlternativePaymentAuthorizationResponse(
 
                 /**
                  * Text parameter.
+                 *
+                 * @param[key] Parameter key.
+                 * @param[label] Parameter display label.
+                 * @param[required] Indicates whether the parameter is required.
+                 * @param[minLength] Optional minimum length.
+                 * @param[maxLength] Optional maximum length.
                  */
                 @JsonClass(generateAdapter = true)
                 data class Text(
@@ -73,6 +79,11 @@ data class PONativeAlternativePaymentAuthorizationResponse(
 
                 /**
                  * Single selection parameter.
+                 *
+                 * @param[key] Parameter key.
+                 * @param[label] Parameter display label.
+                 * @param[required] Indicates whether the parameter is required.
+                 * @param[availableValues] Available values.
                  */
                 @JsonClass(generateAdapter = true)
                 data class SingleSelect(
@@ -83,6 +94,7 @@ data class PONativeAlternativePaymentAuthorizationResponse(
                     val availableValues: List<AvailableValue>
                 ) : Parameter() {
 
+                    /** Preselected value. */
                     val preselectedValue: AvailableValue?
                         get() = availableValues.find { it.preselected }
 
@@ -90,8 +102,8 @@ data class PONativeAlternativePaymentAuthorizationResponse(
                      * Available parameter value.
                      *
                      * @param[value] Parameter value.
-                     * @param[label] Parameter display label.
-                     * @param[preselected] Indicates whether the parameter should be preselected by default.
+                     * @param[label] Value display label.
+                     * @param[preselected] Indicates whether the value should be preselected by default.
                      */
                     @JsonClass(generateAdapter = true)
                     data class AvailableValue(
@@ -103,6 +115,10 @@ data class PONativeAlternativePaymentAuthorizationResponse(
 
                 /**
                  * Boolean parameter.
+                 *
+                 * @param[key] Parameter key.
+                 * @param[label] Parameter display label.
+                 * @param[required] Indicates whether the parameter is required.
                  */
                 @JsonClass(generateAdapter = true)
                 data class Bool(
@@ -113,6 +129,12 @@ data class PONativeAlternativePaymentAuthorizationResponse(
 
                 /**
                  * Digits only parameter.
+                 *
+                 * @param[key] Parameter key.
+                 * @param[label] Parameter display label.
+                 * @param[required] Indicates whether the parameter is required.
+                 * @param[minLength] Optional minimum length.
+                 * @param[maxLength] Optional maximum length.
                  */
                 @JsonClass(generateAdapter = true)
                 data class Digits(
@@ -127,6 +149,11 @@ data class PONativeAlternativePaymentAuthorizationResponse(
 
                 /**
                  * Phone number parameter.
+                 *
+                 * @param[key] Parameter key.
+                 * @param[label] Parameter display label.
+                 * @param[required] Indicates whether the parameter is required.
+                 * @param[dialingCodes] Supported international dialing codes.
                  */
                 @JsonClass(generateAdapter = true)
                 data class PhoneNumber(
@@ -152,6 +179,10 @@ data class PONativeAlternativePaymentAuthorizationResponse(
 
                 /**
                  * Email parameter.
+                 *
+                 * @param[key] Parameter key.
+                 * @param[label] Parameter display label.
+                 * @param[required] Indicates whether the parameter is required.
                  */
                 @JsonClass(generateAdapter = true)
                 data class Email(
@@ -162,6 +193,12 @@ data class PONativeAlternativePaymentAuthorizationResponse(
 
                 /**
                  * Card number parameter.
+                 *
+                 * @param[key] Parameter key.
+                 * @param[label] Parameter display label.
+                 * @param[required] Indicates whether the parameter is required.
+                 * @param[minLength] Optional minimum length.
+                 * @param[maxLength] Optional maximum length.
                  */
                 @JsonClass(generateAdapter = true)
                 data class Card(
@@ -176,6 +213,13 @@ data class PONativeAlternativePaymentAuthorizationResponse(
 
                 /**
                  * One-Time Password (OTP) parameter.
+                 *
+                 * @param[key] Parameter key.
+                 * @param[rawSubtype] Raw OTP subtype.
+                 * @param[label] Parameter display label.
+                 * @param[required] Indicates whether the parameter is required.
+                 * @param[minLength] Optional minimum length.
+                 * @param[maxLength] Optional maximum length.
                  */
                 @JsonClass(generateAdapter = true)
                 data class Otp(
@@ -190,6 +234,7 @@ data class PONativeAlternativePaymentAuthorizationResponse(
                     val maxLength: Int?
                 ) : Parameter() {
 
+                    /** OTP subtype. */
                     val subtype: Subtype
                         get() = Subtype::rawType.findBy(rawSubtype) ?: Subtype.UNKNOWN
 
