@@ -4,8 +4,7 @@ import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.request.napm.v2.NativeAlternativePaymentAuthorizationRequestBody
 import com.processout.sdk.api.model.request.napm.v2.NativeAlternativePaymentAuthorizationRequestBody.SubmitData
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
-import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter.PhoneNumber
-import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter.Value
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentRequest
 import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentAuthorizationResponseBody
@@ -160,14 +159,14 @@ internal class DefaultInvoicesRepository(
             submitData = parameters?.let { SubmitData(parameters = it.map()) }
         )
 
-    private fun Map<String, PONativeAlternativePaymentAuthorizationRequest.Parameter>.map() =
+    private fun Map<String, Parameter>.map() =
         mapValues { (_, parameter) ->
             when (parameter) {
-                is Value -> NativeAlternativePaymentAuthorizationRequestBody.Parameter(
+                is Parameter.String -> NativeAlternativePaymentAuthorizationRequestBody.Parameter(
                     value = parameter.value,
                     dialingCode = null
                 )
-                is PhoneNumber -> NativeAlternativePaymentAuthorizationRequestBody.Parameter(
+                is Parameter.PhoneNumber -> NativeAlternativePaymentAuthorizationRequestBody.Parameter(
                     value = parameter.number,
                     dialingCode = parameter.dialingCode
                 )

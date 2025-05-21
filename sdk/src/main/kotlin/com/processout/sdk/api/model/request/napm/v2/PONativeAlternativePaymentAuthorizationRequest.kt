@@ -26,7 +26,7 @@ data class PONativeAlternativePaymentAuthorizationRequest(
         /**
          * Arbitrary string value.
          */
-        data class Value(val value: String) : Parameter()
+        data class String(val value: kotlin.String) : Parameter()
 
         /**
          * Phone number value.
@@ -35,8 +35,8 @@ data class PONativeAlternativePaymentAuthorizationRequest(
          * @param[number] The rest of the number without dialing code.
          */
         data class PhoneNumber(
-            val dialingCode: String,
-            val number: String
+            val dialingCode: kotlin.String,
+            val number: kotlin.String
         ) : Parameter()
     }
 }
