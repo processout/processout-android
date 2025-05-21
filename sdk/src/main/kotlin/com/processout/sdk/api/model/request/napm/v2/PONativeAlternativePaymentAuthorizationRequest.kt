@@ -26,7 +26,9 @@ data class PONativeAlternativePaymentAuthorizationRequest(
         /**
          * Arbitrary string value.
          */
-        data class String(val value: kotlin.String) : Parameter()
+        data class String(
+            val value: kotlin.String
+        ) : Parameter()
 
         /**
          * Phone number value.
@@ -34,7 +36,9 @@ data class PONativeAlternativePaymentAuthorizationRequest(
          * @param[dialingCode] International dialing code.
          * @param[number] The rest of the number without dialing code.
          */
+        @JsonClass(generateAdapter = true)
         data class PhoneNumber(
+            @Json(name = "dialing_code")
             val dialingCode: kotlin.String,
             val number: kotlin.String
         ) : Parameter()
@@ -51,13 +55,6 @@ internal data class NativeAlternativePaymentAuthorizationRequestBody(
 
     @JsonClass(generateAdapter = true)
     data class SubmitData(
-        val parameters: Map<String, Parameter>
-    )
-
-    @JsonClass(generateAdapter = true)
-    data class Parameter(
-        val value: String,
-        @Json(name = "dialing_code")
-        val dialingCode: String?
+        val parameters: Map<String, Any>
     )
 }

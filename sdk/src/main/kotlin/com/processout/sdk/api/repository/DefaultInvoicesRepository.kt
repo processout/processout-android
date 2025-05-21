@@ -162,14 +162,8 @@ internal class DefaultInvoicesRepository(
     private fun Map<String, Parameter>.map() =
         mapValues { (_, parameter) ->
             when (parameter) {
-                is Parameter.String -> NativeAlternativePaymentAuthorizationRequestBody.Parameter(
-                    value = parameter.value,
-                    dialingCode = null
-                )
-                is Parameter.PhoneNumber -> NativeAlternativePaymentAuthorizationRequestBody.Parameter(
-                    value = parameter.number,
-                    dialingCode = parameter.dialingCode
-                )
+                is Parameter.String -> parameter.value
+                is Parameter.PhoneNumber -> parameter
             }
         }
 
