@@ -193,9 +193,17 @@ data class PONativeAlternativePaymentAuthorizationResponse(
                     val subtype: Subtype
                         get() = Subtype::rawType.findBy(rawSubtype) ?: Subtype.UNKNOWN
 
+                    /**
+                     * One-Time Password (OTP) subtype.
+                     */
                     enum class Subtype(val rawType: String) {
+                        /** Text OTP. */
                         TEXT("text"),
+
+                        /** Digits only OTP. */
                         DIGITS("digits"),
+
+                        /** Unknown OTP subtype. */
                         UNKNOWN(String())
                     }
                 }
