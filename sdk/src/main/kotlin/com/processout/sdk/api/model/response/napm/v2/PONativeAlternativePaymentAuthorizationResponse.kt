@@ -37,7 +37,14 @@ data class PONativeAlternativePaymentAuthorizationResponse(
         PENDING_CAPTURE,
 
         /** Payment is captured. */
-        CAPTURED
+        CAPTURED,
+
+        /**
+         * Placeholder that allows adding additional cases while staying backward compatible.
+         * __Warning:__ Do not match this case directly, use _when-else_ instead.
+         */
+        @ProcessOutInternalApi
+        UNKNOWN
     }
 
     /**
@@ -248,14 +255,20 @@ data class PONativeAlternativePaymentAuthorizationResponse(
                         /** Digits only OTP. */
                         DIGITS("digits"),
 
-                        /** Unknown OTP subtype. */
+                        /**
+                         * Placeholder that allows adding additional cases while staying backward compatible.
+                         * __Warning:__ Do not match this case directly, use _when-else_ instead.
+                         */
+                        @ProcessOutInternalApi
                         UNKNOWN(String())
                     }
                 }
 
                 /**
-                 * Unknown parameter.
+                 * Placeholder that allows adding additional cases while staying backward compatible.
+                 * __Warning:__ Do not match this case directly, use _when-else_ instead.
                  */
+                @ProcessOutInternalApi
                 data object Unknown : Parameter()
             }
         }
@@ -268,8 +281,10 @@ data class PONativeAlternativePaymentAuthorizationResponse(
         ) : NextStep()
 
         /**
-         * The next step is unknown.
+         * Placeholder that allows adding additional cases while staying backward compatible.
+         * __Warning:__ Do not match this case directly, use _when-else_ instead.
          */
+        @ProcessOutInternalApi
         data object Unknown : NextStep()
     }
 
@@ -335,8 +350,10 @@ data class PONativeAlternativePaymentAuthorizationResponse(
         ) : CustomerInstruction()
 
         /**
-         * Unknown customer instruction type.
+         * Placeholder that allows adding additional cases while staying backward compatible.
+         * __Warning:__ Do not match this case directly, use _when-else_ instead.
          */
+        @ProcessOutInternalApi
         data object Unknown : CustomerInstruction()
     }
 }
