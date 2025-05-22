@@ -4,7 +4,6 @@ import com.processout.sdk.api.model.response.POBarcode
 import com.processout.sdk.api.model.response.POImageResource
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.CustomerInstruction
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.State
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -120,36 +119,7 @@ data class PONativeAlternativePaymentAuthorizationResponse(
 internal data class NativeAlternativePaymentAuthorizationResponseBody(
     val state: State,
     @Json(name = "next_step")
-    val nextStep: NextStep?,
+    val nextStep: NativeAlternativePaymentNextStep?,
     @Json(name = "customer_instructions")
     val customerInstructions: List<CustomerInstruction>?
-) {
-
-    sealed class NextStep {
-
-        @JsonClass(generateAdapter = true)
-        data class SubmitData(
-            val parameters: Parameters
-        ) : NextStep() {
-
-            @JsonClass(generateAdapter = true)
-            data class Parameters(
-                @Json(name = "parameter_definitions")
-                val parameterDefinitions: List<Parameter>
-            )
-        }
-
-        @JsonClass(generateAdapter = true)
-        data class Redirect(
-            val parameters: Parameters
-        ) : NextStep() {
-
-            @JsonClass(generateAdapter = true)
-            data class Parameters(
-                val url: String
-            )
-        }
-
-        data object Unknown : NextStep()
-    }
-}
+)

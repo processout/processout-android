@@ -8,7 +8,7 @@ import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAu
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentRequest
 import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentAuthorizationResponseBody
-import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentAuthorizationResponseBody.NextStep
+import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentNextStep
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep
 import com.processout.sdk.api.network.HeaderConstants.CLIENT_SECRET
@@ -173,13 +173,16 @@ internal class DefaultInvoicesRepository(
             state = state,
             nextStep = nextStep?.let {
                 when (it) {
-                    is NextStep.SubmitData -> PONativeAlternativePaymentNextStep.SubmitData(
-                        parameterDefinitions = it.parameters.parameterDefinitions
-                    )
-                    is NextStep.Redirect -> PONativeAlternativePaymentNextStep.Redirect(
-                        url = it.parameters.url
-                    )
-                    NextStep.Unknown -> PONativeAlternativePaymentNextStep.Unknown
+                    is NativeAlternativePaymentNextStep.SubmitData ->
+                        PONativeAlternativePaymentNextStep.SubmitData(
+                            parameterDefinitions = it.parameters.parameterDefinitions
+                        )
+                    is NativeAlternativePaymentNextStep.Redirect ->
+                        PONativeAlternativePaymentNextStep.Redirect(
+                            url = it.parameters.url
+                        )
+                    NativeAlternativePaymentNextStep.Unknown ->
+                        PONativeAlternativePaymentNextStep.Unknown
                 }
             },
             customerInstructions = customerInstructions

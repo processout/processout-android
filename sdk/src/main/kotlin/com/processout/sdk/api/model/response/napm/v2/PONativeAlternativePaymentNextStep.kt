@@ -1,5 +1,6 @@
 package com.processout.sdk.api.model.response.napm.v2
 
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.core.util.findBy
 import com.squareup.moshi.Json
@@ -246,4 +247,32 @@ sealed class PONativeAlternativePaymentNextStep {
      */
     @ProcessOutInternalApi
     data object Unknown : PONativeAlternativePaymentNextStep()
+}
+
+internal sealed class NativeAlternativePaymentNextStep {
+
+    @JsonClass(generateAdapter = true)
+    data class SubmitData(
+        val parameters: Parameters
+    ) : NativeAlternativePaymentNextStep() {
+
+        @JsonClass(generateAdapter = true)
+        data class Parameters(
+            @Json(name = "parameter_definitions")
+            val parameterDefinitions: List<Parameter>
+        )
+    }
+
+    @JsonClass(generateAdapter = true)
+    data class Redirect(
+        val parameters: Parameters
+    ) : NativeAlternativePaymentNextStep() {
+
+        @JsonClass(generateAdapter = true)
+        data class Parameters(
+            val url: String
+        )
+    }
+
+    data object Unknown : NativeAlternativePaymentNextStep()
 }
