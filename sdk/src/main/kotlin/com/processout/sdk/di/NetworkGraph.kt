@@ -3,7 +3,7 @@ package com.processout.sdk.di
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.*
 import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentNextStep
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.CustomerInstruction
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentCustomerInstruction
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter
 import com.processout.sdk.api.network.*
 import com.processout.sdk.api.network.interceptor.BasicAuthInterceptor
@@ -79,12 +79,12 @@ internal class DefaultNetworkGraph(
                 .withSubtype(Parameter.Otp::class.java, "otp")
                 .withDefaultValue(Parameter.Unknown)
         ).add(
-            PolymorphicJsonAdapterFactory.of(CustomerInstruction::class.java, "type")
-                .withSubtype(CustomerInstruction.Text::class.java, "text")
-                .withSubtype(CustomerInstruction.Image::class.java, "image_url")
-                .withSubtype(CustomerInstruction.Barcode::class.java, "barcode")
-                .withSubtype(CustomerInstruction.Group::class.java, "group")
-                .withDefaultValue(CustomerInstruction.Unknown)
+            PolymorphicJsonAdapterFactory.of(PONativeAlternativePaymentCustomerInstruction::class.java, "type")
+                .withSubtype(PONativeAlternativePaymentCustomerInstruction.Text::class.java, "text")
+                .withSubtype(PONativeAlternativePaymentCustomerInstruction.Image::class.java, "image_url")
+                .withSubtype(PONativeAlternativePaymentCustomerInstruction.Barcode::class.java, "barcode")
+                .withSubtype(PONativeAlternativePaymentCustomerInstruction.Group::class.java, "group")
+                .withDefaultValue(PONativeAlternativePaymentCustomerInstruction.Unknown)
         )
 
     private fun Moshi.Builder.addDynamicCheckoutAdapter() =
