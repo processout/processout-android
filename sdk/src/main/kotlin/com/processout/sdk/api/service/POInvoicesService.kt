@@ -4,10 +4,13 @@ import com.processout.sdk.api.model.request.POCreateInvoiceRequest
 import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentRequest
 import com.processout.sdk.api.model.response.POInvoice
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethod
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodCapture
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
@@ -62,6 +65,24 @@ interface POInvoicesService {
         request: POInvoiceAuthorizationRequest,
         threeDSService: PO3DSService
     ): ProcessOutResult<Unit>
+
+    /**
+     * Authorize invoice with the given request.
+     */
+    /** @suppress */
+    @ProcessOutInternalApi
+    suspend fun authorize(
+        request: PONativeAlternativePaymentAuthorizationRequest
+    ): ProcessOutResult<PONativeAlternativePaymentAuthorizationResponse>
+
+    /**
+     * Fetch native alternative payment details.
+     */
+    /** @suppress */
+    @ProcessOutInternalApi
+    suspend fun nativeAlternativePayment(
+        request: PONativeAlternativePaymentRequest
+    ): ProcessOutResult<PONativeAlternativePaymentAuthorizationResponse>
 
     /**
      * Initiates native alternative payment with the given request.

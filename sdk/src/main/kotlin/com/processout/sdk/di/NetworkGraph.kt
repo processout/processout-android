@@ -2,6 +2,9 @@ package com.processout.sdk.di
 
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.*
+import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentNextStep
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentCustomerInstruction
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter
 import com.processout.sdk.api.network.*
 import com.processout.sdk.api.network.interceptor.BasicAuthInterceptor
 import com.processout.sdk.api.network.interceptor.RetryInterceptor
@@ -53,17 +56,47 @@ internal class DefaultNetworkGraph(
     override val moshi: Moshi by lazy {
         Moshi.Builder()
             .add(Date::class.java, Rfc3339DateJsonAdapter())
-            .add(
-                PolymorphicJsonAdapterFactory.of(PODynamicCheckoutPaymentMethod::class.java, "type")
-                    .withSubtype(Card::class.java, "card")
-                    .withSubtype(CardCustomerToken::class.java, "card_customer_token")
-                    .withSubtype(GooglePay::class.java, "googlepay")
-                    .withSubtype(AlternativePayment::class.java, "apm")
-                    .withSubtype(AlternativePaymentCustomerToken::class.java, "apm_customer_token")
-                    .withDefaultValue(Unknown)
-            )
+            .addNativeAlternativePaymentAdapter()
+            .addDynamicCheckoutAdapter()
             .build()
     }
+
+    private fun Moshi.Builder.addNativeAlternativePaymentAdapter() =
+        add(
+            PolymorphicJsonAdapterFactory.of(NativeAlternativePaymentNextStep::class.java, "type")
+                .withSubtype(NativeAlternativePaymentNextStep.SubmitData::class.java, "submit_data")
+                .withSubtype(NativeAlternativePaymentNextStep.Redirect::class.java, "redirect")
+                .withDefaultValue(NativeAlternativePaymentNextStep.Unknown)
+        ).add(
+            PolymorphicJsonAdapterFactory.of(Parameter::class.java, "type")
+                .withSubtype(Parameter.Text::class.java, "text")
+                .withSubtype(Parameter.SingleSelect::class.java, "single-select")
+                .withSubtype(Parameter.Bool::class.java, "boolean")
+                .withSubtype(Parameter.Digits::class.java, "digits")
+                .withSubtype(Parameter.PhoneNumber::class.java, "phone")
+                .withSubtype(Parameter.Email::class.java, "email")
+                .withSubtype(Parameter.Card::class.java, "card")
+                .withSubtype(Parameter.Otp::class.java, "otp")
+                .withDefaultValue(Parameter.Unknown)
+        ).add(
+            PolymorphicJsonAdapterFactory.of(PONativeAlternativePaymentCustomerInstruction::class.java, "type")
+                .withSubtype(PONativeAlternativePaymentCustomerInstruction.Text::class.java, "text")
+                .withSubtype(PONativeAlternativePaymentCustomerInstruction.Image::class.java, "image_url")
+                .withSubtype(PONativeAlternativePaymentCustomerInstruction.Barcode::class.java, "barcode")
+                .withSubtype(PONativeAlternativePaymentCustomerInstruction.Group::class.java, "group")
+                .withDefaultValue(PONativeAlternativePaymentCustomerInstruction.Unknown)
+        )
+
+    private fun Moshi.Builder.addDynamicCheckoutAdapter() =
+        add(
+            PolymorphicJsonAdapterFactory.of(PODynamicCheckoutPaymentMethod::class.java, "type")
+                .withSubtype(Card::class.java, "card")
+                .withSubtype(CardCustomerToken::class.java, "card_customer_token")
+                .withSubtype(GooglePay::class.java, "googlepay")
+                .withSubtype(AlternativePayment::class.java, "apm")
+                .withSubtype(AlternativePaymentCustomerToken::class.java, "apm_customer_token")
+                .withDefaultValue(Unknown)
+        )
 
     private val retrofit: Retrofit by lazy {
         Retrofit.Builder()

@@ -1,7 +1,17 @@
 package com.processout.sdk.api.repository
 
 import com.processout.sdk.api.model.request.*
+import com.processout.sdk.api.model.request.napm.v2.NativeAlternativePaymentAuthorizationRequestBody
+import com.processout.sdk.api.model.request.napm.v2.NativeAlternativePaymentAuthorizationRequestBody.SubmitData
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter.Value
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentRequest
 import com.processout.sdk.api.model.response.*
+import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentAuthorizationResponseBody
+import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentNextStep
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep
 import com.processout.sdk.api.network.HeaderConstants.CLIENT_SECRET
 import com.processout.sdk.api.network.InvoicesApi
 import com.processout.sdk.core.*
@@ -24,6 +34,24 @@ internal class DefaultInvoicesRepository(
             clientSecret = request.clientSecret
         )
     }
+
+    override suspend fun authorizeInvoice(
+        request: PONativeAlternativePaymentAuthorizationRequest
+    ) = apiCall {
+        api.authorizeInvoice(
+            invoiceId = request.invoiceId,
+            request = request.toBody()
+        )
+    }.map { it.toModel() }
+
+    override suspend fun nativeAlternativePayment(
+        request: PONativeAlternativePaymentRequest
+    ) = apiCall {
+        api.nativeAlternativePayment(
+            invoiceId = request.invoiceId,
+            gatewayConfigurationId = request.gatewayConfigurationId
+        )
+    }.map { it.toModel() }
 
     override suspend fun initiatePayment(
         request: PONativeAlternativePaymentMethodRequest
@@ -125,6 +153,40 @@ internal class DefaultInvoicesRepository(
         NativeAPMRequestBody(
             gatewayConfigurationId = gatewayConfigurationId,
             nativeApm = NativeAPMRequestParameters(parameterValues = parameters)
+        )
+
+    private fun PONativeAlternativePaymentAuthorizationRequest.toBody() =
+        NativeAlternativePaymentAuthorizationRequestBody(
+            gatewayConfigurationId = gatewayConfigurationId,
+            submitData = parameters?.let { SubmitData(parameters = it.map()) }
+        )
+
+    private fun Map<String, Parameter>.map() =
+        mapValues { (_, parameter) ->
+            when (val value = parameter.value) {
+                is Value.String -> value.value
+                is Value.PhoneNumber -> value
+            }
+        }
+
+    private fun NativeAlternativePaymentAuthorizationResponseBody.toModel() =
+        PONativeAlternativePaymentAuthorizationResponse(
+            state = state,
+            nextStep = nextStep?.let {
+                when (it) {
+                    is NativeAlternativePaymentNextStep.SubmitData ->
+                        PONativeAlternativePaymentNextStep.SubmitData(
+                            parameterDefinitions = it.parameters.parameterDefinitions
+                        )
+                    is NativeAlternativePaymentNextStep.Redirect ->
+                        PONativeAlternativePaymentNextStep.Redirect(
+                            url = it.parameters.url
+                        )
+                    NativeAlternativePaymentNextStep.Unknown ->
+                        PONativeAlternativePaymentNextStep.Unknown
+                }
+            },
+            customerInstructions = customerInstructions
         )
 
     private fun ProcessOutResult<Response<InvoiceResponse>>.map() = fold(
