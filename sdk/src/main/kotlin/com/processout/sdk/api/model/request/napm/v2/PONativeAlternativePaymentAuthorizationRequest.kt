@@ -22,26 +22,45 @@ data class PONativeAlternativePaymentAuthorizationRequest(
     /**
      * Payment parameter.
      */
-    sealed class Parameter {
-        /**
-         * Arbitrary string value.
-         */
-        data class String(
-            val value: kotlin.String
-        ) : Parameter()
+    data class Parameter internal constructor(
+        internal val value: Value
+    ) {
 
-        /**
-         * Phone number value.
-         *
-         * @param[dialingCode] International dialing code.
-         * @param[number] The rest of the number without dialing code.
-         */
-        @JsonClass(generateAdapter = true)
-        data class PhoneNumber(
-            @Json(name = "dialing_code")
-            val dialingCode: kotlin.String,
-            val number: kotlin.String
-        ) : Parameter()
+        companion object {
+            /**
+             * Arbitrary string parameter.
+             */
+            fun string(value: String) = Parameter(Value.String(value))
+
+            /**
+             * Phone number parameter.
+             *
+             * @param[dialingCode] International dialing code.
+             * @param[number] The rest of the number without dialing code.
+             */
+            fun phoneNumber(
+                dialingCode: String,
+                number: String
+            ) = Parameter(
+                Value.PhoneNumber(
+                    dialingCode = dialingCode,
+                    number = number
+                )
+            )
+        }
+
+        internal sealed class Value {
+            data class String(
+                val value: kotlin.String
+            ) : Value()
+
+            @JsonClass(generateAdapter = true)
+            data class PhoneNumber(
+                @Json(name = "dialing_code")
+                val dialingCode: kotlin.String,
+                val number: kotlin.String
+            ) : Value()
+        }
     }
 }
 

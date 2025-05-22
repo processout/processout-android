@@ -5,6 +5,7 @@ import com.processout.sdk.api.model.request.napm.v2.NativeAlternativePaymentAuth
 import com.processout.sdk.api.model.request.napm.v2.NativeAlternativePaymentAuthorizationRequestBody.SubmitData
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter.Value
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentRequest
 import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentAuthorizationResponseBody
@@ -162,9 +163,9 @@ internal class DefaultInvoicesRepository(
 
     private fun Map<String, Parameter>.map() =
         mapValues { (_, parameter) ->
-            when (parameter) {
-                is Parameter.String -> parameter.value
-                is Parameter.PhoneNumber -> parameter
+            when (val value = parameter.value) {
+                is Value.String -> value.value
+                is Value.PhoneNumber -> value
             }
         }
 
