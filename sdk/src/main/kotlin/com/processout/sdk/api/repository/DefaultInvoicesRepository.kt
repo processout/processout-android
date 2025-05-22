@@ -10,6 +10,7 @@ import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentAuthorizationResponseBody
 import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentAuthorizationResponseBody.NextStep
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep
 import com.processout.sdk.api.network.HeaderConstants.CLIENT_SECRET
 import com.processout.sdk.api.network.InvoicesApi
 import com.processout.sdk.core.*
@@ -172,13 +173,13 @@ internal class DefaultInvoicesRepository(
             state = state,
             nextStep = nextStep?.let {
                 when (it) {
-                    is NextStep.SubmitData -> PONativeAlternativePaymentAuthorizationResponse.NextStep.SubmitData(
+                    is NextStep.SubmitData -> PONativeAlternativePaymentNextStep.SubmitData(
                         parameterDefinitions = it.parameters.parameterDefinitions
                     )
-                    is NextStep.Redirect -> PONativeAlternativePaymentAuthorizationResponse.NextStep.Redirect(
+                    is NextStep.Redirect -> PONativeAlternativePaymentNextStep.Redirect(
                         url = it.parameters.url
                     )
-                    NextStep.Unknown -> PONativeAlternativePaymentAuthorizationResponse.NextStep.Unknown
+                    NextStep.Unknown -> PONativeAlternativePaymentNextStep.Unknown
                 }
             },
             customerInstructions = customerInstructions
