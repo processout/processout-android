@@ -1,5 +1,8 @@
 # ProcessOut Android SDK
 
+Get started with the [documentation](https://docs.processout.com/docs/setting-up-your-environment#android-app-client)
+or explore the [API reference](https://processout.github.io/processout-android/).
+
 ## Requirements
 
 *Android 5.0 (API level 21) +*
@@ -31,14 +34,6 @@ Prebuilt customizable UI to handle payment flows.
 ```kotlin
 implementation("com.processout:processout-android-ui:<version>")
 ```
-
-## Documentation
-
-[ProcessOut Android SDK](sdk/documentation/ProcessOut.md)\
-[ProcessOut Android SDK - Checkout 3DS](checkout-3ds/documentation/ProcessOutCheckout3DS.md)\
-[ProcessOut Android SDK - UI](ui/documentation/ProcessOutUI.md)\
-\
-[API Reference](https://processout.github.io/processout-android/)
 
 ## License
 
