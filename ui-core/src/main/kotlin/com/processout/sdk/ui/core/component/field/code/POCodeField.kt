@@ -91,13 +91,13 @@ fun POCodeField(
                 for (textFieldIndex in values.indices) {
                     val focusRequester = remember { FocusRequester() }
                     POTextField(
-                        value = values.getOrNull(textFieldIndex) ?: TextFieldValue(),
+                        value = values[textFieldIndex],
                         onValueChange = { updatedValue ->
                             if (updatedValue.selection.length == 0) {
-                                val filteredText = updatedValue.text.filter { it.isDigit() }
-                                values = values.mapIndexed { valueIndex, textFieldValue ->
-                                    if (valueIndex == textFieldIndex) {
-                                        val updatedText = filteredText.firstOrNull()?.toString() ?: String()
+                                val currentValue = values[textFieldIndex]
+                                values = values.mapIndexed { index, textFieldValue ->
+                                    if (index == textFieldIndex) {
+                                        val updatedText = updatedValue.text.firstOrNull()?.toString() ?: String()
                                         val isTextChanged = textFieldValue.text != updatedText
                                         TextFieldValue(
                                             text = updatedText,
@@ -112,10 +112,10 @@ fun POCodeField(
                                     }
                                 }
                                 if (textFieldIndex != values.lastIndex &&
-                                    filteredText.length == 2 &&
+                                    updatedValue.text.length == 2 &&
                                     updatedValue.selection.start == 2
                                 ) {
-                                    val nextText = filteredText.last().toString()
+                                    val nextText = updatedValue.text.last().toString()
                                     values = values.mapIndexed { index, textFieldValue ->
                                         if (index == textFieldIndex + 1) {
                                             TextFieldValue(
@@ -126,6 +126,14 @@ fun POCodeField(
                                             textFieldValue.copy(selection = TextRange.Zero)
                                         }
                                     }
+                                }
+                                val isSelectionChangedOnly = currentValue.text == updatedValue.text &&
+                                        currentValue.selection != updatedValue.selection
+                                if (updatedValue.text.isNotEmpty() &&
+                                    !isSelectionChangedOnly &&
+                                    textFieldIndex != values.lastIndex
+                                ) {
+                                    focusedIndex = textFieldIndex + 1
                                 }
                                 onValueChange(values.codeValue())
                             }
@@ -140,28 +148,22 @@ fun POCodeField(
                                 )
                             )
                             .onPreviewKeyEvent {
-                                when {
-                                    it.key == Key.Backspace && it.type == KeyEventType.KeyDown -> {
-                                        if (textFieldIndex != 0 && values[textFieldIndex].selection.start == 0) {
-                                            values = values.mapIndexed { index, textFieldValue ->
-                                                if (index == textFieldIndex - 1) {
-                                                    TextFieldValue()
-                                                } else {
-                                                    textFieldValue.copy(selection = TextRange.Zero)
-                                                }
-                                            }
-                                            focusManager.moveFocus(FocusDirection.Previous)
-                                            onValueChange(values.codeValue())
+                                if (it.key == Key.Backspace &&
+                                    it.type == KeyEventType.KeyDown &&
+                                    textFieldIndex != 0 &&
+                                    values[textFieldIndex].selection.start == 0
+                                ) {
+                                    values = values.mapIndexed { index, textFieldValue ->
+                                        if (index == textFieldIndex - 1) {
+                                            TextFieldValue()
+                                        } else {
+                                            textFieldValue.copy(selection = TextRange.Zero)
                                         }
-                                        false
                                     }
-                                    else -> {
-                                        if (it.type == KeyEventType.KeyDown && textFieldIndex != values.lastIndex) {
-                                            focusManager.moveFocus(FocusDirection.Next)
-                                        }
-                                        false
-                                    }
+                                    focusManager.moveFocus(FocusDirection.Previous)
+                                    onValueChange(values.codeValue())
                                 }
+                                false
                             }
                             .focusRequester(focusRequester)
                             .onFocusChanged {
@@ -197,13 +199,14 @@ private fun values(
     while (values.size < length) {
         values.add(TextFieldValue())
     }
-    val filteredText = text.filter { it.isDigit() }.take(length)
-    filteredText.forEachIndexed { index, char ->
-        values[index] = TextFieldValue(
-            text = char.toString(),
-            selection = TextRange(char.toString().length)
-        )
-    }
+    text.take(length)
+        .forEachIndexed { index, char ->
+            val value = char.toString()
+            values[index] = TextFieldValue(
+                text = value,
+                selection = TextRange(value.length)
+            )
+        }
     return values
 }
 
@@ -251,7 +254,7 @@ object POCodeField {
     )
 
     val LengthMin = 1
-    val LengthMax = 6
+    val LengthMax = 8
 
     internal fun validLength(length: Int): Int {
         if (length in LengthMin..LengthMax) {
