@@ -20,12 +20,11 @@ import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent
-import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState
-import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Field.*
-import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Image
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentInteractorState.*
+import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.Field.*
+import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.Image
 import com.processout.sdk.ui.shared.extension.map
 import com.processout.sdk.ui.shared.filter.PhoneNumberInputFilter
 import com.processout.sdk.ui.shared.provider.BarcodeBitmapProvider
