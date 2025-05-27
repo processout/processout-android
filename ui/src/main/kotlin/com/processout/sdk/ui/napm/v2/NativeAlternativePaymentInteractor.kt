@@ -1,0 +1,969 @@
+package com.processout.sdk.ui.napm.v2
+
+import android.Manifest
+import android.app.Application
+import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.util.Patterns
+import androidx.annotation.StringRes
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.core.os.postDelayed
+import androidx.core.text.isDigitsOnly
+import coil.imageLoader
+import coil.request.CachePolicy
+import coil.request.ImageRequest
+import coil.request.ImageResult
+import com.processout.sdk.R
+import com.processout.sdk.api.dispatcher.POEventDispatcher
+import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
+import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.*
+import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodDefaultValuesRequest
+import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
+import com.processout.sdk.api.model.response.*
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType.*
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterValue
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodState.*
+import com.processout.sdk.api.service.POInvoicesService
+import com.processout.sdk.core.POFailure.Code.*
+import com.processout.sdk.core.POFailure.InvalidField
+import com.processout.sdk.core.POFailure.ValidationCode
+import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.fold
+import com.processout.sdk.core.logger.POLogAttribute
+import com.processout.sdk.core.logger.POLogger
+import com.processout.sdk.core.onFailure
+import com.processout.sdk.core.onSuccess
+import com.processout.sdk.core.retry.PORetryStrategy
+import com.processout.sdk.core.util.POMarkdownUtils.escapedMarkdown
+import com.processout.sdk.ui.base.BaseInteractor
+import com.processout.sdk.ui.core.state.POAvailableValue
+import com.processout.sdk.ui.napm.*
+import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.*
+import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.*
+import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.Action
+import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
+import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.PermissionRequest
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
+import com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentEvent
+import com.processout.sdk.ui.shared.extension.dpToPx
+import com.processout.sdk.ui.shared.provider.BarcodeBitmapProvider
+import com.processout.sdk.ui.shared.provider.MediaStorageProvider
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
+
+internal class NativeAlternativePaymentInteractor(
+    private val app: Application,
+    private var configuration: PONativeAlternativePaymentConfiguration,
+    private val invoicesService: POInvoicesService,
+    private val barcodeBitmapProvider: BarcodeBitmapProvider,
+    private val mediaStorageProvider: MediaStorageProvider,
+    private val captureRetryStrategy: PORetryStrategy,
+    private val legacyEventDispatcher: PODefaultNativeAlternativePaymentMethodEventDispatcher?, // TODO: remove before next major release.
+    private val eventDispatcher: POEventDispatcher = POEventDispatcher,
+    private var logAttributes: Map<String, String> = logAttributes(
+        invoiceId = configuration.invoiceId,
+        gatewayConfigurationId = configuration.gatewayConfigurationId
+    )
+) : BaseInteractor() {
+
+    private companion object {
+        const val SUCCESS_DELAY_MS = 3000L
+
+        fun logAttributes(
+            invoiceId: String,
+            gatewayConfigurationId: String
+        ): Map<String, String> = mapOf(
+            POLogAttribute.INVOICE_ID to invoiceId,
+            POLogAttribute.GATEWAY_CONFIGURATION_ID to gatewayConfigurationId
+        )
+    }
+
+    private val _completion = MutableStateFlow<NativeAlternativePaymentCompletion>(Awaiting)
+    val completion = _completion.asStateFlow()
+
+    private val _state = MutableStateFlow<NativeAlternativePaymentInteractorState>(Idle)
+    val state = _state.asStateFlow()
+
+    private val _sideEffects = Channel<NativeAlternativePaymentSideEffect>()
+    val sideEffects = _sideEffects.receiveAsFlow()
+
+    private val handler = Handler(Looper.getMainLooper())
+
+    private var latestDefaultValuesRequest: PONativeAlternativePaymentMethodDefaultValuesRequest? = null
+
+    private var captureStartTimestamp = 0L
+    private var capturePassedTimestamp = 0L
+
+    fun start() {
+        if (_state.value !is Idle) {
+            return
+        }
+        _state.update { Loading }
+        POLogger.info("Starting native alternative payment.")
+        dispatch(WillStart)
+        dispatchFailure()
+        collectDefaultValues()
+        fetchTransactionDetails()
+    }
+
+    fun start(configuration: PONativeAlternativePaymentConfiguration) {
+        if (_state.value !is Idle) {
+            return
+        }
+        this.configuration = configuration
+        logAttributes = logAttributes(
+            invoiceId = configuration.invoiceId,
+            gatewayConfigurationId = configuration.gatewayConfigurationId
+        )
+        start()
+    }
+
+    fun reset() {
+        interactorScope.coroutineContext.cancelChildren()
+        handler.removeCallbacksAndMessages(null)
+        latestDefaultValuesRequest = null
+        captureStartTimestamp = 0L
+        capturePassedTimestamp = 0L
+        _completion.update { Awaiting }
+        _state.update { Idle }
+    }
+
+    private fun fetchTransactionDetails() {
+        interactorScope.launch {
+            invoicesService.fetchNativeAlternativePaymentMethodTransactionDetails(
+                invoiceId = configuration.invoiceId,
+                gatewayConfigurationId = configuration.gatewayConfigurationId
+            ).onSuccess { details ->
+                with(details) {
+                    handleState(
+                        stateValue = toUserInputStateValue(),
+                        paymentState = state,
+                        parameters = parameters,
+                        parameterValues = parameterValues
+                    )
+                }
+            }.onFailure { failure ->
+                POLogger.info("Failed to fetch transaction details: %s", failure)
+                _completion.update { Failure(failure) }
+            }
+        }
+    }
+
+    private suspend fun handleState(
+        stateValue: UserInputStateValue,
+        paymentState: PONativeAlternativePaymentMethodState?,
+        parameters: List<PONativeAlternativePaymentMethodParameter>?,
+        parameterValues: PONativeAlternativePaymentMethodParameterValues?
+    ) {
+        when (paymentState) {
+            CUSTOMER_INPUT, null -> handleCustomerInput(stateValue, parameters)
+            PENDING_CAPTURE -> handlePendingCapture(stateValue, parameterValues)
+            CAPTURED -> handleCaptured(stateValue.toCaptureStateValue(parameterValues))
+            FAILED -> _completion.update {
+                Failure(
+                    ProcessOutResult.Failure(
+                        code = Generic(),
+                        message = "Payment has failed."
+                    ).also { POLogger.info("%s", it) }
+                )
+            }
+        }
+    }
+
+    private fun PONativeAlternativePaymentMethodTransactionDetails.toUserInputStateValue() =
+        UserInputStateValue(
+            invoice = invoice,
+            gateway = gateway,
+            fields = emptyList(),
+            focusedFieldId = null,
+            primaryActionId = ActionId.SUBMIT,
+            secondaryAction = NativeAlternativePaymentInteractorState.Action(
+                id = ActionId.CANCEL,
+                enabled = false
+            ),
+            submitAllowed = true,
+            submitting = false
+        )
+
+    private fun UserInputStateValue.toCaptureStateValue(
+        parameterValues: PONativeAlternativePaymentMethodParameterValues?,
+        barcode: Barcode? = null
+    ) = CaptureStateValue(
+        paymentProviderName = parameterValues?.providerName,
+        logoUrl = logoUrl(gateway, parameterValues),
+        customerAction = customerAction(parameterValues, barcode),
+        primaryActionId = ActionId.CONFIRM_PAYMENT,
+        secondaryAction = NativeAlternativePaymentInteractorState.Action(
+            id = ActionId.CANCEL,
+            enabled = false
+        ),
+        withProgressIndicator = false
+    )
+
+    private fun logoUrl(
+        gateway: PONativeAlternativePaymentMethodTransactionDetails.Gateway,
+        parameterValues: PONativeAlternativePaymentMethodParameterValues?
+    ): String? {
+        if (parameterValues?.providerName != null) {
+            return parameterValues.providerLogoUrl
+        }
+        if (configuration.paymentConfirmation.hideGatewayDetails) {
+            return null
+        }
+        return gateway.logoUrl
+    }
+
+    private fun UserInputStateValue.customerAction(
+        parameterValues: PONativeAlternativePaymentMethodParameterValues?,
+        barcode: Barcode? = null
+    ): CustomerAction? {
+        val message = parameterValues?.customerActionMessage
+            ?: gateway.customerActionMessage?.let { escapedMarkdown(it) }
+        return message?.let {
+            CustomerAction(
+                message = it,
+                imageUrl = gateway.customerActionImageUrl,
+                barcode = barcode
+            )
+        }
+    }
+
+    //region User Input
+
+    private fun handleCustomerInput(
+        stateValue: UserInputStateValue,
+        parameters: List<PONativeAlternativePaymentMethodParameter>?
+    ) {
+        if (parameters.isNullOrEmpty()) {
+            _completion.update {
+                Failure(
+                    ProcessOutResult.Failure(
+                        code = Internal(),
+                        message = "Input parameters is missing in response."
+                    ).also { POLogger.error("%s", it, attributes = logAttributes) }
+                )
+            }
+            return
+        }
+        if (failWithUnknownInputParameter(parameters)) {
+            return
+        }
+        val fields = parameters.toFields()
+        val focusedFieldId = fields.getOrNull(0)?.let { field ->
+            if (field.type != SINGLE_SELECT) field.id else null
+        }
+        val updatedStateValue = stateValue.copy(
+            fields = fields,
+            focusedFieldId = focusedFieldId
+        )
+        _state.update {
+            if (_state.value is Loading) {
+                Loaded(updatedStateValue)
+            } else {
+                Submitted(updatedStateValue)
+            }
+        }
+        requestDefaultValues(parameters)
+    }
+
+    private fun failWithUnknownInputParameter(
+        parameters: List<PONativeAlternativePaymentMethodParameter>
+    ): Boolean {
+        parameters.find { it.type() == UNKNOWN }?.let { parameter ->
+            _completion.update {
+                Failure(
+                    ProcessOutResult.Failure(
+                        code = Internal(),
+                        message = "Unknown input parameter type: ${parameter.rawType}"
+                    ).also { POLogger.error("%s", it, attributes = logAttributes) }
+                )
+            }
+            return true
+        }
+        return false
+    }
+
+    private fun List<PONativeAlternativePaymentMethodParameter>.toFields() =
+        map { parameter ->
+            with(parameter) {
+                val defaultValue = availableValues?.find { it.default == true }?.value ?: String()
+                Field(
+                    id = key,
+                    value = TextFieldValue(
+                        text = defaultValue,
+                        selection = TextRange(defaultValue.length)
+                    ),
+                    availableValues = availableValues?.map {
+                        POAvailableValue(
+                            value = it.value,
+                            text = it.displayName
+                        )
+                    },
+                    rawType = rawType,
+                    type = type(),
+                    length = length,
+                    displayName = displayName,
+                    description = null,
+                    required = required,
+                    isValid = true
+                )
+            }
+        }
+
+    private fun Field.toParameter() = PONativeAlternativePaymentMethodParameter(
+        key = id,
+        length = length,
+        required = required,
+        rawType = rawType,
+        displayName = displayName,
+        availableValues = availableValues?.map {
+            ParameterValue(
+                value = it.value,
+                displayName = it.text,
+                default = null
+            )
+        }
+    )
+
+    private fun startUserInput(stateValue: UserInputStateValue) {
+        _state.update { UserInput(stateValue) }
+        enableUserInputSecondaryAction()
+        POLogger.info("Started: waiting for payment parameters.")
+        dispatch(DidStart)
+    }
+
+    private fun continueUserInput(stateValue: UserInputStateValue) {
+        _state.update {
+            UserInput(
+                stateValue.copy(
+                    submitAllowed = true,
+                    submitting = false
+                )
+            )
+        }
+        POLogger.info("Submitted: waiting for additional payment parameters.")
+        dispatch(DidSubmitParameters(additionalParametersExpected = true))
+    }
+
+    //endregion
+
+    //region Default Values
+
+    private fun requestDefaultValues(parameters: List<PONativeAlternativePaymentMethodParameter>) {
+        interactorScope.launch {
+            val request = PONativeAlternativePaymentMethodDefaultValuesRequest(
+                invoiceId = configuration.invoiceId,
+                gatewayConfigurationId = configuration.gatewayConfigurationId,
+                parameters = parameters
+            )
+            latestDefaultValuesRequest = request
+            if (legacyEventDispatcher?.subscribedForDefaultValuesRequest() == true) {
+                legacyEventDispatcher.send(request)
+            } else {
+                eventDispatcher.send(request)
+            }
+            POLogger.debug("Requested to provide default values for payment parameters: %s", request)
+        }
+    }
+
+    private fun collectDefaultValues() {
+        interactorScope.launch {
+            legacyEventDispatcher?.defaultValuesResponse?.collect { response ->
+                handleDefaultValues(response)
+            }
+        }
+        eventDispatcher.subscribeForResponse<PONativeAlternativePaymentMethodDefaultValuesResponse>(
+            coroutineScope = interactorScope
+        ) { response ->
+            handleDefaultValues(response)
+        }
+    }
+
+    private fun handleDefaultValues(
+        response: PONativeAlternativePaymentMethodDefaultValuesResponse
+    ) {
+        if (response.uuid == latestDefaultValuesRequest?.uuid) {
+            latestDefaultValuesRequest = null
+            POLogger.debug("Collected default values for payment parameters: %s", response)
+            _state.whenLoaded { stateValue ->
+                startUserInput(stateValue.updateFieldValues(response.defaultValues))
+            }
+            _state.whenSubmitted { stateValue ->
+                continueUserInput(stateValue.updateFieldValues(response.defaultValues))
+            }
+        }
+    }
+
+    private fun UserInputStateValue.updateFieldValues(
+        values: Map<String, String>
+    ): UserInputStateValue {
+        val updatedFields = fields.map { field ->
+            values.entries.find { it.key == field.id }?.let {
+                val value = field.length?.let { length ->
+                    it.value.take(length)
+                } ?: it.value
+                field.copy(
+                    value = TextFieldValue(
+                        text = value,
+                        selection = TextRange(value.length)
+                    )
+                )
+            } ?: field
+        }
+        return copy(fields = updatedFields)
+    }
+
+    //endregion
+
+    fun onEvent(event: NativeAlternativePaymentEvent) {
+        when (event) {
+            is FieldValueChanged -> updateFieldValue(event.id, event.value)
+            is FieldFocusChanged -> updateFieldFocus(event.id, event.isFocused)
+            is Action -> when (event.id) {
+                ActionId.SUBMIT -> submit()
+                ActionId.CANCEL -> cancel()
+                ActionId.CONFIRM_PAYMENT -> confirmPayment()
+                ActionId.SAVE_BARCODE -> saveBarcode()
+            }
+            is DialogAction -> when (event.id) {
+                ActionId.CONFIRM_SAVE_BARCODE_ERROR -> updateBarcodeState(isError = false)
+            }
+            is ActionConfirmationRequested -> {
+                POLogger.debug("Requested the user to confirm the action: %s", event.id)
+                if (event.id == ActionId.CANCEL) {
+                    dispatch(DidRequestCancelConfirmation)
+                }
+            }
+            is PermissionRequestResult -> handlePermission(event)
+            is Dismiss -> {
+                POLogger.info("Dismissed: %s", event.failure)
+                dispatch(DidFail(event.failure))
+            }
+        }
+    }
+
+    //region Update Field
+
+    private fun updateFieldValue(id: String, value: TextFieldValue) {
+        _state.whenUserInput { stateValue ->
+            val previousValue = stateValue.fields.find { it.id == id }?.value ?: TextFieldValue()
+            val isTextChanged = value.text != previousValue.text
+            val updatedStateValue = stateValue.copy(
+                fields = stateValue.fields.map { field ->
+                    updatedField(id, value, field, isTextChanged)
+                }
+            )
+            _state.update { UserInput(updatedStateValue) }
+            if (isTextChanged) {
+                POLogger.debug("Field is edited by the user: %s", id)
+                updatedStateValue.fields.find { it.id == id }?.let {
+                    dispatch(
+                        ParametersChanged(
+                            parameter = it.toParameter(),
+                            value = it.value.text
+                        )
+                    )
+                }
+                if (updatedStateValue.areAllFieldsValid()) {
+                    _state.update { UserInput(updatedStateValue.copy(submitAllowed = true)) }
+                }
+            }
+        }
+    }
+
+    private fun updatedField(
+        id: String,
+        value: TextFieldValue,
+        field: Field,
+        isTextChanged: Boolean
+    ): Field {
+        if (field.id != id) {
+            return field
+        }
+        return if (isTextChanged) {
+            field.copy(value = value, description = null, isValid = true)
+        } else {
+            field.copy(value = value)
+        }
+    }
+
+    private fun updateFieldFocus(id: String, isFocused: Boolean) {
+        if (isFocused) {
+            _state.whenUserInput { stateValue ->
+                _state.update {
+                    UserInput(stateValue.copy(focusedFieldId = id))
+                }
+            }
+        }
+    }
+
+    //endregion
+
+    //region Submit & Validation
+
+    private fun submit() {
+        _state.whenUserInput { stateValue ->
+            POLogger.info("Will submit payment parameters.")
+            dispatch(
+                WillSubmitParameters(
+                    parameters = stateValue.fields.map { it.toParameter() },
+                    values = stateValue.fields.values()
+                )
+            )
+            val invalidFields = stateValue.fields.mapNotNull { it.validate() }
+            if (invalidFields.isNotEmpty()) {
+                val failure = ProcessOutResult.Failure(
+                    code = Validation(ValidationCode.general),
+                    message = "Invalid fields.",
+                    invalidFields = invalidFields
+                )
+                handlePaymentFailure(
+                    failure = failure,
+                    replaceWithLocalMessage = false
+                )
+                return@whenUserInput
+            }
+            _state.update {
+                UserInput(
+                    stateValue.copy(
+                        submitAllowed = true,
+                        submitting = true
+                    )
+                )
+            }
+            initiatePayment()
+        }
+    }
+
+    private fun List<Field>.values(): Map<String, String> {
+        val values = mutableMapOf<String, String>()
+        forEach {
+            values[it.id] = it.value.text
+        }
+        return values
+    }
+
+    private fun Field.validate(): InvalidField? {
+        val value = value.text
+        if (required && value.isBlank()) {
+            return invalidField(R.string.po_native_apm_error_required_parameter)
+        }
+        length?.let {
+            if (value.length != it) {
+                return InvalidField(
+                    name = id,
+                    message = app.resources.getQuantityString(
+                        R.plurals.po_native_apm_error_invalid_length, it, it
+                    )
+                )
+            }
+        }
+        when (type) {
+            NUMERIC -> if (!value.isDigitsOnly())
+                return invalidField(R.string.po_native_apm_error_invalid_number)
+            EMAIL -> if (!Patterns.EMAIL_ADDRESS.matcher(value).matches())
+                return invalidField(R.string.po_native_apm_error_invalid_email)
+            PHONE -> if (!Patterns.PHONE.matcher(value).matches())
+                return invalidField(R.string.po_native_apm_error_invalid_phone)
+            else -> {}
+        }
+        return null
+    }
+
+    private fun Field.invalidField(
+        @StringRes messageResId: Int
+    ) = InvalidField(
+        name = id,
+        message = app.getString(messageResId)
+    )
+
+    private fun UserInputStateValue.areAllFieldsValid() = fields.all { it.isValid }
+
+    private fun initiatePayment() {
+        _state.whenUserInput { stateValue ->
+            interactorScope.launch {
+                val request = PONativeAlternativePaymentMethodRequest(
+                    invoiceId = configuration.invoiceId,
+                    gatewayConfigurationId = configuration.gatewayConfigurationId,
+                    parameters = stateValue.fields.values()
+                )
+                invoicesService.initiatePayment(request)
+                    .onSuccess { payment ->
+                        with(payment) {
+                            handleState(
+                                stateValue = stateValue,
+                                paymentState = state,
+                                parameters = parameterDefinitions,
+                                parameterValues = parameterValues
+                            )
+                        }
+                    }
+                    .onFailure { failure ->
+                        handlePaymentFailure(
+                            failure = failure,
+                            replaceWithLocalMessage = true
+                        )
+                    }
+            }
+        }
+    }
+
+    //endregion
+
+    //region Handle Failure
+
+    private fun handlePaymentFailure(
+        failure: ProcessOutResult.Failure,
+        replaceWithLocalMessage: Boolean // TODO: Delete this when backend localization is ready.
+    ) {
+        _state.whenUserInput { stateValue ->
+            val invalidFields = failure.invalidFields
+            if (invalidFields.isNullOrEmpty()) {
+                POLogger.info("Unrecoverable payment failure: %s", failure)
+                _completion.update { Failure(failure) }
+                return@whenUserInput
+            }
+            val updatedFields = stateValue.fields.map { field ->
+                invalidFields.find { it.name == field.id }?.let { invalidField ->
+                    field.copy(
+                        description = fieldErrorMessage(
+                            originalMessage = invalidField.message,
+                            replaceWithLocalMessage = replaceWithLocalMessage,
+                            type = field.type
+                        ),
+                        isValid = false
+                    )
+                } ?: field
+            }
+            val firstInvalidFieldId = updatedFields.find { !it.isValid }?.id
+            _state.update {
+                UserInput(
+                    stateValue.copy(
+                        fields = updatedFields,
+                        focusedFieldId = firstInvalidFieldId ?: stateValue.focusedFieldId,
+                        submitAllowed = updatedFields.all { it.isValid },
+                        submitting = false
+                    )
+                )
+            }
+            POLogger.info("Recovered after the failure: %s", failure)
+            dispatch(DidFailToSubmitParameters(failure))
+        }
+    }
+
+    // TODO: Delete this when backend localization is ready.
+    private fun fieldErrorMessage(
+        originalMessage: String?,
+        replaceWithLocalMessage: Boolean,
+        type: ParameterType
+    ): String? =
+        if (replaceWithLocalMessage)
+            when (type) {
+                NUMERIC -> app.getString(R.string.po_native_apm_error_invalid_number)
+                TEXT -> app.getString(R.string.po_native_apm_error_invalid_text)
+                EMAIL -> app.getString(R.string.po_native_apm_error_invalid_email)
+                PHONE -> app.getString(R.string.po_native_apm_error_invalid_phone)
+                else -> null
+            }
+        else originalMessage
+
+    //endregion
+
+    //region Capture
+
+    private suspend fun handlePendingCapture(
+        stateValue: UserInputStateValue,
+        parameterValues: PONativeAlternativePaymentMethodParameterValues?
+    ) {
+        POLogger.info("All payment parameters has been submitted.")
+        dispatch(DidSubmitParameters(additionalParametersExpected = false))
+        if (!configuration.paymentConfirmation.waitsConfirmation) {
+            POLogger.info("Finished: did not wait for capture confirmation.")
+            _completion.update { Success }
+            return
+        }
+        val barcode = parameterValues?.customerActionBarcode?.let { barcode ->
+            val size = 250.dpToPx(app)
+            barcodeBitmapProvider.generate(
+                barcode = barcode,
+                width = size,
+                height = size
+            ).fold(
+                onSuccess = { bitmap ->
+                    Barcode(
+                        type = barcode.type(),
+                        bitmap = bitmap,
+                        actionId = ActionId.SAVE_BARCODE,
+                        confirmErrorActionId = ActionId.CONFIRM_SAVE_BARCODE_ERROR
+                    )
+                },
+                onFailure = { failure ->
+                    _completion.update { Failure(failure) }
+                    return
+                }
+            )
+        }
+        val captureStateValue = stateValue.toCaptureStateValue(parameterValues, barcode)
+        preloadAllImages(stateValue = captureStateValue)
+        POLogger.info("Waiting for capture confirmation.")
+        val additionalActionExpected = !captureStateValue.customerAction?.message.isNullOrBlank()
+        dispatch(WillWaitForCaptureConfirmation(additionalActionExpected = additionalActionExpected))
+        _state.update { Capturing(captureStateValue) }
+        enableCapturingSecondaryAction()
+        if (!additionalActionExpected || configuration.paymentConfirmation.confirmButton == null) {
+            capture()
+        }
+    }
+
+    private fun confirmPayment() {
+        _state.whenCapturing { stateValue ->
+            POLogger.info("User confirmed that required external action is complete.")
+            dispatch(DidConfirmPayment)
+            _state.update { Capturing(stateValue.copy(primaryActionId = null)) }
+            capture()
+        }
+    }
+
+    private fun capture() {
+        if (captureStartTimestamp != 0L) {
+            return
+        }
+        captureStartTimestamp = System.currentTimeMillis()
+        enableCapturingProgressIndicator()
+        interactorScope.launch {
+            val iterator = captureRetryStrategy.iterator
+            while (capturePassedTimestamp <= configuration.paymentConfirmation.timeoutSeconds * 1000) {
+                val result = invoicesService.captureNativeAlternativePayment(
+                    invoiceId = configuration.invoiceId,
+                    gatewayConfigurationId = configuration.gatewayConfigurationId
+                )
+                POLogger.debug("Attempted to capture the payment.")
+                if (isCaptureRetryable(result)) {
+                    delay(iterator.next())
+                    capturePassedTimestamp = System.currentTimeMillis() - captureStartTimestamp
+                } else {
+                    captureStartTimestamp = 0L
+                    capturePassedTimestamp = 0L
+                    result.onSuccess {
+                        _state.whenCapturing { stateValue ->
+                            handleCaptured(stateValue)
+                        }
+                    }.onFailure { failure ->
+                        _completion.update { Failure(failure) }
+                    }
+                    return@launch
+                }
+            }
+            captureStartTimestamp = 0L
+            capturePassedTimestamp = 0L
+            _completion.update {
+                Failure(
+                    ProcessOutResult.Failure(
+                        code = Timeout(),
+                        message = "Payment confirmation timed out."
+                    )
+                )
+            }
+        }
+    }
+
+    private fun isCaptureRetryable(
+        result: ProcessOutResult<PONativeAlternativePaymentMethodCapture>
+    ): Boolean = result.fold(
+        onSuccess = { it.state != CAPTURED },
+        onFailure = {
+            val retryableCodes = listOf(
+                NetworkUnreachable,
+                Timeout(),
+                Internal()
+            )
+            retryableCodes.contains(it.code)
+        }
+    )
+
+    private fun handleCaptured(stateValue: CaptureStateValue) {
+        POLogger.info("Success: capture confirmed.")
+        if (!configuration.paymentConfirmation.waitsConfirmation) {
+            _completion.update { Success }
+            return
+        }
+        dispatch(DidCompletePayment)
+        if (configuration.skipSuccessScreen) {
+            _completion.update { Success }
+        } else {
+            _state.update { Captured(stateValue) }
+            handler.postDelayed(delayInMillis = SUCCESS_DELAY_MS) {
+                _completion.update { Success }
+            }
+        }
+    }
+
+    //endregion
+
+    //region Images
+
+    private suspend fun preloadAllImages(stateValue: CaptureStateValue) {
+        coroutineScope {
+            val deferredResults = mutableListOf<Deferred<ImageResult>>()
+            stateValue.logoUrl?.let {
+                deferredResults.add(async { preloadImage(it) })
+            }
+            stateValue.customerAction?.imageUrl?.let {
+                deferredResults.add(async { preloadImage(it) })
+            }
+            deferredResults.awaitAll()
+        }
+    }
+
+    private suspend fun preloadImage(url: String): ImageResult {
+        val request = ImageRequest.Builder(app)
+            .data(url)
+            .memoryCachePolicy(CachePolicy.ENABLED)
+            .diskCachePolicy(CachePolicy.DISABLED)
+            .build()
+        return app.imageLoader.execute(request)
+    }
+
+    //endregion
+
+    //region Features
+
+    private val CancelButton?.disabledForMillis: Long
+        get() = this?.disabledForSeconds?.let { it * 1000L } ?: 0
+
+    private fun enableUserInputSecondaryAction() {
+        handler.postDelayed(delayInMillis = configuration.cancelButton.disabledForMillis) {
+            _state.whenUserInput { stateValue ->
+                _state.update {
+                    with(stateValue) {
+                        UserInput(copy(secondaryAction = secondaryAction.copy(enabled = true)))
+                    }
+                }
+            }
+        }
+    }
+
+    private fun enableCapturingSecondaryAction() {
+        handler.postDelayed(delayInMillis = configuration.paymentConfirmation.cancelButton.disabledForMillis) {
+            _state.whenCapturing { stateValue ->
+                _state.update {
+                    with(stateValue) {
+                        Capturing(copy(secondaryAction = secondaryAction.copy(enabled = true)))
+                    }
+                }
+            }
+        }
+    }
+
+    private fun enableCapturingProgressIndicator() {
+        configuration.paymentConfirmation.showProgressIndicatorAfterSeconds?.let { afterSeconds ->
+            handler.postDelayed(delayInMillis = afterSeconds * 1000L) {
+                _state.whenCapturing { stateValue ->
+                    _state.update { Capturing(stateValue.copy(withProgressIndicator = true)) }
+                }
+            }
+        }
+    }
+
+    //endregion
+
+    //region Save Barcode
+
+    private fun saveBarcode() {
+        _state.whenCapturing { stateValue ->
+            stateValue.customerAction?.barcode?.run {
+                interactorScope.launch {
+                    when (Build.VERSION.SDK_INT) {
+                        in Build.VERSION_CODES.M..Build.VERSION_CODES.P ->
+                            _sideEffects.send(
+                                PermissionRequest(permission = Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                            )
+                        else -> mediaStorageProvider
+                            .saveImage(bitmap)
+                            .onFailure { updateBarcodeState(isError = true) }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun handlePermission(result: PermissionRequestResult) {
+        when (result.permission) {
+            Manifest.permission.WRITE_EXTERNAL_STORAGE ->
+                if (result.isGranted) {
+                    _state.whenCapturing { stateValue ->
+                        stateValue.customerAction?.barcode?.run {
+                            interactorScope.launch {
+                                mediaStorageProvider
+                                    .saveImage(bitmap)
+                                    .onFailure { updateBarcodeState(isError = true) }
+                            }
+                        }
+                    }
+                } else {
+                    updateBarcodeState(isError = true)
+                }
+        }
+    }
+
+    private fun updateBarcodeState(isError: Boolean) =
+        _state.whenCapturing { stateValue ->
+            val updatedStateValue = with(stateValue) {
+                copy(
+                    customerAction = customerAction?.copy(
+                        barcode = customerAction.barcode?.copy(
+                            isError = isError
+                        )
+                    )
+                )
+            }
+            _state.update { Capturing(updatedStateValue) }
+        }
+
+    //endregion
+
+    //region Dispatch Events
+
+    private fun dispatch(event: PONativeAlternativePaymentEvent) {
+        interactorScope.launch {
+            legacyEventDispatcher?.send(event)
+            eventDispatcher.send(event)
+            POLogger.debug("Event has been sent: %s", event)
+        }
+    }
+
+    private fun dispatchFailure() {
+        interactorScope.launch {
+            _completion.collect {
+                if (it is Failure) {
+                    POLogger.warn("%s", it.failure, attributes = logAttributes)
+                    dispatch(DidFail(it.failure))
+                }
+            }
+        }
+    }
+
+    //endregion
+
+    private fun cancel() {
+        _completion.update {
+            Failure(
+                ProcessOutResult.Failure(
+                    code = Cancelled,
+                    message = "Cancelled by the user with secondary cancel action."
+                ).also { POLogger.info("Cancelled: %s", it) }
+            )
+        }
+    }
+
+    override fun clear() {
+        handler.removeCallbacksAndMessages(null)
+    }
+}
