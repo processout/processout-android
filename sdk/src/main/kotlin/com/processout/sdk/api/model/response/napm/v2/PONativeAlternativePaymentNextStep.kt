@@ -201,10 +201,10 @@ sealed class PONativeAlternativePaymentNextStep {
             @JsonClass(generateAdapter = true)
             data class Otp(
                 override val key: String,
-                @Json(name = "subtype")
-                val rawSubtype: String,
                 override val label: String,
                 override val required: Boolean,
+                @Json(name = "subtype")
+                val rawSubtype: String,
                 @Json(name = "min_length")
                 val minLength: Int?,
                 @Json(name = "max_length")
