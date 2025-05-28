@@ -12,6 +12,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 internal sealed interface NativeAlternativePaymentInteractorState {
 
+    enum class PaymentState {
+        NEXT_STEP_REQUIRED,
+        PENDING_PROCESSING,
+        PROCESSED
+    }
+
     //region States
 
     data object Idle : NativeAlternativePaymentInteractorState
