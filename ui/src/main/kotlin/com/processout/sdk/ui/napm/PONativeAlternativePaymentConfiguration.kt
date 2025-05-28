@@ -4,6 +4,8 @@ import android.os.Parcelable
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.IntRange
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationDetailsRequest
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentTokenizationDetailsRequest
 import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import com.processout.sdk.ui.core.style.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
@@ -46,13 +48,17 @@ data class PONativeAlternativePaymentConfiguration(
     val style: Style? = null
 ) : Parcelable {
 
-    // TODO(v2): move to constructor
-    internal val flow = Flow.AUTHORIZATION
-
     // TODO(v2): make public
-    internal enum class Flow {
-        AUTHORIZATION,
-        TOKENIZATION
+    internal sealed class Flow : Parcelable {
+        @Parcelize
+        data class Authorization(
+            val request: PONativeAlternativePaymentAuthorizationDetailsRequest
+        ) : Flow()
+
+        @Parcelize
+        data class Tokenization(
+            val request: PONativeAlternativePaymentTokenizationDetailsRequest
+        ) : Flow()
     }
 
     /**
