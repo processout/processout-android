@@ -46,6 +46,15 @@ data class PONativeAlternativePaymentConfiguration(
     val style: Style? = null
 ) : Parcelable {
 
+    // TODO(v2): move to constructor
+    internal val flow = Flow.AUTHORIZATION
+
+    // TODO(v2): make public
+    internal enum class Flow {
+        AUTHORIZATION,
+        TOKENIZATION
+    }
+
     /**
      * Defines native alternative payment configuration.
      *
