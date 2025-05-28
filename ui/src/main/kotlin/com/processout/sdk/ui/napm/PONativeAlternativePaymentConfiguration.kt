@@ -9,6 +9,7 @@ import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentTo
 import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import com.processout.sdk.ui.core.style.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Authorization
 import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
 import com.processout.sdk.ui.shared.configuration.POBarcodeConfiguration
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
@@ -47,6 +48,15 @@ data class PONativeAlternativePaymentConfiguration(
     val successMessage: String? = null,
     val style: Style? = null
 ) : Parcelable {
+
+    // TODO(v2): move to constructor
+    internal val flow: Flow
+        get() = Authorization(
+            PONativeAlternativePaymentAuthorizationDetailsRequest(
+                invoiceId = invoiceId,
+                gatewayConfigurationId = gatewayConfigurationId
+            )
+        )
 
     // TODO(v2): make public
     internal sealed class Flow : Parcelable {
