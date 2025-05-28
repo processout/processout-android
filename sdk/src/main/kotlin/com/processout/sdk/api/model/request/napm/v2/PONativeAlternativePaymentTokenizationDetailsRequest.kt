@@ -1,6 +1,8 @@
 package com.processout.sdk.api.model.request.napm.v2
 
+import android.os.Parcelable
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
+import kotlinx.parcelize.Parcelize
 
 /**
  * Request parameters for native alternative payment tokenization details.
@@ -11,8 +13,9 @@ import com.processout.sdk.core.annotation.ProcessOutInternalApi
  */
 /** @suppress */
 @ProcessOutInternalApi
+@Parcelize
 data class PONativeAlternativePaymentTokenizationDetailsRequest(
     val gatewayConfigurationId: String,
     val customerId: String,
     val customerTokenId: String
-)
+) : Parcelable
