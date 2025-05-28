@@ -10,7 +10,7 @@ import com.processout.sdk.core.annotation.ProcessOutInternalApi
  */
 /** @suppress */
 @ProcessOutInternalApi
-data class PONativeAlternativePaymentRequest(
+data class PONativeAlternativePaymentAuthorizationDetailsRequest(
     val invoiceId: String,
     val gatewayConfigurationId: String
 )
