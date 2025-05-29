@@ -119,12 +119,14 @@ internal class NativeAlternativePaymentViewModel private constructor(
 
     private fun UserInput.map() = with(value) {
         NativeAlternativePaymentViewModelState.UserInput(
-            title = configuration.title ?: app.getString(R.string.po_native_apm_title_format, gateway.displayName),
+//            title = configuration.title ?: app.getString(R.string.po_native_apm_title_format, gateway.displayName),
+            title = String(), // TODO(v2): map from gateway
             fields = fields.map(),
             focusedFieldId = focusedFieldId,
             primaryAction = POActionState(
                 id = primaryActionId,
-                text = configuration.submitButton.text ?: invoice.formatPrimaryActionText(),
+//                text = configuration.submitButton.text ?: invoice.formatPrimaryActionText(),
+                text = String(), // TODO(v2): map from invoice
                 primary = true,
                 enabled = submitAllowed,
                 loading = submitting,

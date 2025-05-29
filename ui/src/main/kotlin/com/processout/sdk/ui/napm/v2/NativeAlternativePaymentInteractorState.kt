@@ -4,8 +4,6 @@ import android.graphics.Bitmap
 import androidx.compose.ui.text.input.TextFieldValue
 import com.processout.sdk.api.model.response.POBarcode.BarcodeType
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails.Gateway
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails.Invoice
 import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentInteractorState.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,8 +39,8 @@ internal sealed interface NativeAlternativePaymentInteractorState {
     //endregion
 
     data class UserInputStateValue(
-        val invoice: Invoice,
-        val gateway: Gateway,
+//        val invoice: Invoice, // TODO(v2)
+//        val gateway: Gateway, // TODO(v2)
         val fields: List<Field>,
         val focusedFieldId: String?,
         val primaryActionId: String,

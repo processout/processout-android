@@ -21,11 +21,17 @@ import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentM
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.*
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodDefaultValuesRequest
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationDetailsRequest
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentTokenizationDetailsRequest
 import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType.*
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterValue
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodState.*
+import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodState.CAPTURED
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.State
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentCustomerInstruction
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.POFailure.Code.*
 import com.processout.sdk.core.POFailure.InvalidField
@@ -37,7 +43,6 @@ import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
 import com.processout.sdk.core.retry.PORetryStrategy
-import com.processout.sdk.core.util.POMarkdownUtils.escapedMarkdown
 import com.processout.sdk.ui.base.BaseInteractor
 import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion
@@ -49,6 +54,8 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect
 import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.PermissionRequest
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Authorization
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Tokenization
 import com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentEvent
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.shared.extension.dpToPx
@@ -113,7 +120,7 @@ internal class NativeAlternativePaymentInteractor(
         dispatch(WillStart)
         dispatchFailure()
         collectDefaultValues()
-        fetchTransactionDetails()
+        fetchPaymentDetails()
     }
 
     fun start(configuration: PONativeAlternativePaymentConfiguration) {
@@ -138,52 +145,72 @@ internal class NativeAlternativePaymentInteractor(
         _state.update { Idle }
     }
 
-    private fun fetchTransactionDetails() {
+    private fun fetchPaymentDetails() {
         interactorScope.launch {
-            invoicesService.fetchNativeAlternativePaymentMethodTransactionDetails(
-                invoiceId = configuration.invoiceId,
-                gatewayConfigurationId = configuration.gatewayConfigurationId
-            ).onSuccess { details ->
-                with(details) {
-                    handleState(
-                        stateValue = toUserInputStateValue(),
-                        paymentState = state,
-                        parameters = parameters,
-                        parameterValues = parameterValues
-                    )
-                }
-            }.onFailure { failure ->
-                POLogger.info("Failed to fetch transaction details: %s", failure)
-                _completion.update { Failure(failure) }
+            when (val flow = configuration.flow) {
+                is Authorization -> fetchAuthorizationDetails(flow.request)
+                is Tokenization -> fetchTokenizationDetails(flow.request)
             }
         }
     }
 
-    private suspend fun handleState(
+    private fun fetchAuthorizationDetails(
+        request: PONativeAlternativePaymentAuthorizationDetailsRequest
+    ) {
+        interactorScope.launch {
+            invoicesService.nativeAlternativePayment(request)
+                .onSuccess { response ->
+                    handlePaymentState(
+                        stateValue = response.toUserInputStateValue(),
+                        paymentState = response.state,
+                        nextStep = response.nextStep,
+                        customerInstructions = response.customerInstructions
+                    )
+                }.onFailure { failure ->
+                    POLogger.info("Failed to fetch authorization details: %s", failure)
+                    _completion.update { Failure(failure) }
+                }
+        }
+    }
+
+    private fun fetchTokenizationDetails(
+        request: PONativeAlternativePaymentTokenizationDetailsRequest
+    ) {
+        TODO(reason = "v2")
+    }
+
+    private suspend fun handlePaymentState(
         stateValue: UserInputStateValue,
-        paymentState: PONativeAlternativePaymentMethodState?,
-        parameters: List<PONativeAlternativePaymentMethodParameter>?,
-        parameterValues: PONativeAlternativePaymentMethodParameterValues?
+        paymentState: State,
+        nextStep: PONativeAlternativePaymentNextStep?,
+        customerInstructions: List<PONativeAlternativePaymentCustomerInstruction>?
     ) {
         when (paymentState) {
-            CUSTOMER_INPUT, null -> handleCustomerInput(stateValue, parameters)
-            PENDING_CAPTURE -> handlePendingCapture(stateValue, parameterValues)
-            CAPTURED -> handleCaptured(stateValue.toCaptureStateValue(parameterValues))
-            FAILED -> _completion.update {
-                Failure(
-                    ProcessOutResult.Failure(
-                        code = Generic(),
-                        message = "Payment has failed."
-                    ).also { POLogger.info("%s", it) }
-                )
-            }
+            State.NEXT_STEP_REQUIRED -> TODO(reason = "v2")
+            State.PENDING_CAPTURE -> TODO(reason = "v2")
+            State.CAPTURED -> TODO(reason = "v2")
+            State.UNKNOWN -> TODO(reason = "v2")
         }
+
+        // ---
+
+//        when (paymentState) {
+//            CUSTOMER_INPUT, null -> handleCustomerInput(stateValue, nextStep)
+//            PENDING_CAPTURE -> handlePendingCapture(stateValue, customerInstructions)
+//            CAPTURED -> handleCaptured(stateValue.toCaptureStateValue(customerInstructions))
+//            FAILED -> _completion.update {
+//                Failure(
+//                    ProcessOutResult.Failure(
+//                        code = Generic(),
+//                        message = "Payment has failed."
+//                    ).also { POLogger.info("%s", it) }
+//                )
+//            }
+//        }
     }
 
-    private fun PONativeAlternativePaymentMethodTransactionDetails.toUserInputStateValue() =
+    private fun PONativeAlternativePaymentAuthorizationResponse.toUserInputStateValue() =
         UserInputStateValue(
-            invoice = invoice,
-            gateway = gateway,
             fields = emptyList(),
             focusedFieldId = null,
             primaryActionId = ActionId.SUBMIT,
@@ -200,7 +227,8 @@ internal class NativeAlternativePaymentInteractor(
         barcode: Barcode? = null
     ) = CaptureStateValue(
         paymentProviderName = parameterValues?.providerName,
-        logoUrl = logoUrl(gateway, parameterValues),
+//        logoUrl = logoUrl(gateway, parameterValues),
+        logoUrl = null, // TODO(v2): map from gateway
         customerAction = customerAction(parameterValues, barcode),
         primaryActionId = ActionId.CONFIRM_PAYMENT,
         secondaryAction = NativeAlternativePaymentInteractorState.Action(
@@ -227,15 +255,16 @@ internal class NativeAlternativePaymentInteractor(
         parameterValues: PONativeAlternativePaymentMethodParameterValues?,
         barcode: Barcode? = null
     ): CustomerAction? {
-        val message = parameterValues?.customerActionMessage
-            ?: gateway.customerActionMessage?.let { escapedMarkdown(it) }
-        return message?.let {
-            CustomerAction(
-                message = it,
-                imageUrl = gateway.customerActionImageUrl,
-                barcode = barcode
-            )
-        }
+//        val message = parameterValues?.customerActionMessage
+//            ?: gateway.customerActionMessage?.let { escapedMarkdown(it) }
+//        return message?.let {
+//            CustomerAction(
+//                message = it,
+//                imageUrl = gateway.customerActionImageUrl,
+//                barcode = barcode
+//            )
+//        }
+        return null // TODO(v2): resolve from instructions and gateway
     }
 
     //region User Input
@@ -598,15 +627,14 @@ internal class NativeAlternativePaymentInteractor(
                     parameters = stateValue.fields.values()
                 )
                 invoicesService.initiatePayment(request)
-                    .onSuccess { payment ->
-                        with(payment) {
-                            handleState(
-                                stateValue = stateValue,
-                                paymentState = state,
-                                parameters = parameterDefinitions,
-                                parameterValues = parameterValues
-                            )
-                        }
+                    .onSuccess { response ->
+                        TODO(reason = "v2")
+//                        handlePaymentState(
+//                            stateValue = stateValue,
+//                            paymentState = response.state,
+//                            nextStep = response.nextStep,
+//                            customerInstructions = response.customerInstructions
+//                        )
                     }
                     .onFailure { failure ->
                         handlePaymentFailure(
