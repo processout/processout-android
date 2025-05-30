@@ -23,7 +23,7 @@ data class PONativeAlternativePaymentAuthorizationRequest(
      * Payment parameter.
      */
     data class Parameter internal constructor(
-        internal val value: Value
+        @ProcessOutInternalApi val value: Value
     ) {
 
         companion object {
@@ -49,7 +49,9 @@ data class PONativeAlternativePaymentAuthorizationRequest(
             )
         }
 
-        internal sealed class Value {
+        /** @suppress */
+        @ProcessOutInternalApi
+        sealed class Value {
             data class String(
                 val value: kotlin.String
             ) : Value()
