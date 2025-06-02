@@ -25,6 +25,15 @@ sealed class PONativeAlternativePaymentNextStep {
          */
         sealed class Parameter {
 
+            /** Parameter key. */
+            abstract val key: String
+
+            /** Parameter display label. */
+            abstract val label: String
+
+            /** Indicates whether the parameter is required. */
+            abstract val required: Boolean
+
             /**
              * Text parameter.
              *
@@ -36,9 +45,9 @@ sealed class PONativeAlternativePaymentNextStep {
              */
             @JsonClass(generateAdapter = true)
             data class Text(
-                val key: String,
-                val label: String,
-                val required: Boolean,
+                override val key: String,
+                override val label: String,
+                override val required: Boolean,
                 @Json(name = "min_length")
                 val minLength: Int?,
                 @Json(name = "max_length")
@@ -55,9 +64,9 @@ sealed class PONativeAlternativePaymentNextStep {
              */
             @JsonClass(generateAdapter = true)
             data class SingleSelect(
-                val key: String,
-                val label: String,
-                val required: Boolean,
+                override val key: String,
+                override val label: String,
+                override val required: Boolean,
                 @Json(name = "available_values")
                 val availableValues: List<AvailableValue>
             ) : Parameter() {
@@ -90,9 +99,9 @@ sealed class PONativeAlternativePaymentNextStep {
              */
             @JsonClass(generateAdapter = true)
             data class Bool(
-                val key: String,
-                val label: String,
-                val required: Boolean
+                override val key: String,
+                override val label: String,
+                override val required: Boolean
             ) : Parameter()
 
             /**
@@ -106,9 +115,9 @@ sealed class PONativeAlternativePaymentNextStep {
              */
             @JsonClass(generateAdapter = true)
             data class Digits(
-                val key: String,
-                val label: String,
-                val required: Boolean,
+                override val key: String,
+                override val label: String,
+                override val required: Boolean,
                 @Json(name = "min_length")
                 val minLength: Int?,
                 @Json(name = "max_length")
@@ -125,9 +134,9 @@ sealed class PONativeAlternativePaymentNextStep {
              */
             @JsonClass(generateAdapter = true)
             data class PhoneNumber(
-                val key: String,
-                val label: String,
-                val required: Boolean,
+                override val key: String,
+                override val label: String,
+                override val required: Boolean,
                 @Json(name = "dialing_codes")
                 val dialingCodes: List<DialingCode>?
             ) : Parameter() {
@@ -154,9 +163,9 @@ sealed class PONativeAlternativePaymentNextStep {
              */
             @JsonClass(generateAdapter = true)
             data class Email(
-                val key: String,
-                val label: String,
-                val required: Boolean
+                override val key: String,
+                override val label: String,
+                override val required: Boolean
             ) : Parameter()
 
             /**
@@ -170,9 +179,9 @@ sealed class PONativeAlternativePaymentNextStep {
              */
             @JsonClass(generateAdapter = true)
             data class Card(
-                val key: String,
-                val label: String,
-                val required: Boolean,
+                override val key: String,
+                override val label: String,
+                override val required: Boolean,
                 @Json(name = "min_length")
                 val minLength: Int?,
                 @Json(name = "max_length")
@@ -191,11 +200,11 @@ sealed class PONativeAlternativePaymentNextStep {
              */
             @JsonClass(generateAdapter = true)
             data class Otp(
-                val key: String,
+                override val key: String,
+                override val label: String,
+                override val required: Boolean,
                 @Json(name = "subtype")
                 val rawSubtype: String,
-                val label: String,
-                val required: Boolean,
                 @Json(name = "min_length")
                 val minLength: Int?,
                 @Json(name = "max_length")
@@ -230,7 +239,11 @@ sealed class PONativeAlternativePaymentNextStep {
              * __Warning:__ Do not match this case directly, use _when-else_ instead.
              */
             @ProcessOutInternalApi
-            data object Unknown : Parameter()
+            data object Unknown : Parameter() {
+                override val key = String()
+                override val label = String()
+                override val required = false
+            }
         }
     }
 

@@ -3,10 +3,8 @@ package com.processout.sdk.ui.napm.v2
 import android.graphics.Bitmap
 import androidx.compose.ui.text.input.TextFieldValue
 import com.processout.sdk.api.model.response.POBarcode.BarcodeType
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails.Gateway
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails.Invoice
-import com.processout.sdk.ui.core.state.POAvailableValue
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter.*
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentInteractorState.*
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -41,8 +39,8 @@ internal sealed interface NativeAlternativePaymentInteractorState {
     //endregion
 
     data class UserInputStateValue(
-        val invoice: Invoice,
-        val gateway: Gateway,
+//        val invoice: Invoice, // TODO(v2)
+//        val gateway: Gateway, // TODO(v2)
         val fields: List<Field>,
         val focusedFieldId: String?,
         val primaryActionId: String,
@@ -75,17 +73,38 @@ internal sealed interface NativeAlternativePaymentInteractorState {
     )
 
     data class Field(
-        val id: String,
+        val parameter: Parameter,
         val value: TextFieldValue,
-        val availableValues: List<POAvailableValue>?,
-        val rawType: String,
-        val type: ParameterType,
-        val length: Int?,
-        val displayName: String,
-        val description: String?,
-        val required: Boolean,
-        val isValid: Boolean
-    )
+        val isValid: Boolean,
+        val description: String?
+    ) {
+        val id: String
+            get() = parameter.key
+
+        val label: String
+            get() = parameter.label
+
+        val required: Boolean
+            get() = parameter.required
+
+        val minLength: Int?
+            get() = when (parameter) {
+                is Text -> parameter.minLength
+                is Digits -> parameter.minLength
+                is Card -> parameter.minLength
+                is Otp -> parameter.minLength
+                else -> null
+            }
+
+        val maxLength: Int?
+            get() = when (parameter) {
+                is Text -> parameter.maxLength
+                is Digits -> parameter.maxLength
+                is Card -> parameter.maxLength
+                is Otp -> parameter.maxLength
+                else -> null
+            }
+    }
 
     data class Action(
         val id: String,

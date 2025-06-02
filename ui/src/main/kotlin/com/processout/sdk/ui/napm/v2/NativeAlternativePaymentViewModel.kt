@@ -11,13 +11,14 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
-import com.processout.sdk.api.dispatcher.napm.PODefaultNativeAlternativePaymentMethodEventDispatcher
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType.*
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails.Invoice
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter.*
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter.Otp.Subtype
 import com.processout.sdk.core.retry.PORetryStrategy.Exponential
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POActionState.Confirmation
+import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
@@ -43,8 +44,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
 
     class Factory(
         private val app: Application,
-        private val configuration: PONativeAlternativePaymentConfiguration,
-        private val legacyEventDispatcher: PODefaultNativeAlternativePaymentMethodEventDispatcher?
+        private val configuration: PONativeAlternativePaymentConfiguration
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
@@ -63,15 +63,9 @@ internal class NativeAlternativePaymentViewModel private constructor(
                         minDelay = 3 * 1000,
                         maxDelay = 90 * 1000,
                         factor = 1.45
-                    ),
-                    legacyEventDispatcher = legacyEventDispatcher
+                    )
                 )
             ) as T
-    }
-
-    private companion object {
-        const val CODE_FIELD_LENGTH_MIN = 1
-        const val CODE_FIELD_LENGTH_MAX = 6
     }
 
     private data class KeyboardAction(
@@ -87,6 +81,8 @@ internal class NativeAlternativePaymentViewModel private constructor(
     val state = interactor.state.map(viewModelScope, ::map)
 
     val sideEffects = interactor.sideEffects
+
+    private val codeFieldLengthRange = 1..8
 
     init {
         addCloseable(interactor.interactorScope)
@@ -119,12 +115,14 @@ internal class NativeAlternativePaymentViewModel private constructor(
 
     private fun UserInput.map() = with(value) {
         NativeAlternativePaymentViewModelState.UserInput(
-            title = configuration.title ?: app.getString(R.string.po_native_apm_title_format, gateway.displayName),
+//            title = configuration.title ?: app.getString(R.string.po_native_apm_title_format, gateway.displayName),
+            title = String(), // TODO(v2): map from gateway
             fields = fields.map(),
             focusedFieldId = focusedFieldId,
             primaryAction = POActionState(
                 id = primaryActionId,
-                text = configuration.submitButton.text ?: invoice.formatPrimaryActionText(),
+//                text = configuration.submitButton.text ?: invoice.formatPrimaryActionText(),
+                text = String(), // TODO(v2): map from invoice
                 primary = true,
                 enabled = submitAllowed,
                 loading = submitting,
@@ -202,22 +200,33 @@ internal class NativeAlternativePaymentViewModel private constructor(
 
     private fun List<Field>.map(): POImmutableList<NativeAlternativePaymentViewModelState.Field> {
         val lastFocusableFieldId = lastFocusableFieldId()
-        val fields = map { field ->
+        val fields = mapNotNull { field ->
             val keyboardAction = keyboardAction(field.id, lastFocusableFieldId)
-            when (field.type) {
-                NUMERIC -> if (field.length in CODE_FIELD_LENGTH_MIN..CODE_FIELD_LENGTH_MAX) {
-                    field.toCodeField(keyboardAction)
-                } else {
-                    field.toTextField(keyboardAction)
-                }
-                SINGLE_SELECT -> {
-                    val availableValuesCount = field.availableValues?.size ?: 0
-                    if (availableValuesCount <= configuration.inlineSingleSelectValuesLimit) {
+            when (field.parameter) {
+                is SingleSelect -> {
+                    val availableValuesSize = field.parameter.availableValues.size
+                    if (availableValuesSize <= configuration.inlineSingleSelectValuesLimit) {
                         field.toRadioField()
                     } else {
                         field.toDropdownField()
                     }
                 }
+                is Bool -> null // TODO(v2): add checkbox field
+                is Digits -> if (field.maxLength in codeFieldLengthRange) {
+                    field.toCodeField(keyboardAction)
+                } else {
+                    field.toTextField(keyboardAction)
+                }
+                is Otp -> when (field.parameter.subtype) {
+                    Subtype.TEXT,
+                    Subtype.DIGITS -> if (field.maxLength in codeFieldLengthRange) {
+                        field.toCodeField(keyboardAction)
+                    } else {
+                        field.toTextField(keyboardAction)
+                    }
+                    Subtype.UNKNOWN -> null
+                }
+                Unknown -> null
                 else -> field.toTextField(keyboardAction)
             }
         }
@@ -226,22 +235,31 @@ internal class NativeAlternativePaymentViewModel private constructor(
 
     private fun Field.toTextField(
         keyboardAction: KeyboardAction
-    ): NativeAlternativePaymentViewModelState.Field =
-        TextField(
+    ): NativeAlternativePaymentViewModelState.Field {
+        val ltrParameterTypes = setOf(
+            Digits::class.java,
+            PhoneNumber::class.java,
+            Email::class.java,
+            Card::class.java,
+            Otp::class.java
+        )
+        return TextField(
             FieldState(
                 id = id,
                 value = value,
-                title = displayName,
+                title = label,
                 description = description,
-                placeholder = type.placeholder(),
+                placeholder = parameter.placeholder(),
                 isError = !isValid,
-                forceTextDirectionLtr = setOf(NUMERIC, EMAIL, PHONE).contains(type),
-                inputFilter = if (type == PHONE) PhoneNumberInputFilter() else null,
-                visualTransformation = if (type == PHONE) PhoneNumberVisualTransformation() else VisualTransformation.None,
-                keyboardOptions = type.keyboardOptions(keyboardAction.imeAction),
+                forceTextDirectionLtr = ltrParameterTypes.contains(parameter::class.java),
+                inputFilter = if (parameter is PhoneNumber) PhoneNumberInputFilter() else null,
+                visualTransformation = if (parameter is PhoneNumber)
+                    PhoneNumberVisualTransformation() else VisualTransformation.None,
+                keyboardOptions = parameter.keyboardOptions(keyboardAction.imeAction),
                 keyboardActionId = keyboardAction.actionId
             )
         )
+    }
 
     private fun Field.toCodeField(
         keyboardAction: KeyboardAction
@@ -250,11 +268,11 @@ internal class NativeAlternativePaymentViewModel private constructor(
             FieldState(
                 id = id,
                 value = value,
-                length = length,
-                title = displayName,
+                length = maxLength,
+                title = label,
                 description = description,
                 isError = !isValid,
-                keyboardOptions = type.keyboardOptions(keyboardAction.imeAction),
+                keyboardOptions = parameter.keyboardOptions(keyboardAction.imeAction),
                 keyboardActionId = keyboardAction.actionId
             )
         )
@@ -264,8 +282,8 @@ internal class NativeAlternativePaymentViewModel private constructor(
             FieldState(
                 id = id,
                 value = value,
-                availableValues = availableValues?.let { POImmutableList(it) },
-                title = displayName,
+                availableValues = parameter.availableValues(),
+                title = label,
                 description = description,
                 isError = !isValid
             )
@@ -276,21 +294,35 @@ internal class NativeAlternativePaymentViewModel private constructor(
             FieldState(
                 id = id,
                 value = value,
-                availableValues = availableValues?.let { POImmutableList(it) },
-                title = displayName,
+                availableValues = parameter.availableValues(),
+                title = label,
                 description = description,
                 isError = !isValid
             )
         )
 
-    private fun List<Field>.lastFocusableFieldId(): String? {
-        reversed().forEach { field ->
-            if (field.type != SINGLE_SELECT) {
-                return field.id
-            }
+    private fun Parameter.availableValues(): POImmutableList<POAvailableValue>? =
+        when (this) {
+            is SingleSelect -> POImmutableList(
+                availableValues.map {
+                    POAvailableValue(
+                        value = it.value,
+                        text = it.label
+                    )
+                }
+            )
+            else -> null
         }
-        return null
-    }
+
+    private fun List<Field>.lastFocusableFieldId(): String? =
+        reversed().find {
+            when (it.parameter) {
+                is SingleSelect,
+                is Bool,
+                Unknown -> false
+                else -> true
+            }
+        }?.id
 
     private fun keyboardAction(fieldId: String, lastFocusableFieldId: String?) =
         if (fieldId == lastFocusableFieldId) {
@@ -305,37 +337,53 @@ internal class NativeAlternativePaymentViewModel private constructor(
             )
         }
 
-    private fun ParameterType.keyboardOptions(
+    private fun Parameter.keyboardOptions(
         imeAction: ImeAction
     ): KeyboardOptions = when (this) {
-        NUMERIC -> KeyboardOptions(
-            keyboardType = KeyboardType.NumberPassword,
-            imeAction = imeAction
-        )
-        TEXT -> KeyboardOptions(
+        is Text -> KeyboardOptions(
             capitalization = KeyboardCapitalization.Sentences,
             keyboardType = KeyboardType.Text,
             imeAction = imeAction
         )
-        EMAIL -> KeyboardOptions(
-            keyboardType = KeyboardType.Email,
+        is SingleSelect -> KeyboardOptions.Default
+        is Bool -> KeyboardOptions.Default
+        is Digits -> KeyboardOptions(
+            keyboardType = KeyboardType.NumberPassword,
             imeAction = imeAction
         )
-        PHONE -> KeyboardOptions(
+        is PhoneNumber -> KeyboardOptions(
             keyboardType = KeyboardType.Phone,
             imeAction = imeAction
         )
-        SINGLE_SELECT -> KeyboardOptions.Default
-        UNKNOWN -> KeyboardOptions(
+        is Email -> KeyboardOptions(
+            keyboardType = KeyboardType.Email,
             imeAction = imeAction
         )
+        is Card -> KeyboardOptions(
+            keyboardType = KeyboardType.Number,
+            imeAction = imeAction
+        )
+        is Otp -> when (subtype) {
+            Subtype.TEXT -> KeyboardOptions(
+                capitalization = KeyboardCapitalization.Characters,
+                keyboardType = KeyboardType.Text,
+                imeAction = imeAction
+            )
+            Subtype.DIGITS -> KeyboardOptions(
+                keyboardType = KeyboardType.NumberPassword,
+                imeAction = imeAction
+            )
+            Subtype.UNKNOWN -> KeyboardOptions.Default
+        }
+        Unknown -> KeyboardOptions.Default
     }
 
-    private fun ParameterType.placeholder(): String? = when (this) {
-        EMAIL -> app.getString(R.string.po_native_apm_email_placeholder)
-        PHONE -> app.getString(R.string.po_native_apm_phone_placeholder)
-        else -> null
-    }
+    private fun Parameter.placeholder(): String? =
+        when (this) {
+            is PhoneNumber -> app.getString(R.string.po_native_apm_phone_placeholder)
+            is Email -> app.getString(R.string.po_native_apm_email_placeholder)
+            else -> null
+        }
 
     private fun Invoice.formatPrimaryActionText() =
         try {
