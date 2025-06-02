@@ -48,9 +48,6 @@ import com.processout.sdk.core.retry.PORetryStrategy
 import com.processout.sdk.ui.base.BaseInteractor
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.*
-import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent
-import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.*
-import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.Action
 import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect
 import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.PermissionRequest
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
@@ -61,6 +58,8 @@ import com.processout.sdk.ui.napm.delegate.v2.NativeAlternativePaymentDefaultVal
 import com.processout.sdk.ui.napm.delegate.v2.NativeAlternativePaymentDefaultValuesResponse
 import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent
 import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent.*
+import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentEvent.*
+import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentEvent.Action
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.shared.extension.dpToPx
 import com.processout.sdk.ui.shared.provider.BarcodeBitmapProvider

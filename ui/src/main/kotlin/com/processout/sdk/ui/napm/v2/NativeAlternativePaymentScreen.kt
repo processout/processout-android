@@ -47,9 +47,8 @@ import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
-import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent
-import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
+import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.AnimationDurationMillis
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.CaptureImageHeight
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.CaptureImageWidth
