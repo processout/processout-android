@@ -13,6 +13,7 @@ import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentN
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter.*
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter.Otp.Subtype
 import com.processout.sdk.core.retry.PORetryStrategy.Exponential
+import com.processout.sdk.ui.core.component.field.phone.POPhoneNumberFieldState
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.core.state.POAvailableValue
@@ -209,6 +210,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                     }
                 }
                 is Bool -> null // TODO(v2): add checkbox field
+                is PhoneNumber -> field.toPhoneNumberField(keyboardAction)
                 is Digits -> if (field.maxLength in codeFieldLengthRange) {
                     field.toCodeField(keyboardAction)
                 } else {
@@ -235,7 +237,6 @@ internal class NativeAlternativePaymentViewModel private constructor(
     ): NativeAlternativePaymentViewModelState.Field {
         val ltrParameterTypes = setOf(
             Digits::class.java,
-            PhoneNumber::class.java,
             Email::class.java,
             Card::class.java,
             Otp::class.java
@@ -249,9 +250,6 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 placeholder = parameter.placeholder(),
                 isError = !isValid,
                 forceTextDirectionLtr = ltrParameterTypes.contains(parameter::class.java),
-                inputFilter = if (parameter is PhoneNumber) PhoneNumberInputFilter() else null,
-                visualTransformation = if (parameter is PhoneNumber)
-                    PhoneNumberVisualTransformation() else VisualTransformation.None,
                 keyboardOptions = parameter.keyboardOptions(keyboardAction.imeAction),
                 keyboardActionId = keyboardAction.actionId
             )
@@ -298,6 +296,35 @@ internal class NativeAlternativePaymentViewModel private constructor(
             )
         )
 
+    private fun Field.toPhoneNumberField(
+        keyboardAction: KeyboardAction
+    ): NativeAlternativePaymentViewModelState.Field =
+        PhoneNumberField(
+            POPhoneNumberFieldState(
+                id = id,
+                dialingCode = when (value) {
+                    is FieldValue.PhoneNumber -> value.dialingCode
+                    else -> TextFieldValue()
+                },
+                dialingCodes = parameter.dialingCodes(),
+                dialingCodePlaceholder = null,
+                number = when (value) {
+                    is FieldValue.PhoneNumber -> value.number
+                    else -> TextFieldValue()
+                },
+                numberPlaceholder = parameter.placeholder(),
+                title = label,
+                description = description,
+                isError = !isValid,
+                forceTextDirectionLtr = true,
+                inputFilter = if (parameter is PhoneNumber) PhoneNumberInputFilter() else null,
+                visualTransformation = if (parameter is PhoneNumber)
+                    PhoneNumberVisualTransformation() else VisualTransformation.None,
+                keyboardOptions = parameter.keyboardOptions(keyboardAction.imeAction),
+                keyboardActionId = keyboardAction.actionId
+            )
+        )
+
     private fun FieldValue.textFieldValue() =
         when (this) {
             is FieldValue.Text -> value
@@ -316,6 +343,19 @@ internal class NativeAlternativePaymentViewModel private constructor(
             )
             else -> null
         }
+
+    private fun Parameter.dialingCodes(): POImmutableList<POAvailableValue> {
+        val availableValues = when (this) {
+            is PhoneNumber -> dialingCodes?.map {
+                POAvailableValue(
+                    value = it.id,
+                    text = it.value
+                )
+            } ?: emptyList()
+            else -> emptyList()
+        }
+        return POImmutableList(availableValues)
+    }
 
     private fun List<Field>.lastFocusableFieldId(): String? =
         reversed().find {
