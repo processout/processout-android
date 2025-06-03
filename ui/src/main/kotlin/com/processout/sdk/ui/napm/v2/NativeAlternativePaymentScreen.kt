@@ -40,6 +40,8 @@ import com.processout.sdk.ui.core.component.field.code.POCodeField
 import com.processout.sdk.ui.core.component.field.code.POLabeledCodeField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
 import com.processout.sdk.ui.core.component.field.dropdown.POLabeledDropdownField
+import com.processout.sdk.ui.core.component.field.phone.POLabeledPhoneNumberField
+import com.processout.sdk.ui.core.component.field.phone.POPhoneNumberFieldState
 import com.processout.sdk.ui.core.component.field.radio.POLabeledRadioField
 import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
 import com.processout.sdk.ui.core.component.field.text.POLabeledTextField
@@ -200,6 +202,17 @@ private fun UserInput(
                         onEvent = onEvent,
                         fieldStyle = style.field,
                         menuStyle = style.dropdownMenu,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    is PhoneNumberField -> PhoneNumberField(
+                        state = field.state,
+                        onEvent = onEvent,
+                        lifecycleEvent = lifecycleEvent,
+                        focusedFieldId = state.focusedFieldId,
+                        isPrimaryActionEnabled = isPrimaryActionEnabled,
+                        fieldStyle = style.field,
+                        dropdownMenuStyle = style.dropdownMenu,
+                        labelsStyle = labelsStyle,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -376,6 +389,69 @@ private fun DropdownField(
         isError = state.isError,
         placeholderText = state.placeholder
     )
+}
+
+@Composable
+private fun PhoneNumberField(
+    state: POPhoneNumberFieldState,
+    onEvent: (NativeAlternativePaymentEvent) -> Unit,
+    lifecycleEvent: Lifecycle.Event,
+    focusedFieldId: String?,
+    isPrimaryActionEnabled: Boolean,
+    fieldStyle: POField.Style,
+    dropdownMenuStyle: PODropdownField.MenuStyle,
+    labelsStyle: POFieldLabels.Style,
+    modifier: Modifier = Modifier
+) {
+    val focusRequester = remember { FocusRequester() }
+    POLabeledPhoneNumberField(
+        state = state,
+        onDialingCodeChange = {
+            onEvent(
+                FieldValueChanged(
+                    id = state.id,
+                    value = FieldValue.PhoneNumber(
+                        dialingCode = it,
+                        number = state.number
+                    )
+                )
+            )
+        },
+        onNumberChange = {
+            onEvent(
+                FieldValueChanged(
+                    id = state.id,
+                    value = FieldValue.PhoneNumber(
+                        dialingCode = state.dialingCode,
+                        number = state.inputFilter?.filter(it) ?: it
+                    )
+                )
+            )
+        },
+        modifier = modifier,
+        textFieldModifier = Modifier
+            .focusRequester(focusRequester)
+            .onFocusChanged {
+                onEvent(
+                    FieldFocusChanged(
+                        id = state.id,
+                        isFocused = it.isFocused
+                    )
+                )
+            },
+        fieldStyle = fieldStyle,
+        dropdownMenuStyle = dropdownMenuStyle,
+        labelsStyle = labelsStyle,
+        keyboardActions = POField.keyboardActions(
+            imeAction = state.keyboardOptions.imeAction,
+            actionId = state.keyboardActionId,
+            enabled = isPrimaryActionEnabled,
+            onClick = { onEvent(Action(id = it)) }
+        )
+    )
+    if (state.id == focusedFieldId && lifecycleEvent == Lifecycle.Event.ON_RESUME) {
+        PORequestFocus(focusRequester, lifecycleEvent)
+    }
 }
 
 @Composable
