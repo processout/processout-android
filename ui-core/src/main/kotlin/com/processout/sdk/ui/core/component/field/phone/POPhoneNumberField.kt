@@ -1,8 +1,9 @@
 package com.processout.sdk.ui.core.component.field.phone
 
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -31,7 +32,7 @@ fun POPhoneNumberField(
             value = state.dialingCode,
             onValueChange = onDialingCodeChange,
             availableValues = state.dialingCodes,
-            modifier = Modifier.wrapContentWidth(),
+            modifier = Modifier.width(IntrinsicSize.Min),
             fieldStyle = fieldStyle,
             menuStyle = dropdownMenuStyle,
             placeholderText = state.dialingCodePlaceholder
