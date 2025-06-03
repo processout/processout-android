@@ -18,6 +18,7 @@ fun POPhoneNumberField(
     onDialingCodeChange: (TextFieldValue) -> Unit,
     onNumberChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
+    textFieldModifier: Modifier = Modifier,
     fieldStyle: POField.Style = POField.default,
     dropdownMenuStyle: PODropdownField.MenuStyle = PODropdownField.defaultMenu,
     keyboardActions: KeyboardActions = KeyboardActions.Default
@@ -34,6 +35,7 @@ fun POPhoneNumberField(
         POTextField(
             value = state.number,
             onValueChange = onNumberChange,
+            modifier = textFieldModifier,
             style = fieldStyle,
             enabled = state.enabled,
             isError = state.isError,

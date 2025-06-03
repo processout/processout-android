@@ -18,6 +18,7 @@ fun POLabeledPhoneNumberField(
     onDialingCodeChange: (TextFieldValue) -> Unit,
     onNumberChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
+    textFieldModifier: Modifier = Modifier,
     fieldStyle: POField.Style = POField.default,
     dropdownMenuStyle: PODropdownField.MenuStyle = PODropdownField.defaultMenu,
     labelsStyle: POFieldLabels.Style = POFieldLabels.default,
@@ -33,6 +34,7 @@ fun POLabeledPhoneNumberField(
             onDialingCodeChange = onDialingCodeChange,
             onNumberChange = onNumberChange,
             modifier = modifier,
+            textFieldModifier = textFieldModifier,
             fieldStyle = fieldStyle,
             dropdownMenuStyle = dropdownMenuStyle,
             keyboardActions = keyboardActions
