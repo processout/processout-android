@@ -1,6 +1,5 @@
 package com.processout.sdk.ui.core.component.field.phone
 
-import android.text.InputFilter
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.input.TextFieldValue
@@ -8,6 +7,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.core.state.POImmutableList
+import com.processout.sdk.ui.core.state.POInputFilter
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -24,7 +24,7 @@ data class POPhoneNumberFieldState(
     val enabled: Boolean = true,
     val isError: Boolean = false,
     val forceTextDirectionLtr: Boolean = false,
-    val inputFilter: InputFilter? = null,
+    val inputFilter: POInputFilter? = null,
     val visualTransformation: VisualTransformation = VisualTransformation.None,
     val keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     val keyboardActionId: String? = null
