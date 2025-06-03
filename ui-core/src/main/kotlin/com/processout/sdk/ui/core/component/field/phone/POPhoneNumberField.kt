@@ -1,0 +1,47 @@
+package com.processout.sdk.ui.core.component.field.phone
+
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.TextFieldValue
+import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.core.component.field.POField
+import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
+import com.processout.sdk.ui.core.component.field.text.POTextField
+
+/** @suppress */
+@ProcessOutInternalApi
+@Composable
+fun POPhoneNumberField(
+    state: POPhoneNumberFieldState,
+    onDialingCodeChange: (TextFieldValue) -> Unit,
+    onNumberChange: (TextFieldValue) -> Unit,
+    modifier: Modifier = Modifier,
+    fieldStyle: POField.Style = POField.default,
+    dropdownMenuStyle: PODropdownField.MenuStyle = PODropdownField.defaultMenu,
+    keyboardActions: KeyboardActions = KeyboardActions.Default
+) {
+    Row(modifier = modifier) {
+        PODropdownField(
+            value = state.dialingCode,
+            onValueChange = onDialingCodeChange,
+            availableValues = state.dialingCodes,
+            fieldStyle = fieldStyle,
+            menuStyle = dropdownMenuStyle,
+            placeholderText = state.dialingCodePlaceholder
+        )
+        POTextField(
+            value = state.number,
+            onValueChange = onNumberChange,
+            style = fieldStyle,
+            enabled = state.enabled,
+            isError = state.isError,
+            forceTextDirectionLtr = state.forceTextDirectionLtr,
+            placeholderText = state.numberPlaceholder,
+            visualTransformation = state.visualTransformation,
+            keyboardOptions = state.keyboardOptions,
+            keyboardActions = keyboardActions
+        )
+    }
+}
