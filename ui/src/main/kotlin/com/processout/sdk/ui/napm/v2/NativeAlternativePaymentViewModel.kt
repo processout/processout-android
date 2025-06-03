@@ -2,10 +2,7 @@ package com.processout.sdk.ui.napm.v2
 
 import android.app.Application
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.input.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -31,6 +28,7 @@ import com.processout.sdk.ui.shared.provider.BarcodeBitmapProvider
 import com.processout.sdk.ui.shared.provider.MediaStorageProvider
 import com.processout.sdk.ui.shared.state.ConfirmationDialogState
 import com.processout.sdk.ui.shared.state.FieldState
+import com.processout.sdk.ui.shared.state.FieldValue
 import com.processout.sdk.ui.shared.transformation.PhoneNumberVisualTransformation
 import java.text.NumberFormat
 import java.util.Currency
@@ -245,7 +243,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
         return TextField(
             FieldState(
                 id = id,
-                value = value,
+                value = value.textFieldValue(),
                 title = label,
                 description = description,
                 placeholder = parameter.placeholder(),
@@ -266,7 +264,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
         CodeField(
             FieldState(
                 id = id,
-                value = value,
+                value = value.textFieldValue(),
                 length = maxLength,
                 title = label,
                 description = description,
@@ -280,7 +278,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
         RadioField(
             FieldState(
                 id = id,
-                value = value,
+                value = value.textFieldValue(),
                 availableValues = parameter.availableValues(),
                 title = label,
                 description = description,
@@ -292,13 +290,19 @@ internal class NativeAlternativePaymentViewModel private constructor(
         DropdownField(
             FieldState(
                 id = id,
-                value = value,
+                value = value.textFieldValue(),
                 availableValues = parameter.availableValues(),
                 title = label,
                 description = description,
                 isError = !isValid
             )
         )
+
+    private fun FieldValue.textFieldValue() =
+        when (this) {
+            is FieldValue.Text -> value
+            else -> TextFieldValue()
+        }
 
     private fun Parameter.availableValues(): POImmutableList<POAvailableValue>? =
         when (this) {

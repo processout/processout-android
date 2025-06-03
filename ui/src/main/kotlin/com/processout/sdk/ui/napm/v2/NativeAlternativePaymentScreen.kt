@@ -63,6 +63,7 @@ import com.processout.sdk.ui.shared.component.AndroidTextView
 import com.processout.sdk.ui.shared.component.rememberLifecycleEvent
 import com.processout.sdk.ui.shared.extension.dpToPx
 import com.processout.sdk.ui.shared.state.FieldState
+import com.processout.sdk.ui.shared.state.FieldValue
 
 @Composable
 internal fun NativeAlternativePaymentScreen(
@@ -225,7 +226,7 @@ private fun TextField(
             onEvent(
                 FieldValueChanged(
                     id = state.id,
-                    value = state.inputFilter?.filter(it) ?: it
+                    value = FieldValue.Text(value = state.inputFilter?.filter(it) ?: it)
                 )
             )
         },
@@ -279,7 +280,7 @@ private fun CodeField(
             onEvent(
                 FieldValueChanged(
                     id = state.id,
-                    value = it
+                    value = FieldValue.Text(value = it)
                 )
             )
         },
@@ -326,7 +327,7 @@ private fun RadioField(
             onEvent(
                 FieldValueChanged(
                     id = state.id,
-                    value = it
+                    value = FieldValue.Text(value = it)
                 )
             )
         },
@@ -354,7 +355,7 @@ private fun DropdownField(
             onEvent(
                 FieldValueChanged(
                     id = state.id,
-                    value = it
+                    value = FieldValue.Text(value = it)
                 )
             )
         },
