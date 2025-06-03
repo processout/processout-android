@@ -1,10 +1,11 @@
 package com.processout.sdk.ui.shared.filter
 
 import androidx.compose.ui.text.input.TextFieldValue
+import com.processout.sdk.ui.core.state.POInputFilter
 
 internal class CardSecurityCodeInputFilter(
     private val scheme: String?
-) : InputFilter {
+) : POInputFilter {
 
     override fun filter(value: TextFieldValue): TextFieldValue {
         var length = 4
