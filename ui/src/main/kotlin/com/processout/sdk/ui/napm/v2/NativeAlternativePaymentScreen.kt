@@ -316,6 +316,7 @@ private fun CodeField(
         isError = state.isError,
         isFocused = state.id == focusedFieldId,
         lifecycleEvent = lifecycleEvent,
+        inputFilter = state.inputFilter,
         keyboardOptions = state.keyboardOptions,
         keyboardActions = POField.keyboardActions(
             imeAction = state.keyboardOptions.imeAction,

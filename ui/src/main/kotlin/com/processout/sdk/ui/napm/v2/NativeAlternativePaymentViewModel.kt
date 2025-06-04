@@ -269,6 +269,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 title = label,
                 description = description,
                 isError = !isValid,
+                inputFilter = parameter.inputFilter(),
                 keyboardOptions = parameter.keyboardOptions(keyboardAction.imeAction),
                 keyboardActionId = keyboardAction.actionId
             )

@@ -31,6 +31,7 @@ import com.processout.sdk.ui.core.component.field.code.POCodeField.style
 import com.processout.sdk.ui.core.component.field.code.POCodeField.validLength
 import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.component.texttoolbar.ProcessOutTextToolbar
+import com.processout.sdk.ui.core.state.POInputFilter
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 
 /** @suppress */
@@ -47,6 +48,7 @@ fun POCodeField(
     isError: Boolean = false,
     isFocused: Boolean = false,
     lifecycleEvent: Lifecycle.Event? = null,
+    inputFilter: POInputFilter? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
@@ -65,7 +67,7 @@ fun POCodeField(
             verticalAlignment = Alignment.CenterVertically
         ) {
             val validLength = remember(length) { validLength(length) }
-            var values by remember(validLength) { mutableStateOf(values(value.text, validLength)) }
+            var values by remember(validLength) { mutableStateOf(values(value.text, validLength, inputFilter)) }
             var focusedIndex by remember(validLength) { mutableIntStateOf(values.focusedIndex()) }
             val clipboardManager = LocalClipboardManager.current
             CompositionLocalProvider(
@@ -75,7 +77,8 @@ fun POCodeField(
                         if (clipboardManager.hasText()) {
                             val pastedValues = values(
                                 text = clipboardManager.getText()?.text ?: String(),
-                                length = validLength
+                                length = validLength,
+                                inputFilter = inputFilter
                             )
                             if (!pastedValues.all { it.text.isEmpty() }) {
                                 values = pastedValues
@@ -95,16 +98,17 @@ fun POCodeField(
                         onValueChange = { updatedValue ->
                             if (updatedValue.selection.length == 0) {
                                 val currentValue = values[textFieldIndex]
+                                val updatedFilteredValue = inputFilter?.filter(updatedValue) ?: updatedValue
                                 values = values.mapIndexed { index, textFieldValue ->
                                     if (index == textFieldIndex) {
-                                        val updatedText = updatedValue.text.firstOrNull()?.toString() ?: String()
+                                        val updatedText = updatedFilteredValue.text.firstOrNull()?.toString() ?: String()
                                         val isTextChanged = textFieldValue.text != updatedText
                                         TextFieldValue(
                                             text = updatedText,
                                             selection = if (isTextChanged) {
                                                 TextRange(updatedText.length)
                                             } else {
-                                                updatedValue.selection
+                                                updatedFilteredValue.selection
                                             }
                                         )
                                     } else {
@@ -112,10 +116,10 @@ fun POCodeField(
                                     }
                                 }
                                 if (textFieldIndex != values.lastIndex &&
-                                    updatedValue.text.length == 2 &&
-                                    updatedValue.selection.start == 2
+                                    updatedFilteredValue.text.length == 2 &&
+                                    updatedFilteredValue.selection.start == 2
                                 ) {
-                                    val nextText = updatedValue.text.last().toString()
+                                    val nextText = updatedFilteredValue.text.last().toString()
                                     values = values.mapIndexed { index, textFieldValue ->
                                         if (index == textFieldIndex + 1) {
                                             TextFieldValue(
@@ -127,9 +131,9 @@ fun POCodeField(
                                         }
                                     }
                                 }
-                                val isSelectionChangedOnly = currentValue.text == updatedValue.text &&
-                                        currentValue.selection != updatedValue.selection
-                                if (updatedValue.text.isNotEmpty() &&
+                                val isSelectionChangedOnly = currentValue.text == updatedFilteredValue.text &&
+                                        currentValue.selection != updatedFilteredValue.selection
+                                if (updatedFilteredValue.text.isNotEmpty() &&
                                     !isSelectionChangedOnly &&
                                     textFieldIndex != values.lastIndex
                                 ) {
@@ -193,13 +197,16 @@ fun POCodeField(
 
 private fun values(
     text: String,
-    length: Int
+    length: Int,
+    inputFilter: POInputFilter?
 ): List<TextFieldValue> {
     val values = mutableListOf<TextFieldValue>()
     while (values.size < length) {
         values.add(TextFieldValue())
     }
-    text.take(length)
+    val filteredText = inputFilter?.filter(TextFieldValue(text = text))?.text ?: text
+    filteredText
+        .take(length)
         .forEachIndexed { index, char ->
             val value = char.toString()
             values[index] = TextFieldValue(

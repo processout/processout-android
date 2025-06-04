@@ -11,6 +11,7 @@ import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.field.LabeledFieldLayout
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.POFieldLabels
+import com.processout.sdk.ui.core.state.POInputFilter
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -29,6 +30,7 @@ fun POLabeledCodeField(
     isError: Boolean = false,
     isFocused: Boolean = false,
     lifecycleEvent: Lifecycle.Event? = null,
+    inputFilter: POInputFilter? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
@@ -49,6 +51,7 @@ fun POLabeledCodeField(
             isError = isError,
             isFocused = isFocused,
             lifecycleEvent = lifecycleEvent,
+            inputFilter = inputFilter,
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions
         )
