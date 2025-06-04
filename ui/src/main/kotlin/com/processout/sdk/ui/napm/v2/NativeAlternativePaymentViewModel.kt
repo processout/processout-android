@@ -26,6 +26,7 @@ import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.Fiel
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.Image
 import com.processout.sdk.ui.shared.extension.map
 import com.processout.sdk.ui.shared.filter.DigitsInputFilter
+import com.processout.sdk.ui.shared.filter.TextLengthInputFilter
 import com.processout.sdk.ui.shared.provider.BarcodeBitmapProvider
 import com.processout.sdk.ui.shared.provider.MediaStorageProvider
 import com.processout.sdk.ui.shared.state.ConfirmationDialogState
@@ -365,9 +366,9 @@ internal class NativeAlternativePaymentViewModel private constructor(
             is PhoneNumber -> DigitsInputFilter()
             is Digits -> DigitsInputFilter(maxLength)
             is Card -> DigitsInputFilter(maxLength)
-            is Text -> null // TODO(v2): by maxLength
+            is Text -> maxLength?.let { TextLengthInputFilter(maxLength = it) }
             is Otp -> when (subtype) {
-                Subtype.TEXT -> null // TODO(v2): by maxLength
+                Subtype.TEXT -> maxLength?.let { TextLengthInputFilter(maxLength = it) }
                 Subtype.DIGITS -> DigitsInputFilter(maxLength)
                 Subtype.UNKNOWN -> null
             }
