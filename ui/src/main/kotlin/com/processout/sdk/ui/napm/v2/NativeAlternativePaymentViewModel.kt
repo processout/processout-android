@@ -18,6 +18,7 @@ import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.core.state.POImmutableList
+import com.processout.sdk.ui.core.state.POInputFilter
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentInteractorState.*
@@ -250,6 +251,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 placeholder = parameter.placeholder(),
                 isError = !isValid,
                 forceTextDirectionLtr = ltrParameterTypes.contains(parameter::class.java),
+                inputFilter = parameter.inputFilter(),
                 keyboardOptions = parameter.keyboardOptions(keyboardAction.imeAction),
                 keyboardActionId = keyboardAction.actionId
             )
@@ -317,7 +319,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 description = description,
                 isError = !isValid,
                 forceTextDirectionLtr = true,
-                inputFilter = if (parameter is PhoneNumber) DigitsInputFilter() else null,
+                inputFilter = parameter.inputFilter(),
                 visualTransformation = if (parameter is PhoneNumber)
                     PhoneNumberVisualTransformation() else VisualTransformation.None,
                 keyboardOptions = parameter.keyboardOptions(keyboardAction.imeAction),
@@ -356,6 +358,20 @@ internal class NativeAlternativePaymentViewModel private constructor(
         }
         return POImmutableList(availableValues)
     }
+
+    private fun Parameter.inputFilter(): POInputFilter? =
+        when (this) {
+            is PhoneNumber -> DigitsInputFilter()
+            is Digits -> DigitsInputFilter(maxLength)
+            is Card -> DigitsInputFilter(maxLength)
+            is Text -> null // TODO(v2): by maxLength
+            is Otp -> when (subtype) {
+                Subtype.TEXT -> null // TODO(v2): by maxLength
+                Subtype.DIGITS -> DigitsInputFilter(maxLength)
+                Subtype.UNKNOWN -> null
+            }
+            else -> null
+        }
 
     private fun List<Field>.lastFocusableFieldId(): String? =
         reversed().find {
