@@ -39,7 +39,10 @@ fun POPhoneNumberField(
         )
         POTextField(
             value = state.number,
-            onValueChange = onNumberChange,
+            onValueChange = {
+                val value = state.inputFilter?.filter(it) ?: it
+                onNumberChange(value)
+            },
             modifier = textFieldModifier
                 .padding(start = spacing.small)
                 .weight(1f),

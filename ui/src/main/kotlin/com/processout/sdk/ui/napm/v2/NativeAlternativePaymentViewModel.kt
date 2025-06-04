@@ -24,7 +24,7 @@ import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.Field.*
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.Image
 import com.processout.sdk.ui.shared.extension.map
-import com.processout.sdk.ui.shared.filter.PhoneNumberInputFilter
+import com.processout.sdk.ui.shared.filter.DigitsInputFilter
 import com.processout.sdk.ui.shared.provider.BarcodeBitmapProvider
 import com.processout.sdk.ui.shared.provider.MediaStorageProvider
 import com.processout.sdk.ui.shared.state.ConfirmationDialogState
@@ -317,7 +317,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 description = description,
                 isError = !isValid,
                 forceTextDirectionLtr = true,
-                inputFilter = if (parameter is PhoneNumber) PhoneNumberInputFilter() else null,
+                inputFilter = if (parameter is PhoneNumber) DigitsInputFilter() else null,
                 visualTransformation = if (parameter is PhoneNumber)
                     PhoneNumberVisualTransformation() else VisualTransformation.None,
                 keyboardOptions = parameter.keyboardOptions(keyboardAction.imeAction),

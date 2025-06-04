@@ -423,7 +423,7 @@ private fun PhoneNumberField(
                     id = state.id,
                     value = FieldValue.PhoneNumber(
                         dialingCode = state.dialingCode,
-                        number = state.inputFilter?.filter(it) ?: it
+                        number = it
                     )
                 )
             )
