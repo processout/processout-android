@@ -37,6 +37,7 @@ fun POPhoneNumberField(
             modifier = Modifier.width(IntrinsicSize.Min),
             fieldStyle = fieldStyle,
             menuStyle = dropdownMenuStyle,
+            isError = state.isError,
             placeholderText = state.dialingCodePlaceholder
         )
         POTextField(
