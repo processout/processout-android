@@ -3,8 +3,8 @@ package com.processout.sdk.ui.core.state
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.VisualTransformation
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.core.transformation.POPhoneNumberVisualTransformation
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -22,7 +22,7 @@ data class POPhoneNumberFieldState(
     val isError: Boolean = false,
     val forceTextDirectionLtr: Boolean = false,
     val inputFilter: POInputFilter? = null,
-    val visualTransformation: VisualTransformation = VisualTransformation.None,
+    val visualTransformation: POPhoneNumberVisualTransformation? = null,
     val keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     val keyboardActionId: String? = null
 )

@@ -2,7 +2,10 @@ package com.processout.sdk.ui.napm.v2
 
 import android.app.Application
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.ui.text.input.*
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -318,8 +321,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 isError = !isValid,
                 forceTextDirectionLtr = true,
                 inputFilter = parameter.inputFilter(),
-                visualTransformation = if (parameter is PhoneNumber)
-                    POPhoneNumberVisualTransformation() else VisualTransformation.None,
+                visualTransformation = POPhoneNumberVisualTransformation(),
                 keyboardOptions = parameter.keyboardOptions(keyboardAction.imeAction),
                 keyboardActionId = keyboardAction.actionId
             )

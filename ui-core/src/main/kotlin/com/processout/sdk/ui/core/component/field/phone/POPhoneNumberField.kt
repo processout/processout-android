@@ -8,6 +8,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
@@ -52,7 +53,7 @@ fun POPhoneNumberField(
             isError = state.isError,
             forceTextDirectionLtr = state.forceTextDirectionLtr,
             placeholderText = state.numberPlaceholder,
-            visualTransformation = state.visualTransformation,
+            visualTransformation = state.visualTransformation ?: VisualTransformation.None,
             keyboardOptions = state.keyboardOptions,
             keyboardActions = keyboardActions
         )
