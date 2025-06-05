@@ -322,7 +322,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 isError = !isValid,
                 forceTextDirectionLtr = true,
                 inputFilter = parameter.inputFilter(),
-                visualTransformation = POPhoneNumberVisualTransformation(countryCode = dialingCode.text),
+                visualTransformation = POPhoneNumberVisualTransformation(regionCode = dialingCode.text),
                 keyboardOptions = parameter.keyboardOptions(keyboardAction.imeAction),
                 keyboardActionId = keyboardAction.actionId
             )

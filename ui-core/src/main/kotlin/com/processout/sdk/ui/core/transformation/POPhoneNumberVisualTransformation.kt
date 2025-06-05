@@ -9,10 +9,10 @@ import java.util.Locale
 /** @suppress */
 @ProcessOutInternalApi
 class POPhoneNumberVisualTransformation(
-    private val countryCode: String = Locale.getDefault().country
+    private val regionCode: String = Locale.getDefault().country
 ) : POBaseVisualTransformation() {
 
-    private val formatter = PhoneNumberUtil.getInstance().getAsYouTypeFormatter(countryCode)
+    private val formatter = PhoneNumberUtil.getInstance().getAsYouTypeFormatter(regionCode)
 
     override fun transform(text: String): String {
         formatter.clear()
@@ -51,10 +51,10 @@ class POPhoneNumberVisualTransformation(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as POPhoneNumberVisualTransformation
-        return countryCode == other.countryCode
+        return regionCode == other.regionCode
     }
 
     override fun hashCode(): Int {
-        return countryCode.hashCode()
+        return regionCode.hashCode()
     }
 }
