@@ -301,14 +301,15 @@ internal class NativeAlternativePaymentViewModel private constructor(
 
     private fun Field.toPhoneNumberField(
         keyboardAction: KeyboardAction
-    ): NativeAlternativePaymentViewModelState.Field =
-        PhoneNumberField(
+    ): NativeAlternativePaymentViewModelState.Field {
+        val dialingCode = when (value) {
+            is FieldValue.PhoneNumber -> value.dialingCode
+            else -> TextFieldValue()
+        }
+        return PhoneNumberField(
             POPhoneNumberFieldState(
                 id = id,
-                dialingCode = when (value) {
-                    is FieldValue.PhoneNumber -> value.dialingCode
-                    else -> TextFieldValue()
-                },
+                dialingCode = dialingCode,
                 dialingCodes = parameter.dialingCodes(),
                 dialingCodePlaceholder = null,
                 number = when (value) {
@@ -321,11 +322,12 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 isError = !isValid,
                 forceTextDirectionLtr = true,
                 inputFilter = parameter.inputFilter(),
-                visualTransformation = POPhoneNumberVisualTransformation(),
+                visualTransformation = POPhoneNumberVisualTransformation(countryCode = dialingCode.text),
                 keyboardOptions = parameter.keyboardOptions(keyboardAction.imeAction),
                 keyboardActionId = keyboardAction.actionId
             )
         )
+    }
 
     private fun FieldValue.textFieldValue() =
         when (this) {
