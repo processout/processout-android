@@ -202,6 +202,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
         val fields = mapNotNull { field ->
             val keyboardAction = keyboardAction(field.id, lastFocusableFieldId)
             when (field.parameter) {
+                is PhoneNumber -> field.toPhoneNumberField(keyboardAction)
                 is SingleSelect -> {
                     val availableValuesSize = field.parameter.availableValues.size
                     if (availableValuesSize <= configuration.inlineSingleSelectValuesLimit) {
@@ -211,7 +212,6 @@ internal class NativeAlternativePaymentViewModel private constructor(
                     }
                 }
                 is Bool -> null // TODO(v2): add checkbox field
-                is PhoneNumber -> field.toPhoneNumberField(keyboardAction)
                 is Digits -> if (field.maxLength in codeFieldLengthRange) {
                     field.toCodeField(keyboardAction)
                 } else {
