@@ -9,6 +9,7 @@ import com.processout.sdk.ui.core.component.field.LabeledFieldLayout
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.POFieldLabels
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
+import com.processout.sdk.ui.core.state.POPhoneNumberFieldState
 
 /** @suppress */
 @ProcessOutInternalApi

@@ -13,12 +13,8 @@ import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentN
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter.*
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter.Otp.Subtype
 import com.processout.sdk.core.retry.PORetryStrategy.Exponential
-import com.processout.sdk.ui.core.component.field.phone.POPhoneNumberFieldState
-import com.processout.sdk.ui.core.state.POActionState
+import com.processout.sdk.ui.core.state.*
 import com.processout.sdk.ui.core.state.POActionState.Confirmation
-import com.processout.sdk.ui.core.state.POAvailableValue
-import com.processout.sdk.ui.core.state.POImmutableList
-import com.processout.sdk.ui.core.state.POInputFilter
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentInteractorState.*
