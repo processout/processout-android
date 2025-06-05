@@ -1,12 +1,14 @@
-package com.processout.sdk.ui.shared.transformation
+package com.processout.sdk.ui.core.transformation
 
 import android.telephony.PhoneNumberUtils
 import android.text.Selection
 import com.google.i18n.phonenumbers.PhoneNumberUtil
-import com.processout.sdk.ui.core.transformation.POBaseVisualTransformation
+import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import java.util.Locale
 
-internal class PhoneNumberVisualTransformation(
+/** @suppress */
+@ProcessOutInternalApi
+class POPhoneNumberVisualTransformation(
     private val countryCode: String = Locale.getDefault().country
 ) : POBaseVisualTransformation() {
 
@@ -48,7 +50,7 @@ internal class PhoneNumberVisualTransformation(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
-        other as PhoneNumberVisualTransformation
+        other as POPhoneNumberVisualTransformation
         return countryCode == other.countryCode
     }
 

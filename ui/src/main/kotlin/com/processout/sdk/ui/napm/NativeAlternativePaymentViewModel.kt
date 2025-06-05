@@ -19,6 +19,7 @@ import com.processout.sdk.core.retry.PORetryStrategy.Exponential
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.core.state.POImmutableList
+import com.processout.sdk.ui.core.transformation.POPhoneNumberVisualTransformation
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Field.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Image
@@ -29,7 +30,6 @@ import com.processout.sdk.ui.shared.provider.BarcodeBitmapProvider
 import com.processout.sdk.ui.shared.provider.MediaStorageProvider
 import com.processout.sdk.ui.shared.state.ConfirmationDialogState
 import com.processout.sdk.ui.shared.state.FieldState
-import com.processout.sdk.ui.shared.transformation.PhoneNumberVisualTransformation
 import java.text.NumberFormat
 import java.util.Currency
 
@@ -235,7 +235,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 isError = !isValid,
                 forceTextDirectionLtr = setOf(NUMERIC, EMAIL, PHONE).contains(type),
                 inputFilter = if (type == PHONE) PhoneNumberInputFilter() else null,
-                visualTransformation = if (type == PHONE) PhoneNumberVisualTransformation() else VisualTransformation.None,
+                visualTransformation = if (type == PHONE) POPhoneNumberVisualTransformation() else VisualTransformation.None,
                 keyboardOptions = type.keyboardOptions(keyboardAction.imeAction),
                 keyboardActionId = keyboardAction.actionId
             )

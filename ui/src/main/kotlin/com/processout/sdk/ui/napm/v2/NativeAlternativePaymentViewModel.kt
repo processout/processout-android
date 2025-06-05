@@ -15,6 +15,7 @@ import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentN
 import com.processout.sdk.core.retry.PORetryStrategy.Exponential
 import com.processout.sdk.ui.core.state.*
 import com.processout.sdk.ui.core.state.POActionState.Confirmation
+import com.processout.sdk.ui.core.transformation.POPhoneNumberVisualTransformation
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentInteractorState.*
@@ -28,7 +29,6 @@ import com.processout.sdk.ui.shared.provider.MediaStorageProvider
 import com.processout.sdk.ui.shared.state.ConfirmationDialogState
 import com.processout.sdk.ui.shared.state.FieldState
 import com.processout.sdk.ui.shared.state.FieldValue
-import com.processout.sdk.ui.shared.transformation.PhoneNumberVisualTransformation
 import java.text.NumberFormat
 import java.util.Currency
 
@@ -319,7 +319,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 forceTextDirectionLtr = true,
                 inputFilter = parameter.inputFilter(),
                 visualTransformation = if (parameter is PhoneNumber)
-                    PhoneNumberVisualTransformation() else VisualTransformation.None,
+                    POPhoneNumberVisualTransformation() else VisualTransformation.None,
                 keyboardOptions = parameter.keyboardOptions(keyboardAction.imeAction),
                 keyboardActionId = keyboardAction.actionId
             )
