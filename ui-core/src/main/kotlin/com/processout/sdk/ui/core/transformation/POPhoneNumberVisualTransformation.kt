@@ -9,8 +9,14 @@ import java.util.Locale
 /** @suppress */
 @ProcessOutInternalApi
 class POPhoneNumberVisualTransformation(
+    private val expectedFormat: PhoneNumberFormat,
     private val regionCode: String = Locale.getDefault().country
 ) : POBaseVisualTransformation() {
+
+    enum class PhoneNumberFormat {
+        NATIONAL,
+        INTERNATIONAL
+    }
 
     private val formatter = PhoneNumberUtil.getInstance().getAsYouTypeFormatter(regionCode)
 
@@ -51,10 +57,14 @@ class POPhoneNumberVisualTransformation(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as POPhoneNumberVisualTransformation
-        return regionCode == other.regionCode
+        if (expectedFormat != other.expectedFormat) return false
+        if (regionCode != other.regionCode) return false
+        return true
     }
 
     override fun hashCode(): Int {
-        return regionCode.hashCode()
+        var result = expectedFormat.hashCode()
+        result = 31 * result + regionCode.hashCode()
+        return result
     }
 }

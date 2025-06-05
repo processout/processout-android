@@ -20,6 +20,7 @@ import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.transformation.POPhoneNumberVisualTransformation
+import com.processout.sdk.ui.core.transformation.POPhoneNumberVisualTransformation.PhoneNumberFormat
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Field.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Image
@@ -235,7 +236,10 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 isError = !isValid,
                 forceTextDirectionLtr = setOf(NUMERIC, EMAIL, PHONE).contains(type),
                 inputFilter = if (type == PHONE) PhoneNumberInputFilter() else null,
-                visualTransformation = if (type == PHONE) POPhoneNumberVisualTransformation() else VisualTransformation.None,
+                visualTransformation = if (type == PHONE)
+                    POPhoneNumberVisualTransformation(
+                        expectedFormat = PhoneNumberFormat.INTERNATIONAL
+                    ) else VisualTransformation.None,
                 keyboardOptions = type.keyboardOptions(keyboardAction.imeAction),
                 keyboardActionId = keyboardAction.actionId
             )

@@ -19,6 +19,7 @@ import com.processout.sdk.core.retry.PORetryStrategy.Exponential
 import com.processout.sdk.ui.core.state.*
 import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.core.transformation.POPhoneNumberVisualTransformation
+import com.processout.sdk.ui.core.transformation.POPhoneNumberVisualTransformation.PhoneNumberFormat
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentInteractorState.*
@@ -322,7 +323,10 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 isError = !isValid,
                 forceTextDirectionLtr = true,
                 inputFilter = parameter.inputFilter(),
-                visualTransformation = POPhoneNumberVisualTransformation(regionCode = dialingCode.text),
+                visualTransformation = POPhoneNumberVisualTransformation(
+                    expectedFormat = PhoneNumberFormat.NATIONAL,
+                    regionCode = dialingCode.text
+                ),
                 keyboardOptions = parameter.keyboardOptions(keyboardAction.imeAction),
                 keyboardActionId = keyboardAction.actionId
             )
