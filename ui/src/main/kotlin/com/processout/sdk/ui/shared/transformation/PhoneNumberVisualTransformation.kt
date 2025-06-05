@@ -3,11 +3,12 @@ package com.processout.sdk.ui.shared.transformation
 import android.telephony.PhoneNumberUtils
 import android.text.Selection
 import com.google.i18n.phonenumbers.PhoneNumberUtil
+import com.processout.sdk.ui.core.transformation.POBaseVisualTransformation
 import java.util.Locale
 
 internal class PhoneNumberVisualTransformation(
     private val countryCode: String = Locale.getDefault().country
-) : BaseVisualTransformation() {
+) : POBaseVisualTransformation() {
 
     private val formatter = PhoneNumberUtil.getInstance().getAsYouTypeFormatter(countryCode)
 

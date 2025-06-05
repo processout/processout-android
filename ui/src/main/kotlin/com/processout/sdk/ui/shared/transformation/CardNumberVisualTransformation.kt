@@ -1,6 +1,8 @@
 package com.processout.sdk.ui.shared.transformation
 
-internal class CardNumberVisualTransformation : BaseVisualTransformation() {
+import com.processout.sdk.ui.core.transformation.POBaseVisualTransformation
+
+internal class CardNumberVisualTransformation : POBaseVisualTransformation() {
 
     private companion object {
         const val PLACEHOLDER_CHAR = '#'

@@ -1,6 +1,8 @@
 package com.processout.sdk.ui.shared.transformation
 
-internal class CardExpirationVisualTransformation : BaseVisualTransformation() {
+import com.processout.sdk.ui.core.transformation.POBaseVisualTransformation
+
+internal class CardExpirationVisualTransformation : POBaseVisualTransformation() {
 
     private companion object {
         const val SEPARATOR = " / "
