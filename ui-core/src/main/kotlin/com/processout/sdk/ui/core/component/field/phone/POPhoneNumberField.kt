@@ -46,7 +46,7 @@ fun POPhoneNumberField(
                 onNumberChange(value)
             },
             modifier = textFieldModifier
-                .padding(start = spacing.small)
+                .padding(start = spacing.extraSmall)
                 .weight(1f),
             style = fieldStyle,
             enabled = state.enabled,
