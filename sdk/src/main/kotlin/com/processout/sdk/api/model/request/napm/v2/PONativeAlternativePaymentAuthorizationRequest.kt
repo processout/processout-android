@@ -9,7 +9,7 @@ import com.squareup.moshi.JsonClass
  *
  * @param[invoiceId] Invoice identifier.
  * @param[gatewayConfigurationId] Gateway configuration identifier.
- * @param[parameters] Payment parameters.
+ * @param[parameters] Payment parameter values.
  */
 /** @suppress */
 @ProcessOutInternalApi
@@ -20,7 +20,7 @@ data class PONativeAlternativePaymentAuthorizationRequest(
 ) {
 
     /**
-     * Payment parameter.
+     * Payment parameter value.
      */
     data class Parameter internal constructor(
         @ProcessOutInternalApi val value: Value
@@ -28,12 +28,12 @@ data class PONativeAlternativePaymentAuthorizationRequest(
 
         companion object {
             /**
-             * Arbitrary string parameter.
+             * Arbitrary string value.
              */
             fun string(value: String) = Parameter(Value.String(value))
 
             /**
-             * Phone number parameter.
+             * Phone number value.
              *
              * @param[dialingCode] International dialing code.
              * @param[number] The rest of the number without dialing code.
