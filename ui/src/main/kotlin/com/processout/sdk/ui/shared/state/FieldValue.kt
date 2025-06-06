@@ -8,7 +8,7 @@ internal sealed interface FieldValue {
     ) : FieldValue
 
     data class PhoneNumber(
-        val dialingCode: TextFieldValue = TextFieldValue(),
+        val regionCode: TextFieldValue = TextFieldValue(),
         val number: TextFieldValue = TextFieldValue()
     ) : FieldValue
 
@@ -19,7 +19,7 @@ internal sealed interface FieldValue {
                 else -> false
             }
             is PhoneNumber -> when (other) {
-                is PhoneNumber -> dialingCode.text == other.dialingCode.text &&
+                is PhoneNumber -> regionCode.text == other.regionCode.text &&
                         number.text == other.number.text
                 else -> false
             }

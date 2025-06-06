@@ -21,7 +21,7 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 @Composable
 fun POPhoneNumberField(
     state: POPhoneNumberFieldState,
-    onDialingCodeChange: (TextFieldValue) -> Unit,
+    onRegionCodeChange: (TextFieldValue) -> Unit,
     onNumberChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
     textFieldModifier: Modifier = Modifier,
@@ -31,14 +31,14 @@ fun POPhoneNumberField(
 ) {
     Row(modifier = modifier) {
         PODropdownField(
-            value = state.dialingCode,
-            onValueChange = onDialingCodeChange,
-            availableValues = state.dialingCodes,
+            value = state.regionCode,
+            onValueChange = onRegionCodeChange,
+            availableValues = state.regionCodes,
             modifier = Modifier.width(IntrinsicSize.Min),
             fieldStyle = fieldStyle,
             menuStyle = dropdownMenuStyle,
             isError = state.isError,
-            placeholderText = state.dialingCodePlaceholder
+            placeholderText = state.regionCodePlaceholder
         )
         POTextField(
             value = state.number,

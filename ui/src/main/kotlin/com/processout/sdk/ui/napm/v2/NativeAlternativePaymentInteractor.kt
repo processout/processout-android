@@ -417,7 +417,7 @@ internal class NativeAlternativePaymentInteractor(
                     }
                     is Value.PhoneNumber -> field.copy(
                         value = FieldValue.PhoneNumber(
-                            dialingCode = TextFieldValue(text = value.dialingCode),
+                            regionCode = TextFieldValue(text = value.dialingCode), // TODO(v2): convert
                             number = TextFieldValue(
                                 text = value.number,
                                 selection = TextRange(value.number.length)
@@ -569,7 +569,7 @@ internal class NativeAlternativePaymentInteractor(
                 else -> {}
             }
             is Parameter.PhoneNumber -> if (value is FieldValue.PhoneNumber) {
-                val phoneNumber = value.dialingCode.text + value.number.text
+                val phoneNumber = value.regionCode.text + value.number.text
                 if (!Patterns.PHONE.matcher(phoneNumber).matches())
                     return invalidField(R.string.po_native_apm_error_invalid_phone)
             }
@@ -621,7 +621,7 @@ internal class NativeAlternativePaymentInteractor(
             it.id to when (it.value) {
                 is FieldValue.Text -> string(value = it.value.value.text)
                 is FieldValue.PhoneNumber -> phoneNumber(
-                    dialingCode = it.value.dialingCode.text,
+                    dialingCode = it.value.regionCode.text, // TODO(v2): convert
                     number = it.value.number.text
                 )
             }

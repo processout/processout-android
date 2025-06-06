@@ -303,16 +303,16 @@ internal class NativeAlternativePaymentViewModel private constructor(
     private fun Field.toPhoneNumberField(
         keyboardAction: KeyboardAction
     ): NativeAlternativePaymentViewModelState.Field {
-        val dialingCode = when (value) {
-            is FieldValue.PhoneNumber -> value.dialingCode
+        val regionCode = when (value) {
+            is FieldValue.PhoneNumber -> value.regionCode
             else -> TextFieldValue()
         }
         return PhoneNumberField(
             POPhoneNumberFieldState(
                 id = id,
-                dialingCode = dialingCode,
-                dialingCodes = parameter.dialingCodes(),
-                dialingCodePlaceholder = null,
+                regionCode = regionCode,
+                regionCodes = parameter.phoneNumberRegionCodes(),
+                regionCodePlaceholder = null,
                 number = when (value) {
                     is FieldValue.PhoneNumber -> value.number
                     else -> TextFieldValue()
@@ -325,7 +325,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 inputFilter = parameter.inputFilter(),
                 visualTransformation = POPhoneNumberVisualTransformation(
                     expectedFormat = PhoneNumberFormat.NATIONAL,
-                    regionCode = dialingCode.text
+                    regionCode = regionCode.text
                 ),
                 keyboardOptions = parameter.keyboardOptions(keyboardAction.imeAction),
                 keyboardActionId = keyboardAction.actionId
@@ -352,7 +352,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
             else -> null
         }
 
-    private fun Parameter.dialingCodes(): POImmutableList<POAvailableValue> {
+    private fun Parameter.phoneNumberRegionCodes(): POImmutableList<POAvailableValue> {
         val availableValues = when (this) {
             is PhoneNumber -> dialingCodes?.map {
                 POAvailableValue(

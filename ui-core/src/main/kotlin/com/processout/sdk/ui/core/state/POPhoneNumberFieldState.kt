@@ -11,9 +11,9 @@ import com.processout.sdk.ui.core.transformation.POPhoneNumberVisualTransformati
 @Immutable
 data class POPhoneNumberFieldState(
     val id: String,
-    val dialingCode: TextFieldValue,
-    val dialingCodes: POImmutableList<POAvailableValue>,
-    val dialingCodePlaceholder: String?,
+    val regionCode: TextFieldValue,
+    val regionCodes: POImmutableList<POAvailableValue>,
+    val regionCodePlaceholder: String?,
     val number: TextFieldValue,
     val numberPlaceholder: String?,
     val title: String? = null,

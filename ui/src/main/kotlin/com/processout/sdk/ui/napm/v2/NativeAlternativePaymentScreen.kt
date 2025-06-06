@@ -407,12 +407,12 @@ private fun PhoneNumberField(
     val focusRequester = remember { FocusRequester() }
     POLabeledPhoneNumberField(
         state = state,
-        onDialingCodeChange = {
+        onRegionCodeChange = {
             onEvent(
                 FieldValueChanged(
                     id = state.id,
                     value = FieldValue.PhoneNumber(
-                        dialingCode = it,
+                        regionCode = it,
                         number = state.number
                     )
                 )
@@ -423,7 +423,7 @@ private fun PhoneNumberField(
                 FieldValueChanged(
                     id = state.id,
                     value = FieldValue.PhoneNumber(
-                        dialingCode = state.dialingCode,
+                        regionCode = state.regionCode,
                         number = it
                     )
                 )
