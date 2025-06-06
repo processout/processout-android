@@ -21,7 +21,6 @@ import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAu
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter.Companion.phoneNumber
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter.Companion.string
-import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter.Value
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentTokenizationDetailsRequest
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodCapture
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameterValues
@@ -59,6 +58,8 @@ import com.processout.sdk.ui.napm.delegate.v2.NativeAlternativePaymentDefaultVal
 import com.processout.sdk.ui.napm.delegate.v2.NativeAlternativePaymentDefaultValuesResponse
 import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent
 import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent.*
+import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentParameterValue
+import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentParameterValue.Value
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentEvent.Action
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentInteractorState.*
@@ -397,11 +398,11 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private fun UserInputStateValue.updateFieldValues(
-        values: Map<String, PONativeAlternativePaymentAuthorizationRequest.Parameter>
+        values: Map<String, PONativeAlternativePaymentParameterValue>
     ): UserInputStateValue {
         val updatedFields = fields.map { field ->
-            values.entries.find { it.key == field.id }?.let {
-                when (val value = it.value.value) {
+            values.entries.find { it.key == field.id }?.let { entry ->
+                when (val value = entry.value.value) {
                     is Value.String -> {
                         val string = value.value
                         val maxLength = field.maxLength
@@ -415,15 +416,21 @@ internal class NativeAlternativePaymentInteractor(
                             )
                         )
                     }
-                    is Value.PhoneNumber -> field.copy(
-                        value = FieldValue.PhoneNumber(
-                            regionCode = TextFieldValue(text = value.dialingCode), // TODO(v2): convert
-                            number = TextFieldValue(
-                                text = value.number,
-                                selection = TextRange(value.number.length)
+                    is Value.PhoneNumber -> when (field.parameter) {
+                        is Parameter.PhoneNumber -> field.copy(
+                            value = FieldValue.PhoneNumber(
+                                regionCode = TextFieldValue(
+                                    text = field.parameter.dialingCodes?.find { it.id == value.regionCode }
+                                        ?.let { value.regionCode } ?: String()
+                                ),
+                                number = TextFieldValue(
+                                    text = value.number,
+                                    selection = TextRange(value.number.length)
+                                )
                             )
                         )
-                    )
+                        else -> field
+                    }
                 }
             } ?: field
         }
