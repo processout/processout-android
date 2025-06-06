@@ -15,6 +15,7 @@ import coil.imageLoader
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.request.ImageResult
+import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationDetailsRequest
@@ -110,6 +111,7 @@ internal class NativeAlternativePaymentInteractor(
     val sideEffects = _sideEffects.receiveAsFlow()
 
     private val handler = Handler(Looper.getMainLooper())
+    private val phoneNumberUtil = PhoneNumberUtil.getInstance()
 
     private var latestDefaultValuesRequest: NativeAlternativePaymentDefaultValuesRequest? = null
 
@@ -628,7 +630,11 @@ internal class NativeAlternativePaymentInteractor(
             it.id to when (it.value) {
                 is FieldValue.Text -> string(value = it.value.value.text)
                 is FieldValue.PhoneNumber -> phoneNumber(
-                    dialingCode = it.value.regionCode.text, // TODO(v2): convert
+                    dialingCode = it.value.regionCode.text.let { regionCode ->
+                        if (regionCode.isNotEmpty())
+                            "+${phoneNumberUtil.getCountryCodeForRegion(regionCode)}"
+                        else String()
+                    },
                     number = it.value.number.text
                 )
             }
