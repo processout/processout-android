@@ -552,39 +552,56 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private fun Field.validate(): InvalidField? {
-        val plainValue = when (value) {
-            is FieldValue.Text -> value.value.text
-            is FieldValue.PhoneNumber -> value.number.text
-        }
-        if (required && plainValue.isBlank()) {
-            return invalidField(R.string.po_native_apm_error_required_parameter)
-        }
-        // TODO(v2): add validation by 'minLength' or range
-        val maxLength = maxLength
-        if (maxLength != null && plainValue.length != maxLength) {
-            return InvalidField(
-                name = id,
-                message = app.resources.getQuantityString(
-                    R.plurals.po_native_apm_error_invalid_length, maxLength, maxLength
-                )
-            )
-        }
         when (parameter) {
-            is Parameter.Digits -> if (!plainValue.isDigitsOnly())
-                return invalidField(R.string.po_native_apm_error_invalid_number)
-            is Parameter.Otp -> when (parameter.subtype) {
-                Subtype.DIGITS -> if (!plainValue.isDigitsOnly())
-                    return invalidField(R.string.po_native_apm_error_invalid_number)
-                else -> {}
-            }
             is Parameter.PhoneNumber -> if (value is FieldValue.PhoneNumber) {
-                val phoneNumber = value.regionCode.text + value.number.text
-                if (!Patterns.PHONE.matcher(phoneNumber).matches())
+                val dialingCode = value.regionCode.text.let { regionCode ->
+                    if (regionCode.isNotBlank())
+                        "+${phoneNumberUtil.getCountryCodeForRegion(regionCode)}"
+                    else String()
+                }
+                val number = value.number.text
+                if (required && (dialingCode.isBlank() || number.isBlank())) {
+                    return invalidField(R.string.po_native_apm_error_required_parameter)
+                }
+                val phoneNumber = "$dialingCode$number"
+                if (!Patterns.PHONE.matcher(phoneNumber).matches()) {
                     return invalidField(R.string.po_native_apm_error_invalid_phone)
+                }
             }
-            is Parameter.Email -> if (!Patterns.EMAIL_ADDRESS.matcher(plainValue).matches())
-                return invalidField(R.string.po_native_apm_error_invalid_email)
-            else -> {}
+            else -> if (value is FieldValue.Text) {
+                val value = value.value.text
+                if (required && value.isBlank()) {
+                    return invalidField(R.string.po_native_apm_error_required_parameter)
+                }
+                val length = if (
+                    minLength != null && maxLength != null &&
+                    minLength == maxLength
+                ) maxLength else null
+                if (length != null && value.length != length) {
+                    return InvalidField(
+                        name = id,
+                        message = app.resources.getQuantityString(
+                            R.plurals.po_native_apm_error_invalid_length, length, length
+                        )
+                    )
+                }
+                // TODO(v2): add validation by 'minLength', 'maxLength' and/or range
+                when (parameter) {
+                    is Parameter.Digits -> if (!value.isDigitsOnly()) {
+                        return invalidField(R.string.po_native_apm_error_invalid_number)
+                    }
+                    is Parameter.Otp -> when (parameter.subtype) {
+                        Subtype.DIGITS -> if (!value.isDigitsOnly()) {
+                            return invalidField(R.string.po_native_apm_error_invalid_number)
+                        }
+                        else -> {}
+                    }
+                    is Parameter.Email -> if (!Patterns.EMAIL_ADDRESS.matcher(value).matches()) {
+                        return invalidField(R.string.po_native_apm_error_invalid_email)
+                    }
+                    else -> {}
+                }
+            }
         }
         return null
     }
@@ -631,7 +648,7 @@ internal class NativeAlternativePaymentInteractor(
                 is FieldValue.Text -> string(value = it.value.value.text)
                 is FieldValue.PhoneNumber -> phoneNumber(
                     dialingCode = it.value.regionCode.text.let { regionCode ->
-                        if (regionCode.isNotEmpty())
+                        if (regionCode.isNotBlank())
                             "+${phoneNumberUtil.getCountryCodeForRegion(regionCode)}"
                         else String()
                     },
