@@ -29,8 +29,9 @@
     <string name="po_native_apm_save_barcode_error_title">فشل حفظ الصورة</string>
     <string name="po_native_apm_save_barcode_error_message">لم نتمكن من حفظ الصورة. يرجى التحقق من أذوناتك أو محاولة التقاط لقطة شاشة كبديل.</string>
     <string name="po_native_apm_save_barcode_error_confirm">فهمت</string>
-    <string name="po_native_apm_email_placeholder">name@example.com</string>
+    <string name="po_native_apm_country_placeholder">بلد</string>
     <string name="po_native_apm_phone_placeholder">أدخل رقم الهاتف</string>
+    <string name="po_native_apm_email_placeholder">name@example.com</string>
     <string name="po_native_apm_success_message">نجاح! تمت الموافقة على الدفع</string>
     <string name="po_native_apm_error_required_parameter">البيانات مطلوبة</string>
     <string name="po_native_apm_error_invalid_number">الرقم غير صحيح</string>
