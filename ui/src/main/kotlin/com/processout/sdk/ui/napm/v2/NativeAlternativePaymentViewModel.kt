@@ -314,12 +314,12 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 id = id,
                 regionCode = regionCode,
                 regionCodes = parameter.phoneNumberRegionCodes(),
-                regionCodePlaceholder = null,
+                regionCodePlaceholder = app.getString(R.string.po_native_apm_country_placeholder),
                 number = when (value) {
                     is FieldValue.PhoneNumber -> value.number
                     else -> TextFieldValue()
                 },
-                numberPlaceholder = parameter.placeholder(),
+                numberPlaceholder = app.getString(R.string.po_native_apm_phone_placeholder),
                 title = label,
                 description = description,
                 isError = !isValid,
@@ -450,7 +450,6 @@ internal class NativeAlternativePaymentViewModel private constructor(
 
     private fun Parameter.placeholder(): String? =
         when (this) {
-            is PhoneNumber -> app.getString(R.string.po_native_apm_phone_placeholder)
             is Email -> app.getString(R.string.po_native_apm_email_placeholder)
             else -> null
         }
