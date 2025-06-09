@@ -25,6 +25,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Field.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Image
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
+import com.processout.sdk.ui.shared.extension.currentAppLocale
 import com.processout.sdk.ui.shared.extension.map
 import com.processout.sdk.ui.shared.filter.PhoneNumberInputFilter
 import com.processout.sdk.ui.shared.provider.BarcodeBitmapProvider
@@ -238,6 +239,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 inputFilter = if (type == PHONE) PhoneNumberInputFilter() else null,
                 visualTransformation = if (type == PHONE)
                     POPhoneNumberVisualTransformation(
+                        regionCode = app.currentAppLocale().country,
                         expectedFormat = PhoneNumberFormat.INTERNATIONAL
                     ) else VisualTransformation.None,
                 keyboardOptions = type.keyboardOptions(keyboardAction.imeAction),

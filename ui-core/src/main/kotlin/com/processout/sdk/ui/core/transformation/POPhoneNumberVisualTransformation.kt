@@ -6,13 +6,12 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.transformation.POPhoneNumberVisualTransformation.PhoneNumberFormat.INTERNATIONAL
 import com.processout.sdk.ui.core.transformation.POPhoneNumberVisualTransformation.PhoneNumberFormat.NATIONAL
-import java.util.Locale
 
 /** @suppress */
 @ProcessOutInternalApi
 class POPhoneNumberVisualTransformation(
-    private val expectedFormat: PhoneNumberFormat,
-    private val regionCode: String = Locale.getDefault().country
+    private val regionCode: String,
+    private val expectedFormat: PhoneNumberFormat
 ) : POBaseVisualTransformation() {
 
     enum class PhoneNumberFormat {
@@ -76,14 +75,14 @@ class POPhoneNumberVisualTransformation(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as POPhoneNumberVisualTransformation
-        if (expectedFormat != other.expectedFormat) return false
         if (regionCode != other.regionCode) return false
+        if (expectedFormat != other.expectedFormat) return false
         return true
     }
 
     override fun hashCode(): Int {
-        var result = expectedFormat.hashCode()
-        result = 31 * result + regionCode.hashCode()
+        var result = regionCode.hashCode()
+        result = 31 * result + expectedFormat.hashCode()
         return result
     }
 }

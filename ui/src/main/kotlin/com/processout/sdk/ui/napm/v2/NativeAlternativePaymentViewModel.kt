@@ -324,8 +324,8 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 forceTextDirectionLtr = true,
                 inputFilter = parameter.inputFilter(),
                 visualTransformation = POPhoneNumberVisualTransformation(
-                    expectedFormat = PhoneNumberFormat.NATIONAL,
-                    regionCode = regionCode.text
+                    regionCode = regionCode.text,
+                    expectedFormat = PhoneNumberFormat.NATIONAL
                 ),
                 keyboardOptions = parameter.keyboardOptions(keyboardAction.imeAction),
                 keyboardActionId = keyboardAction.actionId
