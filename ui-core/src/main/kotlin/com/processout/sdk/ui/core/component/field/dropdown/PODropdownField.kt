@@ -47,6 +47,7 @@ fun PODropdownField(
     fieldStyle: POField.Style = POField.default,
     menuStyle: PODropdownField.MenuStyle = PODropdownField.defaultMenu,
     menuMatchesTextFieldWidth: Boolean = true,
+    preferFormattedTextSelection: Boolean = false,
     enabled: Boolean = true,
     isError: Boolean = false,
     placeholderText: String? = null
@@ -68,7 +69,12 @@ fun PODropdownField(
             val fieldStateStyle = fieldStyle.stateStyle(isError = isError, isFocused = isFocused)
             POTextField(
                 value = availableValues.elements.find { it.value == value.text }
-                    ?.let { TextFieldValue(it.text) } ?: TextFieldValue(),
+                    ?.let {
+                        TextFieldValue(
+                            text = if (preferFormattedTextSelection && it.formattedText != null)
+                                it.formattedText else it.text
+                        )
+                    } ?: TextFieldValue(),
                 onValueChange = {},
                 modifier = modifier
                     .menuAnchor(MenuAnchorType.PrimaryNotEditable)

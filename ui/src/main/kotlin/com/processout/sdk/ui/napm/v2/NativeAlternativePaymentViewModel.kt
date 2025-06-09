@@ -25,6 +25,7 @@ import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Cancel
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.Field.*
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.Image
+import com.processout.sdk.ui.shared.extension.currentAppLocale
 import com.processout.sdk.ui.shared.extension.map
 import com.processout.sdk.ui.shared.filter.DigitsInputFilter
 import com.processout.sdk.ui.shared.filter.TextLengthInputFilter
@@ -35,6 +36,7 @@ import com.processout.sdk.ui.shared.state.FieldState
 import com.processout.sdk.ui.shared.state.FieldValue
 import java.text.NumberFormat
 import java.util.Currency
+import java.util.Locale
 
 internal class NativeAlternativePaymentViewModel private constructor(
     private val app: Application,
@@ -353,11 +355,14 @@ internal class NativeAlternativePaymentViewModel private constructor(
         }
 
     private fun Parameter.phoneNumberRegionCodes(): POImmutableList<POAvailableValue> {
+        val currentAppLocale = app.currentAppLocale()
         val availableValues = when (this) {
             is PhoneNumber -> dialingCodes?.map {
+                val localizedCountry = Locale(String(), it.id).getDisplayCountry(currentAppLocale)
                 POAvailableValue(
                     value = it.id,
-                    text = it.value
+                    text = "$localizedCountry (${it.value})",
+                    formattedText = it.value
                 )
             } ?: emptyList()
             else -> emptyList()

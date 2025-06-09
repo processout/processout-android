@@ -8,5 +8,6 @@ import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 @Immutable
 data class POAvailableValue(
     val value: String,
-    val text: String
+    val text: String,
+    val formattedText: String? = null
 )

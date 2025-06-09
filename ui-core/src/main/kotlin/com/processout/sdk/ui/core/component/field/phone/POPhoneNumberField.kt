@@ -47,6 +47,7 @@ fun POPhoneNumberField(
             fieldStyle = fieldStyle,
             menuStyle = dropdownMenuStyle,
             menuMatchesTextFieldWidth = false,
+            preferFormattedTextSelection = true,
             isError = state.isError,
             placeholderText = state.regionCodePlaceholder
         )
