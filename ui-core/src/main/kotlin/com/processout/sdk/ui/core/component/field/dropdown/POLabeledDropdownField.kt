@@ -21,11 +21,11 @@ fun POLabeledDropdownField(
     description: String?,
     modifier: Modifier = Modifier,
     fieldStyle: POField.Style = POField.default,
-    menuStyle: PODropdownField.MenuStyle = PODropdownField.defaultMenu,
     labelsStyle: POFieldLabels.Style = POFieldLabels.default,
+    menuStyle: PODropdownField.MenuStyle = PODropdownField.defaultMenu,
+    menuMatchesTextFieldWidth: Boolean = true,
     enabled: Boolean = true,
     isError: Boolean = false,
-    menuMatchesTextFieldWidth: Boolean = true,
     placeholderText: String? = null
 ) {
     LabeledFieldLayout(
@@ -40,9 +40,9 @@ fun POLabeledDropdownField(
             modifier = modifier,
             fieldStyle = fieldStyle,
             menuStyle = menuStyle,
+            menuMatchesTextFieldWidth = menuMatchesTextFieldWidth,
             enabled = enabled,
             isError = isError,
-            menuMatchesTextFieldWidth = menuMatchesTextFieldWidth,
             placeholderText = placeholderText
         )
     }

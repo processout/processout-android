@@ -43,11 +43,12 @@ fun PODropdownField(
     onValueChange: (TextFieldValue) -> Unit,
     availableValues: POImmutableList<POAvailableValue>,
     modifier: Modifier = Modifier,
+    fieldContentPadding: PaddingValues = POField.contentPadding,
     fieldStyle: POField.Style = POField.default,
     menuStyle: PODropdownField.MenuStyle = PODropdownField.defaultMenu,
+    menuMatchesTextFieldWidth: Boolean = true,
     enabled: Boolean = true,
     isError: Boolean = false,
-    menuMatchesTextFieldWidth: Boolean = true,
     placeholderText: String? = null
 ) {
     MaterialTheme(
@@ -74,6 +75,7 @@ fun PODropdownField(
                     .onFocusChanged {
                         isFocused = it.isFocused
                     },
+                contentPadding = fieldContentPadding,
                 style = fieldStyle,
                 enabled = enabled,
                 readOnly = true,

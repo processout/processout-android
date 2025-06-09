@@ -1,9 +1,6 @@
 package com.processout.sdk.ui.core.component.field.phone
 
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -11,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.dp
 import com.google.i18n.phonenumbers.NumberParseException
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
@@ -40,10 +38,16 @@ fun POPhoneNumberField(
             },
             availableValues = state.regionCodes,
             modifier = Modifier.width(IntrinsicSize.Min),
+            fieldContentPadding = PaddingValues(
+                start = spacing.large,
+                end = 0.dp,
+                top = spacing.medium,
+                bottom = spacing.medium
+            ),
             fieldStyle = fieldStyle,
             menuStyle = dropdownMenuStyle,
-            isError = state.isError,
             menuMatchesTextFieldWidth = false,
+            isError = state.isError,
             placeholderText = state.regionCodePlaceholder
         )
         val phoneNumberUtil = remember { PhoneNumberUtil.getInstance() }
