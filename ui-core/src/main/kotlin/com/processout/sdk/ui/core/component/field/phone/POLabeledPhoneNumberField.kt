@@ -16,8 +16,7 @@ import com.processout.sdk.ui.core.state.POPhoneNumberFieldState
 @Composable
 fun POLabeledPhoneNumberField(
     state: POPhoneNumberFieldState,
-    onRegionCodeChange: (TextFieldValue) -> Unit,
-    onNumberChange: (TextFieldValue) -> Unit,
+    onValueChange: (TextFieldValue, TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
     textFieldModifier: Modifier = Modifier,
     fieldStyle: POField.Style = POField.default,
@@ -32,8 +31,7 @@ fun POLabeledPhoneNumberField(
     ) {
         POPhoneNumberField(
             state = state,
-            onRegionCodeChange = onRegionCodeChange,
-            onNumberChange = onNumberChange,
+            onValueChange = onValueChange,
             modifier = modifier,
             textFieldModifier = textFieldModifier,
             fieldStyle = fieldStyle,

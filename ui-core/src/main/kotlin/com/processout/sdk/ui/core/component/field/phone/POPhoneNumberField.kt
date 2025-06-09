@@ -6,9 +6,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
+import com.google.i18n.phonenumbers.NumberParseException
+import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
@@ -21,8 +25,7 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 @Composable
 fun POPhoneNumberField(
     state: POPhoneNumberFieldState,
-    onRegionCodeChange: (TextFieldValue) -> Unit,
-    onNumberChange: (TextFieldValue) -> Unit,
+    onValueChange: (TextFieldValue, TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
     textFieldModifier: Modifier = Modifier,
     fieldStyle: POField.Style = POField.default,
@@ -32,7 +35,9 @@ fun POPhoneNumberField(
     Row(modifier = modifier) {
         PODropdownField(
             value = state.regionCode,
-            onValueChange = onRegionCodeChange,
+            onValueChange = { regionCode ->
+                onValueChange(regionCode, state.number)
+            },
             availableValues = state.regionCodes,
             modifier = Modifier.width(IntrinsicSize.Min),
             fieldStyle = fieldStyle,
@@ -40,11 +45,32 @@ fun POPhoneNumberField(
             isError = state.isError,
             placeholderText = state.regionCodePlaceholder
         )
+        val phoneNumberUtil = remember { PhoneNumberUtil.getInstance() }
         POTextField(
             value = state.number,
-            onValueChange = {
-                val value = state.inputFilter?.filter(it) ?: it
-                onNumberChange(value)
+            onValueChange = { number ->
+                if (number.text.startsWith("+")) {
+                    try {
+                        val parsedNumber = phoneNumberUtil.parse(number.text, null)
+                        val parsedRegionCode = phoneNumberUtil.getRegionCodeForCountryCode(parsedNumber.countryCode)
+                        var regionCode = state.regionCode
+                        if (state.regionCodes.elements.any { it.value == parsedRegionCode }) {
+                            regionCode = TextFieldValue(text = parsedRegionCode)
+                        }
+                        val parsedNationalNumber = parsedNumber.nationalNumber.toString()
+                        val nationalNumber = TextFieldValue(
+                            text = parsedNationalNumber,
+                            selection = TextRange(parsedNationalNumber.length)
+                        )
+                        val filteredNationalNumber = state.inputFilter?.filter(nationalNumber) ?: nationalNumber
+                        onValueChange(regionCode, filteredNationalNumber)
+                    } catch (e: NumberParseException) {
+                        // ignore
+                    }
+                } else {
+                    val filteredNumber = state.inputFilter?.filter(number) ?: number
+                    onValueChange(state.regionCode, filteredNumber)
+                }
             },
             modifier = textFieldModifier
                 .padding(start = spacing.extraSmall)
