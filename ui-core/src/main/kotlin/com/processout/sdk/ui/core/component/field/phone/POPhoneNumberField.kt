@@ -43,6 +43,7 @@ fun POPhoneNumberField(
             fieldStyle = fieldStyle,
             menuStyle = dropdownMenuStyle,
             isError = state.isError,
+            menuMatchesTextFieldWidth = false,
             placeholderText = state.regionCodePlaceholder
         )
         val phoneNumberUtil = remember { PhoneNumberUtil.getInstance() }

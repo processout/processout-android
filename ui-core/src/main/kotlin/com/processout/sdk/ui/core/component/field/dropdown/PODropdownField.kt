@@ -47,6 +47,7 @@ fun PODropdownField(
     menuStyle: PODropdownField.MenuStyle = PODropdownField.defaultMenu,
     enabled: Boolean = true,
     isError: Boolean = false,
+    menuMatchesTextFieldWidth: Boolean = true,
     placeholderText: String? = null
 ) {
     MaterialTheme(
@@ -95,7 +96,7 @@ fun PODropdownField(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
                 modifier = Modifier
-                    .exposedDropdownSize()
+                    .exposedDropdownSize(matchTextFieldWidth = menuMatchesTextFieldWidth)
                     .heightIn(max = maxMenuHeight)
                     .border(
                         width = menuStyle.border.width,

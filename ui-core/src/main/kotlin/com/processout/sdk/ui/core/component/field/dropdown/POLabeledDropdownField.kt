@@ -25,6 +25,7 @@ fun POLabeledDropdownField(
     labelsStyle: POFieldLabels.Style = POFieldLabels.default,
     enabled: Boolean = true,
     isError: Boolean = false,
+    menuMatchesTextFieldWidth: Boolean = true,
     placeholderText: String? = null
 ) {
     LabeledFieldLayout(
@@ -41,6 +42,7 @@ fun POLabeledDropdownField(
             menuStyle = menuStyle,
             enabled = enabled,
             isError = isError,
+            menuMatchesTextFieldWidth = menuMatchesTextFieldWidth,
             placeholderText = placeholderText
         )
     }
