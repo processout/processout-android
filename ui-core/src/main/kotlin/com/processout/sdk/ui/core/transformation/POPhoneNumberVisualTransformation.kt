@@ -20,15 +20,15 @@ class POPhoneNumberVisualTransformation(
         INTERNATIONAL
     }
 
-    private val util = PhoneNumberUtil.getInstance()
-    private val formatter = util.getAsYouTypeFormatter(regionCode)
+    private val phoneNumberUtil = PhoneNumberUtil.getInstance()
+    private val formatter = phoneNumberUtil.getAsYouTypeFormatter(regionCode)
 
     override fun transform(text: String): String {
         formatter.clear()
         var dialingCode: String? = null
         val phoneNumber = when (expectedFormat) {
             NATIONAL -> if (regionCode.isNotBlank()) {
-                dialingCode = "+${util.getCountryCodeForRegion(regionCode)}"
+                dialingCode = "+${phoneNumberUtil.getCountryCodeForRegion(regionCode)}"
                 "$dialingCode$text"
             } else text
             INTERNATIONAL -> text
