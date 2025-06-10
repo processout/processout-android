@@ -138,7 +138,7 @@ sealed class PONativeAlternativePaymentNextStep {
                 override val label: String,
                 override val required: Boolean,
                 @Json(name = "dialing_codes")
-                val dialingCodes: List<DialingCode>?
+                val dialingCodes: List<DialingCode>
             ) : Parameter() {
 
                 /**
