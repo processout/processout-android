@@ -424,7 +424,7 @@ private fun CheckboxField(
                 )
             )
         },
-        title = state.title,
+        title = null,
         description = state.description,
         modifier = modifier,
         checkboxStyle = checkboxStyle,
