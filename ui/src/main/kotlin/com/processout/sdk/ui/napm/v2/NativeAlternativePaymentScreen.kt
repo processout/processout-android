@@ -28,6 +28,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -37,6 +38,7 @@ import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.POFieldLabels
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
+import com.processout.sdk.ui.core.component.field.checkbox.POLabeledCheckboxField
 import com.processout.sdk.ui.core.component.field.code.POCodeField
 import com.processout.sdk.ui.core.component.field.code.POLabeledCodeField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
@@ -409,7 +411,26 @@ private fun CheckboxField(
     labelsStyle: POFieldLabels.Style,
     modifier: Modifier = Modifier
 ) {
-    // TODO(v2)
+    POLabeledCheckboxField(
+        text = state.title ?: String(),
+        checked = state.value.text.toBooleanStrictOrNull() ?: false,
+        onCheckedChange = {
+            onEvent(
+                FieldValueChanged(
+                    id = state.id,
+                    value = FieldValue.Text(
+                        value = TextFieldValue(text = it.toString())
+                    )
+                )
+            )
+        },
+        title = state.title,
+        description = state.description,
+        modifier = modifier,
+        checkboxStyle = checkboxStyle,
+        labelsStyle = labelsStyle,
+        isError = state.isError
+    )
 }
 
 @Composable
