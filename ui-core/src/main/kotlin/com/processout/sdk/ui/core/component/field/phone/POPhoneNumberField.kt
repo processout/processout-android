@@ -55,9 +55,12 @@ fun POPhoneNumberField(
         POTextField(
             value = state.number,
             onValueChange = { number ->
-                if (number.text.startsWith("+")) {
+                if (number.text.startsWith('+')) {
                     try {
-                        val parsedNumber = phoneNumberUtil.parse(number.text, null)
+                        val filteredNumber = number.text.filterIndexed { index, char ->
+                            (index == 0 && char == '+') || char.isDigit()
+                        }
+                        val parsedNumber = phoneNumberUtil.parse(filteredNumber, null)
                         val parsedRegionCode = phoneNumberUtil.getRegionCodeForCountryCode(parsedNumber.countryCode)
                         var regionCode = state.regionCode
                         if (state.regionCodes.elements.any { it.value == parsedRegionCode }) {
@@ -68,8 +71,7 @@ fun POPhoneNumberField(
                             text = parsedNationalNumber,
                             selection = TextRange(parsedNationalNumber.length)
                         )
-                        val filteredNationalNumber = state.inputFilter?.filter(nationalNumber) ?: nationalNumber
-                        onValueChange(regionCode, filteredNationalNumber)
+                        onValueChange(regionCode, nationalNumber)
                     } catch (e: NumberParseException) {
                         // ignore
                     }
