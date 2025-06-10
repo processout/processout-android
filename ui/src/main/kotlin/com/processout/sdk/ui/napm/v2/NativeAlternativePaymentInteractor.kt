@@ -706,7 +706,8 @@ internal class NativeAlternativePaymentInteractor(
     ): String? =
         if (replaceWithLocalMessage)
             when (parameter) {
-                is Parameter.Text -> app.getString(R.string.po_native_apm_error_invalid_text)
+                is Parameter.Text,
+                is Parameter.Bool -> app.getString(R.string.po_native_apm_error_invalid_text)
                 is Parameter.Digits -> app.getString(R.string.po_native_apm_error_invalid_number)
                 is Parameter.PhoneNumber -> app.getString(R.string.po_native_apm_error_invalid_phone)
                 is Parameter.Email -> app.getString(R.string.po_native_apm_error_invalid_email)
