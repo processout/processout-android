@@ -214,7 +214,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                         field.toDropdownField()
                     }
                 }
-                is Bool -> null // TODO(v2): add checkbox field
+                is Bool -> field.toCheckboxField()
                 is Digits -> if (field.maxLength in codeFieldLengthRange) {
                     field.toCodeField(keyboardAction)
                 } else {
@@ -296,6 +296,17 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 id = id,
                 value = value.textFieldValue(),
                 availableValues = parameter.availableValues(),
+                title = label,
+                description = description,
+                isError = !isValid
+            )
+        )
+
+    private fun Field.toCheckboxField(): NativeAlternativePaymentViewModelState.Field =
+        CheckboxField(
+            FieldState(
+                id = id,
+                value = value.textFieldValue(),
                 title = label,
                 description = description,
                 isError = !isValid
