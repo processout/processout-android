@@ -197,6 +197,7 @@ private fun UserInput(
                         state = field.state,
                         onEvent = onEvent,
                         fieldStyle = style.field,
+                        labelsStyle = labelsStyle,
                         menuStyle = style.dropdownMenu,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -344,6 +345,7 @@ private fun DropdownField(
     state: FieldState,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
     fieldStyle: POField.Style,
+    labelsStyle: POFieldLabels.Style,
     menuStyle: PODropdownField.MenuStyle,
     modifier: Modifier = Modifier
 ) {
@@ -370,6 +372,7 @@ private fun DropdownField(
                 )
             },
         fieldStyle = fieldStyle,
+        labelsStyle = labelsStyle,
         menuStyle = menuStyle,
         isError = state.isError,
         placeholderText = state.placeholder

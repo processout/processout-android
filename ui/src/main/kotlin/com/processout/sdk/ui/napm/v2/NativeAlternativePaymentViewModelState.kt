@@ -3,6 +3,7 @@ package com.processout.sdk.ui.napm.v2
 import androidx.compose.runtime.Immutable
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
+import com.processout.sdk.ui.core.state.POPhoneNumberFieldState
 import com.processout.sdk.ui.shared.state.ConfirmationDialogState
 import com.processout.sdk.ui.shared.state.FieldState
 
@@ -47,6 +48,7 @@ internal sealed interface NativeAlternativePaymentViewModelState {
         data class CodeField(val state: FieldState) : Field
         data class RadioField(val state: FieldState) : Field
         data class DropdownField(val state: FieldState) : Field
+        data class PhoneNumberField(val state: POPhoneNumberFieldState) : Field
     }
 
     @Immutable

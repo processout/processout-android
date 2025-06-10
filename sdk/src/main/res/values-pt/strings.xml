@@ -29,8 +29,9 @@
     <string name="po_native_apm_save_barcode_error_title">Falha na gravação da imagem</string>
     <string name="po_native_apm_save_barcode_error_message">Não conseguimos gravar a imagem. Por favor, verifique as suas permissões ou tire uma captura do ecrā como alternativa.</string>
     <string name="po_native_apm_save_barcode_error_confirm">Compreendi</string>
-    <string name="po_native_apm_email_placeholder">nome@exemplo.pt</string>
+    <string name="po_native_apm_country_placeholder">País</string>
     <string name="po_native_apm_phone_placeholder">Insira o seu número de telemóvel</string>
+    <string name="po_native_apm_email_placeholder">nome@exemplo.pt</string>
     <string name="po_native_apm_success_message">Successo!\nPagamento aprovado.</string>
     <string name="po_native_apm_error_required_parameter">Campo obrigatório.</string>
     <string name="po_native_apm_error_invalid_number">Número inválido.</string>

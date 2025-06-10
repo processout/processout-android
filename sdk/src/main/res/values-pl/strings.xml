@@ -29,8 +29,9 @@
     <string name="po_native_apm_save_barcode_error_title">Nie udało się zapisać obrazu</string>
     <string name="po_native_apm_save_barcode_error_message">Sprawdź uprawnienia systemu lub zrób zrzut ekranu.</string>
     <string name="po_native_apm_save_barcode_error_confirm">Rozumiem</string>
-    <string name="po_native_apm_email_placeholder">imię@przykład.pl</string>
+    <string name="po_native_apm_country_placeholder">Kraj</string>
     <string name="po_native_apm_phone_placeholder">Twój numer telefonu</string>
+    <string name="po_native_apm_email_placeholder">imię@przykład.pl</string>
     <string name="po_native_apm_success_message">Sukces!\nPłatność przyjęta.</string>
     <string name="po_native_apm_error_required_parameter">Parametr jest wmagany.</string>
     <string name="po_native_apm_error_invalid_number">Niepoprawny numer.</string>

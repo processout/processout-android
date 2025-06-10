@@ -1,11 +1,14 @@
-package com.processout.sdk.ui.shared.transformation
+package com.processout.sdk.ui.core.transformation
 
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
+import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 
-internal abstract class BaseVisualTransformation : VisualTransformation {
+/** @suppress */
+@ProcessOutInternalApi
+abstract class POBaseVisualTransformation : VisualTransformation {
 
     abstract fun transform(text: String): String
 

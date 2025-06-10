@@ -1,11 +1,11 @@
 package com.processout.sdk.ui.napm.v2
 
 import android.graphics.Bitmap
-import androidx.compose.ui.text.input.TextFieldValue
 import com.processout.sdk.api.model.response.POBarcode.BarcodeType
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter.*
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentInteractorState.*
+import com.processout.sdk.ui.shared.state.FieldValue
 import kotlinx.coroutines.flow.MutableStateFlow
 
 internal sealed interface NativeAlternativePaymentInteractorState {
@@ -74,7 +74,7 @@ internal sealed interface NativeAlternativePaymentInteractorState {
 
     data class Field(
         val parameter: Parameter,
-        val value: TextFieldValue,
+        val value: FieldValue,
         val isValid: Boolean,
         val description: String?
     ) {

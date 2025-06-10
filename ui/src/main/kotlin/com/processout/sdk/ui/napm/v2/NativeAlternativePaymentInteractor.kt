@@ -15,12 +15,13 @@ import coil.imageLoader
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.request.ImageResult
+import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
-import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationDetailsRequest
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
-import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter.Value
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter.Companion.phoneNumber
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter.Companion.string
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentTokenizationDetailsRequest
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodCapture
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameterValues
@@ -48,9 +49,6 @@ import com.processout.sdk.core.retry.PORetryStrategy
 import com.processout.sdk.ui.base.BaseInteractor
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.*
-import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent
-import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.*
-import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.Action
 import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect
 import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.PermissionRequest
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
@@ -61,10 +59,15 @@ import com.processout.sdk.ui.napm.delegate.v2.NativeAlternativePaymentDefaultVal
 import com.processout.sdk.ui.napm.delegate.v2.NativeAlternativePaymentDefaultValuesResponse
 import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent
 import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent.*
+import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentParameterValue
+import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentParameterValue.Value
+import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentEvent.*
+import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentEvent.Action
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.shared.extension.dpToPx
 import com.processout.sdk.ui.shared.provider.BarcodeBitmapProvider
 import com.processout.sdk.ui.shared.provider.MediaStorageProvider
+import com.processout.sdk.ui.shared.state.FieldValue
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -108,6 +111,7 @@ internal class NativeAlternativePaymentInteractor(
     val sideEffects = _sideEffects.receiveAsFlow()
 
     private val handler = Handler(Looper.getMainLooper())
+    private val phoneNumberUtil = PhoneNumberUtil.getInstance()
 
     private var latestDefaultValuesRequest: NativeAlternativePaymentDefaultValuesRequest? = null
 
@@ -318,15 +322,15 @@ internal class NativeAlternativePaymentInteractor(
     private fun List<Parameter>.toFields() =
         map { parameter ->
             val defaultValue = when (parameter) {
-                is Parameter.SingleSelect -> parameter.preselectedValue?.value ?: String()
-                else -> String()
+                is Parameter.SingleSelect -> FieldValue.Text(
+                    TextFieldValue(text = parameter.preselectedValue?.value ?: String())
+                )
+                is Parameter.PhoneNumber -> FieldValue.PhoneNumber()
+                else -> FieldValue.Text()
             }
             Field(
                 parameter = parameter,
-                value = TextFieldValue(
-                    text = defaultValue,
-                    selection = TextRange(defaultValue.length)
-                ),
+                value = defaultValue,
                 isValid = true,
                 description = null
             )
@@ -396,23 +400,39 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private fun UserInputStateValue.updateFieldValues(
-        values: Map<String, PONativeAlternativePaymentAuthorizationRequest.Parameter>
+        values: Map<String, PONativeAlternativePaymentParameterValue>
     ): UserInputStateValue {
         val updatedFields = fields.map { field ->
-            values.entries.find { it.key == field.id }?.let {
-                when (val value = it.value.value) {
+            values.entries.find { it.key == field.id }?.let { entry ->
+                when (val value = entry.value.value) {
                     is Value.String -> {
                         val string = value.value
                         val maxLength = field.maxLength
                         val text = if (maxLength != null) string.take(maxLength) else string
                         field.copy(
-                            value = TextFieldValue(
-                                text = text,
-                                selection = TextRange(text.length)
+                            value = FieldValue.Text(
+                                TextFieldValue(
+                                    text = text,
+                                    selection = TextRange(text.length)
+                                )
                             )
                         )
                     }
-                    is Value.PhoneNumber -> field // TODO(v2): update phone number
+                    is Value.PhoneNumber -> when (field.parameter) {
+                        is Parameter.PhoneNumber -> field.copy(
+                            value = FieldValue.PhoneNumber(
+                                regionCode = TextFieldValue(
+                                    text = field.parameter.dialingCodes?.find { it.id == value.regionCode }
+                                        ?.let { value.regionCode } ?: String()
+                                ),
+                                number = TextFieldValue(
+                                    text = value.number,
+                                    selection = TextRange(value.number.length)
+                                )
+                            )
+                        )
+                        else -> field
+                    }
                 }
             } ?: field
         }
@@ -450,10 +470,10 @@ internal class NativeAlternativePaymentInteractor(
 
     //region Update Field
 
-    private fun updateFieldValue(id: String, value: TextFieldValue) {
+    private fun updateFieldValue(id: String, value: FieldValue) {
         _state.whenUserInput { stateValue ->
-            val previousValue = stateValue.fields.find { it.id == id }?.value ?: TextFieldValue()
-            val isTextChanged = value.text != previousValue.text
+            val previousValue = stateValue.fields.find { it.id == id }?.value ?: FieldValue.Text()
+            val isTextChanged = !value.isTextEquals(previousValue)
             val updatedStateValue = stateValue.copy(
                 fields = stateValue.fields.map { field ->
                     updatedField(id, value, field, isTextChanged)
@@ -474,7 +494,7 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun updatedField(
         id: String,
-        value: TextFieldValue,
+        value: FieldValue,
         field: Field,
         isTextChanged: Boolean
     ): Field {
@@ -531,42 +551,57 @@ internal class NativeAlternativePaymentInteractor(
         }
     }
 
-    private fun List<Field>.values(): Map<String, String> {
-        val values = mutableMapOf<String, String>()
-        forEach {
-            values[it.id] = it.value.text
-        }
-        return values
-    }
-
     private fun Field.validate(): InvalidField? {
-        val value = value.text
-        if (required && value.isBlank()) {
-            return invalidField(R.string.po_native_apm_error_required_parameter)
-        }
-        // TODO(v2): add validation by 'minLength' or range
-        val maxLength = maxLength
-        if (maxLength != null && value.length != maxLength) {
-            return InvalidField(
-                name = id,
-                message = app.resources.getQuantityString(
-                    R.plurals.po_native_apm_error_invalid_length, maxLength, maxLength
-                )
-            )
-        }
         when (parameter) {
-            is Parameter.Digits -> if (!value.isDigitsOnly())
-                return invalidField(R.string.po_native_apm_error_invalid_number)
-            is Parameter.Otp -> when (parameter.subtype) {
-                Subtype.DIGITS -> if (!value.isDigitsOnly())
-                    return invalidField(R.string.po_native_apm_error_invalid_number)
-                else -> {}
+            is Parameter.PhoneNumber -> if (value is FieldValue.PhoneNumber) {
+                val dialingCode = value.regionCode.text.let { regionCode ->
+                    if (regionCode.isNotBlank())
+                        "+${phoneNumberUtil.getCountryCodeForRegion(regionCode)}"
+                    else String()
+                }
+                val number = value.number.text
+                if (required && (dialingCode.isBlank() || number.isBlank())) {
+                    return invalidField(R.string.po_native_apm_error_required_parameter)
+                }
+                val phoneNumber = "$dialingCode$number"
+                if (!Patterns.PHONE.matcher(phoneNumber).matches()) {
+                    return invalidField(R.string.po_native_apm_error_invalid_phone)
+                }
             }
-            is Parameter.PhoneNumber -> if (!Patterns.PHONE.matcher(value).matches())
-                return invalidField(R.string.po_native_apm_error_invalid_phone)
-            is Parameter.Email -> if (!Patterns.EMAIL_ADDRESS.matcher(value).matches())
-                return invalidField(R.string.po_native_apm_error_invalid_email)
-            else -> {}
+            else -> if (value is FieldValue.Text) {
+                val value = value.value.text
+                if (required && value.isBlank()) {
+                    return invalidField(R.string.po_native_apm_error_required_parameter)
+                }
+                val length = if (
+                    minLength != null && maxLength != null &&
+                    minLength == maxLength
+                ) maxLength else null
+                if (length != null && value.length != length) {
+                    return InvalidField(
+                        name = id,
+                        message = app.resources.getQuantityString(
+                            R.plurals.po_native_apm_error_invalid_length, length, length
+                        )
+                    )
+                }
+                // TODO(v2): add validation by 'minLength', 'maxLength' and/or range
+                when (parameter) {
+                    is Parameter.Digits -> if (!value.isDigitsOnly()) {
+                        return invalidField(R.string.po_native_apm_error_invalid_number)
+                    }
+                    is Parameter.Otp -> when (parameter.subtype) {
+                        Subtype.DIGITS -> if (!value.isDigitsOnly()) {
+                            return invalidField(R.string.po_native_apm_error_invalid_number)
+                        }
+                        else -> {}
+                    }
+                    is Parameter.Email -> if (!Patterns.EMAIL_ADDRESS.matcher(value).matches()) {
+                        return invalidField(R.string.po_native_apm_error_invalid_email)
+                    }
+                    else -> {}
+                }
+            }
         }
         return null
     }
@@ -583,30 +618,44 @@ internal class NativeAlternativePaymentInteractor(
     private fun initiatePayment() {
         _state.whenUserInput { stateValue ->
             interactorScope.launch {
-                val request = PONativeAlternativePaymentMethodRequest(
+                val request = PONativeAlternativePaymentAuthorizationRequest(
                     invoiceId = configuration.invoiceId,
                     gatewayConfigurationId = configuration.gatewayConfigurationId,
                     parameters = stateValue.fields.values()
                 )
-                invoicesService.initiatePayment(request)
-                    .onSuccess { response ->
-                        TODO(reason = "v2")
+                TODO(reason = "v2")
+//                invoicesService.initiatePayment(request)
+//                    .onSuccess { response ->
 //                        handlePaymentState(
 //                            stateValue = stateValue,
 //                            paymentState = response.state,
 //                            nextStep = response.nextStep,
 //                            customerInstructions = response.customerInstructions
 //                        )
-                    }
-                    .onFailure { failure ->
-                        handlePaymentFailure(
-                            failure = failure,
-                            replaceWithLocalMessage = true
-                        )
-                    }
+//                    }.onFailure { failure ->
+//                        handlePaymentFailure(
+//                            failure = failure,
+//                            replaceWithLocalMessage = true
+//                        )
+//                    }
             }
         }
     }
+
+    private fun List<Field>.values() =
+        associate {
+            it.id to when (it.value) {
+                is FieldValue.Text -> string(value = it.value.value.text)
+                is FieldValue.PhoneNumber -> phoneNumber(
+                    dialingCode = it.value.regionCode.text.let { regionCode ->
+                        if (regionCode.isNotBlank())
+                            "+${phoneNumberUtil.getCountryCodeForRegion(regionCode)}"
+                        else String()
+                    },
+                    number = it.value.number.text
+                )
+            }
+        }
 
     //endregion
 

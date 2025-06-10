@@ -43,8 +43,11 @@ fun PODropdownField(
     onValueChange: (TextFieldValue) -> Unit,
     availableValues: POImmutableList<POAvailableValue>,
     modifier: Modifier = Modifier,
+    fieldContentPadding: PaddingValues = POField.contentPadding,
     fieldStyle: POField.Style = POField.default,
     menuStyle: PODropdownField.MenuStyle = PODropdownField.defaultMenu,
+    menuMatchesTextFieldWidth: Boolean = true,
+    preferFormattedTextSelection: Boolean = false,
     enabled: Boolean = true,
     isError: Boolean = false,
     placeholderText: String? = null
@@ -66,13 +69,19 @@ fun PODropdownField(
             val fieldStateStyle = fieldStyle.stateStyle(isError = isError, isFocused = isFocused)
             POTextField(
                 value = availableValues.elements.find { it.value == value.text }
-                    ?.let { TextFieldValue(it.text) } ?: TextFieldValue(),
+                    ?.let {
+                        TextFieldValue(
+                            text = if (preferFormattedTextSelection && it.formattedText != null)
+                                it.formattedText else it.text
+                        )
+                    } ?: TextFieldValue(),
                 onValueChange = {},
                 modifier = modifier
                     .menuAnchor(MenuAnchorType.PrimaryNotEditable)
                     .onFocusChanged {
                         isFocused = it.isFocused
                     },
+                contentPadding = fieldContentPadding,
                 style = fieldStyle,
                 enabled = enabled,
                 readOnly = true,
@@ -95,7 +104,7 @@ fun PODropdownField(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
                 modifier = Modifier
-                    .exposedDropdownSize()
+                    .exposedDropdownSize(matchTextFieldWidth = menuMatchesTextFieldWidth)
                     .heightIn(max = maxMenuHeight)
                     .border(
                         width = menuStyle.border.width,

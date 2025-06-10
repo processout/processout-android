@@ -20,11 +20,11 @@ import com.processout.sdk.ui.core.shared.image.POImageRenderingMode
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.core.state.POImmutableList
+import com.processout.sdk.ui.core.state.POInputFilter
 import com.processout.sdk.ui.shared.extension.map
 import com.processout.sdk.ui.shared.filter.CardExpirationInputFilter
 import com.processout.sdk.ui.shared.filter.CardNumberInputFilter
 import com.processout.sdk.ui.shared.filter.CardSecurityCodeInputFilter
-import com.processout.sdk.ui.shared.filter.InputFilter
 import com.processout.sdk.ui.shared.provider.CardSchemeProvider
 import com.processout.sdk.ui.shared.provider.address.AddressSpecificationProvider
 import com.processout.sdk.ui.shared.provider.address.stringResId
@@ -383,7 +383,7 @@ internal class CardTokenizationViewModel private constructor(
         placeholder: String? = null,
         @DrawableRes iconResId: Int? = null,
         forceTextDirectionLtr: Boolean = false,
-        inputFilter: InputFilter? = null,
+        inputFilter: POInputFilter? = null,
         visualTransformation: VisualTransformation = VisualTransformation.None,
         keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
         keyboardActionId: String? = null
@@ -411,7 +411,7 @@ internal class CardTokenizationViewModel private constructor(
         placeholder: String? = null,
         @DrawableRes iconResId: Int? = null,
         forceTextDirectionLtr: Boolean = false,
-        inputFilter: InputFilter? = null,
+        inputFilter: POInputFilter? = null,
         visualTransformation: VisualTransformation = VisualTransformation.None,
         keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
         keyboardActionId: String? = null

@@ -5,7 +5,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -16,25 +16,27 @@ import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentN
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter.*
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter.Otp.Subtype
 import com.processout.sdk.core.retry.PORetryStrategy.Exponential
-import com.processout.sdk.ui.core.state.POActionState
+import com.processout.sdk.ui.core.state.*
 import com.processout.sdk.ui.core.state.POActionState.Confirmation
-import com.processout.sdk.ui.core.state.POAvailableValue
-import com.processout.sdk.ui.core.state.POImmutableList
-import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent
+import com.processout.sdk.ui.core.transformation.POPhoneNumberVisualTransformation
+import com.processout.sdk.ui.core.transformation.POPhoneNumberVisualTransformation.PhoneNumberFormat
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.Field.*
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.Image
+import com.processout.sdk.ui.shared.extension.currentAppLocale
 import com.processout.sdk.ui.shared.extension.map
-import com.processout.sdk.ui.shared.filter.PhoneNumberInputFilter
+import com.processout.sdk.ui.shared.filter.DigitsInputFilter
+import com.processout.sdk.ui.shared.filter.TextLengthInputFilter
 import com.processout.sdk.ui.shared.provider.BarcodeBitmapProvider
 import com.processout.sdk.ui.shared.provider.MediaStorageProvider
 import com.processout.sdk.ui.shared.state.ConfirmationDialogState
 import com.processout.sdk.ui.shared.state.FieldState
-import com.processout.sdk.ui.shared.transformation.PhoneNumberVisualTransformation
+import com.processout.sdk.ui.shared.state.FieldValue
 import java.text.NumberFormat
 import java.util.Currency
+import java.util.Locale
 
 internal class NativeAlternativePaymentViewModel private constructor(
     private val app: Application,
@@ -203,6 +205,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
         val fields = mapNotNull { field ->
             val keyboardAction = keyboardAction(field.id, lastFocusableFieldId)
             when (field.parameter) {
+                is PhoneNumber -> field.toPhoneNumberField(keyboardAction)
                 is SingleSelect -> {
                     val availableValuesSize = field.parameter.availableValues.size
                     if (availableValuesSize <= configuration.inlineSingleSelectValuesLimit) {
@@ -238,7 +241,6 @@ internal class NativeAlternativePaymentViewModel private constructor(
     ): NativeAlternativePaymentViewModelState.Field {
         val ltrParameterTypes = setOf(
             Digits::class.java,
-            PhoneNumber::class.java,
             Email::class.java,
             Card::class.java,
             Otp::class.java
@@ -246,15 +248,13 @@ internal class NativeAlternativePaymentViewModel private constructor(
         return TextField(
             FieldState(
                 id = id,
-                value = value,
+                value = value.textFieldValue(),
                 title = label,
                 description = description,
                 placeholder = parameter.placeholder(),
                 isError = !isValid,
                 forceTextDirectionLtr = ltrParameterTypes.contains(parameter::class.java),
-                inputFilter = if (parameter is PhoneNumber) PhoneNumberInputFilter() else null,
-                visualTransformation = if (parameter is PhoneNumber)
-                    PhoneNumberVisualTransformation() else VisualTransformation.None,
+                inputFilter = parameter.inputFilter(),
                 keyboardOptions = parameter.keyboardOptions(keyboardAction.imeAction),
                 keyboardActionId = keyboardAction.actionId
             )
@@ -267,11 +267,12 @@ internal class NativeAlternativePaymentViewModel private constructor(
         CodeField(
             FieldState(
                 id = id,
-                value = value,
+                value = value.textFieldValue(),
                 length = maxLength,
                 title = label,
                 description = description,
                 isError = !isValid,
+                inputFilter = parameter.inputFilter(),
                 keyboardOptions = parameter.keyboardOptions(keyboardAction.imeAction),
                 keyboardActionId = keyboardAction.actionId
             )
@@ -281,7 +282,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
         RadioField(
             FieldState(
                 id = id,
-                value = value,
+                value = value.textFieldValue(),
                 availableValues = parameter.availableValues(),
                 title = label,
                 description = description,
@@ -293,13 +294,52 @@ internal class NativeAlternativePaymentViewModel private constructor(
         DropdownField(
             FieldState(
                 id = id,
-                value = value,
+                value = value.textFieldValue(),
                 availableValues = parameter.availableValues(),
                 title = label,
                 description = description,
                 isError = !isValid
             )
         )
+
+    private fun Field.toPhoneNumberField(
+        keyboardAction: KeyboardAction
+    ): NativeAlternativePaymentViewModelState.Field {
+        val regionCode = when (value) {
+            is FieldValue.PhoneNumber -> value.regionCode
+            else -> TextFieldValue()
+        }
+        return PhoneNumberField(
+            POPhoneNumberFieldState(
+                id = id,
+                regionCode = regionCode,
+                regionCodes = parameter.phoneNumberRegionCodes(),
+                regionCodePlaceholder = app.getString(R.string.po_native_apm_country_placeholder),
+                number = when (value) {
+                    is FieldValue.PhoneNumber -> value.number
+                    else -> TextFieldValue()
+                },
+                numberPlaceholder = app.getString(R.string.po_native_apm_phone_placeholder),
+                title = label,
+                description = description,
+                isError = !isValid,
+                forceTextDirectionLtr = true,
+                inputFilter = parameter.inputFilter(),
+                visualTransformation = POPhoneNumberVisualTransformation(
+                    regionCode = regionCode.text,
+                    expectedFormat = PhoneNumberFormat.NATIONAL
+                ),
+                keyboardOptions = parameter.keyboardOptions(keyboardAction.imeAction),
+                keyboardActionId = keyboardAction.actionId
+            )
+        )
+    }
+
+    private fun FieldValue.textFieldValue() =
+        when (this) {
+            is FieldValue.Text -> value
+            else -> TextFieldValue()
+        }
 
     private fun Parameter.availableValues(): POImmutableList<POAvailableValue>? =
         when (this) {
@@ -311,6 +351,36 @@ internal class NativeAlternativePaymentViewModel private constructor(
                     )
                 }
             )
+            else -> null
+        }
+
+    private fun Parameter.phoneNumberRegionCodes(): POImmutableList<POAvailableValue> {
+        val currentAppLocale = app.currentAppLocale()
+        val availableValues = when (this) {
+            is PhoneNumber -> dialingCodes?.map {
+                val localizedCountry = Locale(String(), it.id).getDisplayCountry(currentAppLocale)
+                POAvailableValue(
+                    value = it.id,
+                    text = "$localizedCountry (${it.value})",
+                    formattedText = it.value
+                )
+            } ?: emptyList()
+            else -> emptyList()
+        }
+        return POImmutableList(availableValues)
+    }
+
+    private fun Parameter.inputFilter(): POInputFilter? =
+        when (this) {
+            is PhoneNumber -> DigitsInputFilter()
+            is Digits -> DigitsInputFilter(maxLength)
+            is Card -> DigitsInputFilter(maxLength)
+            is Text -> maxLength?.let { TextLengthInputFilter(maxLength = it) }
+            is Otp -> when (subtype) {
+                Subtype.TEXT -> maxLength?.let { TextLengthInputFilter(maxLength = it) }
+                Subtype.DIGITS -> DigitsInputFilter(maxLength)
+                Subtype.UNKNOWN -> null
+            }
             else -> null
         }
 
@@ -380,7 +450,6 @@ internal class NativeAlternativePaymentViewModel private constructor(
 
     private fun Parameter.placeholder(): String? =
         when (this) {
-            is PhoneNumber -> app.getString(R.string.po_native_apm_phone_placeholder)
             is Email -> app.getString(R.string.po_native_apm_email_placeholder)
             else -> null
         }
