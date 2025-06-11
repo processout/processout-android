@@ -325,6 +325,7 @@ internal class NativeAlternativePaymentInteractor(
                 is Parameter.SingleSelect -> FieldValue.Text(
                     TextFieldValue(text = parameter.preselectedValue?.value ?: String())
                 )
+                is Parameter.Bool -> FieldValue.Text(TextFieldValue(text = "false"))
                 is Parameter.PhoneNumber -> FieldValue.PhoneNumber()
                 else -> FieldValue.Text()
             }
