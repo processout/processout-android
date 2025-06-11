@@ -13,7 +13,7 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 
 @Composable
 internal fun LabeledFieldLayout(
-    title: String,
+    title: String?,
     description: String?,
     style: POFieldLabels.Style = POFieldLabels.default,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
@@ -22,13 +22,15 @@ internal fun LabeledFieldLayout(
     Column(
         horizontalAlignment = horizontalAlignment
     ) {
-        POText(
-            text = title,
-            modifier = Modifier.padding(bottom = spacing.small),
-            color = style.title.color,
-            style = style.title.textStyle,
-            textAlign = textAlign(horizontalAlignment)
-        )
+        if (title != null) {
+            POText(
+                text = title,
+                modifier = Modifier.padding(bottom = spacing.small),
+                color = style.title.color,
+                style = style.title.textStyle,
+                textAlign = textAlign(horizontalAlignment)
+            )
+        }
         content()
         POExpandableText(
             text = description,

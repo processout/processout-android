@@ -287,6 +287,7 @@ data class PONativeAlternativePaymentConfiguration(
      * @param[field] Field style.
      * @param[codeField] Code field style.
      * @param[radioButton] Radio button style.
+     * @param[checkbox] Checkbox style.
      * @param[dropdownMenu] Dropdown menu style.
      * @param[actionsContainer] Style of action buttons and their container.
      * @param[dialog] Dialog style.
@@ -307,6 +308,7 @@ data class PONativeAlternativePaymentConfiguration(
         val field: POFieldStyle? = null,
         val codeField: POFieldStyle? = null,
         val radioButton: PORadioButtonStyle? = null,
+        val checkbox: POCheckboxStyle? = null,
         val dropdownMenu: PODropdownMenuStyle? = null,
         val actionsContainer: POActionsContainerStyle? = null,
         val dialog: PODialogStyle? = null,

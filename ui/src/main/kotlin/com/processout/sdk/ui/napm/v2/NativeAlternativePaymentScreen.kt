@@ -28,6 +28,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -36,6 +37,8 @@ import com.processout.sdk.ui.R
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.POFieldLabels
+import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
+import com.processout.sdk.ui.core.component.field.checkbox.POLabeledCheckboxField
 import com.processout.sdk.ui.core.component.field.code.POCodeField
 import com.processout.sdk.ui.core.component.field.code.POLabeledCodeField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
@@ -162,12 +165,10 @@ private fun UserInput(
             verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.extraLarge)
         ) {
             val lifecycleEvent = rememberLifecycleEvent()
-            val labelsStyle = remember {
-                POFieldLabels.Style(
-                    title = style.label,
-                    description = style.errorMessage
-                )
-            }
+            val labelsStyle = POFieldLabels.Style(
+                title = style.label,
+                description = style.errorMessage
+            )
             val isPrimaryActionEnabled = with(state.primaryAction) { enabled && !loading }
             state.fields.elements.forEach { field ->
                 when (field) {
@@ -203,6 +204,13 @@ private fun UserInput(
                         fieldStyle = style.field,
                         labelsStyle = labelsStyle,
                         menuStyle = style.dropdownMenu,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    is CheckboxField -> CheckboxField(
+                        state = field.state,
+                        onEvent = onEvent,
+                        checkboxStyle = style.checkbox,
+                        labelsStyle = labelsStyle,
                         modifier = Modifier.fillMaxWidth()
                     )
                     is PhoneNumberField -> PhoneNumberField(
@@ -392,6 +400,36 @@ private fun DropdownField(
         menuStyle = menuStyle,
         isError = state.isError,
         placeholderText = state.placeholder
+    )
+}
+
+@Composable
+private fun CheckboxField(
+    state: FieldState,
+    onEvent: (NativeAlternativePaymentEvent) -> Unit,
+    checkboxStyle: POCheckbox.Style,
+    labelsStyle: POFieldLabels.Style,
+    modifier: Modifier = Modifier
+) {
+    POLabeledCheckboxField(
+        text = state.title ?: String(),
+        checked = state.value.text.toBooleanStrictOrNull() ?: false,
+        onCheckedChange = {
+            onEvent(
+                FieldValueChanged(
+                    id = state.id,
+                    value = FieldValue.Text(
+                        value = TextFieldValue(text = it.toString())
+                    )
+                )
+            )
+        },
+        title = null,
+        description = state.description,
+        modifier = modifier,
+        checkboxStyle = checkboxStyle,
+        labelsStyle = labelsStyle,
+        isError = state.isError
     )
 }
 
@@ -681,6 +719,7 @@ internal object NativeAlternativePaymentScreen {
         val field: POField.Style,
         val codeField: POField.Style,
         val radioGroup: PORadioGroup.Style,
+        val checkbox: POCheckbox.Style,
         val dropdownMenu: PODropdownField.MenuStyle,
         val actionsContainer: POActionsContainer.Style,
         val dialog: PODialog.Style,
@@ -714,6 +753,9 @@ internal object NativeAlternativePaymentScreen {
                 radioGroup = custom?.radioButton?.let {
                     PORadioGroup.custom(style = it)
                 } ?: PORadioGroup.default,
+                checkbox = custom?.checkbox?.let {
+                    POCheckbox.custom(style = it)
+                } ?: POCheckbox.default,
                 dropdownMenu = custom?.dropdownMenu?.let {
                     PODropdownField.custom(style = it)
                 } ?: PODropdownField.defaultMenu,

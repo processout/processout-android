@@ -48,6 +48,7 @@ internal sealed interface NativeAlternativePaymentViewModelState {
         data class CodeField(val state: FieldState) : Field
         data class RadioField(val state: FieldState) : Field
         data class DropdownField(val state: FieldState) : Field
+        data class CheckboxField(val state: FieldState) : Field
         data class PhoneNumberField(val state: POPhoneNumberFieldState) : Field
     }
 

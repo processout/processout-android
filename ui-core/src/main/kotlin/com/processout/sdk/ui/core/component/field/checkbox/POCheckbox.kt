@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.POText
@@ -35,6 +36,7 @@ fun POCheckbox(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    minHeight: Dp = dimensions.formComponentMinHeight,
     style: POCheckbox.Style = POCheckbox.default,
     enabled: Boolean = true,
     isError: Boolean = false,
@@ -43,7 +45,7 @@ fun POCheckbox(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .requiredHeightIn(min = dimensions.formComponentMinHeight)
+            .requiredHeightIn(min = minHeight)
             .clickable(
                 onClick = {
                     if (enabled) {
@@ -60,7 +62,7 @@ fun POCheckbox(
             modifier = Modifier
                 .scale(CheckboxScale)
                 .requiredWidth(CheckboxSize)
-                .requiredHeight(dimensions.formComponentMinHeight)
+                .requiredHeight(minHeight)
                 .offset(x = (-0.5).dp),
             enabled = enabled,
             colors = colors(
@@ -81,7 +83,7 @@ fun POCheckbox(
                 start = 10.dp,
                 top = measuredPaddingTop(
                     textStyle = textStyle.textStyle,
-                    componentHeight = dimensions.formComponentMinHeight
+                    componentHeight = minHeight
                 )
             ),
             color = textStyle.color,

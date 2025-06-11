@@ -325,6 +325,7 @@ internal class NativeAlternativePaymentInteractor(
                 is Parameter.SingleSelect -> FieldValue.Text(
                     TextFieldValue(text = parameter.preselectedValue?.value ?: String())
                 )
+                is Parameter.Bool -> FieldValue.Text(TextFieldValue(text = "false"))
                 is Parameter.PhoneNumber -> FieldValue.PhoneNumber()
                 else -> FieldValue.Text()
             }
@@ -706,7 +707,8 @@ internal class NativeAlternativePaymentInteractor(
     ): String? =
         if (replaceWithLocalMessage)
             when (parameter) {
-                is Parameter.Text -> app.getString(R.string.po_native_apm_error_invalid_text)
+                is Parameter.Text,
+                is Parameter.Bool -> app.getString(R.string.po_native_apm_error_invalid_text)
                 is Parameter.Digits -> app.getString(R.string.po_native_apm_error_invalid_number)
                 is Parameter.PhoneNumber -> app.getString(R.string.po_native_apm_error_invalid_phone)
                 is Parameter.Email -> app.getString(R.string.po_native_apm_error_invalid_email)
