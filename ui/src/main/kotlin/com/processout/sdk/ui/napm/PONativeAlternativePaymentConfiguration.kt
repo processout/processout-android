@@ -230,7 +230,7 @@ data class PONativeAlternativePaymentConfiguration(
      */
     @Parcelize
     data class PaymentConfirmationConfiguration(
-        val waitsConfirmation: Boolean = true,
+        val waitsConfirmation: Boolean = true, // TODO(v2): deprecate and update KDoc for [skipSuccessScreen]
         @IntRange(from = 0, to = 15 * 60)
         val timeoutSeconds: Int = DEFAULT_TIMEOUT_SECONDS,
         val showProgressIndicatorAfterSeconds: Int? = null,

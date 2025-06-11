@@ -732,11 +732,6 @@ internal class NativeAlternativePaymentInteractor(
     ) {
         POLogger.info("All payment parameters has been submitted.")
         dispatch(DidSubmitParameters(additionalParametersExpected = false))
-        if (!configuration.paymentConfirmation.waitsConfirmation) {
-            POLogger.info("Finished: did not wait for capture confirmation.")
-            _completion.update { Success }
-            return
-        }
         val barcode = parameterValues?.customerActionBarcode?.let { barcode ->
             val size = 250.dpToPx(app)
             barcodeBitmapProvider.generate(
@@ -838,10 +833,6 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun handleCaptured(stateValue: CaptureStateValue) {
         POLogger.info("Success: capture confirmed.")
-        if (!configuration.paymentConfirmation.waitsConfirmation) {
-            _completion.update { Success }
-            return
-        }
         dispatch(DidCompletePayment)
         if (configuration.skipSuccessScreen) {
             _completion.update { Success }
