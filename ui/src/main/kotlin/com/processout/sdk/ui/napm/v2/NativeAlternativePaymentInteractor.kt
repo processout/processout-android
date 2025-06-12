@@ -25,16 +25,16 @@ import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAu
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentTokenizationDetailsRequest
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodCapture
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameterValues
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodState.CAPTURED
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.State
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentCustomerInstruction
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.*
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter.Otp.Subtype
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.Unknown
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentState
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentState.*
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.POFailure.Code.*
 import com.processout.sdk.core.POFailure.InvalidField
@@ -188,15 +188,15 @@ internal class NativeAlternativePaymentInteractor(
 
     private suspend fun handlePaymentState(
         stateValue: UserInputStateValue,
-        paymentState: State,
+        paymentState: PONativeAlternativePaymentState,
         nextStep: PONativeAlternativePaymentNextStep?,
         customerInstructions: List<PONativeAlternativePaymentCustomerInstruction>?
     ) {
         when (paymentState) {
-            State.NEXT_STEP_REQUIRED -> handleNextStep(stateValue, nextStep)
-            State.PENDING_CAPTURE -> TODO(reason = "v2")
-            State.CAPTURED -> TODO(reason = "v2")
-            State.UNKNOWN -> TODO(reason = "v2")
+            NEXT_STEP_REQUIRED -> handleNextStep(stateValue, nextStep)
+            PENDING_CAPTURE -> TODO(reason = "v2")
+            CAPTURED -> TODO(reason = "v2")
+            UNKNOWN -> TODO(reason = "v2")
         }
     }
 
@@ -820,7 +820,8 @@ internal class NativeAlternativePaymentInteractor(
     private fun isCaptureRetryable(
         result: ProcessOutResult<PONativeAlternativePaymentMethodCapture>
     ): Boolean = result.fold(
-        onSuccess = { it.state != CAPTURED },
+//        onSuccess = { it.state != CAPTURED },
+        onSuccess = { true }, // TODO(v2): resolve with the new state type
         onFailure = {
             val retryableCodes = listOf(
                 NetworkUnreachable,
