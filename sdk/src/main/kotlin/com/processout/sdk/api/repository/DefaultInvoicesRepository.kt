@@ -186,7 +186,8 @@ internal class DefaultInvoicesRepository(
                         PONativeAlternativePaymentNextStep.Unknown
                 }
             },
-            customerInstructions = customerInstructions
+            customerInstructions = customerInstructions,
+            redirect = redirect
         )
 
     private fun ProcessOutResult<Response<InvoiceResponse>>.map() = fold(

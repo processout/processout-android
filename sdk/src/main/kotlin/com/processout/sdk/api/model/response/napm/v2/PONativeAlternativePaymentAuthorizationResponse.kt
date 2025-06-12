@@ -10,13 +10,15 @@ import com.squareup.moshi.JsonClass
  * @param[state] State of native alternative payment.
  * @param[nextStep] Next required step in the payment flow.
  * @param[customerInstructions] Instructions for the customer that provide additional information and/or describe required actions.
+ * @param[redirect] Indicates required redirect.
  */
 /** @suppress */
 @ProcessOutInternalApi
 data class PONativeAlternativePaymentAuthorizationResponse(
     val state: PONativeAlternativePaymentState,
     val nextStep: PONativeAlternativePaymentNextStep?,
-    val customerInstructions: List<PONativeAlternativePaymentCustomerInstruction>?
+    val customerInstructions: List<PONativeAlternativePaymentCustomerInstruction>?,
+    val redirect: PONativeAlternativePaymentRedirect?
 )
 
 @JsonClass(generateAdapter = true)
@@ -25,5 +27,6 @@ internal data class NativeAlternativePaymentAuthorizationResponseBody(
     @Json(name = "next_step")
     val nextStep: NativeAlternativePaymentNextStep?,
     @Json(name = "customer_instructions")
-    val customerInstructions: List<PONativeAlternativePaymentCustomerInstruction>?
+    val customerInstructions: List<PONativeAlternativePaymentCustomerInstruction>?,
+    val redirect: PONativeAlternativePaymentRedirect?
 )
