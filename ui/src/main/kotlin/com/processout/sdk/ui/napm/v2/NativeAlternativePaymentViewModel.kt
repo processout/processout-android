@@ -375,7 +375,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                     text = "$localizedCountry (${it.value})",
                     formattedText = it.value
                 )
-            }
+            }.sortedBy { it.text }
             else -> emptyList()
         }
         return POImmutableList(availableValues)
