@@ -15,7 +15,6 @@ import coil.imageLoader
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.request.ImageResult
-import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationDetailsRequest
@@ -109,7 +108,6 @@ internal class NativeAlternativePaymentInteractor(
     val sideEffects = _sideEffects.receiveAsFlow()
 
     private val handler = Handler(Looper.getMainLooper())
-    private val phoneNumberUtil = PhoneNumberUtil.getInstance()
 
     private var latestDefaultValuesRequest: NativeAlternativePaymentDefaultValuesRequest? = null
 
@@ -549,13 +547,10 @@ internal class NativeAlternativePaymentInteractor(
     private fun Field.validate(): InvalidField? {
         when (parameter) {
             is Parameter.PhoneNumber -> if (value is FieldValue.PhoneNumber) {
-                val dialingCode = value.regionCode.text.let { regionCode ->
-                    if (regionCode.isNotBlank())
-                        "+${phoneNumberUtil.getCountryCodeForRegion(regionCode)}"
-                    else String()
-                }
+                val dialingCode = parameter.dialingCodes
+                    .find { it.regionCode == value.regionCode.text }?.value
                 val number = value.number.text
-                if (required && (dialingCode.isBlank() || number.isBlank())) {
+                if (required && (dialingCode.isNullOrBlank() || number.isBlank())) {
                     return invalidField(R.string.po_native_apm_error_required_parameter)
                 }
                 val phoneNumber = "$dialingCode$number"
@@ -638,17 +633,21 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private fun List<Field>.values() =
-        associate {
-            it.id to when (it.value) {
-                is FieldValue.Text -> string(value = it.value.value.text)
-                is FieldValue.PhoneNumber -> phoneNumber(
-                    dialingCode = it.value.regionCode.text.let { regionCode ->
-                        if (regionCode.isNotBlank())
-                            "+${phoneNumberUtil.getCountryCodeForRegion(regionCode)}"
-                        else String()
-                    },
-                    number = it.value.number.text
-                )
+        associate { field ->
+            field.id to when (val value = field.value) {
+                is FieldValue.Text -> string(value = value.value.text)
+                is FieldValue.PhoneNumber -> {
+                    val dialingCode = when (field.parameter) {
+                        is Parameter.PhoneNumber -> field.parameter.dialingCodes
+                            .find { it.regionCode == value.regionCode.text }
+                            ?.value ?: String()
+                        else -> String()
+                    }
+                    phoneNumber(
+                        dialingCode = dialingCode,
+                        number = value.number.text
+                    )
+                }
             }
         }
 
