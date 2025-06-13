@@ -172,6 +172,7 @@ internal class DefaultInvoicesRepository(
     private fun NativeAlternativePaymentAuthorizationResponseBody.toModel() =
         PONativeAlternativePaymentAuthorizationResponse(
             state = state,
+            invoice = invoice,
             paymentMethod = paymentMethod,
             nextStep = nextStep?.let {
                 when (it) {
