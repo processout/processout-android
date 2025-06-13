@@ -188,8 +188,8 @@ internal class NativeAlternativePaymentInteractor(
     ) {
         when (paymentState) {
             NEXT_STEP_REQUIRED -> handleNextStep(stateValue, elements)
-            PENDING_CAPTURE -> TODO(reason = "v2")
-            CAPTURED -> TODO(reason = "v2")
+            PENDING -> TODO(reason = "v2")
+            SUCCESS -> TODO(reason = "v2")
             UNKNOWN -> TODO(reason = "v2")
         }
     }

@@ -13,11 +13,11 @@ enum class PONativeAlternativePaymentState {
     /** Next step is required to proceed. */
     NEXT_STEP_REQUIRED,
 
-    /** Payment is ready to be captured. */
-    PENDING_CAPTURE,
+    /** Pending payment processing. */
+    PENDING,
 
-    /** Payment is captured. */
-    CAPTURED,
+    /** Successful payment processing. */
+    SUCCESS,
 
     /**
      * Placeholder that allows adding additional cases while staying backward compatible.
