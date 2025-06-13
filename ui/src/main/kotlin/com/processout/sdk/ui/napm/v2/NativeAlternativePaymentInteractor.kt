@@ -417,8 +417,8 @@ internal class NativeAlternativePaymentInteractor(
                         is Parameter.PhoneNumber -> field.copy(
                             value = FieldValue.PhoneNumber(
                                 regionCode = TextFieldValue(
-                                    text = field.parameter.dialingCodes?.find { it.id == value.regionCode }
-                                        ?.let { value.regionCode } ?: String()
+                                    text = if (field.parameter.dialingCodes.any { it.regionCode == value.regionCode })
+                                        value.regionCode else String()
                                 ),
                                 number = TextFieldValue(
                                     text = value.number,

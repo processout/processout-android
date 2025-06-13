@@ -138,18 +138,20 @@ sealed class PONativeAlternativePaymentElement {
                 override val label: String,
                 override val required: Boolean,
                 @Json(name = "dialing_codes")
-                val dialingCodes: List<DialingCode>?
+                val dialingCodes: List<DialingCode>
             ) : Parameter() {
 
                 /**
                  * International dialing code.
                  *
-                 * @param[id] Country code identifier.
+                 * @param[regionCode] The region code associated with the phone number.
+                 * Corresponds to a two-letter ISO 3166-1 alpha-2 country code.
                  * @param[value] Dialing code value.
                  */
                 @JsonClass(generateAdapter = true)
                 data class DialingCode(
-                    val id: String,
+                    @Json(name = "region_code")
+                    val regionCode: String,
                     val value: String
                 )
             }

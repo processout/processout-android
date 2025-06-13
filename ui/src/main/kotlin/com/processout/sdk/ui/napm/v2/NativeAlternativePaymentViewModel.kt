@@ -368,14 +368,14 @@ internal class NativeAlternativePaymentViewModel private constructor(
     private fun Parameter.phoneNumberRegionCodes(): POImmutableList<POAvailableValue> {
         val currentAppLocale = app.currentAppLocale()
         val availableValues = when (this) {
-            is PhoneNumber -> dialingCodes?.map {
-                val localizedCountry = Locale(String(), it.id).getDisplayCountry(currentAppLocale)
+            is PhoneNumber -> dialingCodes.map {
+                val localizedCountry = Locale(String(), it.regionCode).getDisplayCountry(currentAppLocale)
                 POAvailableValue(
-                    value = it.id,
+                    value = it.regionCode,
                     text = "$localizedCountry (${it.value})",
                     formattedText = it.value
                 )
-            } ?: emptyList()
+            }
             else -> emptyList()
         }
         return POImmutableList(availableValues)
