@@ -1,8 +1,6 @@
 package com.processout.sdk.api.model.response.napm.v2
 
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.Invoice
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
-import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
@@ -19,8 +17,8 @@ import com.squareup.moshi.JsonClass
 @ProcessOutInternalApi
 data class PONativeAlternativePaymentAuthorizationResponse(
     val state: PONativeAlternativePaymentState,
-    val invoice: Invoice?, // TODO(v2): non-nullable
-    val paymentMethod: PONativeAlternativePaymentMethodDetails?, // TODO(v2): non-nullable
+//    val invoice: Invoice, // TODO(v2): uncomment
+//    val paymentMethod: PONativeAlternativePaymentMethodDetails, // TODO(v2): uncomment
     val elements: List<PONativeAlternativePaymentElement>?,
     val redirect: PONativeAlternativePaymentRedirect?
 ) {
@@ -41,9 +39,9 @@ data class PONativeAlternativePaymentAuthorizationResponse(
 @JsonClass(generateAdapter = true)
 internal data class NativeAlternativePaymentAuthorizationResponseBody(
     val state: PONativeAlternativePaymentState,
-    val invoice: Invoice?, // TODO(v2): non-nullable
-    @Json(name = "payment_method")
-    val paymentMethod: PONativeAlternativePaymentMethodDetails?, // TODO(v2): non-nullable
+//    val invoice: Invoice, // TODO(v2): uncomment
+//    @Json(name = "payment_method")
+//    val paymentMethod: PONativeAlternativePaymentMethodDetails, // TODO(v2): uncomment
     val elements: List<NativeAlternativePaymentElement>?,
     val redirect: PONativeAlternativePaymentRedirect?
 )
