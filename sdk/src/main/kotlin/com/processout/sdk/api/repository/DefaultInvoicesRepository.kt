@@ -9,9 +9,9 @@ import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAu
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter.Value
 import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentAuthorizationResponseBody
-import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentNextStep
+import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentElement
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement
 import com.processout.sdk.api.network.HeaderConstants.CLIENT_SECRET
 import com.processout.sdk.api.network.InvoicesApi
 import com.processout.sdk.core.*
@@ -174,21 +174,16 @@ internal class DefaultInvoicesRepository(
             state = state,
             invoice = invoice,
             paymentMethod = paymentMethod,
-            nextStep = nextStep?.let {
+            elements = elements?.map {
                 when (it) {
-                    is NativeAlternativePaymentNextStep.SubmitData ->
-                        PONativeAlternativePaymentNextStep.SubmitData(
+                    is NativeAlternativePaymentElement.Form ->
+                        PONativeAlternativePaymentElement.Form(
                             parameterDefinitions = it.parameters.parameterDefinitions
                         )
-                    is NativeAlternativePaymentNextStep.Redirect ->
-                        PONativeAlternativePaymentNextStep.Redirect(
-                            url = it.parameters.url
-                        )
-                    NativeAlternativePaymentNextStep.Unknown ->
-                        PONativeAlternativePaymentNextStep.Unknown
+                    NativeAlternativePaymentElement.Unknown ->
+                        PONativeAlternativePaymentElement.Unknown
                 }
             },
-            customerInstructions = customerInstructions,
             redirect = redirect
         )
 

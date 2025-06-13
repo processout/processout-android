@@ -2,9 +2,9 @@ package com.processout.sdk.di
 
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.*
-import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentNextStep
+import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentElement
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentCustomerInstruction
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter
 import com.processout.sdk.api.network.*
 import com.processout.sdk.api.network.interceptor.BasicAuthInterceptor
 import com.processout.sdk.api.network.interceptor.RetryInterceptor
@@ -63,10 +63,9 @@ internal class DefaultNetworkGraph(
 
     private fun Moshi.Builder.addNativeAlternativePaymentAdapter() =
         add(
-            PolymorphicJsonAdapterFactory.of(NativeAlternativePaymentNextStep::class.java, "type")
-                .withSubtype(NativeAlternativePaymentNextStep.SubmitData::class.java, "submit_data")
-                .withSubtype(NativeAlternativePaymentNextStep.Redirect::class.java, "redirect")
-                .withDefaultValue(NativeAlternativePaymentNextStep.Unknown)
+            PolymorphicJsonAdapterFactory.of(NativeAlternativePaymentElement::class.java, "type")
+                .withSubtype(NativeAlternativePaymentElement.Form::class.java, "form")
+                .withDefaultValue(NativeAlternativePaymentElement.Unknown)
         ).add(
             PolymorphicJsonAdapterFactory.of(Parameter::class.java, "type")
                 .withSubtype(Parameter.Text::class.java, "text")

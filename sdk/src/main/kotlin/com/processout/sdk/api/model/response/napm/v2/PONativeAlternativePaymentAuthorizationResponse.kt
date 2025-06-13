@@ -21,8 +21,7 @@ data class PONativeAlternativePaymentAuthorizationResponse(
     val state: PONativeAlternativePaymentState,
     val invoice: Invoice?, // TODO(v2): non-nullable
     val paymentMethod: PONativeAlternativePaymentMethodDetails?, // TODO(v2): non-nullable
-    val nextStep: PONativeAlternativePaymentNextStep?,
-    val customerInstructions: List<PONativeAlternativePaymentCustomerInstruction>?,
+    val elements: List<PONativeAlternativePaymentElement>?,
     val redirect: PONativeAlternativePaymentRedirect?
 ) {
 
@@ -45,9 +44,6 @@ internal data class NativeAlternativePaymentAuthorizationResponseBody(
     val invoice: Invoice?, // TODO(v2): non-nullable
     @Json(name = "payment_method")
     val paymentMethod: PONativeAlternativePaymentMethodDetails?, // TODO(v2): non-nullable
-    @Json(name = "next_step")
-    val nextStep: NativeAlternativePaymentNextStep?,
-    @Json(name = "customer_instructions")
-    val customerInstructions: List<PONativeAlternativePaymentCustomerInstruction>?,
+    val elements: List<NativeAlternativePaymentElement>?,
     val redirect: PONativeAlternativePaymentRedirect?
 )

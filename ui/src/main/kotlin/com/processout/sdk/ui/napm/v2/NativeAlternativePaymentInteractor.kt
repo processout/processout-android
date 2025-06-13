@@ -27,12 +27,10 @@ import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodCap
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameterValues
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentCustomerInstruction
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.*
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter.Otp.Subtype
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.Unknown
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter.Otp.Subtype
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentState
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentState.*
 import com.processout.sdk.api.service.POInvoicesService
@@ -170,8 +168,7 @@ internal class NativeAlternativePaymentInteractor(
                     handlePaymentState(
                         stateValue = response.toUserInputStateValue(),
                         paymentState = response.state,
-                        nextStep = response.nextStep,
-                        customerInstructions = response.customerInstructions
+                        elements = response.elements
                     )
                 }.onFailure { failure ->
                     POLogger.info("Failed to fetch authorization details: %s", failure)
@@ -189,11 +186,10 @@ internal class NativeAlternativePaymentInteractor(
     private suspend fun handlePaymentState(
         stateValue: UserInputStateValue,
         paymentState: PONativeAlternativePaymentState,
-        nextStep: PONativeAlternativePaymentNextStep?,
-        customerInstructions: List<PONativeAlternativePaymentCustomerInstruction>?
+        elements: List<PONativeAlternativePaymentElement>?
     ) {
         when (paymentState) {
-            NEXT_STEP_REQUIRED -> handleNextStep(stateValue, nextStep)
+            NEXT_STEP_REQUIRED -> handleNextStep(stateValue, elements)
             PENDING_CAPTURE -> TODO(reason = "v2")
             CAPTURED -> TODO(reason = "v2")
             UNKNOWN -> TODO(reason = "v2")
@@ -202,14 +198,12 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun handleNextStep(
         stateValue: UserInputStateValue,
-        nextStep: PONativeAlternativePaymentNextStep?
+        elements: List<PONativeAlternativePaymentElement>?
     ) {
-        when (nextStep) {
-            is SubmitData -> handleSubmitData(stateValue, nextStep.parameterDefinitions)
-            is Redirect -> TODO(reason = "v2")
-            Unknown -> TODO(reason = "v2")
-            null -> TODO(reason = "v2")
-        }
+        val parameters = elements?.flatMap {
+            if (it is Form) it.parameterDefinitions else emptyList()
+        } ?: emptyList()
+        handleFormParameters(stateValue, parameters)
     }
 
     private fun PONativeAlternativePaymentAuthorizationResponse.toUserInputStateValue() =
@@ -272,7 +266,7 @@ internal class NativeAlternativePaymentInteractor(
 
     //region User Input
 
-    private fun handleSubmitData(
+    private fun handleFormParameters(
         stateValue: UserInputStateValue,
         parameters: List<Parameter>
     ) {

@@ -1,24 +1,24 @@
 package com.processout.sdk.api.model.response.napm.v2
 
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.core.util.findBy
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
- * Specifies the next required step in the payment flow.
+ * Specifies an element that needs to be rendered on the UI during native alternative payment flow.
  */
 /** @suppress */
 @ProcessOutInternalApi
-sealed class PONativeAlternativePaymentNextStep {
+sealed class PONativeAlternativePaymentElement {
 
     /**
-     * Indicates that the next required step is submitting data for the expected [parameterDefinitions].
+     * A form element with the specified [parameterDefinitions].
      */
-    data class SubmitData(
+    data class Form(
         val parameterDefinitions: List<Parameter>
-    ) : PONativeAlternativePaymentNextStep() {
+    ) : PONativeAlternativePaymentElement() {
 
         /**
          * Payment parameter definition.
@@ -248,26 +248,19 @@ sealed class PONativeAlternativePaymentNextStep {
     }
 
     /**
-     * Indicates that the next required step is a redirect to the URL.
-     */
-    data class Redirect(
-        val url: String
-    ) : PONativeAlternativePaymentNextStep()
-
-    /**
      * Placeholder that allows adding additional cases while staying backward compatible.
      * __Warning:__ Do not match this case directly, use _when-else_ instead.
      */
     @ProcessOutInternalApi
-    data object Unknown : PONativeAlternativePaymentNextStep()
+    data object Unknown : PONativeAlternativePaymentElement()
 }
 
-internal sealed class NativeAlternativePaymentNextStep {
+internal sealed class NativeAlternativePaymentElement {
 
     @JsonClass(generateAdapter = true)
-    data class SubmitData(
+    data class Form(
         val parameters: Parameters
-    ) : NativeAlternativePaymentNextStep() {
+    ) : NativeAlternativePaymentElement() {
 
         @JsonClass(generateAdapter = true)
         data class Parameters(
@@ -276,16 +269,5 @@ internal sealed class NativeAlternativePaymentNextStep {
         )
     }
 
-    @JsonClass(generateAdapter = true)
-    data class Redirect(
-        val parameters: Parameters
-    ) : NativeAlternativePaymentNextStep() {
-
-        @JsonClass(generateAdapter = true)
-        data class Parameters(
-            val url: String
-        )
-    }
-
-    data object Unknown : NativeAlternativePaymentNextStep()
+    data object Unknown : NativeAlternativePaymentElement()
 }

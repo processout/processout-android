@@ -1,6 +1,6 @@
 package com.processout.sdk.ui.napm.delegate.v2
 
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 
 /**
@@ -22,6 +22,6 @@ interface PONativeAlternativePaymentDelegate {
      */
     suspend fun defaultValues(
         gatewayConfigurationId: String,
-        parameters: List<PONativeAlternativePaymentNextStep.SubmitData.Parameter>
+        parameters: List<PONativeAlternativePaymentElement.Form.Parameter>
     ): Map<String, PONativeAlternativePaymentParameterValue> = emptyMap()
 }
