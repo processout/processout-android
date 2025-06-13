@@ -613,21 +613,19 @@ internal class NativeAlternativePaymentInteractor(
                     gatewayConfigurationId = configuration.gatewayConfigurationId,
                     parameters = stateValue.fields.values()
                 )
-                TODO(reason = "v2")
-//                invoicesService.initiatePayment(request)
-//                    .onSuccess { response ->
-//                        handlePaymentState(
-//                            stateValue = stateValue,
-//                            paymentState = response.state,
-//                            nextStep = response.nextStep,
-//                            customerInstructions = response.customerInstructions
-//                        )
-//                    }.onFailure { failure ->
-//                        handlePaymentFailure(
-//                            failure = failure,
-//                            replaceWithLocalMessage = true
-//                        )
-//                    }
+                invoicesService.authorize(request)
+                    .onSuccess { response ->
+                        handlePaymentState(
+                            stateValue = stateValue,
+                            paymentState = response.state,
+                            elements = response.elements
+                        )
+                    }.onFailure { failure ->
+                        handlePaymentFailure(
+                            failure = failure,
+                            replaceWithLocalMessage = true
+                        )
+                    }
             }
         }
     }
