@@ -21,7 +21,6 @@ import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAu
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter.Companion.phoneNumber
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter.Companion.string
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodCapture
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentCustomerInstruction
@@ -791,10 +790,15 @@ internal class NativeAlternativePaymentInteractor(
         interactorScope.launch {
             val iterator = captureRetryStrategy.iterator
             while (capturePassedTimestamp <= configuration.paymentConfirmation.timeoutSeconds * 1000) {
-                val result = invoicesService.captureNativeAlternativePayment(
-                    invoiceId = configuration.invoiceId,
-                    gatewayConfigurationId = configuration.gatewayConfigurationId
-                )
+                val result = when (val flow = configuration.flow) {
+                    is Authorization -> invoicesService.authorize(
+                        request = PONativeAlternativePaymentAuthorizationRequest(
+                            invoiceId = flow.invoiceId,
+                            gatewayConfigurationId = flow.gatewayConfigurationId
+                        )
+                    ).map()
+                    is Tokenization -> TODO(reason = "v2")
+                }
                 POLogger.debug("Attempted to capture the payment.")
                 if (isCaptureRetryable(result)) {
                     delay(iterator.next())
@@ -825,11 +829,23 @@ internal class NativeAlternativePaymentInteractor(
         }
     }
 
+    private fun ProcessOutResult<PONativeAlternativePaymentAuthorizationResponse>.map() =
+        fold(
+            onSuccess = {
+                ProcessOutResult.Success(
+                    ProcessingResponse(
+                        state = it.state,
+                        elements = it.elements
+                    )
+                )
+            },
+            onFailure = { it }
+        )
+
     private fun isCaptureRetryable(
-        result: ProcessOutResult<PONativeAlternativePaymentMethodCapture>
+        result: ProcessOutResult<ProcessingResponse>
     ): Boolean = result.fold(
-//        onSuccess = { it.state != CAPTURED },
-        onSuccess = { true }, // TODO(v2): resolve with the new state type
+        onSuccess = { it.state != SUCCESS },
         onFailure = {
             val retryableCodes = listOf(
                 NetworkUnreachable,
@@ -1013,4 +1029,9 @@ internal class NativeAlternativePaymentInteractor(
     override fun clear() {
         handler.removeCallbacksAndMessages(null)
     }
+
+    private data class ProcessingResponse(
+        val state: PONativeAlternativePaymentState,
+        val elements: List<PONativeAlternativePaymentElement>?
+    )
 }
