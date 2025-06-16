@@ -663,7 +663,7 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun handlePaymentFailure(
         failure: ProcessOutResult.Failure,
-        replaceWithLocalMessage: Boolean // TODO: Delete this when backend localization is ready.
+        replaceWithLocalMessage: Boolean // TODO(v2): Delete this when backend localization is ready.
     ) {
         _state.whenUserInput { stateValue ->
             val invalidFields = failure.invalidFields
@@ -699,7 +699,7 @@ internal class NativeAlternativePaymentInteractor(
         }
     }
 
-    // TODO: Delete this when backend localization is ready.
+    // TODO(v2): Delete this when backend localization is ready.
     private fun Field.errorMessage(
         originalMessage: String?,
         replaceWithLocalMessage: Boolean
