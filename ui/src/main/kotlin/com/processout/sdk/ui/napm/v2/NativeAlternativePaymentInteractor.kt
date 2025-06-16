@@ -22,7 +22,6 @@ import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAu
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter.Companion.phoneNumber
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter.Companion.string
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodCapture
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameterValues
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentCustomerInstruction
@@ -235,15 +234,16 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun logoUrl(
         gateway: PONativeAlternativePaymentMethodTransactionDetails.Gateway,
-        parameterValues: PONativeAlternativePaymentMethodParameterValues?
+        instructions: List<PONativeAlternativePaymentCustomerInstruction>?
     ): String? {
-        if (parameterValues?.providerName != null) {
-            return parameterValues.providerLogoUrl
-        }
-        if (configuration.paymentConfirmation.hideGatewayDetails) {
-            return null
-        }
-        return gateway.logoUrl
+//        if (parameterValues?.providerName != null) {
+//            return parameterValues.providerLogoUrl
+//        }
+//        if (configuration.paymentConfirmation.hideGatewayDetails) {
+//            return null
+//        }
+//        return gateway.logoUrl
+        return null // TODO(v2): resolve from instructions and gateway
     }
 
     private fun UserInputStateValue.customerAction(
