@@ -250,6 +250,13 @@ sealed class PONativeAlternativePaymentElement {
     }
 
     /**
+     * Specifies instruction for the customer, providing additional information and/or describing required actions.
+     */
+    data class CustomerInstruction(
+        val instruction: PONativeAlternativePaymentCustomerInstruction
+    ) : PONativeAlternativePaymentElement()
+
+    /**
      * Placeholder that allows adding additional cases while staying backward compatible.
      * __Warning:__ Do not match this case directly, use _when-else_ instead.
      */
@@ -270,6 +277,11 @@ internal sealed class NativeAlternativePaymentElement {
             val parameterDefinitions: List<Parameter>
         )
     }
+
+    @JsonClass(generateAdapter = true)
+    data class CustomerInstruction(
+        val instruction: PONativeAlternativePaymentCustomerInstruction
+    ) : NativeAlternativePaymentElement()
 
     data object Unknown : NativeAlternativePaymentElement()
 }

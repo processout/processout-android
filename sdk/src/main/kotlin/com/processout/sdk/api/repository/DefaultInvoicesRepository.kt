@@ -180,6 +180,10 @@ internal class DefaultInvoicesRepository(
                         PONativeAlternativePaymentElement.Form(
                             parameterDefinitions = it.parameters.parameterDefinitions
                         )
+                    is NativeAlternativePaymentElement.CustomerInstruction ->
+                        PONativeAlternativePaymentElement.CustomerInstruction(
+                            instruction = it.instruction
+                        )
                     NativeAlternativePaymentElement.Unknown ->
                         PONativeAlternativePaymentElement.Unknown
                 }

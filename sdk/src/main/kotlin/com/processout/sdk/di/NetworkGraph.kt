@@ -65,6 +65,7 @@ internal class DefaultNetworkGraph(
         add(
             PolymorphicJsonAdapterFactory.of(NativeAlternativePaymentElement::class.java, "type")
                 .withSubtype(NativeAlternativePaymentElement.Form::class.java, "form")
+                .withSubtype(NativeAlternativePaymentElement.CustomerInstruction::class.java, "instruction")
                 .withDefaultValue(NativeAlternativePaymentElement.Unknown)
         ).add(
             PolymorphicJsonAdapterFactory.of(Parameter::class.java, "type")
