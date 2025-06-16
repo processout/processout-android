@@ -49,6 +49,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect
 import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.PermissionRequest
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Authorization
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Tokenization
 import com.processout.sdk.ui.napm.delegate.v2.NativeAlternativePaymentDefaultValuesRequest
@@ -79,22 +80,24 @@ internal class NativeAlternativePaymentInteractor(
     private val mediaStorageProvider: MediaStorageProvider,
     private val captureRetryStrategy: PORetryStrategy,
     private val eventDispatcher: POEventDispatcher = POEventDispatcher,
-    private var logAttributes: Map<String, String> = logAttributes(
-        invoiceId = configuration.invoiceId,
-        gatewayConfigurationId = configuration.gatewayConfigurationId
-    )
+    private var logAttributes: Map<String, String> = logAttributes(configuration.flow)
 ) : BaseInteractor() {
 
     private companion object {
         const val SUCCESS_DELAY_MS = 3000L
 
-        fun logAttributes(
-            invoiceId: String,
-            gatewayConfigurationId: String
-        ): Map<String, String> = mapOf(
-            POLogAttribute.INVOICE_ID to invoiceId,
-            POLogAttribute.GATEWAY_CONFIGURATION_ID to gatewayConfigurationId
-        )
+        fun logAttributes(flow: Flow): Map<String, String> =
+            when (flow) {
+                is Authorization -> mapOf(
+                    POLogAttribute.INVOICE_ID to flow.invoiceId,
+                    POLogAttribute.GATEWAY_CONFIGURATION_ID to flow.gatewayConfigurationId
+                )
+                is Tokenization -> mapOf(
+                    POLogAttribute.GATEWAY_CONFIGURATION_ID to flow.gatewayConfigurationId,
+                    POLogAttribute.CUSTOMER_ID to flow.customerId,
+                    POLogAttribute.CUSTOMER_TOKEN_ID to flow.customerTokenId
+                )
+            }
     }
 
     private val _completion = MutableStateFlow<NativeAlternativePaymentCompletion>(Awaiting)
@@ -130,10 +133,7 @@ internal class NativeAlternativePaymentInteractor(
             return
         }
         this.configuration = configuration
-        logAttributes = logAttributes(
-            invoiceId = configuration.invoiceId,
-            gatewayConfigurationId = configuration.gatewayConfigurationId
-        )
+        logAttributes = logAttributes(configuration.flow)
         start()
     }
 
