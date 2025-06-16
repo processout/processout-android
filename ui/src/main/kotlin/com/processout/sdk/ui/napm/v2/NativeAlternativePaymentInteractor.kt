@@ -25,7 +25,9 @@ import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodCap
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameterValues
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentCustomerInstruction
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.CustomerInstruction
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter.Otp.Subtype
@@ -185,7 +187,7 @@ internal class NativeAlternativePaymentInteractor(
     ) {
         when (paymentState) {
             NEXT_STEP_REQUIRED -> handleNextStep(stateValue, elements)
-            PENDING -> TODO(reason = "v2")
+            PENDING -> handlePendingCapture(stateValue, elements)
             SUCCESS -> TODO(reason = "v2")
             UNKNOWN -> TODO(reason = "v2")
         }
@@ -215,13 +217,14 @@ internal class NativeAlternativePaymentInteractor(
         )
 
     private fun UserInputStateValue.toCaptureStateValue(
-        parameterValues: PONativeAlternativePaymentMethodParameterValues?,
+        instructions: List<PONativeAlternativePaymentCustomerInstruction>?,
         barcode: Barcode? = null
     ) = CaptureStateValue(
-        paymentProviderName = parameterValues?.providerName,
+//        paymentProviderName = parameterValues?.providerName,
+        paymentProviderName = null, // TODO(v2): resolve
 //        logoUrl = logoUrl(gateway, parameterValues),
         logoUrl = null, // TODO(v2): map from gateway
-        customerAction = customerAction(parameterValues, barcode),
+        customerAction = customerAction(instructions, barcode),
         primaryActionId = ActionId.CONFIRM_PAYMENT,
         secondaryAction = NativeAlternativePaymentInteractorState.Action(
             id = ActionId.CANCEL,
@@ -244,7 +247,7 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private fun UserInputStateValue.customerAction(
-        parameterValues: PONativeAlternativePaymentMethodParameterValues?,
+        instructions: List<PONativeAlternativePaymentCustomerInstruction>?,
         barcode: Barcode? = null
     ): CustomerAction? {
 //        val message = parameterValues?.customerActionMessage
@@ -727,11 +730,17 @@ internal class NativeAlternativePaymentInteractor(
 
     private suspend fun handlePendingCapture(
         stateValue: UserInputStateValue,
-        parameterValues: PONativeAlternativePaymentMethodParameterValues?
+        elements: List<PONativeAlternativePaymentElement>?
     ) {
         POLogger.info("All payment parameters has been submitted.")
         dispatch(DidSubmitParameters(additionalParametersExpected = false))
-        val barcode = parameterValues?.customerActionBarcode?.let { barcode ->
+        val instructions = elements?.mapNotNull {
+            if (it is CustomerInstruction) it.instruction else null
+        }
+        val barcodeInstruction = instructions?.firstNotNullOfOrNull {
+            if (it is PONativeAlternativePaymentCustomerInstruction.Barcode) it else null
+        }
+        val barcode = barcodeInstruction?.value?.let { barcode ->
             val size = 250.dpToPx(app)
             barcodeBitmapProvider.generate(
                 barcode = barcode,
@@ -752,7 +761,7 @@ internal class NativeAlternativePaymentInteractor(
                 }
             )
         }
-        val captureStateValue = stateValue.toCaptureStateValue(parameterValues, barcode)
+        val captureStateValue = stateValue.toCaptureStateValue(instructions, barcode)
         preloadAllImages(stateValue = captureStateValue)
         POLogger.info("Waiting for capture confirmation.")
         val additionalActionExpected = !captureStateValue.customerAction?.message.isNullOrBlank()
