@@ -4,8 +4,6 @@ import android.os.Parcelable
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.IntRange
-import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationDetailsRequest
-import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentTokenizationDetailsRequest
 import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import com.processout.sdk.ui.core.style.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
@@ -52,22 +50,32 @@ data class PONativeAlternativePaymentConfiguration(
     // TODO(v2): move to constructor
     internal val flow: Flow
         get() = Authorization(
-            PONativeAlternativePaymentAuthorizationDetailsRequest(
-                invoiceId = invoiceId,
-                gatewayConfigurationId = gatewayConfigurationId
-            )
+            invoiceId = invoiceId,
+            gatewayConfigurationId = gatewayConfigurationId
         )
 
     // TODO(v2): make public
     internal sealed class Flow : Parcelable {
+        /**
+         * @param[invoiceId] Invoice identifier.
+         * @param[gatewayConfigurationId] Gateway configuration identifier.
+         */
         @Parcelize
         data class Authorization(
-            val request: PONativeAlternativePaymentAuthorizationDetailsRequest
+            val invoiceId: String,
+            val gatewayConfigurationId: String
         ) : Flow()
 
+        /**
+         * @param[gatewayConfigurationId] Gateway configuration identifier.
+         * @param[customerId] Customer identifier.
+         * @param[customerTokenId] Customer token identifier.
+         */
         @Parcelize
         data class Tokenization(
-            val request: PONativeAlternativePaymentTokenizationDetailsRequest
+            val gatewayConfigurationId: String,
+            val customerId: String,
+            val customerTokenId: String
         ) : Flow()
     }
 

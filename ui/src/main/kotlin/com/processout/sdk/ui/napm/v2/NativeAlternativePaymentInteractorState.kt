@@ -2,8 +2,8 @@ package com.processout.sdk.ui.napm.v2
 
 import android.graphics.Bitmap
 import com.processout.sdk.api.model.response.POBarcode.BarcodeType
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter.*
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter.*
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.shared.state.FieldValue
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -1,6 +1,6 @@
 package com.processout.sdk.ui.napm.delegate.v2
 
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 
@@ -28,7 +28,7 @@ sealed class PONativeAlternativePaymentEvent {
      * @param[parameter] Parameter definition.
      */
     data class ParametersChanged(
-        val parameter: PONativeAlternativePaymentNextStep.SubmitData.Parameter
+        val parameter: PONativeAlternativePaymentElement.Form.Parameter
     ) : PONativeAlternativePaymentEvent()
 
     /**
@@ -38,7 +38,7 @@ sealed class PONativeAlternativePaymentEvent {
      * @param[parameters] Parameter definitions.
      */
     data class WillSubmitParameters(
-        val parameters: List<PONativeAlternativePaymentNextStep.SubmitData.Parameter>
+        val parameters: List<PONativeAlternativePaymentElement.Form.Parameter>
     ) : PONativeAlternativePaymentEvent()
 
     /**

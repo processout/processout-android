@@ -12,9 +12,9 @@ import androidx.lifecycle.viewModelScope
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails.Invoice
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter.*
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter.Otp.Subtype
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter.*
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter.Otp.Subtype
 import com.processout.sdk.core.retry.PORetryStrategy.Exponential
 import com.processout.sdk.ui.core.state.*
 import com.processout.sdk.ui.core.state.POActionState.Confirmation
@@ -368,14 +368,14 @@ internal class NativeAlternativePaymentViewModel private constructor(
     private fun Parameter.phoneNumberRegionCodes(): POImmutableList<POAvailableValue> {
         val currentAppLocale = app.currentAppLocale()
         val availableValues = when (this) {
-            is PhoneNumber -> dialingCodes?.map {
-                val localizedCountry = Locale(String(), it.id).getDisplayCountry(currentAppLocale)
+            is PhoneNumber -> dialingCodes.map {
+                val localizedCountry = Locale(String(), it.regionCode).getDisplayCountry(currentAppLocale)
                 POAvailableValue(
-                    value = it.id,
+                    value = it.regionCode,
                     text = "$localizedCountry (${it.value})",
                     formattedText = it.value
                 )
-            } ?: emptyList()
+            }.sortedBy { it.text }
             else -> emptyList()
         }
         return POImmutableList(availableValues)

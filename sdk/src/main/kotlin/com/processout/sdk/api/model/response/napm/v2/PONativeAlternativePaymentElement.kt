@@ -1,24 +1,24 @@
 package com.processout.sdk.api.model.response.napm.v2
 
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.core.util.findBy
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
- * Specifies the next required step in the payment flow.
+ * Specifies an element that needs to be rendered on the UI during native alternative payment flow.
  */
 /** @suppress */
 @ProcessOutInternalApi
-sealed class PONativeAlternativePaymentNextStep {
+sealed class PONativeAlternativePaymentElement {
 
     /**
-     * Indicates that the next required step is submitting data for the expected [parameterDefinitions].
+     * A form element with the specified [parameterDefinitions].
      */
-    data class SubmitData(
+    data class Form(
         val parameterDefinitions: List<Parameter>
-    ) : PONativeAlternativePaymentNextStep() {
+    ) : PONativeAlternativePaymentElement() {
 
         /**
          * Payment parameter definition.
@@ -138,18 +138,20 @@ sealed class PONativeAlternativePaymentNextStep {
                 override val label: String,
                 override val required: Boolean,
                 @Json(name = "dialing_codes")
-                val dialingCodes: List<DialingCode>?
+                val dialingCodes: List<DialingCode>
             ) : Parameter() {
 
                 /**
                  * International dialing code.
                  *
-                 * @param[id] Country code identifier.
+                 * @param[regionCode] The region code associated with the phone number.
+                 * Corresponds to a two-letter ISO 3166-1 alpha-2 country code.
                  * @param[value] Dialing code value.
                  */
                 @JsonClass(generateAdapter = true)
                 data class DialingCode(
-                    val id: String,
+                    @Json(name = "region_code")
+                    val regionCode: String,
                     val value: String
                 )
             }
@@ -248,26 +250,37 @@ sealed class PONativeAlternativePaymentNextStep {
     }
 
     /**
-     * Indicates that the next required step is a redirect to the URL.
+     * Specifies instruction for the customer, providing additional information and/or describing required actions.
      */
-    data class Redirect(
-        val url: String
-    ) : PONativeAlternativePaymentNextStep()
+    data class CustomerInstruction(
+        val instruction: PONativeAlternativePaymentCustomerInstruction
+    ) : PONativeAlternativePaymentElement()
+
+    /**
+     * Specifies a group of instructions for the customer, providing additional information and/or describing required actions.
+     *
+     * @param[label] Optional group display label.
+     * @param[instructions] Grouped instructions for the customer that provide additional information and/or describe required actions.
+     */
+    data class CustomerInstructionGroup(
+        val label: String?,
+        val instructions: List<PONativeAlternativePaymentCustomerInstruction>
+    ) : PONativeAlternativePaymentElement()
 
     /**
      * Placeholder that allows adding additional cases while staying backward compatible.
      * __Warning:__ Do not match this case directly, use _when-else_ instead.
      */
     @ProcessOutInternalApi
-    data object Unknown : PONativeAlternativePaymentNextStep()
+    data object Unknown : PONativeAlternativePaymentElement()
 }
 
-internal sealed class NativeAlternativePaymentNextStep {
+internal sealed class NativeAlternativePaymentElement {
 
     @JsonClass(generateAdapter = true)
-    data class SubmitData(
+    data class Form(
         val parameters: Parameters
-    ) : NativeAlternativePaymentNextStep() {
+    ) : NativeAlternativePaymentElement() {
 
         @JsonClass(generateAdapter = true)
         data class Parameters(
@@ -277,15 +290,15 @@ internal sealed class NativeAlternativePaymentNextStep {
     }
 
     @JsonClass(generateAdapter = true)
-    data class Redirect(
-        val parameters: Parameters
-    ) : NativeAlternativePaymentNextStep() {
+    data class CustomerInstruction(
+        val instruction: PONativeAlternativePaymentCustomerInstruction
+    ) : NativeAlternativePaymentElement()
 
-        @JsonClass(generateAdapter = true)
-        data class Parameters(
-            val url: String
-        )
-    }
+    @JsonClass(generateAdapter = true)
+    data class CustomerInstructionGroup(
+        val label: String?,
+        val instructions: List<PONativeAlternativePaymentCustomerInstruction>
+    ) : NativeAlternativePaymentElement()
 
-    data object Unknown : NativeAlternativePaymentNextStep()
+    data object Unknown : NativeAlternativePaymentElement()
 }

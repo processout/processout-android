@@ -15,26 +15,22 @@ import coil.imageLoader
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.request.ImageResult
-import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationDetailsRequest
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter.Companion.phoneNumber
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter.Companion.string
-import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentTokenizationDetailsRequest
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodCapture
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameterValues
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodState.CAPTURED
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.State
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentCustomerInstruction
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.*
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.SubmitData.Parameter.Otp.Subtype
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentNextStep.Unknown
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter.Otp.Subtype
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentState
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentState.*
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.POFailure.Code.*
 import com.processout.sdk.core.POFailure.InvalidField
@@ -53,6 +49,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect
 import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.PermissionRequest
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Authorization
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Tokenization
 import com.processout.sdk.ui.napm.delegate.v2.NativeAlternativePaymentDefaultValuesRequest
@@ -83,22 +80,24 @@ internal class NativeAlternativePaymentInteractor(
     private val mediaStorageProvider: MediaStorageProvider,
     private val captureRetryStrategy: PORetryStrategy,
     private val eventDispatcher: POEventDispatcher = POEventDispatcher,
-    private var logAttributes: Map<String, String> = logAttributes(
-        invoiceId = configuration.invoiceId,
-        gatewayConfigurationId = configuration.gatewayConfigurationId
-    )
+    private var logAttributes: Map<String, String> = logAttributes(configuration.flow)
 ) : BaseInteractor() {
 
     private companion object {
         const val SUCCESS_DELAY_MS = 3000L
 
-        fun logAttributes(
-            invoiceId: String,
-            gatewayConfigurationId: String
-        ): Map<String, String> = mapOf(
-            POLogAttribute.INVOICE_ID to invoiceId,
-            POLogAttribute.GATEWAY_CONFIGURATION_ID to gatewayConfigurationId
-        )
+        fun logAttributes(flow: Flow): Map<String, String> =
+            when (flow) {
+                is Authorization -> mapOf(
+                    POLogAttribute.INVOICE_ID to flow.invoiceId,
+                    POLogAttribute.GATEWAY_CONFIGURATION_ID to flow.gatewayConfigurationId
+                )
+                is Tokenization -> mapOf(
+                    POLogAttribute.GATEWAY_CONFIGURATION_ID to flow.gatewayConfigurationId,
+                    POLogAttribute.CUSTOMER_ID to flow.customerId,
+                    POLogAttribute.CUSTOMER_TOKEN_ID to flow.customerTokenId
+                )
+            }
     }
 
     private val _completion = MutableStateFlow<NativeAlternativePaymentCompletion>(Awaiting)
@@ -111,7 +110,6 @@ internal class NativeAlternativePaymentInteractor(
     val sideEffects = _sideEffects.receiveAsFlow()
 
     private val handler = Handler(Looper.getMainLooper())
-    private val phoneNumberUtil = PhoneNumberUtil.getInstance()
 
     private var latestDefaultValuesRequest: NativeAlternativePaymentDefaultValuesRequest? = null
 
@@ -135,10 +133,7 @@ internal class NativeAlternativePaymentInteractor(
             return
         }
         this.configuration = configuration
-        logAttributes = logAttributes(
-            invoiceId = configuration.invoiceId,
-            gatewayConfigurationId = configuration.gatewayConfigurationId
-        )
+        logAttributes = logAttributes(configuration.flow)
         start()
     }
 
@@ -155,61 +150,55 @@ internal class NativeAlternativePaymentInteractor(
     private fun fetchPaymentDetails() {
         interactorScope.launch {
             when (val flow = configuration.flow) {
-                is Authorization -> fetchAuthorizationDetails(flow.request)
-                is Tokenization -> fetchTokenizationDetails(flow.request)
+                is Authorization -> fetchAuthorizationDetails(flow)
+                is Tokenization -> fetchTokenizationDetails(flow)
             }
         }
     }
 
-    private fun fetchAuthorizationDetails(
-        request: PONativeAlternativePaymentAuthorizationDetailsRequest
-    ) {
-        interactorScope.launch {
-            invoicesService.nativeAlternativePayment(request)
-                .onSuccess { response ->
-                    handlePaymentState(
-                        stateValue = response.toUserInputStateValue(),
-                        paymentState = response.state,
-                        nextStep = response.nextStep,
-                        customerInstructions = response.customerInstructions
-                    )
-                }.onFailure { failure ->
-                    POLogger.info("Failed to fetch authorization details: %s", failure)
-                    _completion.update { Failure(failure) }
-                }
-        }
+    private suspend fun fetchAuthorizationDetails(flow: Authorization) {
+        val request = PONativeAlternativePaymentAuthorizationDetailsRequest(
+            invoiceId = flow.invoiceId,
+            gatewayConfigurationId = flow.gatewayConfigurationId
+        )
+        invoicesService.nativeAlternativePayment(request)
+            .onSuccess { response ->
+                handlePaymentState(
+                    stateValue = response.toUserInputStateValue(),
+                    paymentState = response.state,
+                    elements = response.elements
+                )
+            }.onFailure { failure ->
+                POLogger.info("Failed to fetch authorization details: %s", failure)
+                _completion.update { Failure(failure) }
+            }
     }
 
-    private fun fetchTokenizationDetails(
-        request: PONativeAlternativePaymentTokenizationDetailsRequest
-    ) {
+    private suspend fun fetchTokenizationDetails(flow: Tokenization) {
         TODO(reason = "v2")
     }
 
     private suspend fun handlePaymentState(
         stateValue: UserInputStateValue,
-        paymentState: State,
-        nextStep: PONativeAlternativePaymentNextStep?,
-        customerInstructions: List<PONativeAlternativePaymentCustomerInstruction>?
+        paymentState: PONativeAlternativePaymentState,
+        elements: List<PONativeAlternativePaymentElement>?
     ) {
         when (paymentState) {
-            State.NEXT_STEP_REQUIRED -> handleNextStep(stateValue, nextStep)
-            State.PENDING_CAPTURE -> TODO(reason = "v2")
-            State.CAPTURED -> TODO(reason = "v2")
-            State.UNKNOWN -> TODO(reason = "v2")
+            NEXT_STEP_REQUIRED -> handleNextStep(stateValue, elements)
+            PENDING -> TODO(reason = "v2")
+            SUCCESS -> TODO(reason = "v2")
+            UNKNOWN -> TODO(reason = "v2")
         }
     }
 
     private fun handleNextStep(
         stateValue: UserInputStateValue,
-        nextStep: PONativeAlternativePaymentNextStep?
+        elements: List<PONativeAlternativePaymentElement>?
     ) {
-        when (nextStep) {
-            is SubmitData -> handleSubmitData(stateValue, nextStep.parameterDefinitions)
-            is Redirect -> TODO(reason = "v2")
-            Unknown -> TODO(reason = "v2")
-            null -> TODO(reason = "v2")
-        }
+        val parameters = elements?.flatMap {
+            if (it is Form) it.parameterDefinitions else emptyList()
+        } ?: emptyList()
+        handleFormParameters(stateValue, parameters)
     }
 
     private fun PONativeAlternativePaymentAuthorizationResponse.toUserInputStateValue() =
@@ -272,7 +261,7 @@ internal class NativeAlternativePaymentInteractor(
 
     //region User Input
 
-    private fun handleSubmitData(
+    private fun handleFormParameters(
         stateValue: UserInputStateValue,
         parameters: List<Parameter>
     ) {
@@ -423,8 +412,8 @@ internal class NativeAlternativePaymentInteractor(
                         is Parameter.PhoneNumber -> field.copy(
                             value = FieldValue.PhoneNumber(
                                 regionCode = TextFieldValue(
-                                    text = field.parameter.dialingCodes?.find { it.id == value.regionCode }
-                                        ?.let { value.regionCode } ?: String()
+                                    text = if (field.parameter.dialingCodes.any { it.regionCode == value.regionCode })
+                                        value.regionCode else String()
                                 ),
                                 number = TextFieldValue(
                                     text = value.number,
@@ -555,13 +544,10 @@ internal class NativeAlternativePaymentInteractor(
     private fun Field.validate(): InvalidField? {
         when (parameter) {
             is Parameter.PhoneNumber -> if (value is FieldValue.PhoneNumber) {
-                val dialingCode = value.regionCode.text.let { regionCode ->
-                    if (regionCode.isNotBlank())
-                        "+${phoneNumberUtil.getCountryCodeForRegion(regionCode)}"
-                    else String()
-                }
+                val dialingCode = parameter.dialingCodes
+                    .find { it.regionCode == value.regionCode.text }?.value
                 val number = value.number.text
-                if (required && (dialingCode.isBlank() || number.isBlank())) {
+                if (required && (dialingCode.isNullOrBlank() || number.isBlank())) {
                     return invalidField(R.string.po_native_apm_error_required_parameter)
                 }
                 val phoneNumber = "$dialingCode$number"
@@ -617,44 +603,57 @@ internal class NativeAlternativePaymentInteractor(
     private fun UserInputStateValue.areAllFieldsValid() = fields.all { it.isValid }
 
     private fun initiatePayment() {
+        when (val flow = configuration.flow) {
+            is Authorization -> initiatePayment(flow)
+            is Tokenization -> initiatePayment(flow)
+        }
+    }
+
+    private fun initiatePayment(flow: Authorization) {
         _state.whenUserInput { stateValue ->
             interactorScope.launch {
                 val request = PONativeAlternativePaymentAuthorizationRequest(
-                    invoiceId = configuration.invoiceId,
-                    gatewayConfigurationId = configuration.gatewayConfigurationId,
+                    invoiceId = flow.invoiceId,
+                    gatewayConfigurationId = flow.gatewayConfigurationId,
                     parameters = stateValue.fields.values()
                 )
-                TODO(reason = "v2")
-//                invoicesService.initiatePayment(request)
-//                    .onSuccess { response ->
-//                        handlePaymentState(
-//                            stateValue = stateValue,
-//                            paymentState = response.state,
-//                            nextStep = response.nextStep,
-//                            customerInstructions = response.customerInstructions
-//                        )
-//                    }.onFailure { failure ->
-//                        handlePaymentFailure(
-//                            failure = failure,
-//                            replaceWithLocalMessage = true
-//                        )
-//                    }
+                invoicesService.authorize(request)
+                    .onSuccess { response ->
+                        handlePaymentState(
+                            stateValue = stateValue,
+                            paymentState = response.state,
+                            elements = response.elements
+                        )
+                    }.onFailure { failure ->
+                        handlePaymentFailure(
+                            failure = failure,
+                            replaceWithLocalMessage = true
+                        )
+                    }
             }
         }
     }
 
+    private fun initiatePayment(flow: Tokenization) {
+        TODO(reason = "v2")
+    }
+
     private fun List<Field>.values() =
-        associate {
-            it.id to when (it.value) {
-                is FieldValue.Text -> string(value = it.value.value.text)
-                is FieldValue.PhoneNumber -> phoneNumber(
-                    dialingCode = it.value.regionCode.text.let { regionCode ->
-                        if (regionCode.isNotBlank())
-                            "+${phoneNumberUtil.getCountryCodeForRegion(regionCode)}"
-                        else String()
-                    },
-                    number = it.value.number.text
-                )
+        associate { field ->
+            field.id to when (val value = field.value) {
+                is FieldValue.Text -> string(value = value.value.text)
+                is FieldValue.PhoneNumber -> {
+                    val dialingCode = when (field.parameter) {
+                        is Parameter.PhoneNumber -> field.parameter.dialingCodes
+                            .find { it.regionCode == value.regionCode.text }
+                            ?.value ?: String()
+                        else -> String()
+                    }
+                    phoneNumber(
+                        dialingCode = dialingCode,
+                        number = value.number.text
+                    )
+                }
             }
         }
 
@@ -664,7 +663,7 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun handlePaymentFailure(
         failure: ProcessOutResult.Failure,
-        replaceWithLocalMessage: Boolean // TODO: Delete this when backend localization is ready.
+        replaceWithLocalMessage: Boolean // TODO(v2): Delete this when backend localization is ready.
     ) {
         _state.whenUserInput { stateValue ->
             val invalidFields = failure.invalidFields
@@ -700,7 +699,7 @@ internal class NativeAlternativePaymentInteractor(
         }
     }
 
-    // TODO: Delete this when backend localization is ready.
+    // TODO(v2): Delete this when backend localization is ready.
     private fun Field.errorMessage(
         originalMessage: String?,
         replaceWithLocalMessage: Boolean
@@ -820,7 +819,8 @@ internal class NativeAlternativePaymentInteractor(
     private fun isCaptureRetryable(
         result: ProcessOutResult<PONativeAlternativePaymentMethodCapture>
     ): Boolean = result.fold(
-        onSuccess = { it.state != CAPTURED },
+//        onSuccess = { it.state != CAPTURED },
+        onSuccess = { true }, // TODO(v2): resolve with the new state type
         onFailure = {
             val retryableCodes = listOf(
                 NetworkUnreachable,

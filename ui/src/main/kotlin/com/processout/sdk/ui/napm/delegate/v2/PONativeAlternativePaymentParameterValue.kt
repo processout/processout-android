@@ -20,7 +20,7 @@ data class PONativeAlternativePaymentParameterValue internal constructor(
         /**
          * Phone number value.
          *
-         * @param[regionCode] The region/country code associated with the phone number.
+         * @param[regionCode] The region code associated with the phone number.
          * Corresponds to a two-letter ISO 3166-1 alpha-2 country code.
          * @param[number] The rest of the number without dialing code.
          */
