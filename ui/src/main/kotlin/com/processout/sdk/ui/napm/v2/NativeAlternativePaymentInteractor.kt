@@ -21,7 +21,6 @@ import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAu
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter.Companion.phoneNumber
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter.Companion.string
-import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentTokenizationDetailsRequest
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodCapture
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameterValues
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails
@@ -151,16 +150,18 @@ internal class NativeAlternativePaymentInteractor(
     private fun fetchPaymentDetails() {
         interactorScope.launch {
             when (val flow = configuration.flow) {
-                is Authorization -> fetchAuthorizationDetails(flow.request)
-                is Tokenization -> fetchTokenizationDetails(flow.request)
+                is Authorization -> fetchAuthorizationDetails(flow)
+                is Tokenization -> fetchTokenizationDetails(flow)
             }
         }
     }
 
-    private fun fetchAuthorizationDetails(
-        request: PONativeAlternativePaymentAuthorizationDetailsRequest
-    ) {
+    private fun fetchAuthorizationDetails(flow: Authorization) {
         interactorScope.launch {
+            val request = PONativeAlternativePaymentAuthorizationDetailsRequest(
+                invoiceId = flow.invoiceId,
+                gatewayConfigurationId = flow.gatewayConfigurationId
+            )
             invoicesService.nativeAlternativePayment(request)
                 .onSuccess { response ->
                     handlePaymentState(
@@ -175,9 +176,7 @@ internal class NativeAlternativePaymentInteractor(
         }
     }
 
-    private fun fetchTokenizationDetails(
-        request: PONativeAlternativePaymentTokenizationDetailsRequest
-    ) {
+    private fun fetchTokenizationDetails(flow: Tokenization) {
         TODO(reason = "v2")
     }
 
