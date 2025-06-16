@@ -84,7 +84,6 @@ internal class DefaultNetworkGraph(
                 .withSubtype(PONativeAlternativePaymentCustomerInstruction.Text::class.java, "text")
                 .withSubtype(PONativeAlternativePaymentCustomerInstruction.Image::class.java, "image_url")
                 .withSubtype(PONativeAlternativePaymentCustomerInstruction.Barcode::class.java, "barcode")
-                .withSubtype(PONativeAlternativePaymentCustomerInstruction.Group::class.java, "group")
                 .withDefaultValue(PONativeAlternativePaymentCustomerInstruction.Unknown)
         )
 

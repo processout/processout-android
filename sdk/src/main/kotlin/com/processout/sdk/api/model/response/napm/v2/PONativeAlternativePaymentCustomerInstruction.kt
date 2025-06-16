@@ -58,18 +58,6 @@ sealed class PONativeAlternativePaymentCustomerInstruction {
     }
 
     /**
-     * Group of customer instructions.
-     *
-     * @param[label] Optional group display label.
-     * @param[instructions] Grouped instructions for the customer that provide additional information and/or describe required actions.
-     */
-    @JsonClass(generateAdapter = true)
-    data class Group(
-        val label: String?,
-        val instructions: List<PONativeAlternativePaymentCustomerInstruction>
-    ) : PONativeAlternativePaymentCustomerInstruction()
-
-    /**
      * Placeholder that allows adding additional cases while staying backward compatible.
      * __Warning:__ Do not match this case directly, use _when-else_ instead.
      */
