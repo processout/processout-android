@@ -184,6 +184,11 @@ internal class DefaultInvoicesRepository(
                         PONativeAlternativePaymentElement.CustomerInstruction(
                             instruction = it.instruction
                         )
+                    is NativeAlternativePaymentElement.CustomerInstructionGroup ->
+                        PONativeAlternativePaymentElement.CustomerInstructionGroup(
+                            label = it.label,
+                            instructions = it.instructions
+                        )
                     NativeAlternativePaymentElement.Unknown ->
                         PONativeAlternativePaymentElement.Unknown
                 }

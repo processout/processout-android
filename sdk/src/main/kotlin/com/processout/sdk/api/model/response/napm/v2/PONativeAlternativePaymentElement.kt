@@ -257,6 +257,17 @@ sealed class PONativeAlternativePaymentElement {
     ) : PONativeAlternativePaymentElement()
 
     /**
+     * Specifies a group of instructions for the customer, providing additional information and/or describing required actions.
+     *
+     * @param[label] Optional group display label.
+     * @param[instructions] Grouped instructions for the customer that provide additional information and/or describe required actions.
+     */
+    data class CustomerInstructionGroup(
+        val label: String?,
+        val instructions: List<PONativeAlternativePaymentCustomerInstruction>
+    ) : PONativeAlternativePaymentElement()
+
+    /**
      * Placeholder that allows adding additional cases while staying backward compatible.
      * __Warning:__ Do not match this case directly, use _when-else_ instead.
      */
@@ -281,6 +292,12 @@ internal sealed class NativeAlternativePaymentElement {
     @JsonClass(generateAdapter = true)
     data class CustomerInstruction(
         val instruction: PONativeAlternativePaymentCustomerInstruction
+    ) : NativeAlternativePaymentElement()
+
+    @JsonClass(generateAdapter = true)
+    data class CustomerInstructionGroup(
+        val label: String?,
+        val instructions: List<PONativeAlternativePaymentCustomerInstruction>
     ) : NativeAlternativePaymentElement()
 
     data object Unknown : NativeAlternativePaymentElement()
