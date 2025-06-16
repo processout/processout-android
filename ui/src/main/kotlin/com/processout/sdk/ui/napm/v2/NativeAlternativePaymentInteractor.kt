@@ -156,27 +156,25 @@ internal class NativeAlternativePaymentInteractor(
         }
     }
 
-    private fun fetchAuthorizationDetails(flow: Authorization) {
-        interactorScope.launch {
-            val request = PONativeAlternativePaymentAuthorizationDetailsRequest(
-                invoiceId = flow.invoiceId,
-                gatewayConfigurationId = flow.gatewayConfigurationId
-            )
-            invoicesService.nativeAlternativePayment(request)
-                .onSuccess { response ->
-                    handlePaymentState(
-                        stateValue = response.toUserInputStateValue(),
-                        paymentState = response.state,
-                        elements = response.elements
-                    )
-                }.onFailure { failure ->
-                    POLogger.info("Failed to fetch authorization details: %s", failure)
-                    _completion.update { Failure(failure) }
-                }
-        }
+    private suspend fun fetchAuthorizationDetails(flow: Authorization) {
+        val request = PONativeAlternativePaymentAuthorizationDetailsRequest(
+            invoiceId = flow.invoiceId,
+            gatewayConfigurationId = flow.gatewayConfigurationId
+        )
+        invoicesService.nativeAlternativePayment(request)
+            .onSuccess { response ->
+                handlePaymentState(
+                    stateValue = response.toUserInputStateValue(),
+                    paymentState = response.state,
+                    elements = response.elements
+                )
+            }.onFailure { failure ->
+                POLogger.info("Failed to fetch authorization details: %s", failure)
+                _completion.update { Failure(failure) }
+            }
     }
 
-    private fun fetchTokenizationDetails(flow: Tokenization) {
+    private suspend fun fetchTokenizationDetails(flow: Tokenization) {
         TODO(reason = "v2")
     }
 
@@ -605,11 +603,18 @@ internal class NativeAlternativePaymentInteractor(
     private fun UserInputStateValue.areAllFieldsValid() = fields.all { it.isValid }
 
     private fun initiatePayment() {
+        when (val flow = configuration.flow) {
+            is Authorization -> initiatePayment(flow)
+            is Tokenization -> initiatePayment(flow)
+        }
+    }
+
+    private fun initiatePayment(flow: Authorization) {
         _state.whenUserInput { stateValue ->
             interactorScope.launch {
                 val request = PONativeAlternativePaymentAuthorizationRequest(
-                    invoiceId = configuration.invoiceId,
-                    gatewayConfigurationId = configuration.gatewayConfigurationId,
+                    invoiceId = flow.invoiceId,
+                    gatewayConfigurationId = flow.gatewayConfigurationId,
                     parameters = stateValue.fields.values()
                 )
                 invoicesService.authorize(request)
@@ -627,6 +632,10 @@ internal class NativeAlternativePaymentInteractor(
                     }
             }
         }
+    }
+
+    private fun initiatePayment(flow: Tokenization) {
+        TODO(reason = "v2")
     }
 
     private fun List<Field>.values() =
