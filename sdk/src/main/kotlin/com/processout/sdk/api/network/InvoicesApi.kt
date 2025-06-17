@@ -4,7 +4,7 @@ import com.processout.sdk.api.model.request.InvoiceAuthorizationRequestWithDevic
 import com.processout.sdk.api.model.request.NativeAPMRequestBody
 import com.processout.sdk.api.model.request.NativeAlternativePaymentCaptureRequest
 import com.processout.sdk.api.model.request.POCreateInvoiceRequest
-import com.processout.sdk.api.model.request.napm.v2.NativeAlternativePaymentAuthorizationRequestBody
+import com.processout.sdk.api.model.request.napm.v2.NativeAlternativePaymentRequestBody
 import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentAuthorizationResponseBody
 import com.processout.sdk.api.network.HeaderConstants.CLIENT_SECRET
@@ -23,7 +23,7 @@ internal interface InvoicesApi {
     @POST("/invoices/{id}/apm-payment")
     suspend fun authorizeInvoice(
         @Path("id") invoiceId: String,
-        @Body request: NativeAlternativePaymentAuthorizationRequestBody
+        @Body request: NativeAlternativePaymentRequestBody
     ): Response<NativeAlternativePaymentAuthorizationResponseBody>
 
     @GET("/invoices/{invoiceId}/apm-payment/{gatewayConfigurationId}")

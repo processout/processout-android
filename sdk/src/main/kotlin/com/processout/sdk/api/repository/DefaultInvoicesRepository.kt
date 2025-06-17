@@ -1,8 +1,8 @@
 package com.processout.sdk.api.repository
 
 import com.processout.sdk.api.model.request.*
-import com.processout.sdk.api.model.request.napm.v2.NativeAlternativePaymentAuthorizationRequestBody
-import com.processout.sdk.api.model.request.napm.v2.NativeAlternativePaymentAuthorizationRequestBody.SubmitData
+import com.processout.sdk.api.model.request.napm.v2.NativeAlternativePaymentRequestBody
+import com.processout.sdk.api.model.request.napm.v2.NativeAlternativePaymentRequestBody.SubmitData
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationDetailsRequest
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter
@@ -156,7 +156,7 @@ internal class DefaultInvoicesRepository(
         )
 
     private fun PONativeAlternativePaymentAuthorizationRequest.toBody() =
-        NativeAlternativePaymentAuthorizationRequestBody(
+        NativeAlternativePaymentRequestBody(
             gatewayConfigurationId = gatewayConfigurationId,
             submitData = submitData?.let { SubmitData(parameters = it.parameters.map()) }
         )
