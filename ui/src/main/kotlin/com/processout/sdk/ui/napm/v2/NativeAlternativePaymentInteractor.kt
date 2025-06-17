@@ -93,9 +93,9 @@ internal class NativeAlternativePaymentInteractor(
                     POLogAttribute.GATEWAY_CONFIGURATION_ID to flow.gatewayConfigurationId
                 )
                 is Tokenization -> mapOf(
-                    POLogAttribute.GATEWAY_CONFIGURATION_ID to flow.gatewayConfigurationId,
                     POLogAttribute.CUSTOMER_ID to flow.customerId,
-                    POLogAttribute.CUSTOMER_TOKEN_ID to flow.customerTokenId
+                    POLogAttribute.CUSTOMER_TOKEN_ID to flow.customerTokenId,
+                    POLogAttribute.GATEWAY_CONFIGURATION_ID to flow.gatewayConfigurationId
                 )
             }
     }
