@@ -57,6 +57,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                     app = app,
                     configuration = configuration,
                     invoicesService = ProcessOut.instance.invoices,
+                    customerTokensService = ProcessOut.instance.customerTokens,
                     barcodeBitmapProvider = BarcodeBitmapProvider(),
                     mediaStorageProvider = MediaStorageProvider(app),
                     captureRetryStrategy = Exponential(
