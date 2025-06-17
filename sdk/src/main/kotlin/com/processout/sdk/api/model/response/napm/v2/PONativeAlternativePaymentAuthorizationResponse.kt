@@ -9,8 +9,7 @@ import com.squareup.moshi.JsonClass
  * @param[state] State of native alternative payment.
  * @param[invoice] Invoice details.
  * @param[paymentMethod] Payment method details.
- * @param[nextStep] Next required step in the payment flow.
- * @param[customerInstructions] Instructions for the customer that provide additional information and/or describe required actions.
+ * @param[elements] An ordered list of elements that needs to be rendered on the UI during native alternative payment flow.
  * @param[redirect] Indicates required redirect.
  */
 /** @suppress */
