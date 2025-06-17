@@ -19,8 +19,9 @@ import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationDetailsRequest
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
-import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter.Companion.phoneNumber
-import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest.Parameter.Companion.string
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter.Companion.phoneNumber
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter.Companion.string
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentCustomerInstruction
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement
@@ -615,7 +616,9 @@ internal class NativeAlternativePaymentInteractor(
                 val request = PONativeAlternativePaymentAuthorizationRequest(
                     invoiceId = flow.invoiceId,
                     gatewayConfigurationId = flow.gatewayConfigurationId,
-                    parameters = stateValue.fields.values()
+                    submitData = PONativeAlternativePaymentSubmitData(
+                        parameters = stateValue.fields.values()
+                    )
                 )
                 invoicesService.authorize(request)
                     .onSuccess { response ->
