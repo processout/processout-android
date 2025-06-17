@@ -4,8 +4,10 @@ import com.processout.sdk.api.model.request.POAssignCustomerTokenRequest
 import com.processout.sdk.api.model.request.POCreateCustomerRequest
 import com.processout.sdk.api.model.request.POCreateCustomerTokenRequest
 import com.processout.sdk.api.model.request.PODeleteCustomerTokenRequest
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentTokenizationRequest
 import com.processout.sdk.api.model.response.POCustomer
 import com.processout.sdk.api.model.response.POCustomerToken
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentTokenizationResponse
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import kotlinx.coroutines.Job
@@ -61,6 +63,15 @@ interface POCustomerTokensService {
         request: POAssignCustomerTokenRequest,
         threeDSService: PO3DSService
     ): ProcessOutResult<POCustomerToken>
+
+    /**
+     * Tokenize native alternative payment.
+     */
+    /** @suppress */
+    @ProcessOutInternalApi
+    suspend fun tokenize(
+        request: PONativeAlternativePaymentTokenizationRequest
+    ): ProcessOutResult<PONativeAlternativePaymentTokenizationResponse>
 
     /**
      * Deletes customer token.
