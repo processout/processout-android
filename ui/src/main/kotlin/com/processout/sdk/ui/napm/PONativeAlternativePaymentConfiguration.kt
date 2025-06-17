@@ -67,15 +67,15 @@ data class PONativeAlternativePaymentConfiguration(
         ) : Flow()
 
         /**
-         * @param[gatewayConfigurationId] Gateway configuration identifier.
          * @param[customerId] Customer identifier.
          * @param[customerTokenId] Customer token identifier.
+         * @param[gatewayConfigurationId] Gateway configuration identifier.
          */
         @Parcelize
         data class Tokenization(
-            val gatewayConfigurationId: String,
             val customerId: String,
-            val customerTokenId: String
+            val customerTokenId: String,
+            val gatewayConfigurationId: String
         ) : Flow()
     }
 
