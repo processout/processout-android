@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.POText
@@ -25,7 +26,7 @@ import com.processout.sdk.ui.core.component.field.POField.ContainerBox
 import com.processout.sdk.ui.core.component.field.POField.stateStyle
 import com.processout.sdk.ui.core.component.field.POField.textSelectionColors
 import com.processout.sdk.ui.core.component.field.POField.textStyle
-import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -34,6 +35,7 @@ fun POTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
+    height: Dp = dimensions.formComponentMinHeight,
     contentPadding: PaddingValues = POField.contentPadding,
     style: POField.Style = POField.default,
     enabled: Boolean = true,
@@ -62,7 +64,7 @@ fun POTextField(
             value = value,
             onValueChange = onValueChange,
             modifier = modifier
-                .requiredHeight(ProcessOutTheme.dimensions.formComponentMinHeight)
+                .requiredHeight(height)
                 .onFocusChanged {
                     isFocused = it.isFocused
                 },
