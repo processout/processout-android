@@ -10,6 +10,7 @@ import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 @ProcessOutInternalApi
 @Immutable
 data class PODimensions(
+    val fieldHeight: Dp = 52.dp,
     val formComponentMinHeight: Dp = 48.dp,
     val interactiveComponentMinSize: Dp = 44.dp,
     val iconSizeSmall: Dp = 16.dp,
