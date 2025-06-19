@@ -149,7 +149,7 @@ private fun Fields(
                 readOnly = !state.enabled,
                 isError = state.isError,
                 forceTextDirectionLtr = state.forceTextDirectionLtr,
-                placeholderText = state.placeholder,
+                placeholder = state.placeholder,
                 trailingIcon = { state.iconResId?.let { AnimatedFieldIcon(id = it) } },
                 keyboardOptions = state.keyboardOptions,
                 keyboardActions = POField.keyboardActions(

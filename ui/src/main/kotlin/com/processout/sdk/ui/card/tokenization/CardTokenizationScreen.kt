@@ -300,7 +300,7 @@ private fun TextField(
         enabled = state.enabled,
         isError = state.isError,
         forceTextDirectionLtr = state.forceTextDirectionLtr,
-        placeholderText = state.placeholder,
+        placeholder = state.placeholder,
         trailingIcon = { state.iconResId?.let { AnimatedFieldIcon(id = it) } },
         visualTransformation = state.visualTransformation,
         keyboardOptions = state.keyboardOptions,
@@ -373,7 +373,7 @@ private fun DropdownField(
         menuStyle = menuStyle,
         enabled = state.enabled,
         isError = state.isError,
-        placeholderText = state.placeholder
+        placeholder = state.placeholder
     )
 }
 

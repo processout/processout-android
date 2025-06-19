@@ -49,7 +49,7 @@ fun POPhoneNumberField(
             menuMatchesTextFieldWidth = false,
             preferFormattedTextSelection = true,
             isError = state.isError,
-            placeholderText = state.regionCodePlaceholder
+            placeholder = state.regionCodePlaceholder
         )
         val phoneNumberUtil = remember { PhoneNumberUtil.getInstance() }
         POTextField(
@@ -87,7 +87,7 @@ fun POPhoneNumberField(
             enabled = state.enabled,
             isError = state.isError,
             forceTextDirectionLtr = state.forceTextDirectionLtr,
-            placeholderText = state.numberPlaceholder,
+            placeholder = state.numberPlaceholder,
             visualTransformation = state.visualTransformation ?: VisualTransformation.None,
             keyboardOptions = state.keyboardOptions,
             keyboardActions = keyboardActions

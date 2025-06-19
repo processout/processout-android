@@ -41,7 +41,7 @@ fun POTextField(
     isDropdown: Boolean = false,
     isError: Boolean = false,
     forceTextDirectionLtr: Boolean = false,
-    placeholderText: String? = null,
+    placeholder: String? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None,
@@ -86,9 +86,9 @@ fun POTextField(
                     enabled = enabled,
                     isError = isError,
                     placeholder = {
-                        if (!placeholderText.isNullOrBlank()) {
+                        if (!placeholder.isNullOrBlank()) {
                             POText(
-                                text = placeholderText,
+                                text = placeholder,
                                 color = stateStyle.placeholderTextColor,
                                 style = stateStyle.text.textStyle
                             )

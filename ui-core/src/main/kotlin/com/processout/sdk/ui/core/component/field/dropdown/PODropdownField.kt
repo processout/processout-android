@@ -50,7 +50,7 @@ fun PODropdownField(
     preferFormattedTextSelection: Boolean = false,
     enabled: Boolean = true,
     isError: Boolean = false,
-    placeholderText: String? = null
+    placeholder: String? = null
 ) {
     MaterialTheme(
         colorScheme = MaterialTheme.colorScheme.copy(surface = Color.Transparent),
@@ -87,7 +87,7 @@ fun PODropdownField(
                 readOnly = true,
                 isDropdown = true,
                 isError = isError,
-                placeholderText = placeholderText,
+                placeholder = placeholder,
                 trailingIcon = {
                     Icon(
                         painter = painterResource(id = R.drawable.po_dropdown_arrow),

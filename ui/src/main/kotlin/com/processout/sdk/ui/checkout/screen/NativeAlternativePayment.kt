@@ -167,7 +167,7 @@ private fun TextField(
         enabled = state.enabled,
         isError = state.isError,
         forceTextDirectionLtr = state.forceTextDirectionLtr,
-        placeholderText = state.placeholder,
+        placeholder = state.placeholder,
         visualTransformation = state.visualTransformation,
         keyboardOptions = state.keyboardOptions,
         keyboardActions = POField.keyboardActions(
@@ -318,7 +318,7 @@ private fun DropdownField(
         labelsStyle = labelsStyle,
         menuStyle = menuStyle,
         isError = state.isError,
-        placeholderText = state.placeholder
+        placeholder = state.placeholder
     )
 }
 
