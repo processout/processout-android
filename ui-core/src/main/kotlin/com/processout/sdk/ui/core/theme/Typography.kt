@@ -85,7 +85,8 @@ data class POTypography(
             fontFamily = WorkSans,
             fontWeight = fontWeight,
             fontSize = 12.sp,
-            lineHeight = 14.sp
+            lineHeight = 14.sp,
+            letterSpacing = 0.15.sp
         )
 
     fun s13(fontWeight: FontWeight = FontWeight.Normal) =
@@ -101,7 +102,8 @@ data class POTypography(
             fontFamily = WorkSans,
             fontWeight = fontWeight,
             fontSize = 14.sp,
-            lineHeight = 20.sp
+            lineHeight = 20.sp,
+            letterSpacing = 0.15.sp
         )
 
     fun s15(fontWeight: FontWeight = FontWeight.Normal) =
@@ -125,7 +127,12 @@ data class POTypography(
             fontFamily = WorkSans,
             fontWeight = fontWeight,
             fontSize = 18.sp,
-            lineHeight = 22.sp
+            lineHeight = 22.sp,
+            letterSpacing = when (fontWeight) {
+                FontWeight.Medium,
+                FontWeight.SemiBold -> 0.1.sp
+                else -> 0.sp
+            }
         )
 
     fun s20(fontWeight: FontWeight = FontWeight.Normal) =
@@ -133,7 +140,12 @@ data class POTypography(
             fontFamily = WorkSans,
             fontWeight = fontWeight,
             fontSize = 20.sp,
-            lineHeight = 24.sp
+            lineHeight = 24.sp,
+            letterSpacing = when (fontWeight) {
+                FontWeight.Medium -> (-0.15).sp
+                FontWeight.SemiBold -> (-0.1).sp
+                else -> (-0.2).sp
+            }
         )
 
     fun s24(fontWeight: FontWeight = FontWeight.Normal) =
