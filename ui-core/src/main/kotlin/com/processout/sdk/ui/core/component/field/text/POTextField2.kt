@@ -22,7 +22,7 @@ fun POTextField2(
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
     height: Dp = dimensions.fieldHeight,
-    contentPadding: PaddingValues = POField.contentPadding,
+    contentPadding: PaddingValues = POField.contentPadding2,
     style: POField.Style = POField.default,
     enabled: Boolean = true,
     readOnly: Boolean = false,

@@ -120,6 +120,12 @@ object POField {
             vertical = ProcessOutTheme.spacing.medium
         )
 
+    val contentPadding2: PaddingValues
+        @Composable get() = PaddingValues(
+            horizontal = ProcessOutTheme.spacing.medium,
+            vertical = ProcessOutTheme.spacing.small
+        )
+
     internal fun Style.stateStyle(
         isError: Boolean,
         isFocused: Boolean
