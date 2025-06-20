@@ -9,7 +9,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
@@ -83,22 +83,13 @@ fun POTextField(
             visualTransformation = visualTransformation,
             interactionSource = interactionSource,
             decorationBox = @Composable { innerTextField ->
-                TextFieldDefaults.DecorationBox(
+                OutlinedTextFieldDefaults.DecorationBox(
                     value = value.text,
                     innerTextField = innerTextField,
                     enabled = enabled,
                     isError = isError,
-                    label = if (label.isNullOrBlank()) null else {
-                        {
-                            POText(
-                                text = label,
-                                color = stateStyle.placeholderTextColor, // TODO(v2): label color/style?
-                                style = stateStyle.text.textStyle
-                            )
-                        }
-                    },
-                    placeholder = if (placeholder.isNullOrBlank()) null else {
-                        {
+                    placeholder = {
+                        if (!placeholder.isNullOrBlank()) {
                             POText(
                                 text = placeholder,
                                 color = stateStyle.placeholderTextColor,
