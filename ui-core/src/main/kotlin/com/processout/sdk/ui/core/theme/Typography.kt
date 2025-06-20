@@ -77,7 +77,72 @@ data class POTypography(
         fontSize = 14.sp,
         lineHeight = 18.sp
     )
-)
+) {
+
+    fun s12(fontWeight: FontWeight = FontWeight.Normal) =
+        TextStyle(
+            fontFamily = WorkSans,
+            fontWeight = fontWeight,
+            fontSize = 12.sp,
+            lineHeight = 14.sp
+        )
+
+    fun s13(fontWeight: FontWeight = FontWeight.Normal) =
+        TextStyle(
+            fontFamily = WorkSans,
+            fontWeight = fontWeight,
+            fontSize = 13.sp,
+            lineHeight = 16.sp
+        )
+
+    fun s14(fontWeight: FontWeight = FontWeight.Normal) =
+        TextStyle(
+            fontFamily = WorkSans,
+            fontWeight = fontWeight,
+            fontSize = 14.sp,
+            lineHeight = 20.sp
+        )
+
+    fun s15(fontWeight: FontWeight = FontWeight.Normal) =
+        TextStyle(
+            fontFamily = WorkSans,
+            fontWeight = fontWeight,
+            fontSize = 15.sp,
+            lineHeight = 18.sp
+        )
+
+    fun s16(fontWeight: FontWeight = FontWeight.Normal) =
+        TextStyle(
+            fontFamily = WorkSans,
+            fontWeight = fontWeight,
+            fontSize = 16.sp,
+            lineHeight = 20.sp
+        )
+
+    fun s18(fontWeight: FontWeight = FontWeight.Normal) =
+        TextStyle(
+            fontFamily = WorkSans,
+            fontWeight = fontWeight,
+            fontSize = 18.sp,
+            lineHeight = 22.sp
+        )
+
+    fun s20(fontWeight: FontWeight = FontWeight.Normal) =
+        TextStyle(
+            fontFamily = WorkSans,
+            fontWeight = fontWeight,
+            fontSize = 20.sp,
+            lineHeight = 24.sp
+        )
+
+    fun s24(fontWeight: FontWeight = FontWeight.Normal) =
+        TextStyle(
+            fontFamily = WorkSans,
+            fontWeight = fontWeight,
+            fontSize = 24.sp,
+            lineHeight = 28.sp
+        )
+}
 
 internal val LocalPOTypography = staticCompositionLocalOf { POTypography() }
 
