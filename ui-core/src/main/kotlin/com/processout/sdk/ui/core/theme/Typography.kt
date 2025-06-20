@@ -23,6 +23,7 @@ private val WorkSans = FontFamily(
 @ProcessOutInternalApi
 @Immutable
 data class POTypography(
+    val paragraph: Paragraph = Paragraph,
     val title: TextStyle = TextStyle(
         fontFamily = WorkSans,
         fontWeight = FontWeight.Medium,
@@ -142,6 +143,17 @@ data class POTypography(
             fontSize = 24.sp,
             lineHeight = 28.sp
         )
+
+    object Paragraph {
+
+        fun s16(fontWeight: FontWeight = FontWeight.Normal) =
+            TextStyle(
+                fontFamily = WorkSans,
+                fontWeight = fontWeight,
+                fontSize = 16.sp,
+                lineHeight = 26.sp
+            )
+    }
 }
 
 internal val LocalPOTypography = staticCompositionLocalOf { POTypography() }
