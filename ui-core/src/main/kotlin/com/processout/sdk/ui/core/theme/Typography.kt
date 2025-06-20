@@ -15,7 +15,8 @@ import com.processout.sdk.ui.core.style.POTextType.Weight.*
 
 private val WorkSans = FontFamily(
     Font(R.font.work_sans_regular, FontWeight.Normal),
-    Font(R.font.work_sans_medium, FontWeight.Medium)
+    Font(R.font.work_sans_medium, FontWeight.Medium),
+    Font(R.font.work_sans_semibold, FontWeight.SemiBold)
 )
 
 /** @suppress */
