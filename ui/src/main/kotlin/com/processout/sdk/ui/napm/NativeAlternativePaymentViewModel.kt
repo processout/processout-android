@@ -231,7 +231,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
             FieldState(
                 id = id,
                 value = value,
-                title = displayName,
+                label = displayName,
                 description = description,
                 placeholder = type.placeholder(),
                 isError = !isValid,
@@ -255,7 +255,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 id = id,
                 value = value,
                 length = length,
-                title = displayName,
+                label = displayName,
                 description = description,
                 isError = !isValid,
                 keyboardOptions = type.keyboardOptions(keyboardAction.imeAction),
@@ -269,7 +269,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 id = id,
                 value = value,
                 availableValues = availableValues?.let { POImmutableList(it) },
-                title = displayName,
+                label = displayName,
                 description = description,
                 isError = !isValid
             )
@@ -281,7 +281,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 id = id,
                 value = value,
                 availableValues = availableValues?.let { POImmutableList(it) },
-                title = displayName,
+                label = displayName,
                 description = description,
                 isError = !isValid
             )

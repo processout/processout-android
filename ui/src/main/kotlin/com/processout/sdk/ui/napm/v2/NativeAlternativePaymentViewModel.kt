@@ -250,7 +250,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
             FieldState(
                 id = id,
                 value = value.textFieldValue(),
-                title = label,
+                label = label,
                 description = description,
                 placeholder = parameter.placeholder(),
                 isError = !isValid,
@@ -270,7 +270,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 id = id,
                 value = value.textFieldValue(),
                 length = maxLength,
-                title = label,
+                label = label,
                 description = description,
                 isError = !isValid,
                 inputFilter = parameter.inputFilter(),
@@ -285,7 +285,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 id = id,
                 value = value.textFieldValue(),
                 availableValues = parameter.availableValues(),
-                title = label,
+                label = label,
                 description = description,
                 isError = !isValid
             )
@@ -297,7 +297,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 id = id,
                 value = value.textFieldValue(),
                 availableValues = parameter.availableValues(),
-                title = label,
+                label = label,
                 description = description,
                 isError = !isValid
             )
@@ -308,7 +308,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
             FieldState(
                 id = id,
                 value = value.textFieldValue(),
-                title = label,
+                label = label,
                 description = description,
                 isError = !isValid
             )

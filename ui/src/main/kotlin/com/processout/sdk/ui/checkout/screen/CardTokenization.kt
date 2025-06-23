@@ -343,7 +343,7 @@ private fun CheckboxField(
     modifier: Modifier = Modifier
 ) {
     POCheckbox(
-        text = state.title ?: String(),
+        text = state.label ?: String(),
         checked = state.value.text.toBooleanStrictOrNull() ?: false,
         onCheckedChange = {
             if (state.enabled) {

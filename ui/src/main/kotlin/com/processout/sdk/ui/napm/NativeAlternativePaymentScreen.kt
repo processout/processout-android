@@ -229,7 +229,7 @@ private fun TextField(
                 )
             )
         },
-        title = state.title ?: String(),
+        title = state.label ?: String(),
         description = state.description,
         modifier = modifier
             .focusRequester(focusRequester)
@@ -283,7 +283,7 @@ private fun CodeField(
                 )
             )
         },
-        title = state.title ?: String(),
+        title = state.label ?: String(),
         description = state.description,
         modifier = modifier
             .onFocusChanged {
@@ -331,7 +331,7 @@ private fun RadioField(
             )
         },
         availableValues = state.availableValues ?: POImmutableList(emptyList()),
-        title = state.title ?: String(),
+        title = state.label ?: String(),
         description = state.description,
         modifier = modifier,
         radioGroupStyle = radioGroupStyle,
@@ -360,7 +360,7 @@ private fun DropdownField(
             )
         },
         availableValues = state.availableValues ?: POImmutableList(emptyList()),
-        title = state.title ?: String(),
+        title = state.label ?: String(),
         description = state.description,
         modifier = modifier
             .onFocusChanged {
