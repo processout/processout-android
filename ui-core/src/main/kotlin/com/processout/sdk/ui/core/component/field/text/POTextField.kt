@@ -102,7 +102,7 @@ fun POTextField(
                             if (!label.isNullOrBlank()) {
                                 val fontSizeValue = stateStyle.text.textStyle.fontSize.value
                                 val animatedFontSizeValue by animateFloatAsState(
-                                    targetValue = if (isLabelFloating) fontSizeValue * 0.78f else fontSizeValue,
+                                    targetValue = if (isLabelFloating) fontSizeValue * 0.8f else fontSizeValue,
                                     animationSpec = spring(stiffness = animationStiffness)
                                 )
                                 POText(
