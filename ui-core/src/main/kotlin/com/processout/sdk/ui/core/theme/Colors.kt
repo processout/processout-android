@@ -24,7 +24,8 @@ data class POColors(
         val placeholder: Color,
         val disabled: Color,
         val success: Color,
-        val error: Color
+        val error: Color,
+        val onTipError: Color
     )
 
     @Immutable
@@ -57,7 +58,8 @@ data class POColors(
         val default: Color,
         val neutral: Color,
         val success: Color,
-        val error: Color
+        val error: Color,
+        val toastError: Color
     )
 
     @Immutable
@@ -75,7 +77,8 @@ val POLightColorPalette = POColors(
         placeholder = Color(0xFF707378),
         disabled = Color(0xFFADB5BD),
         success = Color(0xFF00291D),
-        error = Color(0xFFD11D2F)
+        error = Color(0xFFD11D2F),
+        onTipError = Color(0xFF630407)
     ),
     input = Input(
         backgroundDefault = Color(0xFFFFFFFF),
@@ -102,7 +105,8 @@ val POLightColorPalette = POColors(
         default = Color(0xFFFFFFFF),
         neutral = Color(0xFFFAFAFA),
         success = Color(0xFFBEFAE9),
-        error = Color(0xFFFFC2C8)
+        error = Color(0xFFFFC2C8),
+        toastError = Color(0xFFFDE3DE)
     ),
     border = Border(
         subtle = Color(0xFFCCD1D6)
@@ -118,7 +122,8 @@ val PODarkColorPalette = POColors(
         placeholder = Color(0xFFA7A9AF),
         disabled = Color(0xFF5B6576),
         success = Color(0xFFE5FFF8),
-        error = Color(0xFFFF5263)
+        error = Color(0xFFFF5263),
+        onTipError = Color(0xFFF5D9D9)
     ),
     input = Input(
         backgroundDefault = Color(0xFF121821),
@@ -145,7 +150,8 @@ val PODarkColorPalette = POColors(
         default = Color(0xFF121821),
         neutral = Color(0xFF242C38),
         success = Color(0xFF1DA37D),
-        error = Color(0xFFD11D2F)
+        error = Color(0xFFD11D2F),
+        toastError = Color(0xFF511511)
     ),
     border = Border(
         subtle = Color(0xFF7C8593)
