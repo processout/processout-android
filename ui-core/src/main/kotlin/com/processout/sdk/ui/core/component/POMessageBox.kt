@@ -94,6 +94,19 @@ object POMessageBox {
             backgroundColor = colors.surface.error
         )
 
+    val error2: Style
+        @Composable get() = Style(
+            textWithIcon = POTextWithIcon.default.copy(
+                iconResId = R.drawable.po_icon_warning_diamond
+            ),
+            shape = shapes.roundedCorners8,
+            border = POBorderStroke(
+                width = 1.dp,
+                color = colors.input.borderError
+            ),
+            backgroundColor = colors.surface.error
+        )
+
     @Composable
     fun custom(style: POMessageBoxStyle) = with(style) {
         val text = POText.custom(style = text)

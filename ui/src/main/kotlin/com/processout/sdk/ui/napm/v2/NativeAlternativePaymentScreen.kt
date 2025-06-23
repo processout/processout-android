@@ -784,7 +784,7 @@ internal object NativeAlternativePaymentScreen {
                 } ?: POText.errorLabel,
                 errorMessageBox = custom?.errorMessageBox?.let {
                     POMessageBox.custom(style = it)
-                } ?: POMessageBox.error,
+                } ?: POMessageBox.error2,
                 successMessage = custom?.successMessage?.let {
                     POText.custom(style = it)
                 } ?: POText.Style(

@@ -28,7 +28,7 @@ fun POTextField2(
     minHeight: Dp = dimensions.fieldMinHeight,
     contentPadding: PaddingValues = POField.contentPadding2,
     fieldStyle: POField.Style = POField.default2,
-    descriptionStyle: POMessageBox.Style = POMessageBox.error,
+    descriptionStyle: POMessageBox.Style = POMessageBox.error2,
     enabled: Boolean = true,
     readOnly: Boolean = false,
     isDropdown: Boolean = false,

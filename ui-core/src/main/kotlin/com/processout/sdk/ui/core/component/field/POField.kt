@@ -109,7 +109,7 @@ object POField {
                     backgroundColor = colors.input.backgroundDefault,
                     controlsTintColor = colors.text.primary,
                     dropdownRippleColor = colors.text.muted,
-                    shape = shapes.fieldRoundedCorners,
+                    shape = shapes.roundedCorners6,
                     border = POBorderStroke(width = 1.5.dp, color = colors.input.borderDefault2)
                 ),
                 error = StateStyle(
@@ -122,7 +122,7 @@ object POField {
                     backgroundColor = colors.input.backgroundDefault,
                     controlsTintColor = colors.text.primary,
                     dropdownRippleColor = colors.text.muted,
-                    shape = shapes.fieldRoundedCorners,
+                    shape = shapes.roundedCorners6,
                     border = POBorderStroke(width = 1.5.dp, color = colors.input.borderError)
                 ),
                 focused = StateStyle(
@@ -135,7 +135,7 @@ object POField {
                     backgroundColor = colors.input.backgroundDefault,
                     controlsTintColor = colors.text.primary,
                     dropdownRippleColor = colors.text.muted,
-                    shape = shapes.fieldRoundedCorners,
+                    shape = shapes.roundedCorners6,
                     border = POBorderStroke(width = 1.5.dp, color = colors.text.primary)
                 )
             )
