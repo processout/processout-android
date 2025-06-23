@@ -117,7 +117,7 @@ object POField {
                         color = colors.text.primary,
                         textStyle = typography.s15(FontWeight.Medium)
                     ),
-                    labelTextColor = colors.text.placeholder,
+                    labelTextColor = colors.text.error,
                     placeholderTextColor = colors.text.placeholder,
                     backgroundColor = colors.input.backgroundDefault,
                     controlsTintColor = colors.text.primary,
