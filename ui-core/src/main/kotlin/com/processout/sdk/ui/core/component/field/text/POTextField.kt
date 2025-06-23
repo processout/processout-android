@@ -2,6 +2,10 @@
 
 package com.processout.sdk.ui.core.component.field.text
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
@@ -19,6 +23,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
@@ -85,18 +90,45 @@ fun POTextField(
             decorationBox = @Composable { innerTextField ->
                 OutlinedTextFieldDefaults.DecorationBox(
                     value = value.text,
-                    innerTextField = innerTextField,
-                    enabled = enabled,
-                    isError = isError,
-                    placeholder = {
-                        if (!placeholder.isNullOrBlank()) {
-                            POText(
-                                text = placeholder,
-                                color = stateStyle.placeholderTextColor,
-                                style = stateStyle.text.textStyle
+                    innerTextField = {
+                        val animationStiffness = Spring.StiffnessMedium
+                        Column(
+                            modifier = Modifier.animateContentSize(
+                                animationSpec = spring(stiffness = animationStiffness)
                             )
+                        ) {
+                            val isLabelFloating = isFocused || value.text.isNotEmpty()
+                            if (!label.isNullOrBlank()) {
+                                val fontSizeValue = stateStyle.text.textStyle.fontSize.value
+                                val animatedFontSizeValue by animateFloatAsState(
+                                    targetValue = if (isLabelFloating) fontSizeValue * 0.78f else fontSizeValue,
+                                    animationSpec = spring(stiffness = animationStiffness)
+                                )
+                                POText(
+                                    text = label,
+                                    color = stateStyle.labelTextColor,
+                                    style = stateStyle.text.textStyle.copy(fontSize = animatedFontSizeValue.sp)
+                                )
+                                if (isLabelFloating) {
+                                    Spacer(modifier = Modifier.requiredHeight(2.dp))
+                                }
+                            }
+                            if (isLabelFloating || label.isNullOrBlank()) {
+                                Box {
+                                    if (value.text.isEmpty() && !placeholder.isNullOrBlank()) {
+                                        POText(
+                                            text = placeholder,
+                                            color = stateStyle.placeholderTextColor,
+                                            style = stateStyle.text.textStyle
+                                        )
+                                    }
+                                    innerTextField()
+                                }
+                            }
                         }
                     },
+                    enabled = enabled,
+                    isError = isError,
                     leadingIcon = leadingIcon,
                     trailingIcon = trailingIcon,
                     singleLine = singleLine,
