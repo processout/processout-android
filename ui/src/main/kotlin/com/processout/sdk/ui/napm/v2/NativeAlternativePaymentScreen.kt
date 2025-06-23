@@ -46,7 +46,7 @@ import com.processout.sdk.ui.core.component.field.dropdown.POLabeledDropdownFiel
 import com.processout.sdk.ui.core.component.field.phone.POLabeledPhoneNumberField
 import com.processout.sdk.ui.core.component.field.radio.POLabeledRadioField
 import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
-import com.processout.sdk.ui.core.component.field.text.POLabeledTextField
+import com.processout.sdk.ui.core.component.field.text.POTextField2
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.state.POPhoneNumberFieldState
@@ -179,7 +179,7 @@ private fun UserInput(
                         focusedFieldId = state.focusedFieldId,
                         isPrimaryActionEnabled = isPrimaryActionEnabled,
                         fieldStyle = style.field,
-                        labelsStyle = labelsStyle,
+                        descriptionStyle = style.errorMessageBox,
                         modifier = Modifier.fillMaxWidth()
                     )
                     is CodeField -> CodeField(
@@ -238,11 +238,11 @@ private fun TextField(
     focusedFieldId: String?,
     isPrimaryActionEnabled: Boolean,
     fieldStyle: POField.Style,
-    labelsStyle: POFieldLabels.Style,
+    descriptionStyle: POMessageBox.Style,
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
-    POLabeledTextField(
+    POTextField2(
         value = state.value,
         onValueChange = {
             onEvent(
@@ -252,8 +252,6 @@ private fun TextField(
                 )
             )
         },
-        title = state.label ?: String(),
-        description = state.description,
         modifier = modifier
             .focusRequester(focusRequester)
             .onFocusChanged {
@@ -265,11 +263,13 @@ private fun TextField(
                 )
             },
         fieldStyle = fieldStyle,
-        labelsStyle = labelsStyle,
+        descriptionStyle = descriptionStyle,
+        label = state.label,
+        placeholder = state.placeholder,
+        description = state.description,
         enabled = state.enabled,
         isError = state.isError,
         forceTextDirectionLtr = state.forceTextDirectionLtr,
-        placeholder = state.placeholder,
         visualTransformation = state.visualTransformation,
         keyboardOptions = state.keyboardOptions,
         keyboardActions = POField.keyboardActions(
@@ -727,6 +727,7 @@ internal object NativeAlternativePaymentScreen {
         val successBackgroundColor: Color,
         val message: AndroidTextView.Style,
         val errorMessage: POText.Style,
+        val errorMessageBox: POMessageBox.Style,
         val successMessage: POText.Style,
         @DrawableRes val successImageResId: Int,
         val progressIndicatorColor: Color,
@@ -746,7 +747,7 @@ internal object NativeAlternativePaymentScreen {
                 } ?: POText.label1,
                 field = custom?.field?.let {
                     POField.custom(style = it)
-                } ?: POField.default,
+                } ?: POField.default2,
                 codeField = custom?.codeField?.let {
                     POField.custom(style = it)
                 } ?: POCodeField.default,
@@ -781,6 +782,9 @@ internal object NativeAlternativePaymentScreen {
                 errorMessage = custom?.errorMessage?.let {
                     POText.custom(style = it)
                 } ?: POText.errorLabel,
+                errorMessageBox = custom?.errorMessageBox?.let {
+                    POMessageBox.custom(style = it)
+                } ?: POMessageBox.error,
                 successMessage = custom?.successMessage?.let {
                     POText.custom(style = it)
                 } ?: POText.Style(

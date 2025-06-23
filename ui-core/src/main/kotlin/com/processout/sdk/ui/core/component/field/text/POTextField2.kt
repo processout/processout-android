@@ -1,7 +1,9 @@
 package com.processout.sdk.ui.core.component.field.text
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
@@ -11,8 +13,10 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.core.component.POMessageBox
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -23,7 +27,8 @@ fun POTextField2(
     modifier: Modifier = Modifier,
     minHeight: Dp = dimensions.fieldMinHeight,
     contentPadding: PaddingValues = POField.contentPadding2,
-    style: POField.Style = POField.default2,
+    fieldStyle: POField.Style = POField.default2,
+    descriptionStyle: POMessageBox.Style = POMessageBox.error,
     enabled: Boolean = true,
     readOnly: Boolean = false,
     isDropdown: Boolean = false,
@@ -31,6 +36,7 @@ fun POTextField2(
     forceTextDirectionLtr: Boolean = false,
     label: String? = null,
     placeholder: String? = null,
+    description: String? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None,
@@ -41,28 +47,35 @@ fun POTextField2(
     minLines: Int = 1,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
-    POTextField(
-        value = value,
-        onValueChange = onValueChange,
-        modifier = modifier,
-        minHeight = minHeight,
-        contentPadding = contentPadding,
-        style = style,
-        enabled = enabled,
-        readOnly = readOnly,
-        isDropdown = isDropdown,
-        isError = isError,
-        forceTextDirectionLtr = forceTextDirectionLtr,
-        label = label,
-        placeholder = placeholder,
-        leadingIcon = leadingIcon,
-        trailingIcon = trailingIcon,
-        visualTransformation = visualTransformation,
-        keyboardOptions = keyboardOptions,
-        keyboardActions = keyboardActions,
-        singleLine = singleLine,
-        maxLines = maxLines,
-        minLines = minLines,
-        interactionSource = interactionSource
-    )
+    Column {
+        POTextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = modifier,
+            minHeight = minHeight,
+            contentPadding = contentPadding,
+            style = fieldStyle,
+            enabled = enabled,
+            readOnly = readOnly,
+            isDropdown = isDropdown,
+            isError = isError,
+            forceTextDirectionLtr = forceTextDirectionLtr,
+            label = label,
+            placeholder = placeholder,
+            leadingIcon = leadingIcon,
+            trailingIcon = trailingIcon,
+            visualTransformation = visualTransformation,
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
+            singleLine = singleLine,
+            maxLines = maxLines,
+            minLines = minLines,
+            interactionSource = interactionSource
+        )
+        POMessageBox(
+            text = description,
+            modifier = Modifier.padding(top = spacing.space8),
+            style = descriptionStyle
+        )
+    }
 }

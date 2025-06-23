@@ -302,6 +302,7 @@ data class PONativeAlternativePaymentConfiguration(
      * @param[background] Background style.
      * @param[message] Message style.
      * @param[errorMessage] Error message style.
+     * @param[errorMessageBox] Error message box style.
      * @param[successMessage] Success message style.
      * @param[successImageResId] Success image drawable resource ID.
      * @param[progressIndicatorColorResId] Color resource ID for progress indicator.
@@ -323,6 +324,7 @@ data class PONativeAlternativePaymentConfiguration(
         val background: POBackgroundStyle? = null,
         val message: POTextStyle? = null,
         val errorMessage: POTextStyle? = null,
+        val errorMessageBox: POMessageBoxStyle? = null,
         val successMessage: POTextStyle? = null,
         @DrawableRes
         val successImageResId: Int? = null,
