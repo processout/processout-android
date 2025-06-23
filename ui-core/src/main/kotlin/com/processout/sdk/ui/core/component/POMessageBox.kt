@@ -33,7 +33,7 @@ fun POMessageBox(
     text: String?,
     modifier: Modifier = Modifier,
     style: POMessageBox.Style = POMessageBox.error,
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(spacing.space10),
     enterAnimationDelayMillis: Int = 0
 ) {
     AnimatedVisibility(
@@ -51,7 +51,10 @@ fun POMessageBox(
                 )
                 .clip(style.shape)
                 .background(color = style.backgroundColor)
-                .padding(spacing.extraLarge)
+                .padding(
+                    horizontal = spacing.space12,
+                    vertical = spacing.space8
+                )
         ) {
             var currentText by remember { mutableStateOf(String()) }
             if (!text.isNullOrBlank()) {
