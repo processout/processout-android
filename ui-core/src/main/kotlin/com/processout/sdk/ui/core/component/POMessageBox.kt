@@ -98,7 +98,7 @@ object POMessageBox {
         Style(
             textWithIcon = POTextWithIcon.Style(
                 text = text,
-                iconResId = iconResId ?: R.drawable.po_info_icon,
+                iconResId = iconResId ?: R.drawable.po_icon_info,
                 iconColorFilter = if (iconResId != null) null else
                     ColorFilter.tint(color = text.color)
             ),
