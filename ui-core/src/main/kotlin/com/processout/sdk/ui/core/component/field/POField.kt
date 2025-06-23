@@ -152,8 +152,8 @@ object POField {
 
     val contentPadding2: PaddingValues
         @Composable get() = PaddingValues(
-            horizontal = spacing.medium,
-            vertical = 0.dp
+            horizontal = spacing.space12,
+            vertical = spacing.space6
         )
 
     internal fun Style.stateStyle(

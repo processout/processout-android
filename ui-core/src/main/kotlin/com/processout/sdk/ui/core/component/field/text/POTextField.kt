@@ -32,6 +32,7 @@ import com.processout.sdk.ui.core.component.field.POField.stateStyle
 import com.processout.sdk.ui.core.component.field.POField.textSelectionColors
 import com.processout.sdk.ui.core.component.field.POField.textStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -40,7 +41,7 @@ fun POTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
-    height: Dp = dimensions.formComponentMinHeight,
+    minHeight: Dp = dimensions.formComponentMinHeight,
     contentPadding: PaddingValues = POField.contentPadding,
     style: POField.Style = POField.default,
     enabled: Boolean = true,
@@ -69,7 +70,7 @@ fun POTextField(
             value = value,
             onValueChange = onValueChange,
             modifier = modifier
-                .requiredHeight(height)
+                .requiredHeightIn(min = minHeight)
                 .onFocusChanged {
                     isFocused = it.isFocused
                 },
@@ -110,7 +111,7 @@ fun POTextField(
                                     style = stateStyle.text.textStyle.copy(fontSize = animatedFontSizeValue.sp)
                                 )
                                 if (isLabelFloating) {
-                                    Spacer(modifier = Modifier.requiredHeight(2.dp))
+                                    Spacer(modifier = Modifier.requiredHeight(spacing.space2))
                                 }
                             }
                             if (isLabelFloating || label.isNullOrBlank()) {
