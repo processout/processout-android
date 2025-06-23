@@ -15,6 +15,8 @@ data class POFieldStyle(
 data class POFieldStateStyle(
     val text: POTextStyle,
     @ColorRes
+    val labelTextColorResId: Int,
+    @ColorRes
     val placeholderTextColorResId: Int,
     @ColorRes
     val backgroundColorResId: Int,
@@ -23,4 +25,27 @@ data class POFieldStateStyle(
     val border: POBorderStyle,
     @ColorRes
     val dropdownRippleColorResId: Int? = null
-) : Parcelable
+) : Parcelable {
+
+    @Deprecated(message = "Use alternative constructor.")
+    constructor(
+        text: POTextStyle,
+        @ColorRes
+        placeholderTextColorResId: Int,
+        @ColorRes
+        backgroundColorResId: Int,
+        @ColorRes
+        controlsTintColorResId: Int,
+        border: POBorderStyle,
+        @ColorRes
+        dropdownRippleColorResId: Int? = null
+    ) : this(
+        text = text,
+        labelTextColorResId = 0,
+        placeholderTextColorResId = placeholderTextColorResId,
+        backgroundColorResId = backgroundColorResId,
+        controlsTintColorResId = controlsTintColorResId,
+        border = border,
+        dropdownRippleColorResId = dropdownRippleColorResId
+    )
+}

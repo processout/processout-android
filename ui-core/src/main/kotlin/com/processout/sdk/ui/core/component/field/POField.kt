@@ -33,6 +33,8 @@ import com.processout.sdk.ui.core.extension.conditional
 import com.processout.sdk.ui.core.style.POFieldStateStyle
 import com.processout.sdk.ui.core.style.POFieldStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -48,6 +50,7 @@ object POField {
     @Immutable
     data class StateStyle(
         val text: POText.Style,
+        val labelTextColor: Color,
         val placeholderTextColor: Color,
         val backgroundColor: Color,
         val controlsTintColor: Color,
@@ -61,6 +64,7 @@ object POField {
             Style(
                 normal = StateStyle(
                     text = POText.body2,
+                    labelTextColor = colors.text.primary,
                     placeholderTextColor = colors.text.muted,
                     backgroundColor = colors.input.backgroundDefault,
                     controlsTintColor = colors.text.primary,
@@ -70,6 +74,7 @@ object POField {
                 ),
                 error = StateStyle(
                     text = POText.body2,
+                    labelTextColor = colors.text.error,
                     placeholderTextColor = colors.text.muted,
                     backgroundColor = colors.input.backgroundDefault,
                     controlsTintColor = colors.text.primary,
@@ -79,6 +84,7 @@ object POField {
                 ),
                 focused = StateStyle(
                     text = POText.body2,
+                    labelTextColor = colors.text.primary,
                     placeholderTextColor = colors.text.muted,
                     backgroundColor = colors.input.backgroundDefault,
                     controlsTintColor = colors.text.primary,
@@ -92,21 +98,45 @@ object POField {
     @Composable
     fun custom(style: POFieldStyle): Style {
         val normal = style.normal.toStateStyle()
-        return Style(
+        var customStyle = Style(
             normal = normal,
             error = style.error.toStateStyle(),
             focused = style.focused?.toStateStyle() ?: normal
         )
+        if (customStyle.normal.labelTextColor == Color.Unspecified) {
+            customStyle = customStyle.copy(
+                normal = customStyle.normal.copy(
+                    labelTextColor = default.normal.labelTextColor
+                )
+            )
+        }
+        if (customStyle.error.labelTextColor == Color.Unspecified) {
+            customStyle = customStyle.copy(
+                error = customStyle.error.copy(
+                    labelTextColor = default.error.labelTextColor
+                )
+            )
+        }
+        if (customStyle.focused.labelTextColor == Color.Unspecified) {
+            customStyle = customStyle.copy(
+                focused = customStyle.focused.copy(
+                    labelTextColor = default.focused.labelTextColor
+                )
+            )
+        }
+        return customStyle
     }
 
     @Composable
     private fun POFieldStateStyle.toStateStyle() = StateStyle(
         text = POText.custom(style = text),
+        labelTextColor = if (labelTextColorResId != 0)
+            colorResource(id = labelTextColorResId) else Color.Unspecified,
         placeholderTextColor = colorResource(id = placeholderTextColorResId),
         backgroundColor = colorResource(id = backgroundColorResId),
         controlsTintColor = colorResource(id = controlsTintColorResId),
         dropdownRippleColor = dropdownRippleColorResId?.let { colorResource(id = it) }
-            ?: ProcessOutTheme.colors.text.muted,
+            ?: colors.text.muted,
         shape = RoundedCornerShape(size = border.radiusDp.dp),
         border = POBorderStroke(
             width = border.widthDp.dp,
@@ -116,14 +146,14 @@ object POField {
 
     val contentPadding: PaddingValues
         @Composable get() = PaddingValues(
-            horizontal = ProcessOutTheme.spacing.large,
-            vertical = ProcessOutTheme.spacing.medium
+            horizontal = spacing.large,
+            vertical = spacing.medium
         )
 
     val contentPadding2: PaddingValues
         @Composable get() = PaddingValues(
-            horizontal = ProcessOutTheme.spacing.medium,
-            vertical = ProcessOutTheme.spacing.small
+            horizontal = spacing.medium,
+            vertical = 0.dp
         )
 
     internal fun Style.stateStyle(
