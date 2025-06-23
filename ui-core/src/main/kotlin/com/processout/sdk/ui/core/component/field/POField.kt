@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
@@ -91,6 +92,51 @@ object POField {
                     dropdownRippleColor = colors.text.muted,
                     shape = shapes.roundedCornersSmall,
                     border = POBorderStroke(width = 1.dp, color = colors.input.borderFocused)
+                )
+            )
+        }
+
+    val default2: Style
+        @Composable get() = with(ProcessOutTheme) {
+            Style(
+                normal = StateStyle(
+                    text = POText.Style(
+                        color = colors.text.primary,
+                        textStyle = typography.s15(FontWeight.Medium)
+                    ),
+                    labelTextColor = colors.text.placeholder,
+                    placeholderTextColor = colors.text.placeholder,
+                    backgroundColor = colors.input.backgroundDefault,
+                    controlsTintColor = colors.text.primary,
+                    dropdownRippleColor = colors.text.muted,
+                    shape = shapes.fieldRoundedCorners,
+                    border = POBorderStroke(width = 1.5.dp, color = colors.input.borderDefault2)
+                ),
+                error = StateStyle(
+                    text = POText.Style(
+                        color = colors.text.primary,
+                        textStyle = typography.s15(FontWeight.Medium)
+                    ),
+                    labelTextColor = colors.text.placeholder,
+                    placeholderTextColor = colors.text.placeholder,
+                    backgroundColor = colors.input.backgroundDefault,
+                    controlsTintColor = colors.text.primary,
+                    dropdownRippleColor = colors.text.muted,
+                    shape = shapes.fieldRoundedCorners,
+                    border = POBorderStroke(width = 1.5.dp, color = colors.input.borderError)
+                ),
+                focused = StateStyle(
+                    text = POText.Style(
+                        color = colors.text.primary,
+                        textStyle = typography.s15(FontWeight.Medium)
+                    ),
+                    labelTextColor = colors.text.placeholder,
+                    placeholderTextColor = colors.text.placeholder,
+                    backgroundColor = colors.input.backgroundDefault,
+                    controlsTintColor = colors.text.primary,
+                    dropdownRippleColor = colors.text.muted,
+                    shape = shapes.fieldRoundedCorners,
+                    border = POBorderStroke(width = 1.5.dp, color = colors.text.primary)
                 )
             )
         }

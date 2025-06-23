@@ -23,7 +23,7 @@ fun POTextField2(
     modifier: Modifier = Modifier,
     minHeight: Dp = dimensions.fieldMinHeight,
     contentPadding: PaddingValues = POField.contentPadding2,
-    style: POField.Style = POField.default,
+    style: POField.Style = POField.default2,
     enabled: Boolean = true,
     readOnly: Boolean = false,
     isDropdown: Boolean = false,

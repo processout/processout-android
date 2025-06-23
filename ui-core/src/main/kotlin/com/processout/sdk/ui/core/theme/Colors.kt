@@ -21,6 +21,7 @@ data class POColors(
         val primary: Color,
         val inverse: Color,
         val muted: Color,
+        val placeholder: Color,
         val disabled: Color,
         val success: Color,
         val error: Color
@@ -31,6 +32,7 @@ data class POColors(
         val backgroundDefault: Color,
         val backgroundDisabled: Color,
         val borderDefault: Color,
+        val borderDefault2: Color,
         val borderDisabled: Color,
         val borderFocused: Color,
         val borderError: Color
@@ -70,6 +72,7 @@ val POLightColorPalette = POColors(
         primary = Color(0xFF121821),
         inverse = Color(0xFFFAFAFA),
         muted = Color(0xFF5B6576),
+        placeholder = Color(0xFF707378),
         disabled = Color(0xFFADB5BD),
         success = Color(0xFF00291D),
         error = Color(0xFFD11D2F)
@@ -78,6 +81,7 @@ val POLightColorPalette = POColors(
         backgroundDefault = Color(0xFFFFFFFF),
         backgroundDisabled = Color(0xFFEDEEEF),
         borderDefault = Color(0xFF7C8593),
+        borderDefault2 = Color(0x1F121314),
         borderDisabled = Color(0xFFADB5BD),
         borderFocused = Color(0xFF4791FF),
         borderError = Color(0xFFD11D2F)
@@ -111,6 +115,7 @@ val PODarkColorPalette = POColors(
         primary = Color(0xFFFAFAFA),
         inverse = Color(0xFF121821),
         muted = Color(0xFFADB5BD),
+        placeholder = Color(0xFFA7A9AF),
         disabled = Color(0xFF5B6576),
         success = Color(0xFFE5FFF8),
         error = Color(0xFFFF5263)
@@ -119,6 +124,7 @@ val PODarkColorPalette = POColors(
         backgroundDefault = Color(0xFF121821),
         backgroundDisabled = Color(0xFF242C38),
         borderDefault = Color(0xFFCCD1D6),
+        borderDefault2 = Color(0x29F6F8FB),
         borderDisabled = Color(0xFF7C8593),
         borderFocused = Color(0xFFFFE500),
         borderError = Color(0xFFFF5263)
