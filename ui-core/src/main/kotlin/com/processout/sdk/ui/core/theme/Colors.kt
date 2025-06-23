@@ -77,7 +77,7 @@ val POLightColorPalette = POColors(
         placeholder = Color(0xFF707378),
         disabled = Color(0xFFADB5BD),
         success = Color(0xFF00291D),
-        error = Color(0xFFD11D2F),
+        error = Color(0xFFBE011B),
         onTipError = Color(0xFF630407)
     ),
     input = Input(
@@ -87,7 +87,7 @@ val POLightColorPalette = POColors(
         borderDefault2 = Color(0x1F121314),
         borderDisabled = Color(0xFFADB5BD),
         borderFocused = Color(0xFF4791FF),
-        borderError = Color(0xFFD11D2F)
+        borderError = Color(0xFFBE011B)
     ),
     button = Button(
         primaryBackgroundDefault = Color(0xFF121821),
@@ -122,7 +122,7 @@ val PODarkColorPalette = POColors(
         placeholder = Color(0xFFA7A9AF),
         disabled = Color(0xFF5B6576),
         success = Color(0xFFE5FFF8),
-        error = Color(0xFFFF5263),
+        error = Color(0xFFFF7D6C),
         onTipError = Color(0xFFF5D9D9)
     ),
     input = Input(
@@ -132,7 +132,7 @@ val PODarkColorPalette = POColors(
         borderDefault2 = Color(0x29F6F8FB),
         borderDisabled = Color(0xFF7C8593),
         borderFocused = Color(0xFFFFE500),
-        borderError = Color(0xFFFF5263)
+        borderError = Color(0xFFFF7D6C)
     ),
     button = Button(
         primaryBackgroundDefault = Color(0xFFFFFFFF),
