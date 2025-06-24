@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -88,9 +89,11 @@ fun PODropdownField2(
                 description = description,
                 trailingIcon = {
                     Icon(
-                        painter = painterResource(id = R.drawable.po_dropdown_arrow),
+                        painter = painterResource(id = R.drawable.po_chevron_down),
                         contentDescription = null,
-                        modifier = Modifier.rotate(if (expanded) 180f else 0f),
+                        modifier = Modifier
+                            .scale(1.1f)
+                            .rotate(if (expanded) 180f else 0f),
                         tint = fieldStateStyle.labelTextColor
                     )
                 }
