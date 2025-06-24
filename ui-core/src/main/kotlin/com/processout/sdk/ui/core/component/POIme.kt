@@ -12,11 +12,13 @@ import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 object POIme {
 
     @Composable
-    fun isImeVisibleAsState(): State<Boolean> {
+    fun isImeVisibleAsState(
+        policy: SnapshotMutationPolicy<Boolean> = neverEqualPolicy()
+    ): State<Boolean> {
         val isImeVisible = remember {
             mutableStateOf(
                 value = false,
-                policy = neverEqualPolicy()
+                policy = policy
             )
         }
         val view = LocalView.current.rootView

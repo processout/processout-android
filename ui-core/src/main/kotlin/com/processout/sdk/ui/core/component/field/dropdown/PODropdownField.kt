@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -27,6 +28,7 @@ import androidx.compose.ui.window.PopupProperties
 import com.processout.sdk.ui.core.R
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.POBorderStroke
+import com.processout.sdk.ui.core.component.POIme.isImeVisibleAsState
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.POField.stateStyle
@@ -62,11 +64,25 @@ fun PODropdownField(
         shapes = MaterialTheme.shapes.copy(extraSmall = menuStyle.shape)
     ) {
         var expanded by remember { mutableStateOf(false) }
+        var expanding by remember { mutableStateOf(false) }
+        val isImeVisible by isImeVisibleAsState(policy = structuralEqualityPolicy())
+        if (expanding && isImeVisible) {
+            LocalFocusManager.current.clearFocus(force = true)
+        }
+        LaunchedEffect(expanding, isImeVisible) {
+            if (expanding && !isImeVisible) {
+                expanding = false
+                expanded = true
+            }
+        }
         ExposedDropdownMenuBox(
             expanded = expanded,
             onExpandedChange = {
                 if (enabled) {
-                    expanded = it
+                    when (it) {
+                        true -> expanding = true
+                        false -> expanded = false
+                    }
                 }
             }
         ) {
@@ -216,5 +232,5 @@ object PODropdownField {
         )
     }
 
-    internal val MaxVisibleMenuItems = 9
+    internal val MaxVisibleMenuItems = 10
 }
