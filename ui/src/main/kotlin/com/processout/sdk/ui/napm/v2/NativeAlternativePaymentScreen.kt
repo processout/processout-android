@@ -42,7 +42,7 @@ import com.processout.sdk.ui.core.component.field.checkbox.POLabeledCheckboxFiel
 import com.processout.sdk.ui.core.component.field.code.POCodeField
 import com.processout.sdk.ui.core.component.field.code.POLabeledCodeField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
-import com.processout.sdk.ui.core.component.field.dropdown.POLabeledDropdownField
+import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField2
 import com.processout.sdk.ui.core.component.field.phone.POLabeledPhoneNumberField
 import com.processout.sdk.ui.core.component.field.radio.POLabeledRadioField
 import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
@@ -202,8 +202,8 @@ private fun UserInput(
                         state = field.state,
                         onEvent = onEvent,
                         fieldStyle = style.field,
-                        labelsStyle = labelsStyle,
                         menuStyle = style.dropdownMenu,
+                        descriptionStyle = style.errorMessageBox,
                         modifier = Modifier.fillMaxWidth()
                     )
                     is CheckboxField -> CheckboxField(
@@ -369,11 +369,11 @@ private fun DropdownField(
     state: FieldState,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
     fieldStyle: POField.Style,
-    labelsStyle: POFieldLabels.Style,
     menuStyle: PODropdownField.MenuStyle,
+    descriptionStyle: POMessageBox.Style,
     modifier: Modifier = Modifier
 ) {
-    POLabeledDropdownField(
+    PODropdownField2(
         value = state.value,
         onValueChange = {
             onEvent(
@@ -384,8 +384,6 @@ private fun DropdownField(
             )
         },
         availableValues = state.availableValues ?: POImmutableList(emptyList()),
-        title = state.label ?: String(),
-        description = state.description,
         modifier = modifier
             .onFocusChanged {
                 onEvent(
@@ -396,10 +394,12 @@ private fun DropdownField(
                 )
             },
         fieldStyle = fieldStyle,
-        labelsStyle = labelsStyle,
         menuStyle = menuStyle,
+        descriptionStyle = descriptionStyle,
         isError = state.isError,
-        placeholder = state.placeholder
+        label = state.label,
+        placeholder = state.placeholder,
+        description = state.description
     )
 }
 
