@@ -20,6 +20,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -108,7 +109,9 @@ fun POTextField(
                                 POText(
                                     text = label,
                                     color = stateStyle.labelTextColor,
-                                    style = stateStyle.text.textStyle.copy(fontSize = animatedFontSizeValue.sp)
+                                    style = stateStyle.text.textStyle.copy(fontSize = animatedFontSizeValue.sp),
+                                    overflow = TextOverflow.Ellipsis,
+                                    maxLines = 1
                                 )
                                 if (isLabelFloating) {
                                     Spacer(modifier = Modifier.requiredHeight(spacing.space2))
@@ -120,7 +123,9 @@ fun POTextField(
                                         POText(
                                             text = placeholder,
                                             color = stateStyle.placeholderTextColor,
-                                            style = stateStyle.text.textStyle
+                                            style = stateStyle.text.textStyle,
+                                            overflow = TextOverflow.Ellipsis,
+                                            maxLines = 1
                                         )
                                     }
                                     innerTextField()
