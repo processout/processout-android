@@ -98,7 +98,7 @@ fun POTextField(
                                 animationSpec = spring(stiffness = animationStiffness)
                             )
                         ) {
-                            val isLabelFloating = isFocused || value.text.isNotEmpty()
+                            val isLabelFloating = value.text.isNotEmpty() || (isFocused && !isDropdown)
                             if (!label.isNullOrBlank()) {
                                 val fontSizeValue = stateStyle.text.textStyle.fontSize.value
                                 val animatedFontSizeValue by animateFloatAsState(
