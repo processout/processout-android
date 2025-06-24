@@ -193,7 +193,7 @@ object PODropdownField {
     val defaultMenu2: MenuStyle
         @Composable get() = MenuStyle(
             text = POText.Style(
-                color = colors.text.primary,
+                color = colors.text.secondary,
                 textStyle = typography.s15(FontWeight.Medium)
             ),
             backgroundColor = colors.surface.neutral,

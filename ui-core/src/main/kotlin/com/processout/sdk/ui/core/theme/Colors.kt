@@ -19,6 +19,7 @@ data class POColors(
     @Immutable
     data class Text(
         val primary: Color,
+        val secondary: Color,
         val inverse: Color,
         val muted: Color,
         val placeholder: Color,
@@ -72,6 +73,7 @@ data class POColors(
 val POLightColorPalette = POColors(
     text = Text(
         primary = Color(0xFF121821),
+        secondary = Color(0xFF585A5F),
         inverse = Color(0xFFFAFAFA),
         muted = Color(0xFF5B6576),
         placeholder = Color(0xFF707378),
@@ -117,6 +119,7 @@ val POLightColorPalette = POColors(
 val PODarkColorPalette = POColors(
     text = Text(
         primary = Color(0xFFFAFAFA),
+        secondary = Color(0xFFC0C3C8),
         inverse = Color(0xFF121821),
         muted = Color(0xFFADB5BD),
         placeholder = Color(0xFFA7A9AF),
