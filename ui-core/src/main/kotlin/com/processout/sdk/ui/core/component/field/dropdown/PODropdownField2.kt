@@ -28,7 +28,8 @@ import com.processout.sdk.ui.core.component.field.POField.stateStyle
 import com.processout.sdk.ui.core.component.field.text.POTextField2
 import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.core.state.POImmutableList
-import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -39,7 +40,7 @@ fun PODropdownField2(
     availableValues: POImmutableList<POAvailableValue>,
     modifier: Modifier = Modifier,
     fieldStyle: POField.Style = POField.default2,
-    menuStyle: PODropdownField.MenuStyle = PODropdownField.defaultMenu,
+    menuStyle: PODropdownField.MenuStyle = PODropdownField.defaultMenu2,
     descriptionStyle: POMessageBox.Style = POMessageBox.error2,
     menuMatchesTextFieldWidth: Boolean = true,
     preferFormattedTextSelection: Boolean = false,
@@ -98,8 +99,8 @@ fun PODropdownField2(
                     )
                 }
             )
-            val menuItemHeight = ProcessOutTheme.dimensions.formComponentMinHeight
-            val menuVerticalPaddings = ProcessOutTheme.spacing.large
+            val menuItemHeight = dimensions.formComponentMinHeight
+            val menuVerticalPaddings = spacing.large
             val maxMenuHeight = remember { menuItemHeight * PODropdownField.MaxVisibleMenuItems + menuVerticalPaddings }
             DropdownMenu(
                 expanded = expanded,
@@ -151,7 +152,7 @@ private fun MenuItem(
                 indication = ripple(color = style.rippleColor)
             )
             .fillMaxWidth()
-            .padding(horizontal = ProcessOutTheme.spacing.large),
+            .padding(horizontal = spacing.large),
         contentAlignment = Alignment.CenterStart
     ) {
         POText(

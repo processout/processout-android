@@ -19,6 +19,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -33,7 +34,11 @@ import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.PODropdownMenuStyle
-import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -97,8 +102,8 @@ fun PODropdownField(
                     )
                 }
             )
-            val menuItemHeight = ProcessOutTheme.dimensions.formComponentMinHeight
-            val menuVerticalPaddings = ProcessOutTheme.spacing.large
+            val menuItemHeight = dimensions.formComponentMinHeight
+            val menuVerticalPaddings = spacing.large
             val maxMenuHeight = remember { menuItemHeight * PODropdownField.MaxVisibleMenuItems + menuVerticalPaddings }
             DropdownMenu(
                 expanded = expanded,
@@ -150,7 +155,7 @@ private fun MenuItem(
                 indication = ripple(color = style.rippleColor)
             )
             .fillMaxWidth()
-            .padding(horizontal = ProcessOutTheme.spacing.large),
+            .padding(horizontal = spacing.large),
         contentAlignment = Alignment.CenterStart
     ) {
         POText(
@@ -177,15 +182,25 @@ object PODropdownField {
     )
 
     val defaultMenu: MenuStyle
-        @Composable get() = with(ProcessOutTheme) {
-            MenuStyle(
-                text = POText.body2,
-                backgroundColor = colors.surface.neutral,
-                rippleColor = colors.text.muted,
-                shape = shapes.roundedCornersSmall,
-                border = POBorderStroke(width = 0.dp, color = Color.Transparent)
-            )
-        }
+        @Composable get() = MenuStyle(
+            text = POText.body2,
+            backgroundColor = colors.surface.neutral,
+            rippleColor = colors.text.muted,
+            shape = shapes.roundedCornersSmall,
+            border = POBorderStroke(width = 0.dp, color = Color.Transparent)
+        )
+
+    val defaultMenu2: MenuStyle
+        @Composable get() = MenuStyle(
+            text = POText.Style(
+                color = colors.text.primary,
+                textStyle = typography.s15(FontWeight.Medium)
+            ),
+            backgroundColor = colors.surface.neutral,
+            rippleColor = colors.text.muted,
+            shape = shapes.roundedCorners6,
+            border = POBorderStroke(width = 0.dp, color = Color.Transparent)
+        )
 
     @Composable
     fun custom(style: PODropdownMenuStyle) = with(style) {
