@@ -91,7 +91,7 @@ fun PODropdownField2(
                         painter = painterResource(id = R.drawable.po_dropdown_arrow),
                         contentDescription = null,
                         modifier = Modifier.rotate(if (expanded) 180f else 0f),
-                        tint = fieldStateStyle.text.color
+                        tint = fieldStateStyle.labelTextColor
                     )
                 }
             )
