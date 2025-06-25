@@ -290,10 +290,9 @@ internal class NativeAlternativePaymentInteractor(
             return
         }
         val fields = parameters.toFields()
-        val focusedFieldId = fields.firstFocusableFieldId()
         val updatedStateValue = stateValue.copy(
             fields = fields,
-            focusedFieldId = focusedFieldId
+            focusedFieldId = fields.firstFocusableFieldId()
         )
         _state.update {
             if (_state.value is Loading) {
