@@ -41,6 +41,8 @@ fun PODropdownField2(
     onValueChange: (TextFieldValue) -> Unit,
     availableValues: POImmutableList<POAvailableValue>,
     modifier: Modifier = Modifier,
+    textFieldModifier: Modifier = Modifier,
+    contentPadding: PaddingValues = POField.contentPadding2,
     fieldStyle: POField.Style = POField.default2,
     menuStyle: PODropdownField.MenuStyle = PODropdownField.defaultMenu2,
     descriptionStyle: POMessageBox.Style = POMessageBox.error2,
@@ -69,6 +71,7 @@ fun PODropdownField2(
             }
         }
         ExposedDropdownMenuBox(
+            modifier = modifier,
             expanded = expanded,
             onExpandedChange = {
                 if (enabled) {
@@ -90,11 +93,13 @@ fun PODropdownField2(
                         )
                     } ?: TextFieldValue(),
                 onValueChange = {},
-                modifier = modifier
+                modifier = Modifier.fillMaxWidth(),
+                textFieldModifier = textFieldModifier
                     .menuAnchor(MenuAnchorType.PrimaryNotEditable)
                     .onFocusChanged {
                         isFocused = it.isFocused
                     },
+                contentPadding = contentPadding,
                 fieldStyle = fieldStyle,
                 descriptionStyle = descriptionStyle,
                 enabled = enabled,

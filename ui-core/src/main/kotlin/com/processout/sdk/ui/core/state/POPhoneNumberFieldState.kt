@@ -16,7 +16,7 @@ data class POPhoneNumberFieldState(
     val regionCodePlaceholder: String?,
     val number: TextFieldValue,
     val numberPlaceholder: String?,
-    val title: String? = null,
+    val label: String? = null,
     val description: String? = null,
     val enabled: Boolean = true,
     val isError: Boolean = false,

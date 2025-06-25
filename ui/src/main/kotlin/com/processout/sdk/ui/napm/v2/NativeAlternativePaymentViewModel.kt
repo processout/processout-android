@@ -332,7 +332,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                     else -> TextFieldValue()
                 },
                 numberPlaceholder = app.getString(R.string.po_native_apm_phone_placeholder),
-                title = label,
+                label = label,
                 description = description,
                 isError = !isValid,
                 forceTextDirectionLtr = true,

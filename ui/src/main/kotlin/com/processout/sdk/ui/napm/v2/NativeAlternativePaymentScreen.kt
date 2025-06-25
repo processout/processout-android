@@ -43,7 +43,7 @@ import com.processout.sdk.ui.core.component.field.code.POCodeField
 import com.processout.sdk.ui.core.component.field.code.POLabeledCodeField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField2
-import com.processout.sdk.ui.core.component.field.phone.POLabeledPhoneNumberField
+import com.processout.sdk.ui.core.component.field.phone.POPhoneNumberField
 import com.processout.sdk.ui.core.component.field.radio.POLabeledRadioField
 import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
 import com.processout.sdk.ui.core.component.field.text.POTextField2
@@ -221,7 +221,7 @@ private fun UserInput(
                         isPrimaryActionEnabled = isPrimaryActionEnabled,
                         fieldStyle = style.field,
                         dropdownMenuStyle = style.dropdownMenu,
-                        labelsStyle = labelsStyle,
+                        descriptionStyle = style.errorMessageBox,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -252,7 +252,8 @@ private fun TextField(
                 )
             )
         },
-        modifier = modifier
+        modifier = modifier,
+        textFieldModifier = Modifier
             .focusRequester(focusRequester)
             .onFocusChanged {
                 onEvent(
@@ -384,7 +385,8 @@ private fun DropdownField(
             )
         },
         availableValues = state.availableValues ?: POImmutableList(emptyList()),
-        modifier = modifier
+        modifier = modifier,
+        textFieldModifier = Modifier
             .onFocusChanged {
                 onEvent(
                     FieldFocusChanged(
@@ -442,11 +444,11 @@ private fun PhoneNumberField(
     isPrimaryActionEnabled: Boolean,
     fieldStyle: POField.Style,
     dropdownMenuStyle: PODropdownField.MenuStyle,
-    labelsStyle: POFieldLabels.Style,
+    descriptionStyle: POMessageBox.Style,
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
-    POLabeledPhoneNumberField(
+    POPhoneNumberField(
         state = state,
         onValueChange = { regionCode, number ->
             onEvent(
@@ -472,7 +474,7 @@ private fun PhoneNumberField(
             },
         fieldStyle = fieldStyle,
         dropdownMenuStyle = dropdownMenuStyle,
-        labelsStyle = labelsStyle,
+        descriptionStyle = descriptionStyle,
         keyboardActions = POField.keyboardActions(
             imeAction = state.keyboardOptions.imeAction,
             actionId = state.keyboardActionId,

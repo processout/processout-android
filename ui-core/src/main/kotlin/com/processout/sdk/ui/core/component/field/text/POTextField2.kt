@@ -3,6 +3,7 @@ package com.processout.sdk.ui.core.component.field.text
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -25,6 +26,7 @@ fun POTextField2(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
+    textFieldModifier: Modifier = Modifier,
     minHeight: Dp = dimensions.fieldMinHeight,
     contentPadding: PaddingValues = POField.contentPadding2,
     fieldStyle: POField.Style = POField.default2,
@@ -47,11 +49,11 @@ fun POTextField2(
     minLines: Int = 1,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
-    Column {
+    Column(modifier = modifier) {
         POTextField(
             value = value,
             onValueChange = onValueChange,
-            modifier = modifier,
+            modifier = textFieldModifier.fillMaxWidth(),
             minHeight = minHeight,
             contentPadding = contentPadding,
             style = fieldStyle,

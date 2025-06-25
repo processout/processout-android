@@ -50,7 +50,7 @@ fun PODropdownField(
     onValueChange: (TextFieldValue) -> Unit,
     availableValues: POImmutableList<POAvailableValue>,
     modifier: Modifier = Modifier,
-    fieldContentPadding: PaddingValues = POField.contentPadding,
+    contentPadding: PaddingValues = POField.contentPadding,
     fieldStyle: POField.Style = POField.default,
     menuStyle: PODropdownField.MenuStyle = PODropdownField.defaultMenu,
     menuMatchesTextFieldWidth: Boolean = true,
@@ -102,7 +102,7 @@ fun PODropdownField(
                     .onFocusChanged {
                         isFocused = it.isFocused
                     },
-                contentPadding = fieldContentPadding,
+                contentPadding = contentPadding,
                 style = fieldStyle,
                 enabled = enabled,
                 readOnly = true,
