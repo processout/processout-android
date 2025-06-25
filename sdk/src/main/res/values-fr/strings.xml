@@ -29,9 +29,9 @@
     <string name="po_native_apm_save_barcode_error_title">Échec de l\'enregistrement de l\'image</string>
     <string name="po_native_apm_save_barcode_error_message">Nous n\'avons pas pu enregistrer l\'image. Veuillez vérifier vos permissions ou alternativement prendre une capture d\'écran.</string>
     <string name="po_native_apm_save_barcode_error_confirm">Compris</string>
-    <string name="po_native_apm_country_placeholder">Pays</string>
-    <string name="po_native_apm_phone_placeholder">Entrez votre numéro de téléphone</string>
-    <string name="po_native_apm_email_placeholder">nom@exemple.fr</string>
+    <string name="po_native_apm_label_country">Pays</string>
+    <string name="po_native_apm_placeholder_phone">Entrez votre numéro de téléphone</string>
+    <string name="po_native_apm_placeholder_email">nom@exemple.fr</string>
     <string name="po_native_apm_success_message">Succès !\nPaiement confirmé.</string>
     <string name="po_native_apm_error_required_parameter">Paramètre requis.</string>
     <string name="po_native_apm_error_invalid_number">Numéro invalide.</string>

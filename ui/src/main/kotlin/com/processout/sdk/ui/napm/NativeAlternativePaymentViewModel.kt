@@ -336,8 +336,8 @@ internal class NativeAlternativePaymentViewModel private constructor(
     }
 
     private fun ParameterType.placeholder(): String? = when (this) {
-        EMAIL -> app.getString(R.string.po_native_apm_email_placeholder)
-        PHONE -> app.getString(R.string.po_native_apm_phone_placeholder)
+        EMAIL -> app.getString(R.string.po_native_apm_placeholder_email)
+        PHONE -> app.getString(R.string.po_native_apm_placeholder_phone)
         else -> null
     }
 

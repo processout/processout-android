@@ -56,7 +56,7 @@ fun POPhoneNumberField(
                 menuMatchesTextFieldWidth = false,
                 preferFormattedTextSelection = true,
                 isError = state.isError,
-                label = state.regionCodePlaceholder
+                label = state.regionCodeLabel
             )
             val focusRequester = remember { FocusRequester() }
             val phoneNumberUtil = remember { PhoneNumberUtil.getInstance() }
@@ -96,8 +96,7 @@ fun POPhoneNumberField(
                 enabled = state.enabled,
                 isError = state.isError,
                 forceTextDirectionLtr = state.forceTextDirectionLtr,
-                label = state.label,
-                placeholder = state.numberPlaceholder,
+                label = state.numberLabel,
                 visualTransformation = state.visualTransformation ?: VisualTransformation.None,
                 keyboardOptions = state.keyboardOptions,
                 keyboardActions = keyboardActions
