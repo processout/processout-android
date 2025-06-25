@@ -2,9 +2,10 @@ package com.processout.sdk.ui.core.component.field.phone
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
@@ -12,6 +13,7 @@ import com.google.i18n.phonenumbers.NumberParseException
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.POMessageBox
+import com.processout.sdk.ui.core.component.PORequestFocus
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField2
@@ -34,9 +36,11 @@ fun POPhoneNumberField(
 ) {
     Column(modifier = modifier) {
         Row(modifier = Modifier.fillMaxWidth()) {
+            var requestFocus by remember { mutableStateOf(false) }
             PODropdownField2(
                 value = state.regionCode,
                 onValueChange = { regionCode ->
+                    requestFocus = true
                     onValueChange(regionCode, state.number)
                 },
                 availableValues = state.regionCodes,
@@ -54,6 +58,7 @@ fun POPhoneNumberField(
                 isError = state.isError,
                 label = state.regionCodePlaceholder
             )
+            val focusRequester = remember { FocusRequester() }
             val phoneNumberUtil = remember { PhoneNumberUtil.getInstance() }
             POTextField2(
                 value = state.number,
@@ -86,7 +91,7 @@ fun POPhoneNumberField(
                 modifier = Modifier
                     .padding(start = spacing.space4)
                     .weight(1f),
-                textFieldModifier = textFieldModifier,
+                textFieldModifier = textFieldModifier.focusRequester(focusRequester),
                 fieldStyle = fieldStyle,
                 enabled = state.enabled,
                 isError = state.isError,
@@ -97,6 +102,10 @@ fun POPhoneNumberField(
                 keyboardOptions = state.keyboardOptions,
                 keyboardActions = keyboardActions
             )
+            if (requestFocus) {
+                requestFocus = false
+                PORequestFocus(focusRequester)
+            }
         }
         POMessageBox(
             text = state.description,
