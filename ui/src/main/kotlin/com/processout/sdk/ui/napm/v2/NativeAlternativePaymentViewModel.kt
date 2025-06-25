@@ -252,7 +252,6 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 value = value.textFieldValue(),
                 label = label,
                 description = description,
-                placeholder = parameter.placeholder(),
                 isError = !isValid,
                 forceTextDirectionLtr = ltrParameterTypes.contains(parameter::class.java),
                 inputFilter = parameter.inputFilter(),
@@ -458,12 +457,6 @@ internal class NativeAlternativePaymentViewModel private constructor(
         }
         Unknown -> KeyboardOptions.Default
     }
-
-    private fun Parameter.placeholder(): String? =
-        when (this) {
-            is Email -> app.getString(R.string.po_native_apm_placeholder_email)
-            else -> null
-        }
 
     private fun Invoice.formatPrimaryActionText() =
         try {
