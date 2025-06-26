@@ -40,7 +40,7 @@ import com.processout.sdk.ui.core.component.field.POFieldLabels
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
 import com.processout.sdk.ui.core.component.field.checkbox.POLabeledCheckboxField
 import com.processout.sdk.ui.core.component.field.code.POCodeField
-import com.processout.sdk.ui.core.component.field.code.POLabeledCodeField
+import com.processout.sdk.ui.core.component.field.code.POCodeField2
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField2
 import com.processout.sdk.ui.core.component.field.phone.POPhoneNumberField
@@ -60,7 +60,6 @@ import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.CaptureImage
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.CaptureLogoHeight
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.CrossfadeAnimationDurationMillis
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.animatedBackgroundColor
-import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.codeFieldHorizontalAlignment
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.messageGravity
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.*
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.Field.*
@@ -189,8 +188,8 @@ private fun UserInput(
                         focusedFieldId = state.focusedFieldId,
                         isPrimaryActionEnabled = isPrimaryActionEnabled,
                         fieldStyle = style.codeField,
-                        labelsStyle = labelsStyle,
-                        horizontalAlignment = codeFieldHorizontalAlignment(state.fields.elements)
+                        descriptionStyle = style.errorMessageBox,
+                        modifier = Modifier.fillMaxWidth()
                     )
                     is RadioField -> RadioField(
                         state = field.state,
@@ -293,11 +292,10 @@ private fun CodeField(
     focusedFieldId: String?,
     isPrimaryActionEnabled: Boolean,
     fieldStyle: POField.Style,
-    labelsStyle: POFieldLabels.Style,
-    horizontalAlignment: Alignment.Horizontal,
+    descriptionStyle: POMessageBox.Style,
     modifier: Modifier = Modifier
 ) {
-    POLabeledCodeField(
+    POCodeField2(
         value = state.value,
         onValueChange = {
             onEvent(
@@ -307,9 +305,8 @@ private fun CodeField(
                 )
             )
         },
-        title = state.label ?: String(),
-        description = state.description,
-        modifier = modifier
+        modifier = modifier,
+        textFieldModifier = Modifier
             .onFocusChanged {
                 onEvent(
                     FieldFocusChanged(
@@ -319,9 +316,10 @@ private fun CodeField(
                 )
             },
         fieldStyle = fieldStyle,
-        labelsStyle = labelsStyle,
+        descriptionStyle = descriptionStyle,
         length = state.length ?: POCodeField.LengthMax,
-        horizontalAlignment = horizontalAlignment,
+        label = state.label,
+        description = state.description,
         enabled = state.enabled,
         isError = state.isError,
         isFocused = state.id == focusedFieldId,
@@ -829,10 +827,6 @@ internal object NativeAlternativePaymentScreen {
             easing = LinearEasing
         )
     ).value
-
-    fun codeFieldHorizontalAlignment(fields: List<Field>): Alignment.Horizontal =
-        if (fields.size == 1 && fields[0] is CodeField)
-            Alignment.CenterHorizontally else Alignment.Start
 
     private val ShortMessageMaxLength = 150
 
