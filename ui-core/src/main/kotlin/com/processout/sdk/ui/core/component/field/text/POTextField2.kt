@@ -76,7 +76,7 @@ fun POTextField2(
         )
         POMessageBox(
             text = description,
-            modifier = Modifier.padding(top = spacing.space8),
+            modifier = Modifier.padding(top = spacing.space12),
             style = descriptionStyle
         )
     }

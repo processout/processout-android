@@ -108,7 +108,7 @@ fun POPhoneNumberField(
         }
         POMessageBox(
             text = state.description,
-            modifier = Modifier.padding(top = spacing.space8),
+            modifier = Modifier.padding(top = spacing.space12),
             style = descriptionStyle
         )
     }
