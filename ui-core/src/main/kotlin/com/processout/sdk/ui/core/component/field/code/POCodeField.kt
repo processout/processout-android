@@ -26,13 +26,15 @@ import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.PORequestFocus
 import com.processout.sdk.ui.core.component.field.POField
+import com.processout.sdk.ui.core.component.field.code.POCodeField.align
 import com.processout.sdk.ui.core.component.field.code.POCodeField.rememberTextFieldWidth
-import com.processout.sdk.ui.core.component.field.code.POCodeField.style
 import com.processout.sdk.ui.core.component.field.code.POCodeField.validLength
 import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.component.texttoolbar.ProcessOutTextToolbar
 import com.processout.sdk.ui.core.state.POInputFilter
-import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -53,7 +55,7 @@ fun POCodeField(
     keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
     var rowWidthPx by remember { mutableIntStateOf(0) }
-    val horizontalSpace = ProcessOutTheme.spacing.small
+    val horizontalSpace = spacing.small
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         Row(
             modifier = Modifier
@@ -145,7 +147,7 @@ fun POCodeField(
                         modifier = modifier
                             .requiredWidth(
                                 rememberTextFieldWidth(
-                                    defaultWidth = ProcessOutTheme.dimensions.interactiveComponentMinSize,
+                                    defaultWidth = dimensions.interactiveComponentMinSize,
                                     rowWidth = with(LocalDensity.current) { rowWidthPx.toDp() },
                                     space = horizontalSpace,
                                     length = validLength
@@ -176,7 +178,7 @@ fun POCodeField(
                                 }
                             },
                         contentPadding = PaddingValues(0.dp),
-                        style = style(style),
+                        style = align(style),
                         enabled = enabled,
                         isError = isError,
                         keyboardOptions = keyboardOptions,
@@ -235,26 +237,26 @@ private fun List<TextFieldValue>.codeValue() = TextFieldValue(
 object POCodeField {
 
     val default: POField.Style
-        @Composable get() = with(POField.default) {
-            copy(
-                normal = normal.default(),
-                error = error.default(),
-                focused = focused.default()
+        @Composable get() = POField.default.let {
+            it.copy(
+                normal = it.normal.defaultState(),
+                error = it.error.defaultState(),
+                focused = it.focused.defaultState()
             )
         }
 
-    internal fun style(style: POField.Style) = with(style) {
-        copy(
-            normal = normal.textAlignCenter(),
-            error = error.textAlignCenter(),
-            focused = focused.textAlignCenter()
+    @Composable
+    private fun POField.StateStyle.defaultState() = copy(
+        text = text.copy(textStyle = typography.title)
+    )
+
+    internal fun align(style: POField.Style) = style.let {
+        it.copy(
+            normal = it.normal.textAlignCenter(),
+            error = it.error.textAlignCenter(),
+            focused = it.focused.textAlignCenter()
         )
     }
-
-    @Composable
-    private fun POField.StateStyle.default() = copy(
-        text = text.copy(textStyle = ProcessOutTheme.typography.title)
-    )
 
     private fun POField.StateStyle.textAlignCenter() = copy(
         text = text.copy(textStyle = text.textStyle.copy(textAlign = TextAlign.Center))
