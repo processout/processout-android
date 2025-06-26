@@ -23,6 +23,7 @@ import com.processout.sdk.ui.core.component.POMessageBox
 import com.processout.sdk.ui.core.component.PORequestFocus
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
+import com.processout.sdk.ui.core.component.field.POField.stateStyle
 import com.processout.sdk.ui.core.component.field.code.POCodeField.align
 import com.processout.sdk.ui.core.component.field.code.POCodeField.rememberTextFieldWidth
 import com.processout.sdk.ui.core.component.field.code.POCodeField.validLength
@@ -40,7 +41,7 @@ fun POCodeField2(
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
     textFieldModifier: Modifier = Modifier,
-    fieldStyle: POField.Style = POCodeField.default, // TODO(v2)
+    fieldStyle: POField.Style = POCodeField.default2,
     descriptionStyle: POMessageBox.Style = POMessageBox.error2,
     length: Int = POCodeField.LengthMax,
     label: String? = null,
@@ -55,10 +56,15 @@ fun POCodeField2(
 ) {
     Column(modifier = modifier) {
         if (label != null) {
-            // TODO(v2): color and style
+            val fieldStateStyle = fieldStyle.stateStyle(
+                isError = isError,
+                isFocused = isFocused
+            )
             POText(
                 text = label,
-                modifier = Modifier.padding(bottom = spacing.space12)
+                modifier = Modifier.padding(bottom = spacing.space12),
+                color = fieldStateStyle.label.color,
+                style = fieldStateStyle.label.textStyle
             )
         }
         Code(
