@@ -17,8 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.POText.measuredPaddingTop
-import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox.CheckboxScale
-import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox.CheckboxSize
+import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox.MaterialCheckboxSize
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox.colors
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox.textStyle
 import com.processout.sdk.ui.core.style.POCheckboxStateStyle
@@ -26,6 +25,7 @@ import com.processout.sdk.ui.core.style.POCheckboxStyle
 import com.processout.sdk.ui.core.style.POCheckmarkStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 
 /** @suppress */
@@ -37,6 +37,7 @@ fun POCheckbox(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     minHeight: Dp = dimensions.formComponentMinHeight,
+    checkboxSize: Dp = MaterialCheckboxSize,
     style: POCheckbox.Style = POCheckbox.default,
     enabled: Boolean = true,
     isError: Boolean = false,
@@ -56,14 +57,14 @@ fun POCheckbox(
                 indication = null
             )
     ) {
+        val checkboxScale = checkboxSize.value / MaterialCheckboxSize.value
         Checkbox(
             checked = checked,
             onCheckedChange = onCheckedChange,
             modifier = Modifier
-                .scale(CheckboxScale)
-                .requiredWidth(CheckboxSize)
-                .requiredHeight(minHeight)
-                .offset(x = (-0.5).dp),
+                .scale(checkboxScale)
+                .requiredWidth(checkboxSize)
+                .requiredHeight(minHeight),
             enabled = enabled,
             colors = colors(
                 style = style,
@@ -80,7 +81,7 @@ fun POCheckbox(
         POText(
             text = text,
             modifier = Modifier.padding(
-                start = 10.dp,
+                start = spacing.space10,
                 top = measuredPaddingTop(
                     textStyle = textStyle.textStyle,
                     componentHeight = minHeight
@@ -177,9 +178,7 @@ object POCheckbox {
         backgroundColor = colorResource(id = backgroundColorResId)
     )
 
-    private val MaterialCheckboxSize = 20.dp
-    internal val CheckboxSize = 22.dp
-    internal val CheckboxScale = CheckboxSize.value / MaterialCheckboxSize.value
+    internal val MaterialCheckboxSize = 20.dp
 
     internal fun colors(
         style: Style,

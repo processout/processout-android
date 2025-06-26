@@ -38,7 +38,7 @@ import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.POFieldLabels
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
-import com.processout.sdk.ui.core.component.field.checkbox.POLabeledCheckboxField
+import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox2
 import com.processout.sdk.ui.core.component.field.code.POCodeField
 import com.processout.sdk.ui.core.component.field.code.POCodeField2
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
@@ -209,7 +209,7 @@ private fun UserInput(
                         state = field.state,
                         onEvent = onEvent,
                         checkboxStyle = style.checkbox,
-                        labelsStyle = labelsStyle,
+                        descriptionStyle = style.errorMessageBox,
                         modifier = Modifier.fillMaxWidth()
                     )
                     is PhoneNumberField -> PhoneNumberField(
@@ -408,10 +408,10 @@ private fun CheckboxField(
     state: FieldState,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
     checkboxStyle: POCheckbox.Style,
-    labelsStyle: POFieldLabels.Style,
+    descriptionStyle: POMessageBox.Style,
     modifier: Modifier = Modifier
 ) {
-    POLabeledCheckboxField(
+    POCheckbox2(
         text = state.label ?: String(),
         checked = state.value.text.toBooleanStrictOrNull() ?: false,
         onCheckedChange = {
@@ -424,12 +424,11 @@ private fun CheckboxField(
                 )
             )
         },
-        title = null,
-        description = state.description,
         modifier = modifier,
         checkboxStyle = checkboxStyle,
-        labelsStyle = labelsStyle,
-        isError = state.isError
+        descriptionStyle = descriptionStyle,
+        isError = state.isError,
+        description = state.description
     )
 }
 
