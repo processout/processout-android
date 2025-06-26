@@ -108,8 +108,8 @@ fun POTextField(
                                 )
                                 POText(
                                     text = label,
-                                    color = stateStyle.labelTextColor,
-                                    style = stateStyle.text.textStyle.copy(fontSize = animatedFontSizeValue.sp),
+                                    color = stateStyle.label.color,
+                                    style = stateStyle.label.textStyle.copy(fontSize = animatedFontSizeValue.sp),
                                     overflow = TextOverflow.Ellipsis,
                                     maxLines = 1
                                 )

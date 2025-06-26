@@ -14,8 +14,7 @@ data class POFieldStyle(
 @Parcelize
 data class POFieldStateStyle(
     val text: POTextStyle,
-    @ColorRes
-    val labelTextColorResId: Int,
+    val label: POTextStyle,
     @ColorRes
     val placeholderTextColorResId: Int,
     @ColorRes
@@ -41,7 +40,13 @@ data class POFieldStateStyle(
         dropdownRippleColorResId: Int? = null
     ) : this(
         text = text,
-        labelTextColorResId = 0,
+        label = POTextStyle(
+            colorResId = 0,
+            type = POTextType(
+                textSizeSp = 0,
+                lineHeightSp = 0
+            )
+        ),
         placeholderTextColorResId = placeholderTextColorResId,
         backgroundColorResId = backgroundColorResId,
         controlsTintColorResId = controlsTintColorResId,

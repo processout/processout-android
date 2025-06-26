@@ -116,7 +116,7 @@ fun PODropdownField2(
                         modifier = Modifier
                             .scale(1.1f)
                             .rotate(if (expanded) 180f else 0f),
-                        tint = fieldStateStyle.labelTextColor
+                        tint = fieldStateStyle.label.color
                     )
                 }
             )

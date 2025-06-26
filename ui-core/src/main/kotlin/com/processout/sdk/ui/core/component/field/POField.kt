@@ -36,6 +36,7 @@ import com.processout.sdk.ui.core.style.POFieldStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -51,7 +52,7 @@ object POField {
     @Immutable
     data class StateStyle(
         val text: POText.Style,
-        val labelTextColor: Color,
+        val label: POText.Style,
         val placeholderTextColor: Color,
         val backgroundColor: Color,
         val controlsTintColor: Color,
@@ -65,7 +66,7 @@ object POField {
             Style(
                 normal = StateStyle(
                     text = POText.body2,
-                    labelTextColor = colors.text.primary,
+                    label = POText.label1,
                     placeholderTextColor = colors.text.muted,
                     backgroundColor = colors.input.backgroundDefault,
                     controlsTintColor = colors.text.primary,
@@ -75,7 +76,10 @@ object POField {
                 ),
                 error = StateStyle(
                     text = POText.body2,
-                    labelTextColor = colors.text.error,
+                    label = POText.Style(
+                        color = colors.text.error,
+                        textStyle = typography.label1
+                    ),
                     placeholderTextColor = colors.text.muted,
                     backgroundColor = colors.input.backgroundDefault,
                     controlsTintColor = colors.text.primary,
@@ -85,7 +89,7 @@ object POField {
                 ),
                 focused = StateStyle(
                     text = POText.body2,
-                    labelTextColor = colors.text.primary,
+                    label = POText.label1,
                     placeholderTextColor = colors.text.muted,
                     backgroundColor = colors.input.backgroundDefault,
                     controlsTintColor = colors.text.primary,
@@ -104,7 +108,10 @@ object POField {
                         color = colors.text.primary,
                         textStyle = typography.s15(FontWeight.Medium)
                     ),
-                    labelTextColor = colors.text.placeholder,
+                    label = POText.Style(
+                        color = colors.text.placeholder,
+                        textStyle = typography.s15(FontWeight.Medium)
+                    ),
                     placeholderTextColor = colors.text.placeholder,
                     backgroundColor = colors.input.backgroundDefault,
                     controlsTintColor = colors.text.primary,
@@ -117,7 +124,10 @@ object POField {
                         color = colors.text.primary,
                         textStyle = typography.s15(FontWeight.Medium)
                     ),
-                    labelTextColor = colors.text.error,
+                    label = POText.Style(
+                        color = colors.text.error,
+                        textStyle = typography.s15(FontWeight.Medium)
+                    ),
                     placeholderTextColor = colors.text.placeholder,
                     backgroundColor = colors.input.backgroundDefault,
                     controlsTintColor = colors.text.primary,
@@ -130,7 +140,10 @@ object POField {
                         color = colors.text.primary,
                         textStyle = typography.s15(FontWeight.Medium)
                     ),
-                    labelTextColor = colors.text.placeholder,
+                    label = POText.Style(
+                        color = colors.text.placeholder,
+                        textStyle = typography.s15(FontWeight.Medium)
+                    ),
                     placeholderTextColor = colors.text.placeholder,
                     backgroundColor = colors.input.backgroundDefault,
                     controlsTintColor = colors.text.primary,
@@ -149,24 +162,24 @@ object POField {
             error = style.error.toStateStyle(),
             focused = style.focused?.toStateStyle() ?: normal
         )
-        if (customStyle.normal.labelTextColor == Color.Unspecified) {
+        if (customStyle.normal.label.color == Color.Unspecified) {
             customStyle = customStyle.copy(
                 normal = customStyle.normal.copy(
-                    labelTextColor = default.normal.labelTextColor
+                    label = default.normal.label
                 )
             )
         }
-        if (customStyle.error.labelTextColor == Color.Unspecified) {
+        if (customStyle.error.label.color == Color.Unspecified) {
             customStyle = customStyle.copy(
                 error = customStyle.error.copy(
-                    labelTextColor = default.error.labelTextColor
+                    label = default.error.label
                 )
             )
         }
-        if (customStyle.focused.labelTextColor == Color.Unspecified) {
+        if (customStyle.focused.label.color == Color.Unspecified) {
             customStyle = customStyle.copy(
                 focused = customStyle.focused.copy(
-                    labelTextColor = default.focused.labelTextColor
+                    label = default.focused.label
                 )
             )
         }
@@ -176,8 +189,12 @@ object POField {
     @Composable
     private fun POFieldStateStyle.toStateStyle() = StateStyle(
         text = POText.custom(style = text),
-        labelTextColor = if (labelTextColorResId != 0)
-            colorResource(id = labelTextColorResId) else Color.Unspecified,
+        label = if (label.colorResId != 0)
+            POText.custom(style = label) else
+            POText.Style(
+                color = Color.Unspecified,
+                textStyle = typography.s15(FontWeight.Medium)
+            ),
         placeholderTextColor = colorResource(id = placeholderTextColorResId),
         backgroundColor = colorResource(id = backgroundColorResId),
         controlsTintColor = colorResource(id = controlsTintColorResId),
