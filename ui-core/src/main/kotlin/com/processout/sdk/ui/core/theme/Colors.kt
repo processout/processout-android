@@ -144,7 +144,7 @@ val PODarkColorPalette = POColors(
     ),
     surface = Surface(
         default = Color(0xFF26292F),
-        neutral = Color(0xFF242C38),
+        neutral = Color(0xFF2A2D34),
         success = Color(0xFF1DA37D),
         error = Color(0xFFD11D2F),
         toastError = Color(0xFF511511)
