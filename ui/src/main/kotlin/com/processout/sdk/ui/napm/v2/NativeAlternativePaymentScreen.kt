@@ -755,7 +755,7 @@ internal object NativeAlternativePaymentScreen {
                 } ?: PORadioGroup.default,
                 checkbox = custom?.checkbox?.let {
                     POCheckbox.custom(style = it)
-                } ?: POCheckbox.default,
+                } ?: POCheckbox.default2,
                 dropdownMenu = custom?.dropdownMenu?.let {
                     PODropdownField.custom(style = it)
                 } ?: PODropdownField.defaultMenu2,

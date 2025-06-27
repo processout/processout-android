@@ -17,7 +17,7 @@ fun POCheckbox2(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    checkboxStyle: POCheckbox.Style = POCheckbox.default, // TODO(v2)
+    checkboxStyle: POCheckbox.Style = POCheckbox.default2,
     descriptionStyle: POMessageBox.Style = POMessageBox.error2,
     enabled: Boolean = true,
     isError: Boolean = false,

@@ -65,7 +65,8 @@ data class POColors(
 
     @Immutable
     data class Border(
-        val subtle: Color
+        val subtle: Color,
+        val checkboxRadioDefault: Color
     )
 }
 
@@ -111,7 +112,8 @@ val POLightColorPalette = POColors(
         toastError = Color(0xFFFDE3DE)
     ),
     border = Border(
-        subtle = Color(0xFFCCD1D6)
+        subtle = Color(0xFFCCD1D6),
+        checkboxRadioDefault = Color(0xFFC0C3C8)
     )
 )
 
@@ -157,7 +159,8 @@ val PODarkColorPalette = POColors(
         toastError = Color(0xFF511511)
     ),
     border = Border(
-        subtle = Color(0xFF7C8593)
+        subtle = Color(0xFF7C8593),
+        checkboxRadioDefault = Color(0x3DF6F8FB)
     )
 )
 

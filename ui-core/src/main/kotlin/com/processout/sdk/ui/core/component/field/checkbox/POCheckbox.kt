@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
@@ -153,6 +154,54 @@ object POCheckbox {
                 text = POText.Style(
                     color = colors.text.disabled,
                     textStyle = typography.label1
+                )
+            )
+        )
+
+    val default2: Style
+        @Composable get() = Style(
+            normal = StateStyle(
+                checkmark = CheckmarkStyle(
+                    color = colors.surface.default,
+                    borderColor = colors.border.checkboxRadioDefault,
+                    backgroundColor = colors.surface.default
+                ),
+                text = POText.Style(
+                    color = colors.text.secondary,
+                    textStyle = typography.s15(FontWeight.Medium)
+                )
+            ),
+            selected = StateStyle(
+                checkmark = CheckmarkStyle(
+                    color = colors.surface.default,
+                    borderColor = colors.button.primaryBackgroundDefault,
+                    backgroundColor = colors.button.primaryBackgroundDefault
+                ),
+                text = POText.Style(
+                    color = colors.text.secondary,
+                    textStyle = typography.s15(FontWeight.Medium)
+                )
+            ),
+            error = StateStyle(
+                checkmark = CheckmarkStyle(
+                    color = colors.input.borderError,
+                    borderColor = colors.input.borderError,
+                    backgroundColor = colors.surface.default
+                ),
+                text = POText.Style(
+                    color = colors.text.secondary,
+                    textStyle = typography.s15(FontWeight.Medium)
+                )
+            ),
+            disabled = StateStyle(
+                checkmark = CheckmarkStyle(
+                    color = colors.input.borderDisabled,
+                    borderColor = colors.input.borderDisabled,
+                    backgroundColor = colors.input.backgroundDisabled
+                ),
+                text = POText.Style(
+                    color = colors.text.disabled,
+                    textStyle = typography.s15(FontWeight.Medium)
                 )
             )
         )
