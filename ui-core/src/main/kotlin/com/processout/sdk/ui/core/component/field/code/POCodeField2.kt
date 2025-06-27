@@ -17,6 +17,7 @@ import androidx.compose.ui.platform.*
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.POMessageBox
@@ -30,7 +31,6 @@ import com.processout.sdk.ui.core.component.field.code.POCodeField.validLength
 import com.processout.sdk.ui.core.component.field.text.POTextField2
 import com.processout.sdk.ui.core.component.texttoolbar.ProcessOutTextToolbar
 import com.processout.sdk.ui.core.state.POInputFilter
-import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 
 /** @suppress */
@@ -193,7 +193,7 @@ private fun Code(
                     },
                     modifier = Modifier.requiredWidth(
                         rememberTextFieldWidth(
-                            defaultWidth = dimensions.interactiveComponentMinSize,
+                            defaultWidth = 40.dp,
                             rowWidth = with(LocalDensity.current) { rowWidthPx.toDp() },
                             space = horizontalSpace,
                             length = validLength
