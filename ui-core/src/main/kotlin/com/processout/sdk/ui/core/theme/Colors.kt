@@ -48,9 +48,6 @@ data class POColors(
         val secondaryBackgroundDefault: Color,
         val secondaryBackgroundDisabled: Color,
         val secondaryBackgroundPressed: Color,
-        val secondaryBorderDefault: Color,
-        val secondaryBorderDisabled: Color,
-        val secondaryBorderPressed: Color,
         val ghostBackgroundPressed: Color
     )
 
@@ -73,9 +70,9 @@ data class POColors(
 @ProcessOutInternalApi
 val POLightColorPalette = POColors(
     text = Text(
-        primary = Color(0xFF121821),
+        primary = Color(0xFF000000),
         secondary = Color(0xFF585A5F),
-        inverse = Color(0xFFFAFAFA),
+        inverse = Color(0xFFFFFFFF),
         muted = Color(0xFF5B6576),
         placeholder = Color(0xFF707378),
         disabled = Color(0xFFADB5BD),
@@ -93,15 +90,12 @@ val POLightColorPalette = POColors(
         borderError = Color(0xFFBE011B)
     ),
     button = Button(
-        primaryBackgroundDefault = Color(0xFF121821),
-        primaryBackgroundDisabled = Color(0xFFEDEEEF),
-        primaryBackgroundPressed = Color(0xFF242C38),
-        secondaryBackgroundDefault = Color(0xFFFFFFFF),
-        secondaryBackgroundDisabled = Color(0xFFFFFFFF),
+        primaryBackgroundDefault = Color(0xFF000000),
+        primaryBackgroundDisabled = Color(0x0A121314),
+        primaryBackgroundPressed = Color(0xFF26292F),
+        secondaryBackgroundDefault = Color(0x0F121314),
+        secondaryBackgroundDisabled = Color(0x0A121314),
         secondaryBackgroundPressed = Color(0x29212222),
-        secondaryBorderDefault = Color(0xFF121821),
-        secondaryBorderDisabled = Color(0xFFEDEEEF),
-        secondaryBorderPressed = Color(0xFF242C38),
         ghostBackgroundPressed = Color(0x1F121314)
     ),
     surface = Surface(
@@ -120,9 +114,9 @@ val POLightColorPalette = POColors(
 @ProcessOutInternalApi
 val PODarkColorPalette = POColors(
     text = Text(
-        primary = Color(0xFFFAFAFA),
+        primary = Color(0xFFFFFFFF),
         secondary = Color(0xFFC0C3C8),
-        inverse = Color(0xFF121821),
+        inverse = Color(0xFF000000),
         muted = Color(0xFFADB5BD),
         placeholder = Color(0xFFA7A9AF),
         disabled = Color(0xFF5B6576),
@@ -131,7 +125,7 @@ val PODarkColorPalette = POColors(
         onTipError = Color(0xFFF5D9D9)
     ),
     input = Input(
-        backgroundDefault = Color(0xFF121821),
+        backgroundDefault = Color(0xFF26292F),
         backgroundDisabled = Color(0xFF242C38),
         borderDefault = Color(0xFFCCD1D6),
         borderDefault2 = Color(0x29F6F8FB),
@@ -141,18 +135,15 @@ val PODarkColorPalette = POColors(
     ),
     button = Button(
         primaryBackgroundDefault = Color(0xFFFFFFFF),
-        primaryBackgroundDisabled = Color(0xFF242C38),
-        primaryBackgroundPressed = Color(0xFFCCD1D6),
-        secondaryBackgroundDefault = Color(0xFF121821),
-        secondaryBackgroundDisabled = Color(0xFF121821),
+        primaryBackgroundDisabled = Color(0xFF2E3137),
+        primaryBackgroundPressed = Color(0xFF585A5F),
+        secondaryBackgroundDefault = Color(0x14F6F8FB),
+        secondaryBackgroundDisabled = Color(0xFF2E3137),
         secondaryBackgroundPressed = Color(0x0FF6F8FB),
-        secondaryBorderDefault = Color(0xFFFFFFFF),
-        secondaryBorderDisabled = Color(0xFF242C38),
-        secondaryBorderPressed = Color(0xFFCCD1D6),
         ghostBackgroundPressed = Color(0x1FF6F8FB)
     ),
     surface = Surface(
-        default = Color(0xFF121821),
+        default = Color(0xFF26292F),
         neutral = Color(0xFF242C38),
         success = Color(0xFF1DA37D),
         error = Color(0xFFD11D2F),
