@@ -82,7 +82,7 @@ val POLightColorPalette = POColors(
     ),
     input = Input(
         backgroundDefault = Color(0xFFFFFFFF),
-        backgroundDisabled = Color(0xFFEDEEEF),
+        backgroundDisabled = Color(0x0F121314),
         borderDefault = Color(0xFF7C8593),
         borderDefault2 = Color(0x1F121314),
         borderDisabled = Color(0xFFADB5BD),
@@ -126,7 +126,7 @@ val PODarkColorPalette = POColors(
     ),
     input = Input(
         backgroundDefault = Color(0xFF26292F),
-        backgroundDisabled = Color(0xFF242C38),
+        backgroundDisabled = Color(0x14F6F8FB),
         borderDefault = Color(0xFFCCD1D6),
         borderDefault2 = Color(0x29F6F8FB),
         borderDisabled = Color(0xFF7C8593),
