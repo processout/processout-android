@@ -15,7 +15,8 @@ import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.field.radio.PORadioButton.MaterialRadioButtonSize
 import com.processout.sdk.ui.core.component.field.radio.PORadioButton.colors
-import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -36,7 +37,7 @@ fun PORadioButton(
         modifier = modifier
             .scale(radioButtonScale)
             .requiredWidth(radioButtonSize)
-            .requiredHeight(ProcessOutTheme.dimensions.formComponentMinHeight),
+            .requiredHeight(dimensions.formComponentMinHeight),
         enabled = enabled,
         colors = colors(style = style, isError = isError)
     )
@@ -55,24 +56,20 @@ object PORadioButton {
     )
 
     val default: Style
-        @Composable get() = with(ProcessOutTheme) {
-            Style(
-                normalColor = colors.input.borderDefault,
-                selectedColor = colors.button.primaryBackgroundDefault,
-                errorColor = colors.input.borderError,
-                disabledColor = colors.input.borderDisabled
-            )
-        }
+        @Composable get() = Style(
+            normalColor = colors.input.borderDefault,
+            selectedColor = colors.button.primaryBackgroundDefault,
+            errorColor = colors.input.borderError,
+            disabledColor = colors.input.borderDisabled
+        )
 
     val default2: Style
-        @Composable get() = with(ProcessOutTheme) {
-            Style(
-                normalColor = colors.checkRadio.borderDefault,
-                selectedColor = colors.checkRadio.borderActive,
-                errorColor = colors.checkRadio.borderError,
-                disabledColor = colors.checkRadio.iconDisabled
-            )
-        }
+        @Composable get() = Style(
+            normalColor = colors.checkRadio.borderDefault,
+            selectedColor = colors.checkRadio.borderActive,
+            errorColor = colors.checkRadio.borderError,
+            disabledColor = colors.checkRadio.iconDisabled
+        )
 
     internal val MaterialRadioButtonSize = 20.dp
 
