@@ -162,9 +162,9 @@ object POCheckbox {
         @Composable get() = Style(
             normal = StateStyle(
                 checkmark = CheckmarkStyle(
-                    color = colors.surface.default,
+                    color = colors.checkRadio.iconDefault,
                     borderColor = colors.checkRadio.borderDefault,
-                    backgroundColor = colors.surface.default
+                    backgroundColor = colors.checkRadio.surfaceDefault
                 ),
                 text = POText.Style(
                     color = colors.text.secondary,
@@ -173,9 +173,9 @@ object POCheckbox {
             ),
             selected = StateStyle(
                 checkmark = CheckmarkStyle(
-                    color = colors.surface.default,
-                    borderColor = colors.button.primaryBackgroundDefault,
-                    backgroundColor = colors.button.primaryBackgroundDefault
+                    color = colors.checkRadio.iconActive,
+                    borderColor = colors.checkRadio.borderActive,
+                    backgroundColor = colors.checkRadio.surfaceActive
                 ),
                 text = POText.Style(
                     color = colors.text.secondary,
@@ -184,9 +184,9 @@ object POCheckbox {
             ),
             error = StateStyle(
                 checkmark = CheckmarkStyle(
-                    color = colors.input.borderError,
-                    borderColor = colors.input.borderError,
-                    backgroundColor = colors.surface.default
+                    color = colors.checkRadio.iconError,
+                    borderColor = colors.checkRadio.borderError,
+                    backgroundColor = colors.checkRadio.surfaceError
                 ),
                 text = POText.Style(
                     color = colors.text.secondary,
@@ -195,9 +195,9 @@ object POCheckbox {
             ),
             disabled = StateStyle(
                 checkmark = CheckmarkStyle(
-                    color = colors.input.borderDisabled,
-                    borderColor = colors.input.borderDisabled,
-                    backgroundColor = colors.input.backgroundDisabled
+                    color = colors.checkRadio.iconDisabled,
+                    borderColor = colors.checkRadio.borderDisabled,
+                    backgroundColor = colors.checkRadio.surfaceDisabled
                 ),
                 text = POText.Style(
                     color = colors.text.disabled,

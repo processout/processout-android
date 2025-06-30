@@ -43,7 +43,18 @@ data class POColors(
 
     @Immutable
     data class CheckRadio(
-        val borderDefault: Color
+        val iconDefault: Color,
+        val iconActive: Color,
+        val iconError: Color,
+        val iconDisabled: Color,
+        val borderDefault: Color,
+        val borderActive: Color,
+        val borderError: Color,
+        val borderDisabled: Color,
+        val surfaceDefault: Color,
+        val surfaceActive: Color,
+        val surfaceError: Color,
+        val surfaceDisabled: Color
     )
 
     @Immutable
@@ -95,7 +106,18 @@ val POLightColorPalette = POColors(
         borderError = Color(0xFFBE011B)
     ),
     checkRadio = CheckRadio(
-        borderDefault = Color(0xFFC0C3C8)
+        iconDefault = Color(0xFFFFFFFF),
+        iconActive = Color(0xFFFFFFFF),
+        iconError = Color(0xFFF03030),
+        iconDisabled = Color(0xFFC0C3C8),
+        borderDefault = Color(0xFFC0C3C8),
+        borderActive = Color(0xFF000000),
+        borderError = Color(0xFFF03030),
+        borderDisabled = Color(0xFFE2E2E2),
+        surfaceDefault = Color(0xFFFFFFFF),
+        surfaceActive = Color(0xFF000000),
+        surfaceError = Color(0xFFFDE3DE),
+        surfaceDisabled = Color(0xFFF1F1F2)
     ),
     button = Button(
         primaryBackgroundDefault = Color(0xFF000000),
@@ -141,7 +163,18 @@ val PODarkColorPalette = POColors(
         borderError = Color(0xFFFF7D6C)
     ),
     checkRadio = CheckRadio(
-        borderDefault = Color(0x3DF6F8FB)
+        iconDefault = Color(0x33121314),
+        iconActive = Color(0xFF000000),
+        iconError = Color(0xFFFF7D6C),
+        iconDisabled = Color(0xFF707378),
+        borderDefault = Color(0x3DF6F8FB),
+        borderActive = Color(0xFFFFFFFF),
+        borderError = Color(0xFFFF7D6C),
+        borderDisabled = Color(0xFF3D4149),
+        surfaceDefault = Color(0x33121314),
+        surfaceActive = Color(0xFFFFFFFF),
+        surfaceError = Color(0xFF3D0D04),
+        surfaceDisabled = Color(0xFF2E3137)
     ),
     button = Button(
         primaryBackgroundDefault = Color(0xFFFFFFFF),

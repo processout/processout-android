@@ -64,6 +64,16 @@ object PORadioButton {
             )
         }
 
+    val default2: Style
+        @Composable get() = with(ProcessOutTheme) {
+            Style(
+                normalColor = colors.checkRadio.borderDefault,
+                selectedColor = colors.checkRadio.borderActive,
+                errorColor = colors.checkRadio.borderError,
+                disabledColor = colors.checkRadio.iconDisabled
+            )
+        }
+
     internal val MaterialRadioButtonSize = 20.dp
 
     @Composable
