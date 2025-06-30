@@ -10,10 +10,10 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
-import com.processout.sdk.ui.core.component.field.radio.PORadioButton.RadioButtonScale
-import com.processout.sdk.ui.core.component.field.radio.PORadioButton.RadioButtonSize
+import com.processout.sdk.ui.core.component.field.radio.PORadioButton.MaterialRadioButtonSize
 import com.processout.sdk.ui.core.component.field.radio.PORadioButton.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 
@@ -24,16 +24,18 @@ fun PORadioButton(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    radioButtonSize: Dp = MaterialRadioButtonSize,
     style: PORadioButton.Style = PORadioButton.default,
     enabled: Boolean = true,
     isError: Boolean = false
 ) {
+    val radioButtonScale = radioButtonSize.value / MaterialRadioButtonSize.value
     RadioButton(
         selected = selected,
         onClick = onClick,
         modifier = modifier
-            .scale(RadioButtonScale)
-            .requiredWidth(RadioButtonSize)
+            .scale(radioButtonScale)
+            .requiredWidth(radioButtonSize)
             .requiredHeight(ProcessOutTheme.dimensions.formComponentMinHeight),
         enabled = enabled,
         colors = colors(style = style, isError = isError)
@@ -62,9 +64,7 @@ object PORadioButton {
             )
         }
 
-    private val MaterialRadioButtonSize = 20.dp
-    internal val RadioButtonSize = 22.dp
-    internal val RadioButtonScale = RadioButtonSize.value / MaterialRadioButtonSize.value
+    internal val MaterialRadioButtonSize = 20.dp
 
     @Composable
     internal fun colors(
