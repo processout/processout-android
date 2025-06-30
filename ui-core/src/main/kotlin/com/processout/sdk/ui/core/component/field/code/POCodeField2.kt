@@ -55,7 +55,7 @@ fun POCodeField2(
     keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
     Column(modifier = modifier) {
-        if (label != null) {
+        if (!label.isNullOrBlank()) {
             val fieldStateStyle = fieldStyle.stateStyle(
                 isError = isError,
                 isFocused = isFocused
