@@ -245,7 +245,7 @@ object POCheckbox {
                 uncheckedCheckmarkColor = this.color
                 uncheckedBorderColor = this.borderColor
                 uncheckedBoxColor = this.backgroundColor
-                checkedCheckmarkColor = this.color
+                checkedCheckmarkColor = if (enabled) this.color else style.disabled.checkmark.color
                 checkedBorderColor = this.borderColor
                 checkedBoxColor = this.backgroundColor
             }
