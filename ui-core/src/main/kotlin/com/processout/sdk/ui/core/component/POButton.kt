@@ -235,7 +235,7 @@ object POButton {
                 ),
                 disabled = StateStyle(
                     text = POText.Style(
-                        color = colors.text.disabled,
+                        color = colors.text.onButtonDisabled,
                         textStyle = typography.button
                     ),
                     shape = shapes.roundedCornersSmall,
@@ -267,7 +267,7 @@ object POButton {
                 ),
                 disabled = StateStyle(
                     text = POText.Style(
-                        color = colors.text.disabled,
+                        color = colors.text.onButtonDisabled,
                         textStyle = typography.button
                     ),
                     shape = shapes.roundedCornersSmall,
@@ -299,7 +299,7 @@ object POButton {
                 ),
                 disabled = StateStyle(
                     text = POText.Style(
-                        color = colors.text.disabled,
+                        color = colors.text.onButtonDisabled,
                         textStyle = typography.button
                     ),
                     shape = shapes.roundedCornersSmall,

@@ -25,6 +25,7 @@ data class POColors(
         val muted: Color,
         val placeholder: Color,
         val disabled: Color,
+        val onButtonDisabled: Color,
         val success: Color,
         val error: Color,
         val onTipError: Color
@@ -93,6 +94,7 @@ val POLightColorPalette = POColors(
         muted = Color(0xFF5B6576),
         placeholder = Color(0xFF707378),
         disabled = Color(0xFFADB5BD),
+        onButtonDisabled = Color(0xFFC0C3C8),
         success = Color(0xFF00291D),
         error = Color(0xFFBE011B),
         onTipError = Color(0xFF630407)
@@ -151,6 +153,7 @@ val PODarkColorPalette = POColors(
         muted = Color(0xFFADB5BD),
         placeholder = Color(0xFFA7A9AF),
         disabled = Color(0xFF5B6576),
+        onButtonDisabled = Color(0xFF707378),
         success = Color(0xFFE5FFF8),
         error = Color(0xFFFF7D6C),
         onTipError = Color(0xFFF5D9D9)
