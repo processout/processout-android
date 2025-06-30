@@ -163,7 +163,7 @@ object POCheckbox {
             normal = StateStyle(
                 checkmark = CheckmarkStyle(
                     color = colors.surface.default,
-                    borderColor = colors.border.checkboxRadioDefault,
+                    borderColor = colors.checkRadio.borderDefault,
                     backgroundColor = colors.surface.default
                 ),
                 text = POText.Style(

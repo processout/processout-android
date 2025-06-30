@@ -12,6 +12,7 @@ import com.processout.sdk.ui.core.theme.POColors.*
 data class POColors(
     val text: Text,
     val input: Input,
+    val checkRadio: CheckRadio,
     val button: Button,
     val surface: Surface,
     val border: Border
@@ -41,6 +42,11 @@ data class POColors(
     )
 
     @Immutable
+    data class CheckRadio(
+        val borderDefault: Color
+    )
+
+    @Immutable
     data class Button(
         val primaryBackgroundDefault: Color,
         val primaryBackgroundDisabled: Color,
@@ -62,8 +68,7 @@ data class POColors(
 
     @Immutable
     data class Border(
-        val subtle: Color,
-        val checkboxRadioDefault: Color
+        val subtle: Color
     )
 }
 
@@ -89,6 +94,9 @@ val POLightColorPalette = POColors(
         borderFocused = Color(0xFF4791FF),
         borderError = Color(0xFFBE011B)
     ),
+    checkRadio = CheckRadio(
+        borderDefault = Color(0xFFC0C3C8)
+    ),
     button = Button(
         primaryBackgroundDefault = Color(0xFF000000),
         primaryBackgroundDisabled = Color(0x0A121314),
@@ -106,8 +114,7 @@ val POLightColorPalette = POColors(
         toastError = Color(0xFFFDE3DE)
     ),
     border = Border(
-        subtle = Color(0xFFCCD1D6),
-        checkboxRadioDefault = Color(0xFFC0C3C8)
+        subtle = Color(0xFFCCD1D6)
     )
 )
 
@@ -133,6 +140,9 @@ val PODarkColorPalette = POColors(
         borderFocused = Color(0xFFFFE500),
         borderError = Color(0xFFFF7D6C)
     ),
+    checkRadio = CheckRadio(
+        borderDefault = Color(0x3DF6F8FB)
+    ),
     button = Button(
         primaryBackgroundDefault = Color(0xFFFFFFFF),
         primaryBackgroundDisabled = Color(0xFF2E3137),
@@ -150,8 +160,7 @@ val PODarkColorPalette = POColors(
         toastError = Color(0xFF511511)
     ),
     border = Border(
-        subtle = Color(0xFF7C8593),
-        checkboxRadioDefault = Color(0x3DF6F8FB)
+        subtle = Color(0xFF7C8593)
     )
 )
 
