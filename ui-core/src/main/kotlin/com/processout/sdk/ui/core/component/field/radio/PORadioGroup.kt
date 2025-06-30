@@ -9,6 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.POText
@@ -112,6 +113,38 @@ object PORadioGroup {
                 text = POText.Style(
                     color = colors.text.disabled,
                     textStyle = typography.label1
+                )
+            )
+        )
+
+    val default2: Style
+        @Composable get() = Style(
+            normal = StateStyle(
+                buttonColor = PORadioButton.default2.normalColor,
+                text = POText.Style(
+                    color = colors.text.secondary,
+                    textStyle = typography.s15(FontWeight.Medium)
+                )
+            ),
+            selected = StateStyle(
+                buttonColor = PORadioButton.default2.selectedColor,
+                text = POText.Style(
+                    color = colors.text.secondary,
+                    textStyle = typography.s15(FontWeight.Medium)
+                )
+            ),
+            error = StateStyle(
+                buttonColor = PORadioButton.default2.errorColor,
+                text = POText.Style(
+                    color = colors.text.secondary,
+                    textStyle = typography.s15(FontWeight.Medium)
+                )
+            ),
+            disabled = StateStyle(
+                buttonColor = PORadioButton.default2.disabledColor,
+                text = POText.Style(
+                    color = colors.text.disabled,
+                    textStyle = typography.s15(FontWeight.Medium)
                 )
             )
         )

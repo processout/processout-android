@@ -752,7 +752,7 @@ internal object NativeAlternativePaymentScreen {
                 } ?: POCodeField.default2,
                 radioGroup = custom?.radioButton?.let {
                     PORadioGroup.custom(style = it)
-                } ?: PORadioGroup.default,
+                } ?: PORadioGroup.default2,
                 checkbox = custom?.checkbox?.let {
                     POCheckbox.custom(style = it)
                 } ?: POCheckbox.default2,
