@@ -304,7 +304,7 @@ object POButton {
                     ),
                     shape = shapes.roundedCornersSmall,
                     border = POBorderStroke(width = 0.dp, color = Color.Transparent),
-                    backgroundColor = Color.Transparent,
+                    backgroundColor = colors.button.ghostBackgroundDisabled,
                     elevation = 0.dp
                 ),
                 highlighted = HighlightedStyle(
