@@ -37,7 +37,7 @@ import com.processout.sdk.ui.R
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
-import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox2
+import com.processout.sdk.ui.core.component.field.checkbox.POCheckboxField
 import com.processout.sdk.ui.core.component.field.code.POCodeField
 import com.processout.sdk.ui.core.component.field.code.POCodeField2
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
@@ -406,7 +406,7 @@ private fun CheckboxField(
     descriptionStyle: POMessageBox.Style,
     modifier: Modifier = Modifier
 ) {
-    POCheckbox2(
+    POCheckboxField(
         text = state.label ?: String(),
         checked = state.value.text.toBooleanStrictOrNull() ?: false,
         onCheckedChange = {

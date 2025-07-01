@@ -12,7 +12,7 @@ import com.processout.sdk.ui.core.component.POMessageBox
 /** @suppress */
 @ProcessOutInternalApi
 @Composable
-fun POCheckbox2(
+fun POCheckboxField(
     text: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
