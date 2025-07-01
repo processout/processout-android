@@ -80,10 +80,11 @@ fun PORadioField(
                 )
                 val onClick = { onValueChange(TextFieldValue(text = availableValue.value)) }
                 val interactionSource = remember { MutableInteractionSource() }
+                val rowHeight = dimensions.formComponentMinHeight
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .requiredHeightIn(min = dimensions.formComponentMinHeight)
+                        .requiredHeightIn(min = rowHeight)
                         .clip(shape = shapes.roundedCorners4)
                         .clickable(
                             onClick = onClick,
@@ -106,7 +107,7 @@ fun PORadioField(
                             start = spacing.space10,
                             top = measuredPaddingTop(
                                 textStyle = optionStateStyle.option.textStyle,
-                                componentHeight = dimensions.formComponentMinHeight
+                                componentHeight = rowHeight
                             )
                         ),
                         color = optionStateStyle.option.color,
