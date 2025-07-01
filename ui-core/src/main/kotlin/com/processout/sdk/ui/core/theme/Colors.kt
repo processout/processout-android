@@ -75,6 +75,7 @@ data class POColors(
         val default: Color,
         val neutral: Color,
         val darkout: Color,
+        val darkoutRipple: Color,
         val success: Color,
         val error: Color,
         val toastError: Color
@@ -137,6 +138,7 @@ val POLightColorPalette = POColors(
         default = Color(0xFFFFFFFF),
         neutral = Color(0xFFFAFAFA),
         darkout = Color(0x0F121314),
+        darkoutRipple = Color(0x0F888989),
         success = Color(0xFFBEFAE9),
         error = Color(0xFFFFC2C8),
         toastError = Color(0xFFFDE3DE)
@@ -197,6 +199,7 @@ val PODarkColorPalette = POColors(
         default = Color(0xFF26292F),
         neutral = Color(0xFF2A2D34),
         darkout = Color(0x0FF6F8FB),
+        darkoutRipple = Color(0x0F7B7C7D),
         success = Color(0xFF1DA37D),
         error = Color(0xFFD11D2F),
         toastError = Color(0xFF511511)
