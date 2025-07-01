@@ -24,12 +24,11 @@ fun POCheckboxField(
     description: String? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
-    Column {
+    Column(modifier = modifier) {
         POCheckbox(
             text = text,
             checked = checked,
             onCheckedChange = onCheckedChange,
-            modifier = modifier,
             minHeight = 40.dp,
             checkboxSize = 16.dp,
             style = checkboxStyle,
