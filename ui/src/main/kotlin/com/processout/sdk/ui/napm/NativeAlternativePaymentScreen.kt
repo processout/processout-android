@@ -643,7 +643,7 @@ internal object NativeAlternativePaymentScreen {
                 codeField = custom?.codeField?.let {
                     POField.custom(style = it)
                 } ?: POCodeField.default,
-                radioGroup = custom?.radioButton?.let {
+                radioGroup = custom?.radioField?.let {
                     PORadioGroup.custom(style = it)
                 } ?: PORadioGroup.default,
                 dropdownMenu = custom?.dropdownMenu?.let {

@@ -294,7 +294,7 @@ data class PONativeAlternativePaymentConfiguration(
      * @param[label] Field label style.
      * @param[field] Field style.
      * @param[codeField] Code field style.
-     * @param[radioButton] Radio button style.
+     * @param[radioField] Radio field style.
      * @param[checkbox] Checkbox style.
      * @param[dropdownMenu] Dropdown menu style.
      * @param[actionsContainer] Style of action buttons and their container.
@@ -316,7 +316,7 @@ data class PONativeAlternativePaymentConfiguration(
         val label: POTextStyle? = null,
         val field: POFieldStyle? = null,
         val codeField: POFieldStyle? = null,
-        val radioButton: PORadioButtonStyle? = null,
+        val radioField: PORadioFieldStyle? = null,
         val checkbox: POCheckboxStyle? = null,
         val dropdownMenu: PODropdownMenuStyle? = null,
         val actionsContainer: POActionsContainerStyle? = null,
@@ -336,7 +336,79 @@ data class PONativeAlternativePaymentConfiguration(
         val dividerColorResId: Int? = null,
         @ColorRes
         val dragHandleColorResId: Int? = null
-    ) : Parcelable
+    ) : Parcelable {
+
+        /**
+         * Allows to customize the look and feel.
+         *
+         * @param[title] Title style.
+         * @param[label] Field label style.
+         * @param[field] Field style.
+         * @param[codeField] Code field style.
+         * @param[radioButton] Radio button style. __Deprecated__: not used.
+         * @param[checkbox] Checkbox style.
+         * @param[dropdownMenu] Dropdown menu style.
+         * @param[actionsContainer] Style of action buttons and their container.
+         * @param[dialog] Dialog style.
+         * @param[background] Background style.
+         * @param[message] Message style.
+         * @param[errorMessage] Error message style.
+         * @param[errorMessageBox] Error message box style.
+         * @param[successMessage] Success message style.
+         * @param[successImageResId] Success image drawable resource ID.
+         * @param[progressIndicatorColorResId] Color resource ID for progress indicator.
+         * @param[controlsTintColorResId] Color resource ID for tint that applies to generic components (e.g. selectable text).
+         * @param[dividerColorResId] Color resource ID for title divider.
+         * @param[dragHandleColorResId] Color resource ID for bottom sheet drag handle.
+         */
+        @Deprecated(message = "Use alternative constructor.")
+        constructor(
+            title: POTextStyle? = null,
+            label: POTextStyle? = null,
+            field: POFieldStyle? = null,
+            codeField: POFieldStyle? = null,
+            radioButton: PORadioButtonStyle? = null,
+            checkbox: POCheckboxStyle? = null,
+            dropdownMenu: PODropdownMenuStyle? = null,
+            actionsContainer: POActionsContainerStyle? = null,
+            dialog: PODialogStyle? = null,
+            background: POBackgroundStyle? = null,
+            message: POTextStyle? = null,
+            errorMessage: POTextStyle? = null,
+            errorMessageBox: POMessageBoxStyle? = null,
+            successMessage: POTextStyle? = null,
+            @DrawableRes
+            successImageResId: Int? = null,
+            @ColorRes
+            progressIndicatorColorResId: Int? = null,
+            @ColorRes
+            controlsTintColorResId: Int? = null,
+            @ColorRes
+            dividerColorResId: Int? = null,
+            @ColorRes
+            dragHandleColorResId: Int? = null
+        ) : this(
+            title = title,
+            label = label,
+            field = field,
+            codeField = codeField,
+            radioField = null,
+            checkbox = checkbox,
+            dropdownMenu = dropdownMenu,
+            actionsContainer = actionsContainer,
+            dialog = dialog,
+            background = background,
+            message = message,
+            errorMessage = errorMessage,
+            errorMessageBox = errorMessageBox,
+            successMessage = successMessage,
+            successImageResId = successImageResId,
+            progressIndicatorColorResId = progressIndicatorColorResId,
+            controlsTintColorResId = controlsTintColorResId,
+            dividerColorResId = dividerColorResId,
+            dragHandleColorResId = dragHandleColorResId
+        )
+    }
 }
 
 private fun SecondaryAction.toCancelButton(): CancelButton =
