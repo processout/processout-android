@@ -36,7 +36,6 @@ import coil.compose.AsyncImage
 import com.processout.sdk.ui.R
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
-import com.processout.sdk.ui.core.component.field.POFieldLabels
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox2
 import com.processout.sdk.ui.core.component.field.code.POCodeField
@@ -44,8 +43,7 @@ import com.processout.sdk.ui.core.component.field.code.POCodeField2
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField2
 import com.processout.sdk.ui.core.component.field.phone.POPhoneNumberField
-import com.processout.sdk.ui.core.component.field.radio.POLabeledRadioField
-import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
+import com.processout.sdk.ui.core.component.field.radio.PORadioField
 import com.processout.sdk.ui.core.component.field.text.POTextField2
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
@@ -164,10 +162,6 @@ private fun UserInput(
             verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.extraLarge)
         ) {
             val lifecycleEvent = rememberLifecycleEvent()
-            val labelsStyle = POFieldLabels.Style(
-                title = style.label,
-                description = style.errorMessage
-            )
             val isPrimaryActionEnabled = with(state.primaryAction) { enabled && !loading }
             state.fields.elements.forEach { field ->
                 when (field) {
@@ -194,8 +188,9 @@ private fun UserInput(
                     is RadioField -> RadioField(
                         state = field.state,
                         onEvent = onEvent,
-                        radioGroupStyle = style.radioGroup,
-                        labelsStyle = labelsStyle
+                        fieldStyle = style.radioField,
+                        descriptionStyle = style.errorMessageBox,
+                        modifier = Modifier.fillMaxWidth()
                     )
                     is DropdownField -> DropdownField(
                         state = field.state,
@@ -339,11 +334,11 @@ private fun CodeField(
 private fun RadioField(
     state: FieldState,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
-    radioGroupStyle: PORadioGroup.Style,
-    labelsStyle: POFieldLabels.Style,
+    fieldStyle: PORadioField.Style,
+    descriptionStyle: POMessageBox.Style,
     modifier: Modifier = Modifier
 ) {
-    POLabeledRadioField(
+    PORadioField(
         value = state.value,
         onValueChange = {
             onEvent(
@@ -354,11 +349,11 @@ private fun RadioField(
             )
         },
         availableValues = state.availableValues ?: POImmutableList(emptyList()),
-        title = state.label ?: String(),
-        description = state.description,
         modifier = modifier,
-        radioGroupStyle = radioGroupStyle,
-        labelsStyle = labelsStyle,
+        fieldStyle = fieldStyle,
+        descriptionStyle = descriptionStyle,
+        title = state.label,
+        description = state.description,
         isError = state.isError
     )
 }
@@ -717,7 +712,7 @@ internal object NativeAlternativePaymentScreen {
         val label: POText.Style,
         val field: POField.Style,
         val codeField: POField.Style,
-        val radioGroup: PORadioGroup.Style,
+        val radioField: PORadioField.Style,
         val checkbox: POCheckbox.Style,
         val dropdownMenu: PODropdownField.MenuStyle,
         val actionsContainer: POActionsContainer.Style,
@@ -750,9 +745,7 @@ internal object NativeAlternativePaymentScreen {
                 codeField = custom?.codeField?.let {
                     POField.custom(style = it)
                 } ?: POCodeField.default2,
-                radioGroup = custom?.radioButton?.let {
-                    PORadioGroup.custom(style = it)
-                } ?: PORadioGroup.default2,
+                radioField = PORadioField.default, // TODO(v2): map custom style
                 checkbox = custom?.checkbox?.let {
                     POCheckbox.custom(style = it)
                 } ?: POCheckbox.default2,
