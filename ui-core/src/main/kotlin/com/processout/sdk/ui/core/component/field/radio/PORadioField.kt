@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -13,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -26,6 +28,8 @@ import com.processout.sdk.ui.core.component.field.radio.PORadioField.radioButton
 import com.processout.sdk.ui.core.component.field.radio.PORadioField.stateStyle
 import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.core.state.POImmutableList
+import com.processout.sdk.ui.core.style.PORadioFieldStateStyle
+import com.processout.sdk.ui.core.style.PORadioFieldStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
@@ -211,6 +215,28 @@ object PORadioField {
                 border = POBorderStroke(width = 1.5.dp, color = colors.input.borderDefault2)
             )
         )
+
+    @Composable
+    fun custom(style: PORadioFieldStyle) = Style(
+        normal = style.normal.toStateStyle(),
+        selected = style.selected.toStateStyle(),
+        error = style.error.toStateStyle(),
+        disabled = style.disabled?.toStateStyle() ?: default.disabled
+    )
+
+    @Composable
+    private fun PORadioFieldStateStyle.toStateStyle() = StateStyle(
+        title = POText.custom(style = title),
+        option = POText.custom(style = option),
+        radioButtonColor = colorResource(id = radioButtonColorResId),
+        rowBackgroundColor = colorResource(id = rowBackgroundColorResId),
+        rowRippleColor = rowRippleColorResId?.let { colorResource(id = it) },
+        shape = RoundedCornerShape(size = border.radiusDp.dp),
+        border = POBorderStroke(
+            width = border.widthDp.dp,
+            color = colorResource(id = border.colorResId)
+        )
+    )
 
     fun stateStyle(
         style: Style,

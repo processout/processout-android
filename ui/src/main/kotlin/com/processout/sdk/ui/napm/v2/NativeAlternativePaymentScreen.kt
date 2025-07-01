@@ -745,7 +745,9 @@ internal object NativeAlternativePaymentScreen {
                 codeField = custom?.codeField?.let {
                     POField.custom(style = it)
                 } ?: POCodeField.default2,
-                radioField = PORadioField.default, // TODO(v2): map custom style
+                radioField = custom?.radioField?.let {
+                    PORadioField.custom(style = it)
+                } ?: PORadioField.default,
                 checkbox = custom?.checkbox?.let {
                     POCheckbox.custom(style = it)
                 } ?: POCheckbox.default2,
