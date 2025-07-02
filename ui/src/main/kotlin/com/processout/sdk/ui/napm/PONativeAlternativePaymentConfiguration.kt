@@ -313,7 +313,7 @@ data class PONativeAlternativePaymentConfiguration(
     @Parcelize
     data class Style(
         val title: POTextStyle? = null,
-        val label: POTextStyle? = null,
+        val label: POTextStyle? = null, // TODO(v2): remove, not used
         val field: POFieldStyle? = null,
         val codeField: POFieldStyle? = null,
         val radioField: PORadioFieldStyle? = null,
@@ -323,7 +323,7 @@ data class PONativeAlternativePaymentConfiguration(
         val dialog: PODialogStyle? = null,
         val background: POBackgroundStyle? = null,
         val message: POTextStyle? = null,
-        val errorMessage: POTextStyle? = null,
+        val errorMessage: POTextStyle? = null, // TODO(v2): remove, not used
         val errorMessageBox: POMessageBoxStyle? = null,
         val successMessage: POTextStyle? = null,
         @DrawableRes
