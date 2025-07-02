@@ -3,12 +3,15 @@ package com.processout.sdk.ui.core.component.field.checkbox
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxColors
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
@@ -20,12 +23,13 @@ import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.POText.measuredPaddingTop
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox.MaterialCheckboxSize
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox.colors
-import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox.textStyle
+import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox.stateStyle
 import com.processout.sdk.ui.core.style.POCheckboxStateStyle
 import com.processout.sdk.ui.core.style.POCheckboxStyle
 import com.processout.sdk.ui.core.style.POCheckmarkStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 
@@ -39,15 +43,22 @@ fun POCheckbox(
     modifier: Modifier = Modifier,
     minHeight: Dp = dimensions.formComponentMinHeight,
     checkboxSize: Dp = MaterialCheckboxSize,
+    rowShape: CornerBasedShape = shapes.roundedCorners4,
     style: POCheckbox.Style = POCheckbox.default,
     enabled: Boolean = true,
     isError: Boolean = false,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
+    val stateStyle = style.stateStyle(
+        checked = checked,
+        enabled = enabled,
+        isError = isError
+    )
     Row(
         modifier = modifier
             .fillMaxWidth()
             .requiredHeightIn(min = minHeight)
+            .clip(shape = rowShape)
             .clickable(
                 onClick = {
                     if (enabled) {
@@ -55,7 +66,7 @@ fun POCheckbox(
                     }
                 },
                 interactionSource = interactionSource,
-                indication = null
+                indication = stateStyle.rippleColor?.let { ripple(color = it) }
             )
     ) {
         val checkboxScale = checkboxSize.value / MaterialCheckboxSize.value
@@ -67,29 +78,23 @@ fun POCheckbox(
                 .requiredWidth(checkboxSize)
                 .requiredHeight(minHeight),
             enabled = enabled,
-            colors = colors(
-                style = style,
+            colors = style.colors(
                 enabled = enabled,
                 isError = isError
             )
-        )
-        val textStyle = textStyle(
-            style = style,
-            checked = checked,
-            enabled = enabled,
-            isError = isError
         )
         POText(
             text = text,
             modifier = Modifier.padding(
                 start = spacing.space10,
                 top = measuredPaddingTop(
-                    textStyle = textStyle.textStyle,
+                    textStyle = stateStyle.text.textStyle,
                     componentHeight = minHeight
-                )
+                ),
+                bottom = spacing.space10
             ),
-            color = textStyle.color,
-            style = textStyle.textStyle
+            color = stateStyle.text.color,
+            style = stateStyle.text.textStyle
         )
     }
 }
@@ -109,7 +114,8 @@ object POCheckbox {
     @Immutable
     data class StateStyle(
         val checkmark: CheckmarkStyle,
-        val text: POText.Style
+        val text: POText.Style,
+        val rippleColor: Color?
     )
 
     @Immutable
@@ -127,7 +133,8 @@ object POCheckbox {
                     borderColor = colors.input.borderDefault,
                     backgroundColor = colors.surface.default
                 ),
-                text = POText.label1
+                text = POText.label1,
+                rippleColor = colors.surface.darkoutRipple
             ),
             selected = StateStyle(
                 checkmark = CheckmarkStyle(
@@ -135,7 +142,8 @@ object POCheckbox {
                     borderColor = colors.button.primaryBackgroundDefault,
                     backgroundColor = colors.button.primaryBackgroundDefault
                 ),
-                text = POText.label1
+                text = POText.label1,
+                rippleColor = colors.surface.darkoutRipple
             ),
             error = StateStyle(
                 checkmark = CheckmarkStyle(
@@ -143,7 +151,8 @@ object POCheckbox {
                     borderColor = colors.input.borderError,
                     backgroundColor = colors.surface.default
                 ),
-                text = POText.label1
+                text = POText.label1,
+                rippleColor = colors.surface.darkoutRipple
             ),
             disabled = StateStyle(
                 checkmark = CheckmarkStyle(
@@ -154,7 +163,8 @@ object POCheckbox {
                 text = POText.Style(
                     color = colors.text.disabled,
                     textStyle = typography.label1
-                )
+                ),
+                rippleColor = null
             )
         )
 
@@ -169,7 +179,8 @@ object POCheckbox {
                 text = POText.Style(
                     color = colors.text.secondary,
                     textStyle = typography.s15(FontWeight.Medium)
-                )
+                ),
+                rippleColor = colors.surface.darkoutRipple
             ),
             selected = StateStyle(
                 checkmark = CheckmarkStyle(
@@ -180,7 +191,8 @@ object POCheckbox {
                 text = POText.Style(
                     color = colors.text.secondary,
                     textStyle = typography.s15(FontWeight.Medium)
-                )
+                ),
+                rippleColor = colors.surface.darkoutRipple
             ),
             error = StateStyle(
                 checkmark = CheckmarkStyle(
@@ -191,7 +203,8 @@ object POCheckbox {
                 text = POText.Style(
                     color = colors.text.secondary,
                     textStyle = typography.s15(FontWeight.Medium)
-                )
+                ),
+                rippleColor = colors.surface.darkoutRipple
             ),
             disabled = StateStyle(
                 checkmark = CheckmarkStyle(
@@ -202,7 +215,8 @@ object POCheckbox {
                 text = POText.Style(
                     color = colors.text.disabled,
                     textStyle = typography.s15(FontWeight.Medium)
-                )
+                ),
+                rippleColor = null
             )
         )
 
@@ -217,7 +231,8 @@ object POCheckbox {
     @Composable
     private fun POCheckboxStateStyle.toStateStyle() = StateStyle(
         checkmark = checkmark.toCheckmarkStyle(),
-        text = POText.custom(style = text)
+        text = POText.custom(style = text),
+        rippleColor = rippleColorResId?.let { colorResource(id = it) }
     )
 
     @Composable
@@ -229,8 +244,7 @@ object POCheckbox {
 
     internal val MaterialCheckboxSize = 20.dp
 
-    internal fun colors(
-        style: Style,
+    internal fun Style.colors(
         enabled: Boolean,
         isError: Boolean
     ): CheckboxColors {
@@ -241,22 +255,22 @@ object POCheckbox {
         val checkedBorderColor: Color
         val checkedBoxColor: Color
         if (isError) {
-            with(style.error.checkmark) {
+            with(error.checkmark) {
                 uncheckedCheckmarkColor = this.color
                 uncheckedBorderColor = this.borderColor
                 uncheckedBoxColor = this.backgroundColor
-                checkedCheckmarkColor = if (enabled) this.color else style.disabled.checkmark.color
+                checkedCheckmarkColor = if (enabled) this.color else disabled.checkmark.color
                 checkedBorderColor = this.borderColor
                 checkedBoxColor = this.backgroundColor
             }
         } else {
-            with(style.normal.checkmark) {
-                uncheckedCheckmarkColor = if (enabled) this.color else style.disabled.checkmark.color
+            with(normal.checkmark) {
+                uncheckedCheckmarkColor = if (enabled) this.color else disabled.checkmark.color
                 uncheckedBorderColor = this.borderColor
                 uncheckedBoxColor = this.backgroundColor
             }
-            with(style.selected.checkmark) {
-                checkedCheckmarkColor = if (enabled) this.color else style.disabled.checkmark.color
+            with(selected.checkmark) {
+                checkedCheckmarkColor = if (enabled) this.color else disabled.checkmark.color
                 checkedBorderColor = this.borderColor
                 checkedBoxColor = this.backgroundColor
             }
@@ -268,23 +282,22 @@ object POCheckbox {
             checkedCheckmarkColor = checkedCheckmarkColor,
             checkedBorderColor = checkedBorderColor,
             checkedBoxColor = checkedBoxColor,
-            disabledUncheckedBorderColor = style.disabled.checkmark.borderColor,
-            disabledUncheckedBoxColor = style.disabled.checkmark.backgroundColor,
-            disabledBorderColor = style.disabled.checkmark.borderColor,
-            disabledCheckedBoxColor = style.disabled.checkmark.backgroundColor,
-            disabledIndeterminateBorderColor = style.disabled.checkmark.borderColor,
-            disabledIndeterminateBoxColor = style.disabled.checkmark.backgroundColor
+            disabledUncheckedBorderColor = disabled.checkmark.borderColor,
+            disabledUncheckedBoxColor = disabled.checkmark.backgroundColor,
+            disabledBorderColor = disabled.checkmark.borderColor,
+            disabledCheckedBoxColor = disabled.checkmark.backgroundColor,
+            disabledIndeterminateBorderColor = disabled.checkmark.borderColor,
+            disabledIndeterminateBoxColor = disabled.checkmark.backgroundColor
         )
     }
 
-    internal fun textStyle(
-        style: Style,
+    internal fun Style.stateStyle(
         checked: Boolean,
         enabled: Boolean,
         isError: Boolean
-    ): POText.Style =
-        if (!enabled) style.disabled.text
-        else if (isError) style.error.text
-        else if (checked) style.selected.text
-        else style.normal.text
+    ): StateStyle =
+        if (!enabled) disabled
+        else if (isError) error
+        else if (checked) selected
+        else normal
 }

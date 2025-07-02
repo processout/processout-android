@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.POMessageBox
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -31,6 +32,7 @@ fun POCheckboxField(
             onCheckedChange = onCheckedChange,
             minHeight = 40.dp,
             checkboxSize = 16.dp,
+            rowShape = shapes.roundedCorners6,
             style = checkboxStyle,
             enabled = enabled,
             isError = isError,
