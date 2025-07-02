@@ -23,6 +23,7 @@ import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSu
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter.Companion.string
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentTokenizationRequest
 import com.processout.sdk.api.model.response.napm.v2.*
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.Invoice
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.CustomerInstruction
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter
@@ -163,7 +164,10 @@ internal class NativeAlternativePaymentInteractor(
         invoicesService.authorize(request)
             .onSuccess { response ->
                 handlePaymentState(
-                    stateValue = initUserInputStateValue(),
+                    stateValue = initUserInputStateValue(
+                        paymentMethod = response.paymentMethod,
+                        invoice = response.invoice
+                    ),
                     paymentState = response.state,
                     elements = response.elements
                 )
@@ -182,7 +186,10 @@ internal class NativeAlternativePaymentInteractor(
         customerTokensService.tokenize(request)
             .onSuccess { response ->
                 handlePaymentState(
-                    stateValue = initUserInputStateValue(),
+                    stateValue = initUserInputStateValue(
+                        paymentMethod = response.paymentMethod,
+                        invoice = null
+                    ),
                     paymentState = response.state,
                     elements = response.elements
                 )
@@ -215,7 +222,12 @@ internal class NativeAlternativePaymentInteractor(
         handleFormParameters(stateValue, parameters)
     }
 
-    private fun initUserInputStateValue() = UserInputStateValue(
+    private fun initUserInputStateValue(
+        paymentMethod: PONativeAlternativePaymentMethodDetails,
+        invoice: Invoice?,
+    ) = UserInputStateValue(
+        paymentMethod = paymentMethod,
+        invoice = invoice,
         fields = emptyList(),
         focusedFieldId = null,
         primaryActionId = ActionId.SUBMIT,
