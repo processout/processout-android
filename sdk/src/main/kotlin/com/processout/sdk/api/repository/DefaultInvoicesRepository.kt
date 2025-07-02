@@ -162,8 +162,8 @@ internal class DefaultInvoicesRepository(
     private fun NativeAlternativePaymentAuthorizationResponseBody.toModel() =
         PONativeAlternativePaymentAuthorizationResponse(
             state = state,
-//            invoice = invoice, // TODO(v2): uncomment
-//            paymentMethod = paymentMethod, // TODO(v2): uncomment
+            invoice = invoice,
+            paymentMethod = paymentMethod,
             elements = elements?.map {
                 when (it) {
                     is NativeAlternativePaymentElement.Form ->

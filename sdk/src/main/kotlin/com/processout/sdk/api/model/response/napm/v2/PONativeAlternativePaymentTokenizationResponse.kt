@@ -1,6 +1,7 @@
 package com.processout.sdk.api.model.response.napm.v2
 
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
+import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
@@ -15,7 +16,7 @@ import com.squareup.moshi.JsonClass
 @ProcessOutInternalApi
 data class PONativeAlternativePaymentTokenizationResponse(
     val state: PONativeAlternativePaymentState,
-//    val paymentMethod: PONativeAlternativePaymentMethodDetails, // TODO(v2): uncomment
+    val paymentMethod: PONativeAlternativePaymentMethodDetails,
     val elements: List<PONativeAlternativePaymentElement>?,
     val redirect: PONativeAlternativePaymentRedirect?
 )
@@ -23,8 +24,8 @@ data class PONativeAlternativePaymentTokenizationResponse(
 @JsonClass(generateAdapter = true)
 internal data class NativeAlternativePaymentTokenizationResponseBody(
     val state: PONativeAlternativePaymentState,
-//    @Json(name = "payment_method")
-//    val paymentMethod: PONativeAlternativePaymentMethodDetails, // TODO(v2): uncomment
+    @Json(name = "payment_method")
+    val paymentMethod: PONativeAlternativePaymentMethodDetails,
     val elements: List<NativeAlternativePaymentElement>?,
     val redirect: PONativeAlternativePaymentRedirect?
 )

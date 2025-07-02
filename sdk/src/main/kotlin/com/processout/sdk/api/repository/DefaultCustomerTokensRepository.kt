@@ -94,7 +94,7 @@ internal class DefaultCustomerTokensRepository(
     private fun NativeAlternativePaymentTokenizationResponseBody.toModel() =
         PONativeAlternativePaymentTokenizationResponse(
             state = state,
-//            paymentMethod = paymentMethod, // TODO(v2): uncomment
+            paymentMethod = paymentMethod,
             elements = elements?.map {
                 when (it) {
                     is NativeAlternativePaymentElement.Form ->
