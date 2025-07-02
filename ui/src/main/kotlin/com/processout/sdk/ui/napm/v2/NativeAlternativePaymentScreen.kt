@@ -709,7 +709,6 @@ internal object NativeAlternativePaymentScreen {
     @Immutable
     data class Style(
         val title: POText.Style,
-        val label: POText.Style,
         val field: POField.Style,
         val codeField: POField.Style,
         val radioField: PORadioField.Style,
@@ -720,7 +719,6 @@ internal object NativeAlternativePaymentScreen {
         val normalBackgroundColor: Color,
         val successBackgroundColor: Color,
         val message: AndroidTextView.Style,
-        val errorMessage: POText.Style,
         val errorMessageBox: POMessageBox.Style,
         val successMessage: POText.Style,
         @DrawableRes val successImageResId: Int,
@@ -736,9 +734,6 @@ internal object NativeAlternativePaymentScreen {
                 title = custom?.title?.let {
                     POText.custom(style = it)
                 } ?: POText.title,
-                label = custom?.label?.let {
-                    POText.custom(style = it)
-                } ?: POText.label1,
                 field = custom?.field?.let {
                     POField.custom(style = it)
                 } ?: POField.default2,
@@ -773,9 +768,6 @@ internal object NativeAlternativePaymentScreen {
                         controlsTintColor = controlsTintColor ?: colors.text.primary
                     )
                 } ?: AndroidTextView.default,
-                errorMessage = custom?.errorMessage?.let {
-                    POText.custom(style = it)
-                } ?: POText.errorLabel,
                 errorMessageBox = custom?.errorMessageBox?.let {
                     POMessageBox.custom(style = it)
                 } ?: POMessageBox.error2,
