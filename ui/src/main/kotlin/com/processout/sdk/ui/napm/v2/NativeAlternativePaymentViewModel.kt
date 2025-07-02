@@ -250,9 +250,8 @@ internal class NativeAlternativePaymentViewModel private constructor(
             FieldState(
                 id = id,
                 value = value.textFieldValue(),
-                title = label,
+                label = label,
                 description = description,
-                placeholder = parameter.placeholder(),
                 isError = !isValid,
                 forceTextDirectionLtr = ltrParameterTypes.contains(parameter::class.java),
                 inputFilter = parameter.inputFilter(),
@@ -270,7 +269,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 id = id,
                 value = value.textFieldValue(),
                 length = maxLength,
-                title = label,
+                label = label,
                 description = description,
                 isError = !isValid,
                 inputFilter = parameter.inputFilter(),
@@ -285,7 +284,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 id = id,
                 value = value.textFieldValue(),
                 availableValues = parameter.availableValues(),
-                title = label,
+                label = label,
                 description = description,
                 isError = !isValid
             )
@@ -297,7 +296,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 id = id,
                 value = value.textFieldValue(),
                 availableValues = parameter.availableValues(),
-                title = label,
+                label = label,
                 description = description,
                 isError = !isValid
             )
@@ -308,7 +307,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
             FieldState(
                 id = id,
                 value = value.textFieldValue(),
-                title = label,
+                label = label,
                 description = description,
                 isError = !isValid
             )
@@ -326,13 +325,12 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 id = id,
                 regionCode = regionCode,
                 regionCodes = parameter.phoneNumberRegionCodes(),
-                regionCodePlaceholder = app.getString(R.string.po_native_apm_country_placeholder),
+                regionCodeLabel = app.getString(R.string.po_native_apm_label_country),
                 number = when (value) {
                     is FieldValue.PhoneNumber -> value.number
                     else -> TextFieldValue()
                 },
-                numberPlaceholder = app.getString(R.string.po_native_apm_phone_placeholder),
-                title = label,
+                numberLabel = label,
                 description = description,
                 isError = !isValid,
                 forceTextDirectionLtr = true,
@@ -358,7 +356,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
             is SingleSelect -> POImmutableList(
                 availableValues.map {
                     POAvailableValue(
-                        value = it.value,
+                        value = it.key,
                         text = it.label
                     )
                 }
@@ -459,12 +457,6 @@ internal class NativeAlternativePaymentViewModel private constructor(
         }
         Unknown -> KeyboardOptions.Default
     }
-
-    private fun Parameter.placeholder(): String? =
-        when (this) {
-            is Email -> app.getString(R.string.po_native_apm_email_placeholder)
-            else -> null
-        }
 
     private fun Invoice.formatPrimaryActionText() =
         try {

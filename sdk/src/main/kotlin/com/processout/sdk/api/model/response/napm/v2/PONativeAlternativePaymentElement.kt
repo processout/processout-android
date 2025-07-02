@@ -78,13 +78,13 @@ sealed class PONativeAlternativePaymentElement {
                 /**
                  * Available parameter value.
                  *
-                 * @param[value] Parameter value.
+                 * @param[key] Parameter value.
                  * @param[label] Value display label.
                  * @param[preselected] Indicates whether the value should be preselected by default.
                  */
                 @JsonClass(generateAdapter = true)
                 data class AvailableValue(
-                    val value: String,
+                    val key: String,
                     val label: String,
                     val preselected: Boolean
                 )

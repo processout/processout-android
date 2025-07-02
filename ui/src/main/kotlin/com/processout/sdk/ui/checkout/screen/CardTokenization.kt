@@ -245,7 +245,7 @@ private fun TextField(
         enabled = state.enabled,
         isError = state.isError,
         forceTextDirectionLtr = state.forceTextDirectionLtr,
-        placeholderText = state.placeholder,
+        placeholder = state.placeholder,
         trailingIcon = { state.iconResId?.let { AnimatedFieldIcon(id = it) } },
         visualTransformation = state.visualTransformation,
         keyboardOptions = state.keyboardOptions,
@@ -330,7 +330,7 @@ private fun DropdownField(
         menuStyle = menuStyle,
         enabled = state.enabled,
         isError = state.isError,
-        placeholderText = state.placeholder
+        placeholder = state.placeholder
     )
 }
 
@@ -343,7 +343,7 @@ private fun CheckboxField(
     modifier: Modifier = Modifier
 ) {
     POCheckbox(
-        text = state.title ?: String(),
+        text = state.label ?: String(),
         checked = state.value.text.toBooleanStrictOrNull() ?: false,
         onCheckedChange = {
             if (state.enabled) {

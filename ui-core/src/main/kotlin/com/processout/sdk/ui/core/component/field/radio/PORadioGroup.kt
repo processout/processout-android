@@ -9,6 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.POText
@@ -19,6 +20,8 @@ import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.PORadioButtonStateStyle
 import com.processout.sdk.ui.core.style.PORadioButtonStyle
+import com.processout.sdk.ui.core.style.PORadioFieldStateStyle
+import com.processout.sdk.ui.core.style.PORadioFieldStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
@@ -116,21 +119,64 @@ object PORadioGroup {
             )
         )
 
-    @Composable
-    fun custom(style: PORadioButtonStyle): Style {
-        val normal = style.normal.toStateStyle()
-        return Style(
-            normal = normal,
-            selected = style.selected.toStateStyle(),
-            error = style.error.toStateStyle(),
-            disabled = style.disabled?.toStateStyle() ?: normal
+    val default2: Style
+        @Composable get() = Style(
+            normal = StateStyle(
+                buttonColor = PORadioButton.default2.normalColor,
+                text = POText.Style(
+                    color = colors.text.secondary,
+                    textStyle = typography.s15(FontWeight.Medium)
+                )
+            ),
+            selected = StateStyle(
+                buttonColor = PORadioButton.default2.selectedColor,
+                text = POText.Style(
+                    color = colors.text.secondary,
+                    textStyle = typography.s15(FontWeight.Medium)
+                )
+            ),
+            error = StateStyle(
+                buttonColor = PORadioButton.default2.errorColor,
+                text = POText.Style(
+                    color = colors.text.secondary,
+                    textStyle = typography.s15(FontWeight.Medium)
+                )
+            ),
+            disabled = StateStyle(
+                buttonColor = PORadioButton.default2.disabledColor,
+                text = POText.Style(
+                    color = colors.text.disabled,
+                    textStyle = typography.s15(FontWeight.Medium)
+                )
+            )
         )
-    }
+
+    @Composable
+    fun custom(style: PORadioButtonStyle) = Style(
+        normal = style.normal.toStateStyle(),
+        selected = style.selected.toStateStyle(),
+        error = style.error.toStateStyle(),
+        disabled = style.disabled?.toStateStyle() ?: default.disabled
+    )
 
     @Composable
     private fun PORadioButtonStateStyle.toStateStyle() = StateStyle(
         buttonColor = colorResource(id = buttonColorResId),
         text = POText.custom(style = text)
+    )
+
+    @Composable
+    fun custom(style: PORadioFieldStyle) = Style(
+        normal = style.normal.toStateStyle(),
+        selected = style.selected.toStateStyle(),
+        error = style.error.toStateStyle(),
+        disabled = style.disabled?.toStateStyle() ?: default.disabled
+    )
+
+    @Composable
+    private fun PORadioFieldStateStyle.toStateStyle() = StateStyle(
+        buttonColor = colorResource(id = radioButtonColorResId),
+        text = POText.custom(style = option)
     )
 
     fun Style.toRadioButtonStyle() = PORadioButton.Style(

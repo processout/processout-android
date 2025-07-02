@@ -27,7 +27,7 @@ fun POLabeledDropdownField(
     preferFormattedTextSelection: Boolean = false,
     enabled: Boolean = true,
     isError: Boolean = false,
-    placeholderText: String? = null
+    placeholder: String? = null
 ) {
     LabeledFieldLayout(
         title = title,
@@ -45,7 +45,7 @@ fun POLabeledDropdownField(
             preferFormattedTextSelection = preferFormattedTextSelection,
             enabled = enabled,
             isError = isError,
-            placeholderText = placeholderText
+            placeholder = placeholder
         )
     }
 }

@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -235,10 +236,42 @@ object POButton {
                 ),
                 disabled = StateStyle(
                     text = POText.Style(
-                        color = colors.text.disabled,
+                        color = colors.text.onButtonDisabled,
                         textStyle = typography.button
                     ),
                     shape = shapes.roundedCornersSmall,
+                    border = POBorderStroke(width = 0.dp, color = Color.Transparent),
+                    backgroundColor = colors.button.primaryBackgroundDisabled,
+                    elevation = 0.dp
+                ),
+                highlighted = HighlightedStyle(
+                    textColor = colors.text.inverse,
+                    borderColor = Color.Transparent,
+                    backgroundColor = colors.button.primaryBackgroundPressed
+                ),
+                progressIndicatorColor = colors.text.inverse
+            )
+        }
+
+    val primary2: Style
+        @Composable get() = with(ProcessOutTheme) {
+            Style(
+                normal = StateStyle(
+                    text = POText.Style(
+                        color = colors.text.inverse,
+                        textStyle = typography.s15(FontWeight.Medium)
+                    ),
+                    shape = shapes.roundedCorners6,
+                    border = POBorderStroke(width = 0.dp, color = Color.Transparent),
+                    backgroundColor = colors.button.primaryBackgroundDefault,
+                    elevation = 0.dp
+                ),
+                disabled = StateStyle(
+                    text = POText.Style(
+                        color = colors.text.onButtonDisabled,
+                        textStyle = typography.s15(FontWeight.Medium)
+                    ),
+                    shape = shapes.roundedCorners6,
                     border = POBorderStroke(width = 0.dp, color = Color.Transparent),
                     backgroundColor = colors.button.primaryBackgroundDisabled,
                     elevation = 0.dp
@@ -261,23 +294,55 @@ object POButton {
                         textStyle = typography.button
                     ),
                     shape = shapes.roundedCornersSmall,
-                    border = POBorderStroke(width = 1.dp, color = colors.button.secondaryBorderDefault),
+                    border = POBorderStroke(width = 0.dp, color = Color.Transparent),
                     backgroundColor = colors.button.secondaryBackgroundDefault,
                     elevation = 0.dp
                 ),
                 disabled = StateStyle(
                     text = POText.Style(
-                        color = colors.text.disabled,
+                        color = colors.text.onButtonDisabled,
                         textStyle = typography.button
                     ),
                     shape = shapes.roundedCornersSmall,
-                    border = POBorderStroke(width = 1.dp, color = colors.button.secondaryBorderDisabled),
+                    border = POBorderStroke(width = 0.dp, color = Color.Transparent),
                     backgroundColor = colors.button.secondaryBackgroundDisabled,
                     elevation = 0.dp
                 ),
                 highlighted = HighlightedStyle(
                     textColor = colors.text.primary,
-                    borderColor = colors.button.secondaryBorderPressed,
+                    borderColor = Color.Transparent,
+                    backgroundColor = colors.button.secondaryBackgroundPressed
+                ),
+                progressIndicatorColor = colors.text.primary
+            )
+        }
+
+    val secondary2: Style
+        @Composable get() = with(ProcessOutTheme) {
+            Style(
+                normal = StateStyle(
+                    text = POText.Style(
+                        color = colors.text.primary,
+                        textStyle = typography.s15(FontWeight.Medium)
+                    ),
+                    shape = shapes.roundedCorners6,
+                    border = POBorderStroke(width = 0.dp, color = Color.Transparent),
+                    backgroundColor = colors.button.secondaryBackgroundDefault,
+                    elevation = 0.dp
+                ),
+                disabled = StateStyle(
+                    text = POText.Style(
+                        color = colors.text.onButtonDisabled,
+                        textStyle = typography.s15(FontWeight.Medium)
+                    ),
+                    shape = shapes.roundedCorners6,
+                    border = POBorderStroke(width = 0.dp, color = Color.Transparent),
+                    backgroundColor = colors.button.secondaryBackgroundDisabled,
+                    elevation = 0.dp
+                ),
+                highlighted = HighlightedStyle(
+                    textColor = colors.text.primary,
+                    borderColor = Color.Transparent,
                     backgroundColor = colors.button.secondaryBackgroundPressed
                 ),
                 progressIndicatorColor = colors.text.primary
@@ -299,12 +364,12 @@ object POButton {
                 ),
                 disabled = StateStyle(
                     text = POText.Style(
-                        color = colors.text.disabled,
+                        color = colors.text.onButtonDisabled,
                         textStyle = typography.button
                     ),
                     shape = shapes.roundedCornersSmall,
                     border = POBorderStroke(width = 0.dp, color = Color.Transparent),
-                    backgroundColor = Color.Transparent,
+                    backgroundColor = colors.button.ghostBackgroundDisabled,
                     elevation = 0.dp
                 ),
                 highlighted = HighlightedStyle(

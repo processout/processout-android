@@ -546,7 +546,7 @@ private fun CheckboxField(
     modifier: Modifier = Modifier
 ) {
     POCheckbox(
-        text = state.title ?: String(),
+        text = state.label ?: String(),
         checked = state.value.text.toBooleanStrictOrNull() ?: false,
         onCheckedChange = {
             onEvent(
@@ -790,7 +790,7 @@ internal object DynamicCheckoutScreen {
                 title = POText.body1,
                 description = POTextWithIcon.Style(
                     text = description,
-                    iconResId = R.drawable.po_info_icon,
+                    iconResId = R.drawable.po_icon_info,
                     iconColorFilter = ColorFilter.tint(color = description.color)
                 ),
                 shape = shapes.roundedCornersSmall,

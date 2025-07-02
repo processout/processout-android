@@ -229,7 +229,7 @@ private fun TextField(
                 )
             )
         },
-        title = state.title ?: String(),
+        title = state.label ?: String(),
         description = state.description,
         modifier = modifier
             .focusRequester(focusRequester)
@@ -246,7 +246,7 @@ private fun TextField(
         enabled = state.enabled,
         isError = state.isError,
         forceTextDirectionLtr = state.forceTextDirectionLtr,
-        placeholderText = state.placeholder,
+        placeholder = state.placeholder,
         visualTransformation = state.visualTransformation,
         keyboardOptions = state.keyboardOptions,
         keyboardActions = POField.keyboardActions(
@@ -283,7 +283,7 @@ private fun CodeField(
                 )
             )
         },
-        title = state.title ?: String(),
+        title = state.label ?: String(),
         description = state.description,
         modifier = modifier
             .onFocusChanged {
@@ -331,7 +331,7 @@ private fun RadioField(
             )
         },
         availableValues = state.availableValues ?: POImmutableList(emptyList()),
-        title = state.title ?: String(),
+        title = state.label ?: String(),
         description = state.description,
         modifier = modifier,
         radioGroupStyle = radioGroupStyle,
@@ -360,7 +360,7 @@ private fun DropdownField(
             )
         },
         availableValues = state.availableValues ?: POImmutableList(emptyList()),
-        title = state.title ?: String(),
+        title = state.label ?: String(),
         description = state.description,
         modifier = modifier
             .onFocusChanged {
@@ -375,7 +375,7 @@ private fun DropdownField(
         labelsStyle = labelsStyle,
         menuStyle = menuStyle,
         isError = state.isError,
-        placeholderText = state.placeholder
+        placeholder = state.placeholder
     )
 }
 
@@ -643,7 +643,7 @@ internal object NativeAlternativePaymentScreen {
                 codeField = custom?.codeField?.let {
                     POField.custom(style = it)
                 } ?: POCodeField.default,
-                radioGroup = custom?.radioButton?.let {
+                radioGroup = custom?.radioField?.let {
                     PORadioGroup.custom(style = it)
                 } ?: PORadioGroup.default,
                 dropdownMenu = custom?.dropdownMenu?.let {

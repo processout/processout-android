@@ -29,9 +29,9 @@
     <string name="po_native_apm_save_barcode_error_title">Image save failed</string>
     <string name="po_native_apm_save_barcode_error_message">We couldn\'t save the image. Please check your permissions or try taking a screenshot as an alternative.</string>
     <string name="po_native_apm_save_barcode_error_confirm">Got it</string>
-    <string name="po_native_apm_country_placeholder">Country</string>
-    <string name="po_native_apm_phone_placeholder">Enter phone number</string>
-    <string name="po_native_apm_email_placeholder">name@example.com</string>
+    <string name="po_native_apm_label_country">Country</string>
+    <string name="po_native_apm_placeholder_phone">Enter phone number</string>
+    <string name="po_native_apm_placeholder_email">name@example.com</string>
     <string name="po_native_apm_success_message">Success!\nPayment approved.</string>
     <string name="po_native_apm_error_required_parameter">Parameter is required.</string>
     <string name="po_native_apm_error_invalid_number">Number is not valid.</string>

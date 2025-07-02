@@ -1,45 +1,46 @@
 package com.processout.sdk.ui.core.component.field.checkbox
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
-import com.processout.sdk.ui.core.component.field.LabeledFieldLayout
-import com.processout.sdk.ui.core.component.field.POFieldLabels
+import com.processout.sdk.ui.core.component.POMessageBox
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 
 /** @suppress */
 @ProcessOutInternalApi
 @Composable
-fun POLabeledCheckboxField(
+fun POCheckboxField(
     text: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
-    title: String?,
-    description: String?,
     modifier: Modifier = Modifier,
-    checkboxStyle: POCheckbox.Style = POCheckbox.default,
-    labelsStyle: POFieldLabels.Style = POFieldLabels.default,
+    checkboxStyle: POCheckbox.Style = POCheckbox.default2,
+    descriptionStyle: POMessageBox.Style = POMessageBox.error2,
     enabled: Boolean = true,
     isError: Boolean = false,
+    description: String? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
-    LabeledFieldLayout(
-        title = title,
-        description = description,
-        style = labelsStyle
-    ) {
+    Column(modifier = modifier) {
         POCheckbox(
             text = text,
             checked = checked,
             onCheckedChange = onCheckedChange,
-            modifier = modifier,
-            minHeight = 30.dp,
+            minHeight = 40.dp,
+            checkboxSize = 16.dp,
+            rowShape = shapes.roundedCorners6,
             style = checkboxStyle,
             enabled = enabled,
             isError = isError,
             interactionSource = interactionSource
+        )
+        POMessageBox(
+            text = description,
+            style = descriptionStyle
         )
     }
 }

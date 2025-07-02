@@ -15,13 +15,15 @@ import com.processout.sdk.ui.core.style.POTextType.Weight.*
 
 private val WorkSans = FontFamily(
     Font(R.font.work_sans_regular, FontWeight.Normal),
-    Font(R.font.work_sans_medium, FontWeight.Medium)
+    Font(R.font.work_sans_medium, FontWeight.Medium),
+    Font(R.font.work_sans_semibold, FontWeight.SemiBold)
 )
 
 /** @suppress */
 @ProcessOutInternalApi
 @Immutable
 data class POTypography(
+    val paragraph: Paragraph = Paragraph,
     val title: TextStyle = TextStyle(
         fontFamily = WorkSans,
         fontWeight = FontWeight.Medium,
@@ -76,7 +78,95 @@ data class POTypography(
         fontSize = 14.sp,
         lineHeight = 18.sp
     )
-)
+) {
+
+    fun s12(fontWeight: FontWeight = FontWeight.Normal) =
+        TextStyle(
+            fontFamily = WorkSans,
+            fontWeight = fontWeight,
+            fontSize = 12.sp,
+            lineHeight = 14.sp,
+            letterSpacing = 0.15.sp
+        )
+
+    fun s13(fontWeight: FontWeight = FontWeight.Normal) =
+        TextStyle(
+            fontFamily = WorkSans,
+            fontWeight = fontWeight,
+            fontSize = 13.sp,
+            lineHeight = 16.sp
+        )
+
+    fun s14(fontWeight: FontWeight = FontWeight.Normal) =
+        TextStyle(
+            fontFamily = WorkSans,
+            fontWeight = fontWeight,
+            fontSize = 14.sp,
+            lineHeight = 20.sp,
+            letterSpacing = 0.15.sp
+        )
+
+    fun s15(fontWeight: FontWeight = FontWeight.Normal) =
+        TextStyle(
+            fontFamily = WorkSans,
+            fontWeight = fontWeight,
+            fontSize = 15.sp,
+            lineHeight = 18.sp
+        )
+
+    fun s16(fontWeight: FontWeight = FontWeight.Normal) =
+        TextStyle(
+            fontFamily = WorkSans,
+            fontWeight = fontWeight,
+            fontSize = 16.sp,
+            lineHeight = 20.sp
+        )
+
+    fun s18(fontWeight: FontWeight = FontWeight.Normal) =
+        TextStyle(
+            fontFamily = WorkSans,
+            fontWeight = fontWeight,
+            fontSize = 18.sp,
+            lineHeight = 22.sp,
+            letterSpacing = when (fontWeight) {
+                FontWeight.Medium,
+                FontWeight.SemiBold -> 0.1.sp
+                else -> 0.sp
+            }
+        )
+
+    fun s20(fontWeight: FontWeight = FontWeight.Normal) =
+        TextStyle(
+            fontFamily = WorkSans,
+            fontWeight = fontWeight,
+            fontSize = 20.sp,
+            lineHeight = 24.sp,
+            letterSpacing = when (fontWeight) {
+                FontWeight.Medium -> (-0.15).sp
+                FontWeight.SemiBold -> (-0.1).sp
+                else -> (-0.2).sp
+            }
+        )
+
+    fun s24(fontWeight: FontWeight = FontWeight.Normal) =
+        TextStyle(
+            fontFamily = WorkSans,
+            fontWeight = fontWeight,
+            fontSize = 24.sp,
+            lineHeight = 28.sp
+        )
+
+    object Paragraph {
+
+        fun s16(fontWeight: FontWeight = FontWeight.Normal) =
+            TextStyle(
+                fontFamily = WorkSans,
+                fontWeight = fontWeight,
+                fontSize = 16.sp,
+                lineHeight = 26.sp
+            )
+    }
+}
 
 internal val LocalPOTypography = staticCompositionLocalOf { POTypography() }
 

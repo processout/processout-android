@@ -11,6 +11,9 @@ import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 @ProcessOutInternalApi
 @Immutable
 data class POShapes(
+    val roundedCorners4: CornerBasedShape = RoundedCornerShape(4.dp),
+    val roundedCorners6: CornerBasedShape = RoundedCornerShape(6.dp),
+    val roundedCorners8: CornerBasedShape = RoundedCornerShape(8.dp),
     val roundedCornersSmall: CornerBasedShape = RoundedCornerShape(4.dp),
     val roundedCornersMedium: CornerBasedShape = RoundedCornerShape(8.dp),
     val roundedCornersLarge: CornerBasedShape = RoundedCornerShape(16.dp),

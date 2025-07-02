@@ -36,17 +36,15 @@ import coil.compose.AsyncImage
 import com.processout.sdk.ui.R
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
-import com.processout.sdk.ui.core.component.field.POFieldLabels
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
-import com.processout.sdk.ui.core.component.field.checkbox.POLabeledCheckboxField
+import com.processout.sdk.ui.core.component.field.checkbox.POCheckboxField
 import com.processout.sdk.ui.core.component.field.code.POCodeField
-import com.processout.sdk.ui.core.component.field.code.POLabeledCodeField
+import com.processout.sdk.ui.core.component.field.code.POCodeField2
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
-import com.processout.sdk.ui.core.component.field.dropdown.POLabeledDropdownField
-import com.processout.sdk.ui.core.component.field.phone.POLabeledPhoneNumberField
-import com.processout.sdk.ui.core.component.field.radio.POLabeledRadioField
-import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
-import com.processout.sdk.ui.core.component.field.text.POLabeledTextField
+import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField2
+import com.processout.sdk.ui.core.component.field.phone.POPhoneNumberField
+import com.processout.sdk.ui.core.component.field.radio.PORadioField
+import com.processout.sdk.ui.core.component.field.text.POTextField2
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.state.POPhoneNumberFieldState
@@ -60,7 +58,6 @@ import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.CaptureImage
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.CaptureLogoHeight
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.CrossfadeAnimationDurationMillis
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.animatedBackgroundColor
-import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.codeFieldHorizontalAlignment
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.messageGravity
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.*
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.Field.*
@@ -165,10 +162,6 @@ private fun UserInput(
             verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.extraLarge)
         ) {
             val lifecycleEvent = rememberLifecycleEvent()
-            val labelsStyle = POFieldLabels.Style(
-                title = style.label,
-                description = style.errorMessage
-            )
             val isPrimaryActionEnabled = with(state.primaryAction) { enabled && !loading }
             state.fields.elements.forEach { field ->
                 when (field) {
@@ -179,7 +172,7 @@ private fun UserInput(
                         focusedFieldId = state.focusedFieldId,
                         isPrimaryActionEnabled = isPrimaryActionEnabled,
                         fieldStyle = style.field,
-                        labelsStyle = labelsStyle,
+                        descriptionStyle = style.errorMessageBox,
                         modifier = Modifier.fillMaxWidth()
                     )
                     is CodeField -> CodeField(
@@ -189,28 +182,29 @@ private fun UserInput(
                         focusedFieldId = state.focusedFieldId,
                         isPrimaryActionEnabled = isPrimaryActionEnabled,
                         fieldStyle = style.codeField,
-                        labelsStyle = labelsStyle,
-                        horizontalAlignment = codeFieldHorizontalAlignment(state.fields.elements)
+                        descriptionStyle = style.errorMessageBox,
+                        modifier = Modifier.fillMaxWidth()
                     )
                     is RadioField -> RadioField(
                         state = field.state,
                         onEvent = onEvent,
-                        radioGroupStyle = style.radioGroup,
-                        labelsStyle = labelsStyle
+                        fieldStyle = style.radioField,
+                        descriptionStyle = style.errorMessageBox,
+                        modifier = Modifier.fillMaxWidth()
                     )
                     is DropdownField -> DropdownField(
                         state = field.state,
                         onEvent = onEvent,
                         fieldStyle = style.field,
-                        labelsStyle = labelsStyle,
                         menuStyle = style.dropdownMenu,
+                        descriptionStyle = style.errorMessageBox,
                         modifier = Modifier.fillMaxWidth()
                     )
                     is CheckboxField -> CheckboxField(
                         state = field.state,
                         onEvent = onEvent,
                         checkboxStyle = style.checkbox,
-                        labelsStyle = labelsStyle,
+                        descriptionStyle = style.errorMessageBox,
                         modifier = Modifier.fillMaxWidth()
                     )
                     is PhoneNumberField -> PhoneNumberField(
@@ -221,7 +215,7 @@ private fun UserInput(
                         isPrimaryActionEnabled = isPrimaryActionEnabled,
                         fieldStyle = style.field,
                         dropdownMenuStyle = style.dropdownMenu,
-                        labelsStyle = labelsStyle,
+                        descriptionStyle = style.errorMessageBox,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -238,11 +232,11 @@ private fun TextField(
     focusedFieldId: String?,
     isPrimaryActionEnabled: Boolean,
     fieldStyle: POField.Style,
-    labelsStyle: POFieldLabels.Style,
+    descriptionStyle: POMessageBox.Style,
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
-    POLabeledTextField(
+    POTextField2(
         value = state.value,
         onValueChange = {
             onEvent(
@@ -252,9 +246,8 @@ private fun TextField(
                 )
             )
         },
-        title = state.title ?: String(),
-        description = state.description,
-        modifier = modifier
+        modifier = modifier,
+        textFieldModifier = Modifier
             .focusRequester(focusRequester)
             .onFocusChanged {
                 onEvent(
@@ -265,11 +258,13 @@ private fun TextField(
                 )
             },
         fieldStyle = fieldStyle,
-        labelsStyle = labelsStyle,
+        descriptionStyle = descriptionStyle,
+        label = state.label,
+        placeholder = state.placeholder,
+        description = state.description,
         enabled = state.enabled,
         isError = state.isError,
         forceTextDirectionLtr = state.forceTextDirectionLtr,
-        placeholderText = state.placeholder,
         visualTransformation = state.visualTransformation,
         keyboardOptions = state.keyboardOptions,
         keyboardActions = POField.keyboardActions(
@@ -292,11 +287,10 @@ private fun CodeField(
     focusedFieldId: String?,
     isPrimaryActionEnabled: Boolean,
     fieldStyle: POField.Style,
-    labelsStyle: POFieldLabels.Style,
-    horizontalAlignment: Alignment.Horizontal,
+    descriptionStyle: POMessageBox.Style,
     modifier: Modifier = Modifier
 ) {
-    POLabeledCodeField(
+    POCodeField2(
         value = state.value,
         onValueChange = {
             onEvent(
@@ -306,9 +300,8 @@ private fun CodeField(
                 )
             )
         },
-        title = state.title ?: String(),
-        description = state.description,
-        modifier = modifier
+        modifier = modifier,
+        textFieldModifier = Modifier
             .onFocusChanged {
                 onEvent(
                     FieldFocusChanged(
@@ -318,9 +311,10 @@ private fun CodeField(
                 )
             },
         fieldStyle = fieldStyle,
-        labelsStyle = labelsStyle,
+        descriptionStyle = descriptionStyle,
         length = state.length ?: POCodeField.LengthMax,
-        horizontalAlignment = horizontalAlignment,
+        label = state.label,
+        description = state.description,
         enabled = state.enabled,
         isError = state.isError,
         isFocused = state.id == focusedFieldId,
@@ -340,11 +334,11 @@ private fun CodeField(
 private fun RadioField(
     state: FieldState,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
-    radioGroupStyle: PORadioGroup.Style,
-    labelsStyle: POFieldLabels.Style,
+    fieldStyle: PORadioField.Style,
+    descriptionStyle: POMessageBox.Style,
     modifier: Modifier = Modifier
 ) {
-    POLabeledRadioField(
+    PORadioField(
         value = state.value,
         onValueChange = {
             onEvent(
@@ -355,11 +349,11 @@ private fun RadioField(
             )
         },
         availableValues = state.availableValues ?: POImmutableList(emptyList()),
-        title = state.title ?: String(),
-        description = state.description,
         modifier = modifier,
-        radioGroupStyle = radioGroupStyle,
-        labelsStyle = labelsStyle,
+        fieldStyle = fieldStyle,
+        descriptionStyle = descriptionStyle,
+        title = state.label,
+        description = state.description,
         isError = state.isError
     )
 }
@@ -369,11 +363,11 @@ private fun DropdownField(
     state: FieldState,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
     fieldStyle: POField.Style,
-    labelsStyle: POFieldLabels.Style,
     menuStyle: PODropdownField.MenuStyle,
+    descriptionStyle: POMessageBox.Style,
     modifier: Modifier = Modifier
 ) {
-    POLabeledDropdownField(
+    PODropdownField2(
         value = state.value,
         onValueChange = {
             onEvent(
@@ -384,9 +378,8 @@ private fun DropdownField(
             )
         },
         availableValues = state.availableValues ?: POImmutableList(emptyList()),
-        title = state.title ?: String(),
-        description = state.description,
-        modifier = modifier
+        modifier = modifier,
+        textFieldModifier = Modifier
             .onFocusChanged {
                 onEvent(
                     FieldFocusChanged(
@@ -396,10 +389,12 @@ private fun DropdownField(
                 )
             },
         fieldStyle = fieldStyle,
-        labelsStyle = labelsStyle,
         menuStyle = menuStyle,
+        descriptionStyle = descriptionStyle,
         isError = state.isError,
-        placeholderText = state.placeholder
+        label = state.label,
+        placeholder = state.placeholder,
+        description = state.description
     )
 }
 
@@ -408,11 +403,11 @@ private fun CheckboxField(
     state: FieldState,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
     checkboxStyle: POCheckbox.Style,
-    labelsStyle: POFieldLabels.Style,
+    descriptionStyle: POMessageBox.Style,
     modifier: Modifier = Modifier
 ) {
-    POLabeledCheckboxField(
-        text = state.title ?: String(),
+    POCheckboxField(
+        text = state.label ?: String(),
         checked = state.value.text.toBooleanStrictOrNull() ?: false,
         onCheckedChange = {
             onEvent(
@@ -424,12 +419,11 @@ private fun CheckboxField(
                 )
             )
         },
-        title = null,
-        description = state.description,
         modifier = modifier,
         checkboxStyle = checkboxStyle,
-        labelsStyle = labelsStyle,
-        isError = state.isError
+        descriptionStyle = descriptionStyle,
+        isError = state.isError,
+        description = state.description
     )
 }
 
@@ -442,11 +436,11 @@ private fun PhoneNumberField(
     isPrimaryActionEnabled: Boolean,
     fieldStyle: POField.Style,
     dropdownMenuStyle: PODropdownField.MenuStyle,
-    labelsStyle: POFieldLabels.Style,
+    descriptionStyle: POMessageBox.Style,
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
-    POLabeledPhoneNumberField(
+    POPhoneNumberField(
         state = state,
         onValueChange = { regionCode, number ->
             onEvent(
@@ -472,7 +466,7 @@ private fun PhoneNumberField(
             },
         fieldStyle = fieldStyle,
         dropdownMenuStyle = dropdownMenuStyle,
-        labelsStyle = labelsStyle,
+        descriptionStyle = descriptionStyle,
         keyboardActions = POField.keyboardActions(
             imeAction = state.keyboardOptions.imeAction,
             actionId = state.keyboardActionId,
@@ -718,7 +712,7 @@ internal object NativeAlternativePaymentScreen {
         val label: POText.Style,
         val field: POField.Style,
         val codeField: POField.Style,
-        val radioGroup: PORadioGroup.Style,
+        val radioField: PORadioField.Style,
         val checkbox: POCheckbox.Style,
         val dropdownMenu: PODropdownField.MenuStyle,
         val actionsContainer: POActionsContainer.Style,
@@ -727,6 +721,7 @@ internal object NativeAlternativePaymentScreen {
         val successBackgroundColor: Color,
         val message: AndroidTextView.Style,
         val errorMessage: POText.Style,
+        val errorMessageBox: POMessageBox.Style,
         val successMessage: POText.Style,
         @DrawableRes val successImageResId: Int,
         val progressIndicatorColor: Color,
@@ -746,22 +741,22 @@ internal object NativeAlternativePaymentScreen {
                 } ?: POText.label1,
                 field = custom?.field?.let {
                     POField.custom(style = it)
-                } ?: POField.default,
+                } ?: POField.default2,
                 codeField = custom?.codeField?.let {
                     POField.custom(style = it)
-                } ?: POCodeField.default,
-                radioGroup = custom?.radioButton?.let {
-                    PORadioGroup.custom(style = it)
-                } ?: PORadioGroup.default,
+                } ?: POCodeField.default2,
+                radioField = custom?.radioField?.let {
+                    PORadioField.custom(style = it)
+                } ?: PORadioField.default,
                 checkbox = custom?.checkbox?.let {
                     POCheckbox.custom(style = it)
-                } ?: POCheckbox.default,
+                } ?: POCheckbox.default2,
                 dropdownMenu = custom?.dropdownMenu?.let {
                     PODropdownField.custom(style = it)
-                } ?: PODropdownField.defaultMenu,
+                } ?: PODropdownField.defaultMenu2,
                 actionsContainer = custom?.actionsContainer?.let {
                     POActionsContainer.custom(style = it)
-                } ?: POActionsContainer.default,
+                } ?: POActionsContainer.default2,
                 dialog = custom?.dialog?.let {
                     PODialog.custom(style = it)
                 } ?: PODialog.default,
@@ -781,6 +776,9 @@ internal object NativeAlternativePaymentScreen {
                 errorMessage = custom?.errorMessage?.let {
                     POText.custom(style = it)
                 } ?: POText.errorLabel,
+                errorMessageBox = custom?.errorMessageBox?.let {
+                    POMessageBox.custom(style = it)
+                } ?: POMessageBox.error2,
                 successMessage = custom?.successMessage?.let {
                     POText.custom(style = it)
                 } ?: POText.Style(
@@ -823,10 +821,6 @@ internal object NativeAlternativePaymentScreen {
             easing = LinearEasing
         )
     ).value
-
-    fun codeFieldHorizontalAlignment(fields: List<Field>): Alignment.Horizontal =
-        if (fields.size == 1 && fields[0] is CodeField)
-            Alignment.CenterHorizontally else Alignment.Start
 
     private val ShortMessageMaxLength = 150
 

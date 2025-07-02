@@ -18,13 +18,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.R
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.core.component.POText.Style
 import com.processout.sdk.ui.core.style.POMessageBoxStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -33,7 +36,7 @@ fun POMessageBox(
     text: String?,
     modifier: Modifier = Modifier,
     style: POMessageBox.Style = POMessageBox.error,
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(spacing.space8),
     enterAnimationDelayMillis: Int = 0
 ) {
     AnimatedVisibility(
@@ -51,7 +54,10 @@ fun POMessageBox(
                 )
                 .clip(style.shape)
                 .background(color = style.backgroundColor)
-                .padding(spacing.extraLarge)
+                .padding(
+                    horizontal = spacing.space12,
+                    vertical = spacing.space8
+                )
         ) {
             var currentText by remember { mutableStateOf(String()) }
             if (!text.isNullOrBlank()) {
@@ -80,7 +86,9 @@ object POMessageBox {
 
     val error: Style
         @Composable get() = Style(
-            textWithIcon = POTextWithIcon.default,
+            textWithIcon = POTextWithIcon.default.copy(
+                iconResId = R.drawable.po_icon_warning_diamond
+            ),
             shape = shapes.roundedCornersSmall,
             border = POBorderStroke(
                 width = 1.dp,
@@ -89,13 +97,34 @@ object POMessageBox {
             backgroundColor = colors.surface.error
         )
 
+    val error2: Style
+        @Composable get() {
+            val text = Style(
+                color = colors.text.onTipError,
+                textStyle = typography.s14(FontWeight.Medium)
+            )
+            return Style(
+                textWithIcon = POTextWithIcon.Style(
+                    text = text,
+                    iconResId = R.drawable.po_icon_warning_diamond,
+                    iconColorFilter = ColorFilter.tint(color = text.color)
+                ),
+                shape = shapes.roundedCorners8,
+                border = POBorderStroke(
+                    width = 1.dp,
+                    color = colors.input.borderDefault2
+                ),
+                backgroundColor = colors.surface.toastError
+            )
+        }
+
     @Composable
     fun custom(style: POMessageBoxStyle) = with(style) {
         val text = POText.custom(style = text)
         Style(
             textWithIcon = POTextWithIcon.Style(
                 text = text,
-                iconResId = iconResId ?: R.drawable.po_info_icon,
+                iconResId = iconResId ?: error.textWithIcon.iconResId,
                 iconColorFilter = if (iconResId != null) null else
                     ColorFilter.tint(color = text.color)
             ),

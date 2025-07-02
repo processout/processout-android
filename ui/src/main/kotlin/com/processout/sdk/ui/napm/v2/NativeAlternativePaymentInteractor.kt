@@ -290,10 +290,9 @@ internal class NativeAlternativePaymentInteractor(
             return
         }
         val fields = parameters.toFields()
-        val focusedFieldId = fields.firstFocusableFieldId()
         val updatedStateValue = stateValue.copy(
             fields = fields,
-            focusedFieldId = focusedFieldId
+            focusedFieldId = fields.firstFocusableFieldId()
         )
         _state.update {
             if (_state.value is Loading) {
@@ -327,7 +326,7 @@ internal class NativeAlternativePaymentInteractor(
         map { parameter ->
             val defaultValue = when (parameter) {
                 is Parameter.SingleSelect -> FieldValue.Text(
-                    TextFieldValue(text = parameter.preselectedValue?.value ?: String())
+                    TextFieldValue(text = parameter.preselectedValue?.key ?: String())
                 )
                 is Parameter.Bool -> FieldValue.Text(TextFieldValue(text = "false"))
                 is Parameter.PhoneNumber -> FieldValue.PhoneNumber()

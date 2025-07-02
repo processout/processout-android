@@ -12,31 +12,33 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
-import com.processout.sdk.ui.core.component.field.LabeledFieldLayout
+import com.processout.sdk.ui.core.component.POMessageBox
 import com.processout.sdk.ui.core.component.field.POField
-import com.processout.sdk.ui.core.component.field.POFieldLabels
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 
 /** @suppress */
 @ProcessOutInternalApi
 @Composable
-fun POLabeledTextField(
+fun POTextField2(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
-    title: String,
-    description: String?,
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = POField.contentPadding,
-    fieldStyle: POField.Style = POField.default,
-    labelsStyle: POFieldLabels.Style = POFieldLabels.default,
+    textFieldModifier: Modifier = Modifier,
+    minHeight: Dp = dimensions.fieldMinHeight,
+    contentPadding: PaddingValues = POField.contentPadding2,
+    fieldStyle: POField.Style = POField.default2,
+    descriptionStyle: POMessageBox.Style = POMessageBox.error2,
     enabled: Boolean = true,
     readOnly: Boolean = false,
     isDropdown: Boolean = false,
     isError: Boolean = false,
     forceTextDirectionLtr: Boolean = false,
+    label: String? = null,
     placeholder: String? = null,
+    description: String? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None,
@@ -47,15 +49,12 @@ fun POLabeledTextField(
     minLines: Int = 1,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
-    LabeledFieldLayout(
-        title = title,
-        description = description,
-        style = labelsStyle
-    ) {
+    Column(modifier = modifier) {
         POTextField(
             value = value,
             onValueChange = onValueChange,
-            modifier = modifier,
+            modifier = textFieldModifier.fillMaxWidth(),
+            minHeight = minHeight,
             contentPadding = contentPadding,
             style = fieldStyle,
             enabled = enabled,
@@ -63,6 +62,7 @@ fun POLabeledTextField(
             isDropdown = isDropdown,
             isError = isError,
             forceTextDirectionLtr = forceTextDirectionLtr,
+            label = label,
             placeholder = placeholder,
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
@@ -74,20 +74,10 @@ fun POLabeledTextField(
             minLines = minLines,
             interactionSource = interactionSource
         )
-    }
-}
-
-@Composable
-@Preview(showBackground = true)
-private fun POLabeledTextFieldPreview() {
-    Column(modifier = Modifier.padding(16.dp)) {
-        POLabeledTextField(
-            title = "Title",
-            value = TextFieldValue(text = "test@gmail.com"),
-            onValueChange = {},
-            modifier = Modifier.fillMaxWidth(),
-            isError = true,
-            description = "This is error message."
+        POMessageBox(
+            text = description,
+            modifier = Modifier.padding(top = spacing.space12),
+            style = descriptionStyle
         )
     }
 }

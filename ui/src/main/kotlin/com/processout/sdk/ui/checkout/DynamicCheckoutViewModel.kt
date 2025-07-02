@@ -374,7 +374,7 @@ internal class DynamicCheckoutViewModel private constructor(
             FieldState(
                 id = id,
                 value = value,
-                title = title
+                label = title
             )
         )
 

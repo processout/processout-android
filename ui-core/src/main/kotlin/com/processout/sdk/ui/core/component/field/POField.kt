@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
@@ -33,6 +34,9 @@ import com.processout.sdk.ui.core.extension.conditional
 import com.processout.sdk.ui.core.style.POFieldStateStyle
 import com.processout.sdk.ui.core.style.POFieldStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -48,6 +52,7 @@ object POField {
     @Immutable
     data class StateStyle(
         val text: POText.Style,
+        val label: POText.Style,
         val placeholderTextColor: Color,
         val backgroundColor: Color,
         val controlsTintColor: Color,
@@ -61,6 +66,7 @@ object POField {
             Style(
                 normal = StateStyle(
                     text = POText.body2,
+                    label = POText.label1,
                     placeholderTextColor = colors.text.muted,
                     backgroundColor = colors.input.backgroundDefault,
                     controlsTintColor = colors.text.primary,
@@ -70,6 +76,10 @@ object POField {
                 ),
                 error = StateStyle(
                     text = POText.body2,
+                    label = POText.Style(
+                        color = colors.text.error,
+                        textStyle = typography.label1
+                    ),
                     placeholderTextColor = colors.text.muted,
                     backgroundColor = colors.input.backgroundDefault,
                     controlsTintColor = colors.text.primary,
@@ -79,6 +89,7 @@ object POField {
                 ),
                 focused = StateStyle(
                     text = POText.body2,
+                    label = POText.label1,
                     placeholderTextColor = colors.text.muted,
                     backgroundColor = colors.input.backgroundDefault,
                     controlsTintColor = colors.text.primary,
@@ -89,24 +100,106 @@ object POField {
             )
         }
 
+    val default2: Style
+        @Composable get() = with(ProcessOutTheme) {
+            Style(
+                normal = StateStyle(
+                    text = POText.Style(
+                        color = colors.text.primary,
+                        textStyle = typography.s15(FontWeight.Medium)
+                    ),
+                    label = POText.Style(
+                        color = colors.text.placeholder,
+                        textStyle = typography.s15(FontWeight.Medium)
+                    ),
+                    placeholderTextColor = colors.text.placeholder,
+                    backgroundColor = colors.input.backgroundDefault,
+                    controlsTintColor = colors.text.primary,
+                    dropdownRippleColor = colors.text.muted,
+                    shape = shapes.roundedCorners6,
+                    border = POBorderStroke(width = 1.5.dp, color = colors.input.borderDefault2)
+                ),
+                error = StateStyle(
+                    text = POText.Style(
+                        color = colors.text.primary,
+                        textStyle = typography.s15(FontWeight.Medium)
+                    ),
+                    label = POText.Style(
+                        color = colors.text.error,
+                        textStyle = typography.s15(FontWeight.Medium)
+                    ),
+                    placeholderTextColor = colors.text.placeholder,
+                    backgroundColor = colors.input.backgroundDefault,
+                    controlsTintColor = colors.text.primary,
+                    dropdownRippleColor = colors.text.muted,
+                    shape = shapes.roundedCorners6,
+                    border = POBorderStroke(width = 1.5.dp, color = colors.input.borderError)
+                ),
+                focused = StateStyle(
+                    text = POText.Style(
+                        color = colors.text.primary,
+                        textStyle = typography.s15(FontWeight.Medium)
+                    ),
+                    label = POText.Style(
+                        color = colors.text.placeholder,
+                        textStyle = typography.s15(FontWeight.Medium)
+                    ),
+                    placeholderTextColor = colors.text.placeholder,
+                    backgroundColor = colors.input.backgroundDefault,
+                    controlsTintColor = colors.text.primary,
+                    dropdownRippleColor = colors.text.muted,
+                    shape = shapes.roundedCorners6,
+                    border = POBorderStroke(width = 1.5.dp, color = colors.text.primary)
+                )
+            )
+        }
+
     @Composable
     fun custom(style: POFieldStyle): Style {
         val normal = style.normal.toStateStyle()
-        return Style(
+        var customStyle = Style(
             normal = normal,
             error = style.error.toStateStyle(),
             focused = style.focused?.toStateStyle() ?: normal
         )
+        if (customStyle.normal.label.color == Color.Unspecified) {
+            customStyle = customStyle.copy(
+                normal = customStyle.normal.copy(
+                    label = default.normal.label
+                )
+            )
+        }
+        if (customStyle.error.label.color == Color.Unspecified) {
+            customStyle = customStyle.copy(
+                error = customStyle.error.copy(
+                    label = default.error.label
+                )
+            )
+        }
+        if (customStyle.focused.label.color == Color.Unspecified) {
+            customStyle = customStyle.copy(
+                focused = customStyle.focused.copy(
+                    label = default.focused.label
+                )
+            )
+        }
+        return customStyle
     }
 
     @Composable
     private fun POFieldStateStyle.toStateStyle() = StateStyle(
         text = POText.custom(style = text),
+        label = if (label.colorResId != 0)
+            POText.custom(style = label) else
+            POText.Style(
+                color = Color.Unspecified,
+                textStyle = typography.s15(FontWeight.Medium)
+            ),
         placeholderTextColor = colorResource(id = placeholderTextColorResId),
         backgroundColor = colorResource(id = backgroundColorResId),
         controlsTintColor = colorResource(id = controlsTintColorResId),
         dropdownRippleColor = dropdownRippleColorResId?.let { colorResource(id = it) }
-            ?: ProcessOutTheme.colors.text.muted,
+            ?: colors.text.muted,
         shape = RoundedCornerShape(size = border.radiusDp.dp),
         border = POBorderStroke(
             width = border.widthDp.dp,
@@ -116,8 +209,14 @@ object POField {
 
     val contentPadding: PaddingValues
         @Composable get() = PaddingValues(
-            horizontal = ProcessOutTheme.spacing.large,
-            vertical = ProcessOutTheme.spacing.medium
+            horizontal = spacing.large,
+            vertical = spacing.medium
+        )
+
+    val contentPadding2: PaddingValues
+        @Composable get() = PaddingValues(
+            horizontal = spacing.space12,
+            vertical = spacing.space6
         )
 
     internal fun Style.stateStyle(

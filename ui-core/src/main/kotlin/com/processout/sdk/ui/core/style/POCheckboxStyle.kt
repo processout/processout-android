@@ -15,7 +15,9 @@ data class POCheckboxStyle(
 @Parcelize
 data class POCheckboxStateStyle(
     val checkmark: POCheckmarkStyle,
-    val text: POTextStyle
+    val text: POTextStyle,
+    @ColorRes
+    val rippleColorResId: Int? = null
 ) : Parcelable
 
 @Parcelize

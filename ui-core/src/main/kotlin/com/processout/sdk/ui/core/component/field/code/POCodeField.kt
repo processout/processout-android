@@ -17,6 +17,7 @@ import androidx.compose.ui.input.key.*
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.*
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -25,14 +26,18 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.PORequestFocus
+import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
+import com.processout.sdk.ui.core.component.field.code.POCodeField.align
 import com.processout.sdk.ui.core.component.field.code.POCodeField.rememberTextFieldWidth
-import com.processout.sdk.ui.core.component.field.code.POCodeField.style
 import com.processout.sdk.ui.core.component.field.code.POCodeField.validLength
 import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.component.texttoolbar.ProcessOutTextToolbar
 import com.processout.sdk.ui.core.state.POInputFilter
-import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -53,7 +58,7 @@ fun POCodeField(
     keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
     var rowWidthPx by remember { mutableIntStateOf(0) }
-    val horizontalSpace = ProcessOutTheme.spacing.small
+    val horizontalSpace = spacing.small
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         Row(
             modifier = Modifier
@@ -145,7 +150,7 @@ fun POCodeField(
                         modifier = modifier
                             .requiredWidth(
                                 rememberTextFieldWidth(
-                                    defaultWidth = ProcessOutTheme.dimensions.interactiveComponentMinSize,
+                                    defaultWidth = dimensions.interactiveComponentMinSize,
                                     rowWidth = with(LocalDensity.current) { rowWidthPx.toDp() },
                                     space = horizontalSpace,
                                     length = validLength
@@ -176,7 +181,7 @@ fun POCodeField(
                                 }
                             },
                         contentPadding = PaddingValues(0.dp),
-                        style = style(style),
+                        style = align(style),
                         enabled = enabled,
                         isError = isError,
                         keyboardOptions = keyboardOptions,
@@ -235,30 +240,65 @@ private fun List<TextFieldValue>.codeValue() = TextFieldValue(
 object POCodeField {
 
     val default: POField.Style
-        @Composable get() = with(POField.default) {
-            copy(
-                normal = normal.default(),
-                error = error.default(),
-                focused = focused.default()
+        @Composable get() = POField.default.let {
+            val text = POText.Style(
+                color = colors.text.primary,
+                textStyle = typography.title
+            )
+            it.copy(
+                normal = it.normal.copy(text = text),
+                error = it.error.copy(text = text),
+                focused = it.focused.copy(text = text)
             )
         }
 
-    internal fun style(style: POField.Style) = with(style) {
-        copy(
-            normal = normal.textAlignCenter(),
-            error = error.textAlignCenter(),
-            focused = focused.textAlignCenter()
+    val default2: POField.Style
+        @Composable get() = POField.default2.let {
+            val text = POText.Style(
+                color = colors.text.primary,
+                textStyle = typography.s20(FontWeight.Medium)
+            )
+            it.copy(
+                normal = it.normal.copy(
+                    text = text,
+                    label = POText.Style(
+                        color = colors.text.primary,
+                        textStyle = typography.s16(FontWeight.Medium)
+                    )
+                ),
+                error = it.error.copy(
+                    text = text,
+                    label = POText.Style(
+                        color = colors.text.error,
+                        textStyle = typography.s16(FontWeight.Medium)
+                    )
+                ),
+                focused = it.focused.copy(
+                    text = text,
+                    label = POText.Style(
+                        color = colors.text.primary,
+                        textStyle = typography.s16(FontWeight.Medium)
+                    )
+                )
+            )
+        }
+
+    internal fun align(style: POField.Style) = style.let {
+        it.copy(
+            normal = it.normal.textAlignCenter(),
+            error = it.error.textAlignCenter(),
+            focused = it.focused.textAlignCenter()
         )
     }
 
-    @Composable
-    private fun POField.StateStyle.default() = copy(
-        text = text.copy(textStyle = ProcessOutTheme.typography.title)
-    )
-
-    private fun POField.StateStyle.textAlignCenter() = copy(
-        text = text.copy(textStyle = text.textStyle.copy(textAlign = TextAlign.Center))
-    )
+    private fun POField.StateStyle.textAlignCenter() =
+        copy(
+            text = text.copy(
+                textStyle = text.textStyle.copy(
+                    textAlign = TextAlign.Center
+                )
+            )
+        )
 
     val LengthMin = 1
     val LengthMax = 8

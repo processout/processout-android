@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -30,6 +31,7 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -166,8 +168,14 @@ object PODialog {
 
     val default: Style
         @Composable get() = Style(
-            title = POText.title,
-            message = POText.body2,
+            title = POText.Style(
+                color = colors.text.primary,
+                textStyle = typography.s20(FontWeight.SemiBold)
+            ),
+            message = POText.Style(
+                color = colors.text.secondary,
+                textStyle = typography.paragraph.s16()
+            ),
             confirmButton = defaultButton,
             dismissButton = defaultButton,
             backgroundColor = colors.surface.default
@@ -176,8 +184,22 @@ object PODialog {
     private val defaultButton: POButton.Style
         @Composable get() = with(POButton.ghost) {
             copy(
-                normal = normal.copy(paddingHorizontal = spacing.large),
-                disabled = disabled.copy(paddingHorizontal = spacing.large)
+                normal = normal.copy(
+                    text = POText.Style(
+                        color = colors.text.primary,
+                        textStyle = typography.s15(FontWeight.Medium)
+                    ),
+                    shape = shapes.roundedCorners6,
+                    paddingHorizontal = spacing.space16
+                ),
+                disabled = disabled.copy(
+                    text = POText.Style(
+                        color = colors.text.onButtonDisabled,
+                        textStyle = typography.s15(FontWeight.Medium)
+                    ),
+                    shape = shapes.roundedCorners6,
+                    paddingHorizontal = spacing.space16
+                )
             )
         }
 
