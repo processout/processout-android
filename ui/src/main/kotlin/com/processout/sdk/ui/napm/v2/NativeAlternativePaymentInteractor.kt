@@ -17,7 +17,6 @@ import coil.request.ImageRequest
 import coil.request.ImageResult
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
-import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationDetailsRequest
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter.Companion.phoneNumber
@@ -157,11 +156,11 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private suspend fun fetchAuthorizationDetails(flow: Authorization) {
-        val request = PONativeAlternativePaymentAuthorizationDetailsRequest(
+        val request = PONativeAlternativePaymentAuthorizationRequest(
             invoiceId = flow.invoiceId,
             gatewayConfigurationId = flow.gatewayConfigurationId
         )
-        invoicesService.nativeAlternativePayment(request)
+        invoicesService.authorize(request)
             .onSuccess { response ->
                 handlePaymentState(
                     stateValue = initUserInputStateValue(),
