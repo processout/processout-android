@@ -238,7 +238,7 @@ object PORadioField {
         )
     )
 
-    fun stateStyle(
+    internal fun stateStyle(
         style: Style,
         isSelected: Boolean,
         isError: Boolean
@@ -247,7 +247,7 @@ object PORadioField {
         else if (isSelected) style.selected
         else style.normal
 
-    fun optionStateStyle(
+    internal fun optionStateStyle(
         style: Style,
         isSelected: Boolean,
         isError: Boolean
@@ -256,7 +256,7 @@ object PORadioField {
         else if (isError) style.error
         else style.normal
 
-    fun Style.radioButtonStyle() = PORadioButton.Style(
+    internal fun Style.radioButtonStyle() = PORadioButton.Style(
         normalColor = normal.radioButtonColor,
         selectedColor = selected.radioButtonColor,
         errorColor = error.radioButtonColor,
