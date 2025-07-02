@@ -3,7 +3,6 @@ package com.processout.sdk.api.repository
 import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.request.napm.v2.NativeAlternativePaymentRequestBody
 import com.processout.sdk.api.model.request.napm.v2.NativeAlternativePaymentRequestBody.SubmitData
-import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationDetailsRequest
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter.Value
@@ -41,15 +40,6 @@ internal class DefaultInvoicesRepository(
         api.authorizeInvoice(
             invoiceId = request.invoiceId,
             request = request.toBody()
-        )
-    }.map { it.toModel() }
-
-    override suspend fun nativeAlternativePayment(
-        request: PONativeAlternativePaymentAuthorizationDetailsRequest
-    ) = apiCall {
-        api.nativeAlternativePayment(
-            invoiceId = request.invoiceId,
-            gatewayConfigurationId = request.gatewayConfigurationId
         )
     }.map { it.toModel() }
 
