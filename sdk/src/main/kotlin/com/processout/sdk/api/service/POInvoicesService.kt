@@ -4,7 +4,6 @@ import com.processout.sdk.api.model.request.POCreateInvoiceRequest
 import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
-import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationDetailsRequest
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
 import com.processout.sdk.api.model.response.POInvoice
 import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethod
@@ -73,15 +72,6 @@ interface POInvoicesService {
     @ProcessOutInternalApi
     suspend fun authorize(
         request: PONativeAlternativePaymentAuthorizationRequest
-    ): ProcessOutResult<PONativeAlternativePaymentAuthorizationResponse>
-
-    /**
-     * Fetch native alternative payment details.
-     */
-    /** @suppress */
-    @ProcessOutInternalApi
-    suspend fun nativeAlternativePayment(
-        request: PONativeAlternativePaymentAuthorizationDetailsRequest
     ): ProcessOutResult<PONativeAlternativePaymentAuthorizationResponse>
 
     /**

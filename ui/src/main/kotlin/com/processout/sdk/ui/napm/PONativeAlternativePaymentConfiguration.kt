@@ -313,7 +313,7 @@ data class PONativeAlternativePaymentConfiguration(
     @Parcelize
     data class Style(
         val title: POTextStyle? = null,
-        val label: POTextStyle? = null,
+        val label: POTextStyle? = null, // TODO(v2): remove, not used
         val field: POFieldStyle? = null,
         val codeField: POFieldStyle? = null,
         val radioField: PORadioFieldStyle? = null,
@@ -323,7 +323,7 @@ data class PONativeAlternativePaymentConfiguration(
         val dialog: PODialogStyle? = null,
         val background: POBackgroundStyle? = null,
         val message: POTextStyle? = null,
-        val errorMessage: POTextStyle? = null,
+        val errorMessage: POTextStyle? = null, // TODO(v2): remove, not used
         val errorMessageBox: POMessageBoxStyle? = null,
         val successMessage: POTextStyle? = null,
         @DrawableRes
@@ -346,14 +346,12 @@ data class PONativeAlternativePaymentConfiguration(
          * @param[field] Field style.
          * @param[codeField] Code field style.
          * @param[radioButton] Radio button style. __Deprecated__: not used.
-         * @param[checkbox] Checkbox style.
          * @param[dropdownMenu] Dropdown menu style.
          * @param[actionsContainer] Style of action buttons and their container.
          * @param[dialog] Dialog style.
          * @param[background] Background style.
          * @param[message] Message style.
          * @param[errorMessage] Error message style.
-         * @param[errorMessageBox] Error message box style.
          * @param[successMessage] Success message style.
          * @param[successImageResId] Success image drawable resource ID.
          * @param[progressIndicatorColorResId] Color resource ID for progress indicator.
@@ -368,14 +366,12 @@ data class PONativeAlternativePaymentConfiguration(
             field: POFieldStyle? = null,
             codeField: POFieldStyle? = null,
             radioButton: PORadioButtonStyle? = null,
-            checkbox: POCheckboxStyle? = null,
             dropdownMenu: PODropdownMenuStyle? = null,
             actionsContainer: POActionsContainerStyle? = null,
             dialog: PODialogStyle? = null,
             background: POBackgroundStyle? = null,
             message: POTextStyle? = null,
             errorMessage: POTextStyle? = null,
-            errorMessageBox: POMessageBoxStyle? = null,
             successMessage: POTextStyle? = null,
             @DrawableRes
             successImageResId: Int? = null,
@@ -393,14 +389,14 @@ data class PONativeAlternativePaymentConfiguration(
             field = field,
             codeField = codeField,
             radioField = null,
-            checkbox = checkbox,
+            checkbox = null,
             dropdownMenu = dropdownMenu,
             actionsContainer = actionsContainer,
             dialog = dialog,
             background = background,
             message = message,
             errorMessage = errorMessage,
-            errorMessageBox = errorMessageBox,
+            errorMessageBox = null,
             successMessage = successMessage,
             successImageResId = successImageResId,
             progressIndicatorColorResId = progressIndicatorColorResId,

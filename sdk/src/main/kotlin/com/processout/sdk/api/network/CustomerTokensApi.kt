@@ -20,7 +20,7 @@ internal interface CustomerTokensApi {
         @Body request: AssignCustomerTokenRequestWithDeviceData
     ): Response<CustomerTokenResponse>
 
-    @POST("/customers/{customer_id}/tokens/{token_id}/tokenize")
+    @POST("/customers/{customer_id}/apm-tokens/{token_id}/tokenize")
     suspend fun tokenize(
         @Path("customer_id") customerId: String,
         @Path("token_id") tokenId: String,

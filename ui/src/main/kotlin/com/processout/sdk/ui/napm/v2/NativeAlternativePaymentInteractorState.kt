@@ -2,8 +2,10 @@ package com.processout.sdk.ui.napm.v2
 
 import android.graphics.Bitmap
 import com.processout.sdk.api.model.response.POBarcode.BarcodeType
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.Invoice
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter.*
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentMethodDetails
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.shared.state.FieldValue
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,8 +41,8 @@ internal sealed interface NativeAlternativePaymentInteractorState {
     //endregion
 
     data class UserInputStateValue(
-//        val invoice: Invoice, // TODO(v2)
-//        val gateway: Gateway, // TODO(v2)
+        val paymentMethod: PONativeAlternativePaymentMethodDetails,
+        val invoice: Invoice?,
         val fields: List<Field>,
         val focusedFieldId: String?,
         val primaryActionId: String,

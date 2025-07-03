@@ -11,7 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails.Invoice
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.Invoice
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter.*
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter.Otp.Subtype
@@ -118,14 +118,12 @@ internal class NativeAlternativePaymentViewModel private constructor(
 
     private fun UserInput.map() = with(value) {
         NativeAlternativePaymentViewModelState.UserInput(
-//            title = configuration.title ?: app.getString(R.string.po_native_apm_title_format, gateway.displayName),
-            title = String(), // TODO(v2): map from gateway
+            title = configuration.title ?: app.getString(R.string.po_native_apm_title_format, paymentMethod.displayName),
             fields = fields.map(),
             focusedFieldId = focusedFieldId,
             primaryAction = POActionState(
                 id = primaryActionId,
-//                text = configuration.submitButton.text ?: invoice.formatPrimaryActionText(),
-                text = String(), // TODO(v2): map from invoice
+                text = configuration.submitButton.text ?: invoice.formatPrimaryActionText(),
                 primary = true,
                 enabled = submitAllowed,
                 loading = submitting,
@@ -458,15 +456,19 @@ internal class NativeAlternativePaymentViewModel private constructor(
         Unknown -> KeyboardOptions.Default
     }
 
-    private fun Invoice.formatPrimaryActionText() =
-        try {
-            val price = NumberFormat.getCurrencyInstance().apply {
-                currency = Currency.getInstance(currencyCode)
-            }.format(amount.toDouble())
+    private fun Invoice?.formatPrimaryActionText(): String {
+        if (this == null) {
+            return app.getString(R.string.po_native_apm_submit_button_text)
+        }
+        return try {
+            val formatter = NumberFormat.getCurrencyInstance()
+            formatter.currency = Currency.getInstance(currency)
+            val price = formatter.format(amount.toDouble())
             app.getString(R.string.po_native_apm_submit_button_text_format, price)
         } catch (_: Exception) {
             app.getString(R.string.po_native_apm_submit_button_text)
         }
+    }
 
     private fun CancelButton.toActionState(
         id: String,
