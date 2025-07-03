@@ -14,5 +14,5 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class PONativeAlternativePaymentRedirect(
     val url: String,
-    val hint: String?
+    val hint: String
 )
