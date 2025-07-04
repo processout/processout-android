@@ -337,7 +337,7 @@ internal class NativeAlternativePaymentInteractor(
         map { parameter ->
             val defaultValue = when (parameter) {
                 is Parameter.SingleSelect -> FieldValue.Text(
-                    TextFieldValue(text = parameter.preselectedValue?.key ?: String())
+                    TextFieldValue(text = parameter.preselectedValue?.value ?: String())
                 )
                 is Parameter.Bool -> FieldValue.Text(TextFieldValue(text = "false"))
                 is Parameter.PhoneNumber -> FieldValue.PhoneNumber()

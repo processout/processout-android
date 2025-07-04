@@ -354,7 +354,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
             is SingleSelect -> POImmutableList(
                 availableValues.map {
                     POAvailableValue(
-                        value = it.key,
+                        value = it.value,
                         text = it.label
                     )
                 }
