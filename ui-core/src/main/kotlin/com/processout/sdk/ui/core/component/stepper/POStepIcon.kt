@@ -128,12 +128,14 @@ object POStepIcon {
         val color: Color
     )
 
+    private val borderColor = Color(0xFFA3A3A3)
+
     val pending: Style
         @Composable get() = Style(
             backgroundColor = Color.Transparent,
             border = POBorderStroke(
                 width = 1.5.dp,
-                color = Color(0xFFA3A3A3)
+                color = borderColor
             ),
             halo = null,
             checkmark = null
@@ -144,7 +146,7 @@ object POStepIcon {
             backgroundColor = Color.White,
             border = POBorderStroke(
                 width = 1.5.dp,
-                color = Color(0xFFA3A3A3)
+                color = borderColor
             ),
             halo = Halo(
                 width = 6.dp,
