@@ -388,7 +388,10 @@ internal class NativeAlternativePaymentInteractor(
     private fun requestDefaultValues(parameters: List<Parameter>) {
         interactorScope.launch {
             val request = NativeAlternativePaymentDefaultValuesRequest(
-                gatewayConfigurationId = configuration.gatewayConfigurationId,
+                gatewayConfigurationId = when (val flow = configuration.flow) {
+                    is Authorization -> flow.gatewayConfigurationId
+                    is Tokenization -> flow.gatewayConfigurationId
+                },
                 parameters = parameters
             )
             latestDefaultValuesRequest = request

@@ -56,6 +56,7 @@ import com.processout.sdk.ui.checkout.delegate.*
 import com.processout.sdk.ui.checkout.delegate.PODynamicCheckoutEvent.*
 import com.processout.sdk.ui.napm.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow
 import com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentEvent
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsConfiguration
 import com.processout.sdk.ui.shared.extension.orElse
@@ -531,8 +532,10 @@ internal class DynamicCheckoutInteractor(
         gatewayConfigurationId: String,
         configuration: AlternativePaymentConfiguration
     ) = copy(
-        invoiceId = invoiceId,
-        gatewayConfigurationId = gatewayConfigurationId,
+        flow = Flow.Authorization(
+            invoiceId = invoiceId,
+            gatewayConfigurationId = gatewayConfigurationId
+        ),
         paymentConfirmation = paymentConfirmation.apply(configuration.paymentConfirmation),
         barcode = configuration.barcode,
         inlineSingleSelectValuesLimit = configuration.inlineSingleSelectValuesLimit
