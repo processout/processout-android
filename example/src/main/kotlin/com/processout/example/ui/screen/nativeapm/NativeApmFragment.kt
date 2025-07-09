@@ -16,7 +16,7 @@ import com.processout.example.ui.screen.nativeapm.NativeApmUiState.*
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
-import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentLauncher
 import com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentDelegate
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration
@@ -113,6 +113,11 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
                             customerId = uiModel.customerId,
                             customerTokenId = uiModel.customerTokenId,
                             gatewayConfigurationId = uiModel.gatewayConfigurationId
+                        ),
+                        cancelButton = CancelButton(),
+                        paymentConfirmation = PaymentConfirmationConfiguration(
+                            confirmButton = Button(),
+                            cancelButton = CancelButton(disabledForSeconds = 3)
                         )
                     )
                 )
@@ -122,6 +127,11 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
                         flow = Flow.Authorization(
                             invoiceId = uiModel.invoiceId,
                             gatewayConfigurationId = uiModel.gatewayConfigurationId
+                        ),
+                        cancelButton = CancelButton(),
+                        paymentConfirmation = PaymentConfirmationConfiguration(
+                            confirmButton = Button(),
+                            cancelButton = CancelButton(disabledForSeconds = 3)
                         )
                     )
                 )
