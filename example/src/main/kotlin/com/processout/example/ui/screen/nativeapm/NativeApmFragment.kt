@@ -74,10 +74,10 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
     }
 
     private fun setOnClickListeners() {
-        binding.launchNativeApmButton.setOnClickListener {
+        binding.buttonAuthorizeLegacy.setOnClickListener {
             onSubmitClick(launchCompose = false)
         }
-        binding.launchNativeApmComposeButton.setOnClickListener {
+        binding.buttonAuthorizeCompose.setOnClickListener {
             onSubmitClick(launchCompose = true)
         }
     }
@@ -131,8 +131,8 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
         with(binding) {
             amountInput.isEnabled = isEnabled
             currencyInput.isEnabled = isEnabled
-            launchNativeApmButton.isClickable = isEnabled
-            launchNativeApmComposeButton.isClickable = isEnabled
+            buttonAuthorizeLegacy.isClickable = isEnabled
+            buttonAuthorizeCompose.isClickable = isEnabled
             amountInput.clearFocus()
             currencyInput.clearFocus()
         }
