@@ -6,8 +6,11 @@ import androidx.lifecycle.viewModelScope
 import com.processout.example.ui.screen.nativeapm.NativeApmUiState.*
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POCreateCustomerRequest
+import com.processout.sdk.api.model.request.POCreateCustomerTokenRequest
+import com.processout.sdk.api.model.request.POCreateCustomerTokenRequestBody
 import com.processout.sdk.api.model.request.POCreateInvoiceRequest
 import com.processout.sdk.api.model.response.POCustomer
+import com.processout.sdk.api.model.response.POCustomerToken
 import com.processout.sdk.api.service.POCustomerTokensService
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.getOrNull
@@ -44,15 +47,18 @@ class NativeApmViewModel(
     fun createInvoice(
         amount: String,
         currency: String,
-        launchCompose: Boolean
+        launchCompose: Boolean,
+        tokenize: Boolean
     ) {
         _uiState.value = Submitting
         viewModelScope.launch {
+            val customerId = createCustomer()?.id ?: String()
+            val customerTokenId = createCustomerToken(customerId)?.id ?: String()
             val request = POCreateInvoiceRequest(
                 name = UUID.randomUUID().toString(),
                 amount = amount,
                 currency = currency,
-                customerId = createCustomer()?.id
+                customerId = customerId
             )
             invoices.createInvoice(request)
                 .onSuccess { invoice ->
@@ -60,7 +66,10 @@ class NativeApmViewModel(
                         NativeApmUiModel(
                             invoiceId = invoice.id,
                             gatewayConfigurationId = gatewayConfigurationId,
-                            launchCompose = launchCompose
+                            customerId = customerId,
+                            customerTokenId = customerTokenId,
+                            launchCompose = launchCompose,
+                            tokenize = tokenize
                         )
                     )
                 }.onFailure { _uiState.value = Failure(it) }
@@ -73,6 +82,14 @@ class NativeApmViewModel(
                 firstName = "John",
                 lastName = "Doe",
                 email = "test@email.com"
+            )
+        ).getOrNull()
+
+    private suspend fun createCustomerToken(customerId: String): POCustomerToken? =
+        customerTokens.createCustomerToken(
+            POCreateCustomerTokenRequest(
+                customerId = customerId,
+                body = POCreateCustomerTokenRequestBody()
             )
         ).getOrNull()
 
