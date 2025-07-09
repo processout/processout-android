@@ -49,6 +49,7 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.googlepay.POGooglePayCardTokenizationLauncher
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsLauncher
 import com.processout.sdk.ui.savedpaymentmethods.delegate.POSavedPaymentMethodsDelegate
@@ -128,8 +129,10 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
     private fun nativeAlternativePaymentConfiguration(): PONativeAlternativePaymentConfiguration {
         val paymentConfirmation = configuration.alternativePayment.paymentConfirmation
         return PONativeAlternativePaymentConfiguration(
-            invoiceId = configuration.invoiceRequest.invoiceId,
-            gatewayConfigurationId = String(),
+            flow = Flow.Authorization(
+                invoiceId = configuration.invoiceRequest.invoiceId,
+                gatewayConfigurationId = String()
+            ),
             submitButton = configuration.submitButton.map(),
             cancelButton = configuration.cancelButton?.map(),
             paymentConfirmation = PaymentConfirmationConfiguration(

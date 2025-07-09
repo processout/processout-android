@@ -16,7 +16,10 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.processout.sdk.api.dispatcher.PODefaultEventDispatchers
-import com.processout.sdk.core.*
+import com.processout.sdk.core.POUnit
+import com.processout.sdk.core.ProcessOutActivityResult
+import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.toActivityResult
 import com.processout.sdk.ui.base.BaseBottomSheetDialogFragment
 import com.processout.sdk.ui.core.component.POIme.isImeVisibleAsState
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
@@ -29,7 +32,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.PermissionReques
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.AnimationDurationMillis
 import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.PermissionRequest
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Capture
-import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Button
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow
 import com.processout.sdk.ui.shared.component.screenModeAsState
 import com.processout.sdk.ui.shared.extension.collectImmediately
 import com.processout.sdk.ui.shared.extension.dpToPx
@@ -52,9 +55,10 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
         NativeAlternativePaymentViewModel.Factory(
             app = requireActivity().application,
             configuration = configuration ?: PONativeAlternativePaymentConfiguration(
-                invoiceId = String(),
-                gatewayConfigurationId = String(),
-                submitButton = Button()
+                flow = Flow.Authorization(
+                    invoiceId = String(),
+                    gatewayConfigurationId = String()
+                )
             ),
             legacyEventDispatcher = PODefaultEventDispatchers.defaultNativeAlternativePaymentMethod
         )
@@ -69,17 +73,6 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
         super.onAttach(context)
         @Suppress("DEPRECATION")
         configuration = arguments?.getParcelable(EXTRA_CONFIGURATION)
-        configuration?.run {
-            if (invoiceId.isBlank() || gatewayConfigurationId.isBlank()) {
-                dismiss(
-                    ProcessOutResult.Failure(
-                        code = POFailure.Code.Generic(),
-                        message = "Invalid configuration: 'invoiceId' and 'gatewayConfigurationId' is required."
-                    )
-                )
-                return
-            }
-        }
         viewModel.start()
     }
 

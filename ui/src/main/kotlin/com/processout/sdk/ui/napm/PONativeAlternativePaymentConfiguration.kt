@@ -7,7 +7,6 @@ import androidx.annotation.IntRange
 import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import com.processout.sdk.ui.core.style.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
-import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Authorization
 import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
 import com.processout.sdk.ui.shared.configuration.POBarcodeConfiguration
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
@@ -16,8 +15,7 @@ import kotlinx.parcelize.Parcelize
 /**
  * Defines native alternative payment configuration.
  *
- * @param[invoiceId] Invoice ID.
- * @param[gatewayConfigurationId] Gateway configuration ID.
+ * @param[flow] Payment flow configuration.
  * @param[title] Custom title.
  * @param[submitButton] Submit button configuration.
  * @param[cancelButton] Cancel button configuration. Use _null_ to hide, this is a default behaviour.
@@ -33,8 +31,7 @@ import kotlinx.parcelize.Parcelize
  */
 @Parcelize
 data class PONativeAlternativePaymentConfiguration(
-    val invoiceId: String,
-    val gatewayConfigurationId: String,
+    val flow: Flow,
     val title: String? = null,
     val submitButton: Button = Button(),
     val cancelButton: CancelButton? = null,
@@ -47,26 +44,41 @@ data class PONativeAlternativePaymentConfiguration(
     val style: Style? = null
 ) : Parcelable {
 
-    // TODO(v2): move to constructor
-    internal val flow: Flow
-        get() = Authorization(
-            invoiceId = invoiceId,
-            gatewayConfigurationId = gatewayConfigurationId
-        )
+    // TODO(v2): remove
+    internal val invoiceId: String
+        get() = when (flow) {
+            is Flow.Authorization -> flow.invoiceId
+            is Flow.Tokenization -> String()
+        }
 
-    // TODO(v2): make public
-    internal sealed class Flow : Parcelable {
+    // TODO(v2): remove
+    internal val gatewayConfigurationId: String
+        get() = when (flow) {
+            is Flow.Authorization -> flow.gatewayConfigurationId
+            is Flow.Tokenization -> String()
+        }
+
+    /**
+     * Native alternative payment flow configuration.
+     */
+    sealed class Flow : Parcelable {
         /**
+         * Configuration for native alternative payment authorization.
+         *
          * @param[invoiceId] Invoice identifier.
          * @param[gatewayConfigurationId] Gateway configuration identifier.
+         * @param[customerTokenId] Optional customer token identifier that will be used for authorization.
          */
         @Parcelize
         data class Authorization(
             val invoiceId: String,
-            val gatewayConfigurationId: String
+            val gatewayConfigurationId: String,
+            val customerTokenId: String? = null
         ) : Flow()
 
         /**
+         * Configuration for native alternative payment tokenization.
+         *
          * @param[customerId] Customer identifier.
          * @param[customerTokenId] Customer token identifier.
          * @param[gatewayConfigurationId] Gateway configuration identifier.
@@ -78,6 +90,55 @@ data class PONativeAlternativePaymentConfiguration(
             val gatewayConfigurationId: String
         ) : Flow()
     }
+
+    /**
+     * Defines native alternative payment configuration.
+     *
+     * @param[invoiceId] Invoice ID.
+     * @param[gatewayConfigurationId] Gateway configuration ID.
+     * @param[title] Custom title.
+     * @param[submitButton] Submit button configuration.
+     * @param[cancelButton] Cancel button configuration. Use _null_ to hide, this is a default behaviour.
+     * @param[cancellation] Specifies cancellation behaviour.
+     * @param[paymentConfirmation] Specifies payment confirmation configuration.
+     * @param[barcode] Specifies barcode configuration.
+     * @param[inlineSingleSelectValuesLimit] Defines maximum number of options that will be
+     * displayed inline for parameters where user should select single option (e.g. radio buttons).
+     * Default value is _5_.
+     * @param[skipSuccessScreen] Only applies when [PaymentConfirmationConfiguration.waitsConfirmation] is _true_.
+     * @param[successMessage] Custom success message when payment is completed.
+     * @param[style] Allows to customize the look and feel.
+     */
+    @Deprecated(message = "Use alternative constructor.")
+    constructor(
+        invoiceId: String,
+        gatewayConfigurationId: String,
+        title: String? = null,
+        submitButton: Button = Button(),
+        cancelButton: CancelButton? = null,
+        cancellation: POCancellationConfiguration = POCancellationConfiguration(),
+        paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration(confirmButton = null),
+        barcode: POBarcodeConfiguration = POBarcodeConfiguration(saveButton = POBarcodeConfiguration.Button()),
+        inlineSingleSelectValuesLimit: Int = 5,
+        skipSuccessScreen: Boolean = false,
+        successMessage: String? = null,
+        style: Style? = null
+    ) : this(
+        flow = Flow.Authorization(
+            invoiceId = invoiceId,
+            gatewayConfigurationId = gatewayConfigurationId
+        ),
+        title = title,
+        submitButton = submitButton,
+        cancelButton = cancelButton,
+        cancellation = cancellation,
+        paymentConfirmation = paymentConfirmation,
+        barcode = barcode,
+        inlineSingleSelectValuesLimit = inlineSingleSelectValuesLimit,
+        skipSuccessScreen = skipSuccessScreen,
+        successMessage = successMessage,
+        style = style
+    )
 
     /**
      * Defines native alternative payment configuration.

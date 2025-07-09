@@ -16,7 +16,7 @@ import com.processout.example.ui.screen.nativeapm.NativeApmUiState.*
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
-import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Button
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentLauncher
 import com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentDelegate
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration
@@ -73,18 +73,26 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
     }
 
     private fun setOnClickListeners() {
-        binding.launchNativeApmButton.setOnClickListener {
-            onSubmitClick(launchCompose = false)
+        binding.buttonAuthorizeLegacy.setOnClickListener {
+            onSubmitClick(launchCompose = false, tokenize = false)
         }
-        binding.launchNativeApmComposeButton.setOnClickListener {
-            onSubmitClick(launchCompose = true)
+        binding.buttonAuthorizeCompose.setOnClickListener {
+            onSubmitClick(launchCompose = true, tokenize = false)
+        }
+        binding.buttonTokenizeCompose.setOnClickListener {
+            onSubmitClick(launchCompose = true, tokenize = true)
         }
     }
 
-    private fun onSubmitClick(launchCompose: Boolean) {
+    private fun onSubmitClick(launchCompose: Boolean, tokenize: Boolean) {
         val amount = binding.amountInput.text.toString()
         val currency = binding.currencyInput.text.toString()
-        viewModel.createInvoice(amount, currency, launchCompose)
+        viewModel.createInvoice(
+            amount = amount,
+            currency = currency,
+            launchCompose = launchCompose,
+            tokenize = tokenize
+        )
     }
 
     private fun handle(uiState: NativeApmUiState) {
@@ -98,13 +106,36 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
 
     private fun launch(uiModel: NativeApmUiModel) {
         if (uiModel.launchCompose) {
-            launcherCompose.launch(
-                PONativeAlternativePaymentConfiguration(
-                    invoiceId = uiModel.invoiceId,
-                    gatewayConfigurationId = uiModel.gatewayConfigurationId,
-                    submitButton = Button()
+            if (uiModel.tokenize) {
+                launcherCompose.launch(
+                    PONativeAlternativePaymentConfiguration(
+                        flow = Flow.Tokenization(
+                            customerId = uiModel.customerId,
+                            customerTokenId = uiModel.customerTokenId,
+                            gatewayConfigurationId = uiModel.gatewayConfigurationId
+                        ),
+                        cancelButton = CancelButton(),
+                        paymentConfirmation = PaymentConfirmationConfiguration(
+                            confirmButton = Button(),
+                            cancelButton = CancelButton(disabledForSeconds = 3)
+                        )
+                    )
                 )
-            )
+            } else {
+                launcherCompose.launch(
+                    PONativeAlternativePaymentConfiguration(
+                        flow = Flow.Authorization(
+                            invoiceId = uiModel.invoiceId,
+                            gatewayConfigurationId = uiModel.gatewayConfigurationId
+                        ),
+                        cancelButton = CancelButton(),
+                        paymentConfirmation = PaymentConfirmationConfiguration(
+                            confirmButton = Button(),
+                            cancelButton = CancelButton(disabledForSeconds = 3)
+                        )
+                    )
+                )
+            }
         } else {
             launcher.launch(
                 PONativeAlternativePaymentMethodConfiguration(
@@ -128,8 +159,9 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
         with(binding) {
             amountInput.isEnabled = isEnabled
             currencyInput.isEnabled = isEnabled
-            launchNativeApmButton.isClickable = isEnabled
-            launchNativeApmComposeButton.isClickable = isEnabled
+            buttonAuthorizeLegacy.isClickable = isEnabled
+            buttonAuthorizeCompose.isClickable = isEnabled
+            buttonTokenizeCompose.isClickable = isEnabled
             amountInput.clearFocus()
             currencyInput.clearFocus()
         }
