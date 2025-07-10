@@ -39,6 +39,8 @@ fun POVerticalStepper(
                     .fillMaxWidth()
                     .height(IntrinsicSize.Min)
             ) {
+                val iconSize = POStepIcon.DefaultIconSize
+                val iconPadding = POStepIcon.DefaultPadding
                 val stepStyle = POStepper.stepStyle(
                     style = style,
                     state = states[index]
@@ -48,6 +50,8 @@ fun POVerticalStepper(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     POStepIcon(
+                        iconSize = iconSize,
+                        padding = iconPadding,
                         style = stepStyle.icon
                     )
                     if (index != steps.elements.lastIndex) {
@@ -93,7 +97,7 @@ fun POVerticalStepper(
                         modifier = Modifier.padding(
                             top = POText.measuredPaddingTop(
                                 textStyle = titleTextStyle,
-                                componentHeight = 36.dp
+                                componentHeight = iconSize + iconPadding * 2
                             )
                         )
                     )
