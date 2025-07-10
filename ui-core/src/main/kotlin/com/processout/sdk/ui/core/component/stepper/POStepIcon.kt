@@ -14,10 +14,12 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.POBorderStroke
+import com.processout.sdk.ui.core.style.POStepperStyle
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -166,4 +168,27 @@ object POStepIcon {
                 color = Color.White
             )
         )
+
+    @Composable
+    fun custom(style: POStepperStyle.IconStyle) = Style(
+        backgroundColor = colorResource(id = style.backgroundColorResId),
+        border = style.border?.let {
+            POBorderStroke(
+                width = it.widthDp.dp,
+                color = colorResource(id = it.colorResId)
+            )
+        },
+        halo = style.halo?.let {
+            Halo(
+                width = it.widthDp.dp,
+                color = colorResource(id = it.colorResId)
+            )
+        },
+        checkmark = style.checkmark?.let {
+            Checkmark(
+                width = it.widthDp.dp,
+                color = colorResource(id = it.colorResId)
+            )
+        }
+    )
 }
