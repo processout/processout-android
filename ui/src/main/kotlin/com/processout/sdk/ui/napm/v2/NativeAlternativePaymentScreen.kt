@@ -122,7 +122,7 @@ internal fun NativeAlternativePaymentScreen(
                     horizontal = ProcessOutTheme.spacing.extraLarge,
                     vertical = if (state is Capture) 0.dp else verticalSpacing
                 ),
-            verticalArrangement = if (state is Capture) Arrangement.Top else Arrangement.Center,
+            verticalArrangement = if (state is Loading) Arrangement.Center else Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             when (state) {
