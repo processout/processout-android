@@ -70,7 +70,7 @@ object POStepper {
                 icon = POStepIcon.active,
                 connector = POStroke.Style(
                     width = 2.dp,
-                    color = POStepIcon.defaultCompletedColor,
+                    color = POStepIcon.DefaultCompletedColor,
                     dashInterval = 3.dp
                 )
             ),
@@ -86,7 +86,7 @@ object POStepper {
                 icon = POStepIcon.completed,
                 connector = POStroke.Style(
                     width = 2.dp,
-                    color = POStepIcon.defaultCompletedColor
+                    color = POStepIcon.DefaultCompletedColor
                 )
             )
         )

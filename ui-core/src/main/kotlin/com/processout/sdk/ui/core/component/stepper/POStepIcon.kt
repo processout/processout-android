@@ -25,8 +25,8 @@ import com.processout.sdk.ui.core.style.POStepperStyle
 @ProcessOutInternalApi
 @Composable
 fun POStepIcon(
-    iconSize: Dp = 24.dp,
-    padding: Dp = 6.dp,
+    iconSize: Dp = POStepIcon.DefaultIconSize,
+    padding: Dp = POStepIcon.DefaultPadding,
     style: POStepIcon.Style = POStepIcon.active
 ) {
     val density = LocalDensity.current
@@ -130,15 +130,18 @@ object POStepIcon {
         val color: Color
     )
 
-    private val defaultBorderColor = Color(0xFFA3A3A3)
-    internal val defaultCompletedColor = Color(0xFF4CA259)
+    internal val DefaultIconSize: Dp = 24.dp
+    internal val DefaultPadding: Dp = 6.dp
+
+    private val DefaultBorderColor = Color(0xFFA3A3A3)
+    internal val DefaultCompletedColor = Color(0xFF4CA259)
 
     val pending: Style
         @Composable get() = Style(
             backgroundColor = Color.Transparent,
             border = POBorderStroke(
                 width = 1.5.dp,
-                color = defaultBorderColor
+                color = DefaultBorderColor
             ),
             halo = null,
             checkmark = null
@@ -149,7 +152,7 @@ object POStepIcon {
             backgroundColor = Color.White,
             border = POBorderStroke(
                 width = 1.5.dp,
-                color = defaultBorderColor
+                color = DefaultBorderColor
             ),
             halo = Halo(
                 width = 6.dp,
@@ -160,7 +163,7 @@ object POStepIcon {
 
     val completed: Style
         @Composable get() = Style(
-            backgroundColor = defaultCompletedColor,
+            backgroundColor = DefaultCompletedColor,
             border = null,
             halo = null,
             checkmark = Checkmark(
