@@ -41,7 +41,7 @@ fun POStepIcon(
         initialValue = 0f,
         targetValue = haloWidthPx,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1000, easing = LinearEasing),
+            animation = tween(durationMillis = 800, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
         )
     )
@@ -128,14 +128,15 @@ object POStepIcon {
         val color: Color
     )
 
-    private val borderColor = Color(0xFFA3A3A3)
+    private val defaultBorderColor = Color(0xFFA3A3A3)
+    internal val defaultCompletedColor = Color(0xFF4CA259)
 
     val pending: Style
         @Composable get() = Style(
             backgroundColor = Color.Transparent,
             border = POBorderStroke(
                 width = 1.5.dp,
-                color = borderColor
+                color = defaultBorderColor
             ),
             halo = null,
             checkmark = null
@@ -146,7 +147,7 @@ object POStepIcon {
             backgroundColor = Color.White,
             border = POBorderStroke(
                 width = 1.5.dp,
-                color = borderColor
+                color = defaultBorderColor
             ),
             halo = Halo(
                 width = 6.dp,
@@ -157,7 +158,7 @@ object POStepIcon {
 
     val completed: Style
         @Composable get() = Style(
-            backgroundColor = Color(0xFF4CA259),
+            backgroundColor = defaultCompletedColor,
             border = null,
             halo = null,
             checkmark = Checkmark(
