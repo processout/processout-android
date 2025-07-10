@@ -45,6 +45,7 @@ import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField2
 import com.processout.sdk.ui.core.component.field.phone.POPhoneNumberField
 import com.processout.sdk.ui.core.component.field.radio.PORadioField
 import com.processout.sdk.ui.core.component.field.text.POTextField2
+import com.processout.sdk.ui.core.component.stepper.POStepper
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.state.POPhoneNumberFieldState
@@ -714,8 +715,9 @@ internal object NativeAlternativePaymentScreen {
         val radioField: PORadioField.Style,
         val checkbox: POCheckbox.Style,
         val dropdownMenu: PODropdownField.MenuStyle,
-        val actionsContainer: POActionsContainer.Style,
         val dialog: PODialog.Style,
+        val stepper: POStepper.Style,
+        val actionsContainer: POActionsContainer.Style,
         val normalBackgroundColor: Color,
         val successBackgroundColor: Color,
         val message: AndroidTextView.Style,
@@ -749,12 +751,15 @@ internal object NativeAlternativePaymentScreen {
                 dropdownMenu = custom?.dropdownMenu?.let {
                     PODropdownField.custom(style = it)
                 } ?: PODropdownField.defaultMenu2,
-                actionsContainer = custom?.actionsContainer?.let {
-                    POActionsContainer.custom(style = it)
-                } ?: POActionsContainer.default2,
                 dialog = custom?.dialog?.let {
                     PODialog.custom(style = it)
                 } ?: PODialog.default,
+                stepper = custom?.stepper?.let {
+                    POStepper.custom(style = it)
+                } ?: POStepper.default,
+                actionsContainer = custom?.actionsContainer?.let {
+                    POActionsContainer.custom(style = it)
+                } ?: POActionsContainer.default2,
                 normalBackgroundColor = custom?.background?.normalColorResId?.let {
                     colorResource(id = it)
                 } ?: colors.surface.default,
