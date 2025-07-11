@@ -52,7 +52,7 @@ object POStepper {
                 ),
                 icon = POStepIcon.pending,
                 connector = POStroke.Style(
-                    width = 2.dp,
+                    width = 1.5.dp,
                     color = colors.border.border4,
                     dashInterval = 3.dp
                 )
@@ -68,7 +68,7 @@ object POStepper {
                 ),
                 icon = POStepIcon.active,
                 connector = POStroke.Style(
-                    width = 2.dp,
+                    width = 1.5.dp,
                     color = colors.text.positive,
                     dashInterval = 3.dp
                 )
@@ -84,7 +84,7 @@ object POStepper {
                 ),
                 icon = POStepIcon.completed,
                 connector = POStroke.Style(
-                    width = 2.dp,
+                    width = 1.5.dp,
                     color = colors.text.positive
                 )
             )

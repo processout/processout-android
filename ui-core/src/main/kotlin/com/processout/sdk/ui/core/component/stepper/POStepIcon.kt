@@ -80,7 +80,7 @@ fun POStepIcon(
         // Checkmark
         if (style.checkmark != null) {
             val checkmarkPath = Path().apply {
-                val scale = 1.3f
+                val scale = 1.2f
                 val start = Offset(
                     x = center.x - size.minDimension * 0.15f * scale,
                     y = center.y
