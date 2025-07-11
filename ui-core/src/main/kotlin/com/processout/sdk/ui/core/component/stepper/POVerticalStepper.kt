@@ -84,10 +84,9 @@ fun POVerticalStepper(
                 }
                 Column(
                     modifier = Modifier
-                        .padding(start = spacing.space6)
                         .fillMaxWidth()
-                        .fillMaxHeight(),
-                    verticalArrangement = Arrangement.spacedBy(spacing.space4)
+                        .fillMaxHeight()
+                        .padding(start = spacing.space6)
                 ) {
                     val titleTextStyle = stepStyle.title.textStyle
                     POText(
@@ -104,7 +103,9 @@ fun POVerticalStepper(
                     POExpandableText(
                         text = step.description,
                         style = stepStyle.description,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = spacing.space4)
                     )
                 }
             }
