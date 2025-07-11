@@ -1,7 +1,6 @@
 package com.processout.sdk.ui.core.component.stepper
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
@@ -54,7 +53,7 @@ object POStepper {
                 icon = POStepIcon.pending,
                 connector = POStroke.Style(
                     width = 2.dp,
-                    color = Color(0xFFCECECE),
+                    color = colors.border.border4,
                     dashInterval = 3.dp
                 )
             ),
@@ -70,7 +69,7 @@ object POStepper {
                 icon = POStepIcon.active,
                 connector = POStroke.Style(
                     width = 2.dp,
-                    color = POStepIcon.DefaultCompletedColor,
+                    color = colors.text.positive,
                     dashInterval = 3.dp
                 )
             ),
@@ -86,7 +85,7 @@ object POStepper {
                 icon = POStepIcon.completed,
                 connector = POStroke.Style(
                     width = 2.dp,
-                    color = POStepIcon.DefaultCompletedColor
+                    color = colors.text.positive
                 )
             )
         )

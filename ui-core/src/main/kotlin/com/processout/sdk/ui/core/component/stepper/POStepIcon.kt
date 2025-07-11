@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.POBorderStroke
 import com.processout.sdk.ui.core.style.POStepperStyle
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -133,15 +134,12 @@ object POStepIcon {
     internal val DefaultIconSize: Dp = 24.dp
     internal val DefaultPadding: Dp = 6.dp
 
-    private val DefaultBorderColor = Color(0xFFA3A3A3)
-    internal val DefaultCompletedColor = Color(0xFF4CA259)
-
     val pending: Style
         @Composable get() = Style(
-            backgroundColor = Color.Transparent,
+            backgroundColor = colors.surface.default,
             border = POBorderStroke(
                 width = 1.5.dp,
-                color = DefaultBorderColor
+                color = colors.icon.disabled
             ),
             halo = null,
             checkmark = null
@@ -149,26 +147,26 @@ object POStepIcon {
 
     val active: Style
         @Composable get() = Style(
-            backgroundColor = Color.White,
+            backgroundColor = colors.surface.default,
             border = POBorderStroke(
                 width = 1.5.dp,
-                color = DefaultBorderColor
+                color = colors.icon.tertiary
             ),
             halo = Halo(
                 width = 6.dp,
-                color = Color.Black.copy(alpha = 0.07f)
+                color = colors.border.border2
             ),
             checkmark = null
         )
 
     val completed: Style
         @Composable get() = Style(
-            backgroundColor = DefaultCompletedColor,
+            backgroundColor = colors.surface.backgroundSuccess,
             border = null,
             halo = null,
             checkmark = Checkmark(
                 width = 2.dp,
-                color = Color.White
+                color = colors.icon.inverse
             )
         )
 
