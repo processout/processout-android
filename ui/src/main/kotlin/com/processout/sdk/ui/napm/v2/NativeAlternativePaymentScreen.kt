@@ -54,10 +54,10 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.AnimationDurationMillis
-import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.CaptureImageHeight
-import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.CaptureImageWidth
-import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.CaptureLogoHeight
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.CrossfadeAnimationDurationMillis
+import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.PendingImageHeight
+import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.PendingImageWidth
+import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.PendingLogoHeight
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.animatedBackgroundColor
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.messageGravity
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.*
@@ -93,7 +93,7 @@ internal fun NativeAlternativePaymentScreen(
                     .onGloballyPositioned {
                         topBarHeight = it.size.height
                     },
-                title = if (state is UserInput) state.title else null,
+                title = if (state is NextStep) state.title else null,
                 style = style.title,
                 dividerColor = style.dividerColor,
                 dragHandleColor = style.dragHandleColor,
@@ -121,14 +121,14 @@ internal fun NativeAlternativePaymentScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(
                     horizontal = ProcessOutTheme.spacing.extraLarge,
-                    vertical = if (state is Capture) 0.dp else verticalSpacing
+                    vertical = if (state is Pending) 0.dp else verticalSpacing
                 ),
             verticalArrangement = if (state is Loading) Arrangement.Center else Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             when (state) {
                 is Loading -> Loading(style.progressIndicatorColor)
-                is UserInput -> UserInput(
+                is NextStep -> NextStep(
                     modifier = Modifier.onGloballyPositioned {
                         val contentHeight = it.size.height + topBarHeight + bottomBarHeight + verticalSpacingPx * 2
                         onContentHeightChanged(contentHeight)
@@ -137,7 +137,7 @@ internal fun NativeAlternativePaymentScreen(
                     onEvent = onEvent,
                     style = style
                 )
-                is Capture -> Capture(state, onEvent, style)
+                is Pending -> Pending(state, onEvent, style)
             }
         }
     }
@@ -151,8 +151,8 @@ private fun Loading(progressIndicatorColor: Color) {
 }
 
 @Composable
-private fun UserInput(
-    state: UserInput,
+private fun NextStep(
+    state: NextStep,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
     style: NativeAlternativePaymentScreen.Style,
     modifier: Modifier = Modifier
@@ -481,8 +481,8 @@ private fun PhoneNumberField(
 }
 
 @Composable
-private fun Capture(
-    state: Capture,
+private fun Pending(
+    state: Pending,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
     style: NativeAlternativePaymentScreen.Style
 ) {
@@ -495,22 +495,22 @@ private fun Capture(
             verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.extraLarge),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            CaptureHeader(state, style)
+            PendingHeader(state, style)
             Crossfade(
-                targetState = state.isCaptured,
+                targetState = state.isSuccess,
                 animationSpec = tween(
                     durationMillis = CrossfadeAnimationDurationMillis,
                     easing = LinearEasing
                 )
-            ) { isCaptured ->
+            ) { isSuccess ->
                 Column(
                     verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.extraLarge),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    if (isCaptured) {
+                    if (isSuccess) {
                         SuccessContent(state, style)
                     } else {
-                        CaptureContent(state, onEvent, style)
+                        PendingContent(state, onEvent, style)
                     }
                 }
             }
@@ -519,8 +519,8 @@ private fun Capture(
 }
 
 @Composable
-private fun CaptureHeader(
-    state: Capture,
+private fun PendingHeader(
+    state: Pending,
     style: NativeAlternativePaymentScreen.Style
 ) {
     var showLogo by remember { mutableStateOf(true) }
@@ -528,7 +528,7 @@ private fun CaptureHeader(
         AsyncImage(
             model = state.logoUrl,
             contentDescription = null,
-            modifier = Modifier.requiredHeight(CaptureLogoHeight),
+            modifier = Modifier.requiredHeight(PendingLogoHeight),
             contentScale = ContentScale.FillHeight,
             onError = {
                 showLogo = false
@@ -544,8 +544,8 @@ private fun CaptureHeader(
 }
 
 @Composable
-private fun CaptureContent(
-    state: Capture,
+private fun PendingContent(
+    state: Pending,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
     style: NativeAlternativePaymentScreen.Style
 ) {
@@ -567,8 +567,8 @@ private fun CaptureContent(
                 model = state.image.value,
                 contentDescription = null,
                 modifier = Modifier.requiredSize(
-                    width = CaptureImageWidth,
-                    height = CaptureImageHeight
+                    width = PendingImageWidth,
+                    height = PendingImageHeight
                 ),
                 alignment = Alignment.Center,
                 contentScale = ContentScale.Fit,
@@ -582,8 +582,8 @@ private fun CaptureContent(
                     bitmap = remember(bitmap) { bitmap.asImageBitmap() },
                     contentDescription = null,
                     modifier = Modifier.requiredSize(
-                        width = CaptureImageWidth,
-                        height = CaptureImageHeight
+                        width = PendingImageWidth,
+                        height = PendingImageHeight
                     ),
                     alignment = Alignment.Center,
                     contentScale = ContentScale.Fit
@@ -623,7 +623,7 @@ private fun AnimatedProgressIndicator(
 
 @Composable
 private fun SuccessContent(
-    state: Capture,
+    state: Pending,
     style: NativeAlternativePaymentScreen.Style
 ) {
     POText(
@@ -637,8 +637,8 @@ private fun SuccessContent(
         painter = painterResource(id = style.successImageResId),
         contentDescription = null,
         modifier = Modifier.requiredSize(
-            width = CaptureImageWidth,
-            height = CaptureImageHeight
+            width = PendingImageWidth,
+            height = PendingImageHeight
         ),
         alignment = Alignment.Center,
         contentScale = ContentScale.Fit
@@ -658,11 +658,11 @@ private fun Actions(
     var saveBarcode: POActionState? = null
     when (state) {
         is Loading -> secondary = state.secondaryAction
-        is UserInput -> {
+        is NextStep -> {
             primary = state.primaryAction
             secondary = state.secondaryAction
         }
-        is Capture -> {
+        is Pending -> {
             primary = state.primaryAction
             secondary = state.secondaryAction
             saveBarcode = state.saveBarcodeAction
@@ -795,10 +795,10 @@ internal object NativeAlternativePaymentScreen {
             )
         }
 
-    val CaptureLogoHeight = 34.dp
+    val PendingLogoHeight = 34.dp
 
-    val CaptureImageWidth = 220.dp
-    val CaptureImageHeight = 280.dp
+    val PendingImageWidth = 220.dp
+    val PendingImageHeight = 280.dp
 
     val AnimationDurationMillis = 300
     val CrossfadeAnimationDurationMillis = 400
@@ -810,7 +810,7 @@ internal object NativeAlternativePaymentScreen {
         successColor: Color
     ): Color = animateColorAsState(
         targetValue = when (state) {
-            is Capture -> if (state.isCaptured) successColor else normalColor
+            is Pending -> if (state.isSuccess) successColor else normalColor
             else -> normalColor
         },
         animationSpec = tween(

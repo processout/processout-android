@@ -18,7 +18,7 @@ internal sealed interface NativeAlternativePaymentViewModelState {
     ) : NativeAlternativePaymentViewModelState
 
     @Immutable
-    data class UserInput(
+    data class NextStep(
         val title: String,
         val fields: POImmutableList<Field>,
         val focusedFieldId: String?,
@@ -27,7 +27,7 @@ internal sealed interface NativeAlternativePaymentViewModelState {
     ) : NativeAlternativePaymentViewModelState
 
     @Immutable
-    data class Capture(
+    data class Pending(
         val title: String?,
         val logoUrl: String?,
         val image: Image?,
@@ -37,7 +37,7 @@ internal sealed interface NativeAlternativePaymentViewModelState {
         val saveBarcodeAction: POActionState?,
         val confirmationDialog: ConfirmationDialogState?,
         val withProgressIndicator: Boolean,
-        val isCaptured: Boolean
+        val isSuccess: Boolean
     ) : NativeAlternativePaymentViewModelState
 
     //endregion

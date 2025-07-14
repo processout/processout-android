@@ -106,9 +106,9 @@ internal class NativeAlternativePaymentViewModel private constructor(
         state: NativeAlternativePaymentInteractorState
     ): NativeAlternativePaymentViewModelState = when (state) {
         Idle, Loading -> loading()
-        is UserInput -> state.map()
-        is Capturing -> state.map()
-        is Captured -> state.map()
+        is NextStep -> state.map()
+        is Pending -> state.map()
+        is Completed -> state.map()
         else -> this@NativeAlternativePaymentViewModel.state.value
     }
 
@@ -116,8 +116,8 @@ internal class NativeAlternativePaymentViewModel private constructor(
         secondaryAction = null
     )
 
-    private fun UserInput.map() = with(value) {
-        NativeAlternativePaymentViewModelState.UserInput(
+    private fun NextStep.map() = with(value) {
+        NativeAlternativePaymentViewModelState.NextStep(
             title = configuration.title ?: app.getString(R.string.po_native_apm_title_format, paymentMethod.displayName),
             fields = fields.map(),
             focusedFieldId = focusedFieldId,
@@ -136,7 +136,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
         )
     }
 
-    private fun Capturing.map() = with(value) {
+    private fun Pending.map() = with(value) {
         val secondaryAction = configuration.paymentConfirmation.cancelButton?.toActionState(
             id = secondaryAction.id,
             enabled = secondaryAction.enabled
@@ -157,7 +157,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                     )
                 }
             }
-            NativeAlternativePaymentViewModelState.Capture(
+            NativeAlternativePaymentViewModelState.Pending(
                 title = paymentProviderName,
                 logoUrl = logoUrl,
                 image = customerAction?.barcode?.let { Image.Bitmap(it.bitmap) }
@@ -179,13 +179,13 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 },
                 confirmationDialog = confirmationDialog(),
                 withProgressIndicator = withProgressIndicator,
-                isCaptured = false
+                isSuccess = false
             )
         }
     }
 
-    private fun Captured.map() = with(value) {
-        NativeAlternativePaymentViewModelState.Capture(
+    private fun Completed.map() = with(value) {
+        NativeAlternativePaymentViewModelState.Pending(
             title = paymentProviderName,
             logoUrl = logoUrl,
             image = null,
@@ -195,7 +195,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
             saveBarcodeAction = null,
             confirmationDialog = null,
             withProgressIndicator = false,
-            isCaptured = true
+            isSuccess = true
         )
     }
 
@@ -491,7 +491,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
         }
     )
 
-    private fun CaptureStateValue.confirmationDialog(): ConfirmationDialogState? =
+    private fun PendingStateValue.confirmationDialog(): ConfirmationDialogState? =
         customerAction?.barcode?.let { barcode ->
             if (barcode.isError) {
                 configuration.barcode.saveErrorConfirmation?.let {

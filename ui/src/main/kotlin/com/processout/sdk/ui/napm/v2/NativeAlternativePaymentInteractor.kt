@@ -164,7 +164,7 @@ internal class NativeAlternativePaymentInteractor(
         invoicesService.authorize(request)
             .onSuccess { response ->
                 handlePaymentState(
-                    stateValue = initUserInputStateValue(
+                    stateValue = initNextStepStateValue(
                         paymentMethod = response.paymentMethod,
                         invoice = response.invoice
                     ),
@@ -186,7 +186,7 @@ internal class NativeAlternativePaymentInteractor(
         customerTokensService.tokenize(request)
             .onSuccess { response ->
                 handlePaymentState(
-                    stateValue = initUserInputStateValue(
+                    stateValue = initNextStepStateValue(
                         paymentMethod = response.paymentMethod,
                         invoice = null
                     ),
@@ -200,15 +200,15 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private suspend fun handlePaymentState(
-        stateValue: UserInputStateValue,
+        stateValue: NextStepStateValue,
         paymentState: PONativeAlternativePaymentState,
         elements: List<PONativeAlternativePaymentElement>?
     ) {
         when (paymentState) {
             NEXT_STEP_REQUIRED -> handleNextStep(stateValue, elements)
-            PENDING -> handlePendingCapture(stateValue, elements)
-            SUCCESS -> handleCaptured(
-                stateValue.toCaptureStateValue(
+            PENDING -> handlePending(stateValue, elements)
+            SUCCESS -> handleSuccess(
+                stateValue.toPendingStateValue(
                     instructions = null // TODO(v2)
                 )
             )
@@ -217,7 +217,7 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private fun handleNextStep(
-        stateValue: UserInputStateValue,
+        stateValue: NextStepStateValue,
         elements: List<PONativeAlternativePaymentElement>?
     ) {
         val parameters = elements?.flatMap {
@@ -226,10 +226,10 @@ internal class NativeAlternativePaymentInteractor(
         handleFormParameters(stateValue, parameters)
     }
 
-    private fun initUserInputStateValue(
+    private fun initNextStepStateValue(
         paymentMethod: PONativeAlternativePaymentMethodDetails,
         invoice: Invoice?,
-    ) = UserInputStateValue(
+    ) = NextStepStateValue(
         paymentMethod = paymentMethod,
         invoice = invoice,
         fields = emptyList(),
@@ -243,10 +243,10 @@ internal class NativeAlternativePaymentInteractor(
         submitting = false
     )
 
-    private fun UserInputStateValue.toCaptureStateValue(
+    private fun NextStepStateValue.toPendingStateValue(
         instructions: List<PONativeAlternativePaymentCustomerInstruction>?,
         barcode: Barcode? = null
-    ) = CaptureStateValue(
+    ) = PendingStateValue(
 //        paymentProviderName = parameterValues?.providerName,
         paymentProviderName = null, // TODO(v2): resolve from payment method details
 //        logoUrl = logoUrl(gateway, parameterValues),
@@ -273,7 +273,7 @@ internal class NativeAlternativePaymentInteractor(
         return null // TODO(v2): resolve from instructions and payment method details
     }
 
-    private fun UserInputStateValue.customerAction(
+    private fun NextStepStateValue.customerAction(
         instructions: List<PONativeAlternativePaymentCustomerInstruction>?,
         barcode: Barcode? = null
     ): CustomerAction? {
@@ -292,7 +292,7 @@ internal class NativeAlternativePaymentInteractor(
     //region User Input
 
     private fun handleFormParameters(
-        stateValue: UserInputStateValue,
+        stateValue: NextStepStateValue,
         parameters: List<Parameter>
     ) {
         if (parameters.isEmpty()) {
@@ -365,16 +365,16 @@ internal class NativeAlternativePaymentInteractor(
             }
         }?.id
 
-    private fun startUserInput(stateValue: UserInputStateValue) {
-        _state.update { UserInput(stateValue) }
-        enableUserInputSecondaryAction()
+    private fun startNextStep(stateValue: NextStepStateValue) {
+        _state.update { NextStep(stateValue) }
+        enableNextStepSecondaryAction()
         POLogger.info("Started: waiting for payment parameters.")
         dispatch(DidStart)
     }
 
-    private fun continueUserInput(stateValue: UserInputStateValue) {
+    private fun continueNextStep(stateValue: NextStepStateValue) {
         _state.update {
-            UserInput(
+            NextStep(
                 stateValue.copy(
                     submitAllowed = true,
                     submitting = false
@@ -412,18 +412,18 @@ internal class NativeAlternativePaymentInteractor(
                 latestDefaultValuesRequest = null
                 POLogger.debug("Collected default values for payment parameters: %s", response)
                 _state.whenLoaded { stateValue ->
-                    startUserInput(stateValue.updateFieldValues(response.defaultValues))
+                    startNextStep(stateValue.updateFieldValues(response.defaultValues))
                 }
                 _state.whenSubmitted { stateValue ->
-                    continueUserInput(stateValue.updateFieldValues(response.defaultValues))
+                    continueNextStep(stateValue.updateFieldValues(response.defaultValues))
                 }
             }
         }
     }
 
-    private fun UserInputStateValue.updateFieldValues(
+    private fun NextStepStateValue.updateFieldValues(
         values: Map<String, PONativeAlternativePaymentParameterValue>
-    ): UserInputStateValue {
+    ): NextStepStateValue {
         val updatedFields = fields.map { field ->
             values.entries.find { it.key == field.id }?.let { entry ->
                 when (val value = entry.value.value) {
@@ -493,7 +493,7 @@ internal class NativeAlternativePaymentInteractor(
     //region Update Field
 
     private fun updateFieldValue(id: String, value: FieldValue) {
-        _state.whenUserInput { stateValue ->
+        _state.whenNextStep { stateValue ->
             val previousValue = stateValue.fields.find { it.id == id }?.value ?: FieldValue.Text()
             val isTextChanged = !value.isTextEquals(previousValue)
             val updatedStateValue = stateValue.copy(
@@ -501,14 +501,14 @@ internal class NativeAlternativePaymentInteractor(
                     updatedField(id, value, field, isTextChanged)
                 }
             )
-            _state.update { UserInput(updatedStateValue) }
+            _state.update { NextStep(updatedStateValue) }
             if (isTextChanged) {
                 POLogger.debug("Field is edited by the user: %s", id)
                 updatedStateValue.fields.find { it.id == id }?.let {
                     dispatch(ParametersChanged(it.parameter))
                 }
                 if (updatedStateValue.areAllFieldsValid()) {
-                    _state.update { UserInput(updatedStateValue.copy(submitAllowed = true)) }
+                    _state.update { NextStep(updatedStateValue.copy(submitAllowed = true)) }
                 }
             }
         }
@@ -532,9 +532,9 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun updateFieldFocus(id: String, isFocused: Boolean) {
         if (isFocused) {
-            _state.whenUserInput { stateValue ->
+            _state.whenNextStep { stateValue ->
                 _state.update {
-                    UserInput(stateValue.copy(focusedFieldId = id))
+                    NextStep(stateValue.copy(focusedFieldId = id))
                 }
             }
         }
@@ -545,7 +545,7 @@ internal class NativeAlternativePaymentInteractor(
     //region Submit & Validation
 
     private fun submit() {
-        _state.whenUserInput { stateValue ->
+        _state.whenNextStep { stateValue ->
             POLogger.info("Will submit payment parameters.")
             dispatch(WillSubmitParameters(parameters = stateValue.fields.map { it.parameter }))
             val invalidFields = stateValue.fields.mapNotNull { it.validate() }
@@ -559,10 +559,10 @@ internal class NativeAlternativePaymentInteractor(
                     failure = failure,
                     replaceWithLocalMessage = false
                 )
-                return@whenUserInput
+                return@whenNextStep
             }
             _state.update {
-                UserInput(
+                NextStep(
                     stateValue.copy(
                         submitAllowed = true,
                         submitting = true
@@ -635,10 +635,10 @@ internal class NativeAlternativePaymentInteractor(
         message = app.getString(messageResId)
     )
 
-    private fun UserInputStateValue.areAllFieldsValid() = fields.all { it.isValid }
+    private fun NextStepStateValue.areAllFieldsValid() = fields.all { it.isValid }
 
     private fun authorize(flow: Authorization) {
-        _state.whenUserInput { stateValue ->
+        _state.whenNextStep { stateValue ->
             interactorScope.launch {
                 val request = PONativeAlternativePaymentAuthorizationRequest(
                     invoiceId = flow.invoiceId,
@@ -665,7 +665,7 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private fun tokenize(flow: Tokenization) {
-        _state.whenUserInput { stateValue ->
+        _state.whenNextStep { stateValue ->
             interactorScope.launch {
                 val request = PONativeAlternativePaymentTokenizationRequest(
                     customerId = flow.customerId,
@@ -719,12 +719,12 @@ internal class NativeAlternativePaymentInteractor(
         failure: ProcessOutResult.Failure,
         replaceWithLocalMessage: Boolean // TODO(v2): Delete this when backend localization is ready.
     ) {
-        _state.whenUserInput { stateValue ->
+        _state.whenNextStep { stateValue ->
             val invalidFields = failure.invalidFields
             if (invalidFields.isNullOrEmpty()) {
                 POLogger.info("Unrecoverable payment failure: %s", failure)
                 _completion.update { Failure(failure) }
-                return@whenUserInput
+                return@whenNextStep
             }
             val updatedFields = stateValue.fields.map { field ->
                 invalidFields.find { it.name == field.id }?.let { invalidField ->
@@ -739,7 +739,7 @@ internal class NativeAlternativePaymentInteractor(
             }
             val firstInvalidFieldId = updatedFields.find { !it.isValid }?.id
             _state.update {
-                UserInput(
+                NextStep(
                     stateValue.copy(
                         fields = updatedFields,
                         focusedFieldId = firstInvalidFieldId ?: stateValue.focusedFieldId,
@@ -779,8 +779,8 @@ internal class NativeAlternativePaymentInteractor(
 
     //region Capture
 
-    private suspend fun handlePendingCapture(
-        stateValue: UserInputStateValue,
+    private suspend fun handlePending(
+        stateValue: NextStepStateValue,
         elements: List<PONativeAlternativePaymentElement>?
     ) {
         POLogger.info("All payment parameters has been submitted.")
@@ -812,23 +812,23 @@ internal class NativeAlternativePaymentInteractor(
                 }
             )
         }
-        val captureStateValue = stateValue.toCaptureStateValue(instructions, barcode)
-        preloadAllImages(stateValue = captureStateValue)
+        val pendingStateValue = stateValue.toPendingStateValue(instructions, barcode)
+        preloadAllImages(stateValue = pendingStateValue)
         POLogger.info("Waiting for capture confirmation.")
-        val additionalActionExpected = !captureStateValue.customerAction?.message.isNullOrBlank()
+        val additionalActionExpected = !pendingStateValue.customerAction?.message.isNullOrBlank()
         dispatch(WillWaitForCaptureConfirmation(additionalActionExpected = additionalActionExpected))
-        _state.update { Capturing(captureStateValue) }
-        enableCapturingSecondaryAction()
+        _state.update { Pending(pendingStateValue) }
+        enablePendingSecondaryAction()
         if (!additionalActionExpected || configuration.paymentConfirmation.confirmButton == null) {
             capture()
         }
     }
 
     private fun confirmPayment() {
-        _state.whenCapturing { stateValue ->
+        _state.whenPending { stateValue ->
             POLogger.info("User confirmed that required external action is complete.")
             dispatch(DidConfirmPayment)
-            _state.update { Capturing(stateValue.copy(primaryActionId = null)) }
+            _state.update { Pending(stateValue.copy(primaryActionId = null)) }
             capture()
         }
     }
@@ -838,7 +838,7 @@ internal class NativeAlternativePaymentInteractor(
             return
         }
         captureStartTimestamp = System.currentTimeMillis()
-        enableCapturingProgressIndicator()
+        enablePendingProgressIndicator()
         interactorScope.launch {
             val iterator = captureRetryStrategy.iterator
             while (capturePassedTimestamp <= configuration.paymentConfirmation.timeoutSeconds * 1000) {
@@ -865,8 +865,8 @@ internal class NativeAlternativePaymentInteractor(
                     captureStartTimestamp = 0L
                     capturePassedTimestamp = 0L
                     result.onSuccess {
-                        _state.whenCapturing { stateValue ->
-                            handleCaptured(stateValue)
+                        _state.whenPending { stateValue ->
+                            handleSuccess(stateValue)
                         }
                     }.onFailure { failure ->
                         _completion.update { Failure(failure) }
@@ -929,13 +929,13 @@ internal class NativeAlternativePaymentInteractor(
         }
     )
 
-    private fun handleCaptured(stateValue: CaptureStateValue) {
+    private fun handleSuccess(stateValue: PendingStateValue) {
         POLogger.info("Success: capture confirmed.")
         dispatch(DidCompletePayment)
         if (configuration.skipSuccessScreen) {
             _completion.update { Success }
         } else {
-            _state.update { Captured(stateValue) }
+            _state.update { Completed(stateValue) }
             handler.postDelayed(delayInMillis = SUCCESS_DELAY_MS) {
                 _completion.update { Success }
             }
@@ -946,7 +946,7 @@ internal class NativeAlternativePaymentInteractor(
 
     //region Images
 
-    private suspend fun preloadAllImages(stateValue: CaptureStateValue) {
+    private suspend fun preloadAllImages(stateValue: PendingStateValue) {
         coroutineScope {
             val deferredResults = mutableListOf<Deferred<ImageResult>>()
             stateValue.logoUrl?.let {
@@ -975,35 +975,35 @@ internal class NativeAlternativePaymentInteractor(
     private val CancelButton?.disabledForMillis: Long
         get() = this?.disabledForSeconds?.let { it * 1000L } ?: 0
 
-    private fun enableUserInputSecondaryAction() {
+    private fun enableNextStepSecondaryAction() {
         handler.postDelayed(delayInMillis = configuration.cancelButton.disabledForMillis) {
-            _state.whenUserInput { stateValue ->
+            _state.whenNextStep { stateValue ->
                 _state.update {
                     with(stateValue) {
-                        UserInput(copy(secondaryAction = secondaryAction.copy(enabled = true)))
+                        NextStep(copy(secondaryAction = secondaryAction.copy(enabled = true)))
                     }
                 }
             }
         }
     }
 
-    private fun enableCapturingSecondaryAction() {
+    private fun enablePendingSecondaryAction() {
         handler.postDelayed(delayInMillis = configuration.paymentConfirmation.cancelButton.disabledForMillis) {
-            _state.whenCapturing { stateValue ->
+            _state.whenPending { stateValue ->
                 _state.update {
                     with(stateValue) {
-                        Capturing(copy(secondaryAction = secondaryAction.copy(enabled = true)))
+                        Pending(copy(secondaryAction = secondaryAction.copy(enabled = true)))
                     }
                 }
             }
         }
     }
 
-    private fun enableCapturingProgressIndicator() {
+    private fun enablePendingProgressIndicator() {
         configuration.paymentConfirmation.showProgressIndicatorAfterSeconds?.let { afterSeconds ->
             handler.postDelayed(delayInMillis = afterSeconds * 1000L) {
-                _state.whenCapturing { stateValue ->
-                    _state.update { Capturing(stateValue.copy(withProgressIndicator = true)) }
+                _state.whenPending { stateValue ->
+                    _state.update { Pending(stateValue.copy(withProgressIndicator = true)) }
                 }
             }
         }
@@ -1014,7 +1014,7 @@ internal class NativeAlternativePaymentInteractor(
     //region Save Barcode
 
     private fun saveBarcode() {
-        _state.whenCapturing { stateValue ->
+        _state.whenPending { stateValue ->
             stateValue.customerAction?.barcode?.run {
                 interactorScope.launch {
                     when (Build.VERSION.SDK_INT) {
@@ -1035,7 +1035,7 @@ internal class NativeAlternativePaymentInteractor(
         when (result.permission) {
             Manifest.permission.WRITE_EXTERNAL_STORAGE ->
                 if (result.isGranted) {
-                    _state.whenCapturing { stateValue ->
+                    _state.whenPending { stateValue ->
                         stateValue.customerAction?.barcode?.run {
                             interactorScope.launch {
                                 mediaStorageProvider
@@ -1051,7 +1051,7 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private fun updateBarcodeState(isError: Boolean) =
-        _state.whenCapturing { stateValue ->
+        _state.whenPending { stateValue ->
             val updatedStateValue = with(stateValue) {
                 copy(
                     customerAction = customerAction?.copy(
@@ -1061,7 +1061,7 @@ internal class NativeAlternativePaymentInteractor(
                     )
                 )
             }
-            _state.update { Capturing(updatedStateValue) }
+            _state.update { Pending(updatedStateValue) }
         }
 
     //endregion

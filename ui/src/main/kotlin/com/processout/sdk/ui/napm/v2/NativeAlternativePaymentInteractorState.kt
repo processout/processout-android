@@ -19,28 +19,28 @@ internal sealed interface NativeAlternativePaymentInteractorState {
     data object Loading : NativeAlternativePaymentInteractorState
 
     data class Loaded(
-        val value: UserInputStateValue
+        val value: NextStepStateValue
     ) : NativeAlternativePaymentInteractorState
 
-    data class UserInput(
-        val value: UserInputStateValue
+    data class NextStep(
+        val value: NextStepStateValue
     ) : NativeAlternativePaymentInteractorState
 
     data class Submitted(
-        val value: UserInputStateValue
+        val value: NextStepStateValue
     ) : NativeAlternativePaymentInteractorState
 
-    data class Capturing(
-        val value: CaptureStateValue
+    data class Pending(
+        val value: PendingStateValue
     ) : NativeAlternativePaymentInteractorState
 
-    data class Captured(
-        val value: CaptureStateValue
+    data class Completed(
+        val value: PendingStateValue
     ) : NativeAlternativePaymentInteractorState
 
     //endregion
 
-    data class UserInputStateValue(
+    data class NextStepStateValue(
         val paymentMethod: PONativeAlternativePaymentMethodDetails,
         val invoice: Invoice?,
         val fields: List<Field>,
@@ -51,7 +51,7 @@ internal sealed interface NativeAlternativePaymentInteractorState {
         val submitting: Boolean
     )
 
-    data class CaptureStateValue(
+    data class PendingStateValue(
         val paymentProviderName: String?,
         val logoUrl: String?,
         val customerAction: CustomerAction?,
@@ -123,7 +123,7 @@ internal sealed interface NativeAlternativePaymentInteractorState {
 }
 
 internal inline fun MutableStateFlow<NativeAlternativePaymentInteractorState>.whenLoaded(
-    crossinline block: (stateValue: UserInputStateValue) -> Unit
+    crossinline block: (stateValue: NextStepStateValue) -> Unit
 ) {
     val state = value
     if (state is Loaded) {
@@ -131,17 +131,17 @@ internal inline fun MutableStateFlow<NativeAlternativePaymentInteractorState>.wh
     }
 }
 
-internal inline fun MutableStateFlow<NativeAlternativePaymentInteractorState>.whenUserInput(
-    crossinline block: (stateValue: UserInputStateValue) -> Unit
+internal inline fun MutableStateFlow<NativeAlternativePaymentInteractorState>.whenNextStep(
+    crossinline block: (stateValue: NextStepStateValue) -> Unit
 ) {
     val state = value
-    if (state is UserInput) {
+    if (state is NextStep) {
         block(state.value)
     }
 }
 
 internal inline fun MutableStateFlow<NativeAlternativePaymentInteractorState>.whenSubmitted(
-    crossinline block: (stateValue: UserInputStateValue) -> Unit
+    crossinline block: (stateValue: NextStepStateValue) -> Unit
 ) {
     val state = value
     if (state is Submitted) {
@@ -149,11 +149,11 @@ internal inline fun MutableStateFlow<NativeAlternativePaymentInteractorState>.wh
     }
 }
 
-internal inline fun MutableStateFlow<NativeAlternativePaymentInteractorState>.whenCapturing(
-    crossinline block: (stateValue: CaptureStateValue) -> Unit
+internal inline fun MutableStateFlow<NativeAlternativePaymentInteractorState>.whenPending(
+    crossinline block: (stateValue: PendingStateValue) -> Unit
 ) {
     val state = value
-    if (state is Capturing) {
+    if (state is Pending) {
         block(state.value)
     }
 }
