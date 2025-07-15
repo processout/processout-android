@@ -198,23 +198,26 @@ internal class NativeAlternativePaymentInteractor(
             }
     }
 
-    private fun initNextStepStateValue(
+    private suspend fun initNextStepStateValue(
         paymentMethod: PONativeAlternativePaymentMethodDetails,
         invoice: Invoice?,
-    ) = NextStepStateValue(
-        paymentMethod = paymentMethod,
-        invoice = invoice,
-        elements = emptyList(),
-        fields = emptyList(),
-        focusedFieldId = null,
-        primaryActionId = ActionId.SUBMIT,
-        secondaryAction = NativeAlternativePaymentInteractorState.Action(
-            id = ActionId.CANCEL,
-            enabled = false
-        ),
-        submitAllowed = true,
-        submitting = false
-    )
+    ): NextStepStateValue {
+        preloadImages(resources = listOf(paymentMethod.logo))
+        return NextStepStateValue(
+            paymentMethod = paymentMethod,
+            invoice = invoice,
+            elements = emptyList(),
+            fields = emptyList(),
+            focusedFieldId = null,
+            primaryActionId = ActionId.SUBMIT,
+            secondaryAction = NativeAlternativePaymentInteractorState.Action(
+                id = ActionId.CANCEL,
+                enabled = false
+            ),
+            submitAllowed = true,
+            submitting = false
+        )
+    }
 
     private suspend fun handlePaymentState(
         stateValue: NextStepStateValue,
@@ -222,7 +225,7 @@ internal class NativeAlternativePaymentInteractor(
         elements: List<PONativeAlternativePaymentElement>?
     ) {
         val mappedElements = elements?.map() ?: emptyList()
-        // TODO(v2): preload elements images
+        preloadImages(resources = mappedElements.images())
         when (paymentState) {
             NEXT_STEP_REQUIRED -> handleNextStep(stateValue, mappedElements)
             PENDING -> handlePending(stateValue, mappedElements)
@@ -956,6 +959,23 @@ internal class NativeAlternativePaymentInteractor(
         darkUrl?.raster?.let { urls.add(it) }
         return urls
     }
+
+    private fun List<Element>.images(): List<POImageResource> =
+        flatMap { element ->
+            when (element) {
+                is Element.Instruction -> when (element.instruction) {
+                    is Instruction.Image -> listOf(element.instruction.value)
+                    else -> emptyList()
+                }
+                is Element.InstructionGroup -> element.instructions.mapNotNull { instruction ->
+                    when (instruction) {
+                        is Instruction.Image -> instruction.value
+                        else -> null
+                    }
+                }
+                else -> emptyList()
+            }
+        }
 
     //endregion
 
