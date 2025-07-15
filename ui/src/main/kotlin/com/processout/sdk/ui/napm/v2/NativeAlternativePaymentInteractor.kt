@@ -22,6 +22,7 @@ import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSu
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter.Companion.phoneNumber
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter.Companion.string
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentTokenizationRequest
+import com.processout.sdk.api.model.response.POImageResource
 import com.processout.sdk.api.model.response.napm.v2.*
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.Invoice
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter
@@ -62,14 +63,12 @@ import com.processout.sdk.ui.shared.extension.dpToPx
 import com.processout.sdk.ui.shared.provider.BarcodeBitmapProvider
 import com.processout.sdk.ui.shared.provider.MediaStorageProvider
 import com.processout.sdk.ui.shared.state.FieldValue
-import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
 internal class NativeAlternativePaymentInteractor(
     private val app: Application,
@@ -933,18 +932,14 @@ internal class NativeAlternativePaymentInteractor(
 
     //region Images
 
-    // TODO(v2): remove
-    private fun preloadAllImages(stateValue: PendingStateValue) {
-//        coroutineScope {
-//            val deferredResults = mutableListOf<Deferred<ImageResult>>()
-//            stateValue.logoUrl?.let {
-//                deferredResults.add(async { preloadImage(it) })
-//            }
-//            stateValue.customerAction?.imageUrl?.let {
-//                deferredResults.add(async { preloadImage(it) })
-//            }
-//            deferredResults.awaitAll()
-//        }
+    private suspend fun preloadImages(resources: List<POImageResource>) {
+        coroutineScope {
+            val urls = resources.flatMap { it.urls() }
+            val deferredResults = urls.map { url ->
+                async { preloadImage(url) }
+            }
+            deferredResults.awaitAll()
+        }
     }
 
     private suspend fun preloadImage(url: String): ImageResult {
@@ -954,6 +949,12 @@ internal class NativeAlternativePaymentInteractor(
             .diskCachePolicy(CachePolicy.DISABLED)
             .build()
         return app.imageLoader.execute(request)
+    }
+
+    private fun POImageResource.urls(): List<String> {
+        val urls = mutableListOf(lightUrl.raster)
+        darkUrl?.raster?.let { urls.add(it) }
+        return urls
     }
 
     //endregion
