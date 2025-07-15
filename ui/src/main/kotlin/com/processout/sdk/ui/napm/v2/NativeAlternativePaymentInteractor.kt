@@ -24,8 +24,6 @@ import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSu
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentTokenizationRequest
 import com.processout.sdk.api.model.response.napm.v2.*
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.Invoice
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.CustomerInstruction
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter.Otp.Subtype
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentState.*
@@ -64,12 +62,14 @@ import com.processout.sdk.ui.shared.extension.dpToPx
 import com.processout.sdk.ui.shared.provider.BarcodeBitmapProvider
 import com.processout.sdk.ui.shared.provider.MediaStorageProvider
 import com.processout.sdk.ui.shared.state.FieldValue
-import kotlinx.coroutines.*
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 internal class NativeAlternativePaymentInteractor(
     private val app: Application,
@@ -199,39 +199,13 @@ internal class NativeAlternativePaymentInteractor(
             }
     }
 
-    private suspend fun handlePaymentState(
-        stateValue: NextStepStateValue,
-        paymentState: PONativeAlternativePaymentState,
-        elements: List<PONativeAlternativePaymentElement>?
-    ) {
-        when (paymentState) {
-            NEXT_STEP_REQUIRED -> handleNextStep(stateValue, elements)
-            PENDING -> handlePending(stateValue, elements)
-            SUCCESS -> handleSuccess(
-                stateValue.toPendingStateValue(
-                    instructions = null // TODO(v2)
-                )
-            )
-            UNKNOWN -> TODO(reason = "v2")
-        }
-    }
-
-    private fun handleNextStep(
-        stateValue: NextStepStateValue,
-        elements: List<PONativeAlternativePaymentElement>?
-    ) {
-        val parameters = elements?.flatMap {
-            if (it is Form) it.parameterDefinitions else emptyList()
-        } ?: emptyList()
-        handleFormParameters(stateValue, parameters)
-    }
-
     private fun initNextStepStateValue(
         paymentMethod: PONativeAlternativePaymentMethodDetails,
         invoice: Invoice?,
     ) = NextStepStateValue(
         paymentMethod = paymentMethod,
         invoice = invoice,
+        elements = emptyList(),
         fields = emptyList(),
         focusedFieldId = null,
         primaryActionId = ActionId.SUBMIT,
@@ -243,58 +217,43 @@ internal class NativeAlternativePaymentInteractor(
         submitting = false
     )
 
+    private suspend fun handlePaymentState(
+        stateValue: NextStepStateValue,
+        paymentState: PONativeAlternativePaymentState,
+        elements: List<PONativeAlternativePaymentElement>?
+    ) {
+        val mappedElements = elements?.map() ?: emptyList()
+        // TODO(v2): preload elements images
+        when (paymentState) {
+            NEXT_STEP_REQUIRED -> handleNextStep(stateValue, mappedElements)
+            PENDING -> handlePending(stateValue, mappedElements)
+            SUCCESS -> handleSuccess(stateValue.toPendingStateValue(mappedElements))
+            UNKNOWN -> TODO(reason = "v2")
+        }
+    }
+
     private fun NextStepStateValue.toPendingStateValue(
-        instructions: List<PONativeAlternativePaymentCustomerInstruction>?,
-        barcode: Barcode? = null
+        elements: List<Element>
     ) = PendingStateValue(
-//        paymentProviderName = parameterValues?.providerName,
-        paymentProviderName = null, // TODO(v2): resolve from payment method details
-//        logoUrl = logoUrl(gateway, parameterValues),
-        logoUrl = null, // TODO(v2): resolve from payment method details
-        customerAction = customerAction(instructions, barcode),
+        paymentMethod = paymentMethod,
+        invoice = invoice,
+        elements = elements,
         primaryActionId = ActionId.CONFIRM_PAYMENT,
         secondaryAction = NativeAlternativePaymentInteractorState.Action(
             id = ActionId.CANCEL,
             enabled = false
-        ),
-        withProgressIndicator = false
+        )
     )
 
-    private fun logoUrl(
-        instructions: List<PONativeAlternativePaymentCustomerInstruction>?
-    ): String? {
-//        if (parameterValues?.providerName != null) {
-//            return parameterValues.providerLogoUrl
-//        }
-//        if (configuration.paymentConfirmation.hideGatewayDetails) {
-//            return null
-//        }
-//        return gateway.logoUrl
-        return null // TODO(v2): resolve from instructions and payment method details
-    }
+    //region Next Step
 
-    private fun NextStepStateValue.customerAction(
-        instructions: List<PONativeAlternativePaymentCustomerInstruction>?,
-        barcode: Barcode? = null
-    ): CustomerAction? {
-//        val message = parameterValues?.customerActionMessage
-//            ?: gateway.customerActionMessage?.let { escapedMarkdown(it) }
-//        return message?.let {
-//            CustomerAction(
-//                message = it,
-//                imageUrl = gateway.customerActionImageUrl,
-//                barcode = barcode
-//            )
-//        }
-        return null // TODO(v2): resolve from instructions and payment method details
-    }
-
-    //region User Input
-
-    private fun handleFormParameters(
+    private fun handleNextStep(
         stateValue: NextStepStateValue,
-        parameters: List<Parameter>
+        elements: List<Element>
     ) {
+        val parameters = elements.flatMap {
+            if (it is Element.Form) it.value.parameterDefinitions else emptyList()
+        }
         if (parameters.isEmpty()) {
             POLogger.warn(
                 message = "Parameters is empty in response.",
@@ -306,6 +265,7 @@ internal class NativeAlternativePaymentInteractor(
         }
         val fields = parameters.toFields()
         val updatedStateValue = stateValue.copy(
+            elements = elements,
             fields = fields,
             focusedFieldId = fields.firstFocusableFieldId()
         )
@@ -318,6 +278,63 @@ internal class NativeAlternativePaymentInteractor(
         }
         requestDefaultValues(parameters)
     }
+
+    private suspend fun List<PONativeAlternativePaymentElement>.map(): List<Element> =
+        mapNotNull { element ->
+            when (element) {
+                is PONativeAlternativePaymentElement.Form ->
+                    Element.Form(value = element)
+                is PONativeAlternativePaymentElement.CustomerInstruction ->
+                    element.instruction.map()?.let {
+                        Element.Instruction(value = it)
+                    }
+                is PONativeAlternativePaymentElement.CustomerInstructionGroup ->
+                    Element.InstructionGroup(
+                        label = element.label,
+                        instructions = element.instructions.mapNotNull { it.map() }
+                    )
+                PONativeAlternativePaymentElement.Unknown -> {
+                    // TODO(v2)
+                    null
+                }
+            }
+        }
+
+    private suspend fun PONativeAlternativePaymentCustomerInstruction.map(): Instruction? =
+        when (this) {
+            is PONativeAlternativePaymentCustomerInstruction.Message ->
+                Instruction.Message(
+                    label = label,
+                    value = value
+                )
+            is PONativeAlternativePaymentCustomerInstruction.Image ->
+                Instruction.Image(value = value)
+            is PONativeAlternativePaymentCustomerInstruction.Barcode -> {
+                val size = 250.dpToPx(app)
+                barcodeBitmapProvider.generate(
+                    barcode = value,
+                    width = size,
+                    height = size
+                ).fold(
+                    onSuccess = { bitmap ->
+                        Instruction.Barcode(
+                            type = value.type(),
+                            bitmap = bitmap,
+                            actionId = ActionId.SAVE_BARCODE,
+                            confirmErrorActionId = ActionId.CONFIRM_SAVE_BARCODE_ERROR
+                        )
+                    },
+                    onFailure = { failure ->
+                        _completion.update { Failure(failure) }
+                        null
+                    }
+                )
+            }
+            PONativeAlternativePaymentCustomerInstruction.Unknown -> {
+                // TODO(v2)
+                null
+            }
+        }
 
     private fun failWithUnknownParameter(
         parameters: List<Parameter>
@@ -779,47 +796,18 @@ internal class NativeAlternativePaymentInteractor(
 
     //region Capture
 
-    private suspend fun handlePending(
+    private fun handlePending(
         stateValue: NextStepStateValue,
-        elements: List<PONativeAlternativePaymentElement>?
+        elements: List<Element>
     ) {
         POLogger.info("All payment parameters has been submitted.")
         dispatch(DidSubmitParameters(additionalParametersExpected = false))
-        val instructions = elements?.mapNotNull {
-            if (it is CustomerInstruction) it.instruction else null
-        }
-        val barcodeInstruction = instructions?.firstNotNullOfOrNull {
-            if (it is PONativeAlternativePaymentCustomerInstruction.Barcode) it else null
-        }
-        val barcode = barcodeInstruction?.value?.let { barcode ->
-            val size = 250.dpToPx(app)
-            barcodeBitmapProvider.generate(
-                barcode = barcode,
-                width = size,
-                height = size
-            ).fold(
-                onSuccess = { bitmap ->
-                    Barcode(
-                        type = barcode.type(),
-                        bitmap = bitmap,
-                        actionId = ActionId.SAVE_BARCODE,
-                        confirmErrorActionId = ActionId.CONFIRM_SAVE_BARCODE_ERROR
-                    )
-                },
-                onFailure = { failure ->
-                    _completion.update { Failure(failure) }
-                    return
-                }
-            )
-        }
-        val pendingStateValue = stateValue.toPendingStateValue(instructions, barcode)
-        preloadAllImages(stateValue = pendingStateValue)
         POLogger.info("Waiting for capture confirmation.")
-        val additionalActionExpected = !pendingStateValue.customerAction?.message.isNullOrBlank()
-        dispatch(WillWaitForCaptureConfirmation(additionalActionExpected = additionalActionExpected))
+        dispatch(WillWaitForCaptureConfirmation(additionalActionExpected = false)) // TODO(v2): remove param, update events
+        val pendingStateValue = stateValue.toPendingStateValue(elements)
         _state.update { Pending(pendingStateValue) }
         enablePendingSecondaryAction()
-        if (!additionalActionExpected || configuration.paymentConfirmation.confirmButton == null) {
+        if (configuration.paymentConfirmation.confirmButton == null) {
             capture()
         }
     }
@@ -838,7 +826,6 @@ internal class NativeAlternativePaymentInteractor(
             return
         }
         captureStartTimestamp = System.currentTimeMillis()
-        enablePendingProgressIndicator()
         interactorScope.launch {
             val iterator = captureRetryStrategy.iterator
             while (capturePassedTimestamp <= configuration.paymentConfirmation.timeoutSeconds * 1000) {
@@ -946,17 +933,18 @@ internal class NativeAlternativePaymentInteractor(
 
     //region Images
 
-    private suspend fun preloadAllImages(stateValue: PendingStateValue) {
-        coroutineScope {
-            val deferredResults = mutableListOf<Deferred<ImageResult>>()
-            stateValue.logoUrl?.let {
-                deferredResults.add(async { preloadImage(it) })
-            }
-            stateValue.customerAction?.imageUrl?.let {
-                deferredResults.add(async { preloadImage(it) })
-            }
-            deferredResults.awaitAll()
-        }
+    // TODO(v2): remove
+    private fun preloadAllImages(stateValue: PendingStateValue) {
+//        coroutineScope {
+//            val deferredResults = mutableListOf<Deferred<ImageResult>>()
+//            stateValue.logoUrl?.let {
+//                deferredResults.add(async { preloadImage(it) })
+//            }
+//            stateValue.customerAction?.imageUrl?.let {
+//                deferredResults.add(async { preloadImage(it) })
+//            }
+//            deferredResults.awaitAll()
+//        }
     }
 
     private suspend fun preloadImage(url: String): ImageResult {
@@ -999,48 +987,82 @@ internal class NativeAlternativePaymentInteractor(
         }
     }
 
-    private fun enablePendingProgressIndicator() {
-        configuration.paymentConfirmation.showProgressIndicatorAfterSeconds?.let { afterSeconds ->
-            handler.postDelayed(delayInMillis = afterSeconds * 1000L) {
-                _state.whenPending { stateValue ->
-                    _state.update { Pending(stateValue.copy(withProgressIndicator = true)) }
-                }
-            }
-        }
-    }
-
     //endregion
 
     //region Save Barcode
 
+    // TODO(v2): use barcode ID, also inspect instructions group
     private fun saveBarcode() {
+        _state.whenNextStep { stateValue ->
+            val instructions = stateValue.elements.mapNotNull {
+                if (it is Element.Instruction) it else null
+            }
+            instructions.forEach {
+                if (it.value is Instruction.Barcode) {
+                    saveBarcode(barcode = it.value)
+                    return@whenNextStep
+                }
+            }
+        }
         _state.whenPending { stateValue ->
-            stateValue.customerAction?.barcode?.run {
-                interactorScope.launch {
-                    when (Build.VERSION.SDK_INT) {
-                        in Build.VERSION_CODES.M..Build.VERSION_CODES.P ->
-                            _sideEffects.send(
-                                PermissionRequest(permission = Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                            )
-                        else -> mediaStorageProvider
-                            .saveImage(bitmap)
-                            .onFailure { updateBarcodeState(isError = true) }
-                    }
+            val instructions = stateValue.elements.mapNotNull {
+                if (it is Element.Instruction) it else null
+            }
+            instructions.forEach {
+                if (it.value is Instruction.Barcode) {
+                    saveBarcode(barcode = it.value)
+                    return@whenPending
                 }
             }
         }
     }
 
+    private fun saveBarcode(barcode: Instruction.Barcode) {
+        interactorScope.launch {
+            when (Build.VERSION.SDK_INT) {
+                in Build.VERSION_CODES.M..Build.VERSION_CODES.P ->
+                    _sideEffects.send(
+                        PermissionRequest(permission = Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    )
+                else -> mediaStorageProvider
+                    .saveImage(barcode.bitmap)
+                    .onFailure { updateBarcodeState(isError = true) }
+            }
+        }
+    }
+
+    // TODO(v2): use barcode ID, also inspect instructions group
     private fun handlePermission(result: PermissionRequestResult) {
         when (result.permission) {
             Manifest.permission.WRITE_EXTERNAL_STORAGE ->
                 if (result.isGranted) {
+                    _state.whenNextStep { stateValue ->
+                        val instructions = stateValue.elements.mapNotNull {
+                            if (it is Element.Instruction) it else null
+                        }
+                        instructions.forEach {
+                            if (it.value is Instruction.Barcode) {
+                                interactorScope.launch {
+                                    mediaStorageProvider
+                                        .saveImage(it.value.bitmap)
+                                        .onFailure { updateBarcodeState(isError = true) }
+                                }
+                                return@whenNextStep
+                            }
+                        }
+                    }
                     _state.whenPending { stateValue ->
-                        stateValue.customerAction?.barcode?.run {
-                            interactorScope.launch {
-                                mediaStorageProvider
-                                    .saveImage(bitmap)
-                                    .onFailure { updateBarcodeState(isError = true) }
+                        val instructions = stateValue.elements.mapNotNull {
+                            if (it is Element.Instruction) it else null
+                        }
+                        instructions.forEach {
+                            if (it.value is Instruction.Barcode) {
+                                interactorScope.launch {
+                                    mediaStorageProvider
+                                        .saveImage(it.value.bitmap)
+                                        .onFailure { updateBarcodeState(isError = true) }
+                                }
+                                return@whenPending
                             }
                         }
                     }
@@ -1050,18 +1072,37 @@ internal class NativeAlternativePaymentInteractor(
         }
     }
 
-    private fun updateBarcodeState(isError: Boolean) =
+    // TODO(v2): use barcode ID, also inspect instructions group
+    private fun updateBarcodeState(isError: Boolean) {
+        _state.whenNextStep { stateValue ->
+            val updatedStateValue = stateValue.copy(
+                elements = stateValue.elements.updateBarcodeState(isError)
+            )
+            _state.update { NextStep(updatedStateValue) }
+        }
         _state.whenPending { stateValue ->
-            val updatedStateValue = with(stateValue) {
-                copy(
-                    customerAction = customerAction?.copy(
-                        barcode = customerAction.barcode?.copy(
-                            isError = isError
-                        )
-                    )
-                )
-            }
+            val updatedStateValue = stateValue.copy(
+                elements = stateValue.elements.updateBarcodeState(isError)
+            )
             _state.update { Pending(updatedStateValue) }
+        }
+    }
+
+    private fun List<Element>.updateBarcodeState(isError: Boolean) =
+        map { element ->
+            when (element) {
+                is Element.Instruction -> {
+                    when (element.value) {
+                        is Instruction.Barcode -> Element.Instruction(
+                            value = element.value.copy(
+                                isError = isError
+                            )
+                        )
+                        else -> element
+                    }
+                }
+                else -> element
+            }
         }
 
     //endregion

@@ -2,12 +2,12 @@
 
 package com.processout.sdk.ui.napm.v2
 
-import android.view.Gravity
 import androidx.annotation.DrawableRes
-import androidx.compose.animation.*
-import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -27,12 +27,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
-import coil.compose.AsyncImage
 import com.processout.sdk.ui.R
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
@@ -54,14 +51,10 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.AnimationDurationMillis
-import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.CrossfadeAnimationDurationMillis
-import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.PendingImageHeight
-import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.PendingImageWidth
-import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.PendingLogoHeight
-import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.animatedBackgroundColor
-import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.messageGravity
+import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.ImageHeight
+import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.ImageWidth
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.*
-import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.Field.*
+import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.Element.*
 import com.processout.sdk.ui.shared.component.AndroidTextView
 import com.processout.sdk.ui.shared.component.rememberLifecycleEvent
 import com.processout.sdk.ui.shared.extension.dpToPx
@@ -81,11 +74,7 @@ internal fun NativeAlternativePaymentScreen(
         modifier = Modifier
             .nestedScroll(rememberNestedScrollInteropConnection())
             .clip(shape = ProcessOutTheme.shapes.topRoundedCornersLarge),
-        containerColor = animatedBackgroundColor(
-            state = state,
-            normalColor = style.normalBackgroundColor,
-            successColor = style.successBackgroundColor
-        ),
+        containerColor = style.normalBackgroundColor,
         topBar = {
             POHeader(
                 modifier = Modifier
@@ -93,7 +82,7 @@ internal fun NativeAlternativePaymentScreen(
                     .onGloballyPositioned {
                         topBarHeight = it.size.height
                     },
-                title = if (state is NextStep) state.title else null,
+                title = if (state is Loaded) state.title else null,
                 style = style.title,
                 dividerColor = style.dividerColor,
                 dragHandleColor = style.dragHandleColor,
@@ -112,7 +101,7 @@ internal fun NativeAlternativePaymentScreen(
             )
         }
     ) { scaffoldPadding ->
-        val verticalSpacing = ProcessOutTheme.spacing.extraLarge
+        val verticalSpacing = ProcessOutTheme.spacing.space20
         val verticalSpacingPx = verticalSpacing.dpToPx()
         Column(
             modifier = Modifier
@@ -121,23 +110,23 @@ internal fun NativeAlternativePaymentScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(
                     horizontal = ProcessOutTheme.spacing.extraLarge,
-                    vertical = if (state is Pending) 0.dp else verticalSpacing
+                    vertical = verticalSpacing
                 ),
             verticalArrangement = if (state is Loading) Arrangement.Center else Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             when (state) {
                 is Loading -> Loading(style.progressIndicatorColor)
-                is NextStep -> NextStep(
+                is Loaded -> Loaded(
+                    content = state.content,
+                    onEvent = onEvent,
+                    style = style,
+                    isPrimaryActionEnabled = state.primaryAction?.let { it.enabled && !it.loading } ?: false,
                     modifier = Modifier.onGloballyPositioned {
                         val contentHeight = it.size.height + topBarHeight + bottomBarHeight + verticalSpacingPx * 2
                         onContentHeightChanged(contentHeight)
-                    },
-                    state = state,
-                    onEvent = onEvent,
-                    style = style
+                    }
                 )
-                is Pending -> Pending(state, onEvent, style)
             }
         }
     }
@@ -151,76 +140,107 @@ private fun Loading(progressIndicatorColor: Color) {
 }
 
 @Composable
-private fun NextStep(
-    state: NextStep,
+private fun Loaded(
+    content: Content,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
     style: NativeAlternativePaymentScreen.Style,
+    isPrimaryActionEnabled: Boolean,
     modifier: Modifier = Modifier
 ) {
     AnimatedVisibility {
         Column(
             modifier = modifier,
-            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.extraLarge)
+            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.space16)
         ) {
-            val lifecycleEvent = rememberLifecycleEvent()
-            val isPrimaryActionEnabled = with(state.primaryAction) { enabled && !loading }
-            state.fields.elements.forEach { field ->
-                when (field) {
-                    is TextField -> TextField(
-                        state = field.state,
-                        onEvent = onEvent,
-                        lifecycleEvent = lifecycleEvent,
-                        focusedFieldId = state.focusedFieldId,
-                        isPrimaryActionEnabled = isPrimaryActionEnabled,
-                        fieldStyle = style.field,
-                        descriptionStyle = style.errorMessageBox,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    is CodeField -> CodeField(
-                        state = field.state,
-                        onEvent = onEvent,
-                        lifecycleEvent = lifecycleEvent,
-                        focusedFieldId = state.focusedFieldId,
-                        isPrimaryActionEnabled = isPrimaryActionEnabled,
-                        fieldStyle = style.codeField,
-                        descriptionStyle = style.errorMessageBox,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    is RadioField -> RadioField(
-                        state = field.state,
-                        onEvent = onEvent,
-                        fieldStyle = style.radioField,
-                        descriptionStyle = style.errorMessageBox,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    is DropdownField -> DropdownField(
-                        state = field.state,
-                        onEvent = onEvent,
-                        fieldStyle = style.field,
-                        menuStyle = style.dropdownMenu,
-                        descriptionStyle = style.errorMessageBox,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    is CheckboxField -> CheckboxField(
-                        state = field.state,
-                        onEvent = onEvent,
-                        checkboxStyle = style.checkbox,
-                        descriptionStyle = style.errorMessageBox,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    is PhoneNumberField -> PhoneNumberField(
-                        state = field.state,
-                        onEvent = onEvent,
-                        lifecycleEvent = lifecycleEvent,
-                        focusedFieldId = state.focusedFieldId,
-                        isPrimaryActionEnabled = isPrimaryActionEnabled,
-                        fieldStyle = style.field,
-                        dropdownMenuStyle = style.dropdownMenu,
-                        descriptionStyle = style.errorMessageBox,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
+            // TODO(v2)
+            Elements(
+                elements = when (content) {
+                    is Content.NextStep -> content.elements
+                    is Content.Pending -> content.elements
+                    is Content.Completed -> content.elements
+                },
+                onEvent = onEvent,
+                style = style,
+                focusedFieldId = if (content is Content.NextStep) content.focusedFieldId else null,
+                isPrimaryActionEnabled = isPrimaryActionEnabled
+            )
+        }
+    }
+}
+
+@Composable
+private fun Elements(
+    elements: POImmutableList<Element>,
+    onEvent: (NativeAlternativePaymentEvent) -> Unit,
+    style: NativeAlternativePaymentScreen.Style,
+    focusedFieldId: String?,
+    isPrimaryActionEnabled: Boolean
+) {
+    val lifecycleEvent = rememberLifecycleEvent()
+    elements.elements.forEach { element ->
+        when (element) {
+            is TextField -> TextField(
+                state = element.state,
+                onEvent = onEvent,
+                lifecycleEvent = lifecycleEvent,
+                focusedFieldId = focusedFieldId,
+                isPrimaryActionEnabled = isPrimaryActionEnabled,
+                fieldStyle = style.field,
+                descriptionStyle = style.errorMessageBox,
+                modifier = Modifier.fillMaxWidth()
+            )
+            is CodeField -> CodeField(
+                state = element.state,
+                onEvent = onEvent,
+                lifecycleEvent = lifecycleEvent,
+                focusedFieldId = focusedFieldId,
+                isPrimaryActionEnabled = isPrimaryActionEnabled,
+                fieldStyle = style.codeField,
+                descriptionStyle = style.errorMessageBox,
+                modifier = Modifier.fillMaxWidth()
+            )
+            is RadioField -> RadioField(
+                state = element.state,
+                onEvent = onEvent,
+                fieldStyle = style.radioField,
+                descriptionStyle = style.errorMessageBox,
+                modifier = Modifier.fillMaxWidth()
+            )
+            is DropdownField -> DropdownField(
+                state = element.state,
+                onEvent = onEvent,
+                fieldStyle = style.field,
+                menuStyle = style.dropdownMenu,
+                descriptionStyle = style.errorMessageBox,
+                modifier = Modifier.fillMaxWidth()
+            )
+            is CheckboxField -> CheckboxField(
+                state = element.state,
+                onEvent = onEvent,
+                checkboxStyle = style.checkbox,
+                descriptionStyle = style.errorMessageBox,
+                modifier = Modifier.fillMaxWidth()
+            )
+            is PhoneNumberField -> PhoneNumberField(
+                state = element.state,
+                onEvent = onEvent,
+                lifecycleEvent = lifecycleEvent,
+                focusedFieldId = focusedFieldId,
+                isPrimaryActionEnabled = isPrimaryActionEnabled,
+                fieldStyle = style.field,
+                dropdownMenuStyle = style.dropdownMenu,
+                descriptionStyle = style.errorMessageBox,
+                modifier = Modifier.fillMaxWidth()
+            )
+            is InstructionMessage -> {
+                // TODO(v2)
             }
+            is Image -> {
+                // TODO(v2)
+            }
+            is Barcode -> Barcode(
+                barcode = element
+            )
         }
     }
 }
@@ -481,164 +501,16 @@ private fun PhoneNumberField(
 }
 
 @Composable
-private fun Pending(
-    state: Pending,
-    onEvent: (NativeAlternativePaymentEvent) -> Unit,
-    style: NativeAlternativePaymentScreen.Style
+private fun Barcode(
+    barcode: Barcode
 ) {
-    AnimatedVisibility(enterDelayMillis = AnimationDurationMillis) {
-        Column(
-            modifier = Modifier.padding(
-                top = ProcessOutTheme.spacing.large,
-                bottom = ProcessOutTheme.spacing.extraLarge
-            ),
-            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.extraLarge),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            PendingHeader(state, style)
-            Crossfade(
-                targetState = state.isSuccess,
-                animationSpec = tween(
-                    durationMillis = CrossfadeAnimationDurationMillis,
-                    easing = LinearEasing
-                )
-            ) { isSuccess ->
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.extraLarge),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    if (isSuccess) {
-                        SuccessContent(state, style)
-                    } else {
-                        PendingContent(state, onEvent, style)
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun PendingHeader(
-    state: Pending,
-    style: NativeAlternativePaymentScreen.Style
-) {
-    var showLogo by remember { mutableStateOf(true) }
-    if (showLogo) {
-        AsyncImage(
-            model = state.logoUrl,
-            contentDescription = null,
-            modifier = Modifier.requiredHeight(PendingLogoHeight),
-            contentScale = ContentScale.FillHeight,
-            onError = {
-                showLogo = false
-            }
-        )
-    } else if (state.title != null) {
-        POText(
-            text = state.title,
-            color = style.title.color,
-            style = style.title.textStyle
-        )
-    }
-}
-
-@Composable
-private fun PendingContent(
-    state: Pending,
-    onEvent: (NativeAlternativePaymentEvent) -> Unit,
-    style: NativeAlternativePaymentScreen.Style
-) {
-    if (state.withProgressIndicator) {
-        AnimatedProgressIndicator(style.progressIndicatorColor)
-    }
-    AndroidTextView(
-        text = state.message,
-        style = style.message,
-        modifier = Modifier.fillMaxWidth(),
-        gravity = messageGravity(state.message),
-        selectable = true,
-        linksClickable = true
-    )
-    var showImage by remember { mutableStateOf(state.image != null) }
-    if (showImage) {
-        when (state.image) {
-            is Image.Url -> AsyncImage(
-                model = state.image.value,
-                contentDescription = null,
-                modifier = Modifier.requiredSize(
-                    width = PendingImageWidth,
-                    height = PendingImageHeight
-                ),
-                alignment = Alignment.Center,
-                contentScale = ContentScale.Fit,
-                onError = {
-                    showImage = false
-                }
-            )
-            is Image.Bitmap -> {
-                val bitmap = state.image.value
-                Image(
-                    bitmap = remember(bitmap) { bitmap.asImageBitmap() },
-                    contentDescription = null,
-                    modifier = Modifier.requiredSize(
-                        width = PendingImageWidth,
-                        height = PendingImageHeight
-                    ),
-                    alignment = Alignment.Center,
-                    contentScale = ContentScale.Fit
-                )
-            }
-            else -> {}
-        }
-    }
-    state.confirmationDialog?.let {
-        PODialog(
-            title = it.title,
-            message = it.message,
-            confirmActionText = it.confirmActionText,
-            dismissActionText = it.dismissActionText,
-            onConfirm = { onEvent(DialogAction(id = it.id, isConfirmed = true)) },
-            onDismiss = { onEvent(DialogAction(id = it.id, isConfirmed = false)) },
-            style = style.dialog
-        )
-    }
-}
-
-@Composable
-private fun AnimatedProgressIndicator(
-    progressIndicatorColor: Color
-) {
-    AnimatedVisibility(
-        visibleState = remember {
-            MutableTransitionState(initialState = false)
-                .apply { targetState = true }
-        },
-        enter = expandVertically() + fadeIn(animationSpec = tween(durationMillis = AnimationDurationMillis)),
-        exit = shrinkVertically() + fadeOut(animationSpec = tween(durationMillis = AnimationDurationMillis))
-    ) {
-        POCircularProgressIndicator.Large(color = progressIndicatorColor)
-    }
-}
-
-@Composable
-private fun SuccessContent(
-    state: Pending,
-    style: NativeAlternativePaymentScreen.Style
-) {
-    POText(
-        text = state.message,
-        modifier = Modifier.fillMaxWidth(),
-        color = style.successMessage.color,
-        style = style.successMessage.textStyle,
-        textAlign = TextAlign.Center
-    )
+    val bitmap = barcode.image
     Image(
-        painter = painterResource(id = style.successImageResId),
+        bitmap = remember(bitmap) { bitmap.asImageBitmap() },
         contentDescription = null,
         modifier = Modifier.requiredSize(
-            width = PendingImageWidth,
-            height = PendingImageHeight
+            width = ImageWidth,
+            height = ImageHeight
         ),
         alignment = Alignment.Center,
         contentScale = ContentScale.Fit
@@ -655,20 +527,14 @@ private fun Actions(
 ) {
     var primary: POActionState? = null
     var secondary: POActionState? = null
-    var saveBarcode: POActionState? = null
     when (state) {
         is Loading -> secondary = state.secondaryAction
-        is NextStep -> {
+        is Loaded -> {
             primary = state.primaryAction
             secondary = state.secondaryAction
-        }
-        is Pending -> {
-            primary = state.primaryAction
-            secondary = state.secondaryAction
-            saveBarcode = state.saveBarcodeAction
         }
     }
-    val actions = listOfNotNull(primary, saveBarcode, secondary)
+    val actions = listOfNotNull(primary, secondary)
     POActionsContainer(
         modifier = modifier,
         actions = POImmutableList(
@@ -795,33 +661,11 @@ internal object NativeAlternativePaymentScreen {
             )
         }
 
-    val PendingLogoHeight = 34.dp
+    val LogoHeight = 34.dp
 
-    val PendingImageWidth = 220.dp
-    val PendingImageHeight = 280.dp
+    val ImageWidth = 220.dp
+    val ImageHeight = 280.dp
 
     val AnimationDurationMillis = 300
     val CrossfadeAnimationDurationMillis = 400
-
-    @Composable
-    fun animatedBackgroundColor(
-        state: NativeAlternativePaymentViewModelState,
-        normalColor: Color,
-        successColor: Color
-    ): Color = animateColorAsState(
-        targetValue = when (state) {
-            is Pending -> if (state.isSuccess) successColor else normalColor
-            else -> normalColor
-        },
-        animationSpec = tween(
-            durationMillis = CrossfadeAnimationDurationMillis,
-            easing = LinearEasing
-        )
-    ).value
-
-    private val ShortMessageMaxLength = 150
-
-    fun messageGravity(text: String): Int =
-        if (text.length <= ShortMessageMaxLength)
-            Gravity.CENTER_HORIZONTAL else Gravity.START
 }

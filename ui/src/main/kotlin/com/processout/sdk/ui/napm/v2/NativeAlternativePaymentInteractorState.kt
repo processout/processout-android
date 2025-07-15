@@ -2,7 +2,9 @@ package com.processout.sdk.ui.napm.v2
 
 import android.graphics.Bitmap
 import com.processout.sdk.api.model.response.POBarcode.BarcodeType
+import com.processout.sdk.api.model.response.POImageResource
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.Invoice
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter.*
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentMethodDetails
@@ -43,6 +45,7 @@ internal sealed interface NativeAlternativePaymentInteractorState {
     data class NextStepStateValue(
         val paymentMethod: PONativeAlternativePaymentMethodDetails,
         val invoice: Invoice?,
+        val elements: List<Element>,
         val fields: List<Field>,
         val focusedFieldId: String?,
         val primaryActionId: String,
@@ -52,27 +55,48 @@ internal sealed interface NativeAlternativePaymentInteractorState {
     )
 
     data class PendingStateValue(
-        val paymentProviderName: String?,
-        val logoUrl: String?,
-        val customerAction: CustomerAction?,
+        val paymentMethod: PONativeAlternativePaymentMethodDetails,
+        val invoice: Invoice?,
+        val elements: List<Element>,
         val primaryActionId: String?,
-        val secondaryAction: Action,
-        val withProgressIndicator: Boolean
+        val secondaryAction: Action
     )
 
-    data class CustomerAction(
-        val message: String,
-        val imageUrl: String?,
-        val barcode: Barcode?
-    )
+    sealed interface Element {
 
-    data class Barcode(
-        val type: BarcodeType,
-        val bitmap: Bitmap,
-        val actionId: String,
-        val confirmErrorActionId: String,
-        val isError: Boolean = false
-    )
+        data class Form(
+            val value: PONativeAlternativePaymentElement.Form
+        ) : Element
+
+        data class Instruction(
+            val value: NativeAlternativePaymentInteractorState.Instruction
+        ) : Element
+
+        data class InstructionGroup(
+            val label: String?,
+            val instructions: List<NativeAlternativePaymentInteractorState.Instruction>
+        ) : Element
+    }
+
+    sealed interface Instruction {
+
+        data class Message(
+            val label: String?,
+            val value: String
+        ) : Instruction
+
+        data class Image(
+            val value: POImageResource
+        ) : Instruction
+
+        data class Barcode(
+            val type: BarcodeType,
+            val bitmap: Bitmap,
+            val actionId: String,
+            val confirmErrorActionId: String,
+            val isError: Boolean = false
+        ) : Instruction
+    }
 
     data class Field(
         val parameter: Parameter,
