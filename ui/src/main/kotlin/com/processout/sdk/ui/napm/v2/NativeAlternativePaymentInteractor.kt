@@ -251,7 +251,7 @@ internal class NativeAlternativePaymentInteractor(
         elements: List<Element>
     ) {
         val parameters = elements.flatMap {
-            if (it is Element.Form) it.value.parameterDefinitions else emptyList()
+            if (it is Element.Form) it.form.parameterDefinitions else emptyList()
         }
         if (parameters.isEmpty()) {
             POLogger.warn(
@@ -282,10 +282,10 @@ internal class NativeAlternativePaymentInteractor(
         mapNotNull { element ->
             when (element) {
                 is PONativeAlternativePaymentElement.Form ->
-                    Element.Form(value = element)
+                    Element.Form(form = element)
                 is PONativeAlternativePaymentElement.CustomerInstruction ->
                     element.instruction.map()?.let {
-                        Element.Instruction(value = it)
+                        Element.Instruction(instruction = it)
                     }
                 is PONativeAlternativePaymentElement.CustomerInstructionGroup ->
                     Element.InstructionGroup(
@@ -999,8 +999,8 @@ internal class NativeAlternativePaymentInteractor(
                 if (it is Element.Instruction) it else null
             }
             instructions.forEach {
-                if (it.value is Instruction.Barcode) {
-                    saveBarcode(barcode = it.value)
+                if (it.instruction is Instruction.Barcode) {
+                    saveBarcode(barcode = it.instruction)
                     return@whenNextStep
                 }
             }
@@ -1010,8 +1010,8 @@ internal class NativeAlternativePaymentInteractor(
                 if (it is Element.Instruction) it else null
             }
             instructions.forEach {
-                if (it.value is Instruction.Barcode) {
-                    saveBarcode(barcode = it.value)
+                if (it.instruction is Instruction.Barcode) {
+                    saveBarcode(barcode = it.instruction)
                     return@whenPending
                 }
             }
@@ -1042,10 +1042,10 @@ internal class NativeAlternativePaymentInteractor(
                             if (it is Element.Instruction) it else null
                         }
                         instructions.forEach {
-                            if (it.value is Instruction.Barcode) {
+                            if (it.instruction is Instruction.Barcode) {
                                 interactorScope.launch {
                                     mediaStorageProvider
-                                        .saveImage(it.value.bitmap)
+                                        .saveImage(it.instruction.bitmap)
                                         .onFailure { updateBarcodeState(isError = true) }
                                 }
                                 return@whenNextStep
@@ -1057,10 +1057,10 @@ internal class NativeAlternativePaymentInteractor(
                             if (it is Element.Instruction) it else null
                         }
                         instructions.forEach {
-                            if (it.value is Instruction.Barcode) {
+                            if (it.instruction is Instruction.Barcode) {
                                 interactorScope.launch {
                                     mediaStorageProvider
-                                        .saveImage(it.value.bitmap)
+                                        .saveImage(it.instruction.bitmap)
                                         .onFailure { updateBarcodeState(isError = true) }
                                 }
                                 return@whenPending
@@ -1093,9 +1093,9 @@ internal class NativeAlternativePaymentInteractor(
         map { element ->
             when (element) {
                 is Element.Instruction -> {
-                    when (element.value) {
+                    when (element.instruction) {
                         is Instruction.Barcode -> Element.Instruction(
-                            value = element.value.copy(
+                            instruction = element.instruction.copy(
                                 isError = isError
                             )
                         )

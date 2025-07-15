@@ -181,8 +181,8 @@ internal class NativeAlternativePaymentViewModel private constructor(
     ): POImmutableList<NativeAlternativePaymentViewModelState.Element> {
         val elements = flatMap { element ->
             when (element) {
-                is Element.Form -> element.value.parameterDefinitions.map(fields)
-                is Element.Instruction -> listOf(element.value.map())
+                is Element.Form -> element.form.parameterDefinitions.map(fields)
+                is Element.Instruction -> listOf(element.instruction.map())
                 is Element.InstructionGroup -> emptyList() // TODO(v2)
             }
         }

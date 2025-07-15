@@ -65,11 +65,11 @@ internal sealed interface NativeAlternativePaymentInteractorState {
     sealed interface Element {
 
         data class Form(
-            val value: PONativeAlternativePaymentElement.Form
+            val form: PONativeAlternativePaymentElement.Form
         ) : Element
 
         data class Instruction(
-            val value: NativeAlternativePaymentInteractorState.Instruction
+            val instruction: NativeAlternativePaymentInteractorState.Instruction
         ) : Element
 
         data class InstructionGroup(
