@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
@@ -81,7 +82,7 @@ internal object AndroidTextView {
     val default: Style
         @Composable get() = with(ProcessOutTheme) {
             Style(
-                type = with(typography.body1) {
+                type = with(typography.paragraph.s16(FontWeight.Medium)) {
                     POTextType(
                         textSizeSp = fontSize.value.toInt(),
                         lineHeightSp = lineHeight.value.toInt(),

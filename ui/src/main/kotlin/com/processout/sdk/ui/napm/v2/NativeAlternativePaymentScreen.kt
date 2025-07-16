@@ -239,7 +239,7 @@ private fun Elements(
             )
             is InstructionMessage -> AndroidTextView(
                 text = element.value,
-                style = style.message,
+                style = style.bodyText,
                 modifier = Modifier.fillMaxWidth(),
                 selectable = true,
                 linksClickable = true
@@ -657,7 +657,7 @@ internal object NativeAlternativePaymentScreen {
         val actionsContainer: POActionsContainer.Style,
         val normalBackgroundColor: Color,
         val successBackgroundColor: Color,
-        val message: AndroidTextView.Style,
+        val bodyText: AndroidTextView.Style,
         val errorMessageBox: POMessageBox.Style,
         val successMessage: POText.Style,
         @DrawableRes val successImageResId: Int,
@@ -703,7 +703,7 @@ internal object NativeAlternativePaymentScreen {
                 successBackgroundColor = custom?.background?.successColorResId?.let {
                     colorResource(id = it)
                 } ?: colors.surface.success,
-                message = custom?.message?.let { style ->
+                bodyText = custom?.bodyText?.let { style ->
                     val controlsTintColor = custom.controlsTintColorResId?.let { colorResource(id = it) }
                     AndroidTextView.custom(
                         style = style,

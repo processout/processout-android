@@ -362,6 +362,7 @@ data class PONativeAlternativePaymentConfiguration(
      * @param[dialog] Dialog style.
      * @param[background] Background style.
      * @param[message] Message style.
+     * @param[bodyText] Body text style, such as customer instruction.
      * @param[errorMessage] Error message style.
      * @param[errorMessageBox] Error message box style.
      * @param[successMessage] Success message style.
@@ -384,7 +385,8 @@ data class PONativeAlternativePaymentConfiguration(
         val stepper: POStepperStyle? = null,
         val actionsContainer: POActionsContainerStyle? = null,
         val background: POBackgroundStyle? = null,
-        val message: POTextStyle? = null,
+        val message: POTextStyle? = null, // TODO(v2): remove, not used
+        val bodyText: POTextStyle? = null,
         val errorMessage: POTextStyle? = null, // TODO(v2): remove, not used
         val errorMessageBox: POMessageBoxStyle? = null,
         val successMessage: POTextStyle? = null,
@@ -458,6 +460,7 @@ data class PONativeAlternativePaymentConfiguration(
             actionsContainer = actionsContainer,
             background = background,
             message = message,
+            bodyText = message,
             errorMessage = errorMessage,
             errorMessageBox = null,
             successMessage = successMessage,
