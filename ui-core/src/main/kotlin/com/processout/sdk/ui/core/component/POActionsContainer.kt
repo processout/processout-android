@@ -19,6 +19,7 @@ import com.processout.sdk.ui.core.style.POActionsContainerStyle
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -48,8 +49,8 @@ fun POActionsContainer(
         ) {
             Column(modifier = modifier) {
                 HorizontalDivider(thickness = 1.dp, color = containerStyle.dividerColor)
-                val padding = ProcessOutTheme.spacing.extraLarge
-                val spacing = ProcessOutTheme.spacing.small
+                val padding = spacing.space20
+                val spacing = spacing.space12
                 when (containerStyle.axis) {
                     POAxis.Vertical -> Column(
                         modifier = Modifier
