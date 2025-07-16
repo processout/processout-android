@@ -69,7 +69,7 @@ fun POPhoneNumberField(
                                 (index == 0 && char == '+') || char.isDigit()
                             }
                             val parsedNumber = phoneNumberUtil.parse(filteredNumber, null)
-                            val parsedRegionCode = phoneNumberUtil.getRegionCodeForCountryCode(parsedNumber.countryCode)
+                            val parsedRegionCode = phoneNumberUtil.getRegionCodeForNumber(parsedNumber)
                             var regionCode = state.regionCode
                             if (state.regionCodes.elements.any { it.value == parsedRegionCode }) {
                                 regionCode = TextFieldValue(text = parsedRegionCode)
