@@ -150,7 +150,8 @@ private fun Loaded(
     AnimatedVisibility {
         Column(
             modifier = modifier,
-            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.space16)
+            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.space16),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // TODO(v2)
             Elements(
@@ -232,9 +233,13 @@ private fun Elements(
                 descriptionStyle = style.errorMessageBox,
                 modifier = Modifier.fillMaxWidth()
             )
-            is InstructionMessage -> {
-                // TODO(v2)
-            }
+            is InstructionMessage -> AndroidTextView(
+                text = element.value,
+                style = style.message,
+                modifier = Modifier.fillMaxWidth(),
+                selectable = true,
+                linksClickable = true
+            )
             is Image -> {
                 // TODO(v2)
             }
