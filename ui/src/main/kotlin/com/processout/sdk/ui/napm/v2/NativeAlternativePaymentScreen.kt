@@ -30,6 +30,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
+import coil.compose.AsyncImage
 import com.processout.sdk.ui.R
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
@@ -48,11 +49,11 @@ import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.state.POPhoneNumberFieldState
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.AnimationDurationMillis
-import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.ImageHeight
-import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.ImageWidth
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.*
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.Element.*
 import com.processout.sdk.ui.shared.component.AndroidTextView
@@ -66,6 +67,7 @@ internal fun NativeAlternativePaymentScreen(
     state: NativeAlternativePaymentViewModelState,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
     onContentHeightChanged: (Int) -> Unit,
+    isLightTheme: Boolean,
     style: NativeAlternativePaymentScreen.Style = NativeAlternativePaymentScreen.style()
 ) {
     var topBarHeight by remember { mutableIntStateOf(0) }
@@ -73,7 +75,7 @@ internal fun NativeAlternativePaymentScreen(
     Scaffold(
         modifier = Modifier
             .nestedScroll(rememberNestedScrollInteropConnection())
-            .clip(shape = ProcessOutTheme.shapes.topRoundedCornersLarge),
+            .clip(shape = shapes.topRoundedCornersLarge),
         containerColor = style.normalBackgroundColor,
         topBar = {
             POHeader(
@@ -101,7 +103,7 @@ internal fun NativeAlternativePaymentScreen(
             )
         }
     ) { scaffoldPadding ->
-        val verticalSpacing = ProcessOutTheme.spacing.space20
+        val verticalSpacing = spacing.space20
         val verticalSpacingPx = verticalSpacing.dpToPx()
         Column(
             modifier = Modifier
@@ -109,7 +111,7 @@ internal fun NativeAlternativePaymentScreen(
                 .padding(scaffoldPadding)
                 .verticalScroll(rememberScrollState())
                 .padding(
-                    horizontal = ProcessOutTheme.spacing.extraLarge,
+                    horizontal = spacing.extraLarge,
                     vertical = verticalSpacing
                 ),
             verticalArrangement = if (state is Loading) Arrangement.Center else Arrangement.Top,
@@ -122,6 +124,7 @@ internal fun NativeAlternativePaymentScreen(
                     onEvent = onEvent,
                     style = style,
                     isPrimaryActionEnabled = state.primaryAction?.let { it.enabled && !it.loading } ?: false,
+                    isLightTheme = isLightTheme,
                     modifier = Modifier.onGloballyPositioned {
                         val contentHeight = it.size.height + topBarHeight + bottomBarHeight + verticalSpacingPx * 2
                         onContentHeightChanged(contentHeight)
@@ -145,15 +148,14 @@ private fun Loaded(
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
     style: NativeAlternativePaymentScreen.Style,
     isPrimaryActionEnabled: Boolean,
+    isLightTheme: Boolean,
     modifier: Modifier = Modifier
 ) {
     AnimatedVisibility {
         Column(
             modifier = modifier,
-            verticalArrangement = Arrangement.spacedBy(ProcessOutTheme.spacing.space16),
-            horizontalAlignment = Alignment.CenterHorizontally
+            verticalArrangement = Arrangement.spacedBy(spacing.space16)
         ) {
-            // TODO(v2)
             Elements(
                 elements = when (content) {
                     is Content.NextStep -> content.elements
@@ -163,7 +165,8 @@ private fun Loaded(
                 onEvent = onEvent,
                 style = style,
                 focusedFieldId = if (content is Content.NextStep) content.focusedFieldId else null,
-                isPrimaryActionEnabled = isPrimaryActionEnabled
+                isPrimaryActionEnabled = isPrimaryActionEnabled,
+                isLightTheme = isLightTheme
             )
         }
     }
@@ -175,7 +178,8 @@ private fun Elements(
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
     style: NativeAlternativePaymentScreen.Style,
     focusedFieldId: String?,
-    isPrimaryActionEnabled: Boolean
+    isPrimaryActionEnabled: Boolean,
+    isLightTheme: Boolean
 ) {
     val lifecycleEvent = rememberLifecycleEvent()
     elements.elements.forEach { element ->
@@ -240,11 +244,14 @@ private fun Elements(
                 selectable = true,
                 linksClickable = true
             )
-            is Image -> {
-                // TODO(v2)
-            }
+            is Image -> Image(
+                image = element,
+                isLightTheme = isLightTheme
+            )
             is Barcode -> Barcode(
-                barcode = element
+                barcode = element,
+                onEvent = onEvent,
+                style = style
             )
         }
     }
@@ -506,20 +513,79 @@ private fun PhoneNumberField(
 }
 
 @Composable
-private fun Barcode(
-    barcode: Barcode
+private fun Image(
+    image: Image,
+    isLightTheme: Boolean
 ) {
-    val bitmap = barcode.image
-    Image(
-        bitmap = remember(bitmap) { bitmap.asImageBitmap() },
-        contentDescription = null,
-        modifier = Modifier.requiredSize(
-            width = ImageWidth,
-            height = ImageHeight
-        ),
-        alignment = Alignment.Center,
-        contentScale = ContentScale.Fit
-    )
+    var showImage by remember { mutableStateOf(true) }
+    if (showImage) {
+        Box(
+            modifier = Modifier
+                .padding(horizontal = spacing.space48)
+                .fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
+            val imageUrl = image.value.let {
+                if (isLightTheme) {
+                    it.lightUrl.raster
+                } else {
+                    it.darkUrl?.raster ?: it.lightUrl.raster
+                }
+            }
+            AsyncImage(
+                model = imageUrl,
+                contentDescription = null,
+                alignment = Alignment.Center,
+                contentScale = ContentScale.Fit,
+                onError = {
+                    showImage = false
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun Barcode(
+    barcode: Barcode,
+    onEvent: (NativeAlternativePaymentEvent) -> Unit,
+    style: NativeAlternativePaymentScreen.Style
+) {
+    Column(
+        modifier = Modifier.padding(horizontal = spacing.space48),
+        verticalArrangement = Arrangement.spacedBy(space = spacing.space8),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        val bitmap = barcode.image
+        Image(
+            bitmap = remember(bitmap) { bitmap.asImageBitmap() },
+            contentDescription = null,
+            alignment = Alignment.Center,
+            contentScale = ContentScale.Fit
+        )
+        barcode.saveBarcodeAction.let {
+            POButton(
+                text = it.text,
+                onClick = { onEvent(Action(id = it.id)) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .requiredHeightIn(min = 40.dp),
+                style = style.actionsContainer.secondary,
+                icon = it.icon
+            )
+        }
+    }
+    barcode.confirmationDialog?.let {
+        PODialog(
+            title = it.title,
+            message = it.message,
+            confirmActionText = it.confirmActionText,
+            dismissActionText = it.dismissActionText,
+            onConfirm = { onEvent(DialogAction(id = it.id, isConfirmed = true)) },
+            onDismiss = { onEvent(DialogAction(id = it.id, isConfirmed = false)) },
+            style = style.dialog
+        )
+    }
 }
 
 @Composable
@@ -667,9 +733,6 @@ internal object NativeAlternativePaymentScreen {
         }
 
     val LogoHeight = 34.dp
-
-    val ImageWidth = 220.dp
-    val ImageHeight = 280.dp
 
     val AnimationDurationMillis = 300
     val CrossfadeAnimationDurationMillis = 400
