@@ -12,6 +12,7 @@ import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 data class POSpacing(
     val space0: Dp = 0.dp,
     val space2: Dp = 2.dp,
+    val space3: Dp = 3.dp,
     val space4: Dp = 4.dp,
     val space6: Dp = 6.dp,
     val space8: Dp = 8.dp,
