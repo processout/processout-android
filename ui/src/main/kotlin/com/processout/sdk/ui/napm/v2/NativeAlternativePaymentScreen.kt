@@ -168,9 +168,11 @@ private fun Header(
             exit = fadeOut(animationSpec = tween(durationMillis = animationDurationMillis)),
         ) {
             Column(
-                modifier = Modifier.conditional(withDragHandle) {
-                    padding(top = spacing.space20)
-                }
+                modifier = Modifier.conditional(
+                    condition = withDragHandle,
+                    whenTrue = { padding(top = spacing.space20) },
+                    whenFalse = { padding(top = spacing.space12) }
+                )
             ) {
                 Row(
                     modifier = Modifier
