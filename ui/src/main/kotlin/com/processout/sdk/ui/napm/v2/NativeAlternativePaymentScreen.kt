@@ -12,6 +12,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,10 +28,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import coil.compose.AsyncImage
+import com.processout.sdk.api.model.response.POImageResource
 import com.processout.sdk.ui.R
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
@@ -54,10 +57,12 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.AnimationDurationMillis
+import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.LogoHeight
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.*
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.Element.*
 import com.processout.sdk.ui.shared.component.AndroidTextView
 import com.processout.sdk.ui.shared.component.rememberLifecycleEvent
+import com.processout.sdk.ui.shared.extension.conditional
 import com.processout.sdk.ui.shared.extension.dpToPx
 import com.processout.sdk.ui.shared.state.FieldState
 import com.processout.sdk.ui.shared.state.FieldValue
@@ -78,17 +83,18 @@ internal fun NativeAlternativePaymentScreen(
             .clip(shape = shapes.topRoundedCornersLarge),
         containerColor = style.normalBackgroundColor,
         topBar = {
-            POHeader(
+            Header(
+                logo = if (state is Loaded) state.logo else null,
+                title = if (state is Loaded) state.title else null,
+                titleStyle = style.title,
+                dividerColor = style.dividerColor,
+                dragHandleColor = style.dragHandleColor,
+                isLightTheme = isLightTheme,
                 modifier = Modifier
                     .verticalScroll(rememberScrollState())
                     .onGloballyPositioned {
                         topBarHeight = it.size.height
-                    },
-                title = if (state is Loaded) state.title else null,
-                style = style.title,
-                dividerColor = style.dividerColor,
-                dragHandleColor = style.dragHandleColor,
-                animationDurationMillis = AnimationDurationMillis
+                    }
             )
         },
         bottomBar = {
@@ -130,6 +136,78 @@ internal fun NativeAlternativePaymentScreen(
                         onContentHeightChanged(contentHeight)
                     }
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun Header(
+    logo: POImageResource?,
+    title: String?,
+    titleStyle: POText.Style,
+    dividerColor: Color,
+    dragHandleColor: Color,
+    isLightTheme: Boolean,
+    modifier: Modifier = Modifier,
+    withDragHandle: Boolean = true,
+    animationDurationMillis: Int = AnimationDurationMillis
+) {
+    Box(modifier = modifier.fillMaxWidth()) {
+        if (withDragHandle) {
+            PODragHandle(
+                modifier = Modifier
+                    .padding(top = spacing.space10)
+                    .align(alignment = Alignment.TopCenter),
+                color = dragHandleColor
+            )
+        }
+        AnimatedVisibility(
+            visible = logo != null || !title.isNullOrBlank(),
+            enter = fadeIn(animationSpec = tween(durationMillis = animationDurationMillis)),
+            exit = fadeOut(animationSpec = tween(durationMillis = animationDurationMillis)),
+        ) {
+            Column(
+                modifier = Modifier.conditional(withDragHandle) {
+                    padding(top = spacing.space20)
+                }
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            start = spacing.space20,
+                            end = spacing.space20,
+                            bottom = spacing.space12
+                        ),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    val logoUrl = logo?.let {
+                        if (isLightTheme) {
+                            it.lightUrl.raster
+                        } else {
+                            it.darkUrl?.raster ?: it.lightUrl.raster
+                        }
+                    }
+                    AsyncImage(
+                        model = logoUrl,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .weight(0.8f, fill = false)
+                            .requiredHeight(LogoHeight),
+                        contentScale = ContentScale.FillHeight
+                    )
+                    if (title != null) {
+                        POText(
+                            text = title,
+                            modifier = Modifier.weight(1f, fill = false),
+                            color = titleStyle.color,
+                            style = titleStyle.textStyle
+                        )
+                    }
+                }
+                HorizontalDivider(thickness = 1.dp, color = dividerColor)
             }
         }
     }
@@ -672,7 +750,10 @@ internal object NativeAlternativePaymentScreen {
             Style(
                 title = custom?.title?.let {
                     POText.custom(style = it)
-                } ?: POText.title,
+                } ?: POText.Style(
+                    color = colors.text.primary,
+                    textStyle = typography.s20(FontWeight.Medium)
+                ),
                 field = custom?.field?.let {
                     POField.custom(style = it)
                 } ?: POField.default2,
@@ -732,7 +813,7 @@ internal object NativeAlternativePaymentScreen {
             )
         }
 
-    val LogoHeight = 34.dp
+    val LogoHeight = 26.dp
 
     val AnimationDurationMillis = 300
     val CrossfadeAnimationDurationMillis = 400
