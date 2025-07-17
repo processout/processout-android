@@ -26,6 +26,7 @@
     <string name="po_native_apm_continue_button_text">متابعة</string>
     <string name="po_native_apm_cancel_button_text">إلغاء</string>
     <string name="po_native_apm_confirm_payment_button_text">لقد دفعت</string>
+    <string name="po_native_apm_done_button_text">تم</string>
     <string name="po_native_apm_save_barcode_button_text_format">احفظ رمز %s</string>
     <string name="po_native_apm_save_barcode_error_title">فشل حفظ الصورة</string>
     <string name="po_native_apm_save_barcode_error_message">لم نتمكن من حفظ الصورة. يرجى التحقق من أذوناتك أو محاولة التقاط لقطة شاشة كبديل.</string>
