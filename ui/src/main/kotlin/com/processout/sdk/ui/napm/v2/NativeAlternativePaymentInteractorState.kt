@@ -141,6 +141,7 @@ internal sealed interface NativeAlternativePaymentInteractorState {
         const val SUBMIT = "submit"
         const val CANCEL = "cancel"
         const val CONFIRM_PAYMENT = "confirm-payment"
+        const val DONE = "done"
         const val SAVE_BARCODE = "save-barcode"
         const val CONFIRM_SAVE_BARCODE_ERROR = "confirm-save-barcode-error"
     }

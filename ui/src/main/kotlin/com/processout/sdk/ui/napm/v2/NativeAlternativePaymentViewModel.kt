@@ -127,7 +127,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
             ),
             primaryAction = POActionState(
                 id = primaryActionId,
-                text = configuration.submitButton.text ?: invoice.formatPrimaryActionText(),
+                text = configuration.submitButton.text ?: app.getString(R.string.po_native_apm_continue_button_text),
                 primary = true,
                 enabled = submitAllowed,
                 loading = submitting,
@@ -171,7 +171,13 @@ internal class NativeAlternativePaymentViewModel private constructor(
             content = Content.Completed(
                 elements = elements.map(fields = null)
             ),
-            primaryAction = null,
+            primaryAction = primaryActionId?.let { id ->
+                POActionState(
+                    id = id,
+                    text = app.getString(R.string.po_native_apm_done_button_text), // TODO(v2): optional in config
+                    primary = true
+                )
+            },
             secondaryAction = null
         )
     }

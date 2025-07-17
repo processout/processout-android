@@ -490,6 +490,7 @@ internal class NativeAlternativePaymentInteractor(
                 ActionId.SUBMIT -> submit()
                 ActionId.CANCEL -> cancel()
                 ActionId.CONFIRM_PAYMENT -> confirmPayment()
+                ActionId.DONE -> _completion.update { Success }
                 ActionId.SAVE_BARCODE -> saveBarcode()
             }
             is DialogAction -> when (event.id) {
@@ -924,7 +925,13 @@ internal class NativeAlternativePaymentInteractor(
         if (configuration.skipSuccessScreen) {
             _completion.update { Success }
         } else {
-            _state.update { Completed(stateValue) }
+            _state.update {
+                Completed(
+                    stateValue.copy(
+                        primaryActionId = ActionId.DONE // TODO(v2): optional in config
+                    )
+                )
+            }
             handler.postDelayed(delayInMillis = SUCCESS_DELAY_MS) {
                 _completion.update { Success }
             }
