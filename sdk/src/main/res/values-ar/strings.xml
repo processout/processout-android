@@ -21,7 +21,7 @@
 
     <!-- Native Alternative Payment Method -->
     <string name="po_native_apm_title_format">الدفع بواسطة %s</string>
-    <string name="po_native_apm_submit_button_text_format">الدفع %s</string>
+    <string name="po_native_apm_pay_format">الدفع %s</string>
     <string name="po_native_apm_submit_button_text">الدفع</string>
     <string name="po_native_apm_continue_button_text">متابعة</string>
     <string name="po_native_apm_cancel_button_text">إلغاء</string>

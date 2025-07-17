@@ -21,7 +21,7 @@
 
     <!-- Native Alternative Payment Method -->
     <string name="po_native_apm_title_format">Pagar com %s</string>
-    <string name="po_native_apm_submit_button_text_format">Pagar %s</string>
+    <string name="po_native_apm_pay_format">Pagar %s</string>
     <string name="po_native_apm_submit_button_text">Pagar</string>
     <string name="po_native_apm_continue_button_text">Continuar</string>
     <string name="po_native_apm_cancel_button_text">Cancelar</string>
