@@ -120,7 +120,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
     private fun NextStep.map() = with(value) {
         NativeAlternativePaymentViewModelState.Loaded(
             logo = paymentMethod.logo,
-            title = configuration.title ?: invoice?.amount, // TODO(v2)
+            title = configuration.title ?: invoice?.priceTitle(),
             content = Content.NextStep(
                 elements = elements.map(fields),
                 focusedFieldId = focusedFieldId
@@ -143,7 +143,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
     private fun Pending.map() = with(value) {
         NativeAlternativePaymentViewModelState.Loaded(
             logo = paymentMethod.logo,
-            title = configuration.title ?: invoice?.amount, // TODO(v2)
+            title = configuration.title ?: invoice?.priceTitle(),
             content = Content.Pending(
                 elements = elements.map(fields = null)
             ),
@@ -167,7 +167,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
     private fun Completed.map() = with(value) {
         NativeAlternativePaymentViewModelState.Loaded(
             logo = paymentMethod.logo,
-            title = configuration.title ?: invoice?.amount, // TODO(v2)
+            title = configuration.title ?: invoice?.priceTitle(),
             content = Content.Completed(
                 elements = elements.map(fields = null)
             ),
@@ -492,19 +492,15 @@ internal class NativeAlternativePaymentViewModel private constructor(
             } else null
         )
 
-    private fun Invoice?.formatPrimaryActionText(): String {
-        if (this == null) {
-            return app.getString(R.string.po_native_apm_submit_button_text)
-        }
-        return try {
+    private fun Invoice.priceTitle(): String? =
+        try {
             val formatter = NumberFormat.getCurrencyInstance()
             formatter.currency = Currency.getInstance(currency)
             val price = formatter.format(amount.toDouble())
-            app.getString(R.string.po_native_apm_submit_button_text_format, price)
+            app.getString(R.string.po_native_apm_pay_format, price)
         } catch (_: Exception) {
-            app.getString(R.string.po_native_apm_submit_button_text)
+            null
         }
-    }
 
     private fun CancelButton.toActionState(
         id: String,
