@@ -124,14 +124,8 @@ private fun POVerticalStepperPreview() {
     POVerticalStepper(
         steps = POImmutableList(
             listOf(
-                POStepper.Step(
-                    title = "Step 1",
-                    countdownTimerDescription = null
-                ),
-                POStepper.Step(
-                    title = "Step 2",
-                    countdownTimerDescription = null
-                ),
+                POStepper.Step(title = "Step 1"),
+                POStepper.Step(title = "Step 2"),
                 POStepper.Step(
                     title = "Step 3",
                     countdownTimerDescription = POStepper.Step.CountdownTimerText(
@@ -139,10 +133,7 @@ private fun POVerticalStepperPreview() {
                         timeoutSeconds = 90
                     )
                 ),
-                POStepper.Step(
-                    title = "Step 4",
-                    countdownTimerDescription = null
-                )
+                POStepper.Step(title = "Step 4")
             )
         ),
         activeStepIndex = 2
