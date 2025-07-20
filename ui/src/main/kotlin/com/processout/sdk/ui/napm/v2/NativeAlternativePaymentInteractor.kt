@@ -815,18 +815,17 @@ internal class NativeAlternativePaymentInteractor(
         val pendingStateValue = stateValue.toPendingStateValue(elements)
         _state.update { Pending(pendingStateValue) }
         enablePendingSecondaryAction()
-        if (configuration.paymentConfirmation.confirmButton == null) {
+        if (pendingStateValue.elements.isNullOrEmpty() ||
+            configuration.paymentConfirmation.confirmButton == null
+        ) {
             capture()
         }
     }
 
     private fun confirmPayment() {
-        _state.whenPending { stateValue ->
-            POLogger.info("User confirmed that required external action is complete.")
-            dispatch(DidConfirmPayment)
-            _state.update { Pending(stateValue.copy(primaryActionId = null)) }
-            capture()
-        }
+        POLogger.info("User confirmed that required external action is complete.")
+        dispatch(DidConfirmPayment)
+        capture()
     }
 
     private fun capture() {
@@ -903,7 +902,8 @@ internal class NativeAlternativePaymentInteractor(
                             activeStepIndex = activeStepIndex
                         ),
                         elements = if (configuration.paymentConfirmation.confirmButton == null)
-                            stateValue.elements else null
+                            stateValue.elements else null,
+                        primaryActionId = null
                     )
                 )
             }
