@@ -17,8 +17,14 @@ object POStepper {
 
     data class Step(
         val title: String,
-        val description: String? = null
-    )
+        val countdownTimerDescription: CountdownTimerText? = null
+    ) {
+
+        data class CountdownTimerText(
+            val textFormat: String,
+            val timeoutSeconds: Int
+        )
+    }
 
     enum class StepState {
         PENDING,

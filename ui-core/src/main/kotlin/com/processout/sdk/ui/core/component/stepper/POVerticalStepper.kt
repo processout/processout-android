@@ -10,7 +10,7 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
-import com.processout.sdk.ui.core.component.POExpandableText
+import com.processout.sdk.ui.core.component.POCountdownTimerText
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.stepper.POStepper.StepState.*
 import com.processout.sdk.ui.core.state.POImmutableList
@@ -100,13 +100,16 @@ fun POVerticalStepper(
                             )
                         )
                     )
-                    POExpandableText(
-                        text = step.description,
-                        style = stepStyle.description,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = spacing.space4)
-                    )
+                    step.countdownTimerDescription?.let { description ->
+                        POCountdownTimerText(
+                            textFormat = description.textFormat,
+                            timeoutSeconds = description.timeoutSeconds,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = spacing.space4),
+                            style = stepStyle.description
+                        )
+                    }
                 }
             }
         }
@@ -123,19 +126,22 @@ private fun POVerticalStepperPreview() {
             listOf(
                 POStepper.Step(
                     title = "Step 1",
-                    description = "Description"
+                    countdownTimerDescription = null
                 ),
                 POStepper.Step(
                     title = "Step 2",
-                    description = "Description"
+                    countdownTimerDescription = null
                 ),
                 POStepper.Step(
                     title = "Step 3",
-                    description = "Description"
+                    countdownTimerDescription = POStepper.Step.CountdownTimerText(
+                        textFormat = "Please wait for up to %s minutes",
+                        timeoutSeconds = 90
+                    )
                 ),
                 POStepper.Step(
                     title = "Step 4",
-                    description = "Description"
+                    countdownTimerDescription = null
                 )
             )
         ),
