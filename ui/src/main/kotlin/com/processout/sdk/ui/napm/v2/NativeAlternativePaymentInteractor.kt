@@ -238,20 +238,6 @@ internal class NativeAlternativePaymentInteractor(
         }
     }
 
-    private fun NextStepStateValue.toPendingStateValue(
-        elements: List<Element>
-    ) = PendingStateValue(
-        paymentMethod = paymentMethod,
-        invoice = invoice,
-        stepper = null,
-        elements = elements,
-        primaryActionId = ActionId.CONFIRM_PAYMENT,
-        secondaryAction = NativeAlternativePaymentInteractorState.Action(
-            id = ActionId.CANCEL,
-            enabled = false
-        )
-    )
-
     //region Next Step
 
     private fun handleNextStep(
@@ -802,7 +788,7 @@ internal class NativeAlternativePaymentInteractor(
 
     //endregion
 
-    //region Capture
+    //region Pending
 
     private fun handlePending(
         stateValue: NextStepStateValue,
@@ -821,6 +807,20 @@ internal class NativeAlternativePaymentInteractor(
             capture()
         }
     }
+
+    private fun NextStepStateValue.toPendingStateValue(
+        elements: List<Element>
+    ) = PendingStateValue(
+        paymentMethod = paymentMethod,
+        invoice = invoice,
+        stepper = null,
+        elements = elements,
+        primaryActionId = ActionId.CONFIRM_PAYMENT,
+        secondaryAction = NativeAlternativePaymentInteractorState.Action(
+            id = ActionId.CANCEL,
+            enabled = false
+        )
+    )
 
     private fun confirmPayment() {
         POLogger.info("User confirmed that required external action is complete.")
@@ -861,7 +861,7 @@ internal class NativeAlternativePaymentInteractor(
                     capturePassedTimestamp = 0L
                     result.onSuccess {
                         _state.whenPending { stateValue ->
-                            handleSuccess(stateValue)
+                            handleSuccess(stateValue.copy(elements = it.elements))
                         }
                     }.onFailure { failure ->
                         _completion.update { Failure(failure) }
@@ -911,13 +911,13 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     @JvmName(name = "mapFromAuthorizationResult")
-    private fun ProcessOutResult<PONativeAlternativePaymentAuthorizationResponse>.map() =
+    private suspend fun ProcessOutResult<PONativeAlternativePaymentAuthorizationResponse>.map() =
         fold(
             onSuccess = {
                 ProcessOutResult.Success(
                     ProcessingResponse(
                         state = it.state,
-                        elements = it.elements
+                        elements = it.elements?.map()
                     )
                 )
             },
@@ -925,13 +925,13 @@ internal class NativeAlternativePaymentInteractor(
         )
 
     @JvmName(name = "mapFromTokenizationResult")
-    private fun ProcessOutResult<PONativeAlternativePaymentTokenizationResponse>.map() =
+    private suspend fun ProcessOutResult<PONativeAlternativePaymentTokenizationResponse>.map() =
         fold(
             onSuccess = {
                 ProcessOutResult.Success(
                     ProcessingResponse(
                         state = it.state,
-                        elements = it.elements
+                        elements = it.elements?.map()
                     )
                 )
             },
@@ -1207,6 +1207,6 @@ internal class NativeAlternativePaymentInteractor(
 
     private data class ProcessingResponse(
         val state: PONativeAlternativePaymentState,
-        val elements: List<PONativeAlternativePaymentElement>?
+        val elements: List<Element>?
     )
 }
