@@ -16,7 +16,7 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 @Composable
 fun PODragHandle(
     modifier: Modifier = Modifier,
-    color: Color = colors.border.subtle
+    color: Color = colors.icon.disabled
 ) {
     Box(
         modifier = modifier

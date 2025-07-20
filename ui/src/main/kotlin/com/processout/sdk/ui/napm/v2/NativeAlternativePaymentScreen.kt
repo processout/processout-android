@@ -808,10 +808,10 @@ internal object NativeAlternativePaymentScreen {
                 } ?: colors.button.primaryBackgroundDefault,
                 dividerColor = custom?.dividerColorResId?.let {
                     colorResource(id = it)
-                } ?: colors.border.subtle,
+                } ?: colors.border.border4,
                 dragHandleColor = custom?.dragHandleColorResId?.let {
                     colorResource(id = it)
-                } ?: colors.border.subtle
+                } ?: colors.icon.disabled
             )
         }
 

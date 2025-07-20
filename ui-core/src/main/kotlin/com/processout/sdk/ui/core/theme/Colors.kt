@@ -94,7 +94,6 @@ data class POColors(
 
     @Immutable
     data class Border(
-        val subtle: Color,
         val border2: Color,
         val border4: Color
     )
@@ -165,7 +164,6 @@ val POLightColorPalette = POColors(
         toastError = Color(0xFFFDE3DE)
     ),
     border = Border(
-        subtle = Color(0xFFCCD1D6),
         border2 = Color(0x14121314),
         border4 = Color(0x29212222)
     )
@@ -236,7 +234,6 @@ val PODarkColorPalette = POColors(
         toastError = Color(0xFF511511)
     ),
     border = Border(
-        subtle = Color(0xFF7C8593),
         border2 = Color(0x1FF6F8FB),
         border4 = Color(0x33F6F8FB)
     )

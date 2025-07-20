@@ -131,7 +131,7 @@ object POActionsContainer {
             Style(
                 primary = POButton.primary,
                 secondary = POButton.secondary,
-                dividerColor = colors.border.subtle,
+                dividerColor = colors.border.border4,
                 backgroundColor = colors.surface.default,
                 axis = POAxis.Vertical
             )
@@ -142,7 +142,7 @@ object POActionsContainer {
             Style(
                 primary = POButton.primary2,
                 secondary = POButton.secondary2,
-                dividerColor = colors.border.subtle,
+                dividerColor = colors.border.border4,
                 backgroundColor = colors.surface.default,
                 axis = POAxis.Vertical
             )
