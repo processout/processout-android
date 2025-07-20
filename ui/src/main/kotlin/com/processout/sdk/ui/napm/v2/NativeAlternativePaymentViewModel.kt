@@ -145,7 +145,8 @@ internal class NativeAlternativePaymentViewModel private constructor(
             logo = paymentMethod.logo,
             title = configuration.title ?: invoice?.priceTitle(),
             content = Content.Pending(
-                elements = elements.map(fields = null)
+                stepper = stepper,
+                elements = elements?.map(fields = null)
             ),
             primaryAction = configuration.paymentConfirmation.confirmButton?.let {
                 primaryActionId?.let { id ->
@@ -169,7 +170,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
             logo = paymentMethod.logo,
             title = configuration.title ?: invoice?.priceTitle(),
             content = Content.Completed(
-                elements = elements.map(fields = null)
+                elements = elements?.map(fields = null)
             ),
             primaryAction = primaryActionId?.let { id ->
                 POActionState(

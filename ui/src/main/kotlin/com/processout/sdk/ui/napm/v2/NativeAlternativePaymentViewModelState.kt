@@ -6,6 +6,7 @@ import com.processout.sdk.api.model.response.POImageResource
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.state.POPhoneNumberFieldState
+import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentInteractorState.Stepper
 import com.processout.sdk.ui.shared.state.ConfirmationDialogState
 import com.processout.sdk.ui.shared.state.FieldState
 
@@ -41,12 +42,13 @@ internal sealed interface NativeAlternativePaymentViewModelState {
 
         @Immutable
         data class Pending(
-            val elements: POImmutableList<Element>,
+            val stepper: Stepper?,
+            val elements: POImmutableList<Element>?
         ) : Content
 
         @Immutable
         data class Completed(
-            val elements: POImmutableList<Element>
+            val elements: POImmutableList<Element>?
         ) : Content
     }
 

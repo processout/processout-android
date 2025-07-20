@@ -47,6 +47,7 @@ import com.processout.sdk.ui.core.component.field.phone.POPhoneNumberField
 import com.processout.sdk.ui.core.component.field.radio.PORadioField
 import com.processout.sdk.ui.core.component.field.text.POTextField2
 import com.processout.sdk.ui.core.component.stepper.POStepper
+import com.processout.sdk.ui.core.component.stepper.POVerticalStepper
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.state.POPhoneNumberFieldState
@@ -236,18 +237,31 @@ private fun Loaded(
             modifier = modifier,
             verticalArrangement = Arrangement.spacedBy(spacing.space16)
         ) {
-            Elements(
-                elements = when (content) {
-                    is Content.NextStep -> content.elements
-                    is Content.Pending -> content.elements
-                    is Content.Completed -> content.elements
-                },
-                onEvent = onEvent,
-                style = style,
-                focusedFieldId = if (content is Content.NextStep) content.focusedFieldId else null,
-                isPrimaryActionEnabled = isPrimaryActionEnabled,
-                isLightTheme = isLightTheme
-            )
+            if (content is Content.Pending) {
+                content.stepper?.let {
+                    POVerticalStepper(
+                        steps = it.steps,
+                        activeStepIndex = it.activeStepIndex,
+                        modifier = Modifier.fillMaxWidth(),
+                        style = style.stepper
+                    )
+                }
+            }
+            val elements = when (content) {
+                is Content.NextStep -> content.elements
+                is Content.Pending -> content.elements
+                is Content.Completed -> content.elements
+            }
+            if (elements != null) {
+                Elements(
+                    elements = elements,
+                    onEvent = onEvent,
+                    style = style,
+                    focusedFieldId = if (content is Content.NextStep) content.focusedFieldId else null,
+                    isPrimaryActionEnabled = isPrimaryActionEnabled,
+                    isLightTheme = isLightTheme
+                )
+            }
         }
     }
 }

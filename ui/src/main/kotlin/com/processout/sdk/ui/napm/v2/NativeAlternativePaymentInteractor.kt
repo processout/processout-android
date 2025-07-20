@@ -1,3 +1,5 @@
+@file:Suppress("SameParameterValue")
+
 package com.processout.sdk.ui.napm.v2
 
 import android.Manifest
@@ -41,6 +43,8 @@ import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
 import com.processout.sdk.core.retry.PORetryStrategy
 import com.processout.sdk.ui.base.BaseInteractor
+import com.processout.sdk.ui.core.component.stepper.POStepper
+import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect
@@ -239,6 +243,7 @@ internal class NativeAlternativePaymentInteractor(
     ) = PendingStateValue(
         paymentMethod = paymentMethod,
         invoice = invoice,
+        stepper = null,
         elements = elements,
         primaryActionId = ActionId.CONFIRM_PAYMENT,
         secondaryAction = NativeAlternativePaymentInteractorState.Action(
@@ -828,6 +833,7 @@ internal class NativeAlternativePaymentInteractor(
         if (captureStartTimestamp != 0L) {
             return
         }
+        updateStepper(activeStepIndex = 1)
         captureStartTimestamp = System.currentTimeMillis()
         interactorScope.launch {
             val iterator = captureRetryStrategy.iterator
@@ -871,6 +877,33 @@ internal class NativeAlternativePaymentInteractor(
                     ProcessOutResult.Failure(
                         code = Timeout(),
                         message = "Payment confirmation timed out."
+                    )
+                )
+            }
+        }
+    }
+
+    private fun updateStepper(activeStepIndex: Int) {
+        _state.whenPending { stateValue ->
+            _state.update {
+                val steps = listOf(
+                    POStepper.Step(title = app.getString(R.string.po_native_apm_payment_confirmation_step1_title)),
+                    POStepper.Step(
+                        title = app.getString(R.string.po_native_apm_payment_confirmation_step2_title),
+                        countdownTimerDescription = POStepper.Step.CountdownTimerText(
+                            textFormat = app.getString(R.string.po_native_apm_payment_confirmation_step2_description_format),
+                            timeoutSeconds = configuration.paymentConfirmation.timeoutSeconds
+                        )
+                    )
+                )
+                Pending(
+                    stateValue.copy(
+                        stepper = Stepper(
+                            steps = POImmutableList(steps),
+                            activeStepIndex = activeStepIndex
+                        ),
+                        elements = if (configuration.paymentConfirmation.confirmButton == null)
+                            stateValue.elements else null
                     )
                 )
             }
@@ -1033,10 +1066,10 @@ internal class NativeAlternativePaymentInteractor(
             }
         }
         _state.whenPending { stateValue ->
-            val instructions = stateValue.elements.mapNotNull {
+            val instructions = stateValue.elements?.mapNotNull {
                 if (it is Element.Instruction) it else null
             }
-            instructions.forEach {
+            instructions?.forEach {
                 if (it.instruction is Instruction.Barcode) {
                     saveBarcode(barcode = it.instruction)
                     return@whenPending
@@ -1080,10 +1113,10 @@ internal class NativeAlternativePaymentInteractor(
                         }
                     }
                     _state.whenPending { stateValue ->
-                        val instructions = stateValue.elements.mapNotNull {
+                        val instructions = stateValue.elements?.mapNotNull {
                             if (it is Element.Instruction) it else null
                         }
-                        instructions.forEach {
+                        instructions?.forEach {
                             if (it.instruction is Instruction.Barcode) {
                                 interactorScope.launch {
                                     mediaStorageProvider
@@ -1110,7 +1143,7 @@ internal class NativeAlternativePaymentInteractor(
         }
         _state.whenPending { stateValue ->
             val updatedStateValue = stateValue.copy(
-                elements = stateValue.elements.updateBarcodeState(isError)
+                elements = stateValue.elements?.updateBarcodeState(isError)
             )
             _state.update { Pending(updatedStateValue) }
         }

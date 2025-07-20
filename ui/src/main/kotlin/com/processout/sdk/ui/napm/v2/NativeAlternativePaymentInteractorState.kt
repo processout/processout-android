@@ -8,6 +8,8 @@ import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentE
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter.*
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentMethodDetails
+import com.processout.sdk.ui.core.component.stepper.POStepper
+import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.shared.state.FieldValue
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -57,9 +59,15 @@ internal sealed interface NativeAlternativePaymentInteractorState {
     data class PendingStateValue(
         val paymentMethod: PONativeAlternativePaymentMethodDetails,
         val invoice: Invoice?,
-        val elements: List<Element>,
+        val stepper: Stepper?,
+        val elements: List<Element>?,
         val primaryActionId: String?,
         val secondaryAction: Action
+    )
+
+    data class Stepper(
+        val steps: POImmutableList<POStepper.Step>,
+        val activeStepIndex: Int
     )
 
     sealed interface Element {
