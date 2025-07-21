@@ -238,8 +238,8 @@ private fun Loaded(
             verticalArrangement = Arrangement.spacedBy(spacing.space16)
         ) {
             val stage = content.stage
-            if (stage is Stage.Pending) {
-                stage.stepper?.let {
+            when (stage) {
+                is Stage.Pending -> stage.stepper?.let {
                     POVerticalStepper(
                         steps = it.steps,
                         activeStepIndex = it.activeStepIndex,
@@ -247,6 +247,8 @@ private fun Loaded(
                         style = style.stepper
                     )
                 }
+                is Stage.Completed -> POText(text = stage.message) // TODO(v2)
+                else -> {}
             }
             if (content.elements != null) {
                 Elements(
