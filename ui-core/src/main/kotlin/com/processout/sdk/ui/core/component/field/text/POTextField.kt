@@ -114,7 +114,7 @@ fun POTextField(
                                     maxLines = 1
                                 )
                                 if (isLabelFloating) {
-                                    Spacer(modifier = Modifier.requiredHeight(spacing.space2))
+                                    Spacer(modifier = Modifier.requiredHeight(spacing.space3))
                                 }
                             }
                             if (isLabelFloating || label.isNullOrBlank()) {

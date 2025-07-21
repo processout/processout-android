@@ -14,6 +14,7 @@ data class POColors(
     val input: Input,
     val checkRadio: CheckRadio,
     val button: Button,
+    val icon: Icon,
     val surface: Surface,
     val border: Border
 ) {
@@ -73,11 +74,19 @@ data class POColors(
     )
 
     @Immutable
+    data class Icon(
+        val inverse: Color,
+        val tertiary: Color,
+        val disabled: Color
+    )
+
+    @Immutable
     data class Surface(
         val default: Color,
         val neutral: Color,
         val darkout: Color,
         val darkoutRipple: Color,
+        val backgroundSuccess: Color,
         val success: Color,
         val error: Color,
         val toastError: Color
@@ -85,7 +94,8 @@ data class POColors(
 
     @Immutable
     data class Border(
-        val subtle: Color
+        val border2: Color,
+        val border4: Color
     )
 }
 
@@ -138,17 +148,24 @@ val POLightColorPalette = POColors(
         ghostBackgroundDisabled = Color(0x0A121314),
         ghostBackgroundPressed = Color(0x1F121314)
     ),
+    icon = Icon(
+        inverse = Color(0xFFFFFFFF),
+        tertiary = Color(0xFF8A8D93),
+        disabled = Color(0xFFC0C3C8)
+    ),
     surface = Surface(
         default = Color(0xFFFFFFFF),
         neutral = Color(0xFFFAFAFA),
         darkout = Color(0x0F121314),
         darkoutRipple = Color(0x0F59595A),
+        backgroundSuccess = Color(0xFF1ABE5A),
         success = Color(0xFFBEFAE9),
         error = Color(0xFFFFC2C8),
         toastError = Color(0xFFFDE3DE)
     ),
     border = Border(
-        subtle = Color(0xFFCCD1D6)
+        border2 = Color(0x14121314),
+        border4 = Color(0x29212222)
     )
 )
 
@@ -201,17 +218,24 @@ val PODarkColorPalette = POColors(
         ghostBackgroundDisabled = Color(0xFF2E3137),
         ghostBackgroundPressed = Color(0x1FF6F8FB)
     ),
+    icon = Icon(
+        inverse = Color(0xFF000000),
+        tertiary = Color(0xFF707378),
+        disabled = Color(0xFF585A5F)
+    ),
     surface = Surface(
         default = Color(0xFF26292F),
         neutral = Color(0xFF2A2D34),
         darkout = Color(0x0FF6F8FB),
         darkoutRipple = Color(0x0FACADAF),
+        backgroundSuccess = Color(0xFF28DE6B),
         success = Color(0xFF1DA37D),
         error = Color(0xFFD11D2F),
         toastError = Color(0xFF511511)
     ),
     border = Border(
-        subtle = Color(0xFF7C8593)
+        border2 = Color(0x1FF6F8FB),
+        border4 = Color(0x33F6F8FB)
     )
 )
 

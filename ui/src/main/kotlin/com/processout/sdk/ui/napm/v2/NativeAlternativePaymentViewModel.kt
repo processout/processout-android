@@ -23,8 +23,9 @@ import com.processout.sdk.ui.core.transformation.POPhoneNumberVisualTransformati
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentInteractorState.*
-import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.Field.*
-import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.Image
+import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.Content
+import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.Element.*
+import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.Stage
 import com.processout.sdk.ui.shared.extension.currentAppLocale
 import com.processout.sdk.ui.shared.extension.map
 import com.processout.sdk.ui.shared.filter.DigitsInputFilter
@@ -104,26 +105,33 @@ internal class NativeAlternativePaymentViewModel private constructor(
 
     private fun map(
         state: NativeAlternativePaymentInteractorState
-    ): NativeAlternativePaymentViewModelState = when (state) {
-        Idle, Loading -> loading()
-        is UserInput -> state.map()
-        is Capturing -> state.map()
-        is Captured -> state.map()
-        else -> this@NativeAlternativePaymentViewModel.state.value
-    }
+    ): NativeAlternativePaymentViewModelState =
+        when (state) {
+            Idle, Loading -> loading()
+            is NextStep -> state.map()
+            is Pending -> state.map()
+            is Completed -> state.map()
+            else -> this@NativeAlternativePaymentViewModel.state.value
+        }
 
     private fun loading() = NativeAlternativePaymentViewModelState.Loading(
         secondaryAction = null
     )
 
-    private fun UserInput.map() = with(value) {
-        NativeAlternativePaymentViewModelState.UserInput(
-            title = configuration.title ?: app.getString(R.string.po_native_apm_title_format, paymentMethod.displayName),
-            fields = fields.map(),
-            focusedFieldId = focusedFieldId,
+    private fun NextStep.map() = with(value) {
+        NativeAlternativePaymentViewModelState.Loaded(
+            logo = paymentMethod.logo,
+            title = configuration.title ?: invoice?.priceTitle(),
+            content = Content(
+                uuid = uuid,
+                stage = Stage.NextStep(
+                    focusedFieldId = focusedFieldId
+                ),
+                elements = elements.map(fields)
+            ),
             primaryAction = POActionState(
                 id = primaryActionId,
-                text = configuration.submitButton.text ?: invoice.formatPrimaryActionText(),
+                text = configuration.submitButton.text ?: app.getString(R.string.po_native_apm_continue_button_text),
                 primary = true,
                 enabled = submitAllowed,
                 loading = submitting,
@@ -136,18 +144,18 @@ internal class NativeAlternativePaymentViewModel private constructor(
         )
     }
 
-    private fun Capturing.map() = with(value) {
-        val secondaryAction = configuration.paymentConfirmation.cancelButton?.toActionState(
-            id = secondaryAction.id,
-            enabled = secondaryAction.enabled
-        )
-        val customerActionMessage = customerAction?.message
-        if (customerActionMessage.isNullOrBlank()) {
-            NativeAlternativePaymentViewModelState.Loading(
-                secondaryAction = secondaryAction
-            )
-        } else {
-            val primaryAction = configuration.paymentConfirmation.confirmButton?.let {
+    private fun Pending.map() = with(value) {
+        NativeAlternativePaymentViewModelState.Loaded(
+            logo = paymentMethod.logo,
+            title = configuration.title ?: invoice?.priceTitle(),
+            content = Content(
+                uuid = uuid,
+                stage = Stage.Pending(
+                    stepper = stepper
+                ),
+                elements = elements?.map(fields = null)
+            ),
+            primaryAction = configuration.paymentConfirmation.confirmButton?.let {
                 primaryActionId?.let { id ->
                     POActionState(
                         id = id,
@@ -156,88 +164,91 @@ internal class NativeAlternativePaymentViewModel private constructor(
                         icon = it.icon
                     )
                 }
-            }
-            NativeAlternativePaymentViewModelState.Capture(
-                title = paymentProviderName,
-                logoUrl = logoUrl,
-                image = customerAction?.barcode?.let { Image.Bitmap(it.bitmap) }
-                    ?: customerAction?.imageUrl?.let { Image.Url(it) },
-                message = customerActionMessage,
-                primaryAction = primaryAction,
-                secondaryAction = secondaryAction,
-                saveBarcodeAction = customerAction?.barcode?.let {
-                    POActionState(
-                        id = it.actionId,
-                        text = configuration.barcode.saveButton.text
-                            ?: app.getString(
-                                R.string.po_native_apm_save_barcode_button_text_format,
-                                it.type.rawType.uppercase()
-                            ),
-                        primary = false,
-                        icon = configuration.barcode.saveButton.icon
-                    )
-                },
-                confirmationDialog = confirmationDialog(),
-                withProgressIndicator = withProgressIndicator,
-                isCaptured = false
+            },
+            secondaryAction = configuration.paymentConfirmation.cancelButton?.toActionState(
+                id = secondaryAction.id,
+                enabled = secondaryAction.enabled
             )
-        }
-    }
-
-    private fun Captured.map() = with(value) {
-        NativeAlternativePaymentViewModelState.Capture(
-            title = paymentProviderName,
-            logoUrl = logoUrl,
-            image = null,
-            message = configuration.successMessage ?: app.getString(R.string.po_native_apm_success_message),
-            primaryAction = null,
-            secondaryAction = null,
-            saveBarcodeAction = null,
-            confirmationDialog = null,
-            withProgressIndicator = false,
-            isCaptured = true
         )
     }
 
-    private fun List<Field>.map(): POImmutableList<NativeAlternativePaymentViewModelState.Field> {
-        val lastFocusableFieldId = lastFocusableFieldId()
-        val fields = mapNotNull { field ->
-            val keyboardAction = keyboardAction(field.id, lastFocusableFieldId)
-            when (field.parameter) {
-                is PhoneNumber -> field.toPhoneNumberField(keyboardAction)
-                is SingleSelect -> {
-                    val availableValuesSize = field.parameter.availableValues.size
-                    if (availableValuesSize <= configuration.inlineSingleSelectValuesLimit) {
-                        field.toRadioField()
-                    } else {
-                        field.toDropdownField()
+    private fun Completed.map() = with(value) {
+        NativeAlternativePaymentViewModelState.Loaded(
+            logo = paymentMethod.logo,
+            title = configuration.title ?: invoice?.priceTitle(),
+            content = Content(
+                uuid = uuid,
+                stage = Stage.Completed(
+                    message = "This is success message!" // TODO(v2)
+                ),
+                elements = elements?.map(fields = null)
+            ),
+            primaryAction = primaryActionId?.let { id ->
+                POActionState(
+                    id = id,
+                    text = app.getString(R.string.po_native_apm_done_button_text), // TODO(v2): optional in config
+                    primary = true
+                )
+            },
+            secondaryAction = null
+        )
+    }
+
+    private fun List<Element>.map(
+        fields: List<Field>?
+    ): POImmutableList<NativeAlternativePaymentViewModelState.Element> {
+        val elements = flatMap { element ->
+            when (element) {
+                is Element.Form -> element.form.parameterDefinitions.map(fields)
+                is Element.Instruction -> listOf(element.instruction.map())
+                is Element.InstructionGroup -> emptyList() // TODO(v2)
+            }
+        }
+        return POImmutableList(elements)
+    }
+
+    private fun List<Parameter>.map(
+        fields: List<Field>?
+    ): List<NativeAlternativePaymentViewModelState.Element> {
+        val lastFocusableFieldId = fields?.lastFocusableFieldId()
+        return mapNotNull { parameter ->
+            fields?.find { it.id == parameter.key }?.let { field ->
+                val keyboardAction = keyboardAction(field.id, lastFocusableFieldId)
+                when (field.parameter) {
+                    is PhoneNumber -> field.toPhoneNumberField(keyboardAction)
+                    is SingleSelect -> {
+                        val availableValuesSize = field.parameter.availableValues.size
+                        if (availableValuesSize <= configuration.inlineSingleSelectValuesLimit) {
+                            field.toRadioField()
+                        } else {
+                            field.toDropdownField()
+                        }
                     }
-                }
-                is Bool -> field.toCheckboxField()
-                is Digits -> if (field.maxLength in codeFieldLengthRange) {
-                    field.toCodeField(keyboardAction)
-                } else {
-                    field.toTextField(keyboardAction)
-                }
-                is Otp -> when (field.parameter.subtype) {
-                    Subtype.TEXT,
-                    Subtype.DIGITS -> if (field.maxLength in codeFieldLengthRange) {
+                    is Bool -> field.toCheckboxField()
+                    is Digits -> if (field.maxLength in codeFieldLengthRange) {
                         field.toCodeField(keyboardAction)
                     } else {
                         field.toTextField(keyboardAction)
                     }
-                    Subtype.UNKNOWN -> null
+                    is Otp -> when (field.parameter.subtype) {
+                        Subtype.TEXT,
+                        Subtype.DIGITS -> if (field.maxLength in codeFieldLengthRange) {
+                            field.toCodeField(keyboardAction)
+                        } else {
+                            field.toTextField(keyboardAction)
+                        }
+                        Subtype.UNKNOWN -> null
+                    }
+                    Unknown -> null
+                    else -> field.toTextField(keyboardAction)
                 }
-                Unknown -> null
-                else -> field.toTextField(keyboardAction)
             }
         }
-        return POImmutableList(fields)
     }
 
     private fun Field.toTextField(
         keyboardAction: KeyboardAction
-    ): NativeAlternativePaymentViewModelState.Field {
+    ): NativeAlternativePaymentViewModelState.Element {
         val ltrParameterTypes = setOf(
             Digits::class.java,
             Email::class.java,
@@ -261,7 +272,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
 
     private fun Field.toCodeField(
         keyboardAction: KeyboardAction
-    ): NativeAlternativePaymentViewModelState.Field =
+    ): NativeAlternativePaymentViewModelState.Element =
         CodeField(
             FieldState(
                 id = id,
@@ -276,7 +287,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
             )
         )
 
-    private fun Field.toRadioField(): NativeAlternativePaymentViewModelState.Field =
+    private fun Field.toRadioField(): NativeAlternativePaymentViewModelState.Element =
         RadioField(
             FieldState(
                 id = id,
@@ -288,7 +299,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
             )
         )
 
-    private fun Field.toDropdownField(): NativeAlternativePaymentViewModelState.Field =
+    private fun Field.toDropdownField(): NativeAlternativePaymentViewModelState.Element =
         DropdownField(
             FieldState(
                 id = id,
@@ -300,7 +311,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
             )
         )
 
-    private fun Field.toCheckboxField(): NativeAlternativePaymentViewModelState.Field =
+    private fun Field.toCheckboxField(): NativeAlternativePaymentViewModelState.Element =
         CheckboxField(
             FieldState(
                 id = id,
@@ -313,7 +324,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
 
     private fun Field.toPhoneNumberField(
         keyboardAction: KeyboardAction
-    ): NativeAlternativePaymentViewModelState.Field {
+    ): NativeAlternativePaymentViewModelState.Element {
         val regionCode = when (value) {
             is FieldValue.PhoneNumber -> value.regionCode
             else -> TextFieldValue()
@@ -456,19 +467,52 @@ internal class NativeAlternativePaymentViewModel private constructor(
         Unknown -> KeyboardOptions.Default
     }
 
-    private fun Invoice?.formatPrimaryActionText(): String {
-        if (this == null) {
-            return app.getString(R.string.po_native_apm_submit_button_text)
+    private fun Instruction.map(): NativeAlternativePaymentViewModelState.Element =
+        when (this) {
+            is Instruction.Message -> InstructionMessage(
+                label = label,
+                value = value
+            )
+            is Instruction.Image -> Image(value = value)
+            is Instruction.Barcode -> map()
         }
-        return try {
+
+    private fun Instruction.Barcode.map() =
+        Barcode(
+            image = bitmap,
+            saveBarcodeAction = POActionState(
+                id = actionId,
+                text = configuration.barcode.saveButton.text
+                    ?: app.getString(
+                        R.string.po_native_apm_save_barcode_button_text_format,
+                        type.rawType.uppercase()
+                    ),
+                primary = false,
+                icon = configuration.barcode.saveButton.icon
+            ),
+            confirmationDialog = if (isError) {
+                configuration.barcode.saveErrorConfirmation?.let {
+                    ConfirmationDialogState(
+                        id = confirmErrorActionId,
+                        title = it.title ?: app.getString(R.string.po_native_apm_save_barcode_error_title),
+                        message = it.message ?: app.getString(R.string.po_native_apm_save_barcode_error_message),
+                        confirmActionText = it.confirmActionText
+                            ?: app.getString(R.string.po_native_apm_save_barcode_error_confirm),
+                        dismissActionText = it.dismissActionText
+                    )
+                }
+            } else null
+        )
+
+    private fun Invoice.priceTitle(): String? =
+        try {
             val formatter = NumberFormat.getCurrencyInstance()
             formatter.currency = Currency.getInstance(currency)
             val price = formatter.format(amount.toDouble())
-            app.getString(R.string.po_native_apm_submit_button_text_format, price)
+            app.getString(R.string.po_native_apm_pay_format, price)
         } catch (_: Exception) {
-            app.getString(R.string.po_native_apm_submit_button_text)
+            null
         }
-    }
 
     private fun CancelButton.toActionState(
         id: String,
@@ -490,22 +534,6 @@ internal class NativeAlternativePaymentViewModel private constructor(
             )
         }
     )
-
-    private fun CaptureStateValue.confirmationDialog(): ConfirmationDialogState? =
-        customerAction?.barcode?.let { barcode ->
-            if (barcode.isError) {
-                configuration.barcode.saveErrorConfirmation?.let {
-                    ConfirmationDialogState(
-                        id = barcode.confirmErrorActionId,
-                        title = it.title ?: app.getString(R.string.po_native_apm_save_barcode_error_title),
-                        message = it.message ?: app.getString(R.string.po_native_apm_save_barcode_error_message),
-                        confirmActionText = it.confirmActionText
-                            ?: app.getString(R.string.po_native_apm_save_barcode_error_confirm),
-                        dismissActionText = it.dismissActionText
-                    )
-                }
-            } else null
-        }
 
     override fun onCleared() {
         interactor.clear()

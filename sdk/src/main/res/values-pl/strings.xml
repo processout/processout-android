@@ -21,10 +21,15 @@
 
     <!-- Native Alternative Payment Method -->
     <string name="po_native_apm_title_format">Zapłać przy pomocy %s</string>
-    <string name="po_native_apm_submit_button_text_format">Zapłać %s</string>
+    <string name="po_native_apm_pay_format">Zapłać %s</string>
     <string name="po_native_apm_submit_button_text">Zapłać</string>
+    <string name="po_native_apm_continue_button_text">Kontynuuj</string>
     <string name="po_native_apm_cancel_button_text">Anuluj</string>
     <string name="po_native_apm_confirm_payment_button_text">Płatność wykonana</string>
+    <string name="po_native_apm_done_button_text">Gotowe</string>
+    <string name="po_native_apm_payment_confirmation_step1_title">Szczegóły przesłane</string>
+    <string name="po_native_apm_payment_confirmation_step2_title">Oczekiwanie na potwierdzenie</string>
+    <string name="po_native_apm_payment_confirmation_step2_description_format">Poczekaj maksymalnie %s minut</string>
     <string name="po_native_apm_save_barcode_button_text_format">Zapisz kod %s</string>
     <string name="po_native_apm_save_barcode_error_title">Nie udało się zapisać obrazu</string>
     <string name="po_native_apm_save_barcode_error_message">Sprawdź uprawnienia systemu lub zrób zrzut ekranu.</string>

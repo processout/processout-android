@@ -707,7 +707,7 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
             val price = NumberFormat.getCurrencyInstance().apply {
                 currency = Currency.getInstance(currencyCode)
             }.format(amount.toDouble())
-            app.getString(R.string.po_native_apm_submit_button_text_format, price)
+            app.getString(R.string.po_native_apm_pay_format, price)
         } catch (_: Exception) {
             app.getString(R.string.po_native_apm_submit_button_text)
         }

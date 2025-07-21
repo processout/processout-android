@@ -16,11 +16,11 @@ sealed class PONativeAlternativePaymentCustomerInstruction {
     /**
      * Customer instruction provided as a markdown text.
      *
-     * @param[label] Optional instruction display label.
+     * @param[label] Optional label.
      * @param[value] Markdown text.
      */
     @JsonClass(generateAdapter = true)
-    data class Text(
+    data class Message(
         val label: String?,
         val value: String
     ) : PONativeAlternativePaymentCustomerInstruction()

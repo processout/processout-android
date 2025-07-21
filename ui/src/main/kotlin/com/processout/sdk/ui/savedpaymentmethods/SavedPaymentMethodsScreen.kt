@@ -401,8 +401,8 @@ internal object SavedPaymentMethodsScreen {
     private val defaultHeader: HeaderStyle
         @Composable get() = HeaderStyle(
             title = POText.title,
-            dragHandleColor = colors.border.subtle,
-            dividerColor = colors.border.subtle,
+            dragHandleColor = colors.icon.disabled,
+            dividerColor = colors.border.border4,
             backgroundColor = colors.surface.default
         )
 
@@ -426,7 +426,7 @@ internal object SavedPaymentMethodsScreen {
             description = POText.body1,
             deleteButton = POButton.ghostEqualPadding,
             shape = shapes.roundedCornersSmall,
-            border = POBorderStroke(width = 1.dp, color = colors.border.subtle),
+            border = POBorderStroke(width = 1.dp, color = colors.border.border4),
             backgroundColor = colors.surface.default
         )
 

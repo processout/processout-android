@@ -10,7 +10,7 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
-import com.processout.sdk.ui.core.component.POExpandableText
+import com.processout.sdk.ui.core.component.POCountdownTimerText
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.stepper.POStepper.StepState.*
 import com.processout.sdk.ui.core.state.POImmutableList
@@ -84,10 +84,9 @@ fun POVerticalStepper(
                 }
                 Column(
                     modifier = Modifier
-                        .padding(start = spacing.space6)
                         .fillMaxWidth()
-                        .fillMaxHeight(),
-                    verticalArrangement = Arrangement.spacedBy(spacing.space4)
+                        .fillMaxHeight()
+                        .padding(start = spacing.space6)
                 ) {
                     val titleTextStyle = stepStyle.title.textStyle
                     POText(
@@ -101,11 +100,16 @@ fun POVerticalStepper(
                             )
                         )
                     )
-                    POExpandableText(
-                        text = step.description,
-                        style = stepStyle.description,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    step.countdownTimerDescription?.let { description ->
+                        POCountdownTimerText(
+                            textFormat = description.textFormat,
+                            timeoutSeconds = description.timeoutSeconds,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = spacing.space4),
+                            style = stepStyle.description
+                        )
+                    }
                 }
             }
         }
@@ -120,22 +124,16 @@ private fun POVerticalStepperPreview() {
     POVerticalStepper(
         steps = POImmutableList(
             listOf(
-                POStepper.Step(
-                    title = "Step 1",
-                    description = "Description"
-                ),
-                POStepper.Step(
-                    title = "Step 2",
-                    description = "Description"
-                ),
+                POStepper.Step(title = "Step 1"),
+                POStepper.Step(title = "Step 2"),
                 POStepper.Step(
                     title = "Step 3",
-                    description = "Description"
+                    countdownTimerDescription = POStepper.Step.CountdownTimerText(
+                        textFormat = "Please wait for up to %s minutes",
+                        timeoutSeconds = 90
+                    )
                 ),
-                POStepper.Step(
-                    title = "Step 4",
-                    description = "Description"
-                )
+                POStepper.Step(title = "Step 4")
             )
         ),
         activeStepIndex = 2

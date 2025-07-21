@@ -13,7 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.extension.conditional
-import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 
 /** @suppress */
@@ -23,8 +23,8 @@ fun POHeader(
     title: String?,
     modifier: Modifier = Modifier,
     style: POText.Style = POText.title,
-    dividerColor: Color = ProcessOutTheme.colors.border.subtle,
-    dragHandleColor: Color = ProcessOutTheme.colors.border.subtle,
+    dividerColor: Color = colors.border.border4,
+    dragHandleColor: Color = colors.icon.disabled,
     withDragHandle: Boolean = true,
     animationDurationMillis: Int = 0,
     trailingContent: @Composable RowScope.() -> Unit = {}

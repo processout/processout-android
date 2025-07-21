@@ -81,7 +81,7 @@ internal class DefaultNetworkGraph(
                 .withDefaultValue(Parameter.Unknown)
         ).add(
             PolymorphicJsonAdapterFactory.of(PONativeAlternativePaymentCustomerInstruction::class.java, "type")
-                .withSubtype(PONativeAlternativePaymentCustomerInstruction.Text::class.java, "text")
+                .withSubtype(PONativeAlternativePaymentCustomerInstruction.Message::class.java, "message")
                 .withSubtype(PONativeAlternativePaymentCustomerInstruction.Image::class.java, "image_url")
                 .withSubtype(PONativeAlternativePaymentCustomerInstruction.Barcode::class.java, "barcode")
                 .withDefaultValue(PONativeAlternativePaymentCustomerInstruction.Unknown)

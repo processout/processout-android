@@ -1,7 +1,6 @@
 package com.processout.sdk.ui.core.component.stepper
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
@@ -18,8 +17,14 @@ object POStepper {
 
     data class Step(
         val title: String,
-        val description: String? = null
-    )
+        val countdownTimerDescription: CountdownTimerText? = null
+    ) {
+
+        data class CountdownTimerText(
+            val textFormat: String,
+            val timeoutSeconds: Int
+        )
+    }
 
     enum class StepState {
         PENDING,
@@ -53,8 +58,8 @@ object POStepper {
                 ),
                 icon = POStepIcon.pending,
                 connector = POStroke.Style(
-                    width = 2.dp,
-                    color = Color(0xFFCECECE),
+                    width = 1.5.dp,
+                    color = colors.border.border4,
                     dashInterval = 3.dp
                 )
             ),
@@ -69,8 +74,8 @@ object POStepper {
                 ),
                 icon = POStepIcon.active,
                 connector = POStroke.Style(
-                    width = 2.dp,
-                    color = POStepIcon.DefaultCompletedColor,
+                    width = 1.5.dp,
+                    color = colors.text.positive,
                     dashInterval = 3.dp
                 )
             ),
@@ -85,8 +90,8 @@ object POStepper {
                 ),
                 icon = POStepIcon.completed,
                 connector = POStroke.Style(
-                    width = 2.dp,
-                    color = POStepIcon.DefaultCompletedColor
+                    width = 1.5.dp,
+                    color = colors.text.positive
                 )
             )
         )
