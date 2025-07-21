@@ -1,13 +1,12 @@
-@file:Suppress("AnimateAsStateLabel", "CrossfadeLabel", "MayBeConstant")
+@file:Suppress("NAME_SHADOWING", "MayBeConstant")
 
 package com.processout.sdk.ui.napm.v2
 
 import androidx.annotation.DrawableRes
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.*
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -58,6 +57,7 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.AnimationDurationMillis
+import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.ContentTransitionSpec
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.LogoHeight
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.*
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.Element.*
@@ -125,18 +125,22 @@ internal fun NativeAlternativePaymentScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             when (state) {
-                is Loading -> Loading(style.progressIndicatorColor)
-                is Loaded -> Loaded(
-                    content = state.content,
-                    onEvent = onEvent,
-                    style = style,
-                    isPrimaryActionEnabled = state.primaryAction?.let { it.enabled && !it.loading } ?: false,
-                    isLightTheme = isLightTheme,
-                    modifier = Modifier.onGloballyPositioned {
-                        val contentHeight = it.size.height + topBarHeight + bottomBarHeight + verticalSpacingPx * 2
-                        onContentHeightChanged(contentHeight)
-                    }
+                is Loading -> POCircularProgressIndicator.Large(
+                    color = style.progressIndicatorColor
                 )
+                is Loaded -> AnimatedVisibility {
+                    Loaded(
+                        content = state.content,
+                        onEvent = onEvent,
+                        style = style,
+                        isPrimaryActionEnabled = state.primaryAction?.let { it.enabled && !it.loading } ?: false,
+                        isLightTheme = isLightTheme,
+                        modifier = Modifier.onGloballyPositioned {
+                            val contentHeight = it.size.height + topBarHeight + bottomBarHeight + verticalSpacingPx * 2
+                            onContentHeightChanged(contentHeight)
+                        }
+                    )
+                }
             }
         }
     }
@@ -151,8 +155,7 @@ private fun Header(
     dragHandleColor: Color,
     isLightTheme: Boolean,
     modifier: Modifier = Modifier,
-    withDragHandle: Boolean = true,
-    animationDurationMillis: Int = AnimationDurationMillis
+    withDragHandle: Boolean = true
 ) {
     Box(modifier = modifier.fillMaxWidth()) {
         if (withDragHandle) {
@@ -165,8 +168,8 @@ private fun Header(
         }
         AnimatedVisibility(
             visible = logo != null || !title.isNullOrBlank(),
-            enter = fadeIn(animationSpec = tween(durationMillis = animationDurationMillis)),
-            exit = fadeOut(animationSpec = tween(durationMillis = animationDurationMillis)),
+            enter = fadeIn(animationSpec = tween(durationMillis = AnimationDurationMillis)),
+            exit = fadeOut(animationSpec = tween(durationMillis = AnimationDurationMillis)),
         ) {
             Column(
                 modifier = Modifier.conditional(
@@ -217,13 +220,6 @@ private fun Header(
 }
 
 @Composable
-private fun Loading(progressIndicatorColor: Color) {
-    AnimatedVisibility(enterDelayMillis = AnimationDurationMillis) {
-        POCircularProgressIndicator.Large(color = progressIndicatorColor)
-    }
-}
-
-@Composable
 private fun Loaded(
     content: Content,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
@@ -232,13 +228,18 @@ private fun Loaded(
     isLightTheme: Boolean,
     modifier: Modifier = Modifier
 ) {
-    AnimatedVisibility {
+    AnimatedContent(
+        targetState = content,
+        contentKey = { it.uuid },
+        transitionSpec = { ContentTransitionSpec }
+    ) { content ->
         Column(
-            modifier = modifier,
+            modifier = modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(spacing.space16)
         ) {
-            if (content is Content.Pending) {
-                content.stepper?.let {
+            val stage = content.stage
+            if (stage is Stage.Pending) {
+                stage.stepper?.let {
                     POVerticalStepper(
                         steps = it.steps,
                         activeStepIndex = it.activeStepIndex,
@@ -247,17 +248,12 @@ private fun Loaded(
                     )
                 }
             }
-            val elements = when (content) {
-                is Content.NextStep -> content.elements
-                is Content.Pending -> content.elements
-                is Content.Completed -> content.elements
-            }
-            if (elements != null) {
+            if (content.elements != null) {
                 Elements(
-                    elements = elements,
+                    elements = content.elements,
                     onEvent = onEvent,
                     style = style,
-                    focusedFieldId = if (content is Content.NextStep) content.focusedFieldId else null,
+                    focusedFieldId = if (stage is Stage.NextStep) stage.focusedFieldId else null,
                     isPrimaryActionEnabled = isPrimaryActionEnabled,
                     isLightTheme = isLightTheme
                 )
@@ -719,17 +715,11 @@ private fun AnimatedVisibility(
         MutableTransitionState(initialState = false)
             .apply { targetState = true }
     },
-    enterDelayMillis: Int = 0,
     content: @Composable () -> Unit
 ) {
     AnimatedVisibility(
         visibleState = visibleState,
-        enter = fadeIn(
-            animationSpec = tween(
-                durationMillis = AnimationDurationMillis,
-                delayMillis = enterDelayMillis
-            )
-        ),
+        enter = fadeIn(animationSpec = tween(durationMillis = AnimationDurationMillis)),
         exit = fadeOut(animationSpec = tween(durationMillis = AnimationDurationMillis))
     ) {
         content()
@@ -830,7 +820,17 @@ internal object NativeAlternativePaymentScreen {
         }
 
     val LogoHeight = 26.dp
-
     val AnimationDurationMillis = 300
-    val CrossfadeAnimationDurationMillis = 400
+
+    val ContentTransitionSpec = fadeIn(
+        animationSpec = tween(
+            durationMillis = AnimationDurationMillis,
+            easing = LinearEasing
+        )
+    ) togetherWith fadeOut(
+        animationSpec = tween(
+            durationMillis = AnimationDurationMillis,
+            easing = LinearEasing
+        )
+    )
 }

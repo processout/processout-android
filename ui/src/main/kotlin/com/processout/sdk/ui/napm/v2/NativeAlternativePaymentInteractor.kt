@@ -73,6 +73,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
+import java.util.UUID
 
 internal class NativeAlternativePaymentInteractor(
     private val app: Application,
@@ -208,6 +209,7 @@ internal class NativeAlternativePaymentInteractor(
     ): NextStepStateValue {
         preloadImages(resources = listOf(paymentMethod.logo))
         return NextStepStateValue(
+            uuid = UUID.randomUUID().toString(),
             paymentMethod = paymentMethod,
             invoice = invoice,
             elements = emptyList(),
@@ -233,7 +235,12 @@ internal class NativeAlternativePaymentInteractor(
         when (paymentState) {
             NEXT_STEP_REQUIRED -> handleNextStep(stateValue, mappedElements)
             PENDING -> handlePending(stateValue, mappedElements)
-            SUCCESS -> handleSuccess(stateValue.toPendingStateValue(mappedElements))
+            SUCCESS -> handleSuccess(
+                stateValue.toPendingStateValue(
+                    uuid = UUID.randomUUID().toString(),
+                    elements = mappedElements
+                )
+            )
             UNKNOWN -> TODO(reason = "v2")
         }
     }
@@ -258,6 +265,7 @@ internal class NativeAlternativePaymentInteractor(
         }
         val fields = parameters.toFields()
         val updatedStateValue = stateValue.copy(
+            uuid = UUID.randomUUID().toString(),
             elements = elements,
             fields = fields,
             focusedFieldId = fields.firstFocusableFieldId()
@@ -798,7 +806,10 @@ internal class NativeAlternativePaymentInteractor(
         dispatch(DidSubmitParameters(additionalParametersExpected = false))
         POLogger.info("Waiting for capture confirmation.")
         dispatch(WillWaitForCaptureConfirmation(additionalActionExpected = false)) // TODO(v2): remove param, update events
-        val pendingStateValue = stateValue.toPendingStateValue(elements)
+        val pendingStateValue = stateValue.toPendingStateValue(
+            uuid = UUID.randomUUID().toString(),
+            elements = elements
+        )
         _state.update { Pending(pendingStateValue) }
         enablePendingSecondaryAction()
         if (pendingStateValue.elements.isNullOrEmpty() ||
@@ -809,8 +820,10 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private fun NextStepStateValue.toPendingStateValue(
+        uuid: String,
         elements: List<Element>
     ) = PendingStateValue(
+        uuid = uuid,
         paymentMethod = paymentMethod,
         invoice = invoice,
         stepper = null,
@@ -861,7 +874,12 @@ internal class NativeAlternativePaymentInteractor(
                     capturePassedTimestamp = 0L
                     result.onSuccess {
                         _state.whenPending { stateValue ->
-                            handleSuccess(stateValue.copy(elements = it.elements))
+                            handleSuccess(
+                                stateValue.copy(
+                                    uuid = UUID.randomUUID().toString(),
+                                    elements = it.elements
+                                )
+                            )
                         }
                     }.onFailure { failure ->
                         _completion.update { Failure(failure) }
@@ -897,6 +915,7 @@ internal class NativeAlternativePaymentInteractor(
                 )
                 Pending(
                     stateValue.copy(
+                        uuid = UUID.randomUUID().toString(),
                         stepper = Stepper(
                             steps = POImmutableList(steps),
                             activeStepIndex = activeStepIndex

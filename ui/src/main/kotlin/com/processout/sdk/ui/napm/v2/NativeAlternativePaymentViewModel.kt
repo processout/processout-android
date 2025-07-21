@@ -25,6 +25,7 @@ import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Cancel
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.Content
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.Element.*
+import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.Stage
 import com.processout.sdk.ui.shared.extension.currentAppLocale
 import com.processout.sdk.ui.shared.extension.map
 import com.processout.sdk.ui.shared.filter.DigitsInputFilter
@@ -121,9 +122,12 @@ internal class NativeAlternativePaymentViewModel private constructor(
         NativeAlternativePaymentViewModelState.Loaded(
             logo = paymentMethod.logo,
             title = configuration.title ?: invoice?.priceTitle(),
-            content = Content.NextStep(
-                elements = elements.map(fields),
-                focusedFieldId = focusedFieldId
+            content = Content(
+                uuid = uuid,
+                stage = Stage.NextStep(
+                    focusedFieldId = focusedFieldId
+                ),
+                elements = elements.map(fields)
             ),
             primaryAction = POActionState(
                 id = primaryActionId,
@@ -144,8 +148,11 @@ internal class NativeAlternativePaymentViewModel private constructor(
         NativeAlternativePaymentViewModelState.Loaded(
             logo = paymentMethod.logo,
             title = configuration.title ?: invoice?.priceTitle(),
-            content = Content.Pending(
-                stepper = stepper,
+            content = Content(
+                uuid = uuid,
+                stage = Stage.Pending(
+                    stepper = stepper
+                ),
                 elements = elements?.map(fields = null)
             ),
             primaryAction = configuration.paymentConfirmation.confirmButton?.let {
@@ -169,7 +176,11 @@ internal class NativeAlternativePaymentViewModel private constructor(
         NativeAlternativePaymentViewModelState.Loaded(
             logo = paymentMethod.logo,
             title = configuration.title ?: invoice?.priceTitle(),
-            content = Content.Completed(
+            content = Content(
+                uuid = uuid,
+                stage = Stage.Completed(
+                    message = "This is success message!" // TODO(v2)
+                ),
                 elements = elements?.map(fields = null)
             ),
             primaryAction = primaryActionId?.let { id ->

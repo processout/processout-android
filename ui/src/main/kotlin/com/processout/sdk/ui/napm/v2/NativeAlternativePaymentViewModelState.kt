@@ -32,24 +32,29 @@ internal sealed interface NativeAlternativePaymentViewModelState {
     //endregion
 
     @Immutable
-    sealed interface Content {
+    data class Content(
+        val uuid: String,
+        val stage: Stage,
+        val elements: POImmutableList<Element>?
+    )
+
+    @Immutable
+    sealed interface Stage {
 
         @Immutable
         data class NextStep(
-            val elements: POImmutableList<Element>,
             val focusedFieldId: String?
-        ) : Content
+        ) : Stage
 
         @Immutable
         data class Pending(
-            val stepper: Stepper?,
-            val elements: POImmutableList<Element>?
-        ) : Content
+            val stepper: Stepper?
+        ) : Stage
 
         @Immutable
         data class Completed(
-            val elements: POImmutableList<Element>?
-        ) : Content
+            val message: String
+        ) : Stage
     }
 
     @Immutable

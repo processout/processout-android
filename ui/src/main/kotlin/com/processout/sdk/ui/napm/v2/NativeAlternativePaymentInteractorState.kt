@@ -45,6 +45,7 @@ internal sealed interface NativeAlternativePaymentInteractorState {
     //endregion
 
     data class NextStepStateValue(
+        val uuid: String,
         val paymentMethod: PONativeAlternativePaymentMethodDetails,
         val invoice: Invoice?,
         val elements: List<Element>,
@@ -57,6 +58,7 @@ internal sealed interface NativeAlternativePaymentInteractorState {
     )
 
     data class PendingStateValue(
+        val uuid: String,
         val paymentMethod: PONativeAlternativePaymentMethodDetails,
         val invoice: Invoice?,
         val stepper: Stepper?,
