@@ -234,7 +234,7 @@ private fun Loaded(
         transitionSpec = { ContentTransitionSpec }
     ) { content ->
         Column(
-            modifier = modifier.fillMaxWidth(),
+            modifier = modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(spacing.space16)
         ) {
             val stage = content.stage
