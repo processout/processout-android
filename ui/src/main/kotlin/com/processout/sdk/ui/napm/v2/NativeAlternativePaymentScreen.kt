@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -76,6 +77,13 @@ internal fun NativeAlternativePaymentScreen(
     isLightTheme: Boolean,
     style: NativeAlternativePaymentScreen.Style = NativeAlternativePaymentScreen.style()
 ) {
+    if (state is Loaded) {
+        when (state.content.stage) {
+            is Stage.Pending,
+            is Stage.Completed -> LocalFocusManager.current.clearFocus(force = true)
+            else -> {}
+        }
+    }
     var topBarHeight by remember { mutableIntStateOf(0) }
     var bottomBarHeight by remember { mutableIntStateOf(0) }
     Scaffold(
