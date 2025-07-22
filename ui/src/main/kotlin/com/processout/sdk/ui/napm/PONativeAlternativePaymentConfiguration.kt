@@ -9,6 +9,8 @@ import com.processout.sdk.ui.core.style.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
 import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
 import com.processout.sdk.ui.shared.configuration.POBarcodeConfiguration
+import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration
+import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration.Height.WrapContent
 import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import kotlinx.parcelize.Parcelize
 
@@ -19,7 +21,6 @@ import kotlinx.parcelize.Parcelize
  * @param[title] Custom title.
  * @param[submitButton] Submit button configuration.
  * @param[cancelButton] Cancel button configuration. Use _null_ to hide, this is a default behaviour.
- * @param[cancellation] Specifies cancellation behaviour.
  * @param[paymentConfirmation] Specifies payment confirmation configuration.
  * @param[barcode] Specifies barcode configuration.
  * @param[inlineSingleSelectValuesLimit] Defines maximum number of options that will be
@@ -27,6 +28,7 @@ import kotlinx.parcelize.Parcelize
  * Default value is _5_.
  * @param[skipSuccessScreen] Only applies when [PaymentConfirmationConfiguration.waitsConfirmation] is _true_.
  * @param[successMessage] Custom success message when payment is completed.
+ * @param[bottomSheet] Bottom sheet configuration.
  * @param[style] Allows to customize the look and feel.
  */
 @Parcelize
@@ -35,12 +37,15 @@ data class PONativeAlternativePaymentConfiguration(
     val title: String? = null,
     val submitButton: Button = Button(),
     val cancelButton: CancelButton? = null,
-    val cancellation: POCancellationConfiguration = POCancellationConfiguration(),
     val paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration(confirmButton = null),
     val barcode: POBarcodeConfiguration = POBarcodeConfiguration(saveButton = POBarcodeConfiguration.Button()),
     val inlineSingleSelectValuesLimit: Int = 5,
     val skipSuccessScreen: Boolean = false,
     val successMessage: String? = null,
+    val bottomSheet: POBottomSheetConfiguration = POBottomSheetConfiguration(
+        height = WrapContent,
+        expandable = true
+    ),
     val style: Style? = null
 ) : Parcelable {
 
@@ -131,12 +136,16 @@ data class PONativeAlternativePaymentConfiguration(
         title = title,
         submitButton = submitButton,
         cancelButton = cancelButton,
-        cancellation = cancellation,
         paymentConfirmation = paymentConfirmation,
         barcode = barcode,
         inlineSingleSelectValuesLimit = inlineSingleSelectValuesLimit,
         skipSuccessScreen = skipSuccessScreen,
         successMessage = successMessage,
+        bottomSheet = POBottomSheetConfiguration(
+            height = WrapContent,
+            expandable = true,
+            cancellation = cancellation
+        ),
         style = style
     )
 
