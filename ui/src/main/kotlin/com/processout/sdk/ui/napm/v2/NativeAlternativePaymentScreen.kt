@@ -110,20 +110,16 @@ internal fun NativeAlternativePaymentScreen(
             )
         }
     ) { scaffoldPadding ->
-        val verticalSpacing = spacing.space20
-        val verticalSpacingPx = verticalSpacing.dpToPx()
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(scaffoldPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(
-                    horizontal = spacing.extraLarge,
-                    vertical = verticalSpacing
-                ),
+                .padding(spacing.space20),
             verticalArrangement = if (state is Loading) Arrangement.Center else Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            val adjustedContentHeight = 90.dp.dpToPx()
             when (state) {
                 is Loading -> POCircularProgressIndicator.Large(
                     color = style.progressIndicatorColor
@@ -136,7 +132,7 @@ internal fun NativeAlternativePaymentScreen(
                         isPrimaryActionEnabled = state.primaryAction?.let { it.enabled && !it.loading } ?: false,
                         isLightTheme = isLightTheme,
                         modifier = Modifier.onGloballyPositioned {
-                            val contentHeight = it.size.height + topBarHeight + bottomBarHeight + verticalSpacingPx * 2
+                            val contentHeight = it.size.height + topBarHeight + bottomBarHeight + adjustedContentHeight
                             onContentHeightChanged(contentHeight)
                         }
                     )
