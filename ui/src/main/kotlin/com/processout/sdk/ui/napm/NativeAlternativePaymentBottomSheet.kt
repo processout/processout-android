@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
@@ -15,28 +16,30 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.processout.sdk.api.dispatcher.PODefaultEventDispatchers
 import com.processout.sdk.core.POUnit
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.toActivityResult
 import com.processout.sdk.ui.base.BaseBottomSheetDialogFragment
-import com.processout.sdk.ui.core.component.POIme.isImeVisibleAsState
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.napm.NativeAlternativePaymentActivityContract.Companion.EXTRA_CONFIGURATION
 import com.processout.sdk.ui.napm.NativeAlternativePaymentActivityContract.Companion.EXTRA_RESULT
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Failure
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Success
-import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.Dismiss
-import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.PermissionRequestResult
-import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.AnimationDurationMillis
 import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.PermissionRequest
-import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Capture
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow
+import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentEvent.Dismiss
+import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentEvent.PermissionRequestResult
+import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen
+import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModel
+import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.Loaded
+import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.Stage
+import com.processout.sdk.ui.shared.component.displayCutoutHeight
 import com.processout.sdk.ui.shared.component.screenModeAsState
+import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration.Height.Fixed
+import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration.Height.WrapContent
 import com.processout.sdk.ui.shared.extension.collectImmediately
 import com.processout.sdk.ui.shared.extension.dpToPx
-import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
 internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragment<POUnit>() {
@@ -46,21 +49,15 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
     }
 
     override var expandable = true
-    override val defaultViewHeight by lazy { 460.dpToPx(requireContext()) }
-    private val maxPeekHeight by lazy { (screenHeight * 0.8).roundToInt() }
+    override val defaultViewHeight by lazy { 410.dpToPx(requireContext()) }
 
-    private var configuration: PONativeAlternativePaymentConfiguration? = null
+    private lateinit var configuration: PONativeAlternativePaymentConfiguration
+    private val viewHeightConfiguration by lazy { configuration.bottomSheet.height }
 
     private val viewModel: NativeAlternativePaymentViewModel by viewModels {
         NativeAlternativePaymentViewModel.Factory(
             app = requireActivity().application,
-            configuration = configuration ?: PONativeAlternativePaymentConfiguration(
-                flow = Flow.Authorization(
-                    invoiceId = String(),
-                    gatewayConfigurationId = String()
-                )
-            ),
-            legacyEventDispatcher = PODefaultEventDispatchers.defaultNativeAlternativePaymentMethod
+            configuration = configuration
         )
     }
 
@@ -73,6 +70,12 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
         super.onAttach(context)
         @Suppress("DEPRECATION")
         configuration = arguments?.getParcelable(EXTRA_CONFIGURATION)
+            ?: PONativeAlternativePaymentConfiguration(
+                flow = Flow.Authorization(
+                    invoiceId = String(),
+                    gatewayConfigurationId = String()
+                )
+            )
         viewModel.start()
     }
 
@@ -83,42 +86,33 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
     ): View = ComposeView(requireContext()).apply {
         setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
         setContent {
-            ProcessOutTheme {
+            val isLightTheme = !isSystemInDarkTheme()
+            ProcessOutTheme(isLightTheme = isLightTheme) {
                 with(viewModel.completion.collectAsStateWithLifecycle()) {
                     LaunchedEffect(value) { handle(value) }
                 }
                 viewModel.sideEffects.collectImmediately { handle(it) }
 
-                val state by viewModel.state.collectAsStateWithLifecycle()
-                val isImeVisible by isImeVisibleAsState()
-                var isContentHeightIncreased by remember { mutableStateOf(false) }
-                var viewHeight by remember { mutableIntStateOf(defaultViewHeight) }
-                if (state is Capture && !isImeVisible) {
-                    LaunchedEffect(true) {
-                        delay(AnimationDurationMillis.toLong())
-                        viewHeight = maxPeekHeight
-                    }
+                val displayCutoutHeight = displayCutoutHeight()
+                val defaultViewHeight = when (val height = viewHeightConfiguration) {
+                    is Fixed -> (screenHeight * height.fraction + displayCutoutHeight).roundToInt()
+                    WrapContent -> defaultViewHeight + displayCutoutHeight
                 }
+                var viewHeight by remember { mutableIntStateOf(defaultViewHeight) }
                 with(screenModeAsState(viewHeight = viewHeight)) {
-                    LaunchedEffect(value) {
-                        apply(
-                            screenMode = value,
-                            animate = isContentHeightIncreased || state is Capture
-                        )
-                        isContentHeightIncreased = false
-                    }
+                    LaunchedEffect(value) { apply(value) }
                 }
 
                 NativeAlternativePaymentScreen(
-                    state = state,
+                    state = viewModel.state.collectAsStateWithLifecycle().value,
                     onEvent = remember { viewModel::onEvent },
                     onContentHeightChanged = { contentHeight ->
-                        if (contentHeight > viewHeight) {
-                            isContentHeightIncreased = true
-                            viewHeight = contentHeight
+                        if (viewHeightConfiguration is WrapContent) {
+                            viewHeight = contentHeight.coerceAtLeast(defaultViewHeight)
                         }
                     },
-                    style = NativeAlternativePaymentScreen.style(custom = configuration?.style)
+                    isLightTheme = isLightTheme,
+                    style = NativeAlternativePaymentScreen.style(custom = configuration.style)
                 )
             }
         }
@@ -126,7 +120,8 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        configuration?.let { apply(it.cancellation) }
+        expandable = configuration.bottomSheet.expandable
+        apply(configuration.bottomSheet.cancellation)
     }
 
     private fun handle(sideEffect: NativeAlternativePaymentSideEffect) {
@@ -179,11 +174,11 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
 
     private fun dismiss(failure: ProcessOutResult.Failure) {
         viewModel.onEvent(Dismiss(failure))
-        val isCaptured = when (val state = viewModel.state.value) {
-            is Capture -> state.isCaptured
+        val isCompleted = when (val state = viewModel.state.value) {
+            is Loaded -> state.content.stage is Stage.Completed
             else -> false
         }
-        if (isCaptured) {
+        if (isCompleted) {
             finishWithActivityResult(
                 resultCode = Activity.RESULT_OK,
                 result = ProcessOutActivityResult.Success(POUnit)
