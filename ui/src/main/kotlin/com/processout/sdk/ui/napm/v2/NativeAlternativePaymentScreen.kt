@@ -62,6 +62,7 @@ import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.AnimationDurationMillis
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.ContentTransitionSpec
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.LogoHeight
+import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.SuccessStyle
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.*
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.Element.*
 import com.processout.sdk.ui.shared.component.AndroidTextView
@@ -253,7 +254,10 @@ private fun Loaded(
                         style = style.stepper
                     )
                 }
-                is Stage.Completed -> POText(text = stage.message) // TODO(v2)
+                is Stage.Completed -> Success(
+                    state = stage,
+                    style = style.success
+                )
                 else -> {}
             }
             if (content.elements != null) {
@@ -684,6 +688,14 @@ private fun Barcode(
             style = style.dialog
         )
     }
+}
+
+@Composable
+private fun Success(
+    state: Stage.Completed,
+    style: SuccessStyle
+) {
+    // TODO(v2)
 }
 
 @Composable
