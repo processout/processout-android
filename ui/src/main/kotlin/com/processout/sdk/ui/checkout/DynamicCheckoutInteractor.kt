@@ -60,6 +60,7 @@ import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow
 import com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentEvent
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsConfiguration
 import com.processout.sdk.ui.shared.extension.orElse
+import com.processout.sdk.ui.shared.state.FieldValue
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -568,7 +569,7 @@ internal class DynamicCheckoutInteractor(
                 CardTokenizationEvent.FieldValueChanged(event.fieldId, event.value)
             )
             is NativeAlternativePayment -> nativeAlternativePayment.onEvent(
-                NativeAlternativePaymentEvent.FieldValueChanged(event.fieldId, event.value)
+                NativeAlternativePaymentEvent.FieldValueChanged(event.fieldId, FieldValue.Text(event.value))
             )
             else -> _state.update { state ->
                 state.copy(
