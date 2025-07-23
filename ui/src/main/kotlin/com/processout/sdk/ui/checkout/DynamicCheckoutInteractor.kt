@@ -546,7 +546,6 @@ internal class DynamicCheckoutInteractor(
         configuration: AlternativePaymentConfiguration.PaymentConfirmationConfiguration
     ) = copy(
         timeoutSeconds = configuration.timeoutSeconds,
-        showProgressIndicatorAfterSeconds = configuration.showProgressIndicatorAfterSeconds,
         confirmButton = configuration.confirmButton?.let {
             Button(
                 text = it.text,

@@ -135,10 +135,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
             submitButton = configuration.submitButton.map(),
             cancelButton = configuration.cancelButton?.map(),
             paymentConfirmation = PaymentConfirmationConfiguration(
-                waitsConfirmation = true,
                 timeoutSeconds = paymentConfirmation.timeoutSeconds,
-                showProgressIndicatorAfterSeconds = paymentConfirmation.showProgressIndicatorAfterSeconds,
-                hideGatewayDetails = true,
                 confirmButton = paymentConfirmation.confirmButton?.map(),
                 cancelButton = paymentConfirmation.cancelButton?.map()
             ),

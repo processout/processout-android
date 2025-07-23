@@ -278,26 +278,17 @@ data class PONativeAlternativePaymentConfiguration(
     ) : Parcelable
 
     /**
-     * Specifies payment confirmation configuration.
+     * Payment confirmation configuration.
      *
-     * @param[waitsConfirmation] Specifies whether flow should wait for payment confirmation from PSP
-     * or will complete right after all user input is submitted. Default value is _true_.
      * @param[timeoutSeconds] Amount of time (in seconds) to wait for final payment confirmation.
      * Default value is 3 minutes, while maximum value is 15 minutes.
-     * @param[showProgressIndicatorAfterSeconds] Show progress indicator during payment confirmation after provided delay (in seconds).
-     * Use _null_ to hide, this is a default behaviour.
-     * @param[hideGatewayDetails] Specifies whether gateway information (such as name/logo) should be hidden during payment confirmation
-     * even when specific payment provider details are not available. Default value is _false_.
-     * @param[confirmButton] Confirm button configuration.
-     * @param[cancelButton] Cancel button configuration.
+     * @param[confirmButton] Confirm button configuration. Pass _null_ to hide.
+     * @param[cancelButton] Cancel button configuration. Pass _null_ to hide.
      */
     @Parcelize
     data class PaymentConfirmationConfiguration(
-        val waitsConfirmation: Boolean = true, // TODO(v2): deprecate and update KDoc for [skipSuccessScreen]
         @IntRange(from = 0, to = 15 * 60)
         val timeoutSeconds: Int = DEFAULT_TIMEOUT_SECONDS,
-        val showProgressIndicatorAfterSeconds: Int? = null,
-        val hideGatewayDetails: Boolean = false,
         val confirmButton: Button? = null,
         val cancelButton: CancelButton? = null
     ) : Parcelable {
@@ -308,15 +299,44 @@ data class PONativeAlternativePaymentConfiguration(
         }
 
         /**
-         * Specifies payment confirmation configuration.
+         * Payment confirmation configuration.
          *
-         * @param[waitsConfirmation] Specifies whether flow should wait for payment confirmation from PSP
+         * @param[waitsConfirmation] __Deprecated__: not used. Specifies whether flow should wait for payment confirmation from PSP
          * or will complete right after all user input is submitted. Default value is _true_.
          * @param[timeoutSeconds] Amount of time (in seconds) to wait for final payment confirmation.
          * Default value is 3 minutes, while maximum value is 15 minutes.
-         * @param[showProgressIndicatorAfterSeconds] Show progress indicator during payment confirmation after provided delay (in seconds).
+         * @param[showProgressIndicatorAfterSeconds] __Deprecated__: not used. Show progress indicator during payment confirmation after provided delay (in seconds).
          * Use _null_ to hide, this is a default behaviour.
-         * @param[hideGatewayDetails] Specifies whether gateway information (such as name/logo) should be hidden during payment confirmation
+         * @param[hideGatewayDetails] __Deprecated__: not used. Specifies whether gateway information (such as name/logo) should be hidden during payment confirmation
+         * even when specific payment provider details are not available. Default value is _false_.
+         * @param[confirmButton] Confirm button configuration.
+         * @param[cancelButton] Cancel button configuration.
+         */
+        @Deprecated(message = "Use alternative constructor.")
+        constructor(
+            waitsConfirmation: Boolean = true,
+            @IntRange(from = 0, to = 15 * 60)
+            timeoutSeconds: Int = DEFAULT_TIMEOUT_SECONDS,
+            showProgressIndicatorAfterSeconds: Int? = null,
+            hideGatewayDetails: Boolean = false,
+            confirmButton: Button? = null,
+            cancelButton: CancelButton? = null
+        ) : this(
+            timeoutSeconds = timeoutSeconds,
+            confirmButton = confirmButton,
+            cancelButton = cancelButton
+        )
+
+        /**
+         * Payment confirmation configuration.
+         *
+         * @param[waitsConfirmation] __Deprecated__: not used. Specifies whether flow should wait for payment confirmation from PSP
+         * or will complete right after all user input is submitted. Default value is _true_.
+         * @param[timeoutSeconds] Amount of time (in seconds) to wait for final payment confirmation.
+         * Default value is 3 minutes, while maximum value is 15 minutes.
+         * @param[showProgressIndicatorAfterSeconds] __Deprecated__: not used. Show progress indicator during payment confirmation after provided delay (in seconds).
+         * Use _null_ to hide, this is a default behaviour.
+         * @param[hideGatewayDetails] __Deprecated__: not used. Specifies whether gateway information (such as name/logo) should be hidden during payment confirmation
          * even when specific payment provider details are not available. Default value is _false_.
          * @param[primaryAction] Optional primary action for payment confirmation.
          * To hide action use _null_, this is a default behaviour.
