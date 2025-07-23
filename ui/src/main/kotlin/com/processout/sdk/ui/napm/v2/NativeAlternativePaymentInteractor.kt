@@ -978,11 +978,7 @@ internal class NativeAlternativePaymentInteractor(
             _completion.update { Success }
         } else {
             _state.update {
-                Completed(
-                    stateValue.copy(
-                        primaryActionId = ActionId.DONE // TODO(v2): optional in config
-                    )
-                )
+                Completed(stateValue.copy(primaryActionId = ActionId.DONE))
             }
             handler.postDelayed(delayInMillis = SUCCESS_DELAY_MS) {
                 _completion.update { Success }
