@@ -37,6 +37,8 @@
     <string name="po_native_apm_label_country">País</string>
     <string name="po_native_apm_placeholder_phone">Insira o seu número de telemóvel</string>
     <string name="po_native_apm_placeholder_email">nome@exemplo.pt</string>
+    <string name="po_native_apm_success_title">Tudo pronto!</string>
+    <string name="po_native_apm_success_message_format">Você pagou %s</string>
     <string name="po_native_apm_success_message">Successo!\nPagamento aprovado.</string>
     <string name="po_native_apm_error_required_parameter">Campo obrigatório.</string>
     <string name="po_native_apm_error_invalid_number">Número inválido.</string>
