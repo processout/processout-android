@@ -780,17 +780,17 @@ internal object NativeAlternativePaymentScreen {
     @Immutable
     data class Style(
         val title: POText.Style,
+        val bodyText: AndroidTextView.Style,
         val field: POField.Style,
         val codeField: POField.Style,
         val radioField: PORadioField.Style,
-        val checkbox: POCheckbox.Style,
         val dropdownMenu: PODropdownField.MenuStyle,
+        val checkbox: POCheckbox.Style,
         val dialog: PODialog.Style,
         val stepper: POStepper.Style,
-        val actionsContainer: POActionsContainer.Style,
-        val bodyText: AndroidTextView.Style,
-        val errorMessageBox: POMessageBox.Style,
         val success: SuccessStyle,
+        val errorMessageBox: POMessageBox.Style,
+        val actionsContainer: POActionsContainer.Style,
         val backgroundColor: Color,
         val progressIndicatorColor: Color,
         val dividerColor: Color,
@@ -815,6 +815,13 @@ internal object NativeAlternativePaymentScreen {
                     color = colors.text.primary,
                     textStyle = typography.s20(FontWeight.Medium)
                 ),
+                bodyText = custom?.bodyText?.let { style ->
+                    val controlsTintColor = custom.controlsTintColorResId?.let { colorResource(id = it) }
+                    AndroidTextView.custom(
+                        style = style,
+                        controlsTintColor = controlsTintColor ?: colors.text.primary
+                    )
+                } ?: AndroidTextView.default,
                 field = custom?.field?.let {
                     POField.custom(style = it)
                 } ?: POField.default2,
@@ -824,32 +831,25 @@ internal object NativeAlternativePaymentScreen {
                 radioField = custom?.radioField?.let {
                     PORadioField.custom(style = it)
                 } ?: PORadioField.default,
-                checkbox = custom?.checkbox?.let {
-                    POCheckbox.custom(style = it)
-                } ?: POCheckbox.default2,
                 dropdownMenu = custom?.dropdownMenu?.let {
                     PODropdownField.custom(style = it)
                 } ?: PODropdownField.defaultMenu2,
+                checkbox = custom?.checkbox?.let {
+                    POCheckbox.custom(style = it)
+                } ?: POCheckbox.default2,
                 dialog = custom?.dialog?.let {
                     PODialog.custom(style = it)
                 } ?: PODialog.default,
                 stepper = custom?.stepper?.let {
                     POStepper.custom(style = it)
                 } ?: POStepper.default,
-                actionsContainer = custom?.actionsContainer?.let {
-                    POActionsContainer.custom(style = it)
-                } ?: POActionsContainer.default2,
-                bodyText = custom?.bodyText?.let { style ->
-                    val controlsTintColor = custom.controlsTintColorResId?.let { colorResource(id = it) }
-                    AndroidTextView.custom(
-                        style = style,
-                        controlsTintColor = controlsTintColor ?: colors.text.primary
-                    )
-                } ?: AndroidTextView.default,
+                success = custom?.success?.custom() ?: defaultSuccess,
                 errorMessageBox = custom?.errorMessageBox?.let {
                     POMessageBox.custom(style = it)
                 } ?: POMessageBox.error2,
-                success = custom?.success?.custom() ?: defaultSuccess,
+                actionsContainer = custom?.actionsContainer?.let {
+                    POActionsContainer.custom(style = it)
+                } ?: POActionsContainer.default2,
                 backgroundColor = custom?.backgroundColorResId?.let {
                     colorResource(id = it)
                 } ?: colors.surface.default,

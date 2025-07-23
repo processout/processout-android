@@ -366,16 +366,17 @@ data class PONativeAlternativePaymentConfiguration(
      * Custom style.
      *
      * @param[title] Title style.
+     * @param[bodyText] Body text style, such as customer instruction.
      * @param[field] Field style.
      * @param[codeField] Code field style.
      * @param[radioField] Radio field style.
-     * @param[checkbox] Checkbox style.
      * @param[dropdownMenu] Dropdown menu style.
-     * @param[actionsContainer] Style of action buttons and their container.
+     * @param[checkbox] Checkbox style.
      * @param[dialog] Dialog style.
-     * @param[bodyText] Body text style, such as customer instruction.
-     * @param[errorMessageBox] Error message box style.
+     * @param[stepper] Multi-step progress view style.
      * @param[success] Success screen style.
+     * @param[errorMessageBox] Error message box style.
+     * @param[actionsContainer] Style of action buttons and their container.
      * @param[backgroundColorResId] Color resource ID for background.
      * @param[progressIndicatorColorResId] Color resource ID for progress indicator.
      * @param[controlsTintColorResId] Color resource ID for tint that applies to generic components (e.g. selectable text).
@@ -385,17 +386,17 @@ data class PONativeAlternativePaymentConfiguration(
     @Parcelize
     data class Style(
         val title: POTextStyle? = null,
+        val bodyText: POTextStyle? = null,
         val field: POFieldStyle? = null,
         val codeField: POFieldStyle? = null,
         val radioField: PORadioFieldStyle? = null,
-        val checkbox: POCheckboxStyle? = null,
         val dropdownMenu: PODropdownMenuStyle? = null,
+        val checkbox: POCheckboxStyle? = null,
         val dialog: PODialogStyle? = null,
         val stepper: POStepperStyle? = null,
-        val actionsContainer: POActionsContainerStyle? = null,
-        val bodyText: POTextStyle? = null,
-        val errorMessageBox: POMessageBoxStyle? = null,
         val success: SuccessStyle? = null,
+        val errorMessageBox: POMessageBoxStyle? = null,
+        val actionsContainer: POActionsContainerStyle? = null,
         @ColorRes
         val backgroundColorResId: Int? = null,
         @ColorRes
@@ -455,12 +456,12 @@ data class PONativeAlternativePaymentConfiguration(
             dragHandleColorResId: Int? = null
         ) : this(
             title = title,
+            bodyText = message,
             field = field,
             codeField = codeField,
             dropdownMenu = dropdownMenu,
             dialog = dialog,
             actionsContainer = actionsContainer,
-            bodyText = message,
             backgroundColorResId = background?.normalColorResId,
             progressIndicatorColorResId = progressIndicatorColorResId,
             controlsTintColorResId = controlsTintColorResId,
