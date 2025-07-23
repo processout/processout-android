@@ -794,7 +794,7 @@ internal class NativeAlternativePaymentInteractor(
             return
         }
         dispatch(DidCompletePayment)
-        if (configuration.skipSuccessScreen) {
+        if (configuration.success == null) {
             _completion.update { Success }
         } else {
             _state.update { Captured(stateValue) }

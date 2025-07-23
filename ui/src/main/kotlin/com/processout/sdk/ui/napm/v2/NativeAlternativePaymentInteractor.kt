@@ -974,7 +974,7 @@ internal class NativeAlternativePaymentInteractor(
     private fun handleSuccess(stateValue: PendingStateValue) {
         POLogger.info("Success: capture confirmed.")
         dispatch(DidCompletePayment)
-        if (configuration.skipSuccessScreen) {
+        if (configuration.success == null) {
             _completion.update { Success }
         } else {
             _state.update {

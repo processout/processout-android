@@ -6,7 +6,8 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.IntRange
 import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import com.processout.sdk.ui.core.style.*
-import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.SecondaryAction
 import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
 import com.processout.sdk.ui.shared.configuration.POBarcodeConfiguration
 import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration
@@ -26,8 +27,7 @@ import kotlinx.parcelize.Parcelize
  * @param[inlineSingleSelectValuesLimit] Defines maximum number of options that will be
  * displayed inline for parameters where user should select single option (e.g. radio buttons).
  * Default value is _5_.
- * @param[skipSuccessScreen] Only applies when [PaymentConfirmationConfiguration.waitsConfirmation] is _true_.
- * @param[successMessage] Custom success message when payment is completed.
+ * @param[success] Success screen configuration. Pass _null_ to skip the success screen.
  * @param[bottomSheet] Bottom sheet configuration.
  * @param[style] Allows to customize the look and feel.
  */
@@ -40,8 +40,7 @@ data class PONativeAlternativePaymentConfiguration(
     val paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration(confirmButton = null),
     val barcode: POBarcodeConfiguration = POBarcodeConfiguration(saveButton = POBarcodeConfiguration.Button()),
     val inlineSingleSelectValuesLimit: Int = 5,
-    val skipSuccessScreen: Boolean = false,
-    val successMessage: String? = null,
+    val success: SuccessConfiguration? = SuccessConfiguration(),
     val bottomSheet: POBottomSheetConfiguration = POBottomSheetConfiguration(
         height = WrapContent,
         expandable = true
@@ -139,8 +138,8 @@ data class PONativeAlternativePaymentConfiguration(
         paymentConfirmation = paymentConfirmation,
         barcode = barcode,
         inlineSingleSelectValuesLimit = inlineSingleSelectValuesLimit,
-        skipSuccessScreen = skipSuccessScreen,
-        successMessage = successMessage,
+        success = if (!skipSuccessScreen)
+            SuccessConfiguration(message = successMessage) else null,
         bottomSheet = POBottomSheetConfiguration(
             height = WrapContent,
             expandable = true,
@@ -356,6 +355,26 @@ data class PONativeAlternativePaymentConfiguration(
             cancelButton = secondaryAction?.toCancelButton()
         )
     }
+
+    /**
+     * Success screen configuration.
+     *
+     * @param[title] Custom title.
+     * @param[message] Custom message.
+     * @param[displayDurationSeconds] Duration (in seconds) the success screen remains visible
+     * when no additional information is shown. Defaults to 3 seconds.
+     * @param[extendedDisplayDurationSeconds] Duration (in seconds) the success screen remains visible
+     * when additional useful information is available to the user. Defaults to 60 seconds.
+     * @param[doneButton] Done button configuration.
+     */
+    @Parcelize
+    data class SuccessConfiguration(
+        val title: String? = null,
+        val message: String? = null,
+        val displayDurationSeconds: Int = 3,
+        val extendedDisplayDurationSeconds: Int = 60,
+        val doneButton: Button? = Button()
+    ) : Parcelable
 
     /**
      * Allows to customize the look and feel.
