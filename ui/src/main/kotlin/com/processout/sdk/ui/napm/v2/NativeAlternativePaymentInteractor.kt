@@ -88,8 +88,6 @@ internal class NativeAlternativePaymentInteractor(
 ) : BaseInteractor() {
 
     private companion object {
-        const val SUCCESS_DELAY_MS = 3000L
-
         fun logAttributes(flow: Flow): Map<String, String> =
             when (flow) {
                 is Authorization -> mapOf(
@@ -972,15 +970,19 @@ internal class NativeAlternativePaymentInteractor(
     )
 
     private fun handleSuccess(stateValue: PendingStateValue) {
-        POLogger.info("Success: capture confirmed.")
+        POLogger.info("Success: payment completed.")
         dispatch(DidCompletePayment)
-        if (configuration.success == null) {
+        val successConfiguration = configuration.success
+        if (successConfiguration == null) {
             _completion.update { Success }
         } else {
             _state.update {
                 Completed(stateValue.copy(primaryActionId = ActionId.DONE))
             }
-            handler.postDelayed(delayInMillis = SUCCESS_DELAY_MS) {
+            val displayDurationSeconds = if (stateValue.elements.isNullOrEmpty())
+                successConfiguration.displayDurationSeconds
+            else successConfiguration.extendedDisplayDurationSeconds
+            handler.postDelayed(delayInMillis = displayDurationSeconds * 1000L) {
                 _completion.update { Success }
             }
         }
