@@ -365,7 +365,7 @@ data class PONativeAlternativePaymentConfiguration(
      * when no additional information is shown. Defaults to 3 seconds.
      * @param[extendedDisplayDurationSeconds] Duration (in seconds) the success screen remains visible
      * when additional useful information is available to the user. Defaults to 60 seconds.
-     * @param[doneButton] Done button configuration.
+     * @param[doneButton] Done button configuration. Pass _null_ to hide.
      */
     @Parcelize
     data class SuccessConfiguration(
