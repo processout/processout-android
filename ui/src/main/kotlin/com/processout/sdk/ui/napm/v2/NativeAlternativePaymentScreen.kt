@@ -90,7 +90,7 @@ internal fun NativeAlternativePaymentScreen(
         modifier = Modifier
             .nestedScroll(rememberNestedScrollInteropConnection())
             .clip(shape = shapes.topRoundedCornersLarge),
-        containerColor = style.normalBackgroundColor,
+        containerColor = style.backgroundColor,
         topBar = {
             Header(
                 logo = if (state is Loaded) state.logo else null,
@@ -745,12 +745,11 @@ internal object NativeAlternativePaymentScreen {
         val dialog: PODialog.Style,
         val stepper: POStepper.Style,
         val actionsContainer: POActionsContainer.Style,
-        val normalBackgroundColor: Color,
-        val successBackgroundColor: Color,
         val bodyText: AndroidTextView.Style,
         val errorMessageBox: POMessageBox.Style,
         val successMessage: POText.Style,
         @DrawableRes val successImageResId: Int,
+        val backgroundColor: Color,
         val progressIndicatorColor: Color,
         val dividerColor: Color,
         val dragHandleColor: Color
@@ -790,12 +789,6 @@ internal object NativeAlternativePaymentScreen {
                 actionsContainer = custom?.actionsContainer?.let {
                     POActionsContainer.custom(style = it)
                 } ?: POActionsContainer.default2,
-                normalBackgroundColor = custom?.background?.normalColorResId?.let {
-                    colorResource(id = it)
-                } ?: colors.surface.default,
-                successBackgroundColor = custom?.background?.successColorResId?.let {
-                    colorResource(id = it)
-                } ?: colors.surface.success,
                 bodyText = custom?.bodyText?.let { style ->
                     val controlsTintColor = custom.controlsTintColorResId?.let { colorResource(id = it) }
                     AndroidTextView.custom(
@@ -813,6 +806,9 @@ internal object NativeAlternativePaymentScreen {
                     textStyle = typography.body1
                 ),
                 successImageResId = custom?.successImageResId ?: R.drawable.po_success_image,
+                backgroundColor = custom?.backgroundColorResId?.let {
+                    colorResource(id = it)
+                } ?: colors.surface.default,
                 progressIndicatorColor = custom?.progressIndicatorColorResId?.let {
                     colorResource(id = it)
                 } ?: colors.button.primaryBackgroundDefault,

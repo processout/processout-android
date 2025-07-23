@@ -395,6 +395,7 @@ data class PONativeAlternativePaymentConfiguration(
      * @param[errorMessageBox] Error message box style.
      * @param[successMessage] Success message style.
      * @param[successImageResId] Success image drawable resource ID.
+     * @param[backgroundColorResId] Color resource ID for background.
      * @param[progressIndicatorColorResId] Color resource ID for progress indicator.
      * @param[controlsTintColorResId] Color resource ID for tint that applies to generic components (e.g. selectable text).
      * @param[dividerColorResId] Color resource ID for title divider.
@@ -412,7 +413,7 @@ data class PONativeAlternativePaymentConfiguration(
         val dialog: PODialogStyle? = null,
         val stepper: POStepperStyle? = null,
         val actionsContainer: POActionsContainerStyle? = null,
-        val background: POBackgroundStyle? = null,
+        val background: POBackgroundStyle? = null, // TODO(v2): remove, not used
         val message: POTextStyle? = null, // TODO(v2): remove, not used
         val bodyText: POTextStyle? = null,
         val errorMessage: POTextStyle? = null, // TODO(v2): remove, not used
@@ -420,6 +421,8 @@ data class PONativeAlternativePaymentConfiguration(
         val successMessage: POTextStyle? = null,
         @DrawableRes
         val successImageResId: Int? = null,
+        @ColorRes
+        val backgroundColorResId: Int? = null,
         @ColorRes
         val progressIndicatorColorResId: Int? = null,
         @ColorRes
@@ -493,6 +496,7 @@ data class PONativeAlternativePaymentConfiguration(
             errorMessageBox = null,
             successMessage = successMessage,
             successImageResId = successImageResId,
+            backgroundColorResId = background?.normalColorResId,
             progressIndicatorColorResId = progressIndicatorColorResId,
             controlsTintColorResId = controlsTintColorResId,
             dividerColorResId = dividerColorResId,
