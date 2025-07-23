@@ -28,6 +28,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -254,7 +255,7 @@ private fun Loaded(
                         style = style.stepper
                     )
                 }
-                is Stage.Completed -> Success(
+                is Stage.Completed -> SuccessContent(
                     state = stage,
                     style = style.success
                 )
@@ -691,11 +692,40 @@ private fun Barcode(
 }
 
 @Composable
-private fun Success(
+private fun SuccessContent(
     state: Stage.Completed,
     style: SuccessStyle
 ) {
-    // TODO(v2)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                top = spacing.space16,
+                bottom = spacing.space8
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = painterResource(id = style.successImageResId),
+            contentDescription = null,
+            alignment = Alignment.Center,
+            contentScale = ContentScale.Fit
+        )
+        POText(
+            text = state.title,
+            modifier = Modifier.padding(top = spacing.space16),
+            color = style.title.color,
+            style = style.title.textStyle
+        )
+        state.message?.let {
+            POText(
+                text = it,
+                modifier = Modifier.padding(top = spacing.space8),
+                color = style.message.color,
+                style = style.message.textStyle
+            )
+        }
+    }
 }
 
 @Composable
