@@ -134,16 +134,20 @@ internal class DynamicCheckoutViewModel private constructor(
                             text = paymentConfirmationCancelActionText,
                             confirmation = paymentConfirmationCancelAction?.confirmation
                         ) ?: defaultCancelAction
-                    is NativeAlternativePaymentViewModelState.UserInput ->
-                        nativeAlternativePaymentState.secondaryAction?.copy(
-                            text = defaultCancelActionText,
-                            confirmation = defaultCancelAction?.confirmation
-                        )
-                    is NativeAlternativePaymentViewModelState.Capture ->
-                        nativeAlternativePaymentState.secondaryAction?.copy(
-                            text = paymentConfirmationCancelActionText,
-                            confirmation = paymentConfirmationCancelAction?.confirmation
-                        )
+                    is NativeAlternativePaymentViewModelState.Loaded ->
+                        when (nativeAlternativePaymentState.content.stage) {
+                            is NativeAlternativePaymentViewModelState.Stage.NextStep ->
+                                nativeAlternativePaymentState.secondaryAction?.copy(
+                                    text = defaultCancelActionText,
+                                    confirmation = defaultCancelAction?.confirmation
+                                )
+                            is NativeAlternativePaymentViewModelState.Stage.Pending ->
+                                nativeAlternativePaymentState.secondaryAction?.copy(
+                                    text = paymentConfirmationCancelActionText,
+                                    confirmation = paymentConfirmationCancelAction?.confirmation
+                                )
+                            is NativeAlternativePaymentViewModelState.Stage.Completed -> null
+                        }
                 }
             }
             else -> defaultCancelAction
@@ -333,8 +337,8 @@ internal class DynamicCheckoutViewModel private constructor(
                         selected = selected
                     ),
                     content = if (selected) Content.NativeAlternativePayment(nativeAlternativePaymentState) else null,
-                    submitAction = if (selected && nativeAlternativePaymentState is NativeAlternativePaymentViewModelState.UserInput)
-                        nativeAlternativePaymentState.primaryAction.copy(
+                    submitAction = if (selected && nativeAlternativePaymentState is NativeAlternativePaymentViewModelState.Loaded)
+                        nativeAlternativePaymentState.primaryAction?.copy(
                             text = submitButtonText,
                             icon = configuration.submitButton.icon
                         ) else null
