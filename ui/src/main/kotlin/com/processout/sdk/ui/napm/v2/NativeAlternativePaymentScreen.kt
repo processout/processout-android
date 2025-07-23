@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -76,6 +77,13 @@ internal fun NativeAlternativePaymentScreen(
     isLightTheme: Boolean,
     style: NativeAlternativePaymentScreen.Style = NativeAlternativePaymentScreen.style()
 ) {
+    if (state is Loaded) {
+        when (state.content.stage) {
+            is Stage.Pending,
+            is Stage.Completed -> LocalFocusManager.current.clearFocus(force = true)
+            else -> {}
+        }
+    }
     var topBarHeight by remember { mutableIntStateOf(0) }
     var bottomBarHeight by remember { mutableIntStateOf(0) }
     Scaffold(
@@ -110,20 +118,16 @@ internal fun NativeAlternativePaymentScreen(
             )
         }
     ) { scaffoldPadding ->
-        val verticalSpacing = spacing.space20
-        val verticalSpacingPx = verticalSpacing.dpToPx()
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(scaffoldPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(
-                    horizontal = spacing.extraLarge,
-                    vertical = verticalSpacing
-                ),
+                .padding(spacing.space20),
             verticalArrangement = if (state is Loading) Arrangement.Center else Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            val adjustedContentHeight = 90.dp.dpToPx()
             when (state) {
                 is Loading -> POCircularProgressIndicator.Large(
                     color = style.progressIndicatorColor
@@ -136,7 +140,7 @@ internal fun NativeAlternativePaymentScreen(
                         isPrimaryActionEnabled = state.primaryAction?.let { it.enabled && !it.loading } ?: false,
                         isLightTheme = isLightTheme,
                         modifier = Modifier.onGloballyPositioned {
-                            val contentHeight = it.size.height + topBarHeight + bottomBarHeight + verticalSpacingPx * 2
+                            val contentHeight = it.size.height + topBarHeight + bottomBarHeight + adjustedContentHeight
                             onContentHeightChanged(contentHeight)
                         }
                     )
