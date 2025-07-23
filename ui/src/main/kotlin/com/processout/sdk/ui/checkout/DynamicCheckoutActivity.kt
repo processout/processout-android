@@ -145,7 +145,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
             ),
             barcode = configuration.alternativePayment.barcode,
             inlineSingleSelectValuesLimit = configuration.alternativePayment.inlineSingleSelectValuesLimit,
-            skipSuccessScreen = true
+            success = null
         )
     }
 

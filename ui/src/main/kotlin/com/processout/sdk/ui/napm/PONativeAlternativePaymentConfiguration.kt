@@ -6,7 +6,8 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.IntRange
 import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import com.processout.sdk.ui.core.style.*
-import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.SecondaryAction
 import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
 import com.processout.sdk.ui.shared.configuration.POBarcodeConfiguration
 import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration
@@ -26,8 +27,7 @@ import kotlinx.parcelize.Parcelize
  * @param[inlineSingleSelectValuesLimit] Defines maximum number of options that will be
  * displayed inline for parameters where user should select single option (e.g. radio buttons).
  * Default value is _5_.
- * @param[skipSuccessScreen] Only applies when [PaymentConfirmationConfiguration.waitsConfirmation] is _true_.
- * @param[successMessage] Custom success message when payment is completed.
+ * @param[success] Success screen configuration. Pass _null_ to skip the success screen.
  * @param[bottomSheet] Bottom sheet configuration.
  * @param[style] Allows to customize the look and feel.
  */
@@ -40,8 +40,7 @@ data class PONativeAlternativePaymentConfiguration(
     val paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration(confirmButton = null),
     val barcode: POBarcodeConfiguration = POBarcodeConfiguration(saveButton = POBarcodeConfiguration.Button()),
     val inlineSingleSelectValuesLimit: Int = 5,
-    val skipSuccessScreen: Boolean = false,
-    val successMessage: String? = null,
+    val success: SuccessConfiguration? = SuccessConfiguration(),
     val bottomSheet: POBottomSheetConfiguration = POBottomSheetConfiguration(
         height = WrapContent,
         expandable = true
@@ -139,8 +138,8 @@ data class PONativeAlternativePaymentConfiguration(
         paymentConfirmation = paymentConfirmation,
         barcode = barcode,
         inlineSingleSelectValuesLimit = inlineSingleSelectValuesLimit,
-        skipSuccessScreen = skipSuccessScreen,
-        successMessage = successMessage,
+        success = if (!skipSuccessScreen)
+            SuccessConfiguration(message = successMessage) else null,
         bottomSheet = POBottomSheetConfiguration(
             height = WrapContent,
             expandable = true,
@@ -358,6 +357,26 @@ data class PONativeAlternativePaymentConfiguration(
     }
 
     /**
+     * Success screen configuration.
+     *
+     * @param[title] Custom title.
+     * @param[message] Custom message.
+     * @param[displayDurationSeconds] Duration (in seconds) the success screen remains visible
+     * when no additional information is shown. Defaults to 3 seconds.
+     * @param[extendedDisplayDurationSeconds] Duration (in seconds) the success screen remains visible
+     * when additional useful information is available to the user. Defaults to 60 seconds.
+     * @param[doneButton] Done button configuration. Pass _null_ to hide.
+     */
+    @Parcelize
+    data class SuccessConfiguration(
+        val title: String? = null,
+        val message: String? = null,
+        val displayDurationSeconds: Int = 3,
+        val extendedDisplayDurationSeconds: Int = 60,
+        val doneButton: Button? = Button()
+    ) : Parcelable
+
+    /**
      * Allows to customize the look and feel.
      *
      * @param[title] Title style.
@@ -374,8 +393,10 @@ data class PONativeAlternativePaymentConfiguration(
      * @param[bodyText] Body text style, such as customer instruction.
      * @param[errorMessage] Error message style.
      * @param[errorMessageBox] Error message box style.
+     * @param[success] Success screen style.
      * @param[successMessage] Success message style.
      * @param[successImageResId] Success image drawable resource ID.
+     * @param[backgroundColorResId] Color resource ID for background.
      * @param[progressIndicatorColorResId] Color resource ID for progress indicator.
      * @param[controlsTintColorResId] Color resource ID for tint that applies to generic components (e.g. selectable text).
      * @param[dividerColorResId] Color resource ID for title divider.
@@ -393,14 +414,17 @@ data class PONativeAlternativePaymentConfiguration(
         val dialog: PODialogStyle? = null,
         val stepper: POStepperStyle? = null,
         val actionsContainer: POActionsContainerStyle? = null,
-        val background: POBackgroundStyle? = null,
+        val background: POBackgroundStyle? = null, // TODO(v2): remove, not used
         val message: POTextStyle? = null, // TODO(v2): remove, not used
         val bodyText: POTextStyle? = null,
         val errorMessage: POTextStyle? = null, // TODO(v2): remove, not used
         val errorMessageBox: POMessageBoxStyle? = null,
-        val successMessage: POTextStyle? = null,
+        val success: SuccessStyle? = null,
+        val successMessage: POTextStyle? = null, // TODO(v2): remove, not used
         @DrawableRes
-        val successImageResId: Int? = null,
+        val successImageResId: Int? = null, // TODO(v2): remove, not used
+        @ColorRes
+        val backgroundColorResId: Int? = null,
         @ColorRes
         val progressIndicatorColorResId: Int? = null,
         @ColorRes
@@ -474,11 +498,27 @@ data class PONativeAlternativePaymentConfiguration(
             errorMessageBox = null,
             successMessage = successMessage,
             successImageResId = successImageResId,
+            backgroundColorResId = background?.normalColorResId,
             progressIndicatorColorResId = progressIndicatorColorResId,
             controlsTintColorResId = controlsTintColorResId,
             dividerColorResId = dividerColorResId,
             dragHandleColorResId = dragHandleColorResId
         )
+
+        /**
+         * Success screen style.
+         *
+         * @param[title] Title style.
+         * @param[message] Message style.
+         * @param[successImageResId] Success image drawable resource ID.
+         */
+        @Parcelize
+        data class SuccessStyle(
+            val title: POTextStyle? = null,
+            val message: POTextStyle? = null,
+            @DrawableRes
+            val successImageResId: Int? = null
+        ) : Parcelable
     }
 }
 

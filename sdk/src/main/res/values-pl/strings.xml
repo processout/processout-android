@@ -37,6 +37,8 @@
     <string name="po_native_apm_label_country">Kraj</string>
     <string name="po_native_apm_placeholder_phone">Twój numer telefonu</string>
     <string name="po_native_apm_placeholder_email">imię@przykład.pl</string>
+    <string name="po_native_apm_success_title">Wszystko gotowe!</string>
+    <string name="po_native_apm_success_message_format">Zapłaciłeś %s</string>
     <string name="po_native_apm_success_message">Sukces!\nPłatność przyjęta.</string>
     <string name="po_native_apm_error_required_parameter">Parametr jest wmagany.</string>
     <string name="po_native_apm_error_invalid_number">Niepoprawny numer.</string>

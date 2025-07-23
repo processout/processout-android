@@ -28,6 +28,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -53,13 +54,16 @@ import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.state.POPhoneNumberFieldState
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.AnimationDurationMillis
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.ContentTransitionSpec
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.LogoHeight
+import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.SuccessStyle
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.*
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentViewModelState.Element.*
 import com.processout.sdk.ui.shared.component.AndroidTextView
@@ -90,7 +94,7 @@ internal fun NativeAlternativePaymentScreen(
         modifier = Modifier
             .nestedScroll(rememberNestedScrollInteropConnection())
             .clip(shape = shapes.topRoundedCornersLarge),
-        containerColor = style.normalBackgroundColor,
+        containerColor = style.backgroundColor,
         topBar = {
             Header(
                 logo = if (state is Loaded) state.logo else null,
@@ -251,7 +255,10 @@ private fun Loaded(
                         style = style.stepper
                     )
                 }
-                is Stage.Completed -> POText(text = stage.message) // TODO(v2)
+                is Stage.Completed -> SuccessContent(
+                    state = stage,
+                    style = style.success
+                )
                 else -> {}
             }
             if (content.elements != null) {
@@ -685,6 +692,43 @@ private fun Barcode(
 }
 
 @Composable
+private fun SuccessContent(
+    state: Stage.Completed,
+    style: SuccessStyle
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                top = spacing.space16,
+                bottom = spacing.space8
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = painterResource(id = style.successImageResId),
+            contentDescription = null,
+            alignment = Alignment.Center,
+            contentScale = ContentScale.Fit
+        )
+        POText(
+            text = state.title,
+            modifier = Modifier.padding(top = spacing.space16),
+            color = style.title.color,
+            style = style.title.textStyle
+        )
+        state.message?.let {
+            POText(
+                text = it,
+                modifier = Modifier.padding(top = spacing.space8),
+                color = style.message.color,
+                style = style.message.textStyle
+            )
+        }
+    }
+}
+
+@Composable
 private fun Actions(
     state: NativeAlternativePaymentViewModelState,
     onEvent: (NativeAlternativePaymentEvent) -> Unit,
@@ -745,15 +789,21 @@ internal object NativeAlternativePaymentScreen {
         val dialog: PODialog.Style,
         val stepper: POStepper.Style,
         val actionsContainer: POActionsContainer.Style,
-        val normalBackgroundColor: Color,
-        val successBackgroundColor: Color,
         val bodyText: AndroidTextView.Style,
         val errorMessageBox: POMessageBox.Style,
-        val successMessage: POText.Style,
-        @DrawableRes val successImageResId: Int,
+        val success: SuccessStyle,
+        val backgroundColor: Color,
         val progressIndicatorColor: Color,
         val dividerColor: Color,
         val dragHandleColor: Color
+    )
+
+    @Immutable
+    data class SuccessStyle(
+        val title: POText.Style,
+        val message: POText.Style,
+        @DrawableRes
+        val successImageResId: Int
     )
 
     @Composable
@@ -790,12 +840,6 @@ internal object NativeAlternativePaymentScreen {
                 actionsContainer = custom?.actionsContainer?.let {
                     POActionsContainer.custom(style = it)
                 } ?: POActionsContainer.default2,
-                normalBackgroundColor = custom?.background?.normalColorResId?.let {
-                    colorResource(id = it)
-                } ?: colors.surface.default,
-                successBackgroundColor = custom?.background?.successColorResId?.let {
-                    colorResource(id = it)
-                } ?: colors.surface.success,
                 bodyText = custom?.bodyText?.let { style ->
                     val controlsTintColor = custom.controlsTintColorResId?.let { colorResource(id = it) }
                     AndroidTextView.custom(
@@ -806,13 +850,10 @@ internal object NativeAlternativePaymentScreen {
                 errorMessageBox = custom?.errorMessageBox?.let {
                     POMessageBox.custom(style = it)
                 } ?: POMessageBox.error2,
-                successMessage = custom?.successMessage?.let {
-                    POText.custom(style = it)
-                } ?: POText.Style(
-                    color = colors.text.success,
-                    textStyle = typography.body1
-                ),
-                successImageResId = custom?.successImageResId ?: R.drawable.po_success_image,
+                success = custom?.success?.custom() ?: defaultSuccess,
+                backgroundColor = custom?.backgroundColorResId?.let {
+                    colorResource(id = it)
+                } ?: colors.surface.default,
                 progressIndicatorColor = custom?.progressIndicatorColorResId?.let {
                     colorResource(id = it)
                 } ?: colors.button.primaryBackgroundDefault,
@@ -824,6 +865,27 @@ internal object NativeAlternativePaymentScreen {
                 } ?: colors.icon.disabled
             )
         }
+
+    private val defaultSuccess: SuccessStyle
+        @Composable get() = SuccessStyle(
+            title = POText.Style(
+                color = colors.text.primary,
+                textStyle = typography.s20(FontWeight.SemiBold)
+            ),
+            message = POText.Style(
+                color = colors.text.secondary,
+                textStyle = typography.paragraph.s16()
+            ),
+            successImageResId = R.drawable.po_success_image_v2
+        )
+
+    @Composable
+    private fun PONativeAlternativePaymentConfiguration.Style.SuccessStyle.custom() =
+        SuccessStyle(
+            title = title?.let { POText.custom(style = it) } ?: defaultSuccess.title,
+            message = message?.let { POText.custom(style = it) } ?: defaultSuccess.message,
+            successImageResId = successImageResId ?: defaultSuccess.successImageResId
+        )
 
     val LogoHeight = 26.dp
     val AnimationDurationMillis = 300

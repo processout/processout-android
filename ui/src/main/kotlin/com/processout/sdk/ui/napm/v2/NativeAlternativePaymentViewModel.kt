@@ -179,16 +179,20 @@ internal class NativeAlternativePaymentViewModel private constructor(
             content = Content(
                 uuid = uuid,
                 stage = Stage.Completed(
-                    message = "This is success message!" // TODO(v2)
+                    title = configuration.success?.title ?: app.getString(R.string.po_native_apm_success_title),
+                    message = configuration.success?.message ?: invoice?.priceSuccessMessage()
                 ),
                 elements = elements?.map(fields = null)
             ),
-            primaryAction = primaryActionId?.let { id ->
-                POActionState(
-                    id = id,
-                    text = app.getString(R.string.po_native_apm_done_button_text), // TODO(v2): optional in config
-                    primary = true
-                )
+            primaryAction = configuration.success?.doneButton?.let {
+                primaryActionId?.let { id ->
+                    POActionState(
+                        id = id,
+                        text = it.text ?: app.getString(R.string.po_native_apm_done_button_text),
+                        primary = true,
+                        icon = it.icon
+                    )
+                }
             },
             secondaryAction = null
         )
@@ -504,15 +508,20 @@ internal class NativeAlternativePaymentViewModel private constructor(
             } else null
         )
 
-    private fun Invoice.priceTitle(): String? =
+    private fun Invoice.price(): String? =
         try {
             val formatter = NumberFormat.getCurrencyInstance()
             formatter.currency = Currency.getInstance(currency)
-            val price = formatter.format(amount.toDouble())
-            app.getString(R.string.po_native_apm_pay_format, price)
+            formatter.format(amount.toDouble())
         } catch (_: Exception) {
             null
         }
+
+    private fun Invoice.priceTitle(): String? =
+        price()?.let { app.getString(R.string.po_native_apm_pay_format, it) }
+
+    private fun Invoice.priceSuccessMessage(): String? =
+        price()?.let { app.getString(R.string.po_native_apm_success_message_format, it) }
 
     private fun CancelButton.toActionState(
         id: String,

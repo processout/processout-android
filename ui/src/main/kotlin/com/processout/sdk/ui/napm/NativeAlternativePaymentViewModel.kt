@@ -190,7 +190,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
             title = paymentProviderName,
             logoUrl = logoUrl,
             image = null,
-            message = configuration.successMessage ?: app.getString(R.string.po_native_apm_success_message),
+            message = configuration.success?.message ?: app.getString(R.string.po_native_apm_success_message),
             primaryAction = null,
             secondaryAction = null,
             saveBarcodeAction = null,
