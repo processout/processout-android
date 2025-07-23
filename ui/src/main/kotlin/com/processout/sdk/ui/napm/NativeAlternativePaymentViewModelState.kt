@@ -1,8 +1,12 @@
 package com.processout.sdk.ui.napm
 
+import android.graphics.Bitmap
 import androidx.compose.runtime.Immutable
+import com.processout.sdk.api.model.response.POImageResource
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
+import com.processout.sdk.ui.core.state.POPhoneNumberFieldState
+import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.Stepper
 import com.processout.sdk.ui.shared.state.ConfirmationDialogState
 import com.processout.sdk.ui.shared.state.FieldState
 
@@ -17,41 +21,75 @@ internal sealed interface NativeAlternativePaymentViewModelState {
     ) : NativeAlternativePaymentViewModelState
 
     @Immutable
-    data class UserInput(
-        val title: String,
-        val fields: POImmutableList<Field>,
-        val focusedFieldId: String?,
-        val primaryAction: POActionState,
-        val secondaryAction: POActionState?
-    ) : NativeAlternativePaymentViewModelState
-
-    @Immutable
-    data class Capture(
+    data class Loaded(
+        val logo: POImageResource,
         val title: String?,
-        val logoUrl: String?,
-        val image: Image?,
-        val message: String,
+        val content: Content,
         val primaryAction: POActionState?,
-        val secondaryAction: POActionState?,
-        val saveBarcodeAction: POActionState?,
-        val confirmationDialog: ConfirmationDialogState?,
-        val withProgressIndicator: Boolean,
-        val isCaptured: Boolean
+        val secondaryAction: POActionState?
     ) : NativeAlternativePaymentViewModelState
 
     //endregion
 
     @Immutable
-    sealed interface Field {
-        data class TextField(val state: FieldState) : Field
-        data class CodeField(val state: FieldState) : Field
-        data class RadioField(val state: FieldState) : Field
-        data class DropdownField(val state: FieldState) : Field
+    data class Content(
+        val uuid: String,
+        val stage: Stage,
+        val elements: POImmutableList<Element>?
+    )
+
+    @Immutable
+    sealed interface Stage {
+
+        @Immutable
+        data class NextStep(
+            val focusedFieldId: String?
+        ) : Stage
+
+        @Immutable
+        data class Pending(
+            val stepper: Stepper?
+        ) : Stage
+
+        @Immutable
+        data class Completed(
+            val title: String,
+            val message: String?
+        ) : Stage
     }
 
     @Immutable
-    sealed interface Image {
-        data class Url(val value: String) : Image
-        data class Bitmap(val value: android.graphics.Bitmap) : Image
+    sealed interface Element {
+
+        @Immutable
+        data class TextField(val state: FieldState) : Element
+
+        @Immutable
+        data class CodeField(val state: FieldState) : Element
+
+        @Immutable
+        data class RadioField(val state: FieldState) : Element
+
+        @Immutable
+        data class DropdownField(val state: FieldState) : Element
+
+        @Immutable
+        data class CheckboxField(val state: FieldState) : Element
+
+        @Immutable
+        data class PhoneNumberField(val state: POPhoneNumberFieldState) : Element
+
+        @Immutable
+        data class InstructionMessage(val label: String?, val value: String) : Element
+
+        @Immutable
+        data class Image(val value: POImageResource) : Element
+
+        @Immutable
+        data class Barcode(
+            val image: Bitmap,
+            val saveBarcodeAction: POActionState,
+            val confirmationDialog: ConfirmationDialogState?
+        ) : Element
     }
 }

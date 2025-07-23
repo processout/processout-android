@@ -1,10 +1,10 @@
 package com.processout.sdk.ui.napm
 
-import androidx.compose.ui.text.input.TextFieldValue
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.ui.shared.state.FieldValue
 
 internal sealed interface NativeAlternativePaymentEvent {
-    data class FieldValueChanged(val id: String, val value: TextFieldValue) : NativeAlternativePaymentEvent
+    data class FieldValueChanged(val id: String, val value: FieldValue) : NativeAlternativePaymentEvent
     data class FieldFocusChanged(val id: String, val isFocused: Boolean) : NativeAlternativePaymentEvent
     data class Action(val id: String) : NativeAlternativePaymentEvent
     data class DialogAction(val id: String, val isConfirmed: Boolean) : NativeAlternativePaymentEvent
