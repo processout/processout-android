@@ -82,18 +82,18 @@ data class PONativeAlternativePaymentConfiguration(
     }
 
     /**
-     * Defines native alternative payment configuration.
+     * Native alternative payment configuration.
      *
      * @param[invoiceId] Invoice ID.
      * @param[gatewayConfigurationId] Gateway configuration ID.
      * @param[title] Custom title.
      * @param[submitButton] Submit button configuration.
      * @param[cancelButton] Cancel button configuration. Use _null_ to hide, this is a default behaviour.
-     * @param[cancellation] Specifies cancellation behaviour.
-     * @param[paymentConfirmation] Specifies payment confirmation configuration.
-     * @param[barcode] Specifies barcode configuration.
-     * @param[inlineSingleSelectValuesLimit] Defines maximum number of options that will be
-     * displayed inline for parameters where user should select single option (e.g. radio buttons).
+     * @param[cancellation] Cancellation behaviour.
+     * @param[paymentConfirmation] Payment confirmation configuration.
+     * @param[barcode] Barcode configuration.
+     * @param[inlineSingleSelectValuesLimit] Defines the maximum number of options that will be
+     * displayed inline for parameters where user should select a single option (e.g. radio buttons).
      * Default value is _5_.
      * @param[skipSuccessScreen] Indicates whether the success screen should be skipped.
      * @param[successMessage] Custom success message when payment is completed.
@@ -135,11 +135,11 @@ data class PONativeAlternativePaymentConfiguration(
     )
 
     /**
-     * Defines native alternative payment configuration.
+     * Native alternative payment configuration.
      *
      * @param[invoiceId] Invoice ID.
      * @param[gatewayConfigurationId] Gateway configuration ID.
-     * @param[options] Allows to customize behaviour and pre-define the values.
+     * @param[options] Custom options.
      * @param[style] Custom style.
      */
     @Deprecated(message = "Use alternative constructor.")
@@ -170,16 +170,16 @@ data class PONativeAlternativePaymentConfiguration(
     )
 
     /**
-     * Allows to customize behaviour and pre-define the values.
+     * Custom options.
      *
      * @param[title] Custom title.
      * @param[primaryActionText] Custom primary action text (e.g. "Pay").
      * @param[secondaryAction] Secondary action (e.g. "Cancel"). Use _null_ to hide, this is a default behaviour.
-     * @param[cancellation] Specifies cancellation behaviour.
-     * @param[paymentConfirmation] Specifies payment confirmation configuration.
-     * @param[barcode] Specifies barcode configuration.
-     * @param[inlineSingleSelectValuesLimit] Defines maximum number of options that will be
-     * displayed inline for parameters where user should select single option (e.g. radio buttons).
+     * @param[cancellation] Cancellation behaviour.
+     * @param[paymentConfirmation] Payment confirmation configuration.
+     * @param[barcode] Barcode configuration.
+     * @param[inlineSingleSelectValuesLimit] Defines the maximum number of options that will be
+     * displayed inline for parameters where user should select a single option (e.g. radio buttons).
      * Default value is _5_.
      * @param[skipSuccessScreen] Indicates whether the success screen should be skipped.
      * @param[successMessage] Custom success message when payment is completed.
@@ -263,7 +263,7 @@ data class PONativeAlternativePaymentConfiguration(
     }
 
     /**
-     * Specifies cancellation behaviour.
+     * Bottom sheet cancellation behaviour.
      *
      * @param[backPressed] Cancel on back button press or back gesture. Default value is _true_.
      * @param[dragDown] Cancel when bottom sheet is dragged down out of the screen. Default value is _true_.
