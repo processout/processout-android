@@ -48,20 +48,6 @@ data class PONativeAlternativePaymentConfiguration(
     val style: Style? = null
 ) : Parcelable {
 
-    // TODO(v2): remove
-    internal val invoiceId: String
-        get() = when (flow) {
-            is Flow.Authorization -> flow.invoiceId
-            is Flow.Tokenization -> String()
-        }
-
-    // TODO(v2): remove
-    internal val gatewayConfigurationId: String
-        get() = when (flow) {
-            is Flow.Authorization -> flow.gatewayConfigurationId
-            is Flow.Tokenization -> String()
-        }
-
     /**
      * Native alternative payment flow configuration.
      */
