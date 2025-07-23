@@ -95,7 +95,7 @@ data class PONativeAlternativePaymentConfiguration(
      * @param[inlineSingleSelectValuesLimit] Defines maximum number of options that will be
      * displayed inline for parameters where user should select single option (e.g. radio buttons).
      * Default value is _5_.
-     * @param[skipSuccessScreen] Only applies when [PaymentConfirmationConfiguration.waitsConfirmation] is _true_.
+     * @param[skipSuccessScreen] Indicates whether the success screen should be skipped.
      * @param[successMessage] Custom success message when payment is completed.
      * @param[style] Custom style.
      */
@@ -181,7 +181,7 @@ data class PONativeAlternativePaymentConfiguration(
      * @param[inlineSingleSelectValuesLimit] Defines maximum number of options that will be
      * displayed inline for parameters where user should select single option (e.g. radio buttons).
      * Default value is _5_.
-     * @param[skipSuccessScreen] Only applies when [PaymentConfirmationConfiguration.waitsConfirmation] is _true_.
+     * @param[skipSuccessScreen] Indicates whether the success screen should be skipped.
      * @param[successMessage] Custom success message when payment is completed.
      */
     @Parcelize
