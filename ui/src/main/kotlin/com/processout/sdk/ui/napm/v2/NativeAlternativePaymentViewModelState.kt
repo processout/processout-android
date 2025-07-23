@@ -53,7 +53,8 @@ internal sealed interface NativeAlternativePaymentViewModelState {
 
         @Immutable
         data class Completed(
-            val message: String
+            val title: String,
+            val message: String?
         ) : Stage
     }
 
