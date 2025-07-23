@@ -442,7 +442,7 @@ data class PONativeAlternativePaymentConfiguration(
          * @param[label] Field label style.
          * @param[field] Field style.
          * @param[codeField] Code field style.
-         * @param[radioButton] Radio button style. __Deprecated__: not used.
+         * @param[radioButton] __Deprecated__: not used. Radio button style.
          * @param[dropdownMenu] Dropdown menu style.
          * @param[actionsContainer] Style of action buttons and their container.
          * @param[dialog] Dialog style.
