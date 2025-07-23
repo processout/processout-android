@@ -366,7 +366,6 @@ data class PONativeAlternativePaymentConfiguration(
      * Allows to customize the look and feel.
      *
      * @param[title] Title style.
-     * @param[label] Field label style.
      * @param[field] Field style.
      * @param[codeField] Code field style.
      * @param[radioField] Radio field style.
@@ -374,14 +373,9 @@ data class PONativeAlternativePaymentConfiguration(
      * @param[dropdownMenu] Dropdown menu style.
      * @param[actionsContainer] Style of action buttons and their container.
      * @param[dialog] Dialog style.
-     * @param[background] Background style.
-     * @param[message] Message style.
      * @param[bodyText] Body text style, such as customer instruction.
-     * @param[errorMessage] Error message style.
      * @param[errorMessageBox] Error message box style.
      * @param[success] Success screen style.
-     * @param[successMessage] Success message style.
-     * @param[successImageResId] Success image drawable resource ID.
      * @param[backgroundColorResId] Color resource ID for background.
      * @param[progressIndicatorColorResId] Color resource ID for progress indicator.
      * @param[controlsTintColorResId] Color resource ID for tint that applies to generic components (e.g. selectable text).
@@ -391,7 +385,6 @@ data class PONativeAlternativePaymentConfiguration(
     @Parcelize
     data class Style(
         val title: POTextStyle? = null,
-        val label: POTextStyle? = null, // TODO(v2): remove, not used
         val field: POFieldStyle? = null,
         val codeField: POFieldStyle? = null,
         val radioField: PORadioFieldStyle? = null,
@@ -400,15 +393,9 @@ data class PONativeAlternativePaymentConfiguration(
         val dialog: PODialogStyle? = null,
         val stepper: POStepperStyle? = null,
         val actionsContainer: POActionsContainerStyle? = null,
-        val background: POBackgroundStyle? = null, // TODO(v2): remove, not used
-        val message: POTextStyle? = null, // TODO(v2): remove, not used
         val bodyText: POTextStyle? = null,
-        val errorMessage: POTextStyle? = null, // TODO(v2): remove, not used
         val errorMessageBox: POMessageBoxStyle? = null,
         val success: SuccessStyle? = null,
-        val successMessage: POTextStyle? = null, // TODO(v2): remove, not used
-        @DrawableRes
-        val successImageResId: Int? = null, // TODO(v2): remove, not used
         @ColorRes
         val backgroundColorResId: Int? = null,
         @ColorRes
@@ -425,7 +412,7 @@ data class PONativeAlternativePaymentConfiguration(
          * Allows to customize the look and feel.
          *
          * @param[title] Title style.
-         * @param[label] Field label style.
+         * @param[label] __Deprecated__: not used. Field label style.
          * @param[field] Field style.
          * @param[codeField] Code field style.
          * @param[radioButton] __Deprecated__: not used. Radio button style.
@@ -434,9 +421,9 @@ data class PONativeAlternativePaymentConfiguration(
          * @param[dialog] Dialog style.
          * @param[background] Background style.
          * @param[message] Message style.
-         * @param[errorMessage] Error message style.
-         * @param[successMessage] Success message style.
-         * @param[successImageResId] Success image drawable resource ID.
+         * @param[errorMessage] __Deprecated__: not used. Error message style.
+         * @param[successMessage] __Deprecated__: not used. Success message style.
+         * @param[successImageResId] __Deprecated__: not used. Success image drawable resource ID.
          * @param[progressIndicatorColorResId] Color resource ID for progress indicator.
          * @param[controlsTintColorResId] Color resource ID for tint that applies to generic components (e.g. selectable text).
          * @param[dividerColorResId] Color resource ID for title divider.
@@ -468,22 +455,12 @@ data class PONativeAlternativePaymentConfiguration(
             dragHandleColorResId: Int? = null
         ) : this(
             title = title,
-            label = label,
             field = field,
             codeField = codeField,
-            radioField = null,
-            checkbox = null,
             dropdownMenu = dropdownMenu,
             dialog = dialog,
-            stepper = null,
             actionsContainer = actionsContainer,
-            background = background,
-            message = message,
             bodyText = message,
-            errorMessage = errorMessage,
-            errorMessageBox = null,
-            successMessage = successMessage,
-            successImageResId = successImageResId,
             backgroundColorResId = background?.normalColorResId,
             progressIndicatorColorResId = progressIndicatorColorResId,
             controlsTintColorResId = controlsTintColorResId,
