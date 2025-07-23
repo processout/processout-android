@@ -29,7 +29,7 @@ import kotlinx.parcelize.Parcelize
  * Default value is _5_.
  * @param[success] Success screen configuration. Pass _null_ to skip the success screen.
  * @param[bottomSheet] Bottom sheet configuration.
- * @param[style] Allows to customize the look and feel.
+ * @param[style] Custom style.
  */
 @Parcelize
 data class PONativeAlternativePaymentConfiguration(
@@ -97,7 +97,7 @@ data class PONativeAlternativePaymentConfiguration(
      * Default value is _5_.
      * @param[skipSuccessScreen] Only applies when [PaymentConfirmationConfiguration.waitsConfirmation] is _true_.
      * @param[successMessage] Custom success message when payment is completed.
-     * @param[style] Allows to customize the look and feel.
+     * @param[style] Custom style.
      */
     @Deprecated(message = "Use alternative constructor.")
     constructor(
@@ -140,7 +140,7 @@ data class PONativeAlternativePaymentConfiguration(
      * @param[invoiceId] Invoice ID.
      * @param[gatewayConfigurationId] Gateway configuration ID.
      * @param[options] Allows to customize behaviour and pre-define the values.
-     * @param[style] Allows to customize the look and feel.
+     * @param[style] Custom style.
      */
     @Deprecated(message = "Use alternative constructor.")
     constructor(
@@ -363,7 +363,7 @@ data class PONativeAlternativePaymentConfiguration(
     ) : Parcelable
 
     /**
-     * Allows to customize the look and feel.
+     * Custom style.
      *
      * @param[title] Title style.
      * @param[field] Field style.
@@ -409,7 +409,7 @@ data class PONativeAlternativePaymentConfiguration(
     ) : Parcelable {
 
         /**
-         * Allows to customize the look and feel.
+         * Custom style.
          *
          * @param[title] Title style.
          * @param[label] __Deprecated__: not used. Field label style.
