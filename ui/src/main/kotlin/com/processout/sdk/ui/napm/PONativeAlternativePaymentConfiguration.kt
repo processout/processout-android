@@ -16,17 +16,17 @@ import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import kotlinx.parcelize.Parcelize
 
 /**
- * Defines native alternative payment configuration.
+ * Native alternative payment configuration.
  *
  * @param[flow] Payment flow configuration.
  * @param[title] Custom title.
  * @param[submitButton] Submit button configuration.
  * @param[cancelButton] Cancel button configuration. Use _null_ to hide, this is a default behaviour.
- * @param[paymentConfirmation] Specifies payment confirmation configuration.
- * @param[barcode] Specifies barcode configuration.
- * @param[inlineSingleSelectValuesLimit] Defines maximum number of options that will be
- * displayed inline for parameters where user should select single option (e.g. radio buttons).
+ * @param[inlineSingleSelectValuesLimit] Defines the maximum number of options that will be
+ * displayed inline for parameters where user should select a single option (e.g. radio buttons).
  * Default value is _5_.
+ * @param[barcode] Barcode configuration.
+ * @param[paymentConfirmation] Payment confirmation configuration.
  * @param[success] Success screen configuration. Pass _null_ to skip the success screen.
  * @param[bottomSheet] Bottom sheet configuration.
  * @param[style] Custom style.
@@ -37,9 +37,9 @@ data class PONativeAlternativePaymentConfiguration(
     val title: String? = null,
     val submitButton: Button = Button(),
     val cancelButton: CancelButton? = null,
-    val paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration(confirmButton = null),
-    val barcode: POBarcodeConfiguration = POBarcodeConfiguration(saveButton = POBarcodeConfiguration.Button()),
     val inlineSingleSelectValuesLimit: Int = 5,
+    val barcode: POBarcodeConfiguration = POBarcodeConfiguration(saveButton = POBarcodeConfiguration.Button()),
+    val paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration(confirmButton = null),
     val success: SuccessConfiguration? = SuccessConfiguration(),
     val bottomSheet: POBottomSheetConfiguration = POBottomSheetConfiguration(
         height = WrapContent,
@@ -121,9 +121,9 @@ data class PONativeAlternativePaymentConfiguration(
         title = title,
         submitButton = submitButton,
         cancelButton = cancelButton,
-        paymentConfirmation = paymentConfirmation,
-        barcode = barcode,
         inlineSingleSelectValuesLimit = inlineSingleSelectValuesLimit,
+        barcode = barcode,
+        paymentConfirmation = paymentConfirmation,
         success = if (!skipSuccessScreen)
             SuccessConfiguration(message = successMessage) else null,
         bottomSheet = POBottomSheetConfiguration(
