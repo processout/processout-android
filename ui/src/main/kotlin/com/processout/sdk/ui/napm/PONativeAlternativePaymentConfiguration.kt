@@ -393,6 +393,7 @@ data class PONativeAlternativePaymentConfiguration(
      * @param[bodyText] Body text style, such as customer instruction.
      * @param[errorMessage] Error message style.
      * @param[errorMessageBox] Error message box style.
+     * @param[success] Success screen style.
      * @param[successMessage] Success message style.
      * @param[successImageResId] Success image drawable resource ID.
      * @param[backgroundColorResId] Color resource ID for background.
@@ -418,9 +419,10 @@ data class PONativeAlternativePaymentConfiguration(
         val bodyText: POTextStyle? = null,
         val errorMessage: POTextStyle? = null, // TODO(v2): remove, not used
         val errorMessageBox: POMessageBoxStyle? = null,
-        val successMessage: POTextStyle? = null,
+        val success: SuccessStyle? = null,
+        val successMessage: POTextStyle? = null, // TODO(v2): remove, not used
         @DrawableRes
-        val successImageResId: Int? = null,
+        val successImageResId: Int? = null, // TODO(v2): remove, not used
         @ColorRes
         val backgroundColorResId: Int? = null,
         @ColorRes
@@ -502,6 +504,21 @@ data class PONativeAlternativePaymentConfiguration(
             dividerColorResId = dividerColorResId,
             dragHandleColorResId = dragHandleColorResId
         )
+
+        /**
+         * Success screen style.
+         *
+         * @param[title] Title style.
+         * @param[message] Message style.
+         * @param[successImageResId] Success image drawable resource ID.
+         */
+        @Parcelize
+        data class SuccessStyle(
+            val title: POTextStyle? = null,
+            val message: POTextStyle? = null,
+            @DrawableRes
+            val successImageResId: Int? = null
+        ) : Parcelable
     }
 }
 

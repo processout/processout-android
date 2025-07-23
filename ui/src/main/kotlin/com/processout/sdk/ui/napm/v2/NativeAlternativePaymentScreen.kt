@@ -53,8 +53,10 @@ import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.state.POPhoneNumberFieldState
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.v2.NativeAlternativePaymentScreen.AnimationDurationMillis
@@ -747,12 +749,19 @@ internal object NativeAlternativePaymentScreen {
         val actionsContainer: POActionsContainer.Style,
         val bodyText: AndroidTextView.Style,
         val errorMessageBox: POMessageBox.Style,
-        val successMessage: POText.Style,
-        @DrawableRes val successImageResId: Int,
+        val success: SuccessStyle,
         val backgroundColor: Color,
         val progressIndicatorColor: Color,
         val dividerColor: Color,
         val dragHandleColor: Color
+    )
+
+    @Immutable
+    data class SuccessStyle(
+        val title: POText.Style,
+        val message: POText.Style,
+        @DrawableRes
+        val successImageResId: Int
     )
 
     @Composable
@@ -799,13 +808,7 @@ internal object NativeAlternativePaymentScreen {
                 errorMessageBox = custom?.errorMessageBox?.let {
                     POMessageBox.custom(style = it)
                 } ?: POMessageBox.error2,
-                successMessage = custom?.successMessage?.let {
-                    POText.custom(style = it)
-                } ?: POText.Style(
-                    color = colors.text.success,
-                    textStyle = typography.body1
-                ),
-                successImageResId = custom?.successImageResId ?: R.drawable.po_success_image,
+                success = custom?.success?.custom() ?: defaultSuccess,
                 backgroundColor = custom?.backgroundColorResId?.let {
                     colorResource(id = it)
                 } ?: colors.surface.default,
@@ -820,6 +823,27 @@ internal object NativeAlternativePaymentScreen {
                 } ?: colors.icon.disabled
             )
         }
+
+    private val defaultSuccess: SuccessStyle
+        @Composable get() = SuccessStyle(
+            title = POText.Style(
+                color = colors.text.primary,
+                textStyle = typography.s20(FontWeight.SemiBold)
+            ),
+            message = POText.Style(
+                color = colors.text.secondary,
+                textStyle = typography.paragraph.s16()
+            ),
+            successImageResId = R.drawable.po_success_image_v2
+        )
+
+    @Composable
+    private fun PONativeAlternativePaymentConfiguration.Style.SuccessStyle.custom() =
+        SuccessStyle(
+            title = title?.let { POText.custom(style = it) } ?: defaultSuccess.title,
+            message = message?.let { POText.custom(style = it) } ?: defaultSuccess.message,
+            successImageResId = successImageResId ?: defaultSuccess.successImageResId
+        )
 
     val LogoHeight = 26.dp
     val AnimationDurationMillis = 300
