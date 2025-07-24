@@ -80,6 +80,7 @@ internal class DefaultCustomerTokensRepository(
     private fun PONativeAlternativePaymentTokenizationRequest.toBody() =
         NativeAlternativePaymentRequestBody(
             gatewayConfigurationId = gatewayConfigurationId,
+            source = null,
             submitData = submitData?.let { SubmitData(parameters = it.parameters.map()) }
         )
 

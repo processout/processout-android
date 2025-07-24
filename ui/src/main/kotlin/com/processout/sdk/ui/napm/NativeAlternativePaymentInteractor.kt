@@ -158,7 +158,8 @@ internal class NativeAlternativePaymentInteractor(
     private suspend fun fetchAuthorizationDetails(flow: Authorization) {
         val request = PONativeAlternativePaymentAuthorizationRequest(
             invoiceId = flow.invoiceId,
-            gatewayConfigurationId = flow.gatewayConfigurationId
+            gatewayConfigurationId = flow.gatewayConfigurationId,
+            source = flow.customerTokenId
         )
         invoicesService.authorize(request)
             .onSuccess { response ->

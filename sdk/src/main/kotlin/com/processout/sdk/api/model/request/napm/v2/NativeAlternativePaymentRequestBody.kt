@@ -7,6 +7,7 @@ import com.squareup.moshi.JsonClass
 internal data class NativeAlternativePaymentRequestBody(
     @Json(name = "gateway_configuration_id")
     val gatewayConfigurationId: String,
+    val source: String?,
     @Json(name = "submit_data")
     val submitData: SubmitData?
 ) {
