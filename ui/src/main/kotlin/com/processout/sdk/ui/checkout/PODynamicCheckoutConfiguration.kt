@@ -231,7 +231,7 @@ data class PODynamicCheckoutConfiguration(
     /**
      * Specifies alternative payment configuration.
      *
-     * @param[returnUrl] Deep link return URL for web authorization.
+     * @param[returnUrl] Deep link return URL. Required for web authorization.
      * @param[inlineSingleSelectValuesLimit] Defines maximum number of options that will be
      * displayed inline for parameters where user should select single option (e.g. radio buttons).
      * Default value is _5_.
