@@ -16,20 +16,20 @@ import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import kotlinx.parcelize.Parcelize
 
 /**
- * Defines native alternative payment configuration.
+ * Native alternative payment configuration.
  *
  * @param[flow] Payment flow configuration.
  * @param[title] Custom title.
  * @param[submitButton] Submit button configuration.
  * @param[cancelButton] Cancel button configuration. Use _null_ to hide, this is a default behaviour.
- * @param[paymentConfirmation] Specifies payment confirmation configuration.
- * @param[barcode] Specifies barcode configuration.
- * @param[inlineSingleSelectValuesLimit] Defines maximum number of options that will be
- * displayed inline for parameters where user should select single option (e.g. radio buttons).
+ * @param[inlineSingleSelectValuesLimit] Defines the maximum number of options that will be
+ * displayed inline for parameters where user should select a single option (e.g. radio buttons).
  * Default value is _5_.
+ * @param[barcode] Barcode configuration.
+ * @param[paymentConfirmation] Payment confirmation configuration.
  * @param[success] Success screen configuration. Pass _null_ to skip the success screen.
  * @param[bottomSheet] Bottom sheet configuration.
- * @param[style] Allows to customize the look and feel.
+ * @param[style] Custom style.
  */
 @Parcelize
 data class PONativeAlternativePaymentConfiguration(
@@ -37,9 +37,9 @@ data class PONativeAlternativePaymentConfiguration(
     val title: String? = null,
     val submitButton: Button = Button(),
     val cancelButton: CancelButton? = null,
-    val paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration(confirmButton = null),
-    val barcode: POBarcodeConfiguration = POBarcodeConfiguration(saveButton = POBarcodeConfiguration.Button()),
     val inlineSingleSelectValuesLimit: Int = 5,
+    val barcode: POBarcodeConfiguration = POBarcodeConfiguration(saveButton = POBarcodeConfiguration.Button()),
+    val paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration(confirmButton = null),
     val success: SuccessConfiguration? = SuccessConfiguration(),
     val bottomSheet: POBottomSheetConfiguration = POBottomSheetConfiguration(
         height = WrapContent,
@@ -47,20 +47,6 @@ data class PONativeAlternativePaymentConfiguration(
     ),
     val style: Style? = null
 ) : Parcelable {
-
-    // TODO(v2): remove
-    internal val invoiceId: String
-        get() = when (flow) {
-            is Flow.Authorization -> flow.invoiceId
-            is Flow.Tokenization -> String()
-        }
-
-    // TODO(v2): remove
-    internal val gatewayConfigurationId: String
-        get() = when (flow) {
-            is Flow.Authorization -> flow.gatewayConfigurationId
-            is Flow.Tokenization -> String()
-        }
 
     /**
      * Native alternative payment flow configuration.
@@ -96,22 +82,22 @@ data class PONativeAlternativePaymentConfiguration(
     }
 
     /**
-     * Defines native alternative payment configuration.
+     * Native alternative payment configuration.
      *
      * @param[invoiceId] Invoice ID.
      * @param[gatewayConfigurationId] Gateway configuration ID.
      * @param[title] Custom title.
      * @param[submitButton] Submit button configuration.
      * @param[cancelButton] Cancel button configuration. Use _null_ to hide, this is a default behaviour.
-     * @param[cancellation] Specifies cancellation behaviour.
-     * @param[paymentConfirmation] Specifies payment confirmation configuration.
-     * @param[barcode] Specifies barcode configuration.
-     * @param[inlineSingleSelectValuesLimit] Defines maximum number of options that will be
-     * displayed inline for parameters where user should select single option (e.g. radio buttons).
+     * @param[cancellation] Cancellation behaviour.
+     * @param[paymentConfirmation] Payment confirmation configuration.
+     * @param[barcode] Barcode configuration.
+     * @param[inlineSingleSelectValuesLimit] Defines the maximum number of options that will be
+     * displayed inline for parameters where user should select a single option (e.g. radio buttons).
      * Default value is _5_.
-     * @param[skipSuccessScreen] Only applies when [PaymentConfirmationConfiguration.waitsConfirmation] is _true_.
+     * @param[skipSuccessScreen] Indicates whether the success screen should be skipped.
      * @param[successMessage] Custom success message when payment is completed.
-     * @param[style] Allows to customize the look and feel.
+     * @param[style] Custom style.
      */
     @Deprecated(message = "Use alternative constructor.")
     constructor(
@@ -135,9 +121,9 @@ data class PONativeAlternativePaymentConfiguration(
         title = title,
         submitButton = submitButton,
         cancelButton = cancelButton,
-        paymentConfirmation = paymentConfirmation,
-        barcode = barcode,
         inlineSingleSelectValuesLimit = inlineSingleSelectValuesLimit,
+        barcode = barcode,
+        paymentConfirmation = paymentConfirmation,
         success = if (!skipSuccessScreen)
             SuccessConfiguration(message = successMessage) else null,
         bottomSheet = POBottomSheetConfiguration(
@@ -149,12 +135,12 @@ data class PONativeAlternativePaymentConfiguration(
     )
 
     /**
-     * Defines native alternative payment configuration.
+     * Native alternative payment configuration.
      *
      * @param[invoiceId] Invoice ID.
      * @param[gatewayConfigurationId] Gateway configuration ID.
-     * @param[options] Allows to customize behaviour and pre-define the values.
-     * @param[style] Allows to customize the look and feel.
+     * @param[options] Custom options.
+     * @param[style] Custom style.
      */
     @Deprecated(message = "Use alternative constructor.")
     constructor(
@@ -184,18 +170,18 @@ data class PONativeAlternativePaymentConfiguration(
     )
 
     /**
-     * Allows to customize behaviour and pre-define the values.
+     * Custom options.
      *
      * @param[title] Custom title.
      * @param[primaryActionText] Custom primary action text (e.g. "Pay").
      * @param[secondaryAction] Secondary action (e.g. "Cancel"). Use _null_ to hide, this is a default behaviour.
-     * @param[cancellation] Specifies cancellation behaviour.
-     * @param[paymentConfirmation] Specifies payment confirmation configuration.
-     * @param[barcode] Specifies barcode configuration.
-     * @param[inlineSingleSelectValuesLimit] Defines maximum number of options that will be
-     * displayed inline for parameters where user should select single option (e.g. radio buttons).
+     * @param[cancellation] Cancellation behaviour.
+     * @param[paymentConfirmation] Payment confirmation configuration.
+     * @param[barcode] Barcode configuration.
+     * @param[inlineSingleSelectValuesLimit] Defines the maximum number of options that will be
+     * displayed inline for parameters where user should select a single option (e.g. radio buttons).
      * Default value is _5_.
-     * @param[skipSuccessScreen] Only applies when [PaymentConfirmationConfiguration.waitsConfirmation] is _true_.
+     * @param[skipSuccessScreen] Indicates whether the success screen should be skipped.
      * @param[successMessage] Custom success message when payment is completed.
      */
     @Parcelize
@@ -277,7 +263,7 @@ data class PONativeAlternativePaymentConfiguration(
     }
 
     /**
-     * Specifies cancellation behaviour.
+     * Bottom sheet cancellation behaviour.
      *
      * @param[backPressed] Cancel on back button press or back gesture. Default value is _true_.
      * @param[dragDown] Cancel when bottom sheet is dragged down out of the screen. Default value is _true_.
@@ -292,26 +278,17 @@ data class PONativeAlternativePaymentConfiguration(
     ) : Parcelable
 
     /**
-     * Specifies payment confirmation configuration.
+     * Payment confirmation configuration.
      *
-     * @param[waitsConfirmation] Specifies whether flow should wait for payment confirmation from PSP
-     * or will complete right after all user input is submitted. Default value is _true_.
      * @param[timeoutSeconds] Amount of time (in seconds) to wait for final payment confirmation.
      * Default value is 3 minutes, while maximum value is 15 minutes.
-     * @param[showProgressIndicatorAfterSeconds] Show progress indicator during payment confirmation after provided delay (in seconds).
-     * Use _null_ to hide, this is a default behaviour.
-     * @param[hideGatewayDetails] Specifies whether gateway information (such as name/logo) should be hidden during payment confirmation
-     * even when specific payment provider details are not available. Default value is _false_.
-     * @param[confirmButton] Confirm button configuration.
-     * @param[cancelButton] Cancel button configuration.
+     * @param[confirmButton] Confirm button configuration. Pass _null_ to hide.
+     * @param[cancelButton] Cancel button configuration. Pass _null_ to hide.
      */
     @Parcelize
     data class PaymentConfirmationConfiguration(
-        val waitsConfirmation: Boolean = true, // TODO(v2): deprecate and update KDoc for [skipSuccessScreen]
         @IntRange(from = 0, to = 15 * 60)
         val timeoutSeconds: Int = DEFAULT_TIMEOUT_SECONDS,
-        val showProgressIndicatorAfterSeconds: Int? = null,
-        val hideGatewayDetails: Boolean = false,
         val confirmButton: Button? = null,
         val cancelButton: CancelButton? = null
     ) : Parcelable {
@@ -322,15 +299,44 @@ data class PONativeAlternativePaymentConfiguration(
         }
 
         /**
-         * Specifies payment confirmation configuration.
+         * Payment confirmation configuration.
          *
-         * @param[waitsConfirmation] Specifies whether flow should wait for payment confirmation from PSP
+         * @param[waitsConfirmation] __Deprecated__: not used. Specifies whether flow should wait for payment confirmation from PSP
          * or will complete right after all user input is submitted. Default value is _true_.
          * @param[timeoutSeconds] Amount of time (in seconds) to wait for final payment confirmation.
          * Default value is 3 minutes, while maximum value is 15 minutes.
-         * @param[showProgressIndicatorAfterSeconds] Show progress indicator during payment confirmation after provided delay (in seconds).
+         * @param[showProgressIndicatorAfterSeconds] __Deprecated__: not used. Show progress indicator during payment confirmation after provided delay (in seconds).
          * Use _null_ to hide, this is a default behaviour.
-         * @param[hideGatewayDetails] Specifies whether gateway information (such as name/logo) should be hidden during payment confirmation
+         * @param[hideGatewayDetails] __Deprecated__: not used. Specifies whether gateway information (such as name/logo) should be hidden during payment confirmation
+         * even when specific payment provider details are not available. Default value is _false_.
+         * @param[confirmButton] Confirm button configuration.
+         * @param[cancelButton] Cancel button configuration.
+         */
+        @Deprecated(message = "Use alternative constructor.")
+        constructor(
+            waitsConfirmation: Boolean = true,
+            @IntRange(from = 0, to = 15 * 60)
+            timeoutSeconds: Int = DEFAULT_TIMEOUT_SECONDS,
+            showProgressIndicatorAfterSeconds: Int? = null,
+            hideGatewayDetails: Boolean = false,
+            confirmButton: Button? = null,
+            cancelButton: CancelButton? = null
+        ) : this(
+            timeoutSeconds = timeoutSeconds,
+            confirmButton = confirmButton,
+            cancelButton = cancelButton
+        )
+
+        /**
+         * Payment confirmation configuration.
+         *
+         * @param[waitsConfirmation] __Deprecated__: not used. Specifies whether flow should wait for payment confirmation from PSP
+         * or will complete right after all user input is submitted. Default value is _true_.
+         * @param[timeoutSeconds] Amount of time (in seconds) to wait for final payment confirmation.
+         * Default value is 3 minutes, while maximum value is 15 minutes.
+         * @param[showProgressIndicatorAfterSeconds] __Deprecated__: not used. Show progress indicator during payment confirmation after provided delay (in seconds).
+         * Use _null_ to hide, this is a default behaviour.
+         * @param[hideGatewayDetails] __Deprecated__: not used. Specifies whether gateway information (such as name/logo) should be hidden during payment confirmation
          * even when specific payment provider details are not available. Default value is _false_.
          * @param[primaryAction] Optional primary action for payment confirmation.
          * To hide action use _null_, this is a default behaviour.
@@ -377,25 +383,20 @@ data class PONativeAlternativePaymentConfiguration(
     ) : Parcelable
 
     /**
-     * Allows to customize the look and feel.
+     * Custom style.
      *
      * @param[title] Title style.
-     * @param[label] Field label style.
+     * @param[bodyText] Body text style, such as customer instruction.
      * @param[field] Field style.
      * @param[codeField] Code field style.
      * @param[radioField] Radio field style.
-     * @param[checkbox] Checkbox style.
      * @param[dropdownMenu] Dropdown menu style.
-     * @param[actionsContainer] Style of action buttons and their container.
+     * @param[checkbox] Checkbox style.
      * @param[dialog] Dialog style.
-     * @param[background] Background style.
-     * @param[message] Message style.
-     * @param[bodyText] Body text style, such as customer instruction.
-     * @param[errorMessage] Error message style.
-     * @param[errorMessageBox] Error message box style.
+     * @param[stepper] Multi-step progress view style.
      * @param[success] Success screen style.
-     * @param[successMessage] Success message style.
-     * @param[successImageResId] Success image drawable resource ID.
+     * @param[errorMessageBox] Error message box style.
+     * @param[actionsContainer] Style of action buttons and their container.
      * @param[backgroundColorResId] Color resource ID for background.
      * @param[progressIndicatorColorResId] Color resource ID for progress indicator.
      * @param[controlsTintColorResId] Color resource ID for tint that applies to generic components (e.g. selectable text).
@@ -405,24 +406,17 @@ data class PONativeAlternativePaymentConfiguration(
     @Parcelize
     data class Style(
         val title: POTextStyle? = null,
-        val label: POTextStyle? = null, // TODO(v2): remove, not used
+        val bodyText: POTextStyle? = null,
         val field: POFieldStyle? = null,
         val codeField: POFieldStyle? = null,
         val radioField: PORadioFieldStyle? = null,
-        val checkbox: POCheckboxStyle? = null,
         val dropdownMenu: PODropdownMenuStyle? = null,
+        val checkbox: POCheckboxStyle? = null,
         val dialog: PODialogStyle? = null,
         val stepper: POStepperStyle? = null,
-        val actionsContainer: POActionsContainerStyle? = null,
-        val background: POBackgroundStyle? = null, // TODO(v2): remove, not used
-        val message: POTextStyle? = null, // TODO(v2): remove, not used
-        val bodyText: POTextStyle? = null,
-        val errorMessage: POTextStyle? = null, // TODO(v2): remove, not used
-        val errorMessageBox: POMessageBoxStyle? = null,
         val success: SuccessStyle? = null,
-        val successMessage: POTextStyle? = null, // TODO(v2): remove, not used
-        @DrawableRes
-        val successImageResId: Int? = null, // TODO(v2): remove, not used
+        val errorMessageBox: POMessageBoxStyle? = null,
+        val actionsContainer: POActionsContainerStyle? = null,
         @ColorRes
         val backgroundColorResId: Int? = null,
         @ColorRes
@@ -436,21 +430,21 @@ data class PONativeAlternativePaymentConfiguration(
     ) : Parcelable {
 
         /**
-         * Allows to customize the look and feel.
+         * Custom style.
          *
          * @param[title] Title style.
-         * @param[label] Field label style.
+         * @param[label] __Deprecated__: not used. Field label style.
          * @param[field] Field style.
          * @param[codeField] Code field style.
-         * @param[radioButton] Radio button style. __Deprecated__: not used.
+         * @param[radioButton] __Deprecated__: not used. Radio button style.
          * @param[dropdownMenu] Dropdown menu style.
          * @param[actionsContainer] Style of action buttons and their container.
          * @param[dialog] Dialog style.
          * @param[background] Background style.
          * @param[message] Message style.
-         * @param[errorMessage] Error message style.
-         * @param[successMessage] Success message style.
-         * @param[successImageResId] Success image drawable resource ID.
+         * @param[errorMessage] __Deprecated__: not used. Error message style.
+         * @param[successMessage] __Deprecated__: not used. Success message style.
+         * @param[successImageResId] __Deprecated__: not used. Success image drawable resource ID.
          * @param[progressIndicatorColorResId] Color resource ID for progress indicator.
          * @param[controlsTintColorResId] Color resource ID for tint that applies to generic components (e.g. selectable text).
          * @param[dividerColorResId] Color resource ID for title divider.
@@ -482,22 +476,12 @@ data class PONativeAlternativePaymentConfiguration(
             dragHandleColorResId: Int? = null
         ) : this(
             title = title,
-            label = label,
+            bodyText = message,
             field = field,
             codeField = codeField,
-            radioField = null,
-            checkbox = null,
             dropdownMenu = dropdownMenu,
             dialog = dialog,
-            stepper = null,
             actionsContainer = actionsContainer,
-            background = background,
-            message = message,
-            bodyText = message,
-            errorMessage = errorMessage,
-            errorMessageBox = null,
-            successMessage = successMessage,
-            successImageResId = successImageResId,
             backgroundColorResId = background?.normalColorResId,
             progressIndicatorColorResId = progressIndicatorColorResId,
             controlsTintColorResId = controlsTintColorResId,

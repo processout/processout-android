@@ -1,13 +1,17 @@
 package com.processout.sdk.ui.napm
 
 import android.graphics.Bitmap
-import androidx.compose.ui.text.input.TextFieldValue
 import com.processout.sdk.api.model.response.POBarcode.BarcodeType
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter.ParameterType
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails.Gateway
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails.Invoice
-import com.processout.sdk.ui.core.state.POAvailableValue
+import com.processout.sdk.api.model.response.POImageResource
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.Invoice
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter.*
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentMethodDetails
+import com.processout.sdk.ui.core.component.stepper.POStepper
+import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
+import com.processout.sdk.ui.shared.state.FieldValue
 import kotlinx.coroutines.flow.MutableStateFlow
 
 internal sealed interface NativeAlternativePaymentInteractorState {
@@ -19,30 +23,32 @@ internal sealed interface NativeAlternativePaymentInteractorState {
     data object Loading : NativeAlternativePaymentInteractorState
 
     data class Loaded(
-        val value: UserInputStateValue
+        val value: NextStepStateValue
     ) : NativeAlternativePaymentInteractorState
 
-    data class UserInput(
-        val value: UserInputStateValue
+    data class NextStep(
+        val value: NextStepStateValue
     ) : NativeAlternativePaymentInteractorState
 
     data class Submitted(
-        val value: UserInputStateValue
+        val value: NextStepStateValue
     ) : NativeAlternativePaymentInteractorState
 
-    data class Capturing(
-        val value: CaptureStateValue
+    data class Pending(
+        val value: PendingStateValue
     ) : NativeAlternativePaymentInteractorState
 
-    data class Captured(
-        val value: CaptureStateValue
+    data class Completed(
+        val value: PendingStateValue
     ) : NativeAlternativePaymentInteractorState
 
     //endregion
 
-    data class UserInputStateValue(
-        val invoice: Invoice,
-        val gateway: Gateway,
+    data class NextStepStateValue(
+        val uuid: String,
+        val paymentMethod: PONativeAlternativePaymentMethodDetails,
+        val invoice: Invoice?,
+        val elements: List<Element>,
         val fields: List<Field>,
         val focusedFieldId: String?,
         val primaryActionId: String,
@@ -51,41 +57,90 @@ internal sealed interface NativeAlternativePaymentInteractorState {
         val submitting: Boolean
     )
 
-    data class CaptureStateValue(
-        val paymentProviderName: String?,
-        val logoUrl: String?,
-        val customerAction: CustomerAction?,
+    data class PendingStateValue(
+        val uuid: String,
+        val paymentMethod: PONativeAlternativePaymentMethodDetails,
+        val invoice: Invoice?,
+        val stepper: Stepper?,
+        val elements: List<Element>?,
         val primaryActionId: String?,
-        val secondaryAction: Action,
-        val withProgressIndicator: Boolean
+        val secondaryAction: Action
     )
 
-    data class CustomerAction(
-        val message: String,
-        val imageUrl: String?,
-        val barcode: Barcode?
+    data class Stepper(
+        val steps: POImmutableList<POStepper.Step>,
+        val activeStepIndex: Int
     )
 
-    data class Barcode(
-        val type: BarcodeType,
-        val bitmap: Bitmap,
-        val actionId: String,
-        val confirmErrorActionId: String,
-        val isError: Boolean = false
-    )
+    sealed interface Element {
+
+        data class Form(
+            val form: PONativeAlternativePaymentElement.Form
+        ) : Element
+
+        data class Instruction(
+            val instruction: NativeAlternativePaymentInteractorState.Instruction
+        ) : Element
+
+        data class InstructionGroup(
+            val label: String?,
+            val instructions: List<NativeAlternativePaymentInteractorState.Instruction>
+        ) : Element
+    }
+
+    sealed interface Instruction {
+
+        data class Message(
+            val label: String?,
+            val value: String
+        ) : Instruction
+
+        data class Image(
+            val value: POImageResource
+        ) : Instruction
+
+        data class Barcode(
+            val type: BarcodeType,
+            val bitmap: Bitmap,
+            val actionId: String,
+            val confirmErrorActionId: String,
+            val isError: Boolean = false
+        ) : Instruction
+    }
 
     data class Field(
-        val id: String,
-        val value: TextFieldValue,
-        val availableValues: List<POAvailableValue>?,
-        val rawType: String,
-        val type: ParameterType,
-        val length: Int?,
-        val displayName: String,
-        val description: String?,
-        val required: Boolean,
-        val isValid: Boolean
-    )
+        val parameter: Parameter,
+        val value: FieldValue,
+        val isValid: Boolean,
+        val description: String?
+    ) {
+        val id: String
+            get() = parameter.key
+
+        val label: String
+            get() = parameter.label
+
+        val required: Boolean
+            get() = parameter.required
+
+        val minLength: Int?
+            get() = when (parameter) {
+                is Text -> parameter.minLength
+                is Digits -> parameter.minLength
+                is Card -> parameter.minLength
+                is Otp -> parameter.minLength
+                else -> null
+            }
+
+        val maxLength: Int?
+            get() = when (parameter) {
+                is Text -> parameter.maxLength
+                is Digits -> parameter.maxLength
+                is Card -> parameter.maxLength
+                is Otp -> parameter.maxLength
+                else -> null
+            }
+    }
 
     data class Action(
         val id: String,
@@ -96,13 +151,14 @@ internal sealed interface NativeAlternativePaymentInteractorState {
         const val SUBMIT = "submit"
         const val CANCEL = "cancel"
         const val CONFIRM_PAYMENT = "confirm-payment"
+        const val DONE = "done"
         const val SAVE_BARCODE = "save-barcode"
         const val CONFIRM_SAVE_BARCODE_ERROR = "confirm-save-barcode-error"
     }
 }
 
 internal inline fun MutableStateFlow<NativeAlternativePaymentInteractorState>.whenLoaded(
-    crossinline block: (stateValue: UserInputStateValue) -> Unit
+    crossinline block: (stateValue: NextStepStateValue) -> Unit
 ) {
     val state = value
     if (state is Loaded) {
@@ -110,17 +166,17 @@ internal inline fun MutableStateFlow<NativeAlternativePaymentInteractorState>.wh
     }
 }
 
-internal inline fun MutableStateFlow<NativeAlternativePaymentInteractorState>.whenUserInput(
-    crossinline block: (stateValue: UserInputStateValue) -> Unit
+internal inline fun MutableStateFlow<NativeAlternativePaymentInteractorState>.whenNextStep(
+    crossinline block: (stateValue: NextStepStateValue) -> Unit
 ) {
     val state = value
-    if (state is UserInput) {
+    if (state is NextStep) {
         block(state.value)
     }
 }
 
 internal inline fun MutableStateFlow<NativeAlternativePaymentInteractorState>.whenSubmitted(
-    crossinline block: (stateValue: UserInputStateValue) -> Unit
+    crossinline block: (stateValue: NextStepStateValue) -> Unit
 ) {
     val state = value
     if (state is Submitted) {
@@ -128,11 +184,11 @@ internal inline fun MutableStateFlow<NativeAlternativePaymentInteractorState>.wh
     }
 }
 
-internal inline fun MutableStateFlow<NativeAlternativePaymentInteractorState>.whenCapturing(
-    crossinline block: (stateValue: CaptureStateValue) -> Unit
+internal inline fun MutableStateFlow<NativeAlternativePaymentInteractorState>.whenPending(
+    crossinline block: (stateValue: PendingStateValue) -> Unit
 ) {
     val state = value
-    if (state is Capturing) {
+    if (state is Pending) {
         block(state.value)
     }
 }
