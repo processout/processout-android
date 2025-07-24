@@ -243,7 +243,17 @@ internal class NativeAlternativePaymentInteractor(
                     elements = mappedElements
                 )
             )
-            UNKNOWN -> TODO(reason = "v2")
+            UNKNOWN -> {
+                val failure = ProcessOutResult.Failure(
+                    code = Internal(),
+                    message = "Unsupported payment state."
+                )
+                POLogger.error(
+                    message = "%s", failure,
+                    attributes = logAttributes
+                )
+                _completion.update { Failure(failure) }
+            }
         }
     }
 
