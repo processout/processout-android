@@ -8,8 +8,6 @@ import com.processout.sdk.core.annotation.ProcessOutInternalApi
 /**
  * Native alternative payment lifecycle event.
  */
-/** @suppress */
-@ProcessOutInternalApi
 sealed class PONativeAlternativePaymentEvent {
 
     /**

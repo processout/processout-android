@@ -1,12 +1,8 @@
 package com.processout.sdk.ui.napm.delegate.v2
 
-import com.processout.sdk.core.annotation.ProcessOutInternalApi
-
 /**
  * Native alternative payment parameter value.
  */
-/** @suppress */
-@ProcessOutInternalApi
 data class PONativeAlternativePaymentParameterValue internal constructor(
     internal val value: Value
 ) {
