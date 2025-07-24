@@ -50,6 +50,16 @@
         <item quantity="many">Quantidade de caracteres incorreta, espera-se %d caracteres.</item>
         <item quantity="other">Quantidade de caracteres incorreta, espera-se %d caracteres.</item>
     </plurals>
+    <plurals name="po_native_apm_error_invalid_min_length">
+        <item quantity="one">Comprimento inválido, no mínimo %d caractere.</item>
+        <item quantity="many">Comprimento inválido, no mínimo %d caracteres.</item>
+        <item quantity="other">Comprimento inválido, no mínimo %d caracteres.</item>
+    </plurals>
+    <plurals name="po_native_apm_error_invalid_max_length">
+        <item quantity="one">Comprimento inválido, no máximo %d caractere.</item>
+        <item quantity="many">Comprimento inválido, no máximo %d caracteres.</item>
+        <item quantity="other">Comprimento inválido, no máximo %d caracteres.</item>
+    </plurals>
 
     <!-- Card Scanner -->
     <string name="po_card_scanner_title">Digitalizar cartão</string>

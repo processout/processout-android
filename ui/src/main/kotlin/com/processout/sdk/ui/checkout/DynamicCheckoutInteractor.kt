@@ -1122,6 +1122,9 @@ internal class DynamicCheckoutInteractor(
                             _sideEffects.send(permissionRequest)
                             POLogger.info("System permission requested: %s", permissionRequest)
                         }
+                    is NativeAlternativePaymentSideEffect.Redirect -> {
+                        // TODO
+                    }
                 }
             }
         }

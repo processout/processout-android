@@ -7,6 +7,7 @@ import com.processout.sdk.core.annotation.ProcessOutInternalApi
  *
  * @param[invoiceId] Invoice identifier.
  * @param[gatewayConfigurationId] Gateway configuration identifier.
+ * @param[source] Payment source.
  * @param[submitData] Payment payload.
  */
 /** @suppress */
@@ -14,5 +15,6 @@ import com.processout.sdk.core.annotation.ProcessOutInternalApi
 data class PONativeAlternativePaymentAuthorizationRequest(
     val invoiceId: String,
     val gatewayConfigurationId: String,
+    val source: String? = null,
     val submitData: PONativeAlternativePaymentSubmitData? = null
 )

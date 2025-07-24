@@ -24,6 +24,7 @@ import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSu
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter.Companion.phoneNumber
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter.Companion.string
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentTokenizationRequest
+import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.model.response.POImageResource
 import com.processout.sdk.api.model.response.napm.v2.*
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.Invoice
@@ -50,6 +51,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.Action
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.PermissionRequest
+import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.Redirect
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Authorization
@@ -110,6 +112,7 @@ internal class NativeAlternativePaymentInteractor(
 
     private val handler = Handler(Looper.getMainLooper())
 
+    private var paymentState: PONativeAlternativePaymentState = UNKNOWN
     private var latestDefaultValuesRequest: NativeAlternativePaymentDefaultValuesRequest? = null
 
     private var captureStartTimestamp = 0L
@@ -158,7 +161,8 @@ internal class NativeAlternativePaymentInteractor(
     private suspend fun fetchAuthorizationDetails(flow: Authorization) {
         val request = PONativeAlternativePaymentAuthorizationRequest(
             invoiceId = flow.invoiceId,
-            gatewayConfigurationId = flow.gatewayConfigurationId
+            gatewayConfigurationId = flow.gatewayConfigurationId,
+            source = flow.customerTokenId
         )
         invoicesService.authorize(request)
             .onSuccess { response ->
@@ -168,7 +172,8 @@ internal class NativeAlternativePaymentInteractor(
                         invoice = response.invoice
                     ),
                     paymentState = response.state,
-                    elements = response.elements
+                    elements = response.elements,
+                    redirect = response.redirect
                 )
             }.onFailure { failure ->
                 POLogger.info("Failed to fetch authorization details: %s", failure)
@@ -190,7 +195,8 @@ internal class NativeAlternativePaymentInteractor(
                         invoice = null
                     ),
                     paymentState = response.state,
-                    elements = response.elements
+                    elements = response.elements,
+                    redirect = response.redirect
                 )
             }.onFailure { failure ->
                 POLogger.info("Failed to fetch tokenization details: %s", failure)
@@ -207,6 +213,7 @@ internal class NativeAlternativePaymentInteractor(
             uuid = UUID.randomUUID().toString(),
             paymentMethod = paymentMethod,
             invoice = invoice,
+            redirect = null,
             elements = emptyList(),
             fields = emptyList(),
             focusedFieldId = null,
@@ -223,12 +230,14 @@ internal class NativeAlternativePaymentInteractor(
     private suspend fun handlePaymentState(
         stateValue: NextStepStateValue,
         paymentState: PONativeAlternativePaymentState,
-        elements: List<PONativeAlternativePaymentElement>?
+        elements: List<PONativeAlternativePaymentElement>?,
+        redirect: PONativeAlternativePaymentRedirect?
     ) {
+        this.paymentState = paymentState
         val mappedElements = elements?.map() ?: emptyList()
         preloadImages(resources = mappedElements.images())
         when (paymentState) {
-            NEXT_STEP_REQUIRED -> handleNextStep(stateValue, mappedElements)
+            NEXT_STEP_REQUIRED -> handleNextStep(stateValue, mappedElements, redirect)
             PENDING -> handlePending(stateValue, mappedElements)
             SUCCESS -> handleSuccess(
                 stateValue.toPendingStateValue(
@@ -236,7 +245,17 @@ internal class NativeAlternativePaymentInteractor(
                     elements = mappedElements
                 )
             )
-            UNKNOWN -> TODO(reason = "v2")
+            UNKNOWN -> {
+                val failure = ProcessOutResult.Failure(
+                    code = Internal(),
+                    message = "Unsupported payment state."
+                )
+                POLogger.error(
+                    message = "%s", failure,
+                    attributes = logAttributes
+                )
+                _completion.update { Failure(failure) }
+            }
         }
     }
 
@@ -244,7 +263,8 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun handleNextStep(
         stateValue: NextStepStateValue,
-        elements: List<Element>
+        elements: List<Element>,
+        redirect: PONativeAlternativePaymentRedirect?
     ) {
         val parameters = elements.flatMap {
             if (it is Element.Form) it.form.parameterDefinitions else emptyList()
@@ -261,6 +281,7 @@ internal class NativeAlternativePaymentInteractor(
         val fields = parameters.toFields()
         val updatedStateValue = stateValue.copy(
             uuid = UUID.randomUUID().toString(),
+            redirect = redirect,
             elements = elements,
             fields = fields,
             focusedFieldId = fields.firstFocusableFieldId()
@@ -497,9 +518,10 @@ internal class NativeAlternativePaymentInteractor(
                 }
             }
             is PermissionRequestResult -> handlePermission(event)
+            is RedirectResult -> handleRedirect(event.result)
             is Dismiss -> {
                 POLogger.info("Dismissed: %s", event.failure)
-                dispatch(DidFail(event.failure))
+                dispatch(DidFail(event.failure, paymentState))
             }
         }
     }
@@ -560,6 +582,13 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun submit() {
         _state.whenNextStep { stateValue ->
+            if (stateValue.redirect != null) {
+                redirect(
+                    stateValue = stateValue,
+                    redirectUrl = stateValue.redirect.url
+                )
+                return@whenNextStep
+            }
             POLogger.info("Will submit payment parameters.")
             dispatch(WillSubmitParameters(parameters = stateValue.fields.map { it.parameter }))
             val invalidFields = stateValue.fields.mapNotNull { it.validate() }
@@ -569,10 +598,7 @@ internal class NativeAlternativePaymentInteractor(
                     message = "Invalid fields.",
                     invalidFields = invalidFields
                 )
-                handlePaymentFailure(
-                    failure = failure,
-                    replaceWithLocalMessage = false
-                )
+                handlePaymentFailure(failure)
                 return@whenNextStep
             }
             _state.update {
@@ -587,6 +613,52 @@ internal class NativeAlternativePaymentInteractor(
                 is Authorization -> authorize(flow)
                 is Tokenization -> tokenize(flow)
             }
+        }
+    }
+
+    private fun redirect(
+        stateValue: NextStepStateValue,
+        redirectUrl: String
+    ) {
+        val returnUrl = configuration.returnUrl
+        if (returnUrl.isNullOrBlank()) {
+            val failure = ProcessOutResult.Failure(
+                code = Generic(),
+                message = "Return URL is missing in configuration during redirect flow."
+            )
+            POLogger.warn(
+                message = "Failed redirect: %s", failure,
+                attributes = logAttributes
+            )
+            _completion.update { Failure(failure) }
+            return
+        }
+        _state.update {
+            NextStep(
+                stateValue.copy(
+                    submitAllowed = true,
+                    submitting = true
+                )
+            )
+        }
+        interactorScope.launch {
+            _sideEffects.send(
+                Redirect(
+                    redirectUrl = redirectUrl,
+                    returnUrl = returnUrl
+                )
+            )
+        }
+    }
+
+    private fun handleRedirect(result: ProcessOutResult<POAlternativePaymentMethodResponse>) {
+        result.onSuccess {
+            when (val flow = configuration.flow) {
+                is Authorization -> authorize(flow)
+                is Tokenization -> tokenize(flow)
+            }
+        }.onFailure { failure ->
+            _completion.update { Failure(failure) }
         }
     }
 
@@ -609,19 +681,42 @@ internal class NativeAlternativePaymentInteractor(
                 if (required && value.isBlank()) {
                     return invalidField(R.string.po_native_apm_error_required_parameter)
                 }
-                val length = if (
-                    minLength != null && maxLength != null &&
-                    minLength == maxLength
-                ) maxLength else null
-                if (length != null && value.length != length) {
-                    return InvalidField(
-                        name = id,
-                        message = app.resources.getQuantityString(
-                            R.plurals.po_native_apm_error_invalid_length, length, length
+                val maxLength = maxLength
+                if (maxLength != null && value.length > maxLength) {
+                    return if (minLength != null && minLength == maxLength) {
+                        InvalidField(
+                            name = id,
+                            message = app.resources.getQuantityString(
+                                R.plurals.po_native_apm_error_invalid_length, maxLength, maxLength
+                            )
                         )
-                    )
+                    } else {
+                        InvalidField(
+                            name = id,
+                            message = app.resources.getQuantityString(
+                                R.plurals.po_native_apm_error_invalid_max_length, maxLength, maxLength
+                            )
+                        )
+                    }
                 }
-                // TODO(v2): add validation by 'minLength', 'maxLength' and/or range
+                val minLength = minLength
+                if (minLength != null && value.length < minLength) {
+                    return if (maxLength != null && minLength == maxLength) {
+                        InvalidField(
+                            name = id,
+                            message = app.resources.getQuantityString(
+                                R.plurals.po_native_apm_error_invalid_length, minLength, minLength
+                            )
+                        )
+                    } else {
+                        InvalidField(
+                            name = id,
+                            message = app.resources.getQuantityString(
+                                R.plurals.po_native_apm_error_invalid_min_length, minLength, minLength
+                            )
+                        )
+                    }
+                }
                 when (parameter) {
                     is Parameter.Digits -> if (!value.isDigitsOnly()) {
                         return invalidField(R.string.po_native_apm_error_invalid_number)
@@ -666,13 +761,11 @@ internal class NativeAlternativePaymentInteractor(
                         handlePaymentState(
                             stateValue = stateValue,
                             paymentState = response.state,
-                            elements = response.elements
+                            elements = response.elements,
+                            redirect = response.redirect
                         )
                     }.onFailure { failure ->
-                        handlePaymentFailure(
-                            failure = failure,
-                            replaceWithLocalMessage = true
-                        )
+                        handlePaymentFailure(failure)
                     }
             }
         }
@@ -694,13 +787,11 @@ internal class NativeAlternativePaymentInteractor(
                         handlePaymentState(
                             stateValue = stateValue,
                             paymentState = response.state,
-                            elements = response.elements
+                            elements = response.elements,
+                            redirect = response.redirect
                         )
                     }.onFailure { failure ->
-                        handlePaymentFailure(
-                            failure = failure,
-                            replaceWithLocalMessage = true
-                        )
+                        handlePaymentFailure(failure)
                     }
             }
         }
@@ -729,10 +820,7 @@ internal class NativeAlternativePaymentInteractor(
 
     //region Handle Failure
 
-    private fun handlePaymentFailure(
-        failure: ProcessOutResult.Failure,
-        replaceWithLocalMessage: Boolean // TODO(v2): Delete this when backend localization is ready.
-    ) {
+    private fun handlePaymentFailure(failure: ProcessOutResult.Failure) {
         _state.whenNextStep { stateValue ->
             val invalidFields = failure.invalidFields
             if (invalidFields.isNullOrEmpty()) {
@@ -744,10 +832,7 @@ internal class NativeAlternativePaymentInteractor(
                 invalidFields.find { it.name == field.id }?.let { invalidField ->
                     field.copy(
                         isValid = false,
-                        description = field.errorMessage(
-                            originalMessage = invalidField.message,
-                            replaceWithLocalMessage = replaceWithLocalMessage
-                        )
+                        description = invalidField.message
                     )
                 } ?: field
             }
@@ -767,28 +852,6 @@ internal class NativeAlternativePaymentInteractor(
         }
     }
 
-    // TODO(v2): Delete this when backend localization is ready.
-    private fun Field.errorMessage(
-        originalMessage: String?,
-        replaceWithLocalMessage: Boolean
-    ): String? =
-        if (replaceWithLocalMessage)
-            when (parameter) {
-                is Parameter.Text,
-                is Parameter.Bool -> app.getString(R.string.po_native_apm_error_invalid_text)
-                is Parameter.Digits -> app.getString(R.string.po_native_apm_error_invalid_number)
-                is Parameter.PhoneNumber -> app.getString(R.string.po_native_apm_error_invalid_phone)
-                is Parameter.Email -> app.getString(R.string.po_native_apm_error_invalid_email)
-                is Parameter.Card -> null // TODO(v2): add new error string for card
-                is Parameter.Otp -> when (parameter.subtype) {
-                    Subtype.TEXT -> app.getString(R.string.po_native_apm_error_invalid_text)
-                    Subtype.DIGITS -> app.getString(R.string.po_native_apm_error_invalid_number)
-                    Subtype.UNKNOWN -> null
-                }
-                else -> null
-            }
-        else originalMessage
-
     //endregion
 
     //region Pending
@@ -799,8 +862,8 @@ internal class NativeAlternativePaymentInteractor(
     ) {
         POLogger.info("All payment parameters has been submitted.")
         dispatch(DidSubmitParameters(additionalParametersExpected = false))
-        POLogger.info("Waiting for capture confirmation.")
-        dispatch(WillWaitForCaptureConfirmation(additionalActionExpected = false)) // TODO(v2): remove param, update events
+        POLogger.info("Waiting for payment confirmation.")
+        dispatch(WillWaitForPaymentConfirmation)
         val pendingStateValue = stateValue.toPendingStateValue(
             uuid = UUID.randomUUID().toString(),
             elements = elements
@@ -860,7 +923,7 @@ internal class NativeAlternativePaymentInteractor(
                         )
                     ).map()
                 }
-                POLogger.debug("Attempted to capture the payment.")
+                POLogger.debug("Attempted to confirm the payment.")
                 if (isCaptureRetryable(result)) {
                     delay(iterator.next())
                     capturePassedTimestamp = System.currentTimeMillis() - captureStartTimestamp
@@ -1196,7 +1259,7 @@ internal class NativeAlternativePaymentInteractor(
             _completion.collect {
                 if (it is Failure) {
                     POLogger.warn("%s", it.failure, attributes = logAttributes)
-                    dispatch(DidFail(it.failure))
+                    dispatch(DidFail(it.failure, paymentState))
                 }
             }
         }

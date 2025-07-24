@@ -50,6 +50,16 @@
         <item quantity="many">Longueur incorrecte, %d caractères sont attendus.</item>
         <item quantity="other">Longueur incorrecte, %d caractères sont attendus.</item>
     </plurals>
+    <plurals name="po_native_apm_error_invalid_min_length">
+        <item quantity="one">Longueur invalide, au moins %d caractère requis.</item>
+        <item quantity="many">Longueur invalide, au moins %d caractères requis.</item>
+        <item quantity="other">Longueur invalide, au moins %d caractères requis.</item>
+    </plurals>
+    <plurals name="po_native_apm_error_invalid_max_length">
+        <item quantity="one">Longueur invalide, ne doit pas dépasser %d caractère.</item>
+        <item quantity="many">Longueur invalide, ne doit pas dépasser %d caractères.</item>
+        <item quantity="other">Longueur invalide, ne doit pas dépasser %d caractères.</item>
+    </plurals>
 
     <!-- Card Scanner -->
     <string name="po_card_scanner_title">Scanner la carte</string>

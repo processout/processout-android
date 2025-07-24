@@ -1,5 +1,6 @@
 package com.processout.sdk.ui.napm
 
+import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.shared.state.FieldValue
 
@@ -9,12 +10,19 @@ internal sealed interface NativeAlternativePaymentEvent {
     data class Action(val id: String) : NativeAlternativePaymentEvent
     data class DialogAction(val id: String, val isConfirmed: Boolean) : NativeAlternativePaymentEvent
     data class ActionConfirmationRequested(val id: String) : NativeAlternativePaymentEvent
-    data class PermissionRequestResult(val permission: String, val isGranted: Boolean) : NativeAlternativePaymentEvent
     data class Dismiss(val failure: ProcessOutResult.Failure) : NativeAlternativePaymentEvent
+    data class PermissionRequestResult(val permission: String, val isGranted: Boolean) : NativeAlternativePaymentEvent
+    data class RedirectResult(
+        val result: ProcessOutResult<POAlternativePaymentMethodResponse>
+    ) : NativeAlternativePaymentEvent
 }
 
 internal sealed interface NativeAlternativePaymentSideEffect {
     data class PermissionRequest(val permission: String) : NativeAlternativePaymentSideEffect
+    data class Redirect(
+        val redirectUrl: String,
+        val returnUrl: String
+    ) : NativeAlternativePaymentSideEffect
 }
 
 internal sealed interface NativeAlternativePaymentCompletion {

@@ -148,6 +148,7 @@ internal class DefaultInvoicesRepository(
     private fun PONativeAlternativePaymentAuthorizationRequest.toBody() =
         NativeAlternativePaymentRequestBody(
             gatewayConfigurationId = gatewayConfigurationId,
+            source = source,
             submitData = submitData?.let { SubmitData(parameters = it.parameters.map()) }
         )
 

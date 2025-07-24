@@ -24,5 +24,5 @@ data class POCreateCustomerRequest(
     @Json(name = "legal_document")
     val legalDocument: String? = null,
     val sex: String? = null,
-    val email: String? = null,
+    val email: String? = null
 )

@@ -8,6 +8,7 @@ import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentE
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter.*
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentMethodDetails
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentRedirect
 import com.processout.sdk.ui.core.component.stepper.POStepper
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
@@ -48,6 +49,7 @@ internal sealed interface NativeAlternativePaymentInteractorState {
         val uuid: String,
         val paymentMethod: PONativeAlternativePaymentMethodDetails,
         val invoice: Invoice?,
+        val redirect: PONativeAlternativePaymentRedirect?,
         val elements: List<Element>,
         val fields: List<Field>,
         val focusedFieldId: String?,
