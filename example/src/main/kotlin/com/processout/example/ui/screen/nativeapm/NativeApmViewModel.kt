@@ -3,6 +3,7 @@ package com.processout.example.ui.screen.nativeapm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.processout.example.shared.Constants
 import com.processout.example.ui.screen.nativeapm.NativeApmFlow.AUTHORIZE_CUSTOMER_TOKEN
 import com.processout.example.ui.screen.nativeapm.NativeApmUiState.*
 import com.processout.sdk.api.ProcessOut
@@ -61,6 +62,7 @@ class NativeApmViewModel(
                 amount = amount,
                 currency = currency,
                 customerId = customerId,
+                returnUrl = Constants.RETURN_URL,
                 shipping = POContact(
                     address1 = "6th Street",
                     city = "Paris",

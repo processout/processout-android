@@ -14,21 +14,23 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.processout.sdk.core.POUnit
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.toActivityResult
+import com.processout.sdk.ui.apm.POAlternativePaymentMethodCustomTabLauncher
 import com.processout.sdk.ui.base.BaseBottomSheetDialogFragment
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.napm.NativeAlternativePaymentActivityContract.Companion.EXTRA_CONFIGURATION
 import com.processout.sdk.ui.napm.NativeAlternativePaymentActivityContract.Companion.EXTRA_RESULT
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Failure
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Success
-import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.Dismiss
-import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.PermissionRequestResult
+import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.PermissionRequest
+import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.Redirect
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Loaded
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Stage
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow
@@ -64,6 +66,8 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
         ::handlePermissions
     )
 
+    private lateinit var alternativePaymentLauncher: POAlternativePaymentMethodCustomTabLauncher
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         @Suppress("DEPRECATION")
@@ -74,6 +78,12 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
                     gatewayConfigurationId = String()
                 )
             )
+        alternativePaymentLauncher = POAlternativePaymentMethodCustomTabLauncher.create(
+            from = this,
+            callback = { result ->
+                viewModel.onEvent(RedirectResult(result))
+            }
+        )
         viewModel.start()
     }
 
@@ -124,28 +134,36 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
 
     private fun handle(sideEffect: NativeAlternativePaymentSideEffect) {
         when (sideEffect) {
-            is PermissionRequest -> when {
-                ContextCompat.checkSelfPermission(
-                    requireContext(),
-                    sideEffect.permission
-                ) == PackageManager.PERMISSION_GRANTED ->
-                    viewModel.onEvent(
-                        PermissionRequestResult(
-                            permission = sideEffect.permission,
-                            isGranted = true
-                        )
-                    )
-                ActivityCompat.shouldShowRequestPermissionRationale(
-                    requireActivity(),
-                    sideEffect.permission
-                ) -> viewModel.onEvent(
+            is PermissionRequest -> requestPermission(sideEffect.permission)
+            is Redirect -> alternativePaymentLauncher.launch(
+                uri = sideEffect.redirectUrl.toUri(),
+                returnUrl = sideEffect.returnUrl
+            )
+        }
+    }
+
+    private fun requestPermission(permission: String) {
+        when {
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                permission
+            ) == PackageManager.PERMISSION_GRANTED ->
+                viewModel.onEvent(
                     PermissionRequestResult(
-                        permission = sideEffect.permission,
-                        isGranted = false
+                        permission = permission,
+                        isGranted = true
                     )
                 )
-                else -> permissionsLauncher.launch(arrayOf(sideEffect.permission))
-            }
+            ActivityCompat.shouldShowRequestPermissionRationale(
+                requireActivity(),
+                permission
+            ) -> viewModel.onEvent(
+                PermissionRequestResult(
+                    permission = permission,
+                    isGranted = false
+                )
+            )
+            else -> permissionsLauncher.launch(arrayOf(permission))
         }
     }
 

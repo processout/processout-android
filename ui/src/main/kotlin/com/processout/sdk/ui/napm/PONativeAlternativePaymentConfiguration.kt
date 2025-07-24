@@ -26,6 +26,7 @@ import kotlinx.parcelize.Parcelize
  * displayed inline for parameters where user should select a single option (e.g. radio buttons).
  * Default value is _5_.
  * @param[barcode] Barcode configuration.
+ * @param[returnUrl] Deep link return URL. Required for the flows that include web redirect.
  * @param[paymentConfirmation] Payment confirmation configuration.
  * @param[success] Success screen configuration. Pass _null_ to skip the success screen.
  * @param[bottomSheet] Bottom sheet configuration.
@@ -39,6 +40,7 @@ data class PONativeAlternativePaymentConfiguration(
     val cancelButton: CancelButton? = null,
     val inlineSingleSelectValuesLimit: Int = 5,
     val barcode: POBarcodeConfiguration = POBarcodeConfiguration(saveButton = POBarcodeConfiguration.Button()),
+    val returnUrl: String? = null,
     val paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration(confirmButton = null),
     val success: SuccessConfiguration? = SuccessConfiguration(),
     val bottomSheet: POBottomSheetConfiguration = POBottomSheetConfiguration(

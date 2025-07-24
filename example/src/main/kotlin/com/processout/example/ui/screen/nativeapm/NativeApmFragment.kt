@@ -9,6 +9,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import com.processout.example.R
 import com.processout.example.databinding.FragmentNativeApmBinding
+import com.processout.example.shared.Constants
 import com.processout.example.shared.toMessage
 import com.processout.example.ui.screen.MainActivity
 import com.processout.example.ui.screen.base.BaseFragment
@@ -118,6 +119,7 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
                         gatewayConfigurationId = uiModel.gatewayConfigurationId
                     ),
                     cancelButton = CancelButton(),
+                    returnUrl = Constants.RETURN_URL,
                     paymentConfirmation = PaymentConfirmationConfiguration(
                         confirmButton = Button(),
                         cancelButton = CancelButton(disabledForSeconds = 3)
@@ -132,6 +134,7 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
                         customerTokenId = uiModel.customerTokenId
                     ),
                     cancelButton = CancelButton(),
+                    returnUrl = Constants.RETURN_URL,
                     paymentConfirmation = PaymentConfirmationConfiguration(
                         confirmButton = Button(),
                         cancelButton = CancelButton(disabledForSeconds = 3)
@@ -152,6 +155,7 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
                         gatewayConfigurationId = uiModel.gatewayConfigurationId
                     ),
                     cancelButton = CancelButton(),
+                    returnUrl = Constants.RETURN_URL,
                     paymentConfirmation = PaymentConfirmationConfiguration(
                         confirmButton = Button(),
                         cancelButton = CancelButton(disabledForSeconds = 3)

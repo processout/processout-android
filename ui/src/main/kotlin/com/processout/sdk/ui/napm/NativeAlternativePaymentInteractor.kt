@@ -24,6 +24,7 @@ import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSu
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter.Companion.phoneNumber
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter.Companion.string
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentTokenizationRequest
+import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.model.response.POImageResource
 import com.processout.sdk.api.model.response.napm.v2.*
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.Invoice
@@ -50,6 +51,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.Action
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.PermissionRequest
+import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.Redirect
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Authorization
@@ -504,6 +506,7 @@ internal class NativeAlternativePaymentInteractor(
                 }
             }
             is PermissionRequestResult -> handlePermission(event)
+            is RedirectResult -> handleRedirect(event.result)
             is Dismiss -> {
                 POLogger.info("Dismissed: %s", event.failure)
                 dispatch(DidFail(event.failure))
@@ -567,6 +570,13 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun submit() {
         _state.whenNextStep { stateValue ->
+            if (stateValue.redirect != null) {
+                redirect(
+                    stateValue = stateValue,
+                    redirectUrl = stateValue.redirect.url
+                )
+                return@whenNextStep
+            }
             POLogger.info("Will submit payment parameters.")
             dispatch(WillSubmitParameters(parameters = stateValue.fields.map { it.parameter }))
             val invalidFields = stateValue.fields.mapNotNull { it.validate() }
@@ -594,6 +604,52 @@ internal class NativeAlternativePaymentInteractor(
                 is Authorization -> authorize(flow)
                 is Tokenization -> tokenize(flow)
             }
+        }
+    }
+
+    private fun redirect(
+        stateValue: NextStepStateValue,
+        redirectUrl: String
+    ) {
+        val returnUrl = configuration.returnUrl
+        if (returnUrl.isNullOrBlank()) {
+            val failure = ProcessOutResult.Failure(
+                code = Generic(),
+                message = "Return URL is missing in configuration during redirect flow."
+            )
+            POLogger.warn(
+                message = "Failed redirect: %s", failure,
+                attributes = logAttributes
+            )
+            _completion.update { Failure(failure) }
+            return
+        }
+        _state.update {
+            NextStep(
+                stateValue.copy(
+                    submitAllowed = true,
+                    submitting = true
+                )
+            )
+        }
+        interactorScope.launch {
+            _sideEffects.send(
+                Redirect(
+                    redirectUrl = redirectUrl,
+                    returnUrl = returnUrl
+                )
+            )
+        }
+    }
+
+    private fun handleRedirect(result: ProcessOutResult<POAlternativePaymentMethodResponse>) {
+        result.onSuccess {
+            when (val flow = configuration.flow) {
+                is Authorization -> authorize(flow)
+                is Tokenization -> tokenize(flow)
+            }
+        }.onFailure { failure ->
+            _completion.update { Failure(failure) }
         }
     }
 
