@@ -1,6 +1,7 @@
 package com.processout.sdk.ui.napm.delegate.v2
 
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentState
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 
@@ -18,7 +19,7 @@ sealed class PONativeAlternativePaymentEvent {
 
     /**
      * Event indicates that initial data has been loaded successfully.
-     * Currently waiting for user input.
+     * Currently waiting for the next step.
      */
     data object DidStart : PONativeAlternativePaymentEvent()
 
@@ -57,35 +58,35 @@ sealed class PONativeAlternativePaymentEvent {
     ) : PONativeAlternativePaymentEvent()
 
     /**
-     * Event is sent after all information is collected and implementation is waiting for a PSP to confirm capture.
-     * Inspect the associated value [additionalActionExpected] to check whether user needs
-     * to do an additional action(s) outside the application,
-     * for example to confirm the operation in their banking app to make capture happen.
-     */
-    data class WillWaitForCaptureConfirmation(
-        val additionalActionExpected: Boolean
-    ) : PONativeAlternativePaymentEvent()
-
-    /**
-     * Event is sent during the capture stage when the user confirms that they have completed required external action.
-     * Implementation proceeds with the actual capture process.
-     */
-    data object DidConfirmPayment : PONativeAlternativePaymentEvent()
-
-    /**
      * Event is sent when user asked to confirm cancellation, e.g. via dialog.
      */
     data object DidRequestCancelConfirmation : PONativeAlternativePaymentEvent()
 
     /**
-     * Event is sent after payment was confirmed to be captured. This is a final event.
+     * Event is sent after all information is collected and implementation is waiting for a PSP to confirm the payment.
+     */
+    data object WillWaitForPaymentConfirmation : PONativeAlternativePaymentEvent()
+
+    /**
+     * Event is sent during the _PENDING_ state when the user confirms that they have completed required external action.
+     * Implementation proceeds with the actual payment confirmation process.
+     */
+    data object DidConfirmPayment : PONativeAlternativePaymentEvent()
+
+    /**
+     * Event is sent after payment was confirmed to be completed. This is a final event.
      */
     data object DidCompletePayment : PONativeAlternativePaymentEvent()
 
     /**
      * Event is sent when unretryable error occurs. This is a final event.
+     *
+     * @param[paymentState] The payment state provides additional context about where in the payment process the failure occurred.
+     * For example, in the event of a user-initiated cancellation,
+     * this state can be used to determine which step the user was on when they canceled.
      */
     data class DidFail(
-        val failure: ProcessOutResult.Failure
+        val failure: ProcessOutResult.Failure,
+        val paymentState: PONativeAlternativePaymentState
     ) : PONativeAlternativePaymentEvent()
 }

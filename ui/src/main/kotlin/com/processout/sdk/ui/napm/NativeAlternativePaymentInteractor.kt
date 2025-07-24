@@ -112,6 +112,7 @@ internal class NativeAlternativePaymentInteractor(
 
     private val handler = Handler(Looper.getMainLooper())
 
+    private var paymentState: PONativeAlternativePaymentState = UNKNOWN
     private var latestDefaultValuesRequest: NativeAlternativePaymentDefaultValuesRequest? = null
 
     private var captureStartTimestamp = 0L
@@ -232,6 +233,7 @@ internal class NativeAlternativePaymentInteractor(
         elements: List<PONativeAlternativePaymentElement>?,
         redirect: PONativeAlternativePaymentRedirect?
     ) {
+        this.paymentState = paymentState
         val mappedElements = elements?.map() ?: emptyList()
         preloadImages(resources = mappedElements.images())
         when (paymentState) {
@@ -519,7 +521,7 @@ internal class NativeAlternativePaymentInteractor(
             is RedirectResult -> handleRedirect(event.result)
             is Dismiss -> {
                 POLogger.info("Dismissed: %s", event.failure)
-                dispatch(DidFail(event.failure))
+                dispatch(DidFail(event.failure, paymentState))
             }
         }
     }
@@ -860,8 +862,8 @@ internal class NativeAlternativePaymentInteractor(
     ) {
         POLogger.info("All payment parameters has been submitted.")
         dispatch(DidSubmitParameters(additionalParametersExpected = false))
-        POLogger.info("Waiting for capture confirmation.")
-        dispatch(WillWaitForCaptureConfirmation(additionalActionExpected = false)) // TODO(v2): remove param, update events
+        POLogger.info("Waiting for payment confirmation.")
+        dispatch(WillWaitForPaymentConfirmation)
         val pendingStateValue = stateValue.toPendingStateValue(
             uuid = UUID.randomUUID().toString(),
             elements = elements
@@ -1257,7 +1259,7 @@ internal class NativeAlternativePaymentInteractor(
             _completion.collect {
                 if (it is Failure) {
                     POLogger.warn("%s", it.failure, attributes = logAttributes)
-                    dispatch(DidFail(it.failure))
+                    dispatch(DidFail(it.failure, paymentState))
                 }
             }
         }
