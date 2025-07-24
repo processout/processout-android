@@ -51,6 +51,18 @@
         <item quantity="many">Nieprawidłowa długość. Oczekiwano %d znaków.</item>
         <item quantity="other">Nieprawidłowa długość. Oczekiwano %d znaków.</item>
     </plurals>
+    <plurals name="po_native_apm_error_invalid_min_length">
+        <item quantity="one">Nieprawidłowa długość – co najmniej %d znak.</item>
+        <item quantity="few">Nieprawidłowa długość – co najmniej %d znaki.</item>
+        <item quantity="many">Nieprawidłowa długość – co najmniej %d znaków.</item>
+        <item quantity="other">Nieprawidłowa długość – co najmniej %d znaków.</item>
+    </plurals>
+    <plurals name="po_native_apm_error_invalid_max_length">
+        <item quantity="one">Nieprawidłowa długość – maksymalnie %d znak.</item>
+        <item quantity="few">Nieprawidłowa długość – maksymalnie %d znaki.</item>
+        <item quantity="many">Nieprawidłowa długość – maksymalnie %d znaków.</item>
+        <item quantity="other">Nieprawidłowa długość – maksymalnie %d znaków.</item>
+    </plurals>
 
     <!-- Card Scanner -->
     <string name="po_card_scanner_title">Skanowanie karty</string>

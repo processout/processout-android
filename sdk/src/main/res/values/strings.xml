@@ -49,6 +49,14 @@
         <item quantity="one">Invalid length, expected %d character.</item>
         <item quantity="other">Invalid length, expected %d characters.</item>
     </plurals>
+    <plurals name="po_native_apm_error_invalid_min_length">
+        <item quantity="one">Invalid length, must be at least %d character.</item>
+        <item quantity="other">Invalid length, must be at least %d characters.</item>
+    </plurals>
+    <plurals name="po_native_apm_error_invalid_max_length">
+        <item quantity="one">Invalid length, must be at most %d character.</item>
+        <item quantity="other">Invalid length, must be at most %d characters.</item>
+    </plurals>
 
     <!-- Card Scanner -->
     <string name="po_card_scanner_title">Scan card</string>

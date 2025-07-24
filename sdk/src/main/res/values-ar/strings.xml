@@ -52,6 +52,20 @@
         <item quantity="many">الطول غير صالح، المتوقع %d أحرف</item>
         <item quantity="other">الطول غير صالح، المتوقع %d أحرف</item>
     </plurals>
+    <plurals name="po_native_apm_error_invalid_min_length" tools:ignore="MissingQuantity">
+        <item quantity="one">الطول غير صالح، يجب أن يكون حرفًا %d على الأقل.</item>
+        <item quantity="two">الطول غير صالح، يجب أن يكون %d حرفًا على الأقل.</item>
+        <item quantity="few">الطول غير صالح، يجب أن يكون %d حرفًا على الأقل.</item>
+        <item quantity="many">الطول غير صالح، يجب أن يكون %d حرفًا على الأقل.</item>
+        <item quantity="other">الطول غير صالح، يجب أن يكون %d حرفًا على الأقل.</item>
+    </plurals>
+    <plurals name="po_native_apm_error_invalid_max_length" tools:ignore="MissingQuantity">
+        <item quantity="one">الطول غير صالح، يجب ألا يتجاوز حرفًا %d.</item>
+        <item quantity="two">الطول غير صالح، يجب ألا يتجاوز %d حرفًا.</item>
+        <item quantity="few">الطول غير صالح، يجب ألا يتجاوز %d حرفًا.</item>
+        <item quantity="many">الطول غير صالح، يجب ألا يتجاوز %d حرفًا.</item>
+        <item quantity="other">الطول غير صالح، يجب ألا يتجاوز %d حرفًا.</item>
+    </plurals>
 
     <!-- Card Scanner -->
     <string name="po_card_scanner_title">امسح البطاقة</string>
