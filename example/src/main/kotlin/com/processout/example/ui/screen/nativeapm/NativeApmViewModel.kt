@@ -6,10 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.processout.example.ui.screen.nativeapm.NativeApmFlow.AUTHORIZE_CUSTOMER_TOKEN
 import com.processout.example.ui.screen.nativeapm.NativeApmUiState.*
 import com.processout.sdk.api.ProcessOut
-import com.processout.sdk.api.model.request.POCreateCustomerRequest
-import com.processout.sdk.api.model.request.POCreateCustomerTokenRequest
-import com.processout.sdk.api.model.request.POCreateCustomerTokenRequestBody
-import com.processout.sdk.api.model.request.POCreateInvoiceRequest
+import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.response.POCustomer
 import com.processout.sdk.api.model.response.POCustomerToken
 import com.processout.sdk.api.service.POCustomerTokensService
@@ -45,6 +42,7 @@ class NativeApmViewModel(
     private val _uiState = MutableStateFlow<NativeApmUiState>(Initial)
     val uiState = _uiState.asStateFlow()
 
+    var customerId = String()
     var customerTokenId = String()
 
     fun createInvoice(
@@ -54,15 +52,21 @@ class NativeApmViewModel(
     ) {
         _uiState.value = Submitting
         viewModelScope.launch {
-            val customerId = createCustomer()?.id ?: String()
             if (flow != AUTHORIZE_CUSTOMER_TOKEN) {
+                customerId = createCustomer()?.id ?: String()
                 customerTokenId = createCustomerToken(customerId)?.id ?: String()
             }
             val request = POCreateInvoiceRequest(
                 name = UUID.randomUUID().toString(),
                 amount = amount,
                 currency = currency,
-                customerId = customerId
+                customerId = customerId,
+                shipping = POContact(
+                    address1 = "6th Street",
+                    city = "Paris",
+                    countryCode = "FR",
+                    zip = "75017"
+                )
             )
             invoices.createInvoice(request)
                 .onSuccess { invoice ->

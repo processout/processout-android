@@ -99,6 +99,7 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
     }
 
     private fun handle(uiState: NativeApmUiState) {
+        binding.customer.text = viewModel.customerId
         binding.customerToken.text = viewModel.customerTokenId
         handleControls(uiState)
         when (uiState) {

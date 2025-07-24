@@ -15,6 +15,7 @@ data class POCreateInvoiceRequest(
     val customerId: String? = null,
     @Json(name = "return_url")
     val returnUrl: String? = null,
+    val shipping: POContact? = null,
     val device: Map<String, String> = mapOf("channel" to "android"),
     val metadata: Map<String, String>? = null
 )
