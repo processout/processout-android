@@ -923,7 +923,7 @@ internal class NativeAlternativePaymentInteractor(
                         )
                     ).map()
                 }
-                POLogger.debug("Attempted to capture the payment.")
+                POLogger.debug("Attempted to confirm the payment.")
                 if (isCaptureRetryable(result)) {
                     delay(iterator.next())
                     capturePassedTimestamp = System.currentTimeMillis() - captureStartTimestamp
