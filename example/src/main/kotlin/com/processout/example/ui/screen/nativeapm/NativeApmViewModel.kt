@@ -3,6 +3,7 @@ package com.processout.example.ui.screen.nativeapm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.processout.example.ui.screen.nativeapm.NativeApmFlow.AUTHORIZE_CUSTOMER_TOKEN
 import com.processout.example.ui.screen.nativeapm.NativeApmUiState.*
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POCreateCustomerRequest
@@ -44,16 +45,19 @@ class NativeApmViewModel(
     private val _uiState = MutableStateFlow<NativeApmUiState>(Initial)
     val uiState = _uiState.asStateFlow()
 
+    var customerTokenId = String()
+
     fun createInvoice(
         amount: String,
         currency: String,
-        launchCompose: Boolean,
-        tokenize: Boolean
+        flow: NativeApmFlow
     ) {
         _uiState.value = Submitting
         viewModelScope.launch {
             val customerId = createCustomer()?.id ?: String()
-            val customerTokenId = createCustomerToken(customerId)?.id ?: String()
+            if (flow != AUTHORIZE_CUSTOMER_TOKEN) {
+                customerTokenId = createCustomerToken(customerId)?.id ?: String()
+            }
             val request = POCreateInvoiceRequest(
                 name = UUID.randomUUID().toString(),
                 amount = amount,
@@ -68,8 +72,7 @@ class NativeApmViewModel(
                             gatewayConfigurationId = gatewayConfigurationId,
                             customerId = customerId,
                             customerTokenId = customerTokenId,
-                            launchCompose = launchCompose,
-                            tokenize = tokenize
+                            flow = flow
                         )
                     )
                 }.onFailure { _uiState.value = Failure(it) }

@@ -15,6 +15,12 @@ data class NativeApmUiModel(
     val gatewayConfigurationId: String,
     val customerId: String,
     val customerTokenId: String,
-    val launchCompose: Boolean,
-    val tokenize: Boolean
+    val flow: NativeApmFlow
 )
+
+enum class NativeApmFlow {
+    AUTHORIZE,
+    AUTHORIZE_CUSTOMER_TOKEN,
+    AUTHORIZE_LEGACY,
+    TOKENIZE
+}

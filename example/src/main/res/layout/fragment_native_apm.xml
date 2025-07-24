@@ -73,6 +73,16 @@
                     android:importantForAutofill="no"
                     android:inputType="text|textCapCharacters" />
             </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/customer_token"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:defaultFocusHighlightEnabled="false"
+                android:paddingTop="@dimen/content_marginVertical"
+                android:textIsSelectable="true"
+                android:textSize="16sp"
+                android:textStyle="bold" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
@@ -93,31 +103,40 @@
             android:background="@color/po_border_subtle" />
 
         <Button
-            android:id="@+id/button_authorize_legacy"
+            android:id="@+id/button_authorize"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/content_padding"
             android:layout_marginEnd="@dimen/content_padding"
             android:layout_marginBottom="@dimen/button_space_vertical"
+            android:text="Authorize" />
+
+        <Button
+            android:id="@+id/button_authorize_customer_token"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/content_padding"
+            android:layout_marginEnd="@dimen/content_padding"
+            android:layout_marginBottom="@dimen/button_space_vertical"
+            android:text="Authorize Customer Token" />
+
+        <Button
+            android:id="@+id/button_tokenize"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/content_padding"
+            android:layout_marginEnd="@dimen/content_padding"
+            android:layout_marginBottom="@dimen/button_space_vertical"
+            android:text="Tokenize" />
+
+        <Button
+            android:id="@+id/button_authorize_legacy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/content_padding"
+            android:layout_marginEnd="@dimen/content_padding"
+            android:layout_marginBottom="@dimen/button_marginVertical"
             android:text="Authorize (Legacy)" />
-
-        <Button
-            android:id="@+id/button_authorize_compose"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/content_padding"
-            android:layout_marginEnd="@dimen/content_padding"
-            android:layout_marginBottom="@dimen/button_marginVertical"
-            android:text="Authorize (Compose)" />
-
-        <Button
-            android:id="@+id/button_tokenize_compose"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/content_padding"
-            android:layout_marginEnd="@dimen/content_padding"
-            android:layout_marginBottom="@dimen/button_marginVertical"
-            android:text="Tokenize (Compose)" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
