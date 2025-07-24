@@ -6,7 +6,7 @@ buildscript {
         kotlinVersion = '2.1.20'
         kspVersion = '2.1.20-1.0.32'
         dokkaVersion = '1.9.20'
-        androidxNavigationVersion = '2.9.0'
+        androidxNavigationVersion = '2.9.2'
         nexusPublishPluginVersion = '2.0.0'
     }
     dependencies {
@@ -50,35 +50,35 @@ ext {
     androidxCameraVersion = '1.4.2'
 
     androidxComposeBOMVersion = '2025.04.00'
-    composeGooglePayButtonVersion = '1.0.0'
+    composeGooglePayButtonVersion = '1.1.0'
 
     materialVersion = '1.12.0'
 
     gmsWalletVersion = '19.4.0'
     mlkitTextRecognitionVersion = '19.0.1'
 
-    retrofitVersion = '2.11.0'
+    retrofitVersion = '2.12.0'
     moshiVersion = '1.15.2'
     okhttpVersion = '4.12.0'
     okioVersion = '3.10.2'
     coilVersion = '2.7.0'
-    commonMarkVersion = '0.24.0'
-    libphonenumberVersion = '9.0.5'
+    commonMarkVersion = '0.25.0'
+    libphonenumberVersion = '9.0.10'
     zxingVersion = '3.5.3'
 
     checkout3dsSdkVersion = '3.2.6'
     adyen3dsSdkVersion = '2.2.15'
 
     junitVersion = '4.13.2'
-    mockitoVersion = '5.13.0'
+    mockitoVersion = '5.18.0'
     mockitoInlineVersion = '5.2.0'
-    mockitoKotlinVersion = '5.4.0'
-    robolectricVersion = '4.13'
+    mockitoKotlinVersion = '6.0.0'
+    robolectricVersion = '4.15.1'
     androidxTestCoreVersion = '1.6.1'
 
     // Legacy
     volleyVersion = '1.2.1'
-    gsonVersion = '2.11.0'
+    gsonVersion = '2.13.1'
 }
 
 apply from: "${rootDir}/scripts/publish-root.gradle"
