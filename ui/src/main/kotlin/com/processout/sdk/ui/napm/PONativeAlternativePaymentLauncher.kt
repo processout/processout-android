@@ -8,14 +8,11 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
-import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodDefaultValuesRequest
-import com.processout.sdk.api.model.response.toResponse
 import com.processout.sdk.core.POUnit
 import com.processout.sdk.core.ProcessOutActivityResult
-import com.processout.sdk.core.annotation.ProcessOutInternalApi
-import com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentDelegate
-import com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentEvent
 import com.processout.sdk.ui.napm.delegate.v2.NativeAlternativePaymentDefaultValuesRequest
+import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentDelegate
+import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent
 import com.processout.sdk.ui.napm.delegate.v2.toResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -28,7 +25,6 @@ class PONativeAlternativePaymentLauncher private constructor(
     private val launcher: ActivityResultLauncher<PONativeAlternativePaymentConfiguration>,
     private val activityOptions: ActivityOptionsCompat,
     private val delegate: PONativeAlternativePaymentDelegate,
-    private val delegateV2: com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentDelegate,
     private val eventDispatcher: POEventDispatcher = POEventDispatcher
 ) {
 
@@ -48,19 +44,19 @@ class PONativeAlternativePaymentLauncher private constructor(
                 callback
             ),
             activityOptions = createActivityOptions(from.requireContext()),
-            delegate = delegate,
-            delegateV2 = object : com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentDelegate {}
+            delegate = delegate
         )
 
         /**
          * Creates the launcher from Fragment.
          * __Note:__ Required to call in _onCreate()_ to register for activity result.
+         *
+         * @param[delegate] __Deprecated__: not used.
          */
-        /** @suppress */
-        @ProcessOutInternalApi
+        @Deprecated(message = "Use alternative function.")
         fun create(
             from: Fragment,
-            delegate: com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentDelegate,
+            delegate: com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentDelegate,
             callback: (ProcessOutActivityResult<POUnit>) -> Unit
         ) = PONativeAlternativePaymentLauncher(
             scope = from.lifecycleScope,
@@ -69,8 +65,7 @@ class PONativeAlternativePaymentLauncher private constructor(
                 callback
             ),
             activityOptions = createActivityOptions(from.requireContext()),
-            delegate = object : PONativeAlternativePaymentDelegate {},
-            delegateV2 = delegate
+            delegate = object : PONativeAlternativePaymentDelegate {}
         )
 
         /**
@@ -88,8 +83,7 @@ class PONativeAlternativePaymentLauncher private constructor(
                 callback
             ),
             activityOptions = createActivityOptions(from.requireContext()),
-            delegate = object : PONativeAlternativePaymentDelegate {},
-            delegateV2 = object : com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentDelegate {}
+            delegate = object : PONativeAlternativePaymentDelegate {}
         )
 
         /**
@@ -108,19 +102,19 @@ class PONativeAlternativePaymentLauncher private constructor(
                 callback
             ),
             activityOptions = createActivityOptions(from),
-            delegate = delegate,
-            delegateV2 = object : com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentDelegate {}
+            delegate = delegate
         )
 
         /**
          * Creates the launcher from Activity.
          * __Note:__ Required to call in _onCreate()_ to register for activity result.
+         *
+         * @param[delegate] __Deprecated__: not used.
          */
-        /** @suppress */
-        @ProcessOutInternalApi
+        @Deprecated(message = "Use alternative function.")
         fun create(
             from: ComponentActivity,
-            delegate: com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentDelegate,
+            delegate: com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentDelegate,
             callback: (ProcessOutActivityResult<POUnit>) -> Unit
         ) = PONativeAlternativePaymentLauncher(
             scope = from.lifecycleScope,
@@ -130,8 +124,7 @@ class PONativeAlternativePaymentLauncher private constructor(
                 callback
             ),
             activityOptions = createActivityOptions(from),
-            delegate = object : PONativeAlternativePaymentDelegate {},
-            delegateV2 = delegate
+            delegate = object : PONativeAlternativePaymentDelegate {}
         )
 
         /**
@@ -150,8 +143,7 @@ class PONativeAlternativePaymentLauncher private constructor(
                 callback
             ),
             activityOptions = createActivityOptions(from),
-            delegate = object : PONativeAlternativePaymentDelegate {},
-            delegateV2 = object : com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentDelegate {}
+            delegate = object : PONativeAlternativePaymentDelegate {}
         )
 
         private fun createActivityOptions(context: Context) =
@@ -169,28 +161,14 @@ class PONativeAlternativePaymentLauncher private constructor(
         eventDispatcher.subscribe<PONativeAlternativePaymentEvent>(
             coroutineScope = scope
         ) { delegate.onEvent(it) }
-        eventDispatcher.subscribe<com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent>(
-            coroutineScope = scope
-        ) { delegateV2.onEvent(it) }
     }
 
     private fun dispatchDefaultValues() {
-        eventDispatcher.subscribeForRequest<PONativeAlternativePaymentMethodDefaultValuesRequest>(
-            coroutineScope = scope
-        ) { request ->
-            scope.launch {
-                val defaultValues = delegate.defaultValues(
-                    gatewayConfigurationId = request.gatewayConfigurationId,
-                    parameters = request.parameters
-                )
-                eventDispatcher.send(request.toResponse(defaultValues))
-            }
-        }
         eventDispatcher.subscribeForRequest<NativeAlternativePaymentDefaultValuesRequest>(
             coroutineScope = scope
         ) { request ->
             scope.launch {
-                val defaultValues = delegateV2.defaultValues(
+                val defaultValues = delegate.defaultValues(
                     gatewayConfigurationId = request.gatewayConfigurationId,
                     parameters = request.parameters
                 )
