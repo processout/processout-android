@@ -672,19 +672,42 @@ internal class NativeAlternativePaymentInteractor(
                 if (required && value.isBlank()) {
                     return invalidField(R.string.po_native_apm_error_required_parameter)
                 }
-                val length = if (
-                    minLength != null && maxLength != null &&
-                    minLength == maxLength
-                ) maxLength else null
-                if (length != null && value.length != length) {
-                    return InvalidField(
-                        name = id,
-                        message = app.resources.getQuantityString(
-                            R.plurals.po_native_apm_error_invalid_length, length, length
+                val maxLength = maxLength
+                if (maxLength != null && value.length > maxLength) {
+                    return if (minLength != null && minLength == maxLength) {
+                        InvalidField(
+                            name = id,
+                            message = app.resources.getQuantityString(
+                                R.plurals.po_native_apm_error_invalid_length, maxLength, maxLength
+                            )
                         )
-                    )
+                    } else {
+                        InvalidField(
+                            name = id,
+                            message = app.resources.getQuantityString(
+                                R.plurals.po_native_apm_error_invalid_max_length, maxLength, maxLength
+                            )
+                        )
+                    }
                 }
-                // TODO(v2): add validation by 'minLength', 'maxLength' and/or range
+                val minLength = minLength
+                if (minLength != null && value.length < minLength) {
+                    return if (maxLength != null && minLength == maxLength) {
+                        InvalidField(
+                            name = id,
+                            message = app.resources.getQuantityString(
+                                R.plurals.po_native_apm_error_invalid_length, minLength, minLength
+                            )
+                        )
+                    } else {
+                        InvalidField(
+                            name = id,
+                            message = app.resources.getQuantityString(
+                                R.plurals.po_native_apm_error_invalid_min_length, minLength, minLength
+                            )
+                        )
+                    }
+                }
                 when (parameter) {
                     is Parameter.Digits -> if (!value.isDigitsOnly()) {
                         return invalidField(R.string.po_native_apm_error_invalid_number)
