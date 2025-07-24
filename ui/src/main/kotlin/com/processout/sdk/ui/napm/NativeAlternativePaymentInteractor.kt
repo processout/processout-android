@@ -586,10 +586,7 @@ internal class NativeAlternativePaymentInteractor(
                     message = "Invalid fields.",
                     invalidFields = invalidFields
                 )
-                handlePaymentFailure(
-                    failure = failure,
-                    replaceWithLocalMessage = false
-                )
+                handlePaymentFailure(failure)
                 return@whenNextStep
             }
             _state.update {
@@ -756,10 +753,7 @@ internal class NativeAlternativePaymentInteractor(
                             redirect = response.redirect
                         )
                     }.onFailure { failure ->
-                        handlePaymentFailure(
-                            failure = failure,
-                            replaceWithLocalMessage = true
-                        )
+                        handlePaymentFailure(failure)
                     }
             }
         }
@@ -785,10 +779,7 @@ internal class NativeAlternativePaymentInteractor(
                             redirect = response.redirect
                         )
                     }.onFailure { failure ->
-                        handlePaymentFailure(
-                            failure = failure,
-                            replaceWithLocalMessage = true
-                        )
+                        handlePaymentFailure(failure)
                     }
             }
         }
@@ -817,10 +808,7 @@ internal class NativeAlternativePaymentInteractor(
 
     //region Handle Failure
 
-    private fun handlePaymentFailure(
-        failure: ProcessOutResult.Failure,
-        replaceWithLocalMessage: Boolean // TODO(v2): Delete this when backend localization is ready.
-    ) {
+    private fun handlePaymentFailure(failure: ProcessOutResult.Failure) {
         _state.whenNextStep { stateValue ->
             val invalidFields = failure.invalidFields
             if (invalidFields.isNullOrEmpty()) {
@@ -832,10 +820,7 @@ internal class NativeAlternativePaymentInteractor(
                 invalidFields.find { it.name == field.id }?.let { invalidField ->
                     field.copy(
                         isValid = false,
-                        description = field.errorMessage(
-                            originalMessage = invalidField.message,
-                            replaceWithLocalMessage = replaceWithLocalMessage
-                        )
+                        description = invalidField.message
                     )
                 } ?: field
             }
@@ -854,28 +839,6 @@ internal class NativeAlternativePaymentInteractor(
             dispatch(DidFailToSubmitParameters(failure))
         }
     }
-
-    // TODO(v2): Delete this when backend localization is ready.
-    private fun Field.errorMessage(
-        originalMessage: String?,
-        replaceWithLocalMessage: Boolean
-    ): String? =
-        if (replaceWithLocalMessage)
-            when (parameter) {
-                is Parameter.Text,
-                is Parameter.Bool -> app.getString(R.string.po_native_apm_error_invalid_text)
-                is Parameter.Digits -> app.getString(R.string.po_native_apm_error_invalid_number)
-                is Parameter.PhoneNumber -> app.getString(R.string.po_native_apm_error_invalid_phone)
-                is Parameter.Email -> app.getString(R.string.po_native_apm_error_invalid_email)
-                is Parameter.Card -> null // TODO(v2): add new error string for card
-                is Parameter.Otp -> when (parameter.subtype) {
-                    Subtype.TEXT -> app.getString(R.string.po_native_apm_error_invalid_text)
-                    Subtype.DIGITS -> app.getString(R.string.po_native_apm_error_invalid_number)
-                    Subtype.UNKNOWN -> null
-                }
-                else -> null
-            }
-        else originalMessage
 
     //endregion
 
