@@ -5,6 +5,7 @@ import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodPar
 /**
  * Delegate that allows to handle events during native alternative payments.
  */
+@Deprecated(message = "Not used.")
 interface PONativeAlternativePaymentDelegate {
 
     /**
