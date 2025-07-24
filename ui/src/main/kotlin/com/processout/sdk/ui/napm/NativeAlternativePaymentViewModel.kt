@@ -130,7 +130,9 @@ internal class NativeAlternativePaymentViewModel private constructor(
             ),
             primaryAction = POActionState(
                 id = primaryActionId,
-                text = configuration.submitButton.text ?: app.getString(R.string.po_native_apm_continue_button_text),
+                text = redirect?.hint
+                    ?: configuration.submitButton.text
+                    ?: app.getString(R.string.po_native_apm_continue_button_text),
                 primary = true,
                 enabled = submitAllowed,
                 loading = submitting,

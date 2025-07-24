@@ -169,7 +169,8 @@ internal class NativeAlternativePaymentInteractor(
                         invoice = response.invoice
                     ),
                     paymentState = response.state,
-                    elements = response.elements
+                    elements = response.elements,
+                    redirect = response.redirect
                 )
             }.onFailure { failure ->
                 POLogger.info("Failed to fetch authorization details: %s", failure)
@@ -191,7 +192,8 @@ internal class NativeAlternativePaymentInteractor(
                         invoice = null
                     ),
                     paymentState = response.state,
-                    elements = response.elements
+                    elements = response.elements,
+                    redirect = response.redirect
                 )
             }.onFailure { failure ->
                 POLogger.info("Failed to fetch tokenization details: %s", failure)
@@ -208,6 +210,7 @@ internal class NativeAlternativePaymentInteractor(
             uuid = UUID.randomUUID().toString(),
             paymentMethod = paymentMethod,
             invoice = invoice,
+            redirect = null,
             elements = emptyList(),
             fields = emptyList(),
             focusedFieldId = null,
@@ -224,12 +227,13 @@ internal class NativeAlternativePaymentInteractor(
     private suspend fun handlePaymentState(
         stateValue: NextStepStateValue,
         paymentState: PONativeAlternativePaymentState,
-        elements: List<PONativeAlternativePaymentElement>?
+        elements: List<PONativeAlternativePaymentElement>?,
+        redirect: PONativeAlternativePaymentRedirect?
     ) {
         val mappedElements = elements?.map() ?: emptyList()
         preloadImages(resources = mappedElements.images())
         when (paymentState) {
-            NEXT_STEP_REQUIRED -> handleNextStep(stateValue, mappedElements)
+            NEXT_STEP_REQUIRED -> handleNextStep(stateValue, mappedElements, redirect)
             PENDING -> handlePending(stateValue, mappedElements)
             SUCCESS -> handleSuccess(
                 stateValue.toPendingStateValue(
@@ -245,7 +249,8 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun handleNextStep(
         stateValue: NextStepStateValue,
-        elements: List<Element>
+        elements: List<Element>,
+        redirect: PONativeAlternativePaymentRedirect?
     ) {
         val parameters = elements.flatMap {
             if (it is Element.Form) it.form.parameterDefinitions else emptyList()
@@ -262,6 +267,7 @@ internal class NativeAlternativePaymentInteractor(
         val fields = parameters.toFields()
         val updatedStateValue = stateValue.copy(
             uuid = UUID.randomUUID().toString(),
+            redirect = redirect,
             elements = elements,
             fields = fields,
             focusedFieldId = fields.firstFocusableFieldId()
@@ -667,7 +673,8 @@ internal class NativeAlternativePaymentInteractor(
                         handlePaymentState(
                             stateValue = stateValue,
                             paymentState = response.state,
-                            elements = response.elements
+                            elements = response.elements,
+                            redirect = response.redirect
                         )
                     }.onFailure { failure ->
                         handlePaymentFailure(
@@ -695,7 +702,8 @@ internal class NativeAlternativePaymentInteractor(
                         handlePaymentState(
                             stateValue = stateValue,
                             paymentState = response.state,
-                            elements = response.elements
+                            elements = response.elements,
+                            redirect = response.redirect
                         )
                     }.onFailure { failure ->
                         handlePaymentFailure(
