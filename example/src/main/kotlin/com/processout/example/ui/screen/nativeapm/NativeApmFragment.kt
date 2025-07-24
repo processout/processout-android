@@ -20,7 +20,7 @@ import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentLauncher
-import com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentDelegate
+import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentDelegate
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodConfiguration
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodLauncher
 import com.processout.sdk.ui.nativeapm.PONativeAlternativePaymentMethodResult
