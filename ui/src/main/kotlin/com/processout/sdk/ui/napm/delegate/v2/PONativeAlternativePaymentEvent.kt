@@ -6,7 +6,7 @@ import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 
 /**
- * Defines native alternative payment lifecycle events.
+ * Native alternative payment lifecycle event.
  */
 /** @suppress */
 @ProcessOutInternalApi
@@ -89,4 +89,11 @@ sealed class PONativeAlternativePaymentEvent {
         val failure: ProcessOutResult.Failure,
         val paymentState: PONativeAlternativePaymentState
     ) : PONativeAlternativePaymentEvent()
+
+    /**
+     * Placeholder that allows adding additional cases while staying backward compatible.
+     * __Warning:__ Do not match this case directly, use _when-else_ instead.
+     */
+    @ProcessOutInternalApi
+    data object Unknown : PONativeAlternativePaymentEvent()
 }
