@@ -67,8 +67,6 @@ interface POCustomerTokensService {
     /**
      * Tokenize native alternative payment.
      */
-    /** @suppress */
-    @ProcessOutInternalApi
     suspend fun tokenize(
         request: PONativeAlternativePaymentTokenizationRequest
     ): ProcessOutResult<PONativeAlternativePaymentTokenizationResponse>

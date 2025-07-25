@@ -9,8 +9,6 @@ import com.squareup.moshi.JsonClass
  *
  * @param[parameters] Map of payment parameter values.
  */
-/** @suppress */
-@ProcessOutInternalApi
 data class PONativeAlternativePaymentSubmitData(
     val parameters: Map<String, Parameter>
 ) {
