@@ -9,8 +9,6 @@ import com.squareup.moshi.JsonClass
 /**
  * Specifies instruction for the customer, providing additional information and/or describing required actions.
  */
-/** @suppress */
-@ProcessOutInternalApi
 sealed class PONativeAlternativePaymentCustomerInstruction {
 
     /**

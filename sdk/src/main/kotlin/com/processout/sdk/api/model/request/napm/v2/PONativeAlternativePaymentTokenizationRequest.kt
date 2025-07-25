@@ -1,7 +1,5 @@
 package com.processout.sdk.api.model.request.napm.v2
 
-import com.processout.sdk.core.annotation.ProcessOutInternalApi
-
 /**
  * Request parameters for native alternative payment tokenization.
  *
@@ -10,8 +8,6 @@ import com.processout.sdk.core.annotation.ProcessOutInternalApi
  * @param[gatewayConfigurationId] Gateway configuration identifier.
  * @param[submitData] Payment payload.
  */
-/** @suppress */
-@ProcessOutInternalApi
 data class PONativeAlternativePaymentTokenizationRequest(
     val customerId: String,
     val customerTokenId: String,

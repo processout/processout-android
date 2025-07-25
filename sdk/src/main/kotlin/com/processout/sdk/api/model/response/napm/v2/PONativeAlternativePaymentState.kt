@@ -6,8 +6,6 @@ import com.squareup.moshi.JsonClass
 /**
  * State of native alternative payment.
  */
-/** @suppress */
-@ProcessOutInternalApi
 @JsonClass(generateAdapter = false)
 enum class PONativeAlternativePaymentState {
     /** Next step is required to proceed. */

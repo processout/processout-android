@@ -1,6 +1,5 @@
 package com.processout.sdk.api.model.response.napm.v2
 
-import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -12,8 +11,6 @@ import com.squareup.moshi.JsonClass
  * @param[elements] An ordered list of elements that needs to be rendered on the UI during native alternative payment flow.
  * @param[redirect] Indicates required redirect.
  */
-/** @suppress */
-@ProcessOutInternalApi
 data class PONativeAlternativePaymentTokenizationResponse(
     val state: PONativeAlternativePaymentState,
     val paymentMethod: PONativeAlternativePaymentMethodDetails,

@@ -9,8 +9,6 @@ import com.squareup.moshi.JsonClass
 /**
  * Specifies an element that needs to be rendered on the UI during native alternative payment flow.
  */
-/** @suppress */
-@ProcessOutInternalApi
 sealed class PONativeAlternativePaymentElement {
 
     /**

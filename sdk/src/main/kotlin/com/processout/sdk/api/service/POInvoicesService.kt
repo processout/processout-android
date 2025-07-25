@@ -68,8 +68,6 @@ interface POInvoicesService {
     /**
      * Authorize invoice with the given request.
      */
-    /** @suppress */
-    @ProcessOutInternalApi
     suspend fun authorize(
         request: PONativeAlternativePaymentAuthorizationRequest
     ): ProcessOutResult<PONativeAlternativePaymentAuthorizationResponse>
