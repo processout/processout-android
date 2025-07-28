@@ -1,6 +1,9 @@
+@file:Suppress("MayBeConstant")
+
 package com.processout.sdk.ui.core.component
 
-import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -8,6 +11,8 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.Dp
 import com.processout.sdk.ui.core.R
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.core.component.POCopyButton.FadeAnimationDurationMillis
+import com.processout.sdk.ui.core.component.POCopyButton.SizeAnimationDurationMillis
 import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import com.processout.sdk.ui.core.shared.image.POImageRenderingMode
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
@@ -31,24 +36,37 @@ fun POCopyButton(
 ) {
     val clipboardManager = LocalClipboardManager.current
     var isCopied by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
     var timerJob by remember { mutableStateOf<Job?>(null) }
-    POButton(
-        text = if (isCopied) copiedText else copyText,
-        onClick = {
-            clipboardManager.setText(AnnotatedString(textToCopy))
-            isCopied = true
-            timerJob?.cancel()
-            timerJob = coroutineScope.launch {
-                delay(timeMillis = 3000)
-                isCopied = false
+    val coroutineScope = rememberCoroutineScope()
+    AnimatedContent(
+        targetState = isCopied,
+        transitionSpec = {
+            fadeIn(
+                tween(durationMillis = FadeAnimationDurationMillis)
+            ) togetherWith fadeOut(
+                tween(durationMillis = FadeAnimationDurationMillis)
+            ) using SizeTransform { _, _ ->
+                tween(durationMillis = SizeAnimationDurationMillis)
             }
-        },
-        modifier = modifier.animateContentSize(),
-        style = style,
-        icon = if (isCopied) copiedIcon else copyIcon,
-        iconSize = iconSize
-    )
+        }
+    ) { isCopiedAnimated ->
+        POButton(
+            text = if (isCopiedAnimated) copiedText else copyText,
+            onClick = {
+                clipboardManager.setText(AnnotatedString(textToCopy))
+                isCopied = true
+                timerJob?.cancel()
+                timerJob = coroutineScope.launch {
+                    delay(timeMillis = 3000)
+                    isCopied = false
+                }
+            },
+            modifier = modifier,
+            style = style,
+            icon = if (isCopiedAnimated) copiedIcon else copyIcon,
+            iconSize = iconSize
+        )
+    }
 }
 
 /** @suppress */
@@ -72,4 +90,7 @@ object POCopyButton {
         resId = R.drawable.po_icon_check,
         renderingMode = POImageRenderingMode.TEMPLATE
     )
+
+    internal val FadeAnimationDurationMillis = 300
+    internal val SizeAnimationDurationMillis = 400
 }
