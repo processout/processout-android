@@ -27,6 +27,8 @@
     <string name="po_native_apm_cancel_button_text">Anuluj</string>
     <string name="po_native_apm_confirm_payment_button_text">Płatność wykonana</string>
     <string name="po_native_apm_done_button_text">Gotowe</string>
+    <string name="po_native_apm_copy_button_text">Skopiuj</string>
+    <string name="po_native_apm_copied_button_text">Skopiowano!</string>
     <string name="po_native_apm_payment_confirmation_step1_title">Szczegóły przesłane</string>
     <string name="po_native_apm_payment_confirmation_step2_title">Oczekiwanie na potwierdzenie</string>
     <string name="po_native_apm_payment_confirmation_step2_description_format">Poczekaj maksymalnie %s minut</string>

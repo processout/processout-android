@@ -27,6 +27,8 @@
     <string name="po_native_apm_cancel_button_text">Annuler</string>
     <string name="po_native_apm_confirm_payment_button_text">J\'ai payé</string>
     <string name="po_native_apm_done_button_text">Terminé</string>
+    <string name="po_native_apm_copy_button_text">Copier</string>
+    <string name="po_native_apm_copied_button_text">Copié !</string>
     <string name="po_native_apm_payment_confirmation_step1_title">Détails envoyés</string>
     <string name="po_native_apm_payment_confirmation_step2_title">En attente de confirmation</string>
     <string name="po_native_apm_payment_confirmation_step2_description_format">Veuillez patienter jusqu\'à %s minutes</string>
