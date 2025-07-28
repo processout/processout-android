@@ -6,8 +6,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.Dp
+import com.processout.sdk.ui.core.R
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.shared.image.PODrawableImage
+import com.processout.sdk.ui.core.shared.image.POImageRenderingMode
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import kotlinx.coroutines.Job
@@ -23,8 +25,8 @@ fun POCopyButton(
     copiedText: String,
     modifier: Modifier = Modifier,
     style: POButton.Style = POCopyButton.default,
-    copyIcon: PODrawableImage? = null,
-    copiedIcon: PODrawableImage? = null,
+    copyIcon: PODrawableImage? = POCopyButton.CopyIcon,
+    copiedIcon: PODrawableImage? = POCopyButton.CopiedIcon,
     iconSize: Dp = dimensions.iconSizeSmall
 ) {
     val clipboardManager = LocalClipboardManager.current
@@ -60,4 +62,14 @@ object POCopyButton {
                 disabled = it.disabled.copy(paddingHorizontal = spacing.space12)
             )
         }
+
+    internal val CopyIcon = PODrawableImage(
+        resId = R.drawable.po_icon_copy,
+        renderingMode = POImageRenderingMode.TEMPLATE
+    )
+
+    internal val CopiedIcon = PODrawableImage(
+        resId = R.drawable.po_icon_check,
+        renderingMode = POImageRenderingMode.TEMPLATE
+    )
 }
