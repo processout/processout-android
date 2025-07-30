@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
@@ -53,14 +54,17 @@ import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.state.POPhoneNumberFieldState
 import com.processout.sdk.ui.core.style.POAxis
+import com.processout.sdk.ui.core.style.POLabeledContentStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.AnimationDurationMillis
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.ContentTransitionSpec
+import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.LabeledContentStyle
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.LogoHeight
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.SuccessStyle
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.*
@@ -339,12 +343,10 @@ private fun Elements(
                 descriptionStyle = style.errorMessageBox,
                 modifier = Modifier.fillMaxWidth()
             )
-            is InstructionMessage -> AndroidTextView(
-                text = element.value,
-                style = style.bodyText,
-                modifier = Modifier.fillMaxWidth(),
-                selectable = true,
-                linksClickable = true
+            is InstructionMessage -> InstructionMessage(
+                message = element,
+                bodyTextStyle = style.bodyText,
+                labeledContentStyle = style.labeledContent
             )
             is Image -> Image(
                 image = element,
@@ -615,6 +617,61 @@ private fun PhoneNumberField(
 }
 
 @Composable
+private fun InstructionMessage(
+    message: InstructionMessage,
+    bodyTextStyle: AndroidTextView.Style,
+    labeledContentStyle: LabeledContentStyle
+) {
+    if (message.label == null) {
+        AndroidTextView(
+            text = message.value,
+            style = bodyTextStyle,
+            modifier = Modifier.fillMaxWidth(),
+            selectable = true,
+            linksClickable = true
+        )
+    } else {
+        CopyableText(
+            label = message.label,
+            text = message.value,
+            style = labeledContentStyle,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+private fun CopyableText(
+    label: String,
+    text: String,
+    style: LabeledContentStyle,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    POLabeledContent(
+        label = label,
+        labelStyle = style.label,
+        modifier = modifier,
+        trailingContent = {
+            POCopyButton(
+                textToCopy = text,
+                copyText = context.getString(com.processout.sdk.R.string.po_native_apm_copy_button_text),
+                copiedText = context.getString(com.processout.sdk.R.string.po_native_apm_copied_button_text),
+                modifier = Modifier.requiredHeightIn(min = dimensions.buttonIconSizeSmall),
+                style = style.copyButton
+            )
+        },
+        trailingContentAlignment = Alignment.Center
+    ) {
+        POText(
+            text = text,
+            color = style.text.color,
+            style = style.text.textStyle
+        )
+    }
+}
+
+@Composable
 private fun Image(
     image: Image,
     isLightTheme: Boolean
@@ -781,6 +838,8 @@ internal object NativeAlternativePaymentScreen {
     data class Style(
         val title: POText.Style,
         val bodyText: AndroidTextView.Style,
+        val labeledContent: LabeledContentStyle,
+        val groupedContent: POGroupedContent.Style,
         val field: POField.Style,
         val codeField: POField.Style,
         val radioField: PORadioField.Style,
@@ -795,6 +854,13 @@ internal object NativeAlternativePaymentScreen {
         val progressIndicatorColor: Color,
         val dividerColor: Color,
         val dragHandleColor: Color
+    )
+
+    @Immutable
+    data class LabeledContentStyle(
+        val label: POText.Style,
+        val text: POText.Style,
+        val copyButton: POButton.Style
     )
 
     @Immutable
@@ -822,6 +888,10 @@ internal object NativeAlternativePaymentScreen {
                         controlsTintColor = controlsTintColor ?: colors.text.primary
                     )
                 } ?: AndroidTextView.default,
+                labeledContent = custom?.labeledContent?.custom() ?: defaultLabeledContent,
+                groupedContent = custom?.groupedContent?.let {
+                    POGroupedContent.custom(style = it)
+                } ?: POGroupedContent.default,
                 field = custom?.field?.let {
                     POField.custom(style = it)
                 } ?: POField.default2,
@@ -864,6 +934,27 @@ internal object NativeAlternativePaymentScreen {
                 } ?: colors.icon.disabled
             )
         }
+
+    private val defaultLabeledContent: LabeledContentStyle
+        @Composable get() = LabeledContentStyle(
+            label = POText.Style(
+                color = colors.text.placeholder,
+                textStyle = typography.s12(FontWeight.Medium)
+            ),
+            text = POText.Style(
+                color = colors.text.primary,
+                textStyle = typography.s15(FontWeight.Medium)
+            ),
+            copyButton = POCopyButton.default
+        )
+
+    @Composable
+    private fun POLabeledContentStyle.custom() =
+        LabeledContentStyle(
+            label = POText.custom(style = label),
+            text = POText.custom(style = text),
+            copyButton = defaultLabeledContent.copyButton
+        )
 
     private val defaultSuccess: SuccessStyle
         @Composable get() = SuccessStyle(
