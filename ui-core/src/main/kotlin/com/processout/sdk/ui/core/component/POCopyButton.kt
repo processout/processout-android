@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import com.processout.sdk.ui.core.R
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
@@ -17,6 +18,7 @@ import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import com.processout.sdk.ui.core.shared.image.POImageRenderingMode
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -76,8 +78,18 @@ object POCopyButton {
     val default: POButton.Style
         @Composable get() = POButton.secondary2.let {
             it.copy(
-                normal = it.normal.copy(paddingHorizontal = spacing.space12),
-                disabled = it.disabled.copy(paddingHorizontal = spacing.space12)
+                normal = it.normal.copy(
+                    text = it.normal.text.copy(
+                        textStyle = typography.s13(FontWeight.Medium)
+                    ),
+                    paddingHorizontal = spacing.space10
+                ),
+                disabled = it.disabled.copy(
+                    text = it.disabled.text.copy(
+                        textStyle = typography.s13(FontWeight.Medium)
+                    ),
+                    paddingHorizontal = spacing.space10
+                )
             )
         }
 
