@@ -25,7 +25,6 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
@@ -343,10 +342,17 @@ private fun Elements(
                 descriptionStyle = style.errorMessageBox,
                 modifier = Modifier.fillMaxWidth()
             )
-            is InstructionMessage -> InstructionMessage(
+            is InstructionMessage -> AndroidTextView(
+                text = element.value,
+                style = style.bodyText,
+                modifier = Modifier.fillMaxWidth(),
+                selectable = true,
+                linksClickable = true
+            )
+            is CopyableInstructionMessage -> CopyableInstructionMessage(
                 message = element,
-                bodyTextStyle = style.bodyText,
-                labeledContentStyle = style.labeledContent
+                style = style.labeledContent,
+                modifier = Modifier.fillMaxWidth()
             )
             is Image -> Image(
                 image = element,
@@ -617,46 +623,20 @@ private fun PhoneNumberField(
 }
 
 @Composable
-private fun InstructionMessage(
-    message: InstructionMessage,
-    bodyTextStyle: AndroidTextView.Style,
-    labeledContentStyle: LabeledContentStyle
-) {
-    if (message.label == null) {
-        AndroidTextView(
-            text = message.value,
-            style = bodyTextStyle,
-            modifier = Modifier.fillMaxWidth(),
-            selectable = true,
-            linksClickable = true
-        )
-    } else {
-        CopyableText(
-            label = message.label,
-            text = message.value,
-            style = labeledContentStyle,
-            modifier = Modifier.fillMaxWidth()
-        )
-    }
-}
-
-@Composable
-private fun CopyableText(
-    label: String,
-    text: String,
+private fun CopyableInstructionMessage(
+    message: CopyableInstructionMessage,
     style: LabeledContentStyle,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
     POLabeledContent(
-        label = label,
+        label = message.label,
         labelStyle = style.label,
         modifier = modifier,
         trailingContent = {
             POCopyButton(
-                textToCopy = text,
-                copyText = context.getString(com.processout.sdk.R.string.po_native_apm_copy_button_text),
-                copiedText = context.getString(com.processout.sdk.R.string.po_native_apm_copied_button_text),
+                textToCopy = message.value,
+                copyText = message.copyText,
+                copiedText = message.copiedText,
                 modifier = Modifier.requiredHeightIn(min = dimensions.buttonIconSizeSmall),
                 style = style.copyButton
             )
@@ -664,7 +644,7 @@ private fun CopyableText(
         trailingContentAlignment = Alignment.Center
     ) {
         POText(
-            text = text,
+            text = message.value,
             color = style.text.color,
             style = style.text.textStyle
         )

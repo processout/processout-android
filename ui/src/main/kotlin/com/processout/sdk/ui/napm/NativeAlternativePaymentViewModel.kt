@@ -474,12 +474,21 @@ internal class NativeAlternativePaymentViewModel private constructor(
 
     private fun Instruction.map(): NativeAlternativePaymentViewModelState.Element =
         when (this) {
-            is Instruction.Message -> InstructionMessage(
-                label = label,
-                value = value
-            )
+            is Instruction.Message -> map()
             is Instruction.Image -> Image(value = value)
             is Instruction.Barcode -> map()
+        }
+
+    private fun Instruction.Message.map() =
+        if (label == null) {
+            InstructionMessage(value = value)
+        } else {
+            CopyableInstructionMessage(
+                label = label,
+                value = value,
+                copyText = app.getString(R.string.po_native_apm_copy_button_text),
+                copiedText = app.getString(R.string.po_native_apm_copied_button_text)
+            )
         }
 
     private fun Instruction.Barcode.map() =
