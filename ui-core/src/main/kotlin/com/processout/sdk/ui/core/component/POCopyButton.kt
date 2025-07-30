@@ -59,7 +59,7 @@ fun POCopyButton(
                 isCopied = true
                 timerJob?.cancel()
                 timerJob = coroutineScope.launch {
-                    delay(timeMillis = 3000)
+                    delay(timeMillis = 2500)
                     isCopied = false
                 }
             },
