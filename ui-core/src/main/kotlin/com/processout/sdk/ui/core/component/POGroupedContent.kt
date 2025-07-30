@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -13,10 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.state.POImmutableList
+import com.processout.sdk.ui.core.style.POGroupedContentStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
@@ -92,4 +95,16 @@ object POGroupedContent {
             dividerColor = colors.border.border1,
             backgroundColor = colors.surface.default
         )
+
+    @Composable
+    fun custom(style: POGroupedContentStyle) = Style(
+        title = POText.custom(style = style.title),
+        shape = RoundedCornerShape(size = style.border.radiusDp.dp),
+        border = POBorderStroke(
+            width = style.border.widthDp.dp,
+            color = colorResource(id = style.border.colorResId)
+        ),
+        dividerColor = colorResource(id = style.dividerColorResId),
+        backgroundColor = colorResource(id = style.backgroundColorResId)
+    )
 }
