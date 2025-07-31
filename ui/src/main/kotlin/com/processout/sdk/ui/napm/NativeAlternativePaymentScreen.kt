@@ -342,14 +342,14 @@ private fun Elements(
                 descriptionStyle = style.errorMessageBox,
                 modifier = Modifier.fillMaxWidth()
             )
-            is InstructionMessage -> AndroidTextView(
+            is Message -> AndroidTextView(
                 text = element.value,
                 style = style.bodyText,
                 modifier = Modifier.fillMaxWidth(),
                 selectable = true,
                 linksClickable = true
             )
-            is CopyableInstructionMessage -> CopyableInstructionMessage(
+            is CopyableMessage -> CopyableMessage(
                 message = element,
                 style = style.labeledContent,
                 modifier = Modifier.fillMaxWidth()
@@ -363,6 +363,10 @@ private fun Elements(
                 onEvent = onEvent,
                 style = style
             )
+            is InstructionGroup -> {
+                // TODO(v2)
+            }
+            else -> {}
         }
     }
 }
@@ -623,8 +627,8 @@ private fun PhoneNumberField(
 }
 
 @Composable
-private fun CopyableInstructionMessage(
-    message: CopyableInstructionMessage,
+private fun CopyableMessage(
+    message: CopyableMessage,
     style: LabeledContentStyle,
     modifier: Modifier = Modifier
 ) {

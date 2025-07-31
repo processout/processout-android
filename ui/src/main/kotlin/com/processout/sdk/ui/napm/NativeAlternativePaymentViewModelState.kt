@@ -80,24 +80,33 @@ internal sealed interface NativeAlternativePaymentViewModelState {
         data class PhoneNumberField(val state: POPhoneNumberFieldState) : Element
 
         @Immutable
-        data class InstructionMessage(val value: String) : Element
+        data class Message(val value: String) : InstructionElement
 
         @Immutable
-        data class CopyableInstructionMessage(
+        data class CopyableMessage(
             val label: String,
             val value: String,
             val copyText: String,
             val copiedText: String
-        ) : Element
+        ) : InstructionElement
 
         @Immutable
-        data class Image(val value: POImageResource) : Element
+        data class Image(val value: POImageResource) : InstructionElement
 
         @Immutable
         data class Barcode(
             val image: Bitmap,
             val saveBarcodeAction: POActionState,
             val confirmationDialog: ConfirmationDialogState?
+        ) : InstructionElement
+
+        @Immutable
+        data class InstructionGroup(
+            val label: String?,
+            val instructions: POImmutableList<InstructionElement>
         ) : Element
     }
+
+    @Immutable
+    interface InstructionElement : Element
 }

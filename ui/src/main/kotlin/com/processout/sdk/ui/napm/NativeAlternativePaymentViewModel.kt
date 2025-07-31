@@ -21,9 +21,10 @@ import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.core.transformation.POPhoneNumberVisualTransformation
 import com.processout.sdk.ui.core.transformation.POPhoneNumberVisualTransformation.PhoneNumberFormat
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
-import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Content
+import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.Element
+import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.Loading
+import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Element.*
-import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Stage
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
 import com.processout.sdk.ui.shared.extension.currentAppLocale
 import com.processout.sdk.ui.shared.extension.map
@@ -206,7 +207,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
             when (element) {
                 is Element.Form -> element.form.parameterDefinitions.map(fields)
                 is Element.Instruction -> listOf(element.instruction.map())
-                is Element.InstructionGroup -> emptyList() // TODO(v2)
+                is Element.InstructionGroup -> listOf(element.map())
             }
         }
         return POImmutableList(elements)
@@ -481,9 +482,9 @@ internal class NativeAlternativePaymentViewModel private constructor(
 
     private fun Instruction.Message.map() =
         if (label == null) {
-            InstructionMessage(value = value)
+            Message(value = value)
         } else {
-            CopyableInstructionMessage(
+            CopyableMessage(
                 label = label,
                 value = value,
                 copyText = app.getString(R.string.po_native_apm_copy_button_text),
@@ -516,6 +517,17 @@ internal class NativeAlternativePaymentViewModel private constructor(
                     )
                 }
             } else null
+        )
+
+    private fun Element.InstructionGroup.map() =
+        InstructionGroup(
+            label = label,
+            instructions = POImmutableList(
+                instructions.mapNotNull {
+                    val mapped = it.map()
+                    if (mapped is InstructionElement) mapped else null
+                }
+            )
         )
 
     private fun Invoice.price(): String? =
