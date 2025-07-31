@@ -31,6 +31,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import coil.compose.AsyncImage
@@ -167,7 +168,11 @@ private fun Header(
     modifier: Modifier = Modifier,
     withDragHandle: Boolean = true
 ) {
-    Box(modifier = modifier.fillMaxWidth()) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+    ) {
         if (withDragHandle) {
             PODragHandle(
                 modifier = Modifier
@@ -176,8 +181,16 @@ private fun Header(
                 color = dragHandleColor
             )
         }
+        var showLogo by remember { mutableStateOf(true) }
+        val logoUrl = logo?.let {
+            if (isLightTheme) {
+                it.lightUrl.raster
+            } else {
+                it.darkUrl?.raster ?: it.lightUrl.raster
+            }
+        }
         AnimatedVisibility(
-            visible = logo != null || !title.isNullOrBlank(),
+            visible = showLogo && !logoUrl.isNullOrBlank() || !title.isNullOrBlank(),
             enter = fadeIn(animationSpec = tween(durationMillis = AnimationDurationMillis)),
             exit = fadeOut(animationSpec = tween(durationMillis = AnimationDurationMillis)),
         ) {
@@ -199,27 +212,29 @@ private fun Header(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    val logoUrl = logo?.let {
-                        if (isLightTheme) {
-                            it.lightUrl.raster
-                        } else {
-                            it.darkUrl?.raster ?: it.lightUrl.raster
+                    Box {
+                        if (showLogo && !logoUrl.isNullOrBlank()) {
+                            AsyncImage(
+                                model = logoUrl,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .requiredHeight(LogoHeight)
+                                    .padding(end = spacing.space16),
+                                contentScale = ContentScale.FillHeight,
+                                onError = {
+                                    showLogo = false
+                                }
+                            )
                         }
                     }
-                    AsyncImage(
-                        model = logoUrl,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .weight(0.8f, fill = false)
-                            .requiredHeight(LogoHeight),
-                        contentScale = ContentScale.FillHeight
-                    )
-                    if (title != null) {
+                    if (!title.isNullOrBlank()) {
                         POText(
                             text = title,
                             modifier = Modifier.weight(1f, fill = false),
                             color = titleStyle.color,
-                            style = titleStyle.textStyle
+                            style = titleStyle.textStyle,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 2
                         )
                     }
                 }
