@@ -363,9 +363,13 @@ private fun Elements(
                 onEvent = onEvent,
                 style = style
             )
-            is InstructionGroup -> {
-                // TODO(v2)
-            }
+            is InstructionGroup -> InstructionGroup(
+                group = element,
+                onEvent = onEvent,
+                style = style,
+                isLightTheme = isLightTheme,
+                modifier = Modifier.fillMaxWidth()
+            )
             else -> {}
         }
     }
@@ -729,6 +733,65 @@ private fun Barcode(
             style = style.dialog
         )
     }
+}
+
+@Composable
+private fun InstructionGroup(
+    group: InstructionGroup,
+    onEvent: (NativeAlternativePaymentEvent) -> Unit,
+    style: NativeAlternativePaymentScreen.Style,
+    isLightTheme: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val instructions = group.instructions.elements
+    val items: List<@Composable () -> Unit> = instructions.mapNotNull { instruction ->
+        when (instruction) {
+            is Message -> {
+                {
+                    AndroidTextView(
+                        text = instruction.value,
+                        style = style.bodyText,
+                        modifier = Modifier.fillMaxWidth(),
+                        selectable = true,
+                        linksClickable = true
+                    )
+                }
+            }
+            is CopyableMessage -> {
+                {
+                    CopyableMessage(
+                        message = instruction,
+                        style = style.labeledContent,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+            is Image -> {
+                {
+                    Image(
+                        image = instruction,
+                        isLightTheme = isLightTheme
+                    )
+                }
+            }
+            is Barcode -> {
+                {
+                    Barcode(
+                        barcode = instruction,
+                        onEvent = onEvent,
+                        style = style
+                    )
+                }
+            }
+            else -> null
+        }
+    }
+    POGroupedContent(
+        title = group.label,
+        items = POImmutableList(items),
+        modifier = modifier,
+        style = style.groupedContent
+    )
 }
 
 @Composable
