@@ -31,6 +31,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import coil.compose.AsyncImage
@@ -53,14 +54,17 @@ import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.state.POPhoneNumberFieldState
 import com.processout.sdk.ui.core.style.POAxis
+import com.processout.sdk.ui.core.style.POLabeledContentStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.AnimationDurationMillis
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.ContentTransitionSpec
+import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.LabeledContentStyle
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.LogoHeight
 import com.processout.sdk.ui.napm.NativeAlternativePaymentScreen.SuccessStyle
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.*
@@ -164,7 +168,11 @@ private fun Header(
     modifier: Modifier = Modifier,
     withDragHandle: Boolean = true
 ) {
-    Box(modifier = modifier.fillMaxWidth()) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+    ) {
         if (withDragHandle) {
             PODragHandle(
                 modifier = Modifier
@@ -173,8 +181,16 @@ private fun Header(
                 color = dragHandleColor
             )
         }
+        var showLogo by remember { mutableStateOf(true) }
+        val logoUrl = logo?.let {
+            if (isLightTheme) {
+                it.lightUrl.raster
+            } else {
+                it.darkUrl?.raster ?: it.lightUrl.raster
+            }
+        }
         AnimatedVisibility(
-            visible = logo != null || !title.isNullOrBlank(),
+            visible = showLogo && !logoUrl.isNullOrBlank() || !title.isNullOrBlank(),
             enter = fadeIn(animationSpec = tween(durationMillis = AnimationDurationMillis)),
             exit = fadeOut(animationSpec = tween(durationMillis = AnimationDurationMillis)),
         ) {
@@ -196,27 +212,29 @@ private fun Header(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    val logoUrl = logo?.let {
-                        if (isLightTheme) {
-                            it.lightUrl.raster
-                        } else {
-                            it.darkUrl?.raster ?: it.lightUrl.raster
+                    Box {
+                        if (showLogo && !logoUrl.isNullOrBlank()) {
+                            AsyncImage(
+                                model = logoUrl,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .requiredHeight(LogoHeight)
+                                    .padding(end = spacing.space16),
+                                contentScale = ContentScale.FillHeight,
+                                onError = {
+                                    showLogo = false
+                                }
+                            )
                         }
                     }
-                    AsyncImage(
-                        model = logoUrl,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .weight(0.8f, fill = false)
-                            .requiredHeight(LogoHeight),
-                        contentScale = ContentScale.FillHeight
-                    )
-                    if (title != null) {
+                    if (!title.isNullOrBlank()) {
                         POText(
                             text = title,
                             modifier = Modifier.weight(1f, fill = false),
                             color = titleStyle.color,
-                            style = titleStyle.textStyle
+                            style = titleStyle.textStyle,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 2
                         )
                     }
                 }
@@ -339,12 +357,17 @@ private fun Elements(
                 descriptionStyle = style.errorMessageBox,
                 modifier = Modifier.fillMaxWidth()
             )
-            is InstructionMessage -> AndroidTextView(
+            is Message -> AndroidTextView(
                 text = element.value,
                 style = style.bodyText,
                 modifier = Modifier.fillMaxWidth(),
                 selectable = true,
                 linksClickable = true
+            )
+            is CopyableMessage -> CopyableMessage(
+                message = element,
+                style = style.labeledContent,
+                modifier = Modifier.fillMaxWidth()
             )
             is Image -> Image(
                 image = element,
@@ -355,6 +378,14 @@ private fun Elements(
                 onEvent = onEvent,
                 style = style
             )
+            is InstructionGroup -> InstructionGroup(
+                group = element,
+                onEvent = onEvent,
+                style = style,
+                isLightTheme = isLightTheme,
+                modifier = Modifier.fillMaxWidth()
+            )
+            else -> {}
         }
     }
 }
@@ -615,6 +646,35 @@ private fun PhoneNumberField(
 }
 
 @Composable
+private fun CopyableMessage(
+    message: CopyableMessage,
+    style: LabeledContentStyle,
+    modifier: Modifier = Modifier
+) {
+    POLabeledContent(
+        label = message.label,
+        labelStyle = style.label,
+        modifier = modifier,
+        trailingContent = {
+            POCopyButton(
+                textToCopy = message.value,
+                copyText = message.copyText,
+                copiedText = message.copiedText,
+                modifier = Modifier.requiredHeightIn(min = dimensions.buttonIconSizeSmall),
+                style = style.copyButton
+            )
+        },
+        trailingContentAlignment = Alignment.Center
+    ) {
+        POText(
+            text = message.value,
+            color = style.text.color,
+            style = style.text.textStyle
+        )
+    }
+}
+
+@Composable
 private fun Image(
     image: Image,
     isLightTheme: Boolean
@@ -688,6 +748,65 @@ private fun Barcode(
             style = style.dialog
         )
     }
+}
+
+@Composable
+private fun InstructionGroup(
+    group: InstructionGroup,
+    onEvent: (NativeAlternativePaymentEvent) -> Unit,
+    style: NativeAlternativePaymentScreen.Style,
+    isLightTheme: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val instructions = group.instructions.elements
+    val items: List<@Composable () -> Unit> = instructions.mapNotNull { instruction ->
+        when (instruction) {
+            is Message -> {
+                {
+                    AndroidTextView(
+                        text = instruction.value,
+                        style = style.bodyText,
+                        modifier = Modifier.fillMaxWidth(),
+                        selectable = true,
+                        linksClickable = true
+                    )
+                }
+            }
+            is CopyableMessage -> {
+                {
+                    CopyableMessage(
+                        message = instruction,
+                        style = style.labeledContent,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+            is Image -> {
+                {
+                    Image(
+                        image = instruction,
+                        isLightTheme = isLightTheme
+                    )
+                }
+            }
+            is Barcode -> {
+                {
+                    Barcode(
+                        barcode = instruction,
+                        onEvent = onEvent,
+                        style = style
+                    )
+                }
+            }
+            else -> null
+        }
+    }
+    POGroupedContent(
+        title = group.label,
+        items = POImmutableList(items),
+        modifier = modifier,
+        style = style.groupedContent
+    )
 }
 
 @Composable
@@ -781,6 +900,8 @@ internal object NativeAlternativePaymentScreen {
     data class Style(
         val title: POText.Style,
         val bodyText: AndroidTextView.Style,
+        val labeledContent: LabeledContentStyle,
+        val groupedContent: POGroupedContent.Style,
         val field: POField.Style,
         val codeField: POField.Style,
         val radioField: PORadioField.Style,
@@ -795,6 +916,13 @@ internal object NativeAlternativePaymentScreen {
         val progressIndicatorColor: Color,
         val dividerColor: Color,
         val dragHandleColor: Color
+    )
+
+    @Immutable
+    data class LabeledContentStyle(
+        val label: POText.Style,
+        val text: POText.Style,
+        val copyButton: POButton.Style
     )
 
     @Immutable
@@ -822,6 +950,10 @@ internal object NativeAlternativePaymentScreen {
                         controlsTintColor = controlsTintColor ?: colors.text.primary
                     )
                 } ?: AndroidTextView.default,
+                labeledContent = custom?.labeledContent?.custom() ?: defaultLabeledContent,
+                groupedContent = custom?.groupedContent?.let {
+                    POGroupedContent.custom(style = it)
+                } ?: POGroupedContent.default,
                 field = custom?.field?.let {
                     POField.custom(style = it)
                 } ?: POField.default2,
@@ -864,6 +996,27 @@ internal object NativeAlternativePaymentScreen {
                 } ?: colors.icon.disabled
             )
         }
+
+    private val defaultLabeledContent: LabeledContentStyle
+        @Composable get() = LabeledContentStyle(
+            label = POText.Style(
+                color = colors.text.placeholder,
+                textStyle = typography.s12(FontWeight.Medium)
+            ),
+            text = POText.Style(
+                color = colors.text.primary,
+                textStyle = typography.s15(FontWeight.Medium)
+            ),
+            copyButton = POCopyButton.default
+        )
+
+    @Composable
+    private fun POLabeledContentStyle.custom() =
+        LabeledContentStyle(
+            label = POText.custom(style = label),
+            text = POText.custom(style = text),
+            copyButton = defaultLabeledContent.copyButton
+        )
 
     private val defaultSuccess: SuccessStyle
         @Composable get() = SuccessStyle(
