@@ -1,0 +1,77 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+}
+
+ext {
+    publishArtifactId = 'processout-android-netcetera-3ds-core'
+    publishDescription = 'ProcessOut Android SDK - Netcetera 3DS Core'
+}
+
+apply from: "${rootProject.projectDir}/scripts/publish-module.gradle"
+
+android {
+    namespace 'com.processout.sdk.netcetera.threeds.core'
+    compileSdk rootProject.ext.compileSdkVersion
+
+    defaultConfig {
+        minSdk rootProject.ext.minSdkVersion
+        targetSdk rootProject.ext.targetSdkVersion
+        setBuildConfig(it)
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            getIsDefault().set(true)
+        }
+    }
+
+    flavorDimensions = ['environment']
+    productFlavors {
+        production {
+            dimension 'environment'
+        }
+        staging {
+            getIsDefault().set(true)
+            dimension 'environment'
+        }
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    publishing {
+        singleVariant("productionRelease")
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
+    }
+}
+
+@SuppressWarnings('GrMethodMayBeStatic')
+def setBuildConfig(buildType) {
+    buildType.buildConfigField("String", "LIBRARY_NAME", "\"ProcessOut Android SDK - Netcetera 3DS Core\"")
+    buildType.buildConfigField("String", "LIBRARY_VERSION", "\"$publishVersion\"")
+}
+
+dependencies {
+    api files('libs/3ds-sdk-2.5.3.0.aar')
+    implementation "org.bouncycastle:bcprov-jdk15to18:$bouncyCastleVersion"
+    implementation "org.slf4j:slf4j-api:$slf4jVersion"
+}
