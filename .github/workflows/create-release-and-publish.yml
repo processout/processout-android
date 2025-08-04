@@ -36,7 +36,6 @@ jobs:
       - name: Publish To Maven Central
         run: |
           ./gradlew :sdk:publishProductionReleasePublicationToSonatypeRepository closeAndReleaseSonatypeStagingRepository --max-workers=1
-          ./gradlew :netcetera-3ds-core:publishProductionReleasePublicationToSonatypeRepository closeAndReleaseSonatypeStagingRepository --max-workers=1
           ./gradlew :checkout-3ds:publishProductionReleasePublicationToSonatypeRepository closeAndReleaseSonatypeStagingRepository --max-workers=1
           ./gradlew :ui-core:publishProductionReleasePublicationToSonatypeRepository closeAndReleaseSonatypeStagingRepository --max-workers=1
           ./gradlew :ui:publishProductionReleasePublicationToSonatypeRepository closeAndReleaseSonatypeStagingRepository --max-workers=1
