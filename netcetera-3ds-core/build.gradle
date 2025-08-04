@@ -71,7 +71,7 @@ def setBuildConfig(buildType) {
 }
 
 dependencies {
-    api files('libs/3ds-sdk-2.5.3.0.aar')
+    api fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.bouncycastle:bcprov-jdk15to18:$bouncyCastleVersion"
     implementation "org.slf4j:slf4j-api:$slf4jVersion"
 }
