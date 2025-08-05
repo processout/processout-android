@@ -73,6 +73,6 @@ def setBuildConfig(buildType) {
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.bouncycastle:bcprov-jdk15to18:$bouncyCastleVersion"
+    api "org.bouncycastle:bcprov-jdk15to18:$bouncyCastleVersion"
     implementation "org.slf4j:slf4j-api:$slf4jVersion"
 }
