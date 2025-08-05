@@ -21,7 +21,7 @@ android {
         minSdk rootProject.ext.minSdkVersion
         targetSdk rootProject.ext.targetSdkVersion
         setBuildConfig(it)
-        consumerProguardFiles "consumer-rules.pro"
+        consumerProguardFiles "consumer-rules.pro", "netcetera-consumer-rules.pro"
     }
 
     buildTypes {
