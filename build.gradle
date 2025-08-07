@@ -7,6 +7,7 @@ buildscript {
         kspVersion = '2.1.20-1.0.32'
         dokkaVersion = '1.9.20'
         androidxNavigationVersion = '2.9.2'
+        secretsVaultPluginVersion = '0.1.3'
         nexusPublishPluginVersion = '2.0.0'
     }
     dependencies {
@@ -21,6 +22,7 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.compose' version "$kotlinVersion" apply false
     id 'org.jetbrains.dokka' version "$dokkaVersion" apply true
     id 'com.google.devtools.ksp' version "$kspVersion" apply false
+    id 'com.commencis.secretsvaultplugin' version "$secretsVaultPluginVersion" apply false
     id 'io.github.gradle-nexus.publish-plugin' version "$nexusPublishPluginVersion" apply true
 }
 
