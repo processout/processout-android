@@ -1,8 +1,10 @@
+import groovy.json.JsonOutput
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'com.commencis.secretsvaultplugin'
 }
 
 ext {
@@ -17,11 +19,22 @@ android {
     namespace 'com.processout.sdk.netcetera.threeds.core'
     compileSdk rootProject.ext.compileSdkVersion
 
+    ndkVersion rootProject.ext.ndkVersion
+    externalNativeBuild {
+        cmake {
+            path file('src/main/cpp/CMakeLists.txt')
+            version rootProject.ext.cmakeVersion
+        }
+    }
+
     defaultConfig {
         minSdk rootProject.ext.minSdkVersion
         targetSdk rootProject.ext.targetSdkVersion
         setBuildConfig(it)
-        consumerProguardFiles "consumer-rules.pro", "netcetera-consumer-rules.pro"
+        consumerProguardFiles 'consumer-rules.pro', 'netcetera-consumer-rules.pro'
+        ndk {
+            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+        }
     }
 
     buildTypes {
@@ -55,7 +68,7 @@ android {
     }
 
     publishing {
-        singleVariant("productionRelease")
+        singleVariant('productionRelease')
     }
 }
 
@@ -70,6 +83,52 @@ def setBuildConfig(buildType) {
     buildType.buildConfigField("String", "LIBRARY_NAME", "\"ProcessOut Android SDK - Netcetera 3DS Core\"")
     buildType.buildConfigField("String", "LIBRARY_VERSION", "\"$publishVersion\"")
 }
+
+tasks.register('beforeKeepSecrets') {
+    doLast {
+        File secrets = project.file("secrets.json")
+        def content = [[key: "apiKey", value: getApiKey()]]
+        secrets.text = JsonOutput.toJson(content)
+    }
+}
+
+def getApiKey() {
+    File localProperties = rootProject.file("local.properties")
+    if (localProperties.exists()) {
+        def properties = new Properties()
+        properties.load(new FileInputStream(localProperties))
+        String apiKey = properties.getProperty("netcetera.apiKey", "").trim()
+        if (!apiKey) {
+            throw new GradleException("Missing or blank 'netcetera.apiKey' in 'local.properties' file.")
+        }
+        return apiKey
+    }
+    throw new GradleException("File not found: 'local.properties'.")
+}
+
+tasks.register('afterKeepSecrets') {
+    doLast {
+        copyCMakeLists()
+        copyMainSecretsClass()
+    }
+}
+
+def copyCMakeLists() {
+    File source = project.file("src/main/cpp/CMakeLists.copy")
+    File target = project.file("src/main/cpp/CMakeLists.txt")
+    target.text = source.text
+}
+
+def copyMainSecretsClass() {
+    String packagePath = "com/processout/sdk/netcetera/threeds/core"
+    File source = project.file("src/main/kotlin/${packagePath}/MainSecrets.copy")
+    File target = project.file("src/main/kotlin/${packagePath}/MainSecrets.kt")
+    target.text = source.text
+}
+
+keepSecrets.dependsOn beforeKeepSecrets
+afterKeepSecrets.dependsOn keepSecrets
+preBuild.dependsOn afterKeepSecrets
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
