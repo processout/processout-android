@@ -1,0 +1,8 @@
+/build
+secrets.json
+
+/src/main/cpp/common
+/src/main/cpp/CMakeLists.txt
+/src/main/cpp/secrets.cpp
+
+/src/main/kotlin/com/processout/sdk/netcetera/threeds/core/MainSecrets.kt

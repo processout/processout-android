@@ -61,6 +61,7 @@ kotlin {
         jvmTarget.set(JvmTarget.JVM_17)
         optIn.add("com.processout.sdk.core.annotation.ProcessOutInternalApi")
         optIn.add("com.processout.sdk.ui.core.annotation.ProcessOutInternalApi")
+        optIn.add("com.processout.sdk.netcetera.threeds.core.annotation.ProcessOutInternalApi")
     }
 }
 
