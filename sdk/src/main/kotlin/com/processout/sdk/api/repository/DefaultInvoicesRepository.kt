@@ -98,8 +98,12 @@ internal class DefaultInvoicesRepository(
 
     override suspend fun invoice(request: POInvoiceRequest) =
         plainApiCall {
+            val expandedProperties = request.expand
+                .joinToString(separator = ",") { it.queryValue }
+                .takeIf { it.isNotEmpty() }
             api.invoice(
                 invoiceId = request.invoiceId,
+                expandedProperties = expandedProperties,
                 clientSecret = request.clientSecret
             )
         }.map()

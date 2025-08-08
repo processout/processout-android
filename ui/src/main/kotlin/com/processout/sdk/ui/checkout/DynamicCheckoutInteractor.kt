@@ -13,6 +13,8 @@ import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.WillSubmitParameters
 import com.processout.sdk.api.model.request.*
+import com.processout.sdk.api.model.request.POInvoiceRequest.ExpandedProperty.Companion.paymentMethods
+import com.processout.sdk.api.model.request.POInvoiceRequest.ExpandedProperty.Companion.transaction
 import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.model.response.POBillingAddressCollectionMode.*
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.*
@@ -156,7 +158,10 @@ internal class DynamicCheckoutInteractor(
     }
 
     private suspend fun fetchConfiguration() {
-        invoicesService.invoice(configuration.invoiceRequest)
+        val request = configuration.invoiceRequest.copy(
+            expand = setOf(transaction, paymentMethods)
+        )
+        invoicesService.invoice(request)
             .onSuccess { invoice ->
                 when (invoice.transaction?.status()) {
                     WAITING -> setStartedState(invoice)

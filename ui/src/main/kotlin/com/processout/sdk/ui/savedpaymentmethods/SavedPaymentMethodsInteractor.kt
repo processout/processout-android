@@ -8,6 +8,7 @@ import coil.request.ImageResult
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.request.PODeleteCustomerTokenRequest
+import com.processout.sdk.api.model.request.POInvoiceRequest.ExpandedProperty.Companion.paymentMethods
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.*
 import com.processout.sdk.api.model.response.POImageResource
@@ -77,7 +78,10 @@ internal class SavedPaymentMethodsInteractor(
     )
 
     private suspend fun fetchPaymentMethods() {
-        invoicesService.invoice(configuration.invoiceRequest)
+        val request = configuration.invoiceRequest.copy(
+            expand = setOf(paymentMethods)
+        )
+        invoicesService.invoice(request)
             .onSuccess { invoice ->
                 val mappedPaymentMethods = invoice.paymentMethods?.map() ?: emptyList()
                 preloadAllImages(paymentMethods = mappedPaymentMethods)

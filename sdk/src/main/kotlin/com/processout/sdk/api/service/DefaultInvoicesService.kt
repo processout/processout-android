@@ -228,22 +228,14 @@ internal class DefaultInvoicesService(
     override suspend fun invoice(
         invoiceId: String
     ): ProcessOutResult<POInvoice> =
-        repository.invoice(
-            request = POInvoiceRequest(
-                invoiceId = invoiceId,
-                clientSecret = null
-            )
-        )
+        repository.invoice(request = POInvoiceRequest(invoiceId = invoiceId))
 
     override fun invoice(
         invoiceId: String,
         callback: ProcessOutCallback<POInvoice>
     ) {
         repository.invoice(
-            request = POInvoiceRequest(
-                invoiceId = invoiceId,
-                clientSecret = null
-            ),
+            request = POInvoiceRequest(invoiceId = invoiceId),
             callback = callback
         )
     }
