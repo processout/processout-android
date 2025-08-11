@@ -1,8 +1,8 @@
 package com.processout.sdk.netcetera.threeds
 
-import android.app.Activity
+import androidx.activity.ComponentActivity
 
 interface PONetcetera3DS2ServiceDelegate {
 
-    fun activity(): Activity?
+    fun activity(): ComponentActivity?
 }
