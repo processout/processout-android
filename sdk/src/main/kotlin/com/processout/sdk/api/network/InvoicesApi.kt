@@ -44,9 +44,10 @@ internal interface InvoicesApi {
         @Body request: NativeAlternativePaymentCaptureRequest
     ): Response<CaptureResponse>
 
-    @GET("/invoices/{id}?expand=transaction")
+    @GET("/invoices/{id}")
     suspend fun invoice(
         @Path("id") invoiceId: String,
+        @Query("expand") expandedProperties: String?,
         @Header(CLIENT_SECRET) clientSecret: String?
     ): Response<InvoiceResponse>
 
