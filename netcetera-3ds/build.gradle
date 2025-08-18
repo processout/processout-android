@@ -79,4 +79,10 @@ def setBuildConfig(buildType) {
 dependencies {
     api project(path: ':sdk')
     api "com.processout:processout-android-netcetera-3ds-core:$netcetera3dsSdkVersion"
+
+    implementation "io.jsonwebtoken:jjwt-api:$jjwtVersion"
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:$jjwtVersion"
+    runtimeOnly("io.jsonwebtoken:jjwt-orgjson:$jjwtVersion") {
+        exclude(group: 'org.json', module: 'json') // Provided by Android natively.
+    }
 }
