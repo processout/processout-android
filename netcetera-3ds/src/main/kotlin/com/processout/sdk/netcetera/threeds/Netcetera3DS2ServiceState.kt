@@ -1,5 +1,6 @@
 package com.processout.sdk.netcetera.threeds
 
+import android.content.Context
 import com.netcetera.threeds.sdk.api.ThreeDS2Service
 import com.netcetera.threeds.sdk.api.transaction.Transaction
 import com.processout.sdk.netcetera.threeds.Netcetera3DS2ServiceState.Fingerprinted
@@ -22,6 +23,7 @@ internal sealed interface Netcetera3DS2ServiceState {
 }
 
 internal data class Netcetera3DS2ServiceContext(
+    val applicationContext: Context,
     val threeDS2Service: ThreeDS2Service,
     val transaction: Transaction
 )
