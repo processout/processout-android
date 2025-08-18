@@ -87,7 +87,7 @@ ext {
     bouncyCastleVersion = '1.79'
     slf4jVersion = '1.7.36'
 
-    netcetera3dsSdkVersion = '2.5.3.0'
+    netcetera3dsSdkVersion = '2.5.3.1'
     checkout3dsSdkVersion = '3.2.6'
     adyen3dsSdkVersion = '2.2.15'
 
