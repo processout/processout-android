@@ -9,9 +9,7 @@ internal sealed interface Netcetera3DS2ServiceState {
 
     data object Idle : Netcetera3DS2ServiceState
 
-    data class Fingerprinting(
-        val serviceContext: Netcetera3DS2ServiceContext
-    ) : Netcetera3DS2ServiceState
+    data object Fingerprinting : Netcetera3DS2ServiceState
 
     data class Fingerprinted(
         val serviceContext: Netcetera3DS2ServiceContext
