@@ -31,7 +31,8 @@ internal sealed interface Netcetera3DS2ServiceState {
 internal data class Netcetera3DS2ServiceContext(
     val applicationContext: Context,
     val threeDS2Service: ThreeDS2Service,
-    val transaction: Transaction? = null
+    val transaction: Transaction? = null,
+    val transactionId: String? = null
 )
 
 internal inline fun Netcetera3DS2ServiceState.whenFingerprinted(

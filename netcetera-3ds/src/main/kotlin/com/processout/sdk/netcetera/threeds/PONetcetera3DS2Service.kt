@@ -231,7 +231,10 @@ class PONetcetera3DS2Service(
             this@PONetcetera3DS2Service.configuration.bridgingExtensionVersion?.let {
                 transaction.useBridgingExtension(it)
             }
-            val serviceContext = serviceContext.copy(transaction = transaction)
+            val serviceContext = serviceContext.copy(
+                transaction = transaction,
+                transactionId = configuration.directoryServerTransactionId
+            )
             state.set(Fingerprinting(serviceContext))
 
             val warnings = serviceContext.threeDS2Service.warnings.toSet()
@@ -317,11 +320,11 @@ class PONetcetera3DS2Service(
                 callback = callback
             )
             val transaction = serviceContext.transaction
-            if (transaction == null) {
+            if (transaction == null || serviceContext.transactionId != challenge.threeDSServerTransactionId) {
                 return@whenFingerprinted completeChallenge(
                     result = ProcessOutResult.Failure(
                         code = Generic(),
-                        message = "Transaction instance is null."
+                        message = "Failed to resolve transaction."
                     ),
                     callback = callback
                 )
