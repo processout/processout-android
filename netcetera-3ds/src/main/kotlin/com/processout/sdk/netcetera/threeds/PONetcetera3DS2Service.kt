@@ -375,12 +375,12 @@ class PONetcetera3DS2Service(
     ) : ChallengeStatusReceiver {
 
         override fun completed(event: CompletionEvent) {
-            val didSucceed = event.transactionStatus == "Y"
-            if (!didSucceed) {
+            val isVerified = event.transactionStatus == "Y"
+            if (!isVerified) {
                 POLogger.warn("Failed 3DS2 challenge verification: %s", event.toString())
             }
             completeChallenge(
-                result = ProcessOutResult.Success(value = didSucceed),
+                result = ProcessOutResult.Success(value = isVerified),
                 callback = callback
             )
         }
