@@ -442,7 +442,7 @@ class PONetcetera3DS2Service(
         redirect: PO3DSRedirect,
         callback: (ProcessOutResult<String>) -> Unit
     ) {
-        POLogger.info("Delegating the handling of the 3DS redirect.")
+        POLogger.info("Delegating 3DS redirect.")
         delegate.handle(redirect, callback)
     }
 
