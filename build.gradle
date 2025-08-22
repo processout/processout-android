@@ -57,15 +57,15 @@ ext {
 
     kotlinxCoroutinesVersion = '1.10.2'
 
-    androidxCoreVersion = '1.16.0'
+    androidxCoreVersion = '1.17.0'
     androidxAppCompatVersion = '1.7.1'
     androidxConstraintLayoutVersion = '2.2.1'
     androidxActivityVersion = '1.10.1'
-    androidxFragmentVersion = '1.8.8'
+    androidxFragmentVersion = '1.8.9'
     androidxLifecycleVersion = '2.9.0'
     androidxRecyclerViewVersion = '1.4.0'
     androidxSwipeRefreshLayoutVersion = '1.1.0'
-    androidxBrowserVersion = '1.8.0'
+    androidxBrowserVersion = '1.9.0'
     androidxCameraVersion = '1.4.2'
 
     androidxComposeBOMVersion = '2025.04.00'
@@ -81,8 +81,8 @@ ext {
     okhttpVersion = '4.12.0'
     okioVersion = '3.10.2'
     coilVersion = '2.7.0'
-    commonMarkVersion = '0.25.0'
-    libphonenumberVersion = '9.0.10'
+    commonMarkVersion = '0.25.1'
+    libphonenumberVersion = '9.0.12'
     zxingVersion = '3.5.3'
     jjwtVersion = '0.13.0'
     bouncyCastleVersion = '1.79'
@@ -93,11 +93,11 @@ ext {
     adyen3dsSdkVersion = '2.2.15'
 
     junitVersion = '4.13.2'
-    mockitoVersion = '5.18.0'
+    mockitoVersion = '5.19.0'
     mockitoInlineVersion = '5.2.0'
     mockitoKotlinVersion = '6.0.0'
     robolectricVersion = '4.15.1'
-    androidxTestCoreVersion = '1.6.1'
+    androidxTestCoreVersion = '1.7.0'
 
     // Legacy
     volleyVersion = '1.2.1'
