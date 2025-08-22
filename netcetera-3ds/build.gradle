@@ -57,7 +57,9 @@ android {
     publishing {
         singleVariant('productionRelease') {
             withSourcesJar()
-            withJavadocJar()
+            // FIXME: This fails build with error "PermittedSubclasses requires ASM9" while publishing to Maven Central.
+            //        Test by running: ./gradlew :netcetera-3ds:publishProductionReleasePublicationToMavenLocal
+//            withJavadocJar()
         }
     }
 }
