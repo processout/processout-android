@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.processout.sdk.netcetera.threeds
 
 import com.netcetera.threeds.sdk.api.transaction.Transaction.BridgingMessageExtensionVersion
