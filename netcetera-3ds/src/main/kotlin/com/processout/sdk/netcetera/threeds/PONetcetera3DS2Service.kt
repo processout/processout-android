@@ -78,6 +78,7 @@ class PONetcetera3DS2Service(
                 callback = callback
             )
         }
+        POLogger.info("Service is started: creating authentication request.")
         val activity = delegate.activity() ?: return completeAuthenticationRequest(
             result = ProcessOutResult.Failure(
                 code = Generic(),
@@ -301,6 +302,7 @@ class PONetcetera3DS2Service(
         challenge: PO3DS2Challenge,
         callback: (ProcessOutResult<Boolean>) -> Unit
     ) {
+        POLogger.info("Handling 3DS2 challenge.")
         val currentState = state.get()
         if (currentState !is Fingerprinted) {
             return completeChallenge(
