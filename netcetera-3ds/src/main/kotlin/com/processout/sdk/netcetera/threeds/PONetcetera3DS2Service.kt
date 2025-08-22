@@ -40,6 +40,12 @@ import kotlinx.coroutines.withContext
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.atomic.AtomicReference
 
+/**
+ * A service that integrates the Netcetera 3DS SDK.
+ *
+ * @param[delegate] Delegate that handles communication with the service.
+ * @param[configuration] Service configuration.
+ */
 class PONetcetera3DS2Service(
     private val delegate: PONetcetera3DS2ServiceDelegate,
     private val configuration: PONetcetera3DS2ServiceConfiguration = PONetcetera3DS2ServiceConfiguration()

@@ -29,7 +29,7 @@ import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.logger.POLogger
 
 /**
- * Service that handles 3DS challenges with Checkout3DS SDK.
+ * A service that integrates the Checkout 3DS SDK.
  */
 class POCheckout3DSService private constructor(
     private val activity: Activity,
