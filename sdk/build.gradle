@@ -17,7 +17,7 @@ apply from: "${rootProject.projectDir}/scripts/publish-module.gradle"
 
 android {
     namespace 'com.processout.sdk'
-    compileSdk rootProject.ext.compileSdkVersion
+    compileSdk = rootProject.ext.compileSdkVersion
 
     defaultConfig {
         minSdk rootProject.ext.minSdkVersion
