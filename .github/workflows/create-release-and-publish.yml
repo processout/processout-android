@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Create Release
         run: |
@@ -20,7 +20,7 @@ jobs:
           GH_TOKEN: ${{ secrets.PO_GITHUB_TOKEN }}
 
       - name: Setup JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -29,6 +29,7 @@ jobs:
       - name: Build
         run: |
           ./gradlew :sdk:assembleProductionRelease
+          ./gradlew :netcetera-3ds:assembleProductionRelease
           ./gradlew :checkout-3ds:assembleProductionRelease
           ./gradlew :ui-core:assembleProductionRelease
           ./gradlew :ui:assembleProductionRelease
@@ -36,6 +37,7 @@ jobs:
       - name: Publish To Maven Central
         run: |
           ./gradlew :sdk:publishProductionReleasePublicationToSonatypeRepository closeAndReleaseSonatypeStagingRepository --max-workers=1
+          ./gradlew :netcetera-3ds:publishProductionReleasePublicationToSonatypeRepository closeAndReleaseSonatypeStagingRepository --max-workers=1
           ./gradlew :checkout-3ds:publishProductionReleasePublicationToSonatypeRepository closeAndReleaseSonatypeStagingRepository --max-workers=1
           ./gradlew :ui-core:publishProductionReleasePublicationToSonatypeRepository closeAndReleaseSonatypeStagingRepository --max-workers=1
           ./gradlew :ui:publishProductionReleasePublicationToSonatypeRepository closeAndReleaseSonatypeStagingRepository --max-workers=1

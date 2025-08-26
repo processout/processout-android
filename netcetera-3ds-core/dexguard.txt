@@ -1,0 +1,2 @@
+-stripnativelibrarysections !jni/arm64-v8a/libbefd.so,!jni/armeabi-v7a/libbefd.so,!jni/x86/libbefd.so,!jni/x86_64/libbefd.so,!lib/arm64-v8a/libbefd.so,!lib/armeabi-v7a/libbefd.so,!lib/x86/libbefd.so,!lib/x86_64/libbefd.so,dummyfile
+-keepresourcefiles assets/com/netcetera/threeds/sdk/infrastructure/4b317ef76b833737b-,assets/com/netcetera/threeds/sdk/infrastructure/8c73a458ff85fdf3a-,jni/arm64-v8a/libbefd.so,jni/armeabi-v7a/libbefd.so,jni/x86/libbefd.so,jni/x86_64/libbefd.so,lib/arm64-v8a/libbefd.so,lib/armeabi-v7a/libbefd.so,lib/x86/libbefd.so,lib/x86_64/libbefd.so

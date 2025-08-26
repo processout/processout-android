@@ -106,8 +106,8 @@ internal class DefaultCustomerActionsService(
                     .fromJson(String(Base64.decode(encodedChallenge, Base64.NO_WRAP)))!!
                     .let { challenge ->
                         threeDSService.handle(challenge) { result ->
-                            result.onSuccess { didSucceed ->
-                                val body = if (didSucceed)
+                            result.onSuccess { isVerified ->
+                                val body = if (isVerified)
                                     CHALLENGE_SUCCESS_GATEWAY_REQUEST_BODY
                                 else CHALLENGE_FAILURE_GATEWAY_REQUEST_BODY
 
