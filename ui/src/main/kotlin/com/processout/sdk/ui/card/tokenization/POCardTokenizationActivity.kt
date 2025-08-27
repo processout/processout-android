@@ -9,8 +9,13 @@ import com.processout.sdk.ui.base.POBaseTransparentPortraitActivity
  */
 class POCardTokenizationActivity : POBaseTransparentPortraitActivity() {
 
+    companion object {
+        var instance: POCardTokenizationActivity? = null
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        instance = this
         enableEdgeToEdge()
         if (savedInstanceState == null) {
             val bottomSheet = supportFragmentManager.findFragmentByTag(CardTokenizationBottomSheet.tag)
@@ -21,5 +26,10 @@ class POCardTokenizationActivity : POBaseTransparentPortraitActivity() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        instance = null
     }
 }
