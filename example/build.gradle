@@ -80,10 +80,8 @@ def setBuildConfig(buildType, String projectId, String projectKey) {
 dependencies {
     implementation project(path: ':sdk')
     implementation project(path: ':ui')
-    implementation project(path: ':checkout-3ds')
     implementation project(path: ':netcetera-3ds')
-
-    implementation "com.adyen.threeds:adyen-3ds2:$adyen3dsSdkVersion"
+    implementation project(path: ':checkout-3ds')
 
     implementation "androidx.core:core-ktx:$androidxCoreVersion"
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"

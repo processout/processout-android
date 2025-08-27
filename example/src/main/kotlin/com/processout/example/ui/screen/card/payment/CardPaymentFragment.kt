@@ -8,11 +8,11 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.checkout.threeds.Environment
+import com.netcetera.threeds.sdk.api.transaction.Transaction.BridgingMessageExtensionVersion
 import com.processout.example.R
 import com.processout.example.databinding.FragmentCardPaymentBinding
 import com.processout.example.service.threeds.Checkout3DSServiceDelegate
-import com.processout.example.service.threeds.POAdyen3DSService
+import com.processout.example.service.threeds.Netcetera3DS2ServiceDelegate
 import com.processout.example.shared.Constants
 import com.processout.example.shared.toMessage
 import com.processout.example.ui.screen.MainActivity
@@ -25,12 +25,14 @@ import com.processout.sdk.checkout.threeds.POCheckout3DSService
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
+import com.processout.sdk.netcetera.threeds.PONetcetera3DS2Service
+import com.processout.sdk.netcetera.threeds.PONetcetera3DS2ServiceConfiguration
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationActivity
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.CardScannerConfiguration
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationLauncher
 import com.processout.sdk.ui.shared.view.dialog.POAlertDialog
 import com.processout.sdk.ui.threeds.PO3DSRedirectCustomTabLauncher
-import com.processout.sdk.ui.threeds.POTest3DSService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -101,21 +103,25 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
     }
 
     private fun create3DSService(): PO3DSService {
-        val selected3DSService = with(binding.threedsServiceRadioGroup) {
-            findViewById<RadioButton>(checkedRadioButtonId).text.toString()
+        val selected3DSService = binding.threedsServiceRadioGroup.let {
+            it.findViewById<RadioButton>(it.checkedRadioButtonId).text.toString()
         }
         return when (selected3DSService) {
             getString(R.string.threeds_service_checkout) -> createCheckout3DSService()
-            getString(R.string.threeds_service_adyen) -> createAdyen3DSService()
-            else -> createTest3DSService()
+            else -> createNetcetera3DSService()
         }
     }
 
-    private fun createTest3DSService(): PO3DSService =
-        POTest3DSService(
-            activity = requireActivity(),
-            customTabLauncher = customTabLauncher,
-            returnUrl = Constants.RETURN_URL
+    private fun createNetcetera3DSService(): PO3DSService =
+        PONetcetera3DS2Service(
+            delegate = Netcetera3DS2ServiceDelegate(
+                provideActivity = { POCardTokenizationActivity.instance },
+                customTabLauncher = customTabLauncher,
+                returnUrl = Constants.RETURN_URL
+            ),
+            configuration = PONetcetera3DS2ServiceConfiguration(
+                bridgingExtensionVersion = BridgingMessageExtensionVersion.V20
+            )
         )
 
     private fun createCheckout3DSService(): PO3DSService =
@@ -126,16 +132,7 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
                 customTabLauncher = customTabLauncher,
                 returnUrl = Constants.RETURN_URL
             )
-        )   // Optional parameter, by default Environment.PRODUCTION
-            .with(environment = Environment.PRODUCTION)
-            .build()
-
-    private fun createAdyen3DSService(): PO3DSService =
-        POAdyen3DSService(
-            activity = requireActivity(),
-            customTabLauncher = customTabLauncher,
-            returnUrl = Constants.RETURN_URL
-        )
+        ).build()
 
     private fun setOnClickListeners() {
         binding.authorizeInvoiceButton.setOnClickListener { onSubmitClick() }

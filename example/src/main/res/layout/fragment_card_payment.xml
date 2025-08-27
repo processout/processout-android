@@ -88,28 +88,20 @@
                 android:id="@+id/threeds_service_radio_group"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:checkedButton="@id/threeds_service_checkout">
+                android:checkedButton="@id/threeds_service_netcetera">
 
                 <RadioButton
-                    android:id="@+id/threeds_service_test"
+                    android:id="@+id/threeds_service_netcetera"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/threeds_service_test"
-                    android:textAppearance="@style/TextAppearance.ProcessOut.Fixed.Body"
-                    android:visibility="gone" />
+                    android:text="@string/threeds_service_netcetera"
+                    android:textAppearance="@style/TextAppearance.ProcessOut.Fixed.Body" />
 
                 <RadioButton
                     android:id="@+id/threeds_service_checkout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/threeds_service_checkout"
-                    android:textAppearance="@style/TextAppearance.ProcessOut.Fixed.Body" />
-
-                <RadioButton
-                    android:id="@+id/threeds_service_adyen"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/threeds_service_adyen"
                     android:textAppearance="@style/TextAppearance.ProcessOut.Fixed.Body" />
             </RadioGroup>
         </LinearLayout>
