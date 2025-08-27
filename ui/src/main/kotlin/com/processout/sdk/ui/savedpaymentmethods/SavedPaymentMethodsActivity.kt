@@ -5,10 +5,10 @@ import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.ProcessOutResult
-import com.processout.sdk.ui.base.BaseTransparentPortraitActivity
+import com.processout.sdk.ui.base.POBaseTransparentPortraitActivity
 import com.processout.sdk.ui.savedpaymentmethods.SavedPaymentMethodsActivityContract.Companion.EXTRA_FORCE_FINISH
 
-internal class SavedPaymentMethodsActivity : BaseTransparentPortraitActivity() {
+internal class SavedPaymentMethodsActivity : POBaseTransparentPortraitActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

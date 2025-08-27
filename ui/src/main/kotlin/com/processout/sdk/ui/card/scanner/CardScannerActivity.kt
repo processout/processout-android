@@ -2,9 +2,9 @@ package com.processout.sdk.ui.card.scanner
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
-import com.processout.sdk.ui.base.BaseTransparentPortraitActivity
+import com.processout.sdk.ui.base.POBaseTransparentPortraitActivity
 
-internal class CardScannerActivity : BaseTransparentPortraitActivity() {
+internal class CardScannerActivity : POBaseTransparentPortraitActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

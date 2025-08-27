@@ -22,7 +22,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 /**
- * Launcher that starts [CardTokenizationActivity] and provides the result.
+ * Launcher that starts [POCardTokenizationActivity] and provides the result.
  */
 class POCardTokenizationLauncher private constructor(
     private val scope: CoroutineScope,

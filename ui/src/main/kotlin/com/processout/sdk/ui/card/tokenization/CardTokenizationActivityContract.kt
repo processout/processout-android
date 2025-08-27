@@ -20,7 +20,7 @@ internal class CardTokenizationActivityContract : ActivityResultContract
     override fun createIntent(
         context: Context,
         input: POCardTokenizationConfiguration
-    ) = Intent(context, CardTokenizationActivity::class.java)
+    ) = Intent(context, POCardTokenizationActivity::class.java)
         .putExtra(EXTRA_CONFIGURATION, input)
 
     @Suppress("DEPRECATION")

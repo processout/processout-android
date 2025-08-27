@@ -30,7 +30,7 @@ import com.processout.sdk.core.*
 import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.POFailure.Code.Generic
 import com.processout.sdk.ui.apm.POAlternativePaymentMethodCustomTabLauncher
-import com.processout.sdk.ui.base.BaseTransparentPortraitActivity
+import com.processout.sdk.ui.base.POBaseTransparentPortraitActivity
 import com.processout.sdk.ui.card.scanner.POCardScannerLauncher
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
@@ -61,7 +61,7 @@ import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivityContr
 import com.processout.sdk.ui.web.webview.POWebViewAuthorizationActivity
 import com.processout.sdk.ui.web.webview.POWebViewAuthorizationActivityContract
 
-internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
+internal class DynamicCheckoutActivity : POBaseTransparentPortraitActivity() {
 
     private lateinit var configuration: PODynamicCheckoutConfiguration
 

@@ -2,9 +2,9 @@ package com.processout.sdk.ui.napm
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
-import com.processout.sdk.ui.base.BaseTransparentPortraitActivity
+import com.processout.sdk.ui.base.POBaseTransparentPortraitActivity
 
-internal class NativeAlternativePaymentActivity : BaseTransparentPortraitActivity() {
+internal class NativeAlternativePaymentActivity : POBaseTransparentPortraitActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

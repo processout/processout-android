@@ -19,7 +19,7 @@
             android:theme="@style/Theme.ProcessOut.BottomSheet" />
 
         <activity
-            android:name=".card.tokenization.CardTokenizationActivity"
+            android:name=".card.tokenization.POCardTokenizationActivity"
             android:exported="false"
             android:launchMode="singleTop"
             android:theme="@style/Theme.ProcessOut.BottomSheet" />

@@ -5,7 +5,10 @@ import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 
-internal abstract class BaseTransparentPortraitActivity : AppCompatActivity() {
+/**
+ * Base class for activities that are locked in portrait screen orientation and support transparency.
+ */
+abstract class POBaseTransparentPortraitActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
