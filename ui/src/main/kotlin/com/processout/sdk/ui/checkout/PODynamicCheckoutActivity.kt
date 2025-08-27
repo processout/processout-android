@@ -69,6 +69,10 @@ import com.processout.sdk.ui.web.webview.POWebViewAuthorizationActivityContract
 @ProcessOutInternalApi
 class PODynamicCheckoutActivity : POBaseTransparentPortraitActivity() {
 
+    companion object {
+        var instance: PODynamicCheckoutActivity? = null
+    }
+
     private lateinit var configuration: PODynamicCheckoutConfiguration
 
     private val viewModel: DynamicCheckoutViewModel by viewModels {
@@ -192,6 +196,7 @@ class PODynamicCheckoutActivity : POBaseTransparentPortraitActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        instance = this
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
         initConfiguration()
         dispatchBackPressed()
@@ -419,5 +424,10 @@ class PODynamicCheckoutActivity : POBaseTransparentPortraitActivity() {
             @Suppress("DEPRECATION")
             overridePendingTransition(0, R.anim.po_slide_out_vertical)
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        instance = null
     }
 }
