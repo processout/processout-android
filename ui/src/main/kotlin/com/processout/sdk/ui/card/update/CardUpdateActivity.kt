@@ -2,9 +2,9 @@ package com.processout.sdk.ui.card.update
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
-import com.processout.sdk.ui.base.BaseTransparentPortraitActivity
+import com.processout.sdk.ui.base.POBaseTransparentPortraitActivity
 
-internal class CardUpdateActivity : BaseTransparentPortraitActivity() {
+internal class CardUpdateActivity : POBaseTransparentPortraitActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

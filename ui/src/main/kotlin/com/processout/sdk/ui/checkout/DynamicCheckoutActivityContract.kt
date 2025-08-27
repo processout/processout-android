@@ -20,7 +20,7 @@ internal class DynamicCheckoutActivityContract : ActivityResultContract
     override fun createIntent(
         context: Context,
         input: PODynamicCheckoutConfiguration
-    ) = Intent(context, DynamicCheckoutActivity::class.java)
+    ) = Intent(context, PODynamicCheckoutActivity::class.java)
         .putExtra(EXTRA_CONFIGURATION, input)
 
     @Suppress("DEPRECATION")

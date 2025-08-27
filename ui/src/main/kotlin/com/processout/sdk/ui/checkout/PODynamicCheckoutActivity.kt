@@ -30,7 +30,7 @@ import com.processout.sdk.core.*
 import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.POFailure.Code.Generic
 import com.processout.sdk.ui.apm.POAlternativePaymentMethodCustomTabLauncher
-import com.processout.sdk.ui.base.BaseTransparentPortraitActivity
+import com.processout.sdk.ui.base.POBaseTransparentPortraitActivity
 import com.processout.sdk.ui.card.scanner.POCardScannerLauncher
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
@@ -45,6 +45,7 @@ import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.*
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.Button
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.CancelButton
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen
+import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.googlepay.POGooglePayCardTokenizationLauncher
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
@@ -61,7 +62,16 @@ import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivityContr
 import com.processout.sdk.ui.web.webview.POWebViewAuthorizationActivity
 import com.processout.sdk.ui.web.webview.POWebViewAuthorizationActivityContract
 
-internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
+/**
+ * Activity that handles dynamic checkout.
+ */
+/** @suppress */
+@ProcessOutInternalApi
+class PODynamicCheckoutActivity : POBaseTransparentPortraitActivity() {
+
+    companion object {
+        var instance: PODynamicCheckoutActivity? = null
+    }
 
     private lateinit var configuration: PODynamicCheckoutConfiguration
 
@@ -186,6 +196,7 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        instance = this
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
         initConfiguration()
         dispatchBackPressed()
@@ -413,5 +424,10 @@ internal class DynamicCheckoutActivity : BaseTransparentPortraitActivity() {
             @Suppress("DEPRECATION")
             overridePendingTransition(0, R.anim.po_slide_out_vertical)
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        instance = null
     }
 }

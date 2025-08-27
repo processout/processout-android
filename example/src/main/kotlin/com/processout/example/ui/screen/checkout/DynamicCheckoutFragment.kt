@@ -7,9 +7,10 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.netcetera.threeds.sdk.api.transaction.Transaction.BridgingMessageExtensionVersion
 import com.processout.example.R
 import com.processout.example.databinding.FragmentDynamicCheckoutBinding
-import com.processout.example.service.threeds.Checkout3DSServiceDelegate
+import com.processout.example.service.threeds.Netcetera3DS2ServiceDelegate
 import com.processout.example.shared.Constants
 import com.processout.example.shared.toMessage
 import com.processout.example.ui.screen.MainActivity
@@ -18,11 +19,13 @@ import com.processout.example.ui.screen.checkout.DynamicCheckoutUiState.*
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.service.PO3DSService
-import com.processout.sdk.checkout.threeds.POCheckout3DSService
 import com.processout.sdk.core.POUnit
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
+import com.processout.sdk.netcetera.threeds.PONetcetera3DS2Service
+import com.processout.sdk.netcetera.threeds.PONetcetera3DS2ServiceConfiguration
+import com.processout.sdk.ui.checkout.PODynamicCheckoutActivity
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.AlternativePaymentConfiguration
 import com.processout.sdk.ui.checkout.PODynamicCheckoutLauncher
@@ -48,7 +51,7 @@ class DynamicCheckoutFragment : BaseFragment<FragmentDynamicCheckoutBinding>(
         )
         launcher = PODynamicCheckoutLauncher.create(
             from = this,
-            threeDSService = createCheckout3DSService(
+            threeDSService = createNetcetera3DSService(
                 customTabLauncher = PO3DSRedirectCustomTabLauncher.create(from = this)
             ),
             delegate = delegate,
@@ -102,16 +105,18 @@ class DynamicCheckoutFragment : BaseFragment<FragmentDynamicCheckoutBinding>(
         viewModel.onLaunched()
     }
 
-    private fun createCheckout3DSService(
+    private fun createNetcetera3DSService(
         customTabLauncher: PO3DSRedirectCustomTabLauncher
-    ): PO3DSService = POCheckout3DSService.Builder(
-        activity = requireActivity(),
-        delegate = Checkout3DSServiceDelegate(
-            activity = requireActivity(),
+    ): PO3DSService = PONetcetera3DS2Service(
+        delegate = Netcetera3DS2ServiceDelegate(
+            provideActivity = { PODynamicCheckoutActivity.instance },
             customTabLauncher = customTabLauncher,
             returnUrl = Constants.RETURN_URL
+        ),
+        configuration = PONetcetera3DS2ServiceConfiguration(
+            bridgingExtensionVersion = BridgingMessageExtensionVersion.V20
         )
-    ).build()
+    )
 
     private fun setOnClickListeners() {
         binding.authorizeInvoiceButton.setOnClickListener { onSubmitClick() }

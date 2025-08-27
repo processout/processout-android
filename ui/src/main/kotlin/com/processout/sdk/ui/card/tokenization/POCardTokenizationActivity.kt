@@ -2,12 +2,20 @@ package com.processout.sdk.ui.card.tokenization
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
-import com.processout.sdk.ui.base.BaseTransparentPortraitActivity
+import com.processout.sdk.ui.base.POBaseTransparentPortraitActivity
 
-internal class CardTokenizationActivity : BaseTransparentPortraitActivity() {
+/**
+ * Activity that handles card tokenization.
+ */
+class POCardTokenizationActivity : POBaseTransparentPortraitActivity() {
+
+    companion object {
+        var instance: POCardTokenizationActivity? = null
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        instance = this
         enableEdgeToEdge()
         if (savedInstanceState == null) {
             val bottomSheet = supportFragmentManager.findFragmentByTag(CardTokenizationBottomSheet.tag)
@@ -18,5 +26,10 @@ internal class CardTokenizationActivity : BaseTransparentPortraitActivity() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        instance = null
     }
 }

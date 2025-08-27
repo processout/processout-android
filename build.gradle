@@ -90,7 +90,6 @@ ext {
 
     netcetera3dsSdkVersion = '2.5.3.1'
     checkout3dsSdkVersion = '3.2.7'
-    adyen3dsSdkVersion = '2.2.15' // This is a max supported version. Higher versions use unsupported certificates format.
 
     junitVersion = '4.13.2'
     mockitoVersion = '5.19.0'
