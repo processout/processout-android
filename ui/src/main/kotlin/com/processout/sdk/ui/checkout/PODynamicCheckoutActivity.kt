@@ -45,6 +45,7 @@ import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.*
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.Button
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.CancelButton
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen
+import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.googlepay.POGooglePayCardTokenizationLauncher
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
@@ -61,7 +62,12 @@ import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivityContr
 import com.processout.sdk.ui.web.webview.POWebViewAuthorizationActivity
 import com.processout.sdk.ui.web.webview.POWebViewAuthorizationActivityContract
 
-internal class DynamicCheckoutActivity : POBaseTransparentPortraitActivity() {
+/**
+ * Activity that handles dynamic checkout.
+ */
+/** @suppress */
+@ProcessOutInternalApi
+class PODynamicCheckoutActivity : POBaseTransparentPortraitActivity() {
 
     private lateinit var configuration: PODynamicCheckoutConfiguration
 

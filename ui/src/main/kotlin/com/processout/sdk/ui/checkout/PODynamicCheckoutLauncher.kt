@@ -27,7 +27,7 @@ import com.processout.sdk.ui.savedpaymentmethods.delegate.POSavedPaymentMethodsE
 import kotlinx.coroutines.*
 
 /**
- * Launcher that starts [DynamicCheckoutActivity] and provides the result.
+ * Launcher that starts [PODynamicCheckoutActivity] and provides the result.
  */
 /** @suppress */
 @ProcessOutInternalApi

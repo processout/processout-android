@@ -7,7 +7,7 @@
 
     <application>
         <activity
-            android:name=".checkout.DynamicCheckoutActivity"
+            android:name=".checkout.PODynamicCheckoutActivity"
             android:exported="false"
             android:launchMode="singleTop"
             android:theme="@style/Theme.ProcessOut.Compose" />
