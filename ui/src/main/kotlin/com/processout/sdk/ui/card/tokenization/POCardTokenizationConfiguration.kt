@@ -4,7 +4,6 @@ import android.os.Parcelable
 import androidx.annotation.ColorRes
 import com.processout.sdk.api.model.request.POContact
 import com.processout.sdk.ui.card.scanner.POCardScannerConfiguration
-import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode
 import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import com.processout.sdk.ui.core.style.*
 import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration

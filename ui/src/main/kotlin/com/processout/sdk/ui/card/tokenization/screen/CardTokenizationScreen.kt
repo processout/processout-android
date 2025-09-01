@@ -1,4 +1,4 @@
-package com.processout.sdk.ui.card.tokenization
+package com.processout.sdk.ui.card.tokenization.screen
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.*
@@ -22,12 +22,15 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
+import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
+import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.Item
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.Section
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.SectionId.CARD_INFORMATION
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.SectionId.FUTURE_PAYMENTS
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.SectionId.PREFERRED_SCHEME
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
