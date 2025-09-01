@@ -100,6 +100,7 @@ data class POColors(
     )
 }
 
+/** @suppress */
 @ProcessOutInternalApi
 val POLightColorPalette = POColors(
     text = Text(
@@ -171,6 +172,7 @@ val POLightColorPalette = POColors(
     )
 )
 
+/** @suppress */
 @ProcessOutInternalApi
 val PODarkColorPalette = POColors(
     text = Text(
