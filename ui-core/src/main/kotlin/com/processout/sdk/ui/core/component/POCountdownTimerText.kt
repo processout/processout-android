@@ -5,10 +5,13 @@ package com.processout.sdk.ui.core.component
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 import kotlinx.coroutines.delay
 
+/** @suppress */
+@ProcessOutInternalApi
 @Composable
 fun POCountdownTimerText(
     textFormat: String,
