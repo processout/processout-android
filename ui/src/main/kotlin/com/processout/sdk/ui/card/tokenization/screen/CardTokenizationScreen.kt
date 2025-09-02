@@ -86,11 +86,11 @@ internal fun CardTokenizationScreen(
             CardTokenizationContent(
                 state = state,
                 onEvent = onEvent,
-                onContentHeightChanged = { contentHeight ->
-                    val totalHeight = contentHeight + topBarHeight + bottomBarHeight + verticalSpacingPx
-                    onContentHeightChanged(totalHeight)
-                },
-                style = style
+                style = style,
+                modifier = Modifier.onGloballyPositioned {
+                    val contentHeight = it.size.height + topBarHeight + bottomBarHeight + verticalSpacingPx
+                    onContentHeightChanged(contentHeight)
+                }
             )
         }
     }

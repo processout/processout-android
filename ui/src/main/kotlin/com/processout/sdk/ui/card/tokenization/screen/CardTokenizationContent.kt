@@ -9,7 +9,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -38,14 +37,10 @@ import com.processout.sdk.ui.shared.state.FieldState
 internal fun CardTokenizationContent(
     state: CardTokenizationViewModelState,
     onEvent: (CardTokenizationEvent) -> Unit,
-    onContentHeightChanged: (Int) -> Unit,
-    style: CardTokenizationScreen.Style
+    style: CardTokenizationScreen.Style,
+    modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = Modifier.onGloballyPositioned {
-            onContentHeightChanged(it.size.height)
-        }
-    ) {
+    Column(modifier = modifier) {
         Sections(
             state = state,
             onEvent = onEvent,

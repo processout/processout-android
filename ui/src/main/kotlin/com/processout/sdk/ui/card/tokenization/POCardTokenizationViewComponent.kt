@@ -108,7 +108,6 @@ class POCardTokenizationViewComponent private constructor(
                     CardTokenizationContent(
                         state = viewModel.state.collectAsStateWithLifecycle().value,
                         onEvent = remember { viewModel::onEvent },
-                        onContentHeightChanged = {},
                         style = CardTokenizationScreen.style(custom = style)
                     )
                 }
