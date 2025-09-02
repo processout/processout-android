@@ -41,45 +41,32 @@ internal fun CardTokenizationContent(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
-        Sections(
-            state = state,
-            onEvent = onEvent,
-            style = style
-        )
-    }
-}
-
-@Composable
-private fun Sections(
-    state: CardTokenizationViewModelState,
-    onEvent: (CardTokenizationEvent) -> Unit,
-    style: CardTokenizationScreen.Style
-) {
-    if (state.focusedFieldId == null) {
-        LocalFocusManager.current.clearFocus(force = true)
-    }
-    state.cardScannerAction?.let { action ->
-        POButton(
-            state = action,
-            onClick = { onEvent(Action(id = it)) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .requiredHeightIn(min = dimensions.buttonIconSizeSmall)
-                .padding(bottom = spacing.small),
-            style = style.scanButton,
-            iconSize = dimensions.iconSizeSmall
-        )
-    }
-    val lifecycleEvent = rememberLifecycleEvent()
-    state.sections.elements.forEach { section ->
-        Section(
-            section = section,
-            onEvent = onEvent,
-            lifecycleEvent = lifecycleEvent,
-            focusedFieldId = state.focusedFieldId,
-            isPrimaryActionEnabled = state.primaryAction.enabled && !state.primaryAction.loading,
-            style = style
-        )
+        if (state.focusedFieldId == null) {
+            LocalFocusManager.current.clearFocus(force = true)
+        }
+        state.cardScannerAction?.let { action ->
+            POButton(
+                state = action,
+                onClick = { onEvent(Action(id = it)) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .requiredHeightIn(min = dimensions.buttonIconSizeSmall)
+                    .padding(bottom = spacing.small),
+                style = style.scanButton,
+                iconSize = dimensions.iconSizeSmall
+            )
+        }
+        val lifecycleEvent = rememberLifecycleEvent()
+        state.sections.elements.forEach { section ->
+            Section(
+                section = section,
+                onEvent = onEvent,
+                lifecycleEvent = lifecycleEvent,
+                focusedFieldId = state.focusedFieldId,
+                isPrimaryActionEnabled = state.primaryAction.enabled && !state.primaryAction.loading,
+                style = style
+            )
+        }
     }
 }
 
