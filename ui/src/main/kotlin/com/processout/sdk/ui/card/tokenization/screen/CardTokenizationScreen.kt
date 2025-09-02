@@ -82,7 +82,7 @@ internal fun CardTokenizationScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(spacing.extraLarge)
         ) {
-            val verticalSpacingPx = (spacing.extraLarge * 4 + 10.dp).dpToPx()
+            val verticalSpacingPx = (spacing.extraLarge * 4 + 15.dp).dpToPx()
             CardTokenizationContent(
                 state = state,
                 onEvent = onEvent,
