@@ -87,8 +87,8 @@ internal fun CardTokenizationScreen(
                 state = state,
                 onEvent = onEvent,
                 onContentHeightChanged = { contentHeight ->
-                    val screenHeight = contentHeight + topBarHeight + bottomBarHeight + verticalSpacingPx
-                    onContentHeightChanged(screenHeight)
+                    val totalHeight = contentHeight + topBarHeight + bottomBarHeight + verticalSpacingPx
+                    onContentHeightChanged(totalHeight)
                 },
                 style = style
             )
