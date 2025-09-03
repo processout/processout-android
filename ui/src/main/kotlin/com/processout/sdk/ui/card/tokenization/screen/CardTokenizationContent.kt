@@ -27,7 +27,9 @@ import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
 import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
 import com.processout.sdk.ui.core.component.field.text.POTextField
+import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
+import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.shared.component.rememberLifecycleEvent
@@ -38,6 +40,7 @@ internal fun CardTokenizationContent(
     state: CardTokenizationViewModelState,
     onEvent: (CardTokenizationEvent) -> Unit,
     style: CardTokenizationScreen.Style,
+    withActionsContainer: Boolean,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
@@ -65,6 +68,15 @@ internal fun CardTokenizationContent(
                 focusedFieldId = state.focusedFieldId,
                 isPrimaryActionEnabled = state.primaryAction.enabled && !state.primaryAction.loading,
                 style = style
+            )
+        }
+        if (withActionsContainer) {
+            ActionsContainer(
+                primary = state.primaryAction,
+                secondary = state.secondaryAction,
+                onEvent = onEvent,
+                style = style.actionsContainer,
+                confirmationDialogStyle = style.dialog
             )
         }
     }
@@ -339,4 +351,71 @@ private fun AnimatedFieldIcon(@DrawableRes id: Int) {
             .padding(POField.contentPadding),
         contentScale = ContentScale.FillHeight
     )
+}
+
+@Composable
+private fun ActionsContainer(
+    primary: POActionState?,
+    secondary: POActionState?,
+    onEvent: (CardTokenizationEvent) -> Unit,
+    style: POActionsContainer.Style,
+    confirmationDialogStyle: PODialog.Style
+) {
+    var actions = listOfNotNull(primary, secondary)
+    if (actions.isNotEmpty()) {
+        if (style.axis == POAxis.Horizontal) {
+            actions = actions.reversed()
+        }
+        val paddingTop = spacing.space28
+        val spacing = spacing.space12
+        when (style.axis) {
+            POAxis.Vertical -> Column(
+                modifier = Modifier.padding(top = paddingTop),
+                verticalArrangement = Arrangement.spacedBy(space = spacing)
+            ) {
+                Actions(
+                    actions = POImmutableList(elements = actions),
+                    onClick = { onEvent(Action(id = it)) },
+                    primaryActionStyle = style.primary,
+                    secondaryActionStyle = style.secondary,
+                    confirmationDialogStyle = confirmationDialogStyle
+                )
+            }
+            POAxis.Horizontal -> Row(
+                modifier = Modifier.padding(top = paddingTop),
+                horizontalArrangement = Arrangement.spacedBy(space = spacing)
+            ) {
+                Actions(
+                    actions = POImmutableList(elements = actions),
+                    onClick = { onEvent(Action(id = it)) },
+                    primaryActionStyle = style.primary,
+                    secondaryActionStyle = style.secondary,
+                    confirmationDialogStyle = confirmationDialogStyle,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun Actions(
+    actions: POImmutableList<POActionState>,
+    onClick: (String) -> Unit,
+    primaryActionStyle: POButton.Style,
+    secondaryActionStyle: POButton.Style,
+    confirmationDialogStyle: PODialog.Style,
+    modifier: Modifier = Modifier
+) {
+    actions.elements.forEach { state ->
+        POButton(
+            state = state,
+            onClick = onClick,
+            modifier = modifier
+                .fillMaxWidth()
+                .requiredHeightIn(min = dimensions.interactiveComponentMinSize),
+            style = if (state.primary) primaryActionStyle else secondaryActionStyle,
+            confirmationDialogStyle = confirmationDialogStyle
+        )
+    }
 }

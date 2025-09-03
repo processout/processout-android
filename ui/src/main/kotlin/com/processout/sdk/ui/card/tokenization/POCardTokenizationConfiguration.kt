@@ -185,6 +185,7 @@ data class POCardTokenizationConfiguration(
      * @param[field] Field style.
      * @param[checkbox] Checkbox style.
      * @param[dropdownMenu] Dropdown menu style.
+     * @param[dialog] Dialog style.
      * @param[errorMessage] Error message style.
      * @param[actionsContainer] Style of action buttons and their container.
      * @param[backgroundColorResId] Color resource ID for background.
@@ -199,6 +200,7 @@ data class POCardTokenizationConfiguration(
         val checkbox: POCheckboxStyle? = null,
         val radioButton: PORadioButtonStyle? = null,
         val dropdownMenu: PODropdownMenuStyle? = null,
+        val dialog: PODialogStyle? = null,
         val errorMessage: POTextStyle? = null,
         val scanButton: POButtonStyle? = null,
         val actionsContainer: POActionsContainerStyle? = null,

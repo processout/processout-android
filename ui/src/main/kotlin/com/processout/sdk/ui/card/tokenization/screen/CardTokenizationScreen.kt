@@ -19,10 +19,7 @@ import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.Action
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
-import com.processout.sdk.ui.core.component.POActionsContainer
-import com.processout.sdk.ui.core.component.POButton
-import com.processout.sdk.ui.core.component.POHeader
-import com.processout.sdk.ui.core.component.POText
+import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
@@ -69,6 +66,7 @@ internal fun CardTokenizationScreen(
                 secondary = state.secondaryAction,
                 onEvent = onEvent,
                 style = style.actionsContainer,
+                confirmationDialogStyle = style.dialog,
                 modifier = Modifier.onGloballyPositioned {
                     bottomBarHeight = it.size.height
                 }
@@ -87,6 +85,7 @@ internal fun CardTokenizationScreen(
                 state = state,
                 onEvent = onEvent,
                 style = style,
+                withActionsContainer = false,
                 modifier = Modifier.onGloballyPositioned {
                     val contentHeight = it.size.height + topBarHeight + bottomBarHeight + verticalSpacingPx
                     onContentHeightChanged(contentHeight)
@@ -102,6 +101,7 @@ private fun Actions(
     secondary: POActionState?,
     onEvent: (CardTokenizationEvent) -> Unit,
     style: POActionsContainer.Style,
+    confirmationDialogStyle: PODialog.Style,
     modifier: Modifier = Modifier
 ) {
     val actions = mutableListOf(primary)
@@ -109,10 +109,11 @@ private fun Actions(
     POActionsContainer(
         modifier = modifier,
         actions = POImmutableList(
-            if (style.axis == POAxis.Horizontal) actions.reversed() else actions
+            elements = if (style.axis == POAxis.Horizontal) actions.reversed() else actions
         ),
         onClick = { onEvent(Action(id = it)) },
-        containerStyle = style
+        containerStyle = style,
+        confirmationDialogStyle = confirmationDialogStyle
     )
 }
 
@@ -126,6 +127,7 @@ internal object CardTokenizationScreen {
         val checkbox: POCheckbox.Style,
         val radioGroup: PORadioGroup.Style,
         val dropdownMenu: PODropdownField.MenuStyle,
+        val dialog: PODialog.Style,
         val errorMessage: POText.Style,
         val scanButton: POButton.Style,
         val actionsContainer: POActionsContainer.Style,
@@ -154,6 +156,9 @@ internal object CardTokenizationScreen {
         dropdownMenu = custom?.dropdownMenu?.let {
             PODropdownField.custom(style = it)
         } ?: PODropdownField.defaultMenu,
+        dialog = custom?.dialog?.let {
+            PODialog.custom(style = it)
+        } ?: PODialog.default,
         errorMessage = custom?.errorMessage?.let {
             POText.custom(style = it)
         } ?: POText.errorLabel,
