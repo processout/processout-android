@@ -97,15 +97,14 @@ internal fun CardTokenizationScreen(
 
 @Composable
 private fun Actions(
-    primary: POActionState,
+    primary: POActionState?,
     secondary: POActionState?,
     onEvent: (CardTokenizationEvent) -> Unit,
     style: POActionsContainer.Style,
     confirmationDialogStyle: PODialog.Style,
     modifier: Modifier = Modifier
 ) {
-    val actions = mutableListOf(primary)
-    secondary?.let { actions.add(it) }
+    val actions = listOfNotNull(primary, secondary)
     POActionsContainer(
         modifier = modifier,
         actions = POImmutableList(

@@ -1,3 +1,5 @@
+@file:Suppress("PropertyName")
+
 package com.processout.sdk.ui.card.tokenization
 
 import android.os.Parcelable
@@ -46,7 +48,8 @@ data class POCardTokenizationConfiguration(
         expandable = false
     ),
     val metadata: Map<String, String>? = null,
-    val style: Style? = null
+    val style: Style? = null,
+    internal val _submitButton: Button? = submitButton
 ) : Parcelable {
 
     /**
