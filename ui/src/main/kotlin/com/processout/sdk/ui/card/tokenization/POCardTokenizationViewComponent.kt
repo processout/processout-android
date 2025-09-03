@@ -24,12 +24,15 @@ import com.processout.sdk.api.model.response.toResponse
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Failure
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Success
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.Button
 import com.processout.sdk.ui.card.tokenization.delegate.CardTokenizationEligibilityRequest
 import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationDelegate
 import com.processout.sdk.ui.card.tokenization.delegate.toResponse
 import com.processout.sdk.ui.card.tokenization.screen.CardTokenizationContent
 import com.processout.sdk.ui.card.tokenization.screen.CardTokenizationScreen
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration
+import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration.Height.WrapContent
 import kotlinx.coroutines.launch
 
 class POCardTokenizationViewComponent private constructor(
@@ -47,14 +50,14 @@ class POCardTokenizationViewComponent private constructor(
 
         fun create(
             from: Fragment,
-            configuration: POCardTokenizationConfiguration,
+            configuration: POCardTokenizationViewComponentConfiguration,
             delegate: POCardTokenizationDelegate,
             callback: (ProcessOutResult<POCard>) -> Unit
         ): POCardTokenizationViewComponent {
             val viewModel: CardTokenizationViewModel by from.viewModels {
                 CardTokenizationViewModel.Factory(
                     app = from.requireActivity().application,
-                    configuration = configuration,
+                    configuration = configuration.map(),
                     legacyEventDispatcher = null
                 )
             }
@@ -73,14 +76,14 @@ class POCardTokenizationViewComponent private constructor(
 
         fun create(
             from: ComponentActivity,
-            configuration: POCardTokenizationConfiguration,
+            configuration: POCardTokenizationViewComponentConfiguration,
             delegate: POCardTokenizationDelegate,
             callback: (ProcessOutResult<POCard>) -> Unit
         ): POCardTokenizationViewComponent {
             val viewModel: CardTokenizationViewModel by from.viewModels {
                 CardTokenizationViewModel.Factory(
                     app = from.application,
-                    configuration = configuration,
+                    configuration = configuration.map(),
                     legacyEventDispatcher = null
                 )
             }
@@ -96,6 +99,25 @@ class POCardTokenizationViewComponent private constructor(
                 callback = callback
             )
         }
+
+        private fun POCardTokenizationViewComponentConfiguration.map() =
+            POCardTokenizationConfiguration(
+                cvcRequired = cvcRequired,
+                cardholderNameRequired = cardholderNameRequired,
+                cardScanner = cardScanner,
+                preferredScheme = preferredScheme,
+                billingAddress = billingAddress,
+                savingAllowed = savingAllowed,
+                submitButton = Button(),
+                cancelButton = cancelButton,
+                bottomSheet = POBottomSheetConfiguration(
+                    height = WrapContent,
+                    expandable = false
+                ),
+                metadata = metadata,
+                style = style,
+                _submitButton = submitButton
+            )
 
         private fun createView(
             context: Context,
