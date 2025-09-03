@@ -24,6 +24,8 @@ import com.processout.sdk.api.model.response.toResponse
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Failure
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Success
+import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.Action
+import com.processout.sdk.ui.card.tokenization.CardTokenizationInteractorState.ActionId
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.Button
 import com.processout.sdk.ui.card.tokenization.delegate.CardTokenizationEligibilityRequest
 import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationDelegate
@@ -216,5 +218,13 @@ class POCardTokenizationViewComponent private constructor(
                 }
             }
         }
+    }
+
+    fun tokenize() {
+        viewModel.onEvent(event = Action(id = ActionId.SUBMIT))
+    }
+
+    fun cancel() {
+        viewModel.onEvent(event = Action(id = ActionId.CANCEL))
     }
 }
