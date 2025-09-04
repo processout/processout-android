@@ -123,12 +123,17 @@ internal class CardTokenizationInteractor(
     }
 
     fun reset() {
-        interactorScope.coroutineContext.cancelChildren()
-        issuerInformationJob = null
-        latestPreferredSchemeRequest = null
-        latestShouldContinueRequest = null
+        cancelProcessing()
         _completion.update { Awaiting }
         _state.update { initState() }
+    }
+
+    private fun cancelProcessing() {
+        interactorScope.coroutineContext.cancelChildren()
+        issuerInformationJob = null
+        latestEligibilityRequest = null
+        latestPreferredSchemeRequest = null
+        latestShouldContinueRequest = null
     }
 
     private fun initState() = CardTokenizationInteractorState(
@@ -1047,6 +1052,7 @@ internal class CardTokenizationInteractor(
         interactorScope.launch {
             _completion.collect {
                 if (it is Failure) {
+                    cancelProcessing()
                     POLogger.warn("%s", it.failure)
                 }
             }
