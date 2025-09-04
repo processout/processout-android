@@ -22,10 +22,14 @@ import com.processout.sdk.api.model.request.POCardTokenizationShouldContinueRequ
 import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.api.model.response.toResponse
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.getOrNull
+import com.processout.sdk.ui.card.scanner.POCardScannerLauncher
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Failure
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Success
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.Action
+import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.CardScannerResult
 import com.processout.sdk.ui.card.tokenization.CardTokenizationInteractorState.ActionId
+import com.processout.sdk.ui.card.tokenization.CardTokenizationSideEffect.CardScanner
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.Button
@@ -37,12 +41,16 @@ import com.processout.sdk.ui.card.tokenization.screen.CardTokenizationScreen
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration
 import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration.Height.WrapContent
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class POCardTokenizationViewComponent private constructor(
     val view: View,
+    private var configuration: POCardTokenizationConfiguration,
     private val viewModel: CardTokenizationViewModel,
     private val lifecycleOwner: LifecycleOwner,
+    private val cardScannerLauncher: POCardScannerLauncher,
     private val delegate: POCardTokenizationDelegate,
     private val callback: (ProcessOutResult<POCard>) -> Unit,
     private val eventDispatcher: POEventDispatcher = POEventDispatcher
@@ -58,10 +66,11 @@ class POCardTokenizationViewComponent private constructor(
             delegate: POCardTokenizationDelegate,
             callback: (ProcessOutResult<POCard>) -> Unit
         ): POCardTokenizationViewComponent {
+            val configuration = configuration.map()
             val viewModel: CardTokenizationViewModel by from.viewModels {
                 CardTokenizationViewModel.Factory(
                     app = from.requireActivity().application,
-                    configuration = configuration.map(),
+                    configuration = configuration,
                     legacyEventDispatcher = null
                 )
             }
@@ -71,8 +80,15 @@ class POCardTokenizationViewComponent private constructor(
                     viewModel = viewModel,
                     style = configuration.style
                 ),
+                configuration = configuration,
                 viewModel = viewModel,
                 lifecycleOwner = from,
+                cardScannerLauncher = POCardScannerLauncher.create(
+                    from = from,
+                    callback = { result ->
+                        viewModel.onEvent(event = CardScannerResult(card = result.getOrNull()))
+                    }
+                ),
                 delegate = delegate,
                 callback = callback
             )
@@ -84,10 +100,11 @@ class POCardTokenizationViewComponent private constructor(
             delegate: POCardTokenizationDelegate,
             callback: (ProcessOutResult<POCard>) -> Unit
         ): POCardTokenizationViewComponent {
+            val configuration = configuration.map()
             val viewModel: CardTokenizationViewModel by from.viewModels {
                 CardTokenizationViewModel.Factory(
                     app = from.application,
-                    configuration = configuration.map(),
+                    configuration = configuration,
                     legacyEventDispatcher = null
                 )
             }
@@ -97,8 +114,15 @@ class POCardTokenizationViewComponent private constructor(
                     viewModel = viewModel,
                     style = configuration.style
                 ),
+                configuration = configuration,
                 viewModel = viewModel,
                 lifecycleOwner = from,
+                cardScannerLauncher = POCardScannerLauncher.create(
+                    from = from,
+                    callback = { result ->
+                        viewModel.onEvent(event = CardScannerResult(card = result.getOrNull()))
+                    }
+                ),
                 delegate = delegate,
                 callback = callback
             )
@@ -148,6 +172,7 @@ class POCardTokenizationViewComponent private constructor(
         dispatchEligibility()
         dispatchPreferredScheme()
         dispatchShouldContinue()
+        collectSideEffects()
         collectCompletion()
         viewModel.start()
     }
@@ -208,6 +233,22 @@ class POCardTokenizationViewComponent private constructor(
         }
     }
 
+    private fun collectSideEffects() {
+        scope.launch {
+            lifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
+                withContext(Dispatchers.Main.immediate) {
+                    viewModel.sideEffects.collect { sideEffect ->
+                        when (sideEffect) {
+                            CardScanner -> configuration.cardScanner?.configuration?.let {
+                                cardScannerLauncher.launch(configuration = it)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private fun collectCompletion() {
         scope.launch {
             lifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
@@ -233,7 +274,9 @@ class POCardTokenizationViewComponent private constructor(
     fun restart(configuration: POCardTokenizationViewComponentConfiguration? = null) {
         viewModel.reset()
         if (configuration != null) {
-            viewModel.start(configuration = configuration.map())
+            val configuration = configuration.map()
+            this.configuration = configuration
+            viewModel.start(configuration)
         } else {
             viewModel.start()
         }
