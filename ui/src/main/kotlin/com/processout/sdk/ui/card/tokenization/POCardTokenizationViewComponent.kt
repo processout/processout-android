@@ -208,10 +208,10 @@ class POCardTokenizationViewComponent private constructor(
 
     private fun collectCompletion() {
         scope.launch {
-            lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            lifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
                 viewModel.completion.collect { completion ->
                     when (completion) {
-                        is Success -> callback(ProcessOutResult.Success(completion.card))
+                        is Success -> callback(ProcessOutResult.Success(value = completion.card))
                         is Failure -> callback(completion.failure)
                         else -> {}
                     }
@@ -226,5 +226,14 @@ class POCardTokenizationViewComponent private constructor(
 
     fun cancel() {
         viewModel.onEvent(event = Action(id = ActionId.CANCEL))
+    }
+
+    fun restart(configuration: POCardTokenizationViewComponentConfiguration? = null) {
+        viewModel.reset()
+        if (configuration != null) {
+            viewModel.start(configuration = configuration.map())
+        } else {
+            viewModel.start()
+        }
     }
 }
