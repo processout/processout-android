@@ -1,4 +1,4 @@
-package com.processout.sdk.ui.card.tokenization
+package com.processout.sdk.ui.card.tokenization.component
 
 import android.content.Context
 import android.view.View
@@ -26,6 +26,8 @@ import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Failur
 import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Success
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.Action
 import com.processout.sdk.ui.card.tokenization.CardTokenizationInteractorState.ActionId
+import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.Button
 import com.processout.sdk.ui.card.tokenization.delegate.CardTokenizationEligibilityRequest
 import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationDelegate

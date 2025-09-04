@@ -1,4 +1,4 @@
-package com.processout.sdk.ui.card.tokenization
+package com.processout.sdk.ui.card.tokenization.component
 
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.*
 
