@@ -418,7 +418,7 @@ internal class CardTokenizationViewModel private constructor(
         FieldState(
             id = field.id,
             value = field.value,
-            placeholder = placeholder,
+            label = placeholder,
             iconResId = iconResId,
             enabled = field.enabled,
             isError = !field.isValid,

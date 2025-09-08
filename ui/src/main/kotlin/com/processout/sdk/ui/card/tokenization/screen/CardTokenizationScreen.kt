@@ -145,7 +145,7 @@ internal object CardTokenizationScreen {
         } ?: POText.label1,
         field = custom?.field?.let {
             POField.custom(style = it)
-        } ?: POField.default,
+        } ?: POField.default2,
         checkbox = custom?.checkbox?.let {
             POCheckbox.custom(style = it)
         } ?: POCheckbox.default,
