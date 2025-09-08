@@ -11,7 +11,6 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.processout.sdk.api.dispatcher.PODefaultEventDispatchers
 import com.processout.sdk.api.model.response.POCard
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.ProcessOutResult
@@ -51,8 +50,7 @@ internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCar
     private val viewModel: CardTokenizationViewModel by viewModels {
         CardTokenizationViewModel.Factory(
             app = requireActivity().application,
-            configuration = configuration,
-            legacyEventDispatcher = PODefaultEventDispatchers.defaultCardTokenization
+            configuration = configuration
         )
     }
 

@@ -1,6 +1,5 @@
 package com.processout.sdk.ui.checkout
 
-import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
@@ -79,8 +78,7 @@ class PODynamicCheckoutActivity : POBaseTransparentPortraitActivity() {
         val cardTokenization: CardTokenizationViewModel by viewModels {
             CardTokenizationViewModel.Factory(
                 app = application,
-                configuration = cardTokenizationConfiguration(),
-                legacyEventDispatcher = null
+                configuration = cardTokenizationConfiguration()
             )
         }
         val nativeAlternativePayment: NativeAlternativePaymentViewModel by viewModels {
@@ -398,11 +396,11 @@ class PODynamicCheckoutActivity : POBaseTransparentPortraitActivity() {
     private fun handle(completion: DynamicCheckoutCompletion) =
         when (completion) {
             Success -> finishWithActivityResult(
-                resultCode = Activity.RESULT_OK,
+                resultCode = RESULT_OK,
                 result = ProcessOutActivityResult.Success(POUnit)
             )
             is Failure -> finishWithActivityResult(
-                resultCode = Activity.RESULT_CANCELED,
+                resultCode = RESULT_CANCELED,
                 result = completion.failure.toActivityResult()
             )
             else -> {}
@@ -419,7 +417,7 @@ class PODynamicCheckoutActivity : POBaseTransparentPortraitActivity() {
     override fun finish() {
         super.finish()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            overrideActivityTransition(Activity.OVERRIDE_TRANSITION_CLOSE, 0, R.anim.po_slide_out_vertical)
+            overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, 0, R.anim.po_slide_out_vertical)
         } else {
             @Suppress("DEPRECATION")
             overridePendingTransition(0, R.anim.po_slide_out_vertical)
