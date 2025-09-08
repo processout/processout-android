@@ -184,10 +184,14 @@ internal class CardTokenizationInteractor(
             }.orElse { countryCodes }
 
         val currentAppLocale = app.currentAppLocale()
-        val availableValues = supportedCountryCodes.map {
+        val availableValues = supportedCountryCodes.map { countryCode ->
+            val locale = Locale.Builder()
+                .setLanguage("und")
+                .setRegion(countryCode)
+                .build()
             POAvailableValue(
-                value = it,
-                text = Locale(String(), it).getDisplayCountry(currentAppLocale)
+                value = countryCode,
+                text = locale.getDisplayCountry(currentAppLocale)
             )
         }.sortedBy { it.text }
 
