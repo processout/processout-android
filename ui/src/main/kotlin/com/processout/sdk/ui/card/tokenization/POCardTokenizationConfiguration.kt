@@ -1,10 +1,11 @@
+@file:Suppress("PropertyName")
+
 package com.processout.sdk.ui.card.tokenization
 
 import android.os.Parcelable
 import androidx.annotation.ColorRes
 import com.processout.sdk.api.model.request.POContact
 import com.processout.sdk.ui.card.scanner.POCardScannerConfiguration
-import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode
 import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import com.processout.sdk.ui.core.style.*
 import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
@@ -47,7 +48,8 @@ data class POCardTokenizationConfiguration(
         expandable = false
     ),
     val metadata: Map<String, String>? = null,
-    val style: Style? = null
+    val style: Style? = null,
+    internal val _submitButton: Button? = submitButton
 ) : Parcelable {
 
     /**
@@ -186,6 +188,7 @@ data class POCardTokenizationConfiguration(
      * @param[field] Field style.
      * @param[checkbox] Checkbox style.
      * @param[dropdownMenu] Dropdown menu style.
+     * @param[dialog] Dialog style.
      * @param[errorMessage] Error message style.
      * @param[actionsContainer] Style of action buttons and their container.
      * @param[backgroundColorResId] Color resource ID for background.
@@ -200,6 +203,7 @@ data class POCardTokenizationConfiguration(
         val checkbox: POCheckboxStyle? = null,
         val radioButton: PORadioButtonStyle? = null,
         val dropdownMenu: PODropdownMenuStyle? = null,
+        val dialog: PODialogStyle? = null,
         val errorMessage: POTextStyle? = null,
         val scanButton: POButtonStyle? = null,
         val actionsContainer: POActionsContainerStyle? = null,

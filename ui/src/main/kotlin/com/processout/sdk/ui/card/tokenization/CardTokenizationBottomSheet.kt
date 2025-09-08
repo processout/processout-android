@@ -27,6 +27,7 @@ import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.CardScanner
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.Dismiss
 import com.processout.sdk.ui.card.tokenization.CardTokenizationSideEffect.CardScanner
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.Button
+import com.processout.sdk.ui.card.tokenization.screen.CardTokenizationScreen
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.component.displayCutoutHeight
 import com.processout.sdk.ui.shared.component.screenModeAsState

@@ -304,7 +304,7 @@ internal class DynamicCheckoutViewModel private constructor(
                     ),
                     content = if (selected) Content.Card(cardTokenizationState) else null,
                     submitAction = if (selected)
-                        cardTokenizationState.primaryAction.copy(
+                        cardTokenizationState.primaryAction?.copy(
                             text = submitButtonText,
                             icon = configuration.submitButton.icon
                         ) else null

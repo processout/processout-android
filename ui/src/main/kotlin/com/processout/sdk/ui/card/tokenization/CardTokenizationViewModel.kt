@@ -94,14 +94,16 @@ internal class CardTokenizationViewModel private constructor(
             title = title ?: app.getString(R.string.po_card_tokenization_title),
             sections = sections(state),
             focusedFieldId = state.focusedFieldId,
-            primaryAction = POActionState(
-                id = state.primaryActionId,
-                text = submitButton.text ?: app.getString(R.string.po_card_tokenization_button_submit),
-                primary = true,
-                enabled = state.submitAllowed,
-                loading = state.submitting,
-                icon = submitButton.icon
-            ),
+            primaryAction = _submitButton?.let {
+                POActionState(
+                    id = state.primaryActionId,
+                    text = it.text ?: app.getString(R.string.po_card_tokenization_button_submit),
+                    primary = true,
+                    enabled = state.submitAllowed,
+                    loading = state.submitting,
+                    icon = it.icon
+                )
+            },
             secondaryAction = cancelButton?.let {
                 POActionState(
                     id = state.secondaryActionId,

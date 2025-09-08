@@ -21,16 +21,19 @@ object POIme {
                 policy = policy
             )
         }
-        val view = LocalView.current.rootView
-        val viewTreeObserver = view.viewTreeObserver
-        DisposableEffect(viewTreeObserver) {
+        val rootView = LocalView.current.rootView
+        DisposableEffect(rootView) {
             val listener = ViewTreeObserver.OnGlobalLayoutListener {
-                isImeVisible.value = ViewCompat.getRootWindowInsets(view)
+                isImeVisible.value = ViewCompat.getRootWindowInsets(rootView)
                     ?.isVisible(WindowInsetsCompat.Type.ime()) ?: false
             }
-            viewTreeObserver.addOnGlobalLayoutListener(listener)
+            rootView.viewTreeObserver
+                .takeIf { it.isAlive }
+                ?.addOnGlobalLayoutListener(listener)
             onDispose {
-                viewTreeObserver.removeOnGlobalLayoutListener(listener)
+                rootView.viewTreeObserver
+                    .takeIf { it.isAlive }
+                    ?.removeOnGlobalLayoutListener(listener)
             }
         }
         return isImeVisible

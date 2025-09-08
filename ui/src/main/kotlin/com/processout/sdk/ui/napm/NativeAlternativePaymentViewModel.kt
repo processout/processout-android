@@ -383,7 +383,11 @@ internal class NativeAlternativePaymentViewModel private constructor(
         val currentAppLocale = app.currentAppLocale()
         val availableValues = when (this) {
             is PhoneNumber -> dialingCodes.map {
-                val localizedCountry = Locale(String(), it.regionCode).getDisplayCountry(currentAppLocale)
+                val locale = Locale.Builder()
+                    .setLanguage("und")
+                    .setRegion(it.regionCode)
+                    .build()
+                val localizedCountry = locale.getDisplayCountry(currentAppLocale)
                 POAvailableValue(
                     value = it.regionCode,
                     text = "$localizedCountry (${it.value})",

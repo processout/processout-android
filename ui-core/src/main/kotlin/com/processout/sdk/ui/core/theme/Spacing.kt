@@ -20,6 +20,7 @@ data class POSpacing(
     val space12: Dp = 12.dp,
     val space16: Dp = 16.dp,
     val space20: Dp = 20.dp,
+    val space28: Dp = 28.dp,
     val space48: Dp = 48.dp,
     val extraSmall: Dp = 4.dp,
     val small: Dp = 8.dp,

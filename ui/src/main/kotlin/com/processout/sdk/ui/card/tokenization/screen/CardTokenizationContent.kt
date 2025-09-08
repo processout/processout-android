@@ -1,28 +1,21 @@
-package com.processout.sdk.ui.card.tokenization
+package com.processout.sdk.ui.card.tokenization.screen
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
+import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
+import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.Item
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.Section
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.SectionId.CARD_INFORMATION
@@ -37,109 +30,55 @@ import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
-import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
-import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.shared.component.rememberLifecycleEvent
-import com.processout.sdk.ui.shared.extension.dpToPx
 import com.processout.sdk.ui.shared.state.FieldState
 
 @Composable
-internal fun CardTokenizationScreen(
+internal fun CardTokenizationContent(
     state: CardTokenizationViewModelState,
     onEvent: (CardTokenizationEvent) -> Unit,
-    onContentHeightChanged: (Int) -> Unit,
-    style: CardTokenizationScreen.Style = CardTokenizationScreen.style()
+    style: CardTokenizationScreen.Style,
+    withActionsContainer: Boolean,
+    modifier: Modifier = Modifier
 ) {
-    var topBarHeight by remember { mutableIntStateOf(0) }
-    var bottomBarHeight by remember { mutableIntStateOf(0) }
-    Scaffold(
-        modifier = Modifier
-            .nestedScroll(rememberNestedScrollInteropConnection())
-            .clip(shape = shapes.topRoundedCornersLarge),
-        containerColor = style.backgroundColor,
-        topBar = {
-            POHeader(
+    Column(modifier = modifier) {
+        if (state.focusedFieldId == null) {
+            LocalFocusManager.current.clearFocus(force = true)
+        }
+        state.cardScannerAction?.let { action ->
+            POButton(
+                state = action,
+                onClick = { onEvent(Action(id = it)) },
                 modifier = Modifier
-                    .verticalScroll(rememberScrollState())
-                    .onGloballyPositioned {
-                        topBarHeight = it.size.height
-                    },
-                title = state.title,
-                style = style.title,
-                dividerColor = style.dividerColor,
-                dragHandleColor = style.dragHandleColor,
-                withDragHandle = state.draggable
+                    .fillMaxWidth()
+                    .requiredHeightIn(min = dimensions.buttonIconSizeSmall)
+                    .padding(bottom = spacing.small),
+                style = style.scanButton,
+                iconSize = dimensions.iconSizeSmall
             )
-        },
-        bottomBar = {
-            Actions(
+        }
+        val lifecycleEvent = rememberLifecycleEvent()
+        state.sections.elements.forEach { section ->
+            Section(
+                section = section,
+                onEvent = onEvent,
+                lifecycleEvent = lifecycleEvent,
+                focusedFieldId = state.focusedFieldId,
+                isPrimaryActionEnabled = state.primaryAction?.enabled == true && !state.primaryAction.loading,
+                style = style
+            )
+        }
+        if (withActionsContainer) {
+            ActionsContainer(
                 primary = state.primaryAction,
                 secondary = state.secondaryAction,
                 onEvent = onEvent,
                 style = style.actionsContainer,
-                modifier = Modifier.onGloballyPositioned {
-                    bottomBarHeight = it.size.height
-                }
+                confirmationDialogStyle = style.dialog
             )
         }
-    ) { scaffoldPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(scaffoldPadding)
-                .verticalScroll(rememberScrollState())
-                .padding(spacing.extraLarge)
-        ) {
-            val verticalSpacingPx = (spacing.extraLarge * 4 + 10.dp).dpToPx()
-            Column(
-                modifier = Modifier.onGloballyPositioned {
-                    val contentHeight = it.size.height + topBarHeight + bottomBarHeight + verticalSpacingPx
-                    onContentHeightChanged(contentHeight)
-                }
-            ) {
-                Sections(
-                    state = state,
-                    onEvent = onEvent,
-                    style = style
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun Sections(
-    state: CardTokenizationViewModelState,
-    onEvent: (CardTokenizationEvent) -> Unit,
-    style: CardTokenizationScreen.Style
-) {
-    if (state.focusedFieldId == null) {
-        LocalFocusManager.current.clearFocus(force = true)
-    }
-    state.cardScannerAction?.let { action ->
-        POButton(
-            state = action,
-            onClick = { onEvent(Action(id = it)) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .requiredHeightIn(min = dimensions.buttonIconSizeSmall)
-                .padding(bottom = spacing.small),
-            style = style.scanButton,
-            iconSize = dimensions.iconSizeSmall
-        )
-    }
-    val lifecycleEvent = rememberLifecycleEvent()
-    state.sections.elements.forEach { section ->
-        Section(
-            section = section,
-            onEvent = onEvent,
-            lifecycleEvent = lifecycleEvent,
-            focusedFieldId = state.focusedFieldId,
-            isPrimaryActionEnabled = state.primaryAction.enabled && !state.primaryAction.loading,
-            style = style
-        )
     }
 }
 
@@ -415,80 +354,68 @@ private fun AnimatedFieldIcon(@DrawableRes id: Int) {
 }
 
 @Composable
-private fun Actions(
-    primary: POActionState,
+private fun ActionsContainer(
+    primary: POActionState?,
     secondary: POActionState?,
     onEvent: (CardTokenizationEvent) -> Unit,
     style: POActionsContainer.Style,
-    modifier: Modifier = Modifier
+    confirmationDialogStyle: PODialog.Style
 ) {
-    val actions = mutableListOf(primary)
-    secondary?.let { actions.add(it) }
-    POActionsContainer(
-        modifier = modifier,
-        actions = POImmutableList(
-            if (style.axis == POAxis.Horizontal) actions.reversed() else actions
-        ),
-        onClick = { onEvent(Action(id = it)) },
-        containerStyle = style
-    )
+    var actions = listOfNotNull(primary, secondary)
+    if (actions.isNotEmpty()) {
+        if (style.axis == POAxis.Horizontal) {
+            actions = actions.reversed()
+        }
+        val paddingTop = spacing.space28
+        val spacing = spacing.space12
+        when (style.axis) {
+            POAxis.Vertical -> Column(
+                modifier = Modifier.padding(top = paddingTop),
+                verticalArrangement = Arrangement.spacedBy(space = spacing)
+            ) {
+                Actions(
+                    actions = POImmutableList(elements = actions),
+                    onClick = { onEvent(Action(id = it)) },
+                    primaryActionStyle = style.primary,
+                    secondaryActionStyle = style.secondary,
+                    confirmationDialogStyle = confirmationDialogStyle
+                )
+            }
+            POAxis.Horizontal -> Row(
+                modifier = Modifier.padding(top = paddingTop),
+                horizontalArrangement = Arrangement.spacedBy(space = spacing)
+            ) {
+                Actions(
+                    actions = POImmutableList(elements = actions),
+                    onClick = { onEvent(Action(id = it)) },
+                    primaryActionStyle = style.primary,
+                    secondaryActionStyle = style.secondary,
+                    confirmationDialogStyle = confirmationDialogStyle,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
 }
 
-internal object CardTokenizationScreen {
-
-    @Immutable
-    data class Style(
-        val title: POText.Style,
-        val sectionTitle: POText.Style,
-        val field: POField.Style,
-        val checkbox: POCheckbox.Style,
-        val radioGroup: PORadioGroup.Style,
-        val dropdownMenu: PODropdownField.MenuStyle,
-        val errorMessage: POText.Style,
-        val scanButton: POButton.Style,
-        val actionsContainer: POActionsContainer.Style,
-        val backgroundColor: Color,
-        val dividerColor: Color,
-        val dragHandleColor: Color
-    )
-
-    @Composable
-    fun style(custom: POCardTokenizationConfiguration.Style? = null) = Style(
-        title = custom?.title?.let {
-            POText.custom(style = it)
-        } ?: POText.title,
-        sectionTitle = custom?.sectionTitle?.let {
-            POText.custom(style = it)
-        } ?: POText.label1,
-        field = custom?.field?.let {
-            POField.custom(style = it)
-        } ?: POField.default,
-        checkbox = custom?.checkbox?.let {
-            POCheckbox.custom(style = it)
-        } ?: POCheckbox.default,
-        radioGroup = custom?.radioButton?.let {
-            PORadioGroup.custom(style = it)
-        } ?: PORadioGroup.default,
-        dropdownMenu = custom?.dropdownMenu?.let {
-            PODropdownField.custom(style = it)
-        } ?: PODropdownField.defaultMenu,
-        errorMessage = custom?.errorMessage?.let {
-            POText.custom(style = it)
-        } ?: POText.errorLabel,
-        scanButton = custom?.scanButton?.let {
-            POButton.custom(style = it)
-        } ?: POButton.secondary,
-        actionsContainer = custom?.actionsContainer?.let {
-            POActionsContainer.custom(style = it)
-        } ?: POActionsContainer.default,
-        backgroundColor = custom?.backgroundColorResId?.let {
-            colorResource(id = it)
-        } ?: colors.surface.default,
-        dividerColor = custom?.dividerColorResId?.let {
-            colorResource(id = it)
-        } ?: colors.border.border4,
-        dragHandleColor = custom?.dragHandleColorResId?.let {
-            colorResource(id = it)
-        } ?: colors.icon.disabled
-    )
+@Composable
+private fun Actions(
+    actions: POImmutableList<POActionState>,
+    onClick: (String) -> Unit,
+    primaryActionStyle: POButton.Style,
+    secondaryActionStyle: POButton.Style,
+    confirmationDialogStyle: PODialog.Style,
+    modifier: Modifier = Modifier
+) {
+    actions.elements.forEach { state ->
+        POButton(
+            state = state,
+            onClick = onClick,
+            modifier = modifier
+                .fillMaxWidth()
+                .requiredHeightIn(min = dimensions.interactiveComponentMinSize),
+            style = if (state.primary) primaryActionStyle else secondaryActionStyle,
+            confirmationDialogStyle = confirmationDialogStyle
+        )
+    }
 }

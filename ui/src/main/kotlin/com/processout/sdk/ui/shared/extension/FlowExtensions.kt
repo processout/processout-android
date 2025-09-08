@@ -21,6 +21,13 @@ internal fun <T, R> StateFlow<T>.map(
     mapper(value)
 )
 
+internal fun <T> Flow<T>.distinctUntilChangedByMultiple(
+    vararg selectors: (T) -> Any?
+): Flow<T> = this
+    .map { value -> selectors.map { it(value) } to value }
+    .distinctUntilChanged { old, new -> old.first == new.first }
+    .map { it.second }
+
 @Composable
 @SuppressLint("ComposableNaming")
 internal fun <T> Flow<T>.collectImmediately(

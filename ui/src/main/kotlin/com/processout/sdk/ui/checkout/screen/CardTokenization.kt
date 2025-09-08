@@ -70,7 +70,7 @@ internal fun CardTokenization(
             onEvent = onEvent,
             lifecycleEvent = lifecycleEvent,
             focusedFieldId = state.focusedFieldId,
-            isPrimaryActionEnabled = state.primaryAction.enabled && !state.primaryAction.loading,
+            isPrimaryActionEnabled = state.primaryAction?.enabled == true && !state.primaryAction.loading,
             style = style
         )
     }
