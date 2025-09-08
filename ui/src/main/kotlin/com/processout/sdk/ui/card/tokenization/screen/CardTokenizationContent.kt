@@ -25,6 +25,7 @@ import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
+import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField2
 import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
 import com.processout.sdk.ui.core.component.field.text.POTextField2
 import com.processout.sdk.ui.core.state.POActionState
@@ -289,7 +290,7 @@ private fun DropdownField(
     menuStyle: PODropdownField.MenuStyle,
     modifier: Modifier = Modifier
 ) {
-    PODropdownField(
+    PODropdownField2(
         value = state.value,
         onValueChange = {
             onEvent(
@@ -300,7 +301,8 @@ private fun DropdownField(
             )
         },
         availableValues = state.availableValues ?: POImmutableList(emptyList()),
-        modifier = modifier
+        modifier = modifier,
+        textFieldModifier = Modifier
             .onFocusChanged {
                 onEvent(
                     FieldFocusChanged(
@@ -312,8 +314,7 @@ private fun DropdownField(
         fieldStyle = fieldStyle,
         menuStyle = menuStyle,
         enabled = state.enabled,
-        isError = state.isError,
-        placeholder = state.placeholder
+        isError = state.isError
     )
 }
 

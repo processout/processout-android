@@ -154,7 +154,7 @@ internal object CardTokenizationScreen {
         } ?: PORadioGroup.default,
         dropdownMenu = custom?.dropdownMenu?.let {
             PODropdownField.custom(style = it)
-        } ?: PODropdownField.defaultMenu,
+        } ?: PODropdownField.defaultMenu2,
         dialog = custom?.dialog?.let {
             PODialog.custom(style = it)
         } ?: PODialog.default,
