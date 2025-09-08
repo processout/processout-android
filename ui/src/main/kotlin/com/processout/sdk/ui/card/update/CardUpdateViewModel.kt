@@ -171,14 +171,14 @@ internal class CardUpdateViewModel private constructor(
                     message = "Attempt to resolve card scheme.",
                     attributes = logAttributes
                 )
-                val iin = this?.iin ?: this?.maskedNumber?.let { iin(it) }
-                iin?.let {
+                val iin = this?.iin ?: this?.maskedNumber?.let { iin(maskedNumber = it) }
+                iin?.let { iin ->
                     viewModelScope.launch {
-                        cardsRepository.fetchIssuerInformation(it)
+                        cardsRepository.fetchIssuerInformation(iin)
                             .onSuccess { updateScheme(it.scheme) }
-                            .onFailure {
+                            .onFailure { failure ->
                                 POLogger.info(
-                                    message = "Failed to resolve card scheme: %s", it,
+                                    message = "Failed to resolve card scheme: %s", failure,
                                     attributes = logAttributes
                                 )
                             }
