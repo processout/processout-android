@@ -88,6 +88,7 @@ internal class CardTokenizationInteractor(
 
     private var issuerInformationJob: Job? = null
 
+    private var latestProcessingRequest: POCardTokenizationProcessingRequest? = null
     private var latestEligibilityRequest: CardTokenizationEligibilityRequest? = null
     private var latestPreferredSchemeRequest: POCardTokenizationPreferredSchemeRequest? = null
     private var latestShouldContinueRequest: POCardTokenizationShouldContinueRequest? = null
@@ -132,6 +133,7 @@ internal class CardTokenizationInteractor(
     private fun cancelProcessing() {
         interactorScope.coroutineContext.cancelChildren()
         issuerInformationJob = null
+        latestProcessingRequest = null
         latestEligibilityRequest = null
         latestPreferredSchemeRequest = null
         latestShouldContinueRequest = null
@@ -829,6 +831,7 @@ internal class CardTokenizationInteractor(
             card = card,
             saveCard = _state.value.saveCardField.value.text.toBooleanStrictOrNull() ?: false
         )
+        latestProcessingRequest = request
         eventDispatcher.send(request)
         POLogger.info(
             message = "Requested to process tokenized card.",
@@ -840,12 +843,14 @@ internal class CardTokenizationInteractor(
         eventDispatcher.subscribeForResponse<POCardTokenizationProcessingResponse>(
             coroutineScope = interactorScope
         ) { response ->
-            response.result
-                .onSuccess { card ->
-                    complete(Success(card))
-                }.onFailure {
-                    requestIfShouldContinue(failure = it)
-                }
+            if (response.uuid == latestProcessingRequest?.uuid) {
+                response.result
+                    .onSuccess { card ->
+                        complete(Success(card))
+                    }.onFailure {
+                        requestIfShouldContinue(failure = it)
+                    }
+            }
         }
     }
 
