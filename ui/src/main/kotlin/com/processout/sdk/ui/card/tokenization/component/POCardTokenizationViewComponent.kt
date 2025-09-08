@@ -46,6 +46,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+/**
+ * Component that handles card tokenization view.
+ *
+ * @param[view] Card tokenization view.
+ */
 class POCardTokenizationViewComponent private constructor(
     val view: View,
     private var configuration: POCardTokenizationConfiguration,
@@ -60,7 +65,10 @@ class POCardTokenizationViewComponent private constructor(
     private val scope = lifecycleOwner.lifecycleScope
 
     companion object {
-
+        /**
+         * Creates the card tokenization view component from a Fragment.
+         * __Note:__ Must be called in _onCreate()_.
+         */
         fun create(
             from: Fragment,
             configuration: POCardTokenizationViewComponentConfiguration,
@@ -95,6 +103,10 @@ class POCardTokenizationViewComponent private constructor(
             )
         }
 
+        /**
+         * Creates the card tokenization view component from an Activity.
+         * __Note:__ Must be called in _onCreate()_.
+         */
         fun create(
             from: ComponentActivity,
             configuration: POCardTokenizationViewComponentConfiguration,
@@ -271,14 +283,25 @@ class POCardTokenizationViewComponent private constructor(
         }
     }
 
+    /**
+     * Submits the form for card tokenization.
+     */
     fun tokenize() {
         viewModel.onEvent(event = Action(id = ActionId.SUBMIT))
     }
 
+    /**
+     * Cancels the ongoing card tokenization.
+     */
     fun cancel() {
         viewModel.onEvent(event = Action(id = ActionId.CANCEL))
     }
 
+    /**
+     * Restarts the card tokenization.
+     *
+     * @param[configuration] Optional new configuration. Pass _null_ to restart with the current configuration.
+     */
     fun restart(configuration: POCardTokenizationViewComponentConfiguration? = null) {
         viewModel.reset()
         if (configuration != null) {
