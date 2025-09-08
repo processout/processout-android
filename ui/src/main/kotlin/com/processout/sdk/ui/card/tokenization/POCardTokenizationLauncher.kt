@@ -17,6 +17,7 @@ import com.processout.sdk.api.model.response.toResponse
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.ui.card.tokenization.delegate.CardTokenizationEligibilityRequest
 import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationDelegate
+import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationState
 import com.processout.sdk.ui.card.tokenization.delegate.toResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -115,6 +116,7 @@ class POCardTokenizationLauncher private constructor(
 
     init {
         dispatchEvents()
+        dispatchState()
         dispatchTokenizedCard()
         dispatchEligibility()
         dispatchPreferredScheme()
@@ -125,6 +127,12 @@ class POCardTokenizationLauncher private constructor(
         eventDispatcher.subscribe<POCardTokenizationEvent>(
             coroutineScope = scope
         ) { delegate.onEvent(it) }
+    }
+
+    private fun dispatchState() {
+        eventDispatcher.subscribe<POCardTokenizationState>(
+            coroutineScope = scope
+        ) { delegate.onStateChanged(it) }
     }
 
     private fun dispatchTokenizedCard() {

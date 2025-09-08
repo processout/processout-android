@@ -17,6 +17,11 @@ interface POCardTokenizationDelegate {
     fun onEvent(event: POCardTokenizationEvent) {}
 
     /**
+     * Invoked when the card tokenization state has changed.
+     */
+    fun onStateChanged(state: POCardTokenizationState) {}
+
+    /**
      * Allows to additionally process tokenized card before completion,
      * for example to authorize an invoice or assign a customer token.
      * Return the result from respective ProcessOut API if it was used.

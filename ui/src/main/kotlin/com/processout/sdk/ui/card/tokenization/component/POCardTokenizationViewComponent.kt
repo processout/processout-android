@@ -35,6 +35,7 @@ import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.Button
 import com.processout.sdk.ui.card.tokenization.delegate.CardTokenizationEligibilityRequest
 import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationDelegate
+import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationState
 import com.processout.sdk.ui.card.tokenization.delegate.toResponse
 import com.processout.sdk.ui.card.tokenization.screen.CardTokenizationContent
 import com.processout.sdk.ui.card.tokenization.screen.CardTokenizationScreen
@@ -168,6 +169,7 @@ class POCardTokenizationViewComponent private constructor(
 
     init {
         dispatchEvents()
+        dispatchState()
         dispatchTokenizedCard()
         dispatchEligibility()
         dispatchPreferredScheme()
@@ -181,6 +183,12 @@ class POCardTokenizationViewComponent private constructor(
         eventDispatcher.subscribe<POCardTokenizationEvent>(
             coroutineScope = scope
         ) { delegate.onEvent(it) }
+    }
+
+    private fun dispatchState() {
+        eventDispatcher.subscribe<POCardTokenizationState>(
+            coroutineScope = scope
+        ) { delegate.onStateChanged(it) }
     }
 
     private fun dispatchTokenizedCard() {

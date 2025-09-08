@@ -32,8 +32,10 @@ import com.processout.sdk.ui.card.tokenization.delegate.CardTokenizationEligibil
 import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationEligibility
 import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationEligibility.Eligible
 import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationEligibility.NotEligible
+import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationState
 import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.shared.extension.currentAppLocale
+import com.processout.sdk.ui.shared.extension.distinctUntilChangedByMultiple
 import com.processout.sdk.ui.shared.extension.findBy
 import com.processout.sdk.ui.shared.extension.orElse
 import com.processout.sdk.ui.shared.filter.CardExpirationInputFilter
@@ -108,6 +110,7 @@ internal class CardTokenizationInteractor(
             collectEligibility()
             collectPreferredScheme()
             initAddressFields()
+            dispatchState()
             POLogger.info("Card tokenization is started: waiting for user input.")
             dispatch(DidStart)
         }
@@ -1030,6 +1033,60 @@ internal class CardTokenizationInteractor(
 
     //endregion
 
+    //region Dispatch State
+
+    private fun dispatchState() {
+        interactorScope.launch {
+            _state.distinctUntilChangedByMultiple(
+                { it.iin() },
+                { it.issuerInformation },
+                { it.eligibility },
+                { it.preferredScheme() },
+                { it.countryCode() },
+                { it.submitAllowed },
+                { it.submitting }
+            ).collect {
+                val state = POCardTokenizationState(
+                    iin = it.iin(),
+                    issuerInformation = it.issuerInformation,
+                    eligibility = it.eligibility,
+                    preferredScheme = it.preferredScheme(),
+                    countryCode = it.countryCode(),
+                    submitAllowed = it.submitAllowed,
+                    submitting = it.submitting
+                )
+                eventDispatcher.send(event = state)
+            }
+        }
+    }
+
+    private fun CardTokenizationInteractorState.iin(): String? =
+        cardFields.find { it.id == CardFieldId.NUMBER }?.value?.text
+            ?.takeIf { it.length >= IIN_LENGTH }
+            ?.take(IIN_LENGTH)
+
+    private fun CardTokenizationInteractorState.preferredScheme(): String? =
+        preferredSchemeField.value.text.takeIf { it.isNotEmpty() }
+
+    private fun CardTokenizationInteractorState.countryCode(): String? =
+        addressFields.find { it.id == AddressFieldId.COUNTRY }
+            ?.let { field ->
+                val countryCode = addressValue(
+                    field = field,
+                    defaultValue = configuration.billingAddress.defaultAddress?.countryCode
+                )
+                countryCode.takeIf { it.isNotEmpty() }
+            }
+
+    //endregion
+
+    private fun dispatch(event: POCardTokenizationEvent) {
+        interactorScope.launch {
+            legacyEventDispatcher?.send(event)
+            eventDispatcher.send(event)
+        }
+    }
+
     private fun cancel() {
         _completion.update {
             Failure(
@@ -1038,13 +1095,6 @@ internal class CardTokenizationInteractor(
                     message = "Cancelled by the user with secondary cancel action."
                 ).also { POLogger.info("Cancelled: %s", it) }
             )
-        }
-    }
-
-    private fun dispatch(event: POCardTokenizationEvent) {
-        interactorScope.launch {
-            legacyEventDispatcher?.send(event)
-            eventDispatcher.send(event)
         }
     }
 
