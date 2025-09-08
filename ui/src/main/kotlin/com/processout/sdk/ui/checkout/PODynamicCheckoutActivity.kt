@@ -79,8 +79,7 @@ class PODynamicCheckoutActivity : POBaseTransparentPortraitActivity() {
         val cardTokenization: CardTokenizationViewModel by viewModels {
             CardTokenizationViewModel.Factory(
                 app = application,
-                configuration = cardTokenizationConfiguration(),
-                legacyEventDispatcher = null
+                configuration = cardTokenizationConfiguration()
             )
         }
         val nativeAlternativePayment: NativeAlternativePaymentViewModel by viewModels {

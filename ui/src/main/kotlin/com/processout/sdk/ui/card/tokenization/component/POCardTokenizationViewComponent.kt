@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.processout.sdk.ui.card.tokenization.component
 
 import android.content.Context
@@ -79,8 +81,7 @@ class POCardTokenizationViewComponent private constructor(
             val viewModel: CardTokenizationViewModel by from.viewModels {
                 CardTokenizationViewModel.Factory(
                     app = from.requireActivity().application,
-                    configuration = configuration,
-                    legacyEventDispatcher = null
+                    configuration = configuration
                 )
             }
             return POCardTokenizationViewComponent(
@@ -117,8 +118,7 @@ class POCardTokenizationViewComponent private constructor(
             val viewModel: CardTokenizationViewModel by from.viewModels {
                 CardTokenizationViewModel.Factory(
                     app = from.application,
-                    configuration = configuration,
-                    legacyEventDispatcher = null
+                    configuration = configuration
                 )
             }
             return POCardTokenizationViewComponent(
