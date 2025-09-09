@@ -27,7 +27,7 @@ import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckboxField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField2
-import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
+import com.processout.sdk.ui.core.component.field.radio.PORadioField
 import com.processout.sdk.ui.core.component.field.text.POTextField2
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
@@ -172,7 +172,7 @@ private fun Item(
         is Item.RadioField -> RadioField(
             state = item.state,
             onEvent = onEvent,
-            style = style.radioGroup,
+            style = style.radioField,
             modifier = modifier
         )
         is Item.DropdownField -> DropdownField(
@@ -262,24 +262,24 @@ private fun TextField(
 private fun RadioField(
     state: FieldState,
     onEvent: (CardTokenizationEvent) -> Unit,
-    style: PORadioGroup.Style,
+    style: PORadioField.Style,
     modifier: Modifier = Modifier
 ) {
-    PORadioGroup(
-        value = state.value.text,
+    PORadioField(
+        value = state.value,
         onValueChange = {
             if (state.enabled) {
                 onEvent(
                     FieldValueChanged(
                         id = state.id,
-                        value = TextFieldValue(text = it)
+                        value = it
                     )
                 )
             }
         },
         availableValues = state.availableValues ?: POImmutableList(emptyList()),
         modifier = modifier,
-        style = style
+        fieldStyle = style
     )
 }
 

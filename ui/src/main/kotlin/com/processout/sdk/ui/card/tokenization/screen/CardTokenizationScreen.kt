@@ -23,7 +23,7 @@ import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
-import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
+import com.processout.sdk.ui.core.component.field.radio.PORadioField
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
@@ -123,9 +123,9 @@ internal object CardTokenizationScreen {
         val title: POText.Style,
         val sectionTitle: POText.Style,
         val field: POField.Style,
-        val checkbox: POCheckbox.Style,
-        val radioGroup: PORadioGroup.Style,
+        val radioField: PORadioField.Style,
         val dropdownMenu: PODropdownField.MenuStyle,
+        val checkbox: POCheckbox.Style,
         val dialog: PODialog.Style,
         val errorMessage: POText.Style,
         val scanButton: POButton.Style,
@@ -146,15 +146,15 @@ internal object CardTokenizationScreen {
         field = custom?.field?.let {
             POField.custom(style = it)
         } ?: POField.default2,
-        checkbox = custom?.checkbox?.let {
-            POCheckbox.custom(style = it)
-        } ?: POCheckbox.default2,
-        radioGroup = custom?.radioButton?.let {
-            PORadioGroup.custom(style = it)
-        } ?: PORadioGroup.default,
+        radioField = custom?.radioField?.let {
+            PORadioField.custom(style = it)
+        } ?: PORadioField.default,
         dropdownMenu = custom?.dropdownMenu?.let {
             PODropdownField.custom(style = it)
         } ?: PODropdownField.defaultMenu2,
+        checkbox = custom?.checkbox?.let {
+            POCheckbox.custom(style = it)
+        } ?: POCheckbox.default2,
         dialog = custom?.dialog?.let {
             PODialog.custom(style = it)
         } ?: PODialog.default,
