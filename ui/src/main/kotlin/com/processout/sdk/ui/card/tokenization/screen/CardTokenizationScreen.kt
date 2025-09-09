@@ -14,6 +14,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.Action
@@ -23,13 +24,14 @@ import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
-import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
+import com.processout.sdk.ui.core.component.field.radio.PORadioField
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 import com.processout.sdk.ui.shared.extension.dpToPx
 
 @Composable
@@ -123,9 +125,9 @@ internal object CardTokenizationScreen {
         val title: POText.Style,
         val sectionTitle: POText.Style,
         val field: POField.Style,
-        val checkbox: POCheckbox.Style,
-        val radioGroup: PORadioGroup.Style,
+        val radioField: PORadioField.Style,
         val dropdownMenu: PODropdownField.MenuStyle,
+        val checkbox: POCheckbox.Style,
         val dialog: PODialog.Style,
         val errorMessage: POText.Style,
         val scanButton: POButton.Style,
@@ -139,34 +141,43 @@ internal object CardTokenizationScreen {
     fun style(custom: POCardTokenizationConfiguration.Style? = null) = Style(
         title = custom?.title?.let {
             POText.custom(style = it)
-        } ?: POText.title,
+        } ?: POText.Style(
+            color = colors.text.primary,
+            textStyle = typography.s20(FontWeight.Medium)
+        ),
         sectionTitle = custom?.sectionTitle?.let {
             POText.custom(style = it)
-        } ?: POText.label1,
+        } ?: POText.Style(
+            color = colors.text.primary,
+            textStyle = typography.s14(FontWeight.Medium)
+        ),
         field = custom?.field?.let {
             POField.custom(style = it)
-        } ?: POField.default,
-        checkbox = custom?.checkbox?.let {
-            POCheckbox.custom(style = it)
-        } ?: POCheckbox.default,
-        radioGroup = custom?.radioButton?.let {
-            PORadioGroup.custom(style = it)
-        } ?: PORadioGroup.default,
+        } ?: POField.default2,
+        radioField = custom?.radioField?.let {
+            PORadioField.custom(style = it)
+        } ?: PORadioField.default,
         dropdownMenu = custom?.dropdownMenu?.let {
             PODropdownField.custom(style = it)
-        } ?: PODropdownField.defaultMenu,
+        } ?: PODropdownField.defaultMenu2,
+        checkbox = custom?.checkbox?.let {
+            POCheckbox.custom(style = it)
+        } ?: POCheckbox.default2,
         dialog = custom?.dialog?.let {
             PODialog.custom(style = it)
         } ?: PODialog.default,
         errorMessage = custom?.errorMessage?.let {
             POText.custom(style = it)
-        } ?: POText.errorLabel,
+        } ?: POText.Style(
+            color = colors.text.error,
+            textStyle = typography.s14()
+        ),
         scanButton = custom?.scanButton?.let {
             POButton.custom(style = it)
-        } ?: POButton.secondary,
+        } ?: defaultScanButton,
         actionsContainer = custom?.actionsContainer?.let {
             POActionsContainer.custom(style = it)
-        } ?: POActionsContainer.default,
+        } ?: POActionsContainer.default2,
         backgroundColor = custom?.backgroundColorResId?.let {
             colorResource(id = it)
         } ?: colors.surface.default,
@@ -177,4 +188,20 @@ internal object CardTokenizationScreen {
             colorResource(id = it)
         } ?: colors.icon.disabled
     )
+
+    private val defaultScanButton: POButton.Style
+        @Composable get() = POButton.secondary2.let {
+            it.copy(
+                normal = it.normal.copy(
+                    text = it.normal.text.copy(
+                        textStyle = typography.s14(FontWeight.Medium)
+                    )
+                ),
+                disabled = it.disabled.copy(
+                    text = it.disabled.text.copy(
+                        textStyle = typography.s14(FontWeight.Medium)
+                    )
+                )
+            )
+        }
 }

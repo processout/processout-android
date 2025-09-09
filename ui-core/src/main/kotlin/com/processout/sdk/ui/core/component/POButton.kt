@@ -355,9 +355,9 @@ object POButton {
                 normal = StateStyle(
                     text = POText.Style(
                         color = colors.text.primary,
-                        textStyle = typography.button
+                        textStyle = typography.s15(FontWeight.Medium)
                     ),
-                    shape = shapes.roundedCornersSmall,
+                    shape = shapes.roundedCorners6,
                     border = POBorderStroke(width = 0.dp, color = Color.Transparent),
                     backgroundColor = Color.Transparent,
                     elevation = 0.dp
@@ -365,9 +365,9 @@ object POButton {
                 disabled = StateStyle(
                     text = POText.Style(
                         color = colors.text.onButtonDisabled,
-                        textStyle = typography.button
+                        textStyle = typography.s15(FontWeight.Medium)
                     ),
-                    shape = shapes.roundedCornersSmall,
+                    shape = shapes.roundedCorners6,
                     border = POBorderStroke(width = 0.dp, color = Color.Transparent),
                     backgroundColor = colors.button.ghostBackgroundDisabled,
                     elevation = 0.dp
@@ -382,15 +382,15 @@ object POButton {
         }
 
     val ghostEqualPadding: Style
-        @Composable get() = with(ghost) {
-            copy(
-                normal = normal.copy(
-                    paddingHorizontal = spacing.small,
-                    paddingVertical = spacing.small
+        @Composable get() = ghost.let {
+            it.copy(
+                normal = it.normal.copy(
+                    paddingHorizontal = spacing.space8,
+                    paddingVertical = spacing.space8
                 ),
-                disabled = disabled.copy(
-                    paddingHorizontal = spacing.small,
-                    paddingVertical = spacing.small
+                disabled = it.disabled.copy(
+                    paddingHorizontal = spacing.space8,
+                    paddingVertical = spacing.space8
                 )
             )
         }

@@ -18,21 +18,25 @@ import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.Item
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.Section
+import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.SectionId.BILLING_ADDRESS
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.SectionId.CARD_INFORMATION
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.SectionId.FUTURE_PAYMENTS
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.SectionId.PREFERRED_SCHEME
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
+import com.processout.sdk.ui.core.component.field.checkbox.POCheckboxField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
-import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
-import com.processout.sdk.ui.core.component.field.text.POTextField
+import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField2
+import com.processout.sdk.ui.core.component.field.radio.PORadioField
+import com.processout.sdk.ui.core.component.field.text.POTextField2
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.shared.component.rememberLifecycleEvent
+import com.processout.sdk.ui.shared.extension.conditional
 import com.processout.sdk.ui.shared.state.FieldState
 
 @Composable
@@ -98,7 +102,12 @@ private fun Section(
         else -> spacing.extraLarge
     }
     Column(
-        modifier = Modifier.padding(top = paddingTop),
+        modifier = Modifier
+            .padding(top = paddingTop)
+            .conditional(
+                condition = section.id == BILLING_ADDRESS,
+                modifier = { animateContentSize() }
+            ),
         verticalArrangement = Arrangement.spacedBy(spacing.small)
     ) {
         section.title?.let {
@@ -170,7 +179,7 @@ private fun Item(
         is Item.RadioField -> RadioField(
             state = item.state,
             onEvent = onEvent,
-            style = style.radioGroup,
+            style = style.radioField,
             modifier = modifier
         )
         is Item.DropdownField -> DropdownField(
@@ -215,7 +224,7 @@ private fun TextField(
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
-    POTextField(
+    POTextField2(
         value = state.value,
         onValueChange = {
             onEvent(
@@ -225,7 +234,8 @@ private fun TextField(
                 )
             )
         },
-        modifier = modifier
+        modifier = modifier,
+        textFieldModifier = Modifier
             .focusRequester(focusRequester)
             .onFocusChanged {
                 onEvent(
@@ -235,11 +245,11 @@ private fun TextField(
                     )
                 )
             },
-        style = style,
+        fieldStyle = style,
         enabled = state.enabled,
         isError = state.isError,
         forceTextDirectionLtr = state.forceTextDirectionLtr,
-        placeholder = state.placeholder,
+        label = state.label,
         trailingIcon = { state.iconResId?.let { AnimatedFieldIcon(id = it) } },
         visualTransformation = state.visualTransformation,
         keyboardOptions = state.keyboardOptions,
@@ -259,24 +269,24 @@ private fun TextField(
 private fun RadioField(
     state: FieldState,
     onEvent: (CardTokenizationEvent) -> Unit,
-    style: PORadioGroup.Style,
+    style: PORadioField.Style,
     modifier: Modifier = Modifier
 ) {
-    PORadioGroup(
-        value = state.value.text,
+    PORadioField(
+        value = state.value,
         onValueChange = {
             if (state.enabled) {
                 onEvent(
                     FieldValueChanged(
                         id = state.id,
-                        value = TextFieldValue(text = it)
+                        value = it
                     )
                 )
             }
         },
         availableValues = state.availableValues ?: POImmutableList(emptyList()),
         modifier = modifier,
-        style = style
+        fieldStyle = style
     )
 }
 
@@ -288,7 +298,7 @@ private fun DropdownField(
     menuStyle: PODropdownField.MenuStyle,
     modifier: Modifier = Modifier
 ) {
-    PODropdownField(
+    PODropdownField2(
         value = state.value,
         onValueChange = {
             onEvent(
@@ -299,7 +309,8 @@ private fun DropdownField(
             )
         },
         availableValues = state.availableValues ?: POImmutableList(emptyList()),
-        modifier = modifier
+        modifier = modifier,
+        textFieldModifier = Modifier
             .onFocusChanged {
                 onEvent(
                     FieldFocusChanged(
@@ -311,8 +322,7 @@ private fun DropdownField(
         fieldStyle = fieldStyle,
         menuStyle = menuStyle,
         enabled = state.enabled,
-        isError = state.isError,
-        placeholder = state.placeholder
+        isError = state.isError
     )
 }
 
@@ -323,7 +333,7 @@ private fun CheckboxField(
     style: POCheckbox.Style,
     modifier: Modifier = Modifier
 ) {
-    POCheckbox(
+    POCheckboxField(
         text = state.label ?: String(),
         checked = state.value.text.toBooleanStrictOrNull() ?: false,
         onCheckedChange = {
@@ -337,7 +347,7 @@ private fun CheckboxField(
             }
         },
         modifier = modifier,
-        style = style,
+        checkboxStyle = style,
         isError = state.isError
     )
 }

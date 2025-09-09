@@ -43,6 +43,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -363,12 +364,15 @@ internal object CardScannerScreen {
     fun style(custom: POCardScannerConfiguration.Style? = null) = Style(
         title = custom?.title?.let {
             POText.custom(style = it)
-        } ?: POText.body1,
+        } ?: POText.Style(
+            color = colors.text.primary,
+            textStyle = typography.s16(FontWeight.Medium)
+        ),
         description = custom?.description?.let {
             POText.custom(style = it)
         } ?: POText.Style(
             color = colors.text.muted,
-            textStyle = typography.body2
+            textStyle = typography.s14()
         ),
         cameraPreview = custom?.cameraPreview?.custom() ?: defaultCameraPreview,
         card = custom?.card?.custom() ?: defaultCard,
@@ -377,7 +381,7 @@ internal object CardScannerScreen {
         } ?: POButton.ghostEqualPadding,
         cancelButton = custom?.cancelButton?.let {
             POButton.custom(style = it)
-        } ?: POButton.secondary,
+        } ?: defaultCancelButton,
         dialog = custom?.dialog?.let {
             PODialog.custom(style = it)
         } ?: PODialog.default,
@@ -435,6 +439,22 @@ internal object CardScannerScreen {
             ),
             borderRadius = border.radiusDp.dp
         )
+
+    private val defaultCancelButton: POButton.Style
+        @Composable get() = POButton.secondary2.let {
+            it.copy(
+                normal = it.normal.copy(
+                    text = it.normal.text.copy(
+                        textStyle = typography.s14(FontWeight.Medium)
+                    )
+                ),
+                disabled = it.disabled.copy(
+                    text = it.disabled.text.copy(
+                        textStyle = typography.s14(FontWeight.Medium)
+                    )
+                )
+            )
+        }
 
     /** Height to width ratio of a card by ISO/IEC 7810 standard. */
     val CardHeightToWidthRatio = 0.63f

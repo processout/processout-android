@@ -30,7 +30,7 @@ import kotlinx.parcelize.Parcelize
  * @param[cancelButton] Cancel button configuration. Use _null_ to hide.
  * @param[bottomSheet] Specifies bottom sheet configuration. By default is [WrapContent] and non-expandable.
  * @param[metadata] Metadata related to the card.
- * @param[style] Allows to customize the look and feel.
+ * @param[style] Custom style.
  */
 @Parcelize
 data class POCardTokenizationConfiguration(
@@ -181,15 +181,17 @@ data class POCardTokenizationConfiguration(
     ) : Parcelable
 
     /**
-     * Allows to customize the look and feel.
+     * Custom style.
      *
      * @param[title] Title style.
      * @param[sectionTitle] Section title style.
      * @param[field] Field style.
-     * @param[checkbox] Checkbox style.
+     * @param[radioField] Radio field style.
      * @param[dropdownMenu] Dropdown menu style.
+     * @param[checkbox] Checkbox style.
      * @param[dialog] Dialog style.
      * @param[errorMessage] Error message style.
+     * @param[scanButton] Scan button style.
      * @param[actionsContainer] Style of action buttons and their container.
      * @param[backgroundColorResId] Color resource ID for background.
      * @param[dividerColorResId] Color resource ID for title divider.
@@ -200,9 +202,9 @@ data class POCardTokenizationConfiguration(
         val title: POTextStyle? = null,
         val sectionTitle: POTextStyle? = null,
         val field: POFieldStyle? = null,
-        val checkbox: POCheckboxStyle? = null,
-        val radioButton: PORadioButtonStyle? = null,
+        val radioField: PORadioFieldStyle? = null,
         val dropdownMenu: PODropdownMenuStyle? = null,
+        val checkbox: POCheckboxStyle? = null,
         val dialog: PODialogStyle? = null,
         val errorMessage: POTextStyle? = null,
         val scanButton: POButtonStyle? = null,
@@ -213,5 +215,57 @@ data class POCardTokenizationConfiguration(
         val dividerColorResId: Int? = null,
         @ColorRes
         val dragHandleColorResId: Int? = null
-    ) : Parcelable
+    ) : Parcelable {
+
+        /**
+         * Custom style.
+         *
+         * @param[title] Title style.
+         * @param[sectionTitle] Section title style.
+         * @param[field] Field style.
+         * @param[checkbox] Checkbox style.
+         * @param[radioButton] __Deprecated__: not used. Radio button style.
+         * @param[dropdownMenu] Dropdown menu style.
+         * @param[dialog] Dialog style.
+         * @param[errorMessage] Error message style.
+         * @param[scanButton] Scan button style.
+         * @param[actionsContainer] Style of action buttons and their container.
+         * @param[backgroundColorResId] Color resource ID for background.
+         * @param[dividerColorResId] Color resource ID for title divider.
+         * @param[dragHandleColorResId] Color resource ID for bottom sheet drag handle.
+         */
+        @Deprecated(message = "Use alternative constructor.")
+        constructor(
+            title: POTextStyle? = null,
+            sectionTitle: POTextStyle? = null,
+            field: POFieldStyle? = null,
+            checkbox: POCheckboxStyle? = null,
+            radioButton: PORadioButtonStyle? = null,
+            dropdownMenu: PODropdownMenuStyle? = null,
+            dialog: PODialogStyle? = null,
+            errorMessage: POTextStyle? = null,
+            scanButton: POButtonStyle? = null,
+            actionsContainer: POActionsContainerStyle? = null,
+            @ColorRes
+            backgroundColorResId: Int? = null,
+            @ColorRes
+            dividerColorResId: Int? = null,
+            @ColorRes
+            dragHandleColorResId: Int? = null
+        ) : this(
+            title = title,
+            sectionTitle = sectionTitle,
+            field = field,
+            radioField = null,
+            dropdownMenu = dropdownMenu,
+            checkbox = checkbox,
+            dialog = dialog,
+            errorMessage = errorMessage,
+            scanButton = scanButton,
+            actionsContainer = actionsContainer,
+            backgroundColorResId = backgroundColorResId,
+            dividerColorResId = dividerColorResId,
+            dragHandleColorResId = dragHandleColorResId
+        )
+    }
 }

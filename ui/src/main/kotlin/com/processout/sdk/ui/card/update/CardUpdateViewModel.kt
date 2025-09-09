@@ -150,7 +150,7 @@ internal class CardUpdateViewModel private constructor(
 
     private fun cvcField() = FieldState(
         id = CardFieldId.CVC,
-        placeholder = app.getString(R.string.po_card_update_cvc),
+        label = app.getString(R.string.po_card_update_cvc),
         forceTextDirectionLtr = true,
         iconResId = com.processout.sdk.ui.R.drawable.po_card_back,
         inputFilter = CardSecurityCodeInputFilter(scheme = configuration.cardInformation?.scheme),

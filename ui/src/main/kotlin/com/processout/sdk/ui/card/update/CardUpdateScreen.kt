@@ -17,12 +17,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.card.update.CardUpdateEvent.*
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
-import com.processout.sdk.ui.core.component.field.text.POTextField
+import com.processout.sdk.ui.core.component.field.text.POTextField2
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
@@ -30,6 +31,7 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 import com.processout.sdk.ui.shared.component.rememberLifecycleEvent
 import com.processout.sdk.ui.shared.extension.dpToPx
 import com.processout.sdk.ui.shared.state.FieldState
@@ -67,7 +69,8 @@ internal fun CardUpdateScreen(
                 primary = state.primaryAction,
                 secondary = state.secondaryAction,
                 onEvent = onEvent,
-                style = style.actionsContainer,
+                containerStyle = style.actionsContainer,
+                confirmationDialogStyle = style.dialog,
                 modifier = Modifier.onGloballyPositioned {
                     bottomBarHeight = it.size.height
                 }
@@ -121,7 +124,7 @@ private fun Fields(
         val lifecycleEvent = rememberLifecycleEvent()
         fields.elements.forEach { state ->
             val focusRequester = remember { FocusRequester() }
-            POTextField(
+            POTextField2(
                 value = state.value,
                 onValueChange = {
                     if (state.enabled) {
@@ -133,8 +136,8 @@ private fun Fields(
                         )
                     }
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                textFieldModifier = Modifier
                     .focusRequester(focusRequester)
                     .onFocusChanged {
                         onEvent(
@@ -144,12 +147,12 @@ private fun Fields(
                             )
                         )
                     },
-                style = style,
+                fieldStyle = style,
                 enabled = state.enabled,
                 readOnly = !state.enabled,
                 isError = state.isError,
                 forceTextDirectionLtr = state.forceTextDirectionLtr,
-                placeholder = state.placeholder,
+                label = state.label,
                 trailingIcon = { state.iconResId?.let { AnimatedFieldIcon(id = it) } },
                 keyboardOptions = state.keyboardOptions,
                 keyboardActions = POField.keyboardActions(
@@ -182,7 +185,8 @@ private fun Actions(
     primary: POActionState,
     secondary: POActionState?,
     onEvent: (CardUpdateEvent) -> Unit,
-    style: POActionsContainer.Style,
+    containerStyle: POActionsContainer.Style,
+    confirmationDialogStyle: PODialog.Style,
     modifier: Modifier = Modifier
 ) {
     val actions = mutableListOf(primary)
@@ -190,10 +194,11 @@ private fun Actions(
     POActionsContainer(
         modifier = modifier,
         actions = POImmutableList(
-            if (style.axis == POAxis.Horizontal) actions.reversed() else actions
+            elements = if (containerStyle.axis == POAxis.Horizontal) actions.reversed() else actions
         ),
         onClick = { onEvent(Action(id = it)) },
-        containerStyle = style
+        containerStyle = containerStyle,
+        confirmationDialogStyle = confirmationDialogStyle
     )
 }
 
@@ -204,6 +209,7 @@ internal object CardUpdateScreen {
         val title: POText.Style,
         val field: POField.Style,
         val errorMessage: POText.Style,
+        val dialog: PODialog.Style,
         val actionsContainer: POActionsContainer.Style,
         val backgroundColor: Color,
         val dividerColor: Color,
@@ -214,16 +220,25 @@ internal object CardUpdateScreen {
     fun style(custom: POCardUpdateConfiguration.Style? = null) = Style(
         title = custom?.title?.let {
             POText.custom(style = it)
-        } ?: POText.title,
+        } ?: POText.Style(
+            color = colors.text.primary,
+            textStyle = typography.s20(FontWeight.Medium)
+        ),
         field = custom?.field?.let {
             POField.custom(style = it)
-        } ?: POField.default,
+        } ?: POField.default2,
         errorMessage = custom?.errorMessage?.let {
             POText.custom(style = it)
-        } ?: POText.errorLabel,
+        } ?: POText.Style(
+            color = colors.text.error,
+            textStyle = typography.s14()
+        ),
+        dialog = custom?.dialog?.let {
+            PODialog.custom(style = it)
+        } ?: PODialog.default,
         actionsContainer = custom?.actionsContainer?.let {
             POActionsContainer.custom(style = it)
-        } ?: POActionsContainer.default,
+        } ?: POActionsContainer.default2,
         backgroundColor = custom?.backgroundColorResId?.let {
             colorResource(id = it)
         } ?: colors.surface.default,
