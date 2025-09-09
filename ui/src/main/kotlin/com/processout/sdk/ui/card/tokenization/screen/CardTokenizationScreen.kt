@@ -148,7 +148,7 @@ internal object CardTokenizationScreen {
         } ?: POField.default2,
         checkbox = custom?.checkbox?.let {
             POCheckbox.custom(style = it)
-        } ?: POCheckbox.default,
+        } ?: POCheckbox.default2,
         radioGroup = custom?.radioButton?.let {
             PORadioGroup.custom(style = it)
         } ?: PORadioGroup.default,

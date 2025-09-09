@@ -24,6 +24,7 @@ import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.Se
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
+import com.processout.sdk.ui.core.component.field.checkbox.POCheckboxField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField2
 import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
@@ -325,7 +326,7 @@ private fun CheckboxField(
     style: POCheckbox.Style,
     modifier: Modifier = Modifier
 ) {
-    POCheckbox(
+    POCheckboxField(
         text = state.label ?: String(),
         checked = state.value.text.toBooleanStrictOrNull() ?: false,
         onCheckedChange = {
@@ -339,7 +340,7 @@ private fun CheckboxField(
             }
         },
         modifier = modifier,
-        style = style,
+        checkboxStyle = style,
         isError = state.isError
     )
 }
