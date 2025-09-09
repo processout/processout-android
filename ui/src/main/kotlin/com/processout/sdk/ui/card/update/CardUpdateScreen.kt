@@ -69,7 +69,8 @@ internal fun CardUpdateScreen(
                 primary = state.primaryAction,
                 secondary = state.secondaryAction,
                 onEvent = onEvent,
-                style = style.actionsContainer,
+                containerStyle = style.actionsContainer,
+                confirmationDialogStyle = style.dialog,
                 modifier = Modifier.onGloballyPositioned {
                     bottomBarHeight = it.size.height
                 }
@@ -184,7 +185,8 @@ private fun Actions(
     primary: POActionState,
     secondary: POActionState?,
     onEvent: (CardUpdateEvent) -> Unit,
-    style: POActionsContainer.Style,
+    containerStyle: POActionsContainer.Style,
+    confirmationDialogStyle: PODialog.Style,
     modifier: Modifier = Modifier
 ) {
     val actions = mutableListOf(primary)
@@ -192,10 +194,11 @@ private fun Actions(
     POActionsContainer(
         modifier = modifier,
         actions = POImmutableList(
-            if (style.axis == POAxis.Horizontal) actions.reversed() else actions
+            elements = if (containerStyle.axis == POAxis.Horizontal) actions.reversed() else actions
         ),
         onClick = { onEvent(Action(id = it)) },
-        containerStyle = style
+        containerStyle = containerStyle,
+        confirmationDialogStyle = confirmationDialogStyle
     )
 }
 
@@ -206,6 +209,7 @@ internal object CardUpdateScreen {
         val title: POText.Style,
         val field: POField.Style,
         val errorMessage: POText.Style,
+        val dialog: PODialog.Style,
         val actionsContainer: POActionsContainer.Style,
         val backgroundColor: Color,
         val dividerColor: Color,
@@ -229,6 +233,9 @@ internal object CardUpdateScreen {
             color = colors.text.error,
             textStyle = typography.s14()
         ),
+        dialog = custom?.dialog?.let {
+            PODialog.custom(style = it)
+        } ?: PODialog.default,
         actionsContainer = custom?.actionsContainer?.let {
             POActionsContainer.custom(style = it)
         } ?: POActionsContainer.default2,

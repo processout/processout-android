@@ -4,6 +4,7 @@ import android.os.Parcelable
 import androidx.annotation.ColorRes
 import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import com.processout.sdk.ui.core.style.POActionsContainerStyle
+import com.processout.sdk.ui.core.style.PODialogStyle
 import com.processout.sdk.ui.core.style.POFieldStyle
 import com.processout.sdk.ui.core.style.POTextStyle
 import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
@@ -164,6 +165,7 @@ data class POCardUpdateConfiguration(
      * @param[title] Title style.
      * @param[field] Field style.
      * @param[errorMessage] Error message style.
+     * @param[dialog] Dialog style.
      * @param[actionsContainer] Style of action buttons and their container.
      * @param[backgroundColorResId] Color resource ID for background.
      * @param[dividerColorResId] Color resource ID for title divider.
@@ -174,6 +176,7 @@ data class POCardUpdateConfiguration(
         val title: POTextStyle? = null,
         val field: POFieldStyle? = null,
         val errorMessage: POTextStyle? = null,
+        val dialog: PODialogStyle? = null,
         val actionsContainer: POActionsContainerStyle? = null,
         @ColorRes
         val backgroundColorResId: Int? = null,
