@@ -174,7 +174,7 @@ internal object CardTokenizationScreen {
         ),
         scanButton = custom?.scanButton?.let {
             POButton.custom(style = it)
-        } ?: POButton.secondary2,
+        } ?: defaultScanButton,
         actionsContainer = custom?.actionsContainer?.let {
             POActionsContainer.custom(style = it)
         } ?: POActionsContainer.default2,
@@ -188,4 +188,20 @@ internal object CardTokenizationScreen {
             colorResource(id = it)
         } ?: colors.icon.disabled
     )
+
+    private val defaultScanButton: POButton.Style
+        @Composable get() = POButton.secondary2.let {
+            it.copy(
+                normal = it.normal.copy(
+                    text = it.normal.text.copy(
+                        textStyle = typography.s14(FontWeight.Medium)
+                    )
+                ),
+                disabled = it.disabled.copy(
+                    text = it.disabled.text.copy(
+                        textStyle = typography.s14(FontWeight.Medium)
+                    )
+                )
+            )
+        }
 }
