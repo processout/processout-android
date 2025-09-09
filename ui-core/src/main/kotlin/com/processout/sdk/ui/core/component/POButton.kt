@@ -382,13 +382,13 @@ object POButton {
         }
 
     val ghostEqualPadding: Style
-        @Composable get() = with(ghost) {
-            copy(
-                normal = normal.copy(
+        @Composable get() = ghost.let {
+            it.copy(
+                normal = it.normal.copy(
                     paddingHorizontal = spacing.space8,
                     paddingVertical = spacing.space8
                 ),
-                disabled = disabled.copy(
+                disabled = it.disabled.copy(
                     paddingHorizontal = spacing.space8,
                     paddingVertical = spacing.space8
                 )
