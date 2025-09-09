@@ -17,6 +17,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.card.update.CardUpdateEvent.*
@@ -30,6 +31,7 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 import com.processout.sdk.ui.shared.component.rememberLifecycleEvent
 import com.processout.sdk.ui.shared.extension.dpToPx
 import com.processout.sdk.ui.shared.state.FieldState
@@ -214,16 +216,22 @@ internal object CardUpdateScreen {
     fun style(custom: POCardUpdateConfiguration.Style? = null) = Style(
         title = custom?.title?.let {
             POText.custom(style = it)
-        } ?: POText.title,
+        } ?: POText.Style(
+            color = colors.text.primary,
+            textStyle = typography.s20(FontWeight.Medium)
+        ),
         field = custom?.field?.let {
             POField.custom(style = it)
         } ?: POField.default2,
         errorMessage = custom?.errorMessage?.let {
             POText.custom(style = it)
-        } ?: POText.errorLabel,
+        } ?: POText.Style(
+            color = colors.text.error,
+            textStyle = typography.s14()
+        ),
         actionsContainer = custom?.actionsContainer?.let {
             POActionsContainer.custom(style = it)
-        } ?: POActionsContainer.default,
+        } ?: POActionsContainer.default2,
         backgroundColor = custom?.backgroundColorResId?.let {
             colorResource(id = it)
         } ?: colors.surface.default,
