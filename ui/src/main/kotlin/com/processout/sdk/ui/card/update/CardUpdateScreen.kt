@@ -22,7 +22,7 @@ import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.card.update.CardUpdateEvent.*
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
-import com.processout.sdk.ui.core.component.field.text.POTextField
+import com.processout.sdk.ui.core.component.field.text.POTextField2
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
@@ -121,7 +121,7 @@ private fun Fields(
         val lifecycleEvent = rememberLifecycleEvent()
         fields.elements.forEach { state ->
             val focusRequester = remember { FocusRequester() }
-            POTextField(
+            POTextField2(
                 value = state.value,
                 onValueChange = {
                     if (state.enabled) {
@@ -133,8 +133,8 @@ private fun Fields(
                         )
                     }
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                textFieldModifier = Modifier
                     .focusRequester(focusRequester)
                     .onFocusChanged {
                         onEvent(
@@ -144,12 +144,12 @@ private fun Fields(
                             )
                         )
                     },
-                style = style,
+                fieldStyle = style,
                 enabled = state.enabled,
                 readOnly = !state.enabled,
                 isError = state.isError,
                 forceTextDirectionLtr = state.forceTextDirectionLtr,
-                placeholder = state.placeholder,
+                label = state.label,
                 trailingIcon = { state.iconResId?.let { AnimatedFieldIcon(id = it) } },
                 keyboardOptions = state.keyboardOptions,
                 keyboardActions = POField.keyboardActions(
@@ -217,7 +217,7 @@ internal object CardUpdateScreen {
         } ?: POText.title,
         field = custom?.field?.let {
             POField.custom(style = it)
-        } ?: POField.default,
+        } ?: POField.default2,
         errorMessage = custom?.errorMessage?.let {
             POText.custom(style = it)
         } ?: POText.errorLabel,
