@@ -18,6 +18,7 @@ import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.Item
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.Section
+import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.SectionId.BILLING_ADDRESS
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.SectionId.CARD_INFORMATION
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.SectionId.FUTURE_PAYMENTS
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.SectionId.PREFERRED_SCHEME
@@ -35,6 +36,7 @@ import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.shared.component.rememberLifecycleEvent
+import com.processout.sdk.ui.shared.extension.conditional
 import com.processout.sdk.ui.shared.state.FieldState
 
 @Composable
@@ -100,7 +102,12 @@ private fun Section(
         else -> spacing.extraLarge
     }
     Column(
-        modifier = Modifier.padding(top = paddingTop),
+        modifier = Modifier
+            .padding(top = paddingTop)
+            .conditional(
+                condition = section.id == BILLING_ADDRESS,
+                modifier = { animateContentSize() }
+            ),
         verticalArrangement = Arrangement.spacedBy(spacing.small)
     ) {
         section.title?.let {
