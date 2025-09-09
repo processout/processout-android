@@ -171,10 +171,10 @@ internal object CardTokenizationScreen {
         } ?: POText.errorLabel,
         scanButton = custom?.scanButton?.let {
             POButton.custom(style = it)
-        } ?: POButton.secondary,
+        } ?: POButton.secondary2,
         actionsContainer = custom?.actionsContainer?.let {
             POActionsContainer.custom(style = it)
-        } ?: POActionsContainer.default,
+        } ?: POActionsContainer.default2,
         backgroundColor = custom?.backgroundColorResId?.let {
             colorResource(id = it)
         } ?: colors.surface.default,
