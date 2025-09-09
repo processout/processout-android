@@ -381,7 +381,7 @@ internal object CardScannerScreen {
         } ?: POButton.ghostEqualPadding,
         cancelButton = custom?.cancelButton?.let {
             POButton.custom(style = it)
-        } ?: POButton.secondary,
+        } ?: defaultCancelButton,
         dialog = custom?.dialog?.let {
             PODialog.custom(style = it)
         } ?: PODialog.default,
@@ -439,6 +439,22 @@ internal object CardScannerScreen {
             ),
             borderRadius = border.radiusDp.dp
         )
+
+    private val defaultCancelButton: POButton.Style
+        @Composable get() = POButton.secondary2.let {
+            it.copy(
+                normal = it.normal.copy(
+                    text = it.normal.text.copy(
+                        textStyle = typography.s14(FontWeight.Medium)
+                    )
+                ),
+                disabled = it.disabled.copy(
+                    text = it.disabled.text.copy(
+                        textStyle = typography.s14(FontWeight.Medium)
+                    )
+                )
+            )
+        }
 
     /** Height to width ratio of a card by ISO/IEC 7810 standard. */
     val CardHeightToWidthRatio = 0.63f
