@@ -14,6 +14,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.Action
@@ -30,6 +31,7 @@ import com.processout.sdk.ui.core.style.POAxis
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 import com.processout.sdk.ui.shared.extension.dpToPx
 
 @Composable
@@ -139,10 +141,16 @@ internal object CardTokenizationScreen {
     fun style(custom: POCardTokenizationConfiguration.Style? = null) = Style(
         title = custom?.title?.let {
             POText.custom(style = it)
-        } ?: POText.title,
+        } ?: POText.Style(
+            color = colors.text.primary,
+            textStyle = typography.s20(FontWeight.Medium)
+        ),
         sectionTitle = custom?.sectionTitle?.let {
             POText.custom(style = it)
-        } ?: POText.label1,
+        } ?: POText.Style(
+            color = colors.text.primary,
+            textStyle = typography.s15(FontWeight.Medium)
+        ),
         field = custom?.field?.let {
             POField.custom(style = it)
         } ?: POField.default2,
