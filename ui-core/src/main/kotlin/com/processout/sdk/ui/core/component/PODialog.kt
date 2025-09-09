@@ -182,35 +182,19 @@ object PODialog {
         )
 
     private val defaultButton: POButton.Style
-        @Composable get() = with(POButton.ghost) {
-            copy(
-                normal = normal.copy(
-                    text = POText.Style(
-                        color = colors.text.primary,
-                        textStyle = typography.s15(FontWeight.Medium)
-                    ),
-                    shape = shapes.roundedCorners6,
-                    paddingHorizontal = spacing.space16
-                ),
-                disabled = disabled.copy(
-                    text = POText.Style(
-                        color = colors.text.onButtonDisabled,
-                        textStyle = typography.s15(FontWeight.Medium)
-                    ),
-                    shape = shapes.roundedCorners6,
-                    paddingHorizontal = spacing.space16
-                )
+        @Composable get() = POButton.ghost.let {
+            it.copy(
+                normal = it.normal.copy(paddingHorizontal = spacing.space16),
+                disabled = it.disabled.copy(paddingHorizontal = spacing.space16)
             )
         }
 
     @Composable
-    fun custom(style: PODialogStyle) = with(style) {
-        Style(
-            title = POText.custom(style = title),
-            message = POText.custom(style = message),
-            confirmButton = POButton.custom(style = confirmButton),
-            dismissButton = POButton.custom(style = dismissButton),
-            backgroundColor = colorResource(id = backgroundColorResId)
-        )
-    }
+    fun custom(style: PODialogStyle) = Style(
+        title = POText.custom(style = style.title),
+        message = POText.custom(style = style.message),
+        confirmButton = POButton.custom(style = style.confirmButton),
+        dismissButton = POButton.custom(style = style.dismissButton),
+        backgroundColor = colorResource(id = style.backgroundColorResId)
+    )
 }
