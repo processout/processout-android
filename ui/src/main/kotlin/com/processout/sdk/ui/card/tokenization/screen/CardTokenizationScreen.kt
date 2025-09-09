@@ -149,7 +149,7 @@ internal object CardTokenizationScreen {
             POText.custom(style = it)
         } ?: POText.Style(
             color = colors.text.primary,
-            textStyle = typography.s15(FontWeight.Medium)
+            textStyle = typography.s14(FontWeight.Medium)
         ),
         field = custom?.field?.let {
             POField.custom(style = it)
@@ -168,7 +168,10 @@ internal object CardTokenizationScreen {
         } ?: PODialog.default,
         errorMessage = custom?.errorMessage?.let {
             POText.custom(style = it)
-        } ?: POText.errorLabel,
+        } ?: POText.Style(
+            color = colors.text.error,
+            textStyle = typography.s14()
+        ),
         scanButton = custom?.scanButton?.let {
             POButton.custom(style = it)
         } ?: POButton.secondary2,
