@@ -57,7 +57,7 @@ ext {
 
     kotlinxCoroutinesVersion = '1.10.2'
 
-    androidxCoreVersion = '1.17.0'
+    androidxCoreVersion = '1.16.0'
     androidxAppCompatVersion = '1.7.1'
     androidxConstraintLayoutVersion = '2.2.1'
     androidxActivityVersion = '1.10.1'
@@ -65,7 +65,7 @@ ext {
     androidxLifecycleVersion = '2.9.0'
     androidxRecyclerViewVersion = '1.4.0'
     androidxSwipeRefreshLayoutVersion = '1.1.0'
-    androidxBrowserVersion = '1.9.0'
+    androidxBrowserVersion = '1.8.0'
     androidxCameraVersion = '1.4.2'
 
     androidxComposeBOMVersion = '2025.04.00'
