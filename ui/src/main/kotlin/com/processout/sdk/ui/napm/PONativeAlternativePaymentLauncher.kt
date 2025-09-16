@@ -152,6 +152,17 @@ class PONativeAlternativePaymentLauncher private constructor(
             )
     }
 
+    private object ConfigurationCache {
+
+        var value: PONativeAlternativePaymentConfiguration? = null
+
+        fun remove(): PONativeAlternativePaymentConfiguration? {
+            val cached = value
+            value = null
+            return cached
+        }
+    }
+
     init {
         dispatchEvents()
         dispatchDefaultValues()
