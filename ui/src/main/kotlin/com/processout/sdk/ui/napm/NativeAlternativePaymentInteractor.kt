@@ -620,7 +620,7 @@ internal class NativeAlternativePaymentInteractor(
         stateValue: NextStepStateValue,
         redirectUrl: String
     ) {
-        val returnUrl = configuration.returnUrl
+        val returnUrl = configuration.redirect?.returnUrl
         if (returnUrl.isNullOrBlank()) {
             val failure = ProcessOutResult.Failure(
                 code = Generic(),

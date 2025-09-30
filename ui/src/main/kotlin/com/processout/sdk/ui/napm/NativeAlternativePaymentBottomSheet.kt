@@ -76,7 +76,8 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
                 flow = Flow.Authorization(
                     invoiceId = String(),
                     gatewayConfigurationId = String()
-                )
+                ),
+                redirect = null
             )
         alternativePaymentLauncher = POAlternativePaymentMethodCustomTabLauncher.create(
             from = this,
