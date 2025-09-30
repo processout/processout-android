@@ -119,7 +119,9 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
                         gatewayConfigurationId = uiModel.gatewayConfigurationId
                     ),
                     cancelButton = CancelButton(),
-                    returnUrl = Constants.RETURN_URL,
+                    redirect = RedirectConfiguration(
+                        returnUrl = Constants.RETURN_URL
+                    ),
                     paymentConfirmation = PaymentConfirmationConfiguration(
                         confirmButton = Button(),
                         cancelButton = CancelButton(disabledForSeconds = 3)
@@ -134,7 +136,10 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
                         customerTokenId = uiModel.customerTokenId
                     ),
                     cancelButton = CancelButton(),
-                    returnUrl = Constants.RETURN_URL,
+                    redirect = RedirectConfiguration(
+                        returnUrl = Constants.RETURN_URL,
+                        enableHeadlessMode = true
+                    ),
                     paymentConfirmation = PaymentConfirmationConfiguration(
                         confirmButton = Button(),
                         cancelButton = CancelButton(disabledForSeconds = 3)
@@ -155,7 +160,9 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
                         gatewayConfigurationId = uiModel.gatewayConfigurationId
                     ),
                     cancelButton = CancelButton(),
-                    returnUrl = Constants.RETURN_URL,
+                    redirect = RedirectConfiguration(
+                        returnUrl = Constants.RETURN_URL
+                    ),
                     paymentConfirmation = PaymentConfirmationConfiguration(
                         confirmButton = Button(),
                         cancelButton = CancelButton(disabledForSeconds = 3)
