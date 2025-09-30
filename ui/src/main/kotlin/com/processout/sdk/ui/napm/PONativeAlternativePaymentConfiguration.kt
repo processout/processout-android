@@ -280,6 +280,20 @@ data class PONativeAlternativePaymentConfiguration(
     ) : Parcelable
 
     /**
+     * Redirect configuration.
+     *
+     * @param[returnUrl] Deep link return URL. Required for the flows that include web redirect.
+     * @param[enableHeadlessMode] Enables headless mode.
+     * The web redirect will be handled directly when it's the first step in the flow,
+     * and if it's the only required step it will complete the flow without starting the bottom sheet.
+     */
+    @Parcelize
+    data class RedirectConfiguration(
+        val returnUrl: String,
+        val enableHeadlessMode: Boolean = false
+    ) : Parcelable
+
+    /**
      * Payment confirmation configuration.
      *
      * @param[timeoutSeconds] Amount of time (in seconds) to wait for final payment confirmation.
