@@ -7,7 +7,10 @@ import androidx.core.app.ActivityOptionsCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.processout.sdk.R
+import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.dispatcher.POEventDispatcher
+import com.processout.sdk.api.service.POCustomerTokensService
+import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.POUnit
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.ui.napm.delegate.v2.NativeAlternativePaymentDefaultValuesRequest
@@ -26,7 +29,9 @@ class PONativeAlternativePaymentLauncher private constructor(
     private val activityOptions: ActivityOptionsCompat,
     private val delegate: PONativeAlternativePaymentDelegate,
     private val callback: (ProcessOutActivityResult<POUnit>) -> Unit,
-    private val eventDispatcher: POEventDispatcher = POEventDispatcher.instance
+    private val eventDispatcher: POEventDispatcher = POEventDispatcher.instance,
+    private val invoicesService: POInvoicesService = ProcessOut.instance.invoices,
+    private val customerTokensService: POCustomerTokensService = ProcessOut.instance.customerTokens
 ) {
 
     companion object {
