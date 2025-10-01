@@ -15,6 +15,7 @@ import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.POUnit
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.toActivityResult
 import com.processout.sdk.ui.apm.POAlternativePaymentMethodCustomTabLauncher
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Authorization
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Tokenization
@@ -40,6 +41,10 @@ class PONativeAlternativePaymentLauncher private constructor(
 ) {
 
     private lateinit var customTabLauncher: POAlternativePaymentMethodCustomTabLauncher
+
+    private object ConfigurationCache {
+        var value: PONativeAlternativePaymentConfiguration? = null
+    }
 
     companion object {
         /**
@@ -201,17 +206,6 @@ class PONativeAlternativePaymentLauncher private constructor(
             )
     }
 
-    private object ConfigurationCache {
-
-        var value: PONativeAlternativePaymentConfiguration? = null
-
-        fun remove(): PONativeAlternativePaymentConfiguration? {
-            val cached = value
-            value = null
-            return cached
-        }
-    }
-
     init {
         dispatchEvents()
         dispatchDefaultValues()
@@ -281,5 +275,10 @@ class PONativeAlternativePaymentLauncher private constructor(
 
     private fun handleRedirect(result: ProcessOutResult<POAlternativePaymentMethodResponse>) {
         // TODO
+    }
+
+    private fun completeHeadlessMode(result: ProcessOutResult<POUnit>) {
+        ConfigurationCache.value = null
+        callback(result.toActivityResult())
     }
 }
