@@ -60,7 +60,7 @@ internal class CardTokenizationInteractor(
     private val cardsRepository: POCardsRepository,
     private val cardSchemeProvider: CardSchemeProvider,
     private val addressSpecificationProvider: AddressSpecificationProvider,
-    private val eventDispatcher: POEventDispatcher = POEventDispatcher
+    private val eventDispatcher: POEventDispatcher
 ) : BaseInteractor() {
 
     private companion object {

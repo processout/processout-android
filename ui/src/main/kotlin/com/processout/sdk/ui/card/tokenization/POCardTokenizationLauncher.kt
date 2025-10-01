@@ -30,7 +30,7 @@ class POCardTokenizationLauncher private constructor(
     private val launcher: ActivityResultLauncher<POCardTokenizationConfiguration>,
     private val activityOptions: ActivityOptionsCompat,
     private val delegate: POCardTokenizationDelegate,
-    private val eventDispatcher: POEventDispatcher = POEventDispatcher
+    private val eventDispatcher: POEventDispatcher = POEventDispatcher.instance
 ) {
 
     companion object {

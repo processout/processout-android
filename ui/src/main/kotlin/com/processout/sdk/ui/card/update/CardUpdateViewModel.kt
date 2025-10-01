@@ -58,7 +58,7 @@ internal class CardUpdateViewModel private constructor(
                 app = app,
                 configuration = configuration,
                 cardsRepository = ProcessOut.instance.cards,
-                eventDispatcher = POEventDispatcher,
+                eventDispatcher = POEventDispatcher.instance,
                 logAttributes = mapOf(POLogAttribute.CARD_ID to configuration.cardId)
             ) as T
     }

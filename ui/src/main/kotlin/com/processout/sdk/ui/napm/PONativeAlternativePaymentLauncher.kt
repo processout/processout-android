@@ -25,7 +25,7 @@ class PONativeAlternativePaymentLauncher private constructor(
     private val launcher: ActivityResultLauncher<PONativeAlternativePaymentConfiguration>,
     private val activityOptions: ActivityOptionsCompat,
     private val delegate: PONativeAlternativePaymentDelegate,
-    private val eventDispatcher: POEventDispatcher = POEventDispatcher
+    private val eventDispatcher: POEventDispatcher = POEventDispatcher.instance
 ) {
 
     companion object {

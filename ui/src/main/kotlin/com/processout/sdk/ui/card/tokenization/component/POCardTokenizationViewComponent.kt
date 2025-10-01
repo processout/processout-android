@@ -61,7 +61,7 @@ class POCardTokenizationViewComponent private constructor(
     private val cardScannerLauncher: POCardScannerLauncher,
     private val delegate: POCardTokenizationDelegate,
     private val callback: (ProcessOutResult<POCard>) -> Unit,
-    private val eventDispatcher: POEventDispatcher = POEventDispatcher
+    private val eventDispatcher: POEventDispatcher
 ) {
 
     private val scope = lifecycleOwner.lifecycleScope
@@ -78,10 +78,12 @@ class POCardTokenizationViewComponent private constructor(
             callback: (ProcessOutResult<POCard>) -> Unit
         ): POCardTokenizationViewComponent {
             val configuration = configuration.map()
+            val eventDispatcher = POEventDispatcher()
             val viewModel: CardTokenizationViewModel by from.viewModels {
                 CardTokenizationViewModel.Factory(
                     app = from.requireActivity().application,
-                    configuration = configuration
+                    configuration = configuration,
+                    eventDispatcher = eventDispatcher
                 )
             }
             return POCardTokenizationViewComponent(
@@ -100,7 +102,8 @@ class POCardTokenizationViewComponent private constructor(
                     }
                 ),
                 delegate = delegate,
-                callback = callback
+                callback = callback,
+                eventDispatcher = eventDispatcher
             )
         }
 
@@ -115,10 +118,12 @@ class POCardTokenizationViewComponent private constructor(
             callback: (ProcessOutResult<POCard>) -> Unit
         ): POCardTokenizationViewComponent {
             val configuration = configuration.map()
+            val eventDispatcher = POEventDispatcher()
             val viewModel: CardTokenizationViewModel by from.viewModels {
                 CardTokenizationViewModel.Factory(
                     app = from.application,
-                    configuration = configuration
+                    configuration = configuration,
+                    eventDispatcher = eventDispatcher
                 )
             }
             return POCardTokenizationViewComponent(
@@ -137,7 +142,8 @@ class POCardTokenizationViewComponent private constructor(
                     }
                 ),
                 delegate = delegate,
-                callback = callback
+                callback = callback,
+                eventDispatcher = eventDispatcher
             )
         }
 

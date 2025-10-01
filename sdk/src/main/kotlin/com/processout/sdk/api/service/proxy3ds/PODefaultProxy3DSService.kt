@@ -21,7 +21,7 @@ class PODefaultProxy3DSService(
 ) : POProxy3DSService {
 
     private val uuid = UUID.randomUUID()
-    private val eventDispatcher = POEventDispatcher
+    private val eventDispatcher = POEventDispatcher.instance
 
     private var authenticationCallback: ((ProcessOutResult<PO3DS2AuthenticationRequest>) -> Unit)? = null
     private var challengeCallback: ((ProcessOutResult<Boolean>) -> Unit)? = null

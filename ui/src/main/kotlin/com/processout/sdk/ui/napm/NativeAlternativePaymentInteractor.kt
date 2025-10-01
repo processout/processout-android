@@ -82,7 +82,7 @@ internal class NativeAlternativePaymentInteractor(
     private val barcodeBitmapProvider: BarcodeBitmapProvider,
     private val mediaStorageProvider: MediaStorageProvider,
     private val captureRetryStrategy: PORetryStrategy,
-    private val eventDispatcher: POEventDispatcher = POEventDispatcher,
+    private val eventDispatcher: POEventDispatcher = POEventDispatcher.instance,
     private var logAttributes: Map<String, String> = logAttributes(configuration.flow)
 ) : BaseInteractor() {
 
