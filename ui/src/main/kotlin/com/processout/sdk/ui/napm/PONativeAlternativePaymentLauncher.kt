@@ -9,10 +9,13 @@ import androidx.lifecycle.lifecycleScope
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.dispatcher.POEventDispatcher
+import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.service.POCustomerTokensService
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.POUnit
 import com.processout.sdk.core.ProcessOutActivityResult
+import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.ui.apm.POAlternativePaymentMethodCustomTabLauncher
 import com.processout.sdk.ui.napm.delegate.v2.NativeAlternativePaymentDefaultValuesRequest
 import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentDelegate
 import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent
@@ -34,6 +37,8 @@ class PONativeAlternativePaymentLauncher private constructor(
     private val customerTokensService: POCustomerTokensService = ProcessOut.instance.customerTokens
 ) {
 
+    private lateinit var customTabLauncher: POAlternativePaymentMethodCustomTabLauncher
+
     companion object {
         /**
          * Creates the launcher from Fragment.
@@ -52,7 +57,12 @@ class PONativeAlternativePaymentLauncher private constructor(
             activityOptions = createActivityOptions(from.requireContext()),
             delegate = delegate,
             callback = callback
-        )
+        ).apply {
+            customTabLauncher = POAlternativePaymentMethodCustomTabLauncher.create(
+                from = from,
+                callback = ::handleRedirect
+            )
+        }
 
         /**
          * Creates the launcher from Fragment.
@@ -74,7 +84,12 @@ class PONativeAlternativePaymentLauncher private constructor(
             activityOptions = createActivityOptions(from.requireContext()),
             delegate = object : PONativeAlternativePaymentDelegate {},
             callback = callback
-        )
+        ).apply {
+            customTabLauncher = POAlternativePaymentMethodCustomTabLauncher.create(
+                from = from,
+                callback = ::handleRedirect
+            )
+        }
 
         /**
          * Creates the launcher from Fragment.
@@ -93,7 +108,12 @@ class PONativeAlternativePaymentLauncher private constructor(
             activityOptions = createActivityOptions(from.requireContext()),
             delegate = object : PONativeAlternativePaymentDelegate {},
             callback = callback
-        )
+        ).apply {
+            customTabLauncher = POAlternativePaymentMethodCustomTabLauncher.create(
+                from = from,
+                callback = ::handleRedirect
+            )
+        }
 
         /**
          * Creates the launcher from Activity.
@@ -113,7 +133,12 @@ class PONativeAlternativePaymentLauncher private constructor(
             activityOptions = createActivityOptions(from),
             delegate = delegate,
             callback = callback
-        )
+        ).apply {
+            customTabLauncher = POAlternativePaymentMethodCustomTabLauncher.create(
+                from = from,
+                callback = ::handleRedirect
+            )
+        }
 
         /**
          * Creates the launcher from Activity.
@@ -136,7 +161,12 @@ class PONativeAlternativePaymentLauncher private constructor(
             activityOptions = createActivityOptions(from),
             delegate = object : PONativeAlternativePaymentDelegate {},
             callback = callback
-        )
+        ).apply {
+            customTabLauncher = POAlternativePaymentMethodCustomTabLauncher.create(
+                from = from,
+                callback = ::handleRedirect
+            )
+        }
 
         /**
          * Creates the launcher from Activity.
@@ -156,7 +186,12 @@ class PONativeAlternativePaymentLauncher private constructor(
             activityOptions = createActivityOptions(from),
             delegate = object : PONativeAlternativePaymentDelegate {},
             callback = callback
-        )
+        ).apply {
+            customTabLauncher = POAlternativePaymentMethodCustomTabLauncher.create(
+                from = from,
+                callback = ::handleRedirect
+            )
+        }
 
         private fun createActivityOptions(context: Context) =
             ActivityOptionsCompat.makeCustomAnimation(
@@ -205,5 +240,9 @@ class PONativeAlternativePaymentLauncher private constructor(
      */
     fun launch(configuration: PONativeAlternativePaymentConfiguration) {
         launcher.launch(configuration, activityOptions)
+    }
+
+    private fun handleRedirect(result: ProcessOutResult<POAlternativePaymentMethodResponse>) {
+        // TODO
     }
 }
