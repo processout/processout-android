@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
+import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.ui.card.tokenization.CardTokenizationInteractorState.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModelState.*
 import com.processout.sdk.ui.core.shared.image.PODrawableImage
@@ -40,7 +41,8 @@ internal class CardTokenizationViewModel private constructor(
 
     class Factory(
         private val app: Application,
-        private val configuration: POCardTokenizationConfiguration
+        private val configuration: POCardTokenizationConfiguration,
+        private val eventDispatcher: POEventDispatcher = POEventDispatcher.instance
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
@@ -52,7 +54,8 @@ internal class CardTokenizationViewModel private constructor(
                     configuration = configuration,
                     cardsRepository = ProcessOut.instance.cards,
                     cardSchemeProvider = CardSchemeProvider(),
-                    addressSpecificationProvider = AddressSpecificationProvider(app)
+                    addressSpecificationProvider = AddressSpecificationProvider(app),
+                    eventDispatcher = eventDispatcher
                 )
             ) as T
     }
