@@ -25,6 +25,7 @@ class PONativeAlternativePaymentLauncher private constructor(
     private val launcher: ActivityResultLauncher<PONativeAlternativePaymentConfiguration>,
     private val activityOptions: ActivityOptionsCompat,
     private val delegate: PONativeAlternativePaymentDelegate,
+    private val callback: (ProcessOutActivityResult<POUnit>) -> Unit,
     private val eventDispatcher: POEventDispatcher = POEventDispatcher.instance
 ) {
 
@@ -44,7 +45,8 @@ class PONativeAlternativePaymentLauncher private constructor(
                 callback
             ),
             activityOptions = createActivityOptions(from.requireContext()),
-            delegate = delegate
+            delegate = delegate,
+            callback = callback
         )
 
         /**
@@ -65,7 +67,8 @@ class PONativeAlternativePaymentLauncher private constructor(
                 callback
             ),
             activityOptions = createActivityOptions(from.requireContext()),
-            delegate = object : PONativeAlternativePaymentDelegate {}
+            delegate = object : PONativeAlternativePaymentDelegate {},
+            callback = callback
         )
 
         /**
@@ -83,7 +86,8 @@ class PONativeAlternativePaymentLauncher private constructor(
                 callback
             ),
             activityOptions = createActivityOptions(from.requireContext()),
-            delegate = object : PONativeAlternativePaymentDelegate {}
+            delegate = object : PONativeAlternativePaymentDelegate {},
+            callback = callback
         )
 
         /**
@@ -102,7 +106,8 @@ class PONativeAlternativePaymentLauncher private constructor(
                 callback
             ),
             activityOptions = createActivityOptions(from),
-            delegate = delegate
+            delegate = delegate,
+            callback = callback
         )
 
         /**
@@ -124,7 +129,8 @@ class PONativeAlternativePaymentLauncher private constructor(
                 callback
             ),
             activityOptions = createActivityOptions(from),
-            delegate = object : PONativeAlternativePaymentDelegate {}
+            delegate = object : PONativeAlternativePaymentDelegate {},
+            callback = callback
         )
 
         /**
@@ -143,7 +149,8 @@ class PONativeAlternativePaymentLauncher private constructor(
                 callback
             ),
             activityOptions = createActivityOptions(from),
-            delegate = object : PONativeAlternativePaymentDelegate {}
+            delegate = object : PONativeAlternativePaymentDelegate {},
+            callback = callback
         )
 
         private fun createActivityOptions(context: Context) =
