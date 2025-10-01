@@ -25,7 +25,7 @@ class POCardUpdateLauncher private constructor(
     private val launcher: ActivityResultLauncher<POCardUpdateConfiguration>,
     private val activityOptions: ActivityOptionsCompat,
     private val delegate: POCardUpdateDelegate,
-    private val eventDispatcher: POEventDispatcher = POEventDispatcher
+    private val eventDispatcher: POEventDispatcher = POEventDispatcher.instance
 ) {
 
     companion object {

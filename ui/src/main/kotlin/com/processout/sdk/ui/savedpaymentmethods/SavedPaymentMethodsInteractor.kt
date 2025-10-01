@@ -42,7 +42,7 @@ internal class SavedPaymentMethodsInteractor(
     private val configuration: POSavedPaymentMethodsConfiguration,
     private val invoicesService: POInvoicesService,
     private val customerTokensService: POCustomerTokensService,
-    private val eventDispatcher: POEventDispatcher = POEventDispatcher,
+    private val eventDispatcher: POEventDispatcher = POEventDispatcher.instance,
     private var logAttributes: Map<String, String> = logAttributes(
         invoiceId = configuration.invoiceRequest.invoiceId
     )

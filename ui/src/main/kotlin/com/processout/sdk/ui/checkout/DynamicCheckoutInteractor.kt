@@ -78,7 +78,7 @@ internal class DynamicCheckoutInteractor(
     private val googlePayService: POGooglePayService,
     private val cardTokenization: CardTokenizationViewModel,
     private val nativeAlternativePayment: NativeAlternativePaymentViewModel,
-    private val eventDispatcher: POEventDispatcher = POEventDispatcher,
+    private val eventDispatcher: POEventDispatcher = POEventDispatcher.instance,
     private var logAttributes: Map<String, String> = logAttributes(
         invoiceId = configuration.invoiceRequest.invoiceId
     )

@@ -9,7 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
-import com.processout.sdk.api.model.request.*
+import com.processout.sdk.api.model.request.POCardTokenizationPreferredSchemeRequest
 import com.processout.sdk.api.model.response.toResponse
 import com.processout.sdk.api.service.PO3DSService
 import com.processout.sdk.api.service.proxy3ds.POProxy3DSServiceRequest
@@ -24,7 +24,8 @@ import com.processout.sdk.ui.checkout.delegate.*
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentEvent
 import com.processout.sdk.ui.savedpaymentmethods.delegate.POSavedPaymentMethodsEvent
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * Launcher that starts [PODynamicCheckoutActivity] and provides the result.
@@ -37,7 +38,7 @@ class PODynamicCheckoutLauncher private constructor(
     private val activityOptions: ActivityOptionsCompat,
     private val threeDSService: PO3DSService,
     private val delegate: PODynamicCheckoutDelegate,
-    private val eventDispatcher: POEventDispatcher = POEventDispatcher
+    private val eventDispatcher: POEventDispatcher = POEventDispatcher.instance
 ) {
 
     companion object {

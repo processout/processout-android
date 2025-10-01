@@ -61,7 +61,7 @@ class POCardTokenizationViewComponent private constructor(
     private val cardScannerLauncher: POCardScannerLauncher,
     private val delegate: POCardTokenizationDelegate,
     private val callback: (ProcessOutResult<POCard>) -> Unit,
-    private val eventDispatcher: POEventDispatcher = POEventDispatcher
+    private val eventDispatcher: POEventDispatcher = POEventDispatcher.instance
 ) {
 
     private val scope = lifecycleOwner.lifecycleScope

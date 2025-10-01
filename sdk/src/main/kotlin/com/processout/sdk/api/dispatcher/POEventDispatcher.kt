@@ -12,7 +12,13 @@ import java.util.UUID
 
 /** @suppress */
 @ProcessOutInternalApi
-object POEventDispatcher {
+class POEventDispatcher {
+
+    companion object {
+        val instance: POEventDispatcher by lazy {
+            POEventDispatcher()
+        }
+    }
 
     interface Request {
         val uuid: UUID

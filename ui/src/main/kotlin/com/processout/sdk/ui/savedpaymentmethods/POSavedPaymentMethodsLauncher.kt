@@ -25,7 +25,7 @@ class POSavedPaymentMethodsLauncher private constructor(
     private val launcher: ActivityResultLauncher<POSavedPaymentMethodsConfiguration>,
     private val activityOptions: ActivityOptionsCompat,
     private val delegate: POSavedPaymentMethodsDelegate,
-    private val eventDispatcher: POEventDispatcher = POEventDispatcher
+    private val eventDispatcher: POEventDispatcher = POEventDispatcher.instance
 ) {
 
     companion object {
