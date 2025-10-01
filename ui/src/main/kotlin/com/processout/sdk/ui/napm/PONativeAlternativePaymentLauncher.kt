@@ -244,25 +244,38 @@ class PONativeAlternativePaymentLauncher private constructor(
         if (configuration.redirect?.enableHeadlessMode == true) {
             launchHeadlessMode(configuration)
         } else {
-            launcher.launch(configuration, activityOptions)
+            launchActivity(configuration)
         }
+    }
+
+    private fun launchActivity(configuration: PONativeAlternativePaymentConfiguration) {
+        launcher.launch(
+            input = configuration,
+            options = activityOptions
+        )
     }
 
     private fun launchHeadlessMode(configuration: PONativeAlternativePaymentConfiguration) {
         ConfigurationCache.value = configuration
         scope.launch {
             when (val flow = configuration.flow) {
-                is Authorization -> fetchAuthorizationDetails(flow)
-                is Tokenization -> fetchTokenizationDetails(flow)
+                is Authorization -> fetchAuthorizationDetails(flow, configuration)
+                is Tokenization -> fetchTokenizationDetails(flow, configuration)
             }
         }
     }
 
-    private suspend fun fetchAuthorizationDetails(flow: Authorization) {
+    private suspend fun fetchAuthorizationDetails(
+        flow: Authorization,
+        configuration: PONativeAlternativePaymentConfiguration
+    ) {
         // TODO
     }
 
-    private suspend fun fetchTokenizationDetails(flow: Tokenization) {
+    private suspend fun fetchTokenizationDetails(
+        flow: Tokenization,
+        configuration: PONativeAlternativePaymentConfiguration
+    ) {
         // TODO
     }
 
