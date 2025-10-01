@@ -16,6 +16,8 @@ import com.processout.sdk.core.POUnit
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.apm.POAlternativePaymentMethodCustomTabLauncher
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Authorization
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Tokenization
 import com.processout.sdk.ui.napm.delegate.v2.NativeAlternativePaymentDefaultValuesRequest
 import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentDelegate
 import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent
@@ -239,7 +241,29 @@ class PONativeAlternativePaymentLauncher private constructor(
      * Launches the activity.
      */
     fun launch(configuration: PONativeAlternativePaymentConfiguration) {
-        launcher.launch(configuration, activityOptions)
+        if (configuration.redirect?.enableHeadlessMode == true) {
+            launchHeadlessMode(configuration)
+        } else {
+            launcher.launch(configuration, activityOptions)
+        }
+    }
+
+    private fun launchHeadlessMode(configuration: PONativeAlternativePaymentConfiguration) {
+        ConfigurationCache.value = configuration
+        scope.launch {
+            when (val flow = configuration.flow) {
+                is Authorization -> fetchAuthorizationDetails(flow)
+                is Tokenization -> fetchTokenizationDetails(flow)
+            }
+        }
+    }
+
+    private suspend fun fetchAuthorizationDetails(flow: Authorization) {
+        // TODO
+    }
+
+    private suspend fun fetchTokenizationDetails(flow: Tokenization) {
+        // TODO
     }
 
     private fun handleRedirect(result: ProcessOutResult<POAlternativePaymentMethodResponse>) {
