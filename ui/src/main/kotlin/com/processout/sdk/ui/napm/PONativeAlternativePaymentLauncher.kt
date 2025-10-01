@@ -9,13 +9,15 @@ import androidx.lifecycle.lifecycleScope
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.dispatcher.POEventDispatcher
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentTokenizationRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentRedirect
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentState
 import com.processout.sdk.api.service.POCustomerTokensService
 import com.processout.sdk.api.service.POInvoicesService
-import com.processout.sdk.core.POUnit
-import com.processout.sdk.core.ProcessOutActivityResult
-import com.processout.sdk.core.ProcessOutResult
-import com.processout.sdk.core.toActivityResult
+import com.processout.sdk.core.*
+import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.apm.POAlternativePaymentMethodCustomTabLauncher
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Authorization
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Tokenization
@@ -263,11 +265,49 @@ class PONativeAlternativePaymentLauncher private constructor(
         flow: Authorization,
         configuration: PONativeAlternativePaymentConfiguration
     ) {
-        // TODO
+        val request = PONativeAlternativePaymentAuthorizationRequest(
+            invoiceId = flow.invoiceId,
+            gatewayConfigurationId = flow.gatewayConfigurationId,
+            source = flow.customerTokenId
+        )
+        invoicesService.authorize(request)
+            .onSuccess { response ->
+                handlePaymentState(
+                    state = response.state,
+                    redirect = response.redirect,
+                    configuration = configuration
+                )
+            }.onFailure { failure ->
+                POLogger.info("Failed to fetch authorization details: %s", failure)
+                completeHeadlessMode(result = failure)
+            }
     }
 
     private suspend fun fetchTokenizationDetails(
         flow: Tokenization,
+        configuration: PONativeAlternativePaymentConfiguration
+    ) {
+        val request = PONativeAlternativePaymentTokenizationRequest(
+            customerId = flow.customerId,
+            customerTokenId = flow.customerTokenId,
+            gatewayConfigurationId = flow.gatewayConfigurationId
+        )
+        customerTokensService.tokenize(request)
+            .onSuccess { response ->
+                handlePaymentState(
+                    state = response.state,
+                    redirect = response.redirect,
+                    configuration = configuration
+                )
+            }.onFailure { failure ->
+                POLogger.info("Failed to fetch tokenization details: %s", failure)
+                completeHeadlessMode(result = failure)
+            }
+    }
+
+    private fun handlePaymentState(
+        state: PONativeAlternativePaymentState,
+        redirect: PONativeAlternativePaymentRedirect?,
         configuration: PONativeAlternativePaymentConfiguration
     ) {
         // TODO
