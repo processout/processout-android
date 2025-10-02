@@ -1,19 +1,23 @@
 package com.processout.sdk.api.model.response.napm.v2
 
+import android.os.Parcelable
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.core.util.findBy
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import kotlinx.parcelize.IgnoredOnParcel
+import kotlinx.parcelize.Parcelize
 
 /**
  * Specifies an element that needs to be rendered on the UI during native alternative payment flow.
  */
-sealed class PONativeAlternativePaymentElement {
+sealed class PONativeAlternativePaymentElement : Parcelable {
 
     /**
      * A form element with the specified [parameterDefinitions].
      */
+    @Parcelize
     data class Form(
         val parameterDefinitions: List<Parameter>
     ) : PONativeAlternativePaymentElement() {
@@ -21,7 +25,7 @@ sealed class PONativeAlternativePaymentElement {
         /**
          * Payment parameter definition.
          */
-        sealed class Parameter {
+        sealed class Parameter : Parcelable {
 
             /** Parameter key. */
             abstract val key: String
@@ -41,6 +45,7 @@ sealed class PONativeAlternativePaymentElement {
              * @param[minLength] Optional minimum length.
              * @param[maxLength] Optional maximum length.
              */
+            @Parcelize
             @JsonClass(generateAdapter = true)
             data class Text(
                 override val key: String,
@@ -60,6 +65,7 @@ sealed class PONativeAlternativePaymentElement {
              * @param[required] Indicates whether the parameter is required.
              * @param[availableValues] Available values.
              */
+            @Parcelize
             @JsonClass(generateAdapter = true)
             data class SingleSelect(
                 override val key: String,
@@ -80,12 +86,13 @@ sealed class PONativeAlternativePaymentElement {
                  * @param[label] Value display label.
                  * @param[preselected] Indicates whether the value should be preselected by default.
                  */
+                @Parcelize
                 @JsonClass(generateAdapter = true)
                 data class AvailableValue(
                     val value: String,
                     val label: String,
                     val preselected: Boolean
-                )
+                ) : Parcelable
             }
 
             /**
@@ -95,6 +102,7 @@ sealed class PONativeAlternativePaymentElement {
              * @param[label] Parameter display label.
              * @param[required] Indicates whether the parameter is required.
              */
+            @Parcelize
             @JsonClass(generateAdapter = true)
             data class Bool(
                 override val key: String,
@@ -111,6 +119,7 @@ sealed class PONativeAlternativePaymentElement {
              * @param[minLength] Optional minimum length.
              * @param[maxLength] Optional maximum length.
              */
+            @Parcelize
             @JsonClass(generateAdapter = true)
             data class Digits(
                 override val key: String,
@@ -130,6 +139,7 @@ sealed class PONativeAlternativePaymentElement {
              * @param[required] Indicates whether the parameter is required.
              * @param[dialingCodes] Supported international dialing codes.
              */
+            @Parcelize
             @JsonClass(generateAdapter = true)
             data class PhoneNumber(
                 override val key: String,
@@ -146,12 +156,13 @@ sealed class PONativeAlternativePaymentElement {
                  * Corresponds to a two-letter ISO 3166-1 alpha-2 country code.
                  * @param[value] Dialing code value.
                  */
+                @Parcelize
                 @JsonClass(generateAdapter = true)
                 data class DialingCode(
                     @Json(name = "region_code")
                     val regionCode: String,
                     val value: String
-                )
+                ) : Parcelable
             }
 
             /**
@@ -161,6 +172,7 @@ sealed class PONativeAlternativePaymentElement {
              * @param[label] Parameter display label.
              * @param[required] Indicates whether the parameter is required.
              */
+            @Parcelize
             @JsonClass(generateAdapter = true)
             data class Email(
                 override val key: String,
@@ -177,6 +189,7 @@ sealed class PONativeAlternativePaymentElement {
              * @param[minLength] Optional minimum length.
              * @param[maxLength] Optional maximum length.
              */
+            @Parcelize
             @JsonClass(generateAdapter = true)
             data class Card(
                 override val key: String,
@@ -198,6 +211,7 @@ sealed class PONativeAlternativePaymentElement {
              * @param[minLength] Optional minimum length.
              * @param[maxLength] Optional maximum length.
              */
+            @Parcelize
             @JsonClass(generateAdapter = true)
             data class Otp(
                 override val key: String,
@@ -238,10 +252,16 @@ sealed class PONativeAlternativePaymentElement {
              * Placeholder that allows adding additional cases while staying backward compatible.
              * __Warning:__ Do not match this case directly, use _when-else_ instead.
              */
+            @Parcelize
             @ProcessOutInternalApi
             data object Unknown : Parameter() {
+                @IgnoredOnParcel
                 override val key = String()
+
+                @IgnoredOnParcel
                 override val label = String()
+
+                @IgnoredOnParcel
                 override val required = false
             }
         }
@@ -250,6 +270,7 @@ sealed class PONativeAlternativePaymentElement {
     /**
      * Specifies instruction for the customer, providing additional information and/or describing required actions.
      */
+    @Parcelize
     data class CustomerInstruction(
         val instruction: PONativeAlternativePaymentCustomerInstruction
     ) : PONativeAlternativePaymentElement()
@@ -260,6 +281,7 @@ sealed class PONativeAlternativePaymentElement {
      * @param[label] Optional group display label.
      * @param[instructions] Grouped instructions for the customer that provide additional information and/or describe required actions.
      */
+    @Parcelize
     data class CustomerInstructionGroup(
         val label: String?,
         val instructions: List<PONativeAlternativePaymentCustomerInstruction>
@@ -269,6 +291,7 @@ sealed class PONativeAlternativePaymentElement {
      * Placeholder that allows adding additional cases while staying backward compatible.
      * __Warning:__ Do not match this case directly, use _when-else_ instead.
      */
+    @Parcelize
     @ProcessOutInternalApi
     data object Unknown : PONativeAlternativePaymentElement()
 }
