@@ -11,14 +11,14 @@ import java.util.UUID
  * @param[application] Instance of the [Application].
  * @param[projectId] Project ID.
  * @param[debug] Enables debug mode. Default value is _false_. __Note:__ debug logs may contain sensitive data.
- * @param[enableTelemetry] Enables sending telemetry data to ProcessOut. Default value is _false_.
+ * @param[enableTelemetry] Enables sending telemetry data to ProcessOut. Default value is _true_.
  * @param[applicationInformation] Application information that helps ProcessOut to troubleshoot potential issues.
  */
 data class ProcessOutConfiguration(
     val application: Application,
     val projectId: String,
     val debug: Boolean = false,
-    val enableTelemetry: Boolean = false,
+    val enableTelemetry: Boolean = true,
     val applicationInformation: ApplicationInformation? = null
 ) {
 
