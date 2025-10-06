@@ -323,7 +323,13 @@ class PONativeAlternativePaymentLauncher private constructor(
         when (state) {
             NEXT_STEP_REQUIRED -> TODO()
             PENDING -> TODO()
-            SUCCESS -> TODO()
+            SUCCESS ->
+                if (configuration.success == null) {
+                    POLogger.info("Success: payment completed.")
+                    completeHeadlessMode(result = ProcessOutResult.Success(value = POUnit))
+                } else {
+                    launchActivity(configuration)
+                }
             UNKNOWN -> {
                 val failure = ProcessOutResult.Failure(
                     code = Internal(),
