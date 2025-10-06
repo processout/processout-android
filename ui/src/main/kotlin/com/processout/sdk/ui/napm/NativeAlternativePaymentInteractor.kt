@@ -159,6 +159,19 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private suspend fun fetchAuthorizationDetails(flow: Authorization) {
+        val initialResponse = flow.initialResponse
+        if (initialResponse != null) {
+            handlePaymentState(
+                stateValue = initNextStepStateValue(
+                    paymentMethod = initialResponse.paymentMethod,
+                    invoice = initialResponse.invoice
+                ),
+                paymentState = initialResponse.state,
+                elements = initialResponse.elements,
+                redirect = initialResponse.redirect
+            )
+            return
+        }
         val request = PONativeAlternativePaymentAuthorizationRequest(
             invoiceId = flow.invoiceId,
             gatewayConfigurationId = flow.gatewayConfigurationId,
@@ -182,6 +195,19 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private suspend fun fetchTokenizationDetails(flow: Tokenization) {
+        val initialResponse = flow.initialResponse
+        if (initialResponse != null) {
+            handlePaymentState(
+                stateValue = initNextStepStateValue(
+                    paymentMethod = initialResponse.paymentMethod,
+                    invoice = null
+                ),
+                paymentState = initialResponse.state,
+                elements = initialResponse.elements,
+                redirect = initialResponse.redirect
+            )
+            return
+        }
         val request = PONativeAlternativePaymentTokenizationRequest(
             customerId = flow.customerId,
             customerTokenId = flow.customerTokenId,
