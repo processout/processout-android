@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.app.ActivityOptionsCompat
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.processout.sdk.R
@@ -18,6 +19,7 @@ import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentS
 import com.processout.sdk.api.service.POCustomerTokensService
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.*
+import com.processout.sdk.core.POFailure.Code.Generic
 import com.processout.sdk.core.POFailure.Code.Internal
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.apm.POAlternativePaymentMethodCustomTabLauncher
@@ -321,7 +323,7 @@ class PONativeAlternativePaymentLauncher private constructor(
         configuration: PONativeAlternativePaymentConfiguration
     ) {
         when (state) {
-            NEXT_STEP_REQUIRED -> TODO()
+            NEXT_STEP_REQUIRED -> handleNextStep(redirect, configuration)
             PENDING -> launchActivity(configuration)
             SUCCESS ->
                 if (configuration.success != null) {
@@ -339,6 +341,30 @@ class PONativeAlternativePaymentLauncher private constructor(
                 completeHeadlessMode(result = failure)
             }
         }
+    }
+
+    private fun handleNextStep(
+        redirect: PONativeAlternativePaymentRedirect?,
+        configuration: PONativeAlternativePaymentConfiguration
+    ) {
+        if (redirect == null) {
+            launchActivity(configuration)
+            return
+        }
+        val returnUrl = configuration.redirect?.returnUrl
+        if (returnUrl.isNullOrBlank()) {
+            val failure = ProcessOutResult.Failure(
+                code = Generic(),
+                message = "Return URL is missing in configuration during redirect flow."
+            )
+            POLogger.warn(message = "Failed redirect: %s", failure)
+            completeHeadlessMode(result = failure)
+            return
+        }
+        customTabLauncher.launch(
+            uri = redirect.url.toUri(),
+            returnUrl = returnUrl
+        )
     }
 
     private fun handleRedirect(result: ProcessOutResult<POAlternativePaymentMethodResponse>) {
