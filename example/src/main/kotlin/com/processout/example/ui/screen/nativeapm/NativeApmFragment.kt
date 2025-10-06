@@ -143,7 +143,8 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
                     paymentConfirmation = PaymentConfirmationConfiguration(
                         confirmButton = Button(),
                         cancelButton = CancelButton(disabledForSeconds = 3)
-                    )
+                    ),
+                    success = null
                 )
             )
             AUTHORIZE_LEGACY -> launcherLegacy.launch(

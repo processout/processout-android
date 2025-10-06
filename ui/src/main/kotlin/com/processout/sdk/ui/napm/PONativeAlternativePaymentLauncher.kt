@@ -368,7 +368,21 @@ class PONativeAlternativePaymentLauncher private constructor(
     }
 
     private fun handleRedirect(result: ProcessOutResult<POAlternativePaymentMethodResponse>) {
-        // TODO
+        result.onSuccess {
+            val configuration = ConfigurationCache.value
+            if (configuration == null) {
+                // TODO - completeHeadlessMode
+                return
+            }
+            scope.launch {
+                when (val flow = configuration.flow) {
+                    is Authorization -> authorize(flow, configuration)
+                    is Tokenization -> tokenize(flow, configuration)
+                }
+            }
+        }.onFailure { failure ->
+            completeHeadlessMode(result = failure)
+        }
     }
 
     private fun completeHeadlessMode(result: ProcessOutResult<POUnit>) {
