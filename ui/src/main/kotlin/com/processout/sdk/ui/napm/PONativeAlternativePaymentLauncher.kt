@@ -14,9 +14,11 @@ import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentTo
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentRedirect
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentState
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentState.*
 import com.processout.sdk.api.service.POCustomerTokensService
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.*
+import com.processout.sdk.core.POFailure.Code.Internal
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.apm.POAlternativePaymentMethodCustomTabLauncher
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Authorization
@@ -318,7 +320,19 @@ class PONativeAlternativePaymentLauncher private constructor(
         redirect: PONativeAlternativePaymentRedirect?,
         configuration: PONativeAlternativePaymentConfiguration
     ) {
-        // TODO
+        when (state) {
+            NEXT_STEP_REQUIRED -> TODO()
+            PENDING -> TODO()
+            SUCCESS -> TODO()
+            UNKNOWN -> {
+                val failure = ProcessOutResult.Failure(
+                    code = Internal(),
+                    message = "Unsupported payment state."
+                )
+                POLogger.error(message = "%s", failure)
+                completeHeadlessMode(result = failure)
+            }
+        }
     }
 
     private fun handleRedirect(result: ProcessOutResult<POAlternativePaymentMethodResponse>) {
