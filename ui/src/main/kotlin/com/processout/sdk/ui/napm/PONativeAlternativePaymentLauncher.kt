@@ -272,10 +272,14 @@ class PONativeAlternativePaymentLauncher private constructor(
         )
         invoicesService.authorize(request)
             .onSuccess { response ->
+                val updatedConfiguration = configuration.copy(
+                    flow = flow.copy(initialResponse = response)
+                )
+                ConfigurationCache.value = updatedConfiguration
                 handlePaymentState(
                     state = response.state,
                     redirect = response.redirect,
-                    configuration = configuration
+                    configuration = updatedConfiguration
                 )
             }.onFailure { failure ->
                 POLogger.info("Failed to fetch authorization details: %s", failure)
@@ -294,10 +298,14 @@ class PONativeAlternativePaymentLauncher private constructor(
         )
         customerTokensService.tokenize(request)
             .onSuccess { response ->
+                val updatedConfiguration = configuration.copy(
+                    flow = flow.copy(initialResponse = response)
+                )
+                ConfigurationCache.value = updatedConfiguration
                 handlePaymentState(
                     state = response.state,
                     redirect = response.redirect,
-                    configuration = configuration
+                    configuration = updatedConfiguration
                 )
             }.onFailure { failure ->
                 POLogger.info("Failed to fetch tokenization details: %s", failure)
