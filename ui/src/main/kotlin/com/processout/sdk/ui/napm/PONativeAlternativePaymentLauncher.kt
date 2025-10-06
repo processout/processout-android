@@ -322,7 +322,7 @@ class PONativeAlternativePaymentLauncher private constructor(
     ) {
         when (state) {
             NEXT_STEP_REQUIRED -> TODO()
-            PENDING -> TODO()
+            PENDING -> launchActivity(configuration)
             SUCCESS ->
                 if (configuration.success == null) {
                     POLogger.info("Success: payment completed.")
