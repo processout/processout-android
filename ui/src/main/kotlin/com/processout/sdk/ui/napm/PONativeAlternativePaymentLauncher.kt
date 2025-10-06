@@ -259,13 +259,13 @@ class PONativeAlternativePaymentLauncher private constructor(
         ConfigurationCache.value = configuration
         scope.launch {
             when (val flow = configuration.flow) {
-                is Authorization -> fetchAuthorizationDetails(flow, configuration)
-                is Tokenization -> fetchTokenizationDetails(flow, configuration)
+                is Authorization -> authorize(flow, configuration)
+                is Tokenization -> tokenize(flow, configuration)
             }
         }
     }
 
-    private suspend fun fetchAuthorizationDetails(
+    private suspend fun authorize(
         flow: Authorization,
         configuration: PONativeAlternativePaymentConfiguration
     ) {
@@ -291,7 +291,7 @@ class PONativeAlternativePaymentLauncher private constructor(
             }
     }
 
-    private suspend fun fetchTokenizationDetails(
+    private suspend fun tokenize(
         flow: Tokenization,
         configuration: PONativeAlternativePaymentConfiguration
     ) {
