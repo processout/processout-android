@@ -100,8 +100,8 @@ internal fun NativeAlternativePaymentScreen(
         containerColor = style.backgroundColor,
         topBar = {
             Header(
-                logo = if (state is Loaded) state.logo else null,
-                title = if (state is Loaded) state.title else null,
+                logo = if (state is Loaded) state.header?.logo else null,
+                title = if (state is Loaded) state.header?.title else null,
                 titleStyle = style.title,
                 dividerColor = style.dividerColor,
                 dragHandleColor = style.dragHandleColor,
@@ -855,7 +855,7 @@ private fun Actions(
     modifier: Modifier = Modifier
 ) {
     var primary: POActionState? = null
-    var secondary: POActionState? = null
+    val secondary: POActionState?
     when (state) {
         is Loading -> secondary = state.secondaryAction
         is Loaded -> {
