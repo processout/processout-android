@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
+import com.processout.sdk.api.model.response.POImageResource
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.Invoice
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter.*
@@ -120,8 +121,10 @@ internal class NativeAlternativePaymentViewModel private constructor(
 
     private fun NextStep.map() = with(value) {
         NativeAlternativePaymentViewModelState.Loaded(
-            logo = paymentMethod.logo,
-            title = configuration.title ?: invoice?.priceTitle(),
+            header = header(
+                logo = paymentMethod.logo,
+                invoice = invoice
+            ),
             content = Content(
                 uuid = uuid,
                 stage = Stage.NextStep(
@@ -148,8 +151,10 @@ internal class NativeAlternativePaymentViewModel private constructor(
 
     private fun Pending.map() = with(value) {
         NativeAlternativePaymentViewModelState.Loaded(
-            logo = paymentMethod.logo,
-            title = configuration.title ?: invoice?.priceTitle(),
+            header = header(
+                logo = paymentMethod.logo,
+                invoice = invoice
+            ),
             content = Content(
                 uuid = uuid,
                 stage = Stage.Pending(
@@ -176,8 +181,10 @@ internal class NativeAlternativePaymentViewModel private constructor(
 
     private fun Completed.map() = with(value) {
         NativeAlternativePaymentViewModelState.Loaded(
-            logo = paymentMethod.logo,
-            title = configuration.title ?: invoice?.priceTitle(),
+            header = header(
+                logo = paymentMethod.logo,
+                invoice = invoice
+            ),
             content = Content(
                 uuid = uuid,
                 stage = Stage.Completed(
@@ -197,6 +204,16 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 }
             },
             secondaryAction = null
+        )
+    }
+
+    private fun header(
+        logo: POImageResource,
+        invoice: Invoice?
+    ): Header? = configuration.header?.let { header ->
+        Header(
+            logo = logo,
+            title = header.title ?: invoice?.priceTitle()
         )
     }
 

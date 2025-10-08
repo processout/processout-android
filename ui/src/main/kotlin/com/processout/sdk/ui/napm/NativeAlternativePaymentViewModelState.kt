@@ -22,14 +22,19 @@ internal sealed interface NativeAlternativePaymentViewModelState {
 
     @Immutable
     data class Loaded(
-        val logo: POImageResource,
-        val title: String?,
+        val header: Header?,
         val content: Content,
         val primaryAction: POActionState?,
         val secondaryAction: POActionState?
     ) : NativeAlternativePaymentViewModelState
 
     //endregion
+
+    @Immutable
+    data class Header(
+        val logo: POImageResource,
+        val title: String?
+    )
 
     @Immutable
     data class Content(
