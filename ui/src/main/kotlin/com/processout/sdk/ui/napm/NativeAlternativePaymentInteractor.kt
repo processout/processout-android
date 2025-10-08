@@ -38,7 +38,6 @@ import com.processout.sdk.core.POFailure.InvalidField
 import com.processout.sdk.core.POFailure.ValidationCode
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.fold
-import com.processout.sdk.core.logger.POLogAttribute
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
@@ -53,7 +52,6 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.PermissionRequest
 import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.Redirect
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
-import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Authorization
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Tokenization
 import com.processout.sdk.ui.napm.delegate.v2.NativeAlternativePaymentDefaultValuesRequest
@@ -82,24 +80,8 @@ internal class NativeAlternativePaymentInteractor(
     private val barcodeBitmapProvider: BarcodeBitmapProvider,
     private val mediaStorageProvider: MediaStorageProvider,
     private val captureRetryStrategy: PORetryStrategy,
-    private val eventDispatcher: POEventDispatcher = POEventDispatcher.instance,
-    private var logAttributes: Map<String, String> = logAttributes(configuration.flow)
+    private val eventDispatcher: POEventDispatcher = POEventDispatcher.instance
 ) : BaseInteractor() {
-
-    private companion object {
-        fun logAttributes(flow: Flow): Map<String, String> =
-            when (flow) {
-                is Authorization -> mapOf(
-                    POLogAttribute.INVOICE_ID to flow.invoiceId,
-                    POLogAttribute.GATEWAY_CONFIGURATION_ID to flow.gatewayConfigurationId
-                )
-                is Tokenization -> mapOf(
-                    POLogAttribute.CUSTOMER_ID to flow.customerId,
-                    POLogAttribute.CUSTOMER_TOKEN_ID to flow.customerTokenId,
-                    POLogAttribute.GATEWAY_CONFIGURATION_ID to flow.gatewayConfigurationId
-                )
-            }
-    }
 
     private val _completion = MutableStateFlow<NativeAlternativePaymentCompletion>(Awaiting)
     val completion = _completion.asStateFlow()
@@ -135,7 +117,6 @@ internal class NativeAlternativePaymentInteractor(
             return
         }
         this.configuration = configuration
-        logAttributes = logAttributes(configuration.flow)
         start()
     }
 
@@ -278,7 +259,7 @@ internal class NativeAlternativePaymentInteractor(
                 )
                 POLogger.error(
                     message = "%s", failure,
-                    attributes = logAttributes
+                    attributes = configuration.logAttributes
                 )
                 _completion.update { Failure(failure) }
             }
@@ -298,7 +279,7 @@ internal class NativeAlternativePaymentInteractor(
         if (parameters.isEmpty()) {
             POLogger.warn(
                 message = "Parameters is empty in response.",
-                attributes = logAttributes
+                attributes = configuration.logAttributes
             )
         }
         if (failWithUnknownParameter(parameters)) {
@@ -389,7 +370,7 @@ internal class NativeAlternativePaymentInteractor(
             )
             POLogger.error(
                 message = "Unexpected response: %s", failure,
-                attributes = logAttributes
+                attributes = configuration.logAttributes
             )
             _completion.update { Failure(failure) }
             return true
@@ -654,7 +635,7 @@ internal class NativeAlternativePaymentInteractor(
             )
             POLogger.warn(
                 message = "Failed redirect: %s", failure,
-                attributes = logAttributes
+                attributes = configuration.logAttributes
             )
             _completion.update { Failure(failure) }
             return
@@ -1284,7 +1265,10 @@ internal class NativeAlternativePaymentInteractor(
         interactorScope.launch {
             _completion.collect {
                 if (it is Failure) {
-                    POLogger.warn("%s", it.failure, attributes = logAttributes)
+                    POLogger.warn(
+                        message = "%s", it.failure,
+                        attributes = configuration.logAttributes
+                    )
                     dispatch(DidFail(it.failure, paymentState))
                 }
             }

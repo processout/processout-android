@@ -339,7 +339,10 @@ class PONativeAlternativePaymentLauncher private constructor(
                     code = Internal(),
                     message = "Unsupported payment state."
                 )
-                POLogger.error(message = "%s", failure)
+                POLogger.error(
+                    message = "%s", failure,
+                    attributes = configuration.logAttributes
+                )
                 completeHeadlessMode(result = failure)
             }
         }
@@ -359,7 +362,10 @@ class PONativeAlternativePaymentLauncher private constructor(
                 code = Generic(),
                 message = "Return URL is missing in configuration during redirect flow."
             )
-            POLogger.warn(message = "Failed headless redirect: %s", failure)
+            POLogger.warn(
+                message = "Failed headless redirect: %s", failure,
+                attributes = configuration.logAttributes
+            )
             completeHeadlessMode(result = failure)
             return
         }
@@ -370,8 +376,8 @@ class PONativeAlternativePaymentLauncher private constructor(
     }
 
     private fun handleRedirect(result: ProcessOutResult<POAlternativePaymentMethodResponse>) {
+        val configuration = ConfigurationCache.value
         result.onSuccess {
-            val configuration = ConfigurationCache.value
             if (configuration == null) {
                 val failure = ProcessOutResult.Failure(
                     code = Internal(),
@@ -388,7 +394,10 @@ class PONativeAlternativePaymentLauncher private constructor(
                 }
             }
         }.onFailure { failure ->
-            POLogger.warn(message = "Failed headless redirect: %s", failure)
+            POLogger.warn(
+                message = "Failed headless redirect: %s", failure,
+                attributes = configuration?.logAttributes
+            )
             completeHeadlessMode(result = failure)
         }
     }
