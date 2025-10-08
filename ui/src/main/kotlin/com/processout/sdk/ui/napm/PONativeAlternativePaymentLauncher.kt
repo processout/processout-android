@@ -28,6 +28,7 @@ import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.T
 import com.processout.sdk.ui.napm.delegate.v2.NativeAlternativePaymentDefaultValuesRequest
 import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentDelegate
 import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent
+import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent.DidFail
 import com.processout.sdk.ui.napm.delegate.v2.toResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -393,6 +394,20 @@ class PONativeAlternativePaymentLauncher private constructor(
     }
 
     private fun completeHeadlessMode(result: ProcessOutResult<POUnit>) {
+        result.onFailure { failure ->
+            scope.launch {
+                eventDispatcher.send(
+                    event = DidFail(
+                        failure = failure,
+                        paymentState = when (val flow = ConfigurationCache.value?.flow) {
+                            is Authorization -> flow.initialResponse?.state ?: UNKNOWN
+                            is Tokenization -> flow.initialResponse?.state ?: UNKNOWN
+                            null -> UNKNOWN
+                        }
+                    )
+                )
+            }
+        }
         ConfigurationCache.value = null
         callback(result.toActivityResult())
     }
