@@ -544,9 +544,8 @@ internal class NativeAlternativePaymentViewModel private constructor(
         InstructionGroup(
             label = label,
             instructions = POImmutableList(
-                instructions.mapNotNull {
-                    val mapped = it.map()
-                    if (mapped is InstructionElement) mapped else null
+                elements = instructions.mapNotNull {
+                    it.map() as? InstructionElement
                 }
             )
         )
