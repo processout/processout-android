@@ -256,6 +256,7 @@ class PONativeAlternativePaymentLauncher private constructor(
     }
 
     private fun launchHeadlessMode(configuration: PONativeAlternativePaymentConfiguration) {
+        POLogger.info("Starting native alternative payment in headless mode.")
         ConfigurationCache.value = configuration
         scope.launch {
             when (val flow = configuration.flow) {
@@ -386,6 +387,7 @@ class PONativeAlternativePaymentLauncher private constructor(
                 }
             }
         }.onFailure { failure ->
+            POLogger.warn(message = "Failed headless redirect: %s", failure)
             completeHeadlessMode(result = failure)
         }
     }
