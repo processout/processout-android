@@ -357,7 +357,7 @@ class PONativeAlternativePaymentLauncher private constructor(
                 code = Generic(),
                 message = "Return URL is missing in configuration during redirect flow."
             )
-            POLogger.warn(message = "Failed redirect: %s", failure)
+            POLogger.warn(message = "Failed headless redirect: %s", failure)
             completeHeadlessMode(result = failure)
             return
         }
@@ -371,7 +371,12 @@ class PONativeAlternativePaymentLauncher private constructor(
         result.onSuccess {
             val configuration = ConfigurationCache.value
             if (configuration == null) {
-                // TODO - completeHeadlessMode
+                val failure = ProcessOutResult.Failure(
+                    code = Internal(),
+                    message = "Configuration is not cached when handling a redirect result."
+                )
+                POLogger.error(message = "Failed headless redirect: %s", failure)
+                completeHeadlessMode(result = failure)
                 return
             }
             scope.launch {
