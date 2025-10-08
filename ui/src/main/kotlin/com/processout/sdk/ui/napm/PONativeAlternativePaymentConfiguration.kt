@@ -4,6 +4,8 @@ import android.os.Parcelable
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.IntRange
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentTokenizationResponse
 import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import com.processout.sdk.ui.core.style.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
@@ -26,7 +28,7 @@ import kotlinx.parcelize.Parcelize
  * displayed inline for parameters where user should select a single option (e.g. radio buttons).
  * Default value is _5_.
  * @param[barcode] Barcode configuration.
- * @param[returnUrl] Deep link return URL. Required for the flows that include web redirect.
+ * @param[redirect] Redirect configuration. Required for the flows that include web redirect.
  * @param[paymentConfirmation] Payment confirmation configuration.
  * @param[success] Success screen configuration. Pass _null_ to skip the success screen.
  * @param[bottomSheet] Bottom sheet configuration.
@@ -40,7 +42,7 @@ data class PONativeAlternativePaymentConfiguration(
     val cancelButton: CancelButton? = null,
     val inlineSingleSelectValuesLimit: Int = 5,
     val barcode: POBarcodeConfiguration = POBarcodeConfiguration(saveButton = POBarcodeConfiguration.Button()),
-    val returnUrl: String? = null,
+    val redirect: RedirectConfiguration? = null,
     val paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration(),
     val success: SuccessConfiguration? = SuccessConfiguration(),
     val bottomSheet: POBottomSheetConfiguration = POBottomSheetConfiguration(
@@ -65,7 +67,8 @@ data class PONativeAlternativePaymentConfiguration(
         data class Authorization(
             val invoiceId: String,
             val gatewayConfigurationId: String,
-            val customerTokenId: String? = null
+            val customerTokenId: String? = null,
+            internal val initialResponse: PONativeAlternativePaymentAuthorizationResponse? = null
         ) : Flow()
 
         /**
@@ -79,9 +82,58 @@ data class PONativeAlternativePaymentConfiguration(
         data class Tokenization(
             val customerId: String,
             val customerTokenId: String,
-            val gatewayConfigurationId: String
+            val gatewayConfigurationId: String,
+            internal val initialResponse: PONativeAlternativePaymentTokenizationResponse? = null
         ) : Flow()
     }
+
+    /**
+     * Native alternative payment configuration.
+     *
+     * @param[flow] Payment flow configuration.
+     * @param[title] Custom title.
+     * @param[submitButton] Submit button configuration.
+     * @param[cancelButton] Cancel button configuration. Use _null_ to hide, this is a default behaviour.
+     * @param[inlineSingleSelectValuesLimit] Defines the maximum number of options that will be
+     * displayed inline for parameters where user should select a single option (e.g. radio buttons).
+     * Default value is _5_.
+     * @param[barcode] Barcode configuration.
+     * @param[returnUrl] Deep link return URL. Required for the flows that include web redirect.
+     * @param[paymentConfirmation] Payment confirmation configuration.
+     * @param[success] Success screen configuration. Pass _null_ to skip the success screen.
+     * @param[bottomSheet] Bottom sheet configuration.
+     * @param[style] Custom style.
+     */
+    @Deprecated(message = "Use alternative constructor.")
+    constructor(
+        flow: Flow,
+        title: String? = null,
+        submitButton: Button = Button(),
+        cancelButton: CancelButton? = null,
+        inlineSingleSelectValuesLimit: Int = 5,
+        barcode: POBarcodeConfiguration = POBarcodeConfiguration(saveButton = POBarcodeConfiguration.Button()),
+        returnUrl: String? = null,
+        paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration(),
+        success: SuccessConfiguration? = SuccessConfiguration(),
+        bottomSheet: POBottomSheetConfiguration = POBottomSheetConfiguration(
+            height = WrapContent,
+            expandable = true
+        ),
+        style: Style? = null
+    ) : this(
+        flow = flow,
+        title = title,
+        submitButton = submitButton,
+        cancelButton = cancelButton,
+        inlineSingleSelectValuesLimit = inlineSingleSelectValuesLimit,
+        barcode = barcode,
+        redirect = if (!returnUrl.isNullOrBlank())
+            RedirectConfiguration(returnUrl = returnUrl) else null,
+        paymentConfirmation = paymentConfirmation,
+        success = success,
+        bottomSheet = bottomSheet,
+        style = style
+    )
 
     /**
      * Native alternative payment configuration.
@@ -125,6 +177,7 @@ data class PONativeAlternativePaymentConfiguration(
         cancelButton = cancelButton,
         inlineSingleSelectValuesLimit = inlineSingleSelectValuesLimit,
         barcode = barcode,
+        returnUrl = null,
         paymentConfirmation = paymentConfirmation,
         success = if (!skipSuccessScreen)
             SuccessConfiguration(message = successMessage) else null,
@@ -277,6 +330,20 @@ data class PONativeAlternativePaymentConfiguration(
         val backPressed: Boolean = true,
         val dragDown: Boolean = true,
         val touchOutside: Boolean = true
+    ) : Parcelable
+
+    /**
+     * Redirect configuration.
+     *
+     * @param[returnUrl] Deep link return URL. Required for the flows that include web redirect.
+     * @param[enableHeadlessMode] Enables headless mode.
+     * The web redirect will be handled directly when it's the first step in the flow,
+     * and if it's the only required step it will complete the flow without starting the bottom sheet.
+     */
+    @Parcelize
+    data class RedirectConfiguration(
+        val returnUrl: String,
+        val enableHeadlessMode: Boolean = false
     ) : Parcelable
 
     /**

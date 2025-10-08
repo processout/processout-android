@@ -49,8 +49,7 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.googlepay.POGooglePayCardTokenizationLauncher
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModel
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
-import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow
-import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.PaymentConfirmationConfiguration
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsLauncher
 import com.processout.sdk.ui.savedpaymentmethods.delegate.POSavedPaymentMethodsDelegate
 import com.processout.sdk.ui.savedpaymentmethods.delegate.POSavedPaymentMethodsEvent
@@ -134,6 +133,7 @@ class PODynamicCheckoutActivity : POBaseTransparentPortraitActivity() {
     }
 
     private fun nativeAlternativePaymentConfiguration(): PONativeAlternativePaymentConfiguration {
+        val returnUrl = configuration.alternativePayment.returnUrl
         val paymentConfirmation = configuration.alternativePayment.paymentConfirmation
         return PONativeAlternativePaymentConfiguration(
             flow = Flow.Authorization(
@@ -142,6 +142,8 @@ class PODynamicCheckoutActivity : POBaseTransparentPortraitActivity() {
             ),
             submitButton = configuration.submitButton.map(),
             cancelButton = configuration.cancelButton?.map(),
+            redirect = if (!returnUrl.isNullOrBlank())
+                RedirectConfiguration(returnUrl = returnUrl) else null,
             paymentConfirmation = PaymentConfirmationConfiguration(
                 timeoutSeconds = paymentConfirmation.timeoutSeconds,
                 confirmButton = paymentConfirmation.confirmButton?.map(),
