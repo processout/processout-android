@@ -21,9 +21,9 @@ import kotlinx.parcelize.Parcelize
  * Native alternative payment configuration.
  *
  * @param[flow] Payment flow configuration.
- * @param[title] Custom title.
+ * @param[header] Header configuration. Pass _null_ to hide.
  * @param[submitButton] Submit button configuration.
- * @param[cancelButton] Cancel button configuration. Use _null_ to hide, this is a default behaviour.
+ * @param[cancelButton] Cancel button configuration. Pass _null_ to hide, this is a default behaviour.
  * @param[inlineSingleSelectValuesLimit] Defines the maximum number of options that will be
  * displayed inline for parameters where user should select a single option (e.g. radio buttons).
  * Default value is _5_.
@@ -37,7 +37,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class PONativeAlternativePaymentConfiguration(
     val flow: Flow,
-    val title: String? = null,
+    val header: Header? = Header(),
     val submitButton: Button = Button(),
     val cancelButton: CancelButton? = null,
     val inlineSingleSelectValuesLimit: Int = 5,
@@ -93,7 +93,7 @@ data class PONativeAlternativePaymentConfiguration(
      * @param[flow] Payment flow configuration.
      * @param[title] Custom title.
      * @param[submitButton] Submit button configuration.
-     * @param[cancelButton] Cancel button configuration. Use _null_ to hide, this is a default behaviour.
+     * @param[cancelButton] Cancel button configuration. Pass _null_ to hide, this is a default behaviour.
      * @param[inlineSingleSelectValuesLimit] Defines the maximum number of options that will be
      * displayed inline for parameters where user should select a single option (e.g. radio buttons).
      * Default value is _5_.
@@ -122,7 +122,7 @@ data class PONativeAlternativePaymentConfiguration(
         style: Style? = null
     ) : this(
         flow = flow,
-        title = title,
+        header = Header(title = title),
         submitButton = submitButton,
         cancelButton = cancelButton,
         inlineSingleSelectValuesLimit = inlineSingleSelectValuesLimit,
@@ -142,7 +142,7 @@ data class PONativeAlternativePaymentConfiguration(
      * @param[gatewayConfigurationId] Gateway configuration ID.
      * @param[title] Custom title.
      * @param[submitButton] Submit button configuration.
-     * @param[cancelButton] Cancel button configuration. Use _null_ to hide, this is a default behaviour.
+     * @param[cancelButton] Cancel button configuration. Pass _null_ to hide, this is a default behaviour.
      * @param[cancellation] Cancellation behaviour.
      * @param[paymentConfirmation] Payment confirmation configuration.
      * @param[barcode] Barcode configuration.
@@ -229,7 +229,7 @@ data class PONativeAlternativePaymentConfiguration(
      *
      * @param[title] Custom title.
      * @param[primaryActionText] Custom primary action text (e.g. "Pay").
-     * @param[secondaryAction] Secondary action (e.g. "Cancel"). Use _null_ to hide, this is a default behaviour.
+     * @param[secondaryAction] Secondary action (e.g. "Cancel"). Pass _null_ to hide, this is a default behaviour.
      * @param[cancellation] Cancellation behaviour.
      * @param[paymentConfirmation] Payment confirmation configuration.
      * @param[barcode] Barcode configuration.
@@ -254,6 +254,16 @@ data class PONativeAlternativePaymentConfiguration(
     ) : Parcelable
 
     /**
+     * Header configuration.
+     *
+     * @param[title] Custom title.
+     */
+    @Parcelize
+    data class Header(
+        val title: String? = null
+    ) : Parcelable
+
+    /**
      * Button configuration.
      *
      * @param[text] Button text. Pass _null_ to use default text.
@@ -273,7 +283,7 @@ data class PONativeAlternativePaymentConfiguration(
      * @param[disabledForSeconds] Initially disables the button for the given amount of time in seconds.
      * By default user can interact with the button immediately when it's visible.
      * @param[confirmation] Specifies action confirmation configuration (e.g. dialog).
-     * Use _null_ to disable, this is a default behaviour.
+     * Pass _null_ to disable, this is a default behaviour.
      */
     @Parcelize
     data class CancelButton(
@@ -306,7 +316,7 @@ data class PONativeAlternativePaymentConfiguration(
          * @param[disabledForSeconds] Initially disables the action for the given amount of time in seconds.
          * By default user can interact with the action immediately when it's visible.
          * @param[confirmation] Specifies action confirmation configuration (e.g. dialog).
-         * Use _null_ to disable, this is a default behaviour.
+         * Pass _null_ to disable, this is a default behaviour.
          */
         @Parcelize
         @Deprecated(message = "Use 'CancelButton' instead.")
@@ -375,7 +385,7 @@ data class PONativeAlternativePaymentConfiguration(
          * @param[timeoutSeconds] Amount of time (in seconds) to wait for final payment confirmation.
          * Default value is 3 minutes, while maximum value is 15 minutes.
          * @param[showProgressIndicatorAfterSeconds] __Deprecated__: not used. Show progress indicator during payment confirmation after provided delay (in seconds).
-         * Use _null_ to hide, this is a default behaviour.
+         * Pass _null_ to hide, this is a default behaviour.
          * @param[hideGatewayDetails] __Deprecated__: not used. Specifies whether gateway information (such as name/logo) should be hidden during payment confirmation
          * even when specific payment provider details are not available. Default value is _false_.
          * @param[confirmButton] Confirm button configuration.
@@ -404,13 +414,13 @@ data class PONativeAlternativePaymentConfiguration(
          * @param[timeoutSeconds] Amount of time (in seconds) to wait for final payment confirmation.
          * Default value is 3 minutes, while maximum value is 15 minutes.
          * @param[showProgressIndicatorAfterSeconds] __Deprecated__: not used. Show progress indicator during payment confirmation after provided delay (in seconds).
-         * Use _null_ to hide, this is a default behaviour.
+         * Pass _null_ to hide, this is a default behaviour.
          * @param[hideGatewayDetails] __Deprecated__: not used. Specifies whether gateway information (such as name/logo) should be hidden during payment confirmation
          * even when specific payment provider details are not available. Default value is _false_.
          * @param[primaryAction] Optional primary action for payment confirmation.
-         * To hide action use _null_, this is a default behaviour.
+         * Pass _null_ to hide, this is a default behaviour.
          * @param[secondaryAction] Secondary action (e.g. "Cancel") that could be optionally presented to user during payment confirmation stage.
-         * Use _null_ to hide, this is a default behaviour.
+         * Pass _null_ to hide, this is a default behaviour.
          */
         @Deprecated(message = "Use alternative constructor.")
         constructor(
