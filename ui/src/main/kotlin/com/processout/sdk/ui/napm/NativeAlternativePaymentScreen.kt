@@ -900,6 +900,7 @@ internal object NativeAlternativePaymentScreen {
     data class Style(
         val title: POText.Style,
         val bodyText: AndroidTextView.Style,
+        val message: POText.Style,
         val labeledContent: LabeledContentStyle,
         val groupedContent: POGroupedContent.Style,
         val field: POField.Style,
@@ -950,6 +951,12 @@ internal object NativeAlternativePaymentScreen {
                         controlsTintColor = controlsTintColor ?: colors.text.primary
                     )
                 } ?: AndroidTextView.default,
+                message = custom?.message?.let {
+                    POText.custom(style = it)
+                } ?: POText.Style(
+                    color = colors.text.secondary,
+                    textStyle = typography.s14()
+                ),
                 labeledContent = custom?.labeledContent?.custom() ?: defaultLabeledContent,
                 groupedContent = custom?.groupedContent?.let {
                     POGroupedContent.custom(style = it)

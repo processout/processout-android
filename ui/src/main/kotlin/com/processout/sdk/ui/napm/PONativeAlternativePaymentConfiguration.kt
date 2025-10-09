@@ -511,6 +511,7 @@ data class PONativeAlternativePaymentConfiguration(
      *
      * @param[title] Title style.
      * @param[bodyText] Body text style, such as customer instructions.
+     * @param[message] Message style, such as customer instructions.
      * @param[labeledContent] Labeled content style, such as customer instructions.
      * @param[groupedContent] Grouped content style, such as customer instructions.
      * @param[field] Field style.
@@ -533,6 +534,7 @@ data class PONativeAlternativePaymentConfiguration(
     data class Style(
         val title: POTextStyle? = null,
         val bodyText: POTextStyle? = null,
+        val message: POTextStyle? = null,
         val labeledContent: POLabeledContentStyle? = null,
         val groupedContent: POGroupedContentStyle? = null,
         val field: POFieldStyle? = null,
