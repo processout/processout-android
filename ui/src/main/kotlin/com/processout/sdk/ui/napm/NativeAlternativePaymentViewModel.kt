@@ -128,7 +128,8 @@ internal class NativeAlternativePaymentViewModel private constructor(
             content = Content(
                 uuid = uuid,
                 stage = Stage.NextStep(
-                    focusedFieldId = focusedFieldId
+                    focusedFieldId = focusedFieldId,
+                    customContent = configuration.content
                 ),
                 elements = elements.map(fields)
             ),
@@ -158,7 +159,8 @@ internal class NativeAlternativePaymentViewModel private constructor(
             content = Content(
                 uuid = uuid,
                 stage = Stage.Pending(
-                    stepper = stepper
+                    stepper = stepper,
+                    customContent = configuration.content
                 ),
                 elements = elements?.map(fields = null)
             ),

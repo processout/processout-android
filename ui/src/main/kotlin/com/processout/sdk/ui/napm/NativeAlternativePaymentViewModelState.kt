@@ -48,12 +48,14 @@ internal sealed interface NativeAlternativePaymentViewModelState {
 
         @Immutable
         data class NextStep(
-            val focusedFieldId: String?
+            val focusedFieldId: String?,
+            val customContent: PONativeAlternativePaymentConfiguration.Content?
         ) : Stage
 
         @Immutable
         data class Pending(
-            val stepper: Stepper?
+            val stepper: Stepper?,
+            val customContent: PONativeAlternativePaymentConfiguration.Content?
         ) : Stage
 
         @Immutable
