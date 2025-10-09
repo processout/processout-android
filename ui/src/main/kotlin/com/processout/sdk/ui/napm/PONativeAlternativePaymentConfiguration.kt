@@ -21,7 +21,8 @@ import kotlinx.parcelize.Parcelize
  * Native alternative payment configuration.
  *
  * @param[flow] Payment flow configuration.
- * @param[header] Header configuration. Pass _null_ to hide.
+ * @param[header] Custom header. Pass _null_ to hide.
+ * @param[content] Custom content.
  * @param[submitButton] Submit button configuration.
  * @param[cancelButton] Cancel button configuration. Pass _null_ to hide, this is a default behaviour.
  * @param[inlineSingleSelectValuesLimit] Defines the maximum number of options that will be
@@ -38,6 +39,7 @@ import kotlinx.parcelize.Parcelize
 data class PONativeAlternativePaymentConfiguration(
     val flow: Flow,
     val header: Header? = Header(),
+    val content: Content? = null,
     val submitButton: Button = Button(),
     val cancelButton: CancelButton? = null,
     val inlineSingleSelectValuesLimit: Int = 5,
@@ -254,7 +256,7 @@ data class PONativeAlternativePaymentConfiguration(
     ) : Parcelable
 
     /**
-     * Header configuration.
+     * Custom header.
      *
      * @param[title] Custom title.
      */
@@ -262,6 +264,49 @@ data class PONativeAlternativePaymentConfiguration(
     data class Header(
         val title: String? = null
     ) : Parcelable
+
+    /**
+     * Custom content.
+     *
+     * @param[imageResId] Custom image drawable resource ID.
+     * @param[title] Custom title.
+     * @param[bodyText] Custom body text formatted as markdown.
+     * @param[message] Custom message with optional icon.
+     */
+    @Parcelize
+    data class Content(
+        @DrawableRes
+        val imageResId: Int? = null,
+        val title: Text? = null,
+        val bodyText: Text? = null,
+        val message: Message? = null
+    ) : Parcelable {
+
+        /**
+         * Custom text.
+         *
+         * @param[value] Text value.
+         * @param[alignCenterHorizontally] Indicates whether the text should be horizontally center-aligned.
+         * Default value is _false_.
+         */
+        @Parcelize
+        data class Text(
+            val value: String,
+            val alignCenterHorizontally: Boolean = false
+        ) : Parcelable
+
+        /**
+         * Custom message with optional icon.
+         *
+         * @param[value] Message value.
+         * @param[icon] Icon drawable resource. Pass _null_ to hide, this is a default behaviour.
+         */
+        @Parcelize
+        data class Message(
+            val value: String,
+            val icon: PODrawableImage? = null
+        ) : Parcelable
+    }
 
     /**
      * Button configuration.
