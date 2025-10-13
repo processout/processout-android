@@ -81,8 +81,14 @@ fun POTextField(
                     isFocused = it.isFocused
                 }
                 .conditional(!contentDescription.isNullOrBlank()) {
-                    semantics {
-                        this.contentDescription = contentDescription ?: String()
+                    if (isDropdown) {
+                        clearAndSetSemantics {
+                            this.contentDescription = "${value.text} $contentDescription"
+                        }
+                    } else {
+                        semantics {
+                            this.contentDescription = contentDescription ?: String()
+                        }
                     }
                 },
             enabled = enabled,
