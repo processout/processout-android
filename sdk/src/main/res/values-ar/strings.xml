@@ -105,6 +105,7 @@
     <string name="po_card_tokenization_error_generic">حدث خطأ ما، يرجى المحاولة مرة أخرى</string>
     <string name="po_card_tokenization_content_description_card_number">رقم البطاقة</string>
     <string name="po_card_tokenization_content_description_card_expiration">تاريخ انتهاء الصلاحية</string>
+    <string name="po_card_tokenization_content_description_country">بلد</string>
 
     <!-- Address Specification -->
     <string name="po_address_spec_area">المنطقة</string>

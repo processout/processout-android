@@ -99,6 +99,7 @@
     <string name="po_card_tokenization_error_generic">Ocorreu um erro ao processar o seu cartão, por favor tente novamente.</string>
     <string name="po_card_tokenization_content_description_card_number">Número do cartão</string>
     <string name="po_card_tokenization_content_description_card_expiration">Data de validade</string>
+    <string name="po_card_tokenization_content_description_country">País</string>
 
     <!-- Address Specification -->
     <string name="po_address_spec_area">Região</string>

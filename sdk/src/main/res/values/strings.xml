@@ -96,6 +96,7 @@
     <string name="po_card_tokenization_error_generic">Something went wrong, please try again.</string>
     <string name="po_card_tokenization_content_description_card_number">Card number</string>
     <string name="po_card_tokenization_content_description_card_expiration">Expiration date</string>
+    <string name="po_card_tokenization_content_description_country">Country</string>
 
     <!-- Address Specification -->
     <string name="po_address_spec_area">Area</string>
