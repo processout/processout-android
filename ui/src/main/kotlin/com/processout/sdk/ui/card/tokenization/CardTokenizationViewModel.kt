@@ -174,6 +174,7 @@ internal class CardTokenizationViewModel private constructor(
                 CardFieldId.NUMBER -> cardNumberField = field(
                     field = field,
                     placeholder = app.getString(R.string.po_card_tokenization_card_details_number_placeholder),
+                    contentDescription = app.getString(R.string.po_card_tokenization_content_description_card_number),
                     iconResId = cardSchemeDrawableResId(scheme = state.preferredSchemeField.value.text),
                     forceTextDirectionLtr = true,
                     inputFilter = CardNumberInputFilter(),
@@ -188,6 +189,7 @@ internal class CardTokenizationViewModel private constructor(
                     field(
                         field = field,
                         placeholder = app.getString(R.string.po_card_tokenization_card_details_expiration_placeholder),
+                        contentDescription = app.getString(R.string.po_card_tokenization_content_description_card_expiration),
                         forceTextDirectionLtr = true,
                         inputFilter = CardExpirationInputFilter(),
                         visualTransformation = CardExpirationVisualTransformation(),
