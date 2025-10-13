@@ -18,6 +18,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
@@ -32,6 +35,7 @@ import com.processout.sdk.ui.core.component.field.POField.ContainerBox
 import com.processout.sdk.ui.core.component.field.POField.stateStyle
 import com.processout.sdk.ui.core.component.field.POField.textSelectionColors
 import com.processout.sdk.ui.core.component.field.POField.textStyle
+import com.processout.sdk.ui.core.extension.conditional
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 
@@ -52,6 +56,7 @@ fun POTextField(
     forceTextDirectionLtr: Boolean = false,
     label: String? = null,
     placeholder: String? = null,
+    contentDescription: String? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None,
@@ -74,6 +79,11 @@ fun POTextField(
                 .requiredHeightIn(min = minHeight)
                 .onFocusChanged {
                     isFocused = it.isFocused
+                }
+                .conditional(!contentDescription.isNullOrBlank()) {
+                    semantics {
+                        this.contentDescription = contentDescription ?: String()
+                    }
                 },
             enabled = enabled,
             readOnly = readOnly,
@@ -108,6 +118,9 @@ fun POTextField(
                                 )
                                 POText(
                                     text = label,
+                                    modifier = Modifier.conditional(!contentDescription.isNullOrBlank()) {
+                                        clearAndSetSemantics { }
+                                    },
                                     color = stateStyle.label.color,
                                     style = stateStyle.label.textStyle.copy(fontSize = animatedFontSizeValue.sp),
                                     overflow = TextOverflow.Ellipsis,
@@ -122,6 +135,7 @@ fun POTextField(
                                     if (value.text.isEmpty() && !placeholder.isNullOrBlank()) {
                                         POText(
                                             text = placeholder,
+                                            modifier = Modifier.clearAndSetSemantics {},
                                             color = stateStyle.placeholderTextColor,
                                             style = stateStyle.text.textStyle,
                                             overflow = TextOverflow.Ellipsis,
