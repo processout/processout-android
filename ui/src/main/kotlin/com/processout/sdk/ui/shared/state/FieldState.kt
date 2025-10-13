@@ -18,6 +18,7 @@ internal data class FieldState(
     val label: String? = null,
     val placeholder: String? = null,
     val description: String? = null,
+    val contentDescription: String? = null,
     @DrawableRes val iconResId: Int? = null,
     val enabled: Boolean = true,
     val isError: Boolean = false,
