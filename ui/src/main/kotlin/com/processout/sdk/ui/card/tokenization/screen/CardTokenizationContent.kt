@@ -250,6 +250,7 @@ private fun TextField(
         isError = state.isError,
         forceTextDirectionLtr = state.forceTextDirectionLtr,
         label = state.label,
+        contentDescription = state.contentDescription,
         trailingIcon = { state.iconResId?.let { AnimatedFieldIcon(id = it) } },
         visualTransformation = state.visualTransformation,
         keyboardOptions = state.keyboardOptions,

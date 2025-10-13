@@ -383,6 +383,7 @@ internal class CardTokenizationViewModel private constructor(
     private fun field(
         field: Field,
         placeholder: String? = null,
+        contentDescription: String? = null,
         @DrawableRes iconResId: Int? = null,
         forceTextDirectionLtr: Boolean = false,
         inputFilter: POInputFilter? = null,
@@ -399,6 +400,7 @@ internal class CardTokenizationViewModel private constructor(
         return textField(
             field = field,
             placeholder = placeholder,
+            contentDescription = contentDescription,
             iconResId = iconResId,
             forceTextDirectionLtr = forceTextDirectionLtr,
             inputFilter = inputFilter,
@@ -411,6 +413,7 @@ internal class CardTokenizationViewModel private constructor(
     private fun textField(
         field: Field,
         placeholder: String? = null,
+        contentDescription: String? = null,
         @DrawableRes iconResId: Int? = null,
         forceTextDirectionLtr: Boolean = false,
         inputFilter: POInputFilter? = null,
@@ -422,6 +425,7 @@ internal class CardTokenizationViewModel private constructor(
             id = field.id,
             value = field.value,
             label = placeholder,
+            contentDescription = contentDescription,
             iconResId = iconResId,
             enabled = field.enabled,
             isError = !field.isValid,
