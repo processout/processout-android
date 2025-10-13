@@ -22,14 +22,19 @@ internal sealed interface NativeAlternativePaymentViewModelState {
 
     @Immutable
     data class Loaded(
-        val logo: POImageResource,
-        val title: String?,
+        val header: Header?,
         val content: Content,
         val primaryAction: POActionState?,
         val secondaryAction: POActionState?
     ) : NativeAlternativePaymentViewModelState
 
     //endregion
+
+    @Immutable
+    data class Header(
+        val logo: POImageResource,
+        val title: String?
+    )
 
     @Immutable
     data class Content(
@@ -43,12 +48,14 @@ internal sealed interface NativeAlternativePaymentViewModelState {
 
         @Immutable
         data class NextStep(
-            val focusedFieldId: String?
+            val focusedFieldId: String?,
+            val customContent: PONativeAlternativePaymentConfiguration.Content?
         ) : Stage
 
         @Immutable
         data class Pending(
-            val stepper: Stepper?
+            val stepper: Stepper?,
+            val customContent: PONativeAlternativePaymentConfiguration.Content?
         ) : Stage
 
         @Immutable

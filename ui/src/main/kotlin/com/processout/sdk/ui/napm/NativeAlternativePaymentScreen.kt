@@ -2,6 +2,7 @@
 
 package com.processout.sdk.ui.napm
 
+import android.view.Gravity
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.*
 import androidx.compose.animation.core.LinearEasing
@@ -21,6 +22,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
@@ -31,6 +33,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -50,6 +53,8 @@ import com.processout.sdk.ui.core.component.field.radio.PORadioField
 import com.processout.sdk.ui.core.component.field.text.POTextField2
 import com.processout.sdk.ui.core.component.stepper.POStepper
 import com.processout.sdk.ui.core.component.stepper.POVerticalStepper
+import com.processout.sdk.ui.core.shared.image.POImageRenderingMode.ORIGINAL
+import com.processout.sdk.ui.core.shared.image.POImageRenderingMode.TEMPLATE
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.state.POPhoneNumberFieldState
@@ -100,8 +105,8 @@ internal fun NativeAlternativePaymentScreen(
         containerColor = style.backgroundColor,
         topBar = {
             Header(
-                logo = if (state is Loaded) state.logo else null,
-                title = if (state is Loaded) state.title else null,
+                logo = if (state is Loaded) state.header?.logo else null,
+                title = if (state is Loaded) state.header?.title else null,
                 titleStyle = style.title,
                 dividerColor = style.dividerColor,
                 dragHandleColor = style.dragHandleColor,
@@ -253,40 +258,122 @@ private fun Loaded(
     isLightTheme: Boolean,
     modifier: Modifier = Modifier
 ) {
-    AnimatedContent(
-        targetState = content,
-        contentKey = { it.uuid },
-        transitionSpec = { ContentTransitionSpec }
-    ) { content ->
-        Column(
-            modifier = modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(spacing.space16)
-        ) {
-            val stage = content.stage
-            when (stage) {
-                is Stage.Pending -> stage.stepper?.let {
-                    POVerticalStepper(
-                        steps = it.steps,
-                        activeStepIndex = it.activeStepIndex,
-                        modifier = Modifier.fillMaxWidth(),
-                        style = style.stepper
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(spacing.space16)
+    ) {
+        CustomContent(
+            stage = content.stage,
+            style = style
+        )
+        AnimatedContent(
+            targetState = content,
+            contentKey = { it.uuid },
+            transitionSpec = { ContentTransitionSpec }
+        ) { content ->
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(spacing.space16)
+            ) {
+                val stage = content.stage
+                when (stage) {
+                    is Stage.Pending -> stage.stepper?.let {
+                        POVerticalStepper(
+                            steps = it.steps,
+                            activeStepIndex = it.activeStepIndex,
+                            modifier = Modifier.fillMaxWidth(),
+                            style = style.stepper
+                        )
+                    }
+                    is Stage.Completed -> SuccessContent(
+                        state = stage,
+                        style = style.success
+                    )
+                    else -> {}
+                }
+                if (content.elements != null) {
+                    Elements(
+                        elements = content.elements,
+                        onEvent = onEvent,
+                        style = style,
+                        focusedFieldId = if (stage is Stage.NextStep) stage.focusedFieldId else null,
+                        isPrimaryActionEnabled = isPrimaryActionEnabled,
+                        isLightTheme = isLightTheme
                     )
                 }
-                is Stage.Completed -> SuccessContent(
-                    state = stage,
-                    style = style.success
-                )
-                else -> {}
             }
-            if (content.elements != null) {
-                Elements(
-                    elements = content.elements,
-                    onEvent = onEvent,
-                    style = style,
-                    focusedFieldId = if (stage is Stage.NextStep) stage.focusedFieldId else null,
-                    isPrimaryActionEnabled = isPrimaryActionEnabled,
-                    isLightTheme = isLightTheme
+        }
+    }
+}
+
+@Composable
+private fun CustomContent(
+    stage: Stage,
+    style: NativeAlternativePaymentScreen.Style
+) {
+    var visible = true
+    var content: PONativeAlternativePaymentConfiguration.Content? = null
+    when (stage) {
+        is Stage.NextStep -> content = stage.customContent
+        is Stage.Pending -> content = stage.customContent
+        is Stage.Completed -> visible = false
+    }
+    if (visible && content != null) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(spacing.space16),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            content.imageResId?.let {
+                Image(
+                    painter = painterResource(id = it),
+                    contentDescription = null,
+                    modifier = Modifier.padding(vertical = spacing.space16),
+                    alignment = Alignment.Center,
+                    contentScale = ContentScale.Fit
                 )
+            }
+            content.title?.let {
+                POText(
+                    text = it.value,
+                    modifier = Modifier.fillMaxWidth(),
+                    color = style.title.color,
+                    style = style.title.textStyle,
+                    textAlign = if (it.alignCenterHorizontally) TextAlign.Center else TextAlign.Start
+                )
+            }
+            content.bodyText?.let {
+                AndroidTextView(
+                    text = it.value,
+                    modifier = Modifier.fillMaxWidth(),
+                    style = style.bodyText,
+                    gravity = if (it.alignCenterHorizontally) Gravity.CENTER_HORIZONTAL else Gravity.START,
+                    selectable = true
+                )
+            }
+            content.message?.let {
+                if (it.icon != null) {
+                    POTextWithIcon(
+                        text = it.value,
+                        modifier = Modifier.fillMaxWidth(),
+                        style = POTextWithIcon.Style(
+                            text = style.message,
+                            iconResId = it.icon.resId,
+                            iconColorFilter = when (it.icon.renderingMode) {
+                                ORIGINAL -> null
+                                TEMPLATE -> ColorFilter.tint(color = style.message.color)
+                            }
+                        ),
+                        horizontalArrangement = Arrangement.spacedBy(spacing.space8)
+                    )
+                } else {
+                    POText(
+                        text = it.value,
+                        modifier = Modifier.fillMaxWidth(),
+                        color = style.message.color,
+                        style = style.message.textStyle
+                    )
+                }
             }
         }
     }
@@ -855,7 +942,7 @@ private fun Actions(
     modifier: Modifier = Modifier
 ) {
     var primary: POActionState? = null
-    var secondary: POActionState? = null
+    val secondary: POActionState?
     when (state) {
         is Loading -> secondary = state.secondaryAction
         is Loaded -> {
@@ -900,6 +987,7 @@ internal object NativeAlternativePaymentScreen {
     data class Style(
         val title: POText.Style,
         val bodyText: AndroidTextView.Style,
+        val message: POText.Style,
         val labeledContent: LabeledContentStyle,
         val groupedContent: POGroupedContent.Style,
         val field: POField.Style,
@@ -950,6 +1038,12 @@ internal object NativeAlternativePaymentScreen {
                         controlsTintColor = controlsTintColor ?: colors.text.primary
                     )
                 } ?: AndroidTextView.default,
+                message = custom?.message?.let {
+                    POText.custom(style = it)
+                } ?: POText.Style(
+                    color = colors.text.secondary,
+                    textStyle = typography.s15()
+                ),
                 labeledContent = custom?.labeledContent?.custom() ?: defaultLabeledContent,
                 groupedContent = custom?.groupedContent?.let {
                     POGroupedContent.custom(style = it)
