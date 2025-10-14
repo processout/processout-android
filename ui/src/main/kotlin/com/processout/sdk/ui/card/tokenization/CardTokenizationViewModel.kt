@@ -255,7 +255,8 @@ internal class CardTokenizationViewModel private constructor(
             val keyboardAction = keyboardAction(field.id, lastFocusableFieldId)
             when (field.id) {
                 AddressFieldId.COUNTRY -> field(
-                    field = field
+                    field = field,
+                    contentDescription = app.getString(R.string.po_card_tokenization_content_description_country)
                 )?.also { items.add(it) }
                 AddressFieldId.ADDRESS_1 -> field(
                     field = field,
@@ -347,7 +348,10 @@ internal class CardTokenizationViewModel private constructor(
         val displayInline = configuration.preferredScheme?.displayInline ?: true
         return if (displayInline)
             radioField(field)
-        else dropdownField(field)
+        else dropdownField(
+            field = field,
+            contentDescription = app.getString(R.string.po_card_tokenization_preferred_scheme)
+        )
     }
 
     private fun futurePaymentsSection(
@@ -397,7 +401,10 @@ internal class CardTokenizationViewModel private constructor(
             return null
         }
         if (!field.availableValues.isNullOrEmpty()) {
-            return dropdownField(field)
+            return dropdownField(
+                field = field,
+                contentDescription = contentDescription
+            )
         }
         return textField(
             field = field,
@@ -449,15 +456,18 @@ internal class CardTokenizationViewModel private constructor(
             )
         )
 
-    private fun dropdownField(field: Field): Item =
-        Item.DropdownField(
-            FieldState(
-                id = field.id,
-                value = field.value,
-                availableValues = POImmutableList(field.availableValues ?: emptyList()),
-                enabled = field.enabled
-            )
+    private fun dropdownField(
+        field: Field,
+        contentDescription: String? = null
+    ): Item = Item.DropdownField(
+        FieldState(
+            id = field.id,
+            value = field.value,
+            availableValues = POImmutableList(field.availableValues ?: emptyList()),
+            contentDescription = contentDescription,
+            enabled = field.enabled
         )
+    )
 
     private fun checkboxField(
         field: Field,
