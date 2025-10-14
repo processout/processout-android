@@ -52,7 +52,8 @@ fun PODropdownField2(
     isError: Boolean = false,
     label: String? = null,
     placeholder: String? = null,
-    description: String? = null
+    description: String? = null,
+    contentDescription: String? = null
 ) {
     MaterialTheme(
         colorScheme = MaterialTheme.colorScheme.copy(surface = Color.Transparent),
@@ -109,6 +110,7 @@ fun PODropdownField2(
                 label = label,
                 placeholder = placeholder,
                 description = description,
+                contentDescription = contentDescription,
                 trailingIcon = {
                     Icon(
                         painter = painterResource(id = R.drawable.po_chevron_down),

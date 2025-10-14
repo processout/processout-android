@@ -100,6 +100,9 @@
     <string name="po_card_tokenization_error_cardholder">Nieprawidłowe imię i nazwisko na karcie.</string>
     <string name="po_card_tokenization_error_eligibility">Nie możemy zaakceptować tej karty. Spróbuj użyć innej.</string>
     <string name="po_card_tokenization_error_generic">Coś poszło nie tak, spróbuj ponownie.</string>
+    <string name="po_card_tokenization_content_description_card_number">Numer karty</string>
+    <string name="po_card_tokenization_content_description_card_expiration">Data ważności</string>
+    <string name="po_card_tokenization_content_description_country">Kraj</string>
 
     <!-- Address Specification -->
     <string name="po_address_spec_area">Obszar</string>

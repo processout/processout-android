@@ -174,6 +174,7 @@ internal class CardTokenizationViewModel private constructor(
                 CardFieldId.NUMBER -> cardNumberField = field(
                     field = field,
                     placeholder = app.getString(R.string.po_card_tokenization_card_details_number_placeholder),
+                    contentDescription = app.getString(R.string.po_card_tokenization_content_description_card_number),
                     iconResId = cardSchemeDrawableResId(scheme = state.preferredSchemeField.value.text),
                     forceTextDirectionLtr = true,
                     inputFilter = CardNumberInputFilter(),
@@ -188,6 +189,7 @@ internal class CardTokenizationViewModel private constructor(
                     field(
                         field = field,
                         placeholder = app.getString(R.string.po_card_tokenization_card_details_expiration_placeholder),
+                        contentDescription = app.getString(R.string.po_card_tokenization_content_description_card_expiration),
                         forceTextDirectionLtr = true,
                         inputFilter = CardExpirationInputFilter(),
                         visualTransformation = CardExpirationVisualTransformation(),
@@ -253,7 +255,8 @@ internal class CardTokenizationViewModel private constructor(
             val keyboardAction = keyboardAction(field.id, lastFocusableFieldId)
             when (field.id) {
                 AddressFieldId.COUNTRY -> field(
-                    field = field
+                    field = field,
+                    contentDescription = app.getString(R.string.po_card_tokenization_content_description_country)
                 )?.also { items.add(it) }
                 AddressFieldId.ADDRESS_1 -> field(
                     field = field,
@@ -345,7 +348,10 @@ internal class CardTokenizationViewModel private constructor(
         val displayInline = configuration.preferredScheme?.displayInline ?: true
         return if (displayInline)
             radioField(field)
-        else dropdownField(field)
+        else dropdownField(
+            field = field,
+            contentDescription = app.getString(R.string.po_card_tokenization_preferred_scheme)
+        )
     }
 
     private fun futurePaymentsSection(
@@ -383,6 +389,7 @@ internal class CardTokenizationViewModel private constructor(
     private fun field(
         field: Field,
         placeholder: String? = null,
+        contentDescription: String? = null,
         @DrawableRes iconResId: Int? = null,
         forceTextDirectionLtr: Boolean = false,
         inputFilter: POInputFilter? = null,
@@ -394,11 +401,15 @@ internal class CardTokenizationViewModel private constructor(
             return null
         }
         if (!field.availableValues.isNullOrEmpty()) {
-            return dropdownField(field)
+            return dropdownField(
+                field = field,
+                contentDescription = contentDescription
+            )
         }
         return textField(
             field = field,
             placeholder = placeholder,
+            contentDescription = contentDescription,
             iconResId = iconResId,
             forceTextDirectionLtr = forceTextDirectionLtr,
             inputFilter = inputFilter,
@@ -411,6 +422,7 @@ internal class CardTokenizationViewModel private constructor(
     private fun textField(
         field: Field,
         placeholder: String? = null,
+        contentDescription: String? = null,
         @DrawableRes iconResId: Int? = null,
         forceTextDirectionLtr: Boolean = false,
         inputFilter: POInputFilter? = null,
@@ -422,6 +434,7 @@ internal class CardTokenizationViewModel private constructor(
             id = field.id,
             value = field.value,
             label = placeholder,
+            contentDescription = contentDescription,
             iconResId = iconResId,
             enabled = field.enabled,
             isError = !field.isValid,
@@ -443,15 +456,18 @@ internal class CardTokenizationViewModel private constructor(
             )
         )
 
-    private fun dropdownField(field: Field): Item =
-        Item.DropdownField(
-            FieldState(
-                id = field.id,
-                value = field.value,
-                availableValues = POImmutableList(field.availableValues ?: emptyList()),
-                enabled = field.enabled
-            )
+    private fun dropdownField(
+        field: Field,
+        contentDescription: String? = null
+    ): Item = Item.DropdownField(
+        FieldState(
+            id = field.id,
+            value = field.value,
+            availableValues = POImmutableList(field.availableValues ?: emptyList()),
+            contentDescription = contentDescription,
+            enabled = field.enabled
         )
+    )
 
     private fun checkboxField(
         field: Field,
