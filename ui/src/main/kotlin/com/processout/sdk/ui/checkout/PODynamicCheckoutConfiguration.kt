@@ -10,8 +10,6 @@ import com.google.android.gms.wallet.WalletConstants
 import com.processout.sdk.api.model.request.POContact
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.ui.card.scanner.POCardScannerConfiguration
-import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.PreferredSchemeConfiguration
-import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.GooglePayConfiguration.Environment
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import com.processout.sdk.ui.core.style.*
@@ -334,6 +332,7 @@ data class PODynamicCheckoutConfiguration(
      * @param[label] Field label style.
      * @param[field] Field style.
      * @param[codeField] Code field style.
+     * @param[radioField] Radio field style.
      * @param[radioButton] Radio button style.
      * @param[checkbox] Checkbox style.
      * @param[dropdownMenu] Dropdown menu style.
@@ -357,7 +356,8 @@ data class PODynamicCheckoutConfiguration(
         val label: POTextStyle? = null,
         val field: POFieldStyle? = null,
         val codeField: POFieldStyle? = null,
-        val radioButton: PORadioButtonStyle? = null,
+        val radioField: PORadioFieldStyle? = null,
+        val radioButton: PORadioButtonStyle? = null, // TODO: remove
         val checkbox: POCheckboxStyle? = null,
         val dropdownMenu: PODropdownMenuStyle? = null,
         val bodyText: POTextStyle? = null,

@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -31,6 +32,9 @@ import coil.compose.AsyncImage
 import com.google.pay.button.PayButton
 import com.processout.sdk.api.model.response.POColor
 import com.processout.sdk.api.model.response.POImageResource
+import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent
+import com.processout.sdk.ui.card.tokenization.screen.CardTokenizationContent
+import com.processout.sdk.ui.card.tokenization.screen.CardTokenizationScreen
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState
@@ -47,17 +51,18 @@ import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.ShortAnimatio
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.SuccessImageHeight
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.SuccessImageWidth
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.animatedBackgroundColor
+import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.cardTokenizationStyle
 import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.toButtonStyle
 import com.processout.sdk.ui.core.R
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.POButton.HighlightedStyle
 import com.processout.sdk.ui.core.component.POButton.StateStyle
-import com.processout.sdk.ui.core.component.POText.Style
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
 import com.processout.sdk.ui.core.component.field.code.POCodeField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
 import com.processout.sdk.ui.core.component.field.radio.PORadioButton
+import com.processout.sdk.ui.core.component.field.radio.PORadioField
 import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
 import com.processout.sdk.ui.core.component.field.radio.PORadioGroup.toRadioButtonStyle
 import com.processout.sdk.ui.core.state.POActionState
@@ -469,11 +474,11 @@ private fun RegularPaymentContent(
                 )
             }
             when (payment.content) {
-                is Card -> CardTokenization(
-                    id = payment.id,
+                is Card -> CardTokenizationContent(
                     state = payment.content.state,
-                    onEvent = onEvent,
-                    style = style
+                    onEvent = { onEvent(it.map(paymentMethodId = payment.id)) },
+                    style = style.cardTokenizationStyle(),
+                    withActionsContainer = false
                 )
                 is NativeAlternativePayment -> NativeAlternativePayment(
                     id = payment.id,
@@ -660,6 +665,27 @@ private fun Success(
     }
 }
 
+private fun CardTokenizationEvent.map(
+    paymentMethodId: String
+): DynamicCheckoutEvent = when (this) {
+    is CardTokenizationEvent.FieldValueChanged -> FieldValueChanged(
+        paymentMethodId = paymentMethodId,
+        fieldId = id,
+        value = value
+    )
+    is CardTokenizationEvent.FieldFocusChanged -> FieldFocusChanged(
+        paymentMethodId = paymentMethodId,
+        fieldId = id,
+        isFocused = isFocused
+    )
+    is CardTokenizationEvent.Action -> Action(
+        actionId = id,
+        paymentMethodId = paymentMethodId
+    )
+    is CardTokenizationEvent.CardScannerResult -> CardScannerResult(card = card)
+    is CardTokenizationEvent.Dismiss -> Dismiss(failure = failure)
+}
+
 internal object DynamicCheckoutScreen {
 
     @Immutable
@@ -671,7 +697,8 @@ internal object DynamicCheckoutScreen {
         val label: POText.Style,
         val field: POField.Style,
         val codeField: POField.Style,
-        val radioGroup: PORadioGroup.Style,
+        val radioField: PORadioField.Style,
+        val radioGroup: PORadioGroup.Style, // TODO: remove
         val checkbox: POCheckbox.Style,
         val dropdownMenu: PODropdownField.MenuStyle,
         val bodyText: AndroidTextView.Style,
@@ -720,22 +747,28 @@ internal object DynamicCheckoutScreen {
         regularPayment = custom?.regularPayment?.custom() ?: defaultRegularPayment,
         label = custom?.label?.let {
             POText.custom(style = it)
-        } ?: POText.label1,
+        } ?: POText.Style(
+            color = colors.text.primary,
+            textStyle = typography.s14(FontWeight.Medium)
+        ),
         field = custom?.field?.let {
             POField.custom(style = it)
-        } ?: POField.default,
+        } ?: POField.default2,
         codeField = custom?.codeField?.let {
             POField.custom(style = it)
         } ?: POCodeField.default,
+        radioField = custom?.radioField?.let {
+            PORadioField.custom(style = it)
+        } ?: PORadioField.default,
         radioGroup = custom?.radioButton?.let {
             PORadioGroup.custom(style = it)
         } ?: PORadioGroup.default,
         checkbox = custom?.checkbox?.let {
             POCheckbox.custom(style = it)
-        } ?: POCheckbox.default,
+        } ?: POCheckbox.default2,
         dropdownMenu = custom?.dropdownMenu?.let {
             PODropdownField.custom(style = it)
-        } ?: PODropdownField.defaultMenu,
+        } ?: PODropdownField.defaultMenu2,
         bodyText = custom?.bodyText?.let { style ->
             val controlsTintColor = custom.controlsTintColorResId?.let { colorResource(id = it) }
             AndroidTextView.custom(
@@ -745,7 +778,10 @@ internal object DynamicCheckoutScreen {
         } ?: AndroidTextView.default,
         errorText = custom?.errorText?.let {
             POText.custom(style = it)
-        } ?: POText.errorLabel,
+        } ?: POText.Style(
+            color = colors.text.error,
+            textStyle = typography.s14()
+        ),
         messageBox = custom?.messageBox?.let {
             POMessageBox.custom(style = it)
         } ?: POMessageBox.error,
@@ -754,10 +790,10 @@ internal object DynamicCheckoutScreen {
         } ?: PODialog.default,
         scanCardButton = custom?.scanCardButton?.let {
             POButton.custom(style = it)
-        } ?: POButton.secondary,
+        } ?: CardTokenizationScreen.defaultScanButton,
         actionsContainer = custom?.actionsContainer?.let {
             POActionsContainer.custom(style = it)
-        } ?: POActionsContainer.default,
+        } ?: POActionsContainer.default2,
         backgroundColor = custom?.backgroundColorResId?.let {
             colorResource(id = it)
         } ?: colors.surface.default,
@@ -782,7 +818,7 @@ internal object DynamicCheckoutScreen {
 
     private val defaultRegularPayment: RegularPaymentStyle
         @Composable get() {
-            val description = Style(
+            val description = POText.Style(
                 color = colors.text.muted,
                 textStyle = typography.body2
             )
@@ -827,7 +863,7 @@ internal object DynamicCheckoutScreen {
 
     private val defaultPaymentSuccess: PaymentSuccessStyle
         @Composable get() = PaymentSuccessStyle(
-            message = Style(
+            message = POText.Style(
                 color = colors.text.success,
                 textStyle = typography.body1
             ),
@@ -897,7 +933,7 @@ internal object DynamicCheckoutScreen {
         borderColor: Color,
         backgroundColor: Color
     ) = StateStyle(
-        text = Style(
+        text = POText.Style(
             color = textColor,
             textStyle = POText.custom(type = text.type)
         ),
@@ -924,6 +960,22 @@ internal object DynamicCheckoutScreen {
             easing = LinearEasing
         )
     ).value
+
+    fun Style.cardTokenizationStyle() = CardTokenizationScreen.Style(
+        title = regularPayment.title,
+        sectionTitle = label,
+        field = field,
+        radioField = radioField,
+        dropdownMenu = dropdownMenu,
+        checkbox = checkbox,
+        dialog = dialog,
+        errorMessage = errorText,
+        scanButton = scanCardButton,
+        actionsContainer = actionsContainer,
+        backgroundColor = Color.Unspecified,
+        dividerColor = Color.Unspecified,
+        dragHandleColor = Color.Unspecified
+    )
 
     val ShortAnimationDurationMillis = 300
     val LongAnimationDurationMillis = 600
