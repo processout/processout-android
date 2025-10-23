@@ -1077,7 +1077,8 @@ internal class DynamicCheckoutInteractor(
             coroutineScope = interactorScope
         ) { request ->
             interactorScope.launch {
-                eventDispatcher.send(request.toResponse(shouldContinue = false))
+                val shouldContinue = !cardTokenization.isTokenized()
+                eventDispatcher.send(request.toResponse(shouldContinue))
             }
         }
         eventDispatcher.subscribeForRequest<PONativeAlternativePaymentMethodDefaultValuesRequest>(

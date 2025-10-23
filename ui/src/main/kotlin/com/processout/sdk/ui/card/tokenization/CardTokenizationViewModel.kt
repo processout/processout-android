@@ -89,6 +89,8 @@ internal class CardTokenizationViewModel private constructor(
 
     fun onEvent(event: CardTokenizationEvent) = interactor.onEvent(event)
 
+    fun isTokenized() = interactor.state.value.tokenizedCard != null
+
     private fun map(state: CardTokenizationInteractorState) = with(configuration) {
         CardTokenizationViewModelState(
             title = title ?: app.getString(R.string.po_card_tokenization_title),
