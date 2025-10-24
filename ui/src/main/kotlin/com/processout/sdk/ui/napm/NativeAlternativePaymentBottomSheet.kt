@@ -34,6 +34,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.Redirect
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Loaded
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Stage
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow
+import com.processout.sdk.ui.napm.screen.NativeAlternativePaymentScreen
 import com.processout.sdk.ui.shared.component.displayCutoutHeight
 import com.processout.sdk.ui.shared.component.screenModeAsState
 import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration.Height.Fixed
