@@ -498,7 +498,11 @@ private fun RegularPaymentContent(
                         }
                         NativeAlternativePaymentContent(
                             content = state.content,
-                            onEvent = { onEvent(it.map(paymentMethodId = payment.id)) },
+                            onEvent = {
+                                it.map(paymentMethodId = payment.id)?.let { event ->
+                                    onEvent(event)
+                                }
+                            },
                             style = NativeAlternativePaymentScreen.style(), // TODO
                             isPrimaryActionEnabled = state.primaryAction?.let { it.enabled && !it.loading } ?: false,
                             isLightTheme = isLightTheme
@@ -708,7 +712,7 @@ private fun CardTokenizationEvent.map(
 
 private fun NativeAlternativePaymentEvent.map(
     paymentMethodId: String
-): DynamicCheckoutEvent = when (this) {
+): DynamicCheckoutEvent? = when (this) {
     is NativeAlternativePaymentEvent.FieldValueChanged -> FieldValueChanged(
         paymentMethodId = paymentMethodId,
         fieldId = id,
@@ -730,12 +734,8 @@ private fun NativeAlternativePaymentEvent.map(
     )
     is NativeAlternativePaymentEvent.ActionConfirmationRequested -> ActionConfirmationRequested(id = id)
     is NativeAlternativePaymentEvent.Dismiss -> Dismiss(failure = failure)
-    is NativeAlternativePaymentEvent.PermissionRequestResult -> PermissionRequestResult(
-        paymentMethodId = paymentMethodId,
-        permission = permission,
-        isGranted = isGranted
-    )
-    is NativeAlternativePaymentEvent.RedirectResult -> TODO()
+    is NativeAlternativePaymentEvent.PermissionRequestResult,
+    is NativeAlternativePaymentEvent.RedirectResult -> null // Ignore, handled by dynamic checkout events.
 }
 
 internal object DynamicCheckoutScreen {
