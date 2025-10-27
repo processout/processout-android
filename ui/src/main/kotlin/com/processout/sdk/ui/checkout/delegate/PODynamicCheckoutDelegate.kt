@@ -6,10 +6,11 @@ import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.response.POCardIssuerInformation
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.POInvoice
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodParameter
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentEvent
+import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentParameterValue
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsConfiguration
 import com.processout.sdk.ui.savedpaymentmethods.delegate.POSavedPaymentMethodsEvent
 
@@ -69,14 +70,14 @@ interface PODynamicCheckoutDelegate {
     ): String? = issuerInformation.scheme
 
     /**
-     * Allows to prefill default values for the given parameters during native alternative payment.
-     * Return a map where key is a [PONativeAlternativePaymentMethodParameter.key] and value is a custom default value.
+     * Allows to prefill default values for the given [parameters] during native alternative payment.
+     * Return a map of parameter keys to their custom default values.
      * It's not mandatory to provide default values for all parameters.
      */
     suspend fun defaultValues(
         paymentMethod: PODynamicCheckoutPaymentMethod.AlternativePayment,
-        parameters: List<PONativeAlternativePaymentMethodParameter>
-    ): Map<String, String> = emptyMap()
+        parameters: List<PONativeAlternativePaymentElement.Form.Parameter>
+    ): Map<String, PONativeAlternativePaymentParameterValue> = emptyMap()
 
     /**
      * Allows to override default alternative payment configuration.

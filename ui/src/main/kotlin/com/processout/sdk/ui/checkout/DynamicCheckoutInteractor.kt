@@ -12,7 +12,10 @@ import coil.request.ImageResult
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.WillSubmitParameters
-import com.processout.sdk.api.model.request.*
+import com.processout.sdk.api.model.request.POCardTokenizationProcessingRequest
+import com.processout.sdk.api.model.request.POCardTokenizationShouldContinueRequest
+import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
+import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.request.POInvoiceRequest.ExpandedProperty.Companion.paymentMethods
 import com.processout.sdk.api.model.request.POInvoiceRequest.ExpandedProperty.Companion.transaction
 import com.processout.sdk.api.model.response.*
@@ -60,6 +63,7 @@ import com.processout.sdk.ui.napm.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow
 import com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentEvent
+import com.processout.sdk.ui.napm.delegate.v2.NativeAlternativePaymentDefaultValuesRequest
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsConfiguration
 import com.processout.sdk.ui.shared.extension.orElse
 import com.processout.sdk.ui.shared.state.FieldValue
@@ -1087,7 +1091,7 @@ internal class DynamicCheckoutInteractor(
                 eventDispatcher.send(request.toResponse(shouldContinue))
             }
         }
-        eventDispatcher.subscribeForRequest<PONativeAlternativePaymentMethodDefaultValuesRequest>(
+        eventDispatcher.subscribeForRequest<NativeAlternativePaymentDefaultValuesRequest>(
             coroutineScope = interactorScope
         ) { request ->
             activePaymentMethod()?.let { paymentMethod ->
