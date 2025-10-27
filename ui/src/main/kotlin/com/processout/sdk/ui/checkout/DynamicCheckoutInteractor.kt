@@ -148,8 +148,8 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun cancelWebAuthorization() {
-        with(_state.value) {
-            if (selectedPaymentMethod != null || pendingSubmitPaymentMethod != null) {
+        _state.value.let {
+            if (it.selectedPaymentMethod != null || it.pendingSubmitPaymentMethod != null) {
                 interactorScope.launch {
                     _sideEffects.send(DynamicCheckoutSideEffect.CancelWebAuthorization)
                 }
@@ -432,8 +432,8 @@ internal class DynamicCheckoutInteractor(
         _state.value.paymentMethods.find { it.id == id }
 
     private fun activePaymentMethod(): PaymentMethod? =
-        with(_state.value) {
-            processingPaymentMethod ?: selectedPaymentMethod
+        _state.value.let {
+            it.processingPaymentMethod ?: it.selectedPaymentMethod
         }
 
     private fun onPaymentMethodSelected(event: PaymentMethodSelected) {
@@ -597,9 +597,11 @@ internal class DynamicCheckoutInteractor(
         value: TextFieldValue
     ): PaymentMethod = when (paymentMethod) {
         is AlternativePayment -> when (fieldId) {
-            FieldId.SAVE_PAYMENT_METHOD -> with(paymentMethod) {
+            FieldId.SAVE_PAYMENT_METHOD -> {
                 POLogger.debug("Field is edited by the user: %s = %s", fieldId, value.text)
-                copy(savePaymentMethodField = savePaymentMethodField?.copy(value = value))
+                paymentMethod.copy(
+                    savePaymentMethodField = paymentMethod.savePaymentMethodField?.copy(value = value)
+                )
             }
             else -> paymentMethod
         }
