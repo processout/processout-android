@@ -9,7 +9,7 @@ import com.processout.sdk.api.model.response.POInvoice
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
-import com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentEvent
+import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent
 import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentParameterValue
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsConfiguration
 import com.processout.sdk.ui.savedpaymentmethods.delegate.POSavedPaymentMethodsEvent

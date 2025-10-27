@@ -11,7 +11,6 @@ import coil.request.ImageRequest
 import coil.request.ImageResult
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
-import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.WillSubmitParameters
 import com.processout.sdk.api.model.request.POCardTokenizationProcessingRequest
 import com.processout.sdk.api.model.request.POCardTokenizationShouldContinueRequest
 import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
@@ -62,8 +61,9 @@ import com.processout.sdk.ui.checkout.delegate.PODynamicCheckoutEvent.*
 import com.processout.sdk.ui.napm.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow
-import com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentEvent
 import com.processout.sdk.ui.napm.delegate.v2.NativeAlternativePaymentDefaultValuesRequest
+import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent
+import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent.WillSubmitParameters
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsConfiguration
 import com.processout.sdk.ui.shared.extension.orElse
 import com.processout.sdk.ui.shared.state.FieldValue
