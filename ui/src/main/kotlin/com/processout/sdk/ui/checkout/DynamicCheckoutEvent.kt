@@ -1,11 +1,11 @@
 package com.processout.sdk.ui.checkout
 
-import androidx.compose.ui.text.input.TextFieldValue
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.model.response.POGooglePayCardTokenizationData
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.ui.card.scanner.recognition.POScannedCard
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsConfiguration
+import com.processout.sdk.ui.shared.state.FieldValue
 import org.json.JSONObject
 
 internal sealed interface DynamicCheckoutEvent {
@@ -16,7 +16,7 @@ internal sealed interface DynamicCheckoutEvent {
     data class FieldValueChanged(
         val paymentMethodId: String,
         val fieldId: String,
-        val value: TextFieldValue
+        val value: FieldValue
     ) : DynamicCheckoutEvent
 
     data class FieldFocusChanged(

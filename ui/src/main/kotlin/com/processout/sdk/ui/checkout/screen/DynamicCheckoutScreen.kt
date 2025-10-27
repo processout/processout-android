@@ -80,6 +80,7 @@ import com.processout.sdk.ui.shared.component.AndroidTextView
 import com.processout.sdk.ui.shared.component.GooglePayButton
 import com.processout.sdk.ui.shared.extension.*
 import com.processout.sdk.ui.shared.state.FieldState
+import com.processout.sdk.ui.shared.state.FieldValue
 
 @Composable
 internal fun DynamicCheckoutScreen(
@@ -480,12 +481,16 @@ private fun RegularPaymentContent(
                     style = style.cardTokenizationStyle(),
                     withActionsContainer = false
                 )
-                is NativeAlternativePayment -> NativeAlternativePayment(
-                    id = payment.id,
-                    state = payment.content.state,
-                    onEvent = onEvent,
-                    style = style
-                )
+                is NativeAlternativePayment -> {
+                    // TODO
+
+//                    NativeAlternativePayment(
+//                        id = payment.id,
+//                        state = payment.content.state,
+//                        onEvent = onEvent,
+//                        style = style
+//                    )
+                }
                 is AlternativePayment -> AlternativePayment(
                     id = payment.id,
                     state = payment.content,
@@ -558,7 +563,7 @@ private fun CheckboxField(
                 FieldValueChanged(
                     paymentMethodId = id,
                     fieldId = state.id,
-                    value = TextFieldValue(text = it.toString())
+                    value = FieldValue.Text(value = TextFieldValue(text = it.toString()))
                 )
             )
         },
@@ -671,7 +676,7 @@ private fun CardTokenizationEvent.map(
     is CardTokenizationEvent.FieldValueChanged -> FieldValueChanged(
         paymentMethodId = paymentMethodId,
         fieldId = id,
-        value = value
+        value = FieldValue.Text(value = value)
     )
     is CardTokenizationEvent.FieldFocusChanged -> FieldFocusChanged(
         paymentMethodId = paymentMethodId,
