@@ -850,16 +850,21 @@ internal class DynamicCheckoutInteractor(
             if (paymentMethod.id != paymentMethodId) {
                 return
             }
-            result.onSuccess { response ->
-                authorizeInvoice(
-                    paymentMethod = paymentMethod,
-                    source = response.gatewayToken,
-                    allowFallbackToSale = true
+            when (paymentMethod) {
+                is NativeAlternativePayment -> nativeAlternativePayment.onEvent(
+                    NativeAlternativePaymentEvent.RedirectResult(result)
                 )
-            }.onFailure { failure ->
-                invalidateInvoice(
-                    reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(failure)
-                )
+                else -> result.onSuccess { response ->
+                    authorizeInvoice(
+                        paymentMethod = paymentMethod,
+                        source = response.gatewayToken,
+                        allowFallbackToSale = true
+                    )
+                }.onFailure { failure ->
+                    invalidateInvoice(
+                        reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(failure)
+                    )
+                }
             }
         }
     }
@@ -1138,9 +1143,17 @@ internal class DynamicCheckoutInteractor(
                             _sideEffects.send(permissionRequest)
                             POLogger.info("System permission requested: %s", permissionRequest)
                         }
-                    is NativeAlternativePaymentSideEffect.Redirect -> {
-                        // TODO
-                    }
+                    is NativeAlternativePaymentSideEffect.Redirect ->
+                        activePaymentMethod()?.let { paymentMethod ->
+                            _state.update { it.copy(processingPaymentMethod = paymentMethod) }
+                            _sideEffects.send(
+                                DynamicCheckoutSideEffect.AlternativePayment(
+                                    paymentMethodId = paymentMethod.id,
+                                    redirectUrl = sideEffect.redirectUrl,
+                                    returnUrl = sideEffect.returnUrl
+                                )
+                            )
+                        }
                 }
             }
         }
