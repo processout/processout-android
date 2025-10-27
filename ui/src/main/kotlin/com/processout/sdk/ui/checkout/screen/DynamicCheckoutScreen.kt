@@ -485,7 +485,11 @@ private fun RegularPaymentContent(
             when (payment.content) {
                 is Card -> CardTokenizationContent(
                     state = payment.content.state,
-                    onEvent = { onEvent(it.map(paymentMethodId = payment.id)) },
+                    onEvent = {
+                        it.map(paymentMethodId = payment.id)?.let { event ->
+                            onEvent(event)
+                        }
+                    },
                     style = style.cardTokenizationStyle(),
                     withActionsContainer = false
                 )
@@ -691,7 +695,7 @@ private fun Success(
 
 private fun CardTokenizationEvent.map(
     paymentMethodId: String
-): DynamicCheckoutEvent = when (this) {
+): DynamicCheckoutEvent? = when (this) {
     is CardTokenizationEvent.FieldValueChanged -> FieldValueChanged(
         paymentMethodId = paymentMethodId,
         fieldId = id,
@@ -706,8 +710,8 @@ private fun CardTokenizationEvent.map(
         actionId = id,
         paymentMethodId = paymentMethodId
     )
-    is CardTokenizationEvent.CardScannerResult -> CardScannerResult(card = card)
     is CardTokenizationEvent.Dismiss -> Dismiss(failure = failure)
+    is CardTokenizationEvent.CardScannerResult -> null // Ignore, handled by dynamic checkout events.
 }
 
 private fun NativeAlternativePaymentEvent.map(
