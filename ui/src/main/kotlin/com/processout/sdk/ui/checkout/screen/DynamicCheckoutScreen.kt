@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -76,6 +77,11 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
+import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent
+import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState
+import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Stage
+import com.processout.sdk.ui.napm.screen.NativeAlternativePaymentContent
+import com.processout.sdk.ui.napm.screen.NativeAlternativePaymentScreen
 import com.processout.sdk.ui.shared.component.AndroidTextView
 import com.processout.sdk.ui.shared.component.GooglePayButton
 import com.processout.sdk.ui.shared.extension.*
@@ -384,7 +390,8 @@ private fun RegularPayments(
             RegularPaymentContent(
                 payment = payment,
                 onEvent = onEvent,
-                style = style
+                style = style,
+                isLightTheme = isLightTheme
             )
             if (index != payments.elements.lastIndex) {
                 HorizontalDivider(
@@ -448,7 +455,8 @@ private fun RegularPayment(
 private fun RegularPaymentContent(
     payment: RegularPayment,
     onEvent: (DynamicCheckoutEvent) -> Unit,
-    style: DynamicCheckoutScreen.Style
+    style: DynamicCheckoutScreen.Style,
+    isLightTheme: Boolean
 ) {
     AnimatedVisibility(
         visible = payment.state.selected && !payment.state.loading,
@@ -481,15 +489,22 @@ private fun RegularPaymentContent(
                     style = style.cardTokenizationStyle(),
                     withActionsContainer = false
                 )
-                is NativeAlternativePayment -> {
-                    // TODO
-
-//                    NativeAlternativePayment(
-//                        id = payment.id,
-//                        state = payment.content.state,
-//                        onEvent = onEvent,
-//                        style = style
-//                    )
+                is NativeAlternativePayment -> when (val state = payment.content.state) {
+                    is NativeAlternativePaymentViewModelState.Loaded -> {
+                        when (state.content.stage) {
+                            is Stage.Pending,
+                            is Stage.Completed -> LocalFocusManager.current.clearFocus(force = true)
+                            else -> {}
+                        }
+                        NativeAlternativePaymentContent(
+                            content = state.content,
+                            onEvent = { onEvent(it.map(paymentMethodId = payment.id)) },
+                            style = NativeAlternativePaymentScreen.style(), // TODO
+                            isPrimaryActionEnabled = state.primaryAction?.let { it.enabled && !it.loading } ?: false,
+                            isLightTheme = isLightTheme
+                        )
+                    }
+                    else -> {}
                 }
                 is AlternativePayment -> AlternativePayment(
                     id = payment.id,
@@ -689,6 +704,38 @@ private fun CardTokenizationEvent.map(
     )
     is CardTokenizationEvent.CardScannerResult -> CardScannerResult(card = card)
     is CardTokenizationEvent.Dismiss -> Dismiss(failure = failure)
+}
+
+private fun NativeAlternativePaymentEvent.map(
+    paymentMethodId: String
+): DynamicCheckoutEvent = when (this) {
+    is NativeAlternativePaymentEvent.FieldValueChanged -> FieldValueChanged(
+        paymentMethodId = paymentMethodId,
+        fieldId = id,
+        value = value
+    )
+    is NativeAlternativePaymentEvent.FieldFocusChanged -> FieldFocusChanged(
+        paymentMethodId = paymentMethodId,
+        fieldId = id,
+        isFocused = isFocused
+    )
+    is NativeAlternativePaymentEvent.Action -> Action(
+        actionId = id,
+        paymentMethodId = paymentMethodId
+    )
+    is NativeAlternativePaymentEvent.DialogAction -> DialogAction(
+        actionId = id,
+        paymentMethodId = paymentMethodId,
+        isConfirmed = isConfirmed
+    )
+    is NativeAlternativePaymentEvent.ActionConfirmationRequested -> ActionConfirmationRequested(id = id)
+    is NativeAlternativePaymentEvent.Dismiss -> Dismiss(failure = failure)
+    is NativeAlternativePaymentEvent.PermissionRequestResult -> PermissionRequestResult(
+        paymentMethodId = paymentMethodId,
+        permission = permission,
+        isGranted = isGranted
+    )
+    is NativeAlternativePaymentEvent.RedirectResult -> TODO()
 }
 
 internal object DynamicCheckoutScreen {
