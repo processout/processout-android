@@ -140,6 +140,7 @@ class PODynamicCheckoutActivity : POBaseTransparentPortraitActivity() {
                 gatewayConfigurationId = String()
             ),
             header = null,
+            content = null,
             submitButton = configuration.submitButton.let {
                 PONativeAlternativePaymentConfiguration.Button(
                     text = it.text ?: getString(R.string.po_dynamic_checkout_button_pay),
