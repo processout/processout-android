@@ -249,8 +249,6 @@ data class PODynamicCheckoutConfiguration(
          *
          * @param[timeoutSeconds] Amount of time (in seconds) to wait for final payment confirmation.
          * Default value is 3 minutes, while maximum value is 15 minutes.
-         * @param[showProgressIndicatorAfterSeconds] Show progress indicator during payment confirmation after provided delay (in seconds).
-         * Use _null_ to hide, this is a default behaviour.
          * @param[confirmButton] Confirm button configuration.
          * @param[cancelButton] Cancel button configuration.
          */
@@ -258,7 +256,6 @@ data class PODynamicCheckoutConfiguration(
         data class PaymentConfirmationConfiguration(
             @IntRange(from = 0, to = 15 * 60)
             val timeoutSeconds: Int = 3 * 60,
-            val showProgressIndicatorAfterSeconds: Int? = null,
             val confirmButton: Button? = null,
             val cancelButton: CancelButton? = CancelButton()
         ) : Parcelable
