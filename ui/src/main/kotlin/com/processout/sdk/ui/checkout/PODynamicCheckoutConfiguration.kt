@@ -13,6 +13,7 @@ import com.processout.sdk.ui.card.scanner.POCardScannerConfiguration
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import com.processout.sdk.ui.core.style.*
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
 import com.processout.sdk.ui.shared.configuration.POBarcodeConfiguration
 import kotlinx.parcelize.Parcelize
@@ -230,6 +231,7 @@ data class PODynamicCheckoutConfiguration(
      * Specifies alternative payment configuration.
      *
      * @param[returnUrl] Deep link return URL. Required for web authorization.
+     * @param[content] Custom content for native alternative payment.
      * @param[inlineSingleSelectValuesLimit] Defines maximum number of options that will be
      * displayed inline for parameters where user should select single option (e.g. radio buttons).
      * Default value is _5_.
@@ -239,6 +241,7 @@ data class PODynamicCheckoutConfiguration(
     @Parcelize
     data class AlternativePaymentConfiguration(
         val returnUrl: String? = null,
+        val content: PONativeAlternativePaymentConfiguration.Content? = null,
         val inlineSingleSelectValuesLimit: Int = 5,
         val barcode: POBarcodeConfiguration = POBarcodeConfiguration(saveButton = POBarcodeConfiguration.Button()),
         val paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration()
