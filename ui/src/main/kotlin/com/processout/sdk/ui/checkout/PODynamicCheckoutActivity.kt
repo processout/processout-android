@@ -147,6 +147,8 @@ class PODynamicCheckoutActivity : POBaseTransparentPortraitActivity() {
                 )
             },
             cancelButton = configuration.cancelButton?.map(),
+            inlineSingleSelectValuesLimit = configuration.alternativePayment.inlineSingleSelectValuesLimit,
+            barcode = configuration.alternativePayment.barcode,
             redirect = if (!returnUrl.isNullOrBlank())
                 RedirectConfiguration(returnUrl = returnUrl) else null,
             paymentConfirmation = PaymentConfirmationConfiguration(
@@ -154,8 +156,6 @@ class PODynamicCheckoutActivity : POBaseTransparentPortraitActivity() {
                 confirmButton = paymentConfirmation.confirmButton?.map(),
                 cancelButton = paymentConfirmation.cancelButton?.map()
             ),
-            barcode = configuration.alternativePayment.barcode,
-            inlineSingleSelectValuesLimit = configuration.alternativePayment.inlineSingleSelectValuesLimit,
             success = null
         )
     }
