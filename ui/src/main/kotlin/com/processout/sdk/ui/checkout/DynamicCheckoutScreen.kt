@@ -1,6 +1,6 @@
 @file:Suppress("MayBeConstant", "MemberVisibilityCanBePrivate")
 
-package com.processout.sdk.ui.checkout.screen
+package com.processout.sdk.ui.checkout
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.*
@@ -35,24 +35,21 @@ import com.processout.sdk.api.model.response.POImageResource
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent
 import com.processout.sdk.ui.card.tokenization.screen.CardTokenizationContent
 import com.processout.sdk.ui.card.tokenization.screen.CardTokenizationScreen
-import com.processout.sdk.ui.checkout.DynamicCheckoutEvent
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
-import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState
+import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.LongAnimationDurationMillis
+import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.PaymentLogoSize
+import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.PaymentSuccessStyle
+import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.RowComponentSpacing
+import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.SectionHeaderStyle
+import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.ShortAnimationDurationMillis
+import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.SuccessImageHeight
+import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.SuccessImageWidth
+import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.animatedBackgroundColor
+import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.cardTokenizationStyle
+import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.toButtonStyle
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.Field.CheckboxField
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.RegularPayment.Content.*
-import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration
-import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.LongAnimationDurationMillis
-import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.PaymentLogoSize
-import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.PaymentSuccessStyle
-import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.RowComponentSpacing
-import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.SectionHeaderStyle
-import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.ShortAnimationDurationMillis
-import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.SuccessImageHeight
-import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.SuccessImageWidth
-import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.animatedBackgroundColor
-import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.cardTokenizationStyle
-import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen.toButtonStyle
 import com.processout.sdk.ui.core.R
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.POButton.HighlightedStyle

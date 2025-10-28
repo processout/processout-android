@@ -43,7 +43,6 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutSideEffect.*
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.*
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.Button
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.CancelButton
-import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.googlepay.POGooglePayCardTokenizationLauncher
