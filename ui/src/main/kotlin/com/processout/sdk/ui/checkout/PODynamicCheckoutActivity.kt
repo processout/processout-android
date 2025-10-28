@@ -140,7 +140,12 @@ class PODynamicCheckoutActivity : POBaseTransparentPortraitActivity() {
                 invoiceId = configuration.invoiceRequest.invoiceId,
                 gatewayConfigurationId = String()
             ),
-            submitButton = configuration.submitButton.map(),
+            submitButton = configuration.submitButton.let {
+                PONativeAlternativePaymentConfiguration.Button(
+                    text = it.text ?: getString(R.string.po_dynamic_checkout_button_pay),
+                    icon = it.icon
+                )
+            },
             cancelButton = configuration.cancelButton?.map(),
             redirect = if (!returnUrl.isNullOrBlank())
                 RedirectConfiguration(returnUrl = returnUrl) else null,
