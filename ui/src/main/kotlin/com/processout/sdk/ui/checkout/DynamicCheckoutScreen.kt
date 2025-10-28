@@ -61,7 +61,6 @@ import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
 import com.processout.sdk.ui.core.component.field.radio.PORadioButton
 import com.processout.sdk.ui.core.component.field.radio.PORadioField
 import com.processout.sdk.ui.core.component.field.radio.PORadioField.radioButtonStyle
-import com.processout.sdk.ui.core.component.field.radio.PORadioGroup
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POBrandButtonStateStyle
@@ -750,7 +749,6 @@ internal object DynamicCheckoutScreen {
         val field: POField.Style,
         val codeField: POField.Style,
         val radioField: PORadioField.Style,
-        val radioGroup: PORadioGroup.Style, // TODO: remove
         val checkbox: POCheckbox.Style,
         val dropdownMenu: PODropdownField.MenuStyle,
         val bodyText: AndroidTextView.Style,
@@ -812,9 +810,6 @@ internal object DynamicCheckoutScreen {
         radioField = custom?.radioField?.let {
             PORadioField.custom(style = it)
         } ?: PORadioField.default,
-        radioGroup = custom?.radioButton?.let {
-            PORadioGroup.custom(style = it)
-        } ?: PORadioGroup.default,
         checkbox = custom?.checkbox?.let {
             POCheckbox.custom(style = it)
         } ?: POCheckbox.default2,

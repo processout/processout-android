@@ -333,7 +333,6 @@ data class PODynamicCheckoutConfiguration(
      * @param[field] Field style.
      * @param[codeField] Code field style.
      * @param[radioField] Radio field style.
-     * @param[radioButton] Radio button style.
      * @param[checkbox] Checkbox style.
      * @param[dropdownMenu] Dropdown menu style.
      * @param[bodyText] Body text style.
@@ -357,7 +356,6 @@ data class PODynamicCheckoutConfiguration(
         val field: POFieldStyle? = null,
         val codeField: POFieldStyle? = null,
         val radioField: PORadioFieldStyle? = null,
-        val radioButton: PORadioButtonStyle? = null, // TODO: remove
         val checkbox: POCheckboxStyle? = null,
         val dropdownMenu: PODropdownMenuStyle? = null,
         val bodyText: POTextStyle? = null,
