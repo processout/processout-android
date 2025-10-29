@@ -42,7 +42,6 @@ import com.processout.sdk.ui.core.component.stepper.POStepper
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
-import com.processout.sdk.ui.core.style.POLabeledContentStyle
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
@@ -283,7 +282,7 @@ internal object NativeAlternativePaymentScreen {
         val title: POText.Style,
         val bodyText: AndroidTextView.Style,
         val message: POText.Style,
-        val labeledContent: LabeledContentStyle,
+        val labeledContent: POLabeledContent.Style,
         val groupedContent: POGroupedContent.Style,
         val field: POField.Style,
         val codeField: POField.Style,
@@ -299,13 +298,6 @@ internal object NativeAlternativePaymentScreen {
         val progressIndicatorColor: Color,
         val dividerColor: Color,
         val dragHandleColor: Color
-    )
-
-    @Immutable
-    data class LabeledContentStyle(
-        val label: POText.Style,
-        val text: POText.Style,
-        val copyButton: POButton.Style
     )
 
     @Immutable
@@ -339,7 +331,9 @@ internal object NativeAlternativePaymentScreen {
                     color = colors.text.secondary,
                     textStyle = typography.s15()
                 ),
-                labeledContent = custom?.labeledContent?.custom() ?: defaultLabeledContent,
+                labeledContent = custom?.labeledContent?.let {
+                    POLabeledContent.custom(style = it)
+                } ?: POLabeledContent.default,
                 groupedContent = custom?.groupedContent?.let {
                     POGroupedContent.custom(style = it)
                 } ?: POGroupedContent.default,
@@ -385,27 +379,6 @@ internal object NativeAlternativePaymentScreen {
                 } ?: colors.icon.disabled
             )
         }
-
-    private val defaultLabeledContent: LabeledContentStyle
-        @Composable get() = LabeledContentStyle(
-            label = POText.Style(
-                color = colors.text.placeholder,
-                textStyle = typography.s12(FontWeight.Medium)
-            ),
-            text = POText.Style(
-                color = colors.text.primary,
-                textStyle = typography.s15(FontWeight.Medium)
-            ),
-            copyButton = POCopyButton.default
-        )
-
-    @Composable
-    private fun POLabeledContentStyle.custom() =
-        LabeledContentStyle(
-            label = POText.custom(style = label),
-            text = POText.custom(style = text),
-            copyButton = defaultLabeledContent.copyButton
-        )
 
     val defaultSuccess: SuccessStyle
         @Composable get() = SuccessStyle(
