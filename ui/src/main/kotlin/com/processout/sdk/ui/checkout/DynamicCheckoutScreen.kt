@@ -894,7 +894,7 @@ internal object DynamicCheckoutScreen {
                 title = POText.body1,
                 description = POTextWithIcon.Style(
                     text = description,
-                    iconResId = R.drawable.po_icon_info,
+                    iconResId = R.drawable.po_icon_warning_diamond,
                     iconColorFilter = ColorFilter.tint(color = description.color)
                 ),
                 shape = shapes.roundedCornersSmall,
