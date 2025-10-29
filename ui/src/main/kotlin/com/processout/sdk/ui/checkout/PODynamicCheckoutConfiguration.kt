@@ -330,6 +330,8 @@ data class PODynamicCheckoutConfiguration(
      * @param[expressPaymentButton] Branded express payment button style.
      * @param[regularPayment] Regular payment style.
      * @param[label] Field label style.
+     * @param[labeledContent] Labeled content style, such as customer instructions.
+     * @param[groupedContent] Grouped content style, such as customer instructions.
      * @param[field] Field style.
      * @param[codeField] Code field style.
      * @param[radioField] Radio field style.
@@ -355,6 +357,8 @@ data class PODynamicCheckoutConfiguration(
         val expressPaymentButton: POBrandButtonStyle? = null,
         val regularPayment: RegularPaymentStyle? = null,
         val label: POTextStyle? = null,
+        val labeledContent: POLabeledContentStyle? = null,
+        val groupedContent: POGroupedContentStyle? = null,
         val field: POFieldStyle? = null,
         val codeField: POFieldStyle? = null,
         val radioField: PORadioFieldStyle? = null,

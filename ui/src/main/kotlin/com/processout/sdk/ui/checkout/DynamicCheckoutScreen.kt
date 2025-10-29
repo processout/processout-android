@@ -748,6 +748,8 @@ internal object DynamicCheckoutScreen {
         val expressPaymentButton: POBrandButtonStyle?,
         val regularPayment: RegularPaymentStyle,
         val label: POText.Style,
+        val labeledContent: POLabeledContent.Style,
+        val groupedContent: POGroupedContent.Style,
         val field: POField.Style,
         val codeField: POField.Style,
         val radioField: PORadioField.Style,
@@ -805,6 +807,12 @@ internal object DynamicCheckoutScreen {
             color = colors.text.primary,
             textStyle = typography.s14(FontWeight.Medium)
         ),
+        labeledContent = custom?.labeledContent?.let {
+            POLabeledContent.custom(style = it)
+        } ?: POLabeledContent.default,
+        groupedContent = custom?.groupedContent?.let {
+            POGroupedContent.custom(style = it)
+        } ?: POGroupedContent.default,
         field = custom?.field?.let {
             POField.custom(style = it)
         } ?: POField.default2,
@@ -1042,8 +1050,8 @@ internal object DynamicCheckoutScreen {
         title = regularPayment.title,
         bodyText = bodyText,
         message = message,
-        labeledContent = null,
-        groupedContent = null,
+        labeledContent = labeledContent,
+        groupedContent = groupedContent,
         field = field,
         codeField = codeField,
         radioField = radioField,
