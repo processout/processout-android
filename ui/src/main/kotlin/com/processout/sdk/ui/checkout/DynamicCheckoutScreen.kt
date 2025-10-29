@@ -62,6 +62,7 @@ import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
 import com.processout.sdk.ui.core.component.field.radio.PORadioButton
 import com.processout.sdk.ui.core.component.field.radio.PORadioField
 import com.processout.sdk.ui.core.component.field.radio.PORadioField.radioButtonStyle
+import com.processout.sdk.ui.core.component.stepper.POStepper
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POBrandButtonStateStyle
@@ -757,6 +758,7 @@ internal object DynamicCheckoutScreen {
         val errorMessageBox: POMessageBox.Style,
         val message: POText.Style,
         val dialog: PODialog.Style,
+        val stepper: POStepper.Style,
         val scanCardButton: POButton.Style,
         val actionsContainer: POActionsContainer.Style,
         val backgroundColor: Color,
@@ -843,6 +845,9 @@ internal object DynamicCheckoutScreen {
         dialog = custom?.dialog?.let {
             PODialog.custom(style = it)
         } ?: PODialog.default,
+        stepper = custom?.stepper?.let {
+            POStepper.custom(style = it)
+        } ?: POStepper.default,
         scanCardButton = custom?.scanCardButton?.let {
             POButton.custom(style = it)
         } ?: CardTokenizationScreen.defaultScanButton,
@@ -1045,7 +1050,7 @@ internal object DynamicCheckoutScreen {
         dropdownMenu = dropdownMenu,
         checkbox = checkbox,
         dialog = dialog,
-        stepper = null,
+        stepper = stepper,
         success = NativeAlternativePaymentScreen.defaultSuccess,
         errorMessageBox = errorMessageBox,
         actionsContainer = actionsContainer,

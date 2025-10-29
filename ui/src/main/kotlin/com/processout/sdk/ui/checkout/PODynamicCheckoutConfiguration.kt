@@ -340,6 +340,7 @@ data class PODynamicCheckoutConfiguration(
      * @param[errorMessageBox] Error message box style.
      * @param[message] Message text style.
      * @param[dialog] Dialog style.
+     * @param[stepper] Multi-step progress view style.
      * @param[scanCardButton] Scan card button style.
      * @param[actionsContainer] Style of action buttons and their container.
      * @param[backgroundColorResId] Color resource ID for background.
@@ -364,6 +365,7 @@ data class PODynamicCheckoutConfiguration(
         val errorMessageBox: POMessageBoxStyle? = null,
         val message: POTextStyle? = null,
         val dialog: PODialogStyle? = null,
+        val stepper: POStepperStyle? = null,
         val scanCardButton: POButtonStyle? = null,
         val actionsContainer: POActionsContainerStyle? = null,
         @ColorRes
