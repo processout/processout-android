@@ -744,10 +744,10 @@ internal object DynamicCheckoutScreen {
     @Immutable
     data class Style(
         val sectionHeader: SectionHeaderStyle,
+        val subsectionTitle: POText.Style,
         val googlePayButton: GooglePayButton.Style,
         val expressPaymentButton: POBrandButtonStyle?,
         val regularPayment: RegularPaymentStyle,
-        val label: POText.Style,
         val labeledContent: POLabeledContent.Style,
         val groupedContent: POGroupedContent.Style,
         val field: POField.Style,
@@ -796,17 +796,17 @@ internal object DynamicCheckoutScreen {
         isLightTheme: Boolean
     ) = Style(
         sectionHeader = custom?.sectionHeader?.custom() ?: defaultSectionHeader,
-        googlePayButton = custom?.googlePayButton?.let {
-            GooglePayButton.custom(style = it, isLightTheme)
-        } ?: GooglePayButton.default(isLightTheme),
-        expressPaymentButton = custom?.expressPaymentButton,
-        regularPayment = custom?.regularPayment?.custom() ?: defaultRegularPayment,
-        label = custom?.label?.let {
+        subsectionTitle = custom?.subsectionTitle?.let {
             POText.custom(style = it)
         } ?: POText.Style(
             color = colors.text.primary,
             textStyle = typography.s14(FontWeight.Medium)
         ),
+        googlePayButton = custom?.googlePayButton?.let {
+            GooglePayButton.custom(style = it, isLightTheme)
+        } ?: GooglePayButton.default(isLightTheme),
+        expressPaymentButton = custom?.expressPaymentButton,
+        regularPayment = custom?.regularPayment?.custom() ?: defaultRegularPayment,
         labeledContent = custom?.labeledContent?.let {
             POLabeledContent.custom(style = it)
         } ?: POLabeledContent.default,
@@ -1031,7 +1031,7 @@ internal object DynamicCheckoutScreen {
 
     fun Style.cardTokenizationStyle() = CardTokenizationScreen.Style(
         title = regularPayment.title,
-        sectionTitle = label,
+        sectionTitle = subsectionTitle,
         field = field,
         radioField = radioField,
         dropdownMenu = dropdownMenu,

@@ -326,10 +326,10 @@ data class PODynamicCheckoutConfiguration(
      * Specifies dynamic checkout style.
      *
      * @param[sectionHeader] Section header style.
+     * @param[subsectionTitle] Subsection title style.
      * @param[googlePayButton] Google Pay button style.
      * @param[expressPaymentButton] Branded express payment button style.
      * @param[regularPayment] Regular payment style.
-     * @param[label] Field label style.
      * @param[labeledContent] Labeled content style, such as customer instructions.
      * @param[groupedContent] Grouped content style, such as customer instructions.
      * @param[field] Field style.
@@ -353,10 +353,10 @@ data class PODynamicCheckoutConfiguration(
     @Parcelize
     data class Style(
         val sectionHeader: SectionHeaderStyle? = null,
+        val subsectionTitle: POTextStyle? = null,
         val googlePayButton: POGooglePayButtonStyle? = null,
         val expressPaymentButton: POBrandButtonStyle? = null,
         val regularPayment: RegularPaymentStyle? = null,
-        val label: POTextStyle? = null,
         val labeledContent: POLabeledContentStyle? = null,
         val groupedContent: POGroupedContentStyle? = null,
         val field: POFieldStyle? = null,
