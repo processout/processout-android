@@ -407,7 +407,7 @@ internal object NativeAlternativePaymentScreen {
             copyButton = defaultLabeledContent.copyButton
         )
 
-    private val defaultSuccess: SuccessStyle
+    val defaultSuccess: SuccessStyle
         @Composable get() = SuccessStyle(
             title = POText.Style(
                 color = colors.text.primary,

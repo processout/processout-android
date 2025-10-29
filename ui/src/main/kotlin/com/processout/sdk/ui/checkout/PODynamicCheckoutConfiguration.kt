@@ -337,7 +337,8 @@ data class PODynamicCheckoutConfiguration(
      * @param[dropdownMenu] Dropdown menu style.
      * @param[bodyText] Body text style.
      * @param[errorText] Error text style.
-     * @param[messageBox] Message box style.
+     * @param[errorMessageBox] Error message box style.
+     * @param[message] Message text style.
      * @param[dialog] Dialog style.
      * @param[scanCardButton] Scan card button style.
      * @param[actionsContainer] Style of action buttons and their container.
@@ -360,7 +361,8 @@ data class PODynamicCheckoutConfiguration(
         val dropdownMenu: PODropdownMenuStyle? = null,
         val bodyText: POTextStyle? = null,
         val errorText: POTextStyle? = null,
-        val messageBox: POMessageBoxStyle? = null,
+        val errorMessageBox: POMessageBoxStyle? = null,
+        val message: POTextStyle? = null,
         val dialog: PODialogStyle? = null,
         val scanCardButton: POButtonStyle? = null,
         val actionsContainer: POActionsContainerStyle? = null,

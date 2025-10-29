@@ -46,6 +46,7 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.SuccessImageHeight
 import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.SuccessImageWidth
 import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.animatedBackgroundColor
 import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.cardTokenizationStyle
+import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.nativeAlternativePaymentStyle
 import com.processout.sdk.ui.checkout.DynamicCheckoutScreen.toButtonStyle
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutViewModelState.Field.CheckboxField
@@ -168,7 +169,7 @@ private fun Content(
     ) {
         POMessageBox(
             text = state.errorMessage,
-            style = style.messageBox,
+            style = style.errorMessageBox,
             modifier = Modifier.padding(bottom = spacing.large),
             horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing),
             enterAnimationDelayMillis = ShortAnimationDurationMillis
@@ -502,7 +503,7 @@ private fun RegularPaymentContent(
                                     onEvent(event)
                                 }
                             },
-                            style = NativeAlternativePaymentScreen.style(), // TODO
+                            style = style.nativeAlternativePaymentStyle(),
                             isPrimaryActionEnabled = state.primaryAction?.let { it.enabled && !it.loading } ?: false,
                             isLightTheme = isLightTheme
                         )
@@ -753,7 +754,8 @@ internal object DynamicCheckoutScreen {
         val dropdownMenu: PODropdownField.MenuStyle,
         val bodyText: AndroidTextView.Style,
         val errorText: POText.Style,
-        val messageBox: POMessageBox.Style,
+        val errorMessageBox: POMessageBox.Style,
+        val message: POText.Style,
         val dialog: PODialog.Style,
         val scanCardButton: POButton.Style,
         val actionsContainer: POActionsContainer.Style,
@@ -829,9 +831,15 @@ internal object DynamicCheckoutScreen {
             color = colors.text.error,
             textStyle = typography.s14()
         ),
-        messageBox = custom?.messageBox?.let {
+        errorMessageBox = custom?.errorMessageBox?.let {
             POMessageBox.custom(style = it)
-        } ?: POMessageBox.error,
+        } ?: POMessageBox.error2,
+        message = custom?.message?.let {
+            POText.custom(style = it)
+        } ?: POText.Style(
+            color = colors.text.secondary,
+            textStyle = typography.s15()
+        ),
         dialog = custom?.dialog?.let {
             PODialog.custom(style = it)
         } ?: PODialog.default,
@@ -1020,6 +1028,29 @@ internal object DynamicCheckoutScreen {
         scanButton = scanCardButton,
         actionsContainer = actionsContainer,
         backgroundColor = Color.Unspecified,
+        dividerColor = Color.Unspecified,
+        dragHandleColor = Color.Unspecified
+    )
+
+    @Composable
+    fun Style.nativeAlternativePaymentStyle() = NativeAlternativePaymentScreen.Style(
+        title = regularPayment.title,
+        bodyText = bodyText,
+        message = message,
+        labeledContent = null,
+        groupedContent = null,
+        field = field,
+        codeField = codeField,
+        radioField = radioField,
+        dropdownMenu = dropdownMenu,
+        checkbox = checkbox,
+        dialog = dialog,
+        stepper = null,
+        success = NativeAlternativePaymentScreen.defaultSuccess,
+        errorMessageBox = errorMessageBox,
+        actionsContainer = actionsContainer,
+        backgroundColor = Color.Unspecified,
+        progressIndicatorColor = Color.Unspecified,
         dividerColor = Color.Unspecified,
         dragHandleColor = Color.Unspecified
     )
