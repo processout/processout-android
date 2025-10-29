@@ -43,7 +43,6 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Element.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 import com.processout.sdk.ui.napm.screen.NativeAlternativePaymentScreen.ContentTransitionSpec
-import com.processout.sdk.ui.napm.screen.NativeAlternativePaymentScreen.LabeledContentStyle
 import com.processout.sdk.ui.napm.screen.NativeAlternativePaymentScreen.SuccessStyle
 import com.processout.sdk.ui.shared.component.AndroidTextView
 import com.processout.sdk.ui.shared.component.rememberLifecycleEvent
@@ -536,7 +535,7 @@ private fun PhoneNumberField(
 @Composable
 private fun CopyableMessage(
     message: CopyableMessage,
-    style: LabeledContentStyle,
+    style: POLabeledContent.Style,
     modifier: Modifier = Modifier
 ) {
     POLabeledContent(

@@ -93,7 +93,7 @@ object POTextWithIcon {
             )
             return Style(
                 text = text,
-                iconResId = R.drawable.po_icon_info,
+                iconResId = R.drawable.po_icon_warning_diamond,
                 iconColorFilter = ColorFilter.tint(color = text.color)
             )
         }

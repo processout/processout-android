@@ -43,7 +43,6 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutSideEffect.*
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.*
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.Button
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.CancelButton
-import com.processout.sdk.ui.checkout.screen.DynamicCheckoutScreen
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.googlepay.POGooglePayCardTokenizationLauncher
@@ -140,8 +139,17 @@ class PODynamicCheckoutActivity : POBaseTransparentPortraitActivity() {
                 invoiceId = configuration.invoiceRequest.invoiceId,
                 gatewayConfigurationId = String()
             ),
-            submitButton = configuration.submitButton.map(),
+            header = null,
+            content = configuration.alternativePayment.content,
+            submitButton = configuration.submitButton.let {
+                PONativeAlternativePaymentConfiguration.Button(
+                    text = it.text ?: getString(R.string.po_dynamic_checkout_button_pay),
+                    icon = it.icon
+                )
+            },
             cancelButton = configuration.cancelButton?.map(),
+            inlineSingleSelectValuesLimit = configuration.alternativePayment.inlineSingleSelectValuesLimit,
+            barcode = configuration.alternativePayment.barcode,
             redirect = if (!returnUrl.isNullOrBlank())
                 RedirectConfiguration(returnUrl = returnUrl) else null,
             paymentConfirmation = PaymentConfirmationConfiguration(
@@ -149,8 +157,6 @@ class PODynamicCheckoutActivity : POBaseTransparentPortraitActivity() {
                 confirmButton = paymentConfirmation.confirmButton?.map(),
                 cancelButton = paymentConfirmation.cancelButton?.map()
             ),
-            barcode = configuration.alternativePayment.barcode,
-            inlineSingleSelectValuesLimit = configuration.alternativePayment.inlineSingleSelectValuesLimit,
             success = null
         )
     }

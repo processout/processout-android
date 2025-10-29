@@ -13,6 +13,7 @@ import com.processout.sdk.ui.card.scanner.POCardScannerConfiguration
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import com.processout.sdk.ui.core.style.*
+import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration
 import com.processout.sdk.ui.shared.configuration.POActionConfirmationConfiguration
 import com.processout.sdk.ui.shared.configuration.POBarcodeConfiguration
 import kotlinx.parcelize.Parcelize
@@ -230,6 +231,7 @@ data class PODynamicCheckoutConfiguration(
      * Specifies alternative payment configuration.
      *
      * @param[returnUrl] Deep link return URL. Required for web authorization.
+     * @param[content] Custom content for native alternative payment.
      * @param[inlineSingleSelectValuesLimit] Defines maximum number of options that will be
      * displayed inline for parameters where user should select single option (e.g. radio buttons).
      * Default value is _5_.
@@ -239,6 +241,7 @@ data class PODynamicCheckoutConfiguration(
     @Parcelize
     data class AlternativePaymentConfiguration(
         val returnUrl: String? = null,
+        val content: PONativeAlternativePaymentConfiguration.Content? = null,
         val inlineSingleSelectValuesLimit: Int = 5,
         val barcode: POBarcodeConfiguration = POBarcodeConfiguration(saveButton = POBarcodeConfiguration.Button()),
         val paymentConfirmation: PaymentConfirmationConfiguration = PaymentConfirmationConfiguration()
@@ -249,8 +252,6 @@ data class PODynamicCheckoutConfiguration(
          *
          * @param[timeoutSeconds] Amount of time (in seconds) to wait for final payment confirmation.
          * Default value is 3 minutes, while maximum value is 15 minutes.
-         * @param[showProgressIndicatorAfterSeconds] Show progress indicator during payment confirmation after provided delay (in seconds).
-         * Use _null_ to hide, this is a default behaviour.
          * @param[confirmButton] Confirm button configuration.
          * @param[cancelButton] Cancel button configuration.
          */
@@ -258,7 +259,6 @@ data class PODynamicCheckoutConfiguration(
         data class PaymentConfirmationConfiguration(
             @IntRange(from = 0, to = 15 * 60)
             val timeoutSeconds: Int = 3 * 60,
-            val showProgressIndicatorAfterSeconds: Int? = null,
             val confirmButton: Button? = null,
             val cancelButton: CancelButton? = CancelButton()
         ) : Parcelable
@@ -326,20 +326,22 @@ data class PODynamicCheckoutConfiguration(
      * Specifies dynamic checkout style.
      *
      * @param[sectionHeader] Section header style.
+     * @param[subsectionTitle] Subsection title style.
      * @param[googlePayButton] Google Pay button style.
      * @param[expressPaymentButton] Branded express payment button style.
      * @param[regularPayment] Regular payment style.
-     * @param[label] Field label style.
+     * @param[labeledContent] Labeled content style, such as customer instructions.
+     * @param[groupedContent] Grouped content style, such as customer instructions.
      * @param[field] Field style.
      * @param[codeField] Code field style.
      * @param[radioField] Radio field style.
-     * @param[radioButton] Radio button style.
      * @param[checkbox] Checkbox style.
      * @param[dropdownMenu] Dropdown menu style.
      * @param[bodyText] Body text style.
      * @param[errorText] Error text style.
-     * @param[messageBox] Message box style.
+     * @param[errorMessageBox] Error message box style.
      * @param[dialog] Dialog style.
+     * @param[stepper] Multi-step progress view style.
      * @param[scanCardButton] Scan card button style.
      * @param[actionsContainer] Style of action buttons and their container.
      * @param[backgroundColorResId] Color resource ID for background.
@@ -350,20 +352,22 @@ data class PODynamicCheckoutConfiguration(
     @Parcelize
     data class Style(
         val sectionHeader: SectionHeaderStyle? = null,
+        val subsectionTitle: POTextStyle? = null,
         val googlePayButton: POGooglePayButtonStyle? = null,
         val expressPaymentButton: POBrandButtonStyle? = null,
         val regularPayment: RegularPaymentStyle? = null,
-        val label: POTextStyle? = null,
+        val labeledContent: POLabeledContentStyle? = null,
+        val groupedContent: POGroupedContentStyle? = null,
         val field: POFieldStyle? = null,
         val codeField: POFieldStyle? = null,
         val radioField: PORadioFieldStyle? = null,
-        val radioButton: PORadioButtonStyle? = null, // TODO: remove
         val checkbox: POCheckboxStyle? = null,
         val dropdownMenu: PODropdownMenuStyle? = null,
         val bodyText: POTextStyle? = null,
         val errorText: POTextStyle? = null,
-        val messageBox: POMessageBoxStyle? = null,
+        val errorMessageBox: POMessageBoxStyle? = null,
         val dialog: PODialogStyle? = null,
+        val stepper: POStepperStyle? = null,
         val scanCardButton: POButtonStyle? = null,
         val actionsContainer: POActionsContainerStyle? = null,
         @ColorRes

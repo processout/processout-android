@@ -11,8 +11,10 @@ import coil.request.ImageRequest
 import coil.request.ImageResult
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
-import com.processout.sdk.api.model.event.PONativeAlternativePaymentMethodEvent.WillSubmitParameters
-import com.processout.sdk.api.model.request.*
+import com.processout.sdk.api.model.request.POCardTokenizationProcessingRequest
+import com.processout.sdk.api.model.request.POCardTokenizationShouldContinueRequest
+import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
+import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.request.POInvoiceRequest.ExpandedProperty.Companion.paymentMethods
 import com.processout.sdk.api.model.request.POInvoiceRequest.ExpandedProperty.Companion.transaction
 import com.processout.sdk.api.model.response.*
@@ -59,7 +61,9 @@ import com.processout.sdk.ui.checkout.delegate.PODynamicCheckoutEvent.*
 import com.processout.sdk.ui.napm.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow
-import com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentEvent
+import com.processout.sdk.ui.napm.delegate.v2.NativeAlternativePaymentDefaultValuesRequest
+import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent
+import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent.WillSubmitParameters
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsConfiguration
 import com.processout.sdk.ui.shared.extension.orElse
 import com.processout.sdk.ui.shared.state.FieldValue
@@ -148,8 +152,8 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun cancelWebAuthorization() {
-        with(_state.value) {
-            if (selectedPaymentMethod != null || pendingSubmitPaymentMethod != null) {
+        _state.value.let {
+            if (it.selectedPaymentMethod != null || it.pendingSubmitPaymentMethod != null) {
                 interactorScope.launch {
                     _sideEffects.send(DynamicCheckoutSideEffect.CancelWebAuthorization)
                 }
@@ -432,8 +436,8 @@ internal class DynamicCheckoutInteractor(
         _state.value.paymentMethods.find { it.id == id }
 
     private fun activePaymentMethod(): PaymentMethod? =
-        with(_state.value) {
-            processingPaymentMethod ?: selectedPaymentMethod
+        _state.value.let {
+            it.processingPaymentMethod ?: it.selectedPaymentMethod
         }
 
     private fun onPaymentMethodSelected(event: PaymentMethodSelected) {
@@ -569,20 +573,24 @@ internal class DynamicCheckoutInteractor(
 
     private fun onFieldValueChanged(event: FieldValueChanged) {
         when (val paymentMethod = paymentMethod(event.paymentMethodId)) {
-            is Card -> cardTokenization.onEvent(
-                CardTokenizationEvent.FieldValueChanged(event.fieldId, event.value)
-            )
-            is NativeAlternativePayment -> nativeAlternativePayment.onEvent(
-                NativeAlternativePaymentEvent.FieldValueChanged(event.fieldId, FieldValue.Text(event.value))
-            )
-            else -> _state.update { state ->
-                state.copy(
-                    paymentMethods = state.paymentMethods.map {
-                        if (it.id == paymentMethod?.id) {
-                            updatedPaymentMethod(it, event.fieldId, event.value)
-                        } else it
-                    }
+            is Card -> if (event.value is FieldValue.Text) {
+                cardTokenization.onEvent(
+                    CardTokenizationEvent.FieldValueChanged(event.fieldId, event.value.value)
                 )
+            }
+            is NativeAlternativePayment -> nativeAlternativePayment.onEvent(
+                NativeAlternativePaymentEvent.FieldValueChanged(event.fieldId, event.value)
+            )
+            else -> if (event.value is FieldValue.Text) {
+                _state.update { state ->
+                    state.copy(
+                        paymentMethods = state.paymentMethods.map {
+                            if (it.id == paymentMethod?.id) {
+                                updatedPaymentMethod(it, event.fieldId, event.value.value)
+                            } else it
+                        }
+                    )
+                }
             }
         }
     }
@@ -593,9 +601,11 @@ internal class DynamicCheckoutInteractor(
         value: TextFieldValue
     ): PaymentMethod = when (paymentMethod) {
         is AlternativePayment -> when (fieldId) {
-            FieldId.SAVE_PAYMENT_METHOD -> with(paymentMethod) {
+            FieldId.SAVE_PAYMENT_METHOD -> {
                 POLogger.debug("Field is edited by the user: %s = %s", fieldId, value.text)
-                copy(savePaymentMethodField = savePaymentMethodField?.copy(value = value))
+                paymentMethod.copy(
+                    savePaymentMethodField = paymentMethod.savePaymentMethodField?.copy(value = value)
+                )
             }
             else -> paymentMethod
         }
@@ -840,16 +850,21 @@ internal class DynamicCheckoutInteractor(
             if (paymentMethod.id != paymentMethodId) {
                 return
             }
-            result.onSuccess { response ->
-                authorizeInvoice(
-                    paymentMethod = paymentMethod,
-                    source = response.gatewayToken,
-                    allowFallbackToSale = true
+            when (paymentMethod) {
+                is NativeAlternativePayment -> nativeAlternativePayment.onEvent(
+                    NativeAlternativePaymentEvent.RedirectResult(result)
                 )
-            }.onFailure { failure ->
-                invalidateInvoice(
-                    reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(failure)
-                )
+                else -> result.onSuccess { response ->
+                    authorizeInvoice(
+                        paymentMethod = paymentMethod,
+                        source = response.gatewayToken,
+                        allowFallbackToSale = true
+                    )
+                }.onFailure { failure ->
+                    invalidateInvoice(
+                        reason = PODynamicCheckoutInvoiceInvalidationReason.Failure(failure)
+                    )
+                }
             }
         }
     }
@@ -1081,7 +1096,7 @@ internal class DynamicCheckoutInteractor(
                 eventDispatcher.send(request.toResponse(shouldContinue))
             }
         }
-        eventDispatcher.subscribeForRequest<PONativeAlternativePaymentMethodDefaultValuesRequest>(
+        eventDispatcher.subscribeForRequest<NativeAlternativePaymentDefaultValuesRequest>(
             coroutineScope = interactorScope
         ) { request ->
             activePaymentMethod()?.let { paymentMethod ->
@@ -1128,9 +1143,17 @@ internal class DynamicCheckoutInteractor(
                             _sideEffects.send(permissionRequest)
                             POLogger.info("System permission requested: %s", permissionRequest)
                         }
-                    is NativeAlternativePaymentSideEffect.Redirect -> {
-                        // TODO
-                    }
+                    is NativeAlternativePaymentSideEffect.Redirect ->
+                        activePaymentMethod()?.let { paymentMethod ->
+                            _state.update { it.copy(processingPaymentMethod = paymentMethod) }
+                            _sideEffects.send(
+                                DynamicCheckoutSideEffect.AlternativePayment(
+                                    paymentMethodId = paymentMethod.id,
+                                    redirectUrl = sideEffect.redirectUrl,
+                                    returnUrl = sideEffect.returnUrl
+                                )
+                            )
+                        }
                 }
             }
         }

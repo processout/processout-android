@@ -338,10 +338,7 @@ internal class DynamicCheckoutViewModel private constructor(
                     ),
                     content = if (selected) Content.NativeAlternativePayment(nativeAlternativePaymentState) else null,
                     submitAction = if (selected && nativeAlternativePaymentState is NativeAlternativePaymentViewModelState.Loaded)
-                        nativeAlternativePaymentState.primaryAction?.copy(
-                            text = submitButtonText,
-                            icon = configuration.submitButton.icon
-                        ) else null
+                        nativeAlternativePaymentState.primaryAction else null
                 )
                 else -> null
             }

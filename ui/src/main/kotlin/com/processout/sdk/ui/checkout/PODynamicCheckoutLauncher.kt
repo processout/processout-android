@@ -22,7 +22,7 @@ import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationEligib
 import com.processout.sdk.ui.card.tokenization.delegate.toResponse
 import com.processout.sdk.ui.checkout.delegate.*
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
-import com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentEvent
+import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent
 import com.processout.sdk.ui.savedpaymentmethods.delegate.POSavedPaymentMethodsEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
