@@ -758,7 +758,6 @@ internal object DynamicCheckoutScreen {
         val bodyText: AndroidTextView.Style,
         val errorText: POText.Style,
         val errorMessageBox: POMessageBox.Style,
-        val message: POText.Style,
         val dialog: PODialog.Style,
         val stepper: POStepper.Style,
         val scanCardButton: POButton.Style,
@@ -844,12 +843,6 @@ internal object DynamicCheckoutScreen {
         errorMessageBox = custom?.errorMessageBox?.let {
             POMessageBox.custom(style = it)
         } ?: POMessageBox.error2,
-        message = custom?.message?.let {
-            POText.custom(style = it)
-        } ?: POText.Style(
-            color = colors.text.secondary,
-            textStyle = typography.s15()
-        ),
         dialog = custom?.dialog?.let {
             PODialog.custom(style = it)
         } ?: PODialog.default,
@@ -887,8 +880,8 @@ internal object DynamicCheckoutScreen {
     private val defaultRegularPayment: RegularPaymentStyle
         @Composable get() {
             val description = POText.Style(
-                color = colors.text.muted,
-                textStyle = typography.body2
+                color = colors.text.secondary,
+                textStyle = typography.s14()
             )
             return RegularPaymentStyle(
                 title = POText.body1,
@@ -1049,7 +1042,7 @@ internal object DynamicCheckoutScreen {
     fun Style.nativeAlternativePaymentStyle() = NativeAlternativePaymentScreen.Style(
         title = regularPayment.title,
         bodyText = bodyText,
-        message = message,
+        message = regularPayment.description.text,
         labeledContent = labeledContent,
         groupedContent = groupedContent,
         field = field,

@@ -340,7 +340,6 @@ data class PODynamicCheckoutConfiguration(
      * @param[bodyText] Body text style.
      * @param[errorText] Error text style.
      * @param[errorMessageBox] Error message box style.
-     * @param[message] Message text style.
      * @param[dialog] Dialog style.
      * @param[stepper] Multi-step progress view style.
      * @param[scanCardButton] Scan card button style.
@@ -367,7 +366,6 @@ data class PODynamicCheckoutConfiguration(
         val bodyText: POTextStyle? = null,
         val errorText: POTextStyle? = null,
         val errorMessageBox: POMessageBoxStyle? = null,
-        val message: POTextStyle? = null,
         val dialog: PODialogStyle? = null,
         val stepper: POStepperStyle? = null,
         val scanCardButton: POButtonStyle? = null,
