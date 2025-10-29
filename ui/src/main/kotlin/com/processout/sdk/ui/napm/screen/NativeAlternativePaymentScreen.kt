@@ -329,7 +329,7 @@ internal object NativeAlternativePaymentScreen {
                     POText.custom(style = it)
                 } ?: POText.Style(
                     color = colors.text.secondary,
-                    textStyle = typography.s15()
+                    textStyle = typography.s14()
                 ),
                 labeledContent = custom?.labeledContent?.let {
                     POLabeledContent.custom(style = it)
