@@ -342,7 +342,7 @@ internal object NativeAlternativePaymentScreen {
                 } ?: POField.default2,
                 codeField = custom?.codeField?.let {
                     POField.custom(style = it)
-                } ?: POCodeField.default2,
+                } ?: POCodeField.default,
                 radioField = custom?.radioField?.let {
                     PORadioField.custom(style = it)
                 } ?: PORadioField.default,
