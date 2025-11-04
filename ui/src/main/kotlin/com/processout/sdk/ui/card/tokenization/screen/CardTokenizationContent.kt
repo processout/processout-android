@@ -359,7 +359,12 @@ private fun AnimatedFieldIcon(@DrawableRes id: Int) {
         id = id,
         modifier = Modifier
             .requiredHeight(dimensions.formComponentMinHeight)
-            .padding(POField.contentPadding),
+            .padding(
+                PaddingValues(
+                    horizontal = spacing.space16,
+                    vertical = spacing.space12
+                )
+            ),
         contentScale = ContentScale.FillHeight
     )
 }

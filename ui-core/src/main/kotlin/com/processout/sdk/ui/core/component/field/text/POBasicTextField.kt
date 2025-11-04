@@ -46,7 +46,7 @@ fun POBasicTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
-    minHeight: Dp = dimensions.formComponentMinHeight,
+    minHeight: Dp = dimensions.fieldMinHeight,
     contentPadding: PaddingValues = POField.contentPadding,
     style: POField.Style = POField.default,
     enabled: Boolean = true,

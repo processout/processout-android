@@ -170,12 +170,6 @@ object POField {
 
     val contentPadding: PaddingValues
         @Composable get() = PaddingValues(
-            horizontal = spacing.large,
-            vertical = spacing.medium
-        )
-
-    val contentPadding2: PaddingValues
-        @Composable get() = PaddingValues(
             horizontal = spacing.space12,
             vertical = spacing.space6
         )
