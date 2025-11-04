@@ -14,7 +14,8 @@ class ProcessOutExampleApplication : Application() {
             ProcessOutConfiguration(
                 application = this,
                 projectId = BuildConfig.PROJECT_ID,
-                debug = true
+                debug = true,
+                enableTelemetry = false
             ).apply { privateKey = BuildConfig.PROJECT_KEY }
         )
     }
