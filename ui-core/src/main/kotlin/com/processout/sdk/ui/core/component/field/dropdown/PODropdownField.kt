@@ -34,7 +34,7 @@ import com.processout.sdk.ui.core.component.POMessageBox
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.POField.stateStyle
-import com.processout.sdk.ui.core.component.field.text.POTextField2
+import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.PODropdownMenuStyle
@@ -96,7 +96,7 @@ fun PODropdownField(
         ) {
             var isFocused by remember { mutableStateOf(false) }
             val fieldStateStyle = fieldStyle.stateStyle(isError = isError, isFocused = isFocused)
-            POTextField2(
+            POTextField(
                 value = availableValues.elements.find { it.value == value.text }
                     ?.let {
                         TextFieldValue(

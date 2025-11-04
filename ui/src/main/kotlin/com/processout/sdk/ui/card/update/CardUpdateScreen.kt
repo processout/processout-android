@@ -23,7 +23,7 @@ import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.card.update.CardUpdateEvent.*
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
-import com.processout.sdk.ui.core.component.field.text.POTextField2
+import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
@@ -124,7 +124,7 @@ private fun Fields(
         val lifecycleEvent = rememberLifecycleEvent()
         fields.elements.forEach { state ->
             val focusRequester = remember { FocusRequester() }
-            POTextField2(
+            POTextField(
                 value = state.value,
                 onValueChange = {
                     if (state.enabled) {

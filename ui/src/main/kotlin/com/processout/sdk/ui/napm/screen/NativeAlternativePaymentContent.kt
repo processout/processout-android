@@ -27,7 +27,7 @@ import com.processout.sdk.ui.core.component.field.code.POCodeField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
 import com.processout.sdk.ui.core.component.field.phone.POPhoneNumberField
 import com.processout.sdk.ui.core.component.field.radio.PORadioField
-import com.processout.sdk.ui.core.component.field.text.POTextField2
+import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.component.stepper.POVerticalStepper
 import com.processout.sdk.ui.core.shared.image.POImageRenderingMode.ORIGINAL
 import com.processout.sdk.ui.core.shared.image.POImageRenderingMode.TEMPLATE
@@ -287,7 +287,7 @@ private fun TextField(
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
-    POTextField2(
+    POTextField(
         value = state.value,
         onValueChange = {
             onEvent(

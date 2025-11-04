@@ -33,7 +33,7 @@ import com.processout.sdk.ui.core.component.field.POField.stateStyle
 import com.processout.sdk.ui.core.component.field.code.POCodeField.align
 import com.processout.sdk.ui.core.component.field.code.POCodeField.rememberTextFieldWidth
 import com.processout.sdk.ui.core.component.field.code.POCodeField.validLength
-import com.processout.sdk.ui.core.component.field.text.POTextField2
+import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.component.texttoolbar.ProcessOutTextToolbar
 import com.processout.sdk.ui.core.state.POInputFilter
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
@@ -149,7 +149,7 @@ private fun Code(
             val focusManager = LocalFocusManager.current
             for (textFieldIndex in values.indices) {
                 val focusRequester = remember { FocusRequester() }
-                POTextField2(
+                POTextField(
                     value = values[textFieldIndex],
                     onValueChange = { updatedValue ->
                         if (updatedValue.selection.length == 0) {
