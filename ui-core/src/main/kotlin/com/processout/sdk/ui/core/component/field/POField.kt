@@ -65,45 +65,6 @@ object POField {
         @Composable get() = with(ProcessOutTheme) {
             Style(
                 normal = StateStyle(
-                    text = POText.body2,
-                    label = POText.label1,
-                    placeholderTextColor = colors.text.muted,
-                    backgroundColor = colors.input.backgroundDefault,
-                    controlsTintColor = colors.text.primary,
-                    dropdownRippleColor = colors.text.muted,
-                    shape = shapes.roundedCornersSmall,
-                    border = POBorderStroke(width = 1.dp, color = colors.input.borderDefault)
-                ),
-                error = StateStyle(
-                    text = POText.body2,
-                    label = POText.Style(
-                        color = colors.text.error,
-                        textStyle = typography.label1
-                    ),
-                    placeholderTextColor = colors.text.muted,
-                    backgroundColor = colors.input.backgroundDefault,
-                    controlsTintColor = colors.text.primary,
-                    dropdownRippleColor = colors.text.muted,
-                    shape = shapes.roundedCornersSmall,
-                    border = POBorderStroke(width = 1.dp, color = colors.input.borderError)
-                ),
-                focused = StateStyle(
-                    text = POText.body2,
-                    label = POText.label1,
-                    placeholderTextColor = colors.text.muted,
-                    backgroundColor = colors.input.backgroundDefault,
-                    controlsTintColor = colors.text.primary,
-                    dropdownRippleColor = colors.text.muted,
-                    shape = shapes.roundedCornersSmall,
-                    border = POBorderStroke(width = 1.dp, color = colors.input.borderFocused)
-                )
-            )
-        }
-
-    val default2: Style
-        @Composable get() = with(ProcessOutTheme) {
-            Style(
-                normal = StateStyle(
                     text = POText.Style(
                         color = colors.text.primary,
                         textStyle = typography.s15(FontWeight.Medium)

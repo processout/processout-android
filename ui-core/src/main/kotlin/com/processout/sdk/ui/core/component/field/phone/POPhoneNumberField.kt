@@ -28,7 +28,7 @@ fun POPhoneNumberField(
     onValueChange: (TextFieldValue, TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
     textFieldModifier: Modifier = Modifier,
-    fieldStyle: POField.Style = POField.default2,
+    fieldStyle: POField.Style = POField.default,
     dropdownMenuStyle: PODropdownField.MenuStyle = PODropdownField.defaultMenu,
     descriptionStyle: POMessageBox.Style = POMessageBox.error2,
     keyboardActions: KeyboardActions = KeyboardActions.Default

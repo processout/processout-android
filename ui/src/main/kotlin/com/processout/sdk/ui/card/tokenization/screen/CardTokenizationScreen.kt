@@ -153,7 +153,7 @@ internal object CardTokenizationScreen {
         ),
         field = custom?.field?.let {
             POField.custom(style = it)
-        } ?: POField.default2,
+        } ?: POField.default,
         radioField = custom?.radioField?.let {
             PORadioField.custom(style = it)
         } ?: PORadioField.default,

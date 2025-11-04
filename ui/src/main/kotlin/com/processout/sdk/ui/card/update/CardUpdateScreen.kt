@@ -226,7 +226,7 @@ internal object CardUpdateScreen {
         ),
         field = custom?.field?.let {
             POField.custom(style = it)
-        } ?: POField.default2,
+        } ?: POField.default,
         errorMessage = custom?.errorMessage?.let {
             POText.custom(style = it)
         } ?: POText.Style(

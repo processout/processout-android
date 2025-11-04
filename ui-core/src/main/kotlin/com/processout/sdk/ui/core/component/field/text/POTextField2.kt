@@ -29,7 +29,7 @@ fun POTextField2(
     textFieldModifier: Modifier = Modifier,
     minHeight: Dp = dimensions.fieldMinHeight,
     contentPadding: PaddingValues = POField.contentPadding2,
-    fieldStyle: POField.Style = POField.default2,
+    fieldStyle: POField.Style = POField.default,
     descriptionStyle: POMessageBox.Style = POMessageBox.error2,
     enabled: Boolean = true,
     readOnly: Boolean = false,

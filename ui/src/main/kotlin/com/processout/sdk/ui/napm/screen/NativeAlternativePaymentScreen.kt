@@ -339,7 +339,7 @@ internal object NativeAlternativePaymentScreen {
                 } ?: POGroupedContent.default,
                 field = custom?.field?.let {
                     POField.custom(style = it)
-                } ?: POField.default2,
+                } ?: POField.default,
                 codeField = custom?.codeField?.let {
                     POField.custom(style = it)
                 } ?: POCodeField.default,

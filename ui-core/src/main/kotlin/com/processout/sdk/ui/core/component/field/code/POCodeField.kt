@@ -290,7 +290,7 @@ private fun List<TextFieldValue>.codeValue() = TextFieldValue(
 object POCodeField {
 
     val default: POField.Style
-        @Composable get() = POField.default2.let {
+        @Composable get() = POField.default.let {
             val text = POText.Style(
                 color = colors.text.primary,
                 textStyle = typography.s20(FontWeight.Medium)

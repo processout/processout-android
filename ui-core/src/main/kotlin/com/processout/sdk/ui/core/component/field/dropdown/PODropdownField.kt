@@ -54,7 +54,7 @@ fun PODropdownField(
     modifier: Modifier = Modifier,
     textFieldModifier: Modifier = Modifier,
     contentPadding: PaddingValues = POField.contentPadding2,
-    fieldStyle: POField.Style = POField.default2,
+    fieldStyle: POField.Style = POField.default,
     menuStyle: PODropdownField.MenuStyle = PODropdownField.defaultMenu,
     descriptionStyle: POMessageBox.Style = POMessageBox.error2,
     menuMatchesTextFieldWidth: Boolean = true,
