@@ -25,7 +25,6 @@ import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckboxField
 import com.processout.sdk.ui.core.component.field.code.POCodeField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
-import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField2
 import com.processout.sdk.ui.core.component.field.phone.POPhoneNumberField
 import com.processout.sdk.ui.core.component.field.radio.PORadioField
 import com.processout.sdk.ui.core.component.field.text.POTextField2
@@ -419,7 +418,7 @@ private fun DropdownField(
     descriptionStyle: POMessageBox.Style,
     modifier: Modifier = Modifier
 ) {
-    PODropdownField2(
+    PODropdownField(
         value = state.value,
         onValueChange = {
             onEvent(

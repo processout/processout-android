@@ -826,7 +826,7 @@ internal object DynamicCheckoutScreen {
         } ?: POCheckbox.default2,
         dropdownMenu = custom?.dropdownMenu?.let {
             PODropdownField.custom(style = it)
-        } ?: PODropdownField.defaultMenu2,
+        } ?: PODropdownField.defaultMenu,
         bodyText = custom?.bodyText?.let { style ->
             val controlsTintColor = custom.controlsTintColorResId?.let { colorResource(id = it) }
             AndroidTextView.custom(
