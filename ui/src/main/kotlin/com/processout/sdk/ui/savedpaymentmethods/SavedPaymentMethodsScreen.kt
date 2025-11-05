@@ -59,7 +59,7 @@ internal fun SavedPaymentMethodsScreen(
     Scaffold(
         modifier = Modifier
             .nestedScroll(rememberNestedScrollInteropConnection())
-            .clip(shape = shapes.topRoundedCornersLarge),
+            .clip(shape = shapes.topRoundedCorners16),
         containerColor = style.backgroundColor,
         topBar = {
             Header(
@@ -294,7 +294,7 @@ private fun PaymentLogo(
                 .requiredSize(PaymentLogoSize)
                 .background(
                     color = fallbackBoxColor,
-                    shape = shapes.roundedCornersSmall
+                    shape = shapes.roundedCorners4
                 )
         )
     }
@@ -435,7 +435,7 @@ internal object SavedPaymentMethodsScreen {
                 textStyle = typography.s16(FontWeight.Medium)
             ),
             deleteButton = POButton.ghostEqualPadding,
-            shape = shapes.roundedCornersSmall,
+            shape = shapes.roundedCorners4,
             border = POBorderStroke(width = 1.dp, color = colors.border.border4),
             backgroundColor = colors.surface.default
         )

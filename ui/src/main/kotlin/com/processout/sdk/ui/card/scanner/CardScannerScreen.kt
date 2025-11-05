@@ -75,7 +75,7 @@ internal fun CardScannerScreen(
     style: CardScannerScreen.Style = CardScannerScreen.style()
 ) {
     Scaffold(
-        modifier = Modifier.clip(shape = shapes.topRoundedCornersLarge),
+        modifier = Modifier.clip(shape = shapes.topRoundedCorners16),
         containerColor = style.backgroundColor
     ) { scaffoldPadding ->
         val verticalSpacingPx = (spacing.large * 2).dpToPx()
@@ -392,7 +392,7 @@ internal object CardScannerScreen {
 
     private val defaultCameraPreview: CameraPreviewStyle
         @Composable get() = CameraPreviewStyle(
-            shape = shapes.roundedCornersMedium,
+            shape = shapes.roundedCorners8,
             border = POBorderStroke(width = 0.dp, color = Color.Transparent),
             overlayColor = Color.Black.copy(alpha = 0.4f)
         )

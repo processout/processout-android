@@ -97,7 +97,7 @@ internal fun DynamicCheckoutScreen(
         Scaffold(
             modifier = Modifier
                 .consumeWindowInsets(WindowInsets.safeDrawing)
-                .clip(shape = shapes.topRoundedCornersLarge),
+                .clip(shape = shapes.topRoundedCorners16),
             containerColor = animatedBackgroundColor(
                 state = state,
                 normalColor = style.backgroundColor,
@@ -622,7 +622,7 @@ private fun PaymentLogo(
                 .requiredSize(PaymentLogoSize)
                 .background(
                     color = fallbackBoxColor,
-                    shape = shapes.roundedCornersSmall
+                    shape = shapes.roundedCorners4
                 )
         )
     }
@@ -896,7 +896,7 @@ internal object DynamicCheckoutScreen {
                     iconResId = R.drawable.po_icon_warning_diamond,
                     iconColorFilter = ColorFilter.tint(color = description.color)
                 ),
-                shape = shapes.roundedCornersSmall,
+                shape = shapes.roundedCorners4,
                 border = POBorderStroke(width = 1.dp, color = colors.border.border4),
                 backgroundColor = colors.surface.default
             )

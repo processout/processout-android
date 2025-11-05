@@ -48,7 +48,7 @@ internal fun CardUpdateScreen(
     Scaffold(
         modifier = Modifier
             .nestedScroll(rememberNestedScrollInteropConnection())
-            .clip(shape = shapes.topRoundedCornersLarge),
+            .clip(shape = shapes.topRoundedCorners16),
         containerColor = style.backgroundColor,
         topBar = {
             POHeader(

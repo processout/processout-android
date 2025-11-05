@@ -85,7 +85,7 @@ fun PODialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(spacing.extraLarge),
-                    shape = shapes.roundedCornersLarge,
+                    shape = shapes.roundedCorners16,
                     color = style.backgroundColor,
                     contentColor = Color.Unspecified,
                     shadowElevation = 3.dp
