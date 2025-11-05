@@ -24,12 +24,6 @@ private val WorkSans = FontFamily(
 @Immutable
 data class POTypography(
     val paragraph: Paragraph = Paragraph,
-    val largeTitle: TextStyle = TextStyle(
-        fontFamily = WorkSans,
-        fontWeight = FontWeight.Normal,
-        fontSize = 28.sp,
-        lineHeight = 32.sp
-    ),
     val body1: TextStyle = TextStyle(
         fontFamily = WorkSans,
         fontWeight = FontWeight.Medium,
@@ -124,6 +118,14 @@ data class POTypography(
             fontWeight = fontWeight,
             fontSize = 24.sp,
             lineHeight = 28.sp
+        )
+
+    fun s28(fontWeight: FontWeight = FontWeight.Normal) =
+        TextStyle(
+            fontFamily = WorkSans,
+            fontWeight = fontWeight,
+            fontSize = 28.sp,
+            lineHeight = 32.sp
         )
 
     object Paragraph {
