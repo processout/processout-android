@@ -243,7 +243,7 @@ internal object CardUpdateScreen {
         } ?: PODialog.default,
         actionsContainer = custom?.actionsContainer?.let {
             POActionsContainer.custom(style = it)
-        } ?: POActionsContainer.default2,
+        } ?: POActionsContainer.default,
         backgroundColor = custom?.backgroundColorResId?.let {
             colorResource(id = it)
         } ?: colors.surface.default,
