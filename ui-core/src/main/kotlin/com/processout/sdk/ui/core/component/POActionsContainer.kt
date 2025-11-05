@@ -129,7 +129,7 @@ object POActionsContainer {
     val default: Style
         @Composable get() = with(ProcessOutTheme) {
             Style(
-                primary = POButton.primary2,
+                primary = POButton.primary,
                 secondary = POButton.secondary,
                 dividerColor = colors.border.border4,
                 backgroundColor = colors.surface.default,

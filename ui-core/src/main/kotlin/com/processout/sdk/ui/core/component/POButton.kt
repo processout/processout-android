@@ -227,38 +227,6 @@ object POButton {
                 normal = StateStyle(
                     text = POText.Style(
                         color = colors.text.inverse,
-                        textStyle = typography.button
-                    ),
-                    shape = shapes.roundedCornersSmall,
-                    border = POBorderStroke(width = 0.dp, color = Color.Transparent),
-                    backgroundColor = colors.button.primaryBackgroundDefault,
-                    elevation = 0.dp
-                ),
-                disabled = StateStyle(
-                    text = POText.Style(
-                        color = colors.text.onButtonDisabled,
-                        textStyle = typography.button
-                    ),
-                    shape = shapes.roundedCornersSmall,
-                    border = POBorderStroke(width = 0.dp, color = Color.Transparent),
-                    backgroundColor = colors.button.primaryBackgroundDisabled,
-                    elevation = 0.dp
-                ),
-                highlighted = HighlightedStyle(
-                    textColor = colors.text.inverse,
-                    borderColor = Color.Transparent,
-                    backgroundColor = colors.button.primaryBackgroundPressed
-                ),
-                progressIndicatorColor = colors.text.inverse
-            )
-        }
-
-    val primary2: Style
-        @Composable get() = with(ProcessOutTheme) {
-            Style(
-                normal = StateStyle(
-                    text = POText.Style(
-                        color = colors.text.inverse,
                         textStyle = typography.s15(FontWeight.Medium)
                     ),
                     shape = shapes.roundedCorners6,
