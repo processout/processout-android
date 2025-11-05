@@ -162,7 +162,7 @@ internal object CardTokenizationScreen {
         } ?: PODropdownField.defaultMenu,
         checkbox = custom?.checkbox?.let {
             POCheckbox.custom(style = it)
-        } ?: POCheckbox.default2,
+        } ?: POCheckbox.default,
         dialog = custom?.dialog?.let {
             PODialog.custom(style = it)
         } ?: PODialog.default,

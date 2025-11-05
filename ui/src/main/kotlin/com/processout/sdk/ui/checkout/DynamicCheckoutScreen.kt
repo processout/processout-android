@@ -823,7 +823,7 @@ internal object DynamicCheckoutScreen {
         } ?: PORadioField.default,
         checkbox = custom?.checkbox?.let {
             POCheckbox.custom(style = it)
-        } ?: POCheckbox.default2,
+        } ?: POCheckbox.default,
         dropdownMenu = custom?.dropdownMenu?.let {
             PODropdownField.custom(style = it)
         } ?: PODropdownField.defaultMenu,
