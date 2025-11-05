@@ -24,6 +24,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -400,7 +401,10 @@ internal object SavedPaymentMethodsScreen {
 
     private val defaultHeader: HeaderStyle
         @Composable get() = HeaderStyle(
-            title = POText.title,
+            title = POText.Style(
+                color = colors.text.primary,
+                textStyle = typography.s20(FontWeight.Medium)
+            ),
             dragHandleColor = colors.icon.disabled,
             dividerColor = colors.border.border4,
             backgroundColor = colors.surface.default
