@@ -4,6 +4,7 @@ import android.os.Parcelable
 import androidx.annotation.ColorRes
 import kotlinx.parcelize.Parcelize
 
+@Deprecated(message = "Only used in deprecated implementation.")
 @Parcelize
 data class PORadioButtonStyle(
     val normal: PORadioButtonStateStyle,
@@ -12,6 +13,7 @@ data class PORadioButtonStyle(
     val disabled: PORadioButtonStateStyle? = null
 ) : Parcelable
 
+@Deprecated(message = "Only used in deprecated implementation.")
 @Parcelize
 data class PORadioButtonStateStyle(
     @ColorRes
