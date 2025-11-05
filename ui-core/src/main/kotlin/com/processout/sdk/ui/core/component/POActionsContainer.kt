@@ -130,7 +130,7 @@ object POActionsContainer {
         @Composable get() = with(ProcessOutTheme) {
             Style(
                 primary = POButton.primary2,
-                secondary = POButton.secondary2,
+                secondary = POButton.secondary,
                 dividerColor = colors.border.border4,
                 backgroundColor = colors.surface.default,
                 axis = POAxis.Vertical

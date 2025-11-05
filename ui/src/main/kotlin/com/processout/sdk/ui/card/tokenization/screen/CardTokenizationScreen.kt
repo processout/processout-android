@@ -190,7 +190,7 @@ internal object CardTokenizationScreen {
     )
 
     val defaultScanButton: POButton.Style
-        @Composable get() = POButton.secondary2.let {
+        @Composable get() = POButton.secondary.let {
             it.copy(
                 normal = it.normal.copy(
                     text = it.normal.text.copy(
