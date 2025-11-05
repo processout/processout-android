@@ -394,7 +394,7 @@ internal object SavedPaymentMethodsScreen {
             ),
             description = POText.Style(
                 color = colors.text.muted,
-                textStyle = typography.body2
+                textStyle = typography.s14()
             )
         ),
         backgroundColor = custom?.backgroundColorResId?.let {
