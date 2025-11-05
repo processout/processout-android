@@ -38,7 +38,7 @@ fun POHeader(
         if (withDragHandle) {
             PODragHandle(
                 modifier = Modifier
-                    .padding(top = spacing.medium)
+                    .padding(top = spacing.space12)
                     .align(alignment = Alignment.TopCenter),
                 color = dragHandleColor
             )
@@ -50,7 +50,7 @@ fun POHeader(
         ) {
             Column(
                 modifier = Modifier.conditional(withDragHandle) {
-                    padding(top = spacing.small)
+                    padding(top = spacing.space8)
                 }
             ) {
                 Row(
@@ -66,7 +66,7 @@ fun POHeader(
                         text = currentTitle,
                         modifier = Modifier
                             .weight(1f, fill = false)
-                            .padding(spacing.extraLarge),
+                            .padding(spacing.space20),
                         color = style.color,
                         style = style.textStyle
                     )

@@ -84,7 +84,7 @@ fun PODialog(
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(spacing.extraLarge),
+                        .padding(spacing.space20),
                     shape = shapes.roundedCorners16,
                     color = style.backgroundColor,
                     contentColor = Color.Unspecified,
@@ -93,7 +93,7 @@ fun PODialog(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(spacing.extraLarge)
+                            .padding(spacing.space20)
                     ) {
                         POText(
                             text = title,
@@ -103,7 +103,7 @@ fun PODialog(
                         if (!message.isNullOrBlank()) {
                             POText(
                                 text = message,
-                                modifier = Modifier.padding(top = spacing.large),
+                                modifier = Modifier.padding(top = spacing.space16),
                                 color = style.message.color,
                                 style = style.message.textStyle
                             )
@@ -111,9 +111,9 @@ fun PODialog(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(top = spacing.extraLarge),
+                                .padding(top = spacing.space20),
                             horizontalArrangement = Arrangement.spacedBy(
-                                space = spacing.small,
+                                space = spacing.space8,
                                 alignment = Alignment.End
                             ),
                             verticalAlignment = Alignment.CenterVertically

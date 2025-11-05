@@ -82,9 +82,9 @@ internal fun CardUpdateScreen(
                 .fillMaxSize()
                 .padding(scaffoldPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(spacing.extraLarge)
+                .padding(spacing.space20)
         ) {
-            val verticalSpacingPx = (spacing.extraLarge * 4 + 15.dp).dpToPx()
+            val verticalSpacingPx = (spacing.space20 * 4 + 15.dp).dpToPx()
             Column(
                 modifier = Modifier.onGloballyPositioned {
                     val contentHeight = it.size.height + topBarHeight + bottomBarHeight + verticalSpacingPx
@@ -103,7 +103,7 @@ internal fun CardUpdateScreen(
                     style = style.errorMessage,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = spacing.small)
+                        .padding(top = spacing.space8)
                 )
             }
         }
@@ -119,7 +119,7 @@ private fun Fields(
     style: POField.Style
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(spacing.small)
+        verticalArrangement = Arrangement.spacedBy(spacing.space8)
     ) {
         val lifecycleEvent = rememberLifecycleEvent()
         fields.elements.forEach { state ->

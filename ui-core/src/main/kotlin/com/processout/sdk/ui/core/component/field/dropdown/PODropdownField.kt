@@ -134,7 +134,7 @@ fun PODropdownField(
                 }
             )
             val menuItemHeight = dimensions.formComponentMinHeight
-            val menuVerticalPaddings = spacing.large
+            val menuVerticalPaddings = spacing.space16
             val maxMenuHeight = remember { menuItemHeight * PODropdownField.MaxVisibleMenuItems + menuVerticalPaddings }
             DropdownMenu(
                 expanded = expanded,
@@ -186,7 +186,7 @@ private fun MenuItem(
                 indication = ripple(color = style.rippleColor)
             )
             .fillMaxWidth()
-            .padding(horizontal = spacing.large),
+            .padding(horizontal = spacing.space16),
         contentAlignment = Alignment.CenterStart
     ) {
         POText(

@@ -94,11 +94,11 @@ internal fun SavedPaymentMethodsScreen(
                     .fillMaxSize()
                     .padding(scaffoldPadding)
                     .verticalScroll(rememberScrollState())
-                    .padding(spacing.extraLarge),
+                    .padding(spacing.space20),
                 verticalArrangement = if (content is Loaded) Arrangement.Top else Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                val verticalSpacingPx = (spacing.extraLarge * 4 + spacing.small).dpToPx()
+                val verticalSpacingPx = (spacing.space20 * 4 + spacing.space8).dpToPx()
                 Column(
                     modifier = Modifier.onGloballyPositioned {
                         val contentHeight = it.size.height + topBarHeight + verticalSpacingPx
@@ -176,7 +176,7 @@ private fun Content(
     POMessageBox(
         text = state.errorMessage,
         style = style.messageBox,
-        modifier = Modifier.padding(bottom = spacing.extraLarge),
+        modifier = Modifier.padding(bottom = spacing.space20),
         horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing)
     )
     val borderWidth = style.paymentMethod.border.width
@@ -221,10 +221,10 @@ private fun PaymentMethod(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                start = spacing.extraLarge,
-                end = spacing.medium,
-                top = spacing.large,
-                bottom = spacing.large
+                start = spacing.space20,
+                end = spacing.space12,
+                top = spacing.space16,
+                bottom = spacing.space16
             ),
         horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing),
         verticalAlignment = Alignment.CenterVertically
@@ -307,7 +307,7 @@ private fun Empty(
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(
-            space = spacing.medium,
+            space = spacing.space12,
             alignment = Alignment.CenterVertically
         ),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -316,7 +316,7 @@ private fun Empty(
             painter = painterResource(id = R.drawable.po_card_credit),
             contentDescription = null,
             modifier = Modifier
-                .padding(bottom = spacing.small)
+                .padding(bottom = spacing.space8)
                 .requiredSize(EmptyContentImageSize)
         )
         POText(

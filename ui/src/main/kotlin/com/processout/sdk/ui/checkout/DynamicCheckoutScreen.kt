@@ -166,12 +166,12 @@ private fun Content(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(spacing.extraLarge)
+            .padding(spacing.space20)
     ) {
         POMessageBox(
             text = state.errorMessage,
             style = style.errorMessageBox,
-            modifier = Modifier.padding(bottom = spacing.large),
+            modifier = Modifier.padding(bottom = spacing.space16),
             horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing),
             enterAnimationDelayMillis = ShortAnimationDurationMillis
         )
@@ -222,7 +222,7 @@ private fun ExpressCheckoutHeader(
 ) {
     Row(
         modifier = Modifier
-            .padding(bottom = spacing.large)
+            .padding(bottom = spacing.space16)
             .fillMaxWidth()
             .requiredHeightIn(min = dimensions.buttonIconSizeSmall),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -246,7 +246,7 @@ private fun ExpressCheckoutHeader(
                     )
                 },
                 modifier = Modifier
-                    .padding(start = spacing.small)
+                    .padding(start = spacing.space8)
                     .requiredSizeIn(
                         minWidth = dimensions.buttonIconSizeSmall,
                         minHeight = dimensions.buttonIconSizeSmall
@@ -267,8 +267,8 @@ private fun ExpressPayments(
     isLightTheme: Boolean
 ) {
     Column(
-        modifier = Modifier.padding(bottom = spacing.extraLarge),
-        verticalArrangement = Arrangement.spacedBy(spacing.small)
+        modifier = Modifier.padding(bottom = spacing.space20),
+        verticalArrangement = Arrangement.spacedBy(spacing.space8)
     ) {
         payments.elements.forEach { payment ->
             when (payment) {
@@ -348,7 +348,7 @@ private fun ExpressPayment(
                 PaymentLogo(
                     logoResource = payment.logoResource,
                     fallbackBoxColor = Color.Transparent,
-                    modifier = Modifier.padding(end = spacing.small),
+                    modifier = Modifier.padding(end = spacing.space8),
                     isLightTheme = isLightTheme
                 )
             }
@@ -416,8 +416,8 @@ private fun RegularPayment(
             )
             .fillMaxWidth()
             .padding(
-                horizontal = spacing.extraLarge,
-                vertical = spacing.small
+                horizontal = spacing.space20,
+                vertical = spacing.space8
             ),
         horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing),
         verticalAlignment = Alignment.CenterVertically
@@ -467,9 +467,9 @@ private fun RegularPaymentContent(
                 .animateContentSize()
                 .fillMaxWidth()
                 .padding(
-                    start = spacing.extraLarge,
-                    end = spacing.extraLarge,
-                    bottom = spacing.extraLarge
+                    start = spacing.space20,
+                    end = spacing.space20,
+                    bottom = spacing.space20
                 )
         ) {
             payment.state.description?.let {
@@ -532,7 +532,7 @@ private fun RegularPaymentContent(
                             )
                         },
                         modifier = Modifier
-                            .padding(top = spacing.extraLarge)
+                            .padding(top = spacing.space20)
                             .fillMaxWidth()
                             .requiredHeightIn(min = dimensions.interactiveComponentMinSize),
                         style = style.actionsContainer.primary,
@@ -554,7 +554,7 @@ private fun AlternativePayment(
     style: DynamicCheckoutScreen.Style
 ) {
     Column(
-        modifier = Modifier.padding(top = spacing.small)
+        modifier = Modifier.padding(top = spacing.space8)
     ) {
         when (state.savePaymentMethodField) {
             is CheckboxField -> CheckboxField(
@@ -667,8 +667,8 @@ private fun Success(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = spacing.extraLarge * 2),
-        verticalArrangement = Arrangement.spacedBy(spacing.extraLarge),
+            .padding(top = spacing.space20 * 2),
+        verticalArrangement = Arrangement.spacedBy(spacing.space20),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         POText(

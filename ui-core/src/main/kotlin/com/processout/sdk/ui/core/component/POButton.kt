@@ -111,7 +111,7 @@ fun POButton(
                         contentDescription = null,
                         modifier = Modifier
                             .conditional(text.isNotBlank()) {
-                                padding(end = spacing.small)
+                                padding(end = spacing.space8)
                             }
                             .requiredSize(iconSize),
                         colorFilter = iconColorFilter

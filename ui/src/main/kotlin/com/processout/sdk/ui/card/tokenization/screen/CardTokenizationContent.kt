@@ -57,7 +57,7 @@ internal fun CardTokenizationContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .requiredHeightIn(min = dimensions.buttonIconSizeSmall)
-                    .padding(bottom = spacing.small),
+                    .padding(bottom = spacing.space8),
                 style = style.scanButton,
                 iconSize = dimensions.iconSizeSmall
             )
@@ -96,9 +96,9 @@ private fun Section(
 ) {
     val paddingTop = when (section.id) {
         CARD_INFORMATION -> 0.dp
-        PREFERRED_SCHEME -> if (section.title == null) spacing.small else spacing.extraLarge
-        FUTURE_PAYMENTS -> spacing.small
-        else -> spacing.extraLarge
+        PREFERRED_SCHEME -> if (section.title == null) spacing.space8 else spacing.space20
+        FUTURE_PAYMENTS -> spacing.space8
+        else -> spacing.space20
     }
     Column(
         modifier = Modifier
@@ -107,7 +107,7 @@ private fun Section(
                 condition = section.id == BILLING_ADDRESS,
                 modifier = { animateContentSize() }
             ),
-        verticalArrangement = Arrangement.spacedBy(spacing.small)
+        verticalArrangement = Arrangement.spacedBy(spacing.space8)
     ) {
         section.title?.let {
             with(style.sectionTitle) {
@@ -135,7 +135,7 @@ private fun Section(
         style = style.errorMessage,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = spacing.small)
+            .padding(top = spacing.space8)
     )
     var currentSubsection by remember { mutableStateOf(Section(id = String())) }
     currentSubsection = section.subsection ?: currentSubsection
@@ -195,7 +195,7 @@ private fun Item(
             modifier = modifier
         )
         is Item.Group -> Row(
-            horizontalArrangement = Arrangement.spacedBy(spacing.small)
+            horizontalArrangement = Arrangement.spacedBy(spacing.space8)
         ) {
             item.items.elements.forEach { groupItem ->
                 Item(
