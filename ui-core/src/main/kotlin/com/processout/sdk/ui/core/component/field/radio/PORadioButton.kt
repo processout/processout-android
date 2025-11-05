@@ -57,14 +57,6 @@ object PORadioButton {
 
     val default: Style
         @Composable get() = Style(
-            normalColor = colors.input.borderDefault,
-            selectedColor = colors.button.primaryBackgroundDefault,
-            errorColor = colors.input.borderError,
-            disabledColor = colors.input.borderDisabled
-        )
-
-    val default2: Style
-        @Composable get() = Style(
             normalColor = colors.checkRadio.borderDefault,
             selectedColor = colors.checkRadio.borderActive,
             errorColor = colors.checkRadio.borderError,

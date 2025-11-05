@@ -163,7 +163,7 @@ object PORadioField {
                     color = colors.text.secondary,
                     textStyle = typography.s15(FontWeight.Medium)
                 ),
-                radioButtonColor = PORadioButton.default2.normalColor,
+                radioButtonColor = PORadioButton.default.normalColor,
                 rowBackgroundColor = colors.surface.default,
                 rowRippleColor = colors.surface.darkoutRipple,
                 shape = shapes.roundedCorners6,
@@ -178,7 +178,7 @@ object PORadioField {
                     color = colors.text.primary,
                     textStyle = typography.s15(FontWeight.Medium)
                 ),
-                radioButtonColor = PORadioButton.default2.selectedColor,
+                radioButtonColor = PORadioButton.default.selectedColor,
                 rowBackgroundColor = colors.surface.darkout,
                 rowRippleColor = null,
                 shape = shapes.roundedCorners6,
@@ -193,7 +193,7 @@ object PORadioField {
                     color = colors.text.secondary,
                     textStyle = typography.s15(FontWeight.Medium)
                 ),
-                radioButtonColor = PORadioButton.default2.errorColor,
+                radioButtonColor = PORadioButton.default.errorColor,
                 rowBackgroundColor = colors.surface.default,
                 rowRippleColor = colors.surface.darkoutRipple,
                 shape = shapes.roundedCorners6,
@@ -208,7 +208,7 @@ object PORadioField {
                     color = colors.text.disabled,
                     textStyle = typography.s15(FontWeight.Medium)
                 ),
-                radioButtonColor = PORadioButton.default2.disabledColor,
+                radioButtonColor = PORadioButton.default.disabledColor,
                 rowBackgroundColor = colors.surface.default,
                 rowRippleColor = null,
                 shape = shapes.roundedCorners6,
