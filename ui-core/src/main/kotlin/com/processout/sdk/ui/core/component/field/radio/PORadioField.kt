@@ -45,7 +45,7 @@ fun PORadioField(
     availableValues: POImmutableList<POAvailableValue>,
     modifier: Modifier = Modifier,
     fieldStyle: PORadioField.Style = PORadioField.default,
-    descriptionStyle: POMessageBox.Style = POMessageBox.error2,
+    descriptionStyle: POMessageBox.Style = POMessageBox.error,
     title: String? = null,
     description: String? = null,
     isError: Boolean = false

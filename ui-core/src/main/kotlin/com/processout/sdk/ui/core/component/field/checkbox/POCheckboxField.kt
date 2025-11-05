@@ -19,7 +19,7 @@ fun POCheckboxField(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     checkboxStyle: POCheckbox.Style = POCheckbox.default2,
-    descriptionStyle: POMessageBox.Style = POMessageBox.error2,
+    descriptionStyle: POMessageBox.Style = POMessageBox.error,
     enabled: Boolean = true,
     isError: Boolean = false,
     description: String? = null,

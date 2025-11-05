@@ -30,7 +30,7 @@ fun POPhoneNumberField(
     textFieldModifier: Modifier = Modifier,
     fieldStyle: POField.Style = POField.default,
     dropdownMenuStyle: PODropdownField.MenuStyle = PODropdownField.defaultMenu,
-    descriptionStyle: POMessageBox.Style = POMessageBox.error2,
+    descriptionStyle: POMessageBox.Style = POMessageBox.error,
     keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
     Column(modifier = modifier) {

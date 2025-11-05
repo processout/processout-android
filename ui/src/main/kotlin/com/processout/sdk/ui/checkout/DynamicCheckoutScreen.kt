@@ -842,7 +842,7 @@ internal object DynamicCheckoutScreen {
         ),
         errorMessageBox = custom?.errorMessageBox?.let {
             POMessageBox.custom(style = it)
-        } ?: POMessageBox.error2,
+        } ?: POMessageBox.error,
         dialog = custom?.dialog?.let {
             PODialog.custom(style = it)
         } ?: PODialog.default,

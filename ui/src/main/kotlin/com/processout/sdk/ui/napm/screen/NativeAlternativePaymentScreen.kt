@@ -361,7 +361,7 @@ internal object NativeAlternativePaymentScreen {
                 success = custom?.success?.custom() ?: defaultSuccess,
                 errorMessageBox = custom?.errorMessageBox?.let {
                     POMessageBox.custom(style = it)
-                } ?: POMessageBox.error2,
+                } ?: POMessageBox.error,
                 actionsContainer = custom?.actionsContainer?.let {
                     POActionsContainer.custom(style = it)
                 } ?: POActionsContainer.default2,

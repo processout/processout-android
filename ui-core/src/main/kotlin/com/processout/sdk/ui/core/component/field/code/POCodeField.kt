@@ -49,7 +49,7 @@ fun POCodeField(
     modifier: Modifier = Modifier,
     textFieldModifier: Modifier = Modifier,
     fieldStyle: POField.Style = POCodeField.default,
-    descriptionStyle: POMessageBox.Style = POMessageBox.error2,
+    descriptionStyle: POMessageBox.Style = POMessageBox.error,
     length: Int = POCodeField.LengthMax,
     label: String? = null,
     description: String? = null,
