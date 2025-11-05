@@ -79,24 +79,6 @@ object POText {
             textStyle = ProcessOutTheme.typography.body1
         )
 
-    val body2: Style
-        @Composable get() = Style(
-            color = ProcessOutTheme.colors.text.primary,
-            textStyle = ProcessOutTheme.typography.body2
-        )
-
-    val label1: Style
-        @Composable get() = Style(
-            color = ProcessOutTheme.colors.text.primary,
-            textStyle = ProcessOutTheme.typography.label1
-        )
-
-    val errorLabel: Style
-        @Composable get() = Style(
-            color = ProcessOutTheme.colors.text.error,
-            textStyle = ProcessOutTheme.typography.label2
-        )
-
     @Composable
     fun custom(style: POTextStyle) = Style(
         color = colorResource(id = style.colorResId),
