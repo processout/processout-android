@@ -5,6 +5,7 @@ import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.ui.text.font.FontWeight
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 
 /** @suppress */
@@ -23,7 +24,7 @@ fun ProcessOutTheme(
         LocalPODimensions provides ProcessOutTheme.dimensions
     ) {
         ProvideTextStyle(
-            value = ProcessOutTheme.typography.body1,
+            value = ProcessOutTheme.typography.s16(FontWeight.Medium),
             content = content
         )
     }

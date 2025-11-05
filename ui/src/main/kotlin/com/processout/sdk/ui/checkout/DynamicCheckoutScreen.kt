@@ -932,7 +932,7 @@ internal object DynamicCheckoutScreen {
         @Composable get() = PaymentSuccessStyle(
             message = POText.Style(
                 color = colors.text.success,
-                textStyle = typography.body1
+                textStyle = typography.s16(FontWeight.Medium)
             ),
             successImageResId = com.processout.sdk.ui.R.drawable.po_success_image,
             backgroundColor = colors.surface.success
