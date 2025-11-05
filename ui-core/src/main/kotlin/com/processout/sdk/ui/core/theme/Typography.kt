@@ -23,13 +23,7 @@ private val WorkSans = FontFamily(
 @ProcessOutInternalApi
 @Immutable
 data class POTypography(
-    val paragraph: Paragraph = Paragraph,
-    val body3: TextStyle = TextStyle(
-        fontFamily = WorkSans,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp
-    )
+    val paragraph: Paragraph = Paragraph
 ) {
 
     fun s12(fontWeight: FontWeight = FontWeight.Normal) =

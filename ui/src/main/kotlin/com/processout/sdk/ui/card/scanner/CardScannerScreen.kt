@@ -417,11 +417,11 @@ internal object CardScannerScreen {
             ),
             expiration = POText.Style(
                 color = Color.White,
-                textStyle = typography.body3.copy(lineHeight = 20.sp)
+                textStyle = typography.s16().copy(lineHeight = 20.sp)
             ),
             cardholderName = POText.Style(
                 color = Color.White,
-                textStyle = typography.body3.copy(lineHeight = 20.sp)
+                textStyle = typography.s16().copy(lineHeight = 20.sp)
             ),
             border = POBorderStroke(width = 1.dp, color = Color.White),
             borderRadius = 8.dp
