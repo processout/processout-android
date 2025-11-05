@@ -388,7 +388,10 @@ internal object SavedPaymentMethodsScreen {
             colorResource(id = it)
         } ?: colors.button.primaryBackgroundDefault,
         emptyContentStyle = EmptyContentStyle(
-            message = POText.body1,
+            message = POText.Style(
+                color = colors.text.primary,
+                textStyle = typography.s16(FontWeight.Medium)
+            ),
             description = POText.Style(
                 color = colors.text.muted,
                 textStyle = typography.body2
@@ -427,7 +430,10 @@ internal object SavedPaymentMethodsScreen {
 
     private val defaultPaymentMethod: PaymentMethodStyle
         @Composable get() = PaymentMethodStyle(
-            description = POText.body1,
+            description = POText.Style(
+                color = colors.text.primary,
+                textStyle = typography.s16(FontWeight.Medium)
+            ),
             deleteButton = POButton.ghostEqualPadding,
             shape = shapes.roundedCornersSmall,
             border = POBorderStroke(width = 1.dp, color = colors.border.border4),

@@ -887,7 +887,10 @@ internal object DynamicCheckoutScreen {
                 textStyle = typography.s14()
             )
             return RegularPaymentStyle(
-                title = POText.body1,
+                title = POText.Style(
+                    color = colors.text.primary,
+                    textStyle = typography.s16(FontWeight.Medium)
+                ),
                 description = POTextWithIcon.Style(
                     text = description,
                     iconResId = R.drawable.po_icon_warning_diamond,
