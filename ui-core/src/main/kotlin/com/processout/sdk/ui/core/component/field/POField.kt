@@ -78,7 +78,7 @@ object POField {
                     controlsTintColor = colors.text.primary,
                     dropdownRippleColor = colors.text.muted,
                     shape = shapes.roundedCorners6,
-                    border = POBorderStroke(width = 1.5.dp, color = colors.input.borderDefault2)
+                    border = POBorderStroke(width = 1.5.dp, color = colors.input.borderDefault)
                 ),
                 error = StateStyle(
                     text = POText.Style(

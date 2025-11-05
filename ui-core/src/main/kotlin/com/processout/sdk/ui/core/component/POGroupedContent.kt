@@ -91,7 +91,7 @@ object POGroupedContent {
                 textStyle = typography.s16(FontWeight.Medium)
             ),
             shape = shapes.roundedCorners6,
-            border = POBorderStroke(width = 1.5.dp, color = colors.input.borderDefault2),
+            border = POBorderStroke(width = 1.5.dp, color = colors.input.borderDefault),
             dividerColor = colors.border.border1,
             backgroundColor = colors.surface.default
         )

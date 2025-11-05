@@ -167,7 +167,7 @@ object PORadioField {
                 rowBackgroundColor = colors.surface.default,
                 rowRippleColor = colors.surface.darkoutRipple,
                 shape = shapes.roundedCorners6,
-                border = POBorderStroke(width = 1.5.dp, color = colors.input.borderDefault2)
+                border = POBorderStroke(width = 1.5.dp, color = colors.input.borderDefault)
             ),
             selected = StateStyle(
                 title = POText.Style(
@@ -182,7 +182,7 @@ object PORadioField {
                 rowBackgroundColor = colors.surface.darkout,
                 rowRippleColor = null,
                 shape = shapes.roundedCorners6,
-                border = POBorderStroke(width = 1.5.dp, color = colors.input.borderDefault2)
+                border = POBorderStroke(width = 1.5.dp, color = colors.input.borderDefault)
             ),
             error = StateStyle(
                 title = POText.Style(
@@ -212,7 +212,7 @@ object PORadioField {
                 rowBackgroundColor = colors.surface.default,
                 rowRippleColor = null,
                 shape = shapes.roundedCorners6,
-                border = POBorderStroke(width = 1.5.dp, color = colors.input.borderDefault2)
+                border = POBorderStroke(width = 1.5.dp, color = colors.input.borderDefault)
             )
         )
 

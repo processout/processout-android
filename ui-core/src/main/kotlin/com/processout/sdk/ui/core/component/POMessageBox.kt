@@ -99,7 +99,7 @@ object POMessageBox {
                 shape = shapes.roundedCorners8,
                 border = POBorderStroke(
                     width = 1.dp,
-                    color = colors.input.borderDefault2
+                    color = colors.input.borderDefault
                 ),
                 backgroundColor = colors.surface.toastError
             )
