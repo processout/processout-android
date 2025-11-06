@@ -37,9 +37,11 @@ import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.style.POButtonDefaults
 import com.processout.sdk.ui.core.style.POButtonStateStyle
 import com.processout.sdk.ui.core.style.POButtonStyle
-import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -222,100 +224,94 @@ object POButton {
     }
 
     val primary: Style
-        @Composable get() = with(ProcessOutTheme) {
-            Style(
-                normal = StateStyle(
-                    text = POText.Style(
-                        color = colors.text.inverse,
-                        textStyle = typography.s15(FontWeight.Medium)
-                    ),
-                    shape = shapes.roundedCorners6,
-                    border = POBorderStroke(width = 0.dp, color = Color.Transparent),
-                    backgroundColor = colors.button.primaryBackgroundDefault,
-                    elevation = 0.dp
+        @Composable get() = Style(
+            normal = StateStyle(
+                text = POText.Style(
+                    color = colors.text.inverse,
+                    textStyle = typography.s15(FontWeight.Medium)
                 ),
-                disabled = StateStyle(
-                    text = POText.Style(
-                        color = colors.text.onButtonDisabled,
-                        textStyle = typography.s15(FontWeight.Medium)
-                    ),
-                    shape = shapes.roundedCorners6,
-                    border = POBorderStroke(width = 0.dp, color = Color.Transparent),
-                    backgroundColor = colors.button.primaryBackgroundDisabled,
-                    elevation = 0.dp
+                shape = shapes.roundedCorners6,
+                border = POBorderStroke(width = 0.dp, color = Color.Transparent),
+                backgroundColor = colors.button.primaryBackgroundDefault,
+                elevation = 0.dp
+            ),
+            disabled = StateStyle(
+                text = POText.Style(
+                    color = colors.text.onButtonDisabled,
+                    textStyle = typography.s15(FontWeight.Medium)
                 ),
-                highlighted = HighlightedStyle(
-                    textColor = colors.text.inverse,
-                    borderColor = Color.Transparent,
-                    backgroundColor = colors.button.primaryBackgroundPressed
-                ),
-                progressIndicatorColor = colors.text.inverse
-            )
-        }
+                shape = shapes.roundedCorners6,
+                border = POBorderStroke(width = 0.dp, color = Color.Transparent),
+                backgroundColor = colors.button.primaryBackgroundDisabled,
+                elevation = 0.dp
+            ),
+            highlighted = HighlightedStyle(
+                textColor = colors.text.inverse,
+                borderColor = Color.Transparent,
+                backgroundColor = colors.button.primaryBackgroundPressed
+            ),
+            progressIndicatorColor = colors.text.inverse
+        )
 
     val secondary: Style
-        @Composable get() = with(ProcessOutTheme) {
-            Style(
-                normal = StateStyle(
-                    text = POText.Style(
-                        color = colors.text.primary,
-                        textStyle = typography.s15(FontWeight.Medium)
-                    ),
-                    shape = shapes.roundedCorners6,
-                    border = POBorderStroke(width = 0.dp, color = Color.Transparent),
-                    backgroundColor = colors.button.secondaryBackgroundDefault,
-                    elevation = 0.dp
+        @Composable get() = Style(
+            normal = StateStyle(
+                text = POText.Style(
+                    color = colors.text.primary,
+                    textStyle = typography.s15(FontWeight.Medium)
                 ),
-                disabled = StateStyle(
-                    text = POText.Style(
-                        color = colors.text.onButtonDisabled,
-                        textStyle = typography.s15(FontWeight.Medium)
-                    ),
-                    shape = shapes.roundedCorners6,
-                    border = POBorderStroke(width = 0.dp, color = Color.Transparent),
-                    backgroundColor = colors.button.secondaryBackgroundDisabled,
-                    elevation = 0.dp
+                shape = shapes.roundedCorners6,
+                border = POBorderStroke(width = 0.dp, color = Color.Transparent),
+                backgroundColor = colors.button.secondaryBackgroundDefault,
+                elevation = 0.dp
+            ),
+            disabled = StateStyle(
+                text = POText.Style(
+                    color = colors.text.onButtonDisabled,
+                    textStyle = typography.s15(FontWeight.Medium)
                 ),
-                highlighted = HighlightedStyle(
-                    textColor = colors.text.primary,
-                    borderColor = Color.Transparent,
-                    backgroundColor = colors.button.secondaryBackgroundPressed
-                ),
-                progressIndicatorColor = colors.text.primary
-            )
-        }
+                shape = shapes.roundedCorners6,
+                border = POBorderStroke(width = 0.dp, color = Color.Transparent),
+                backgroundColor = colors.button.secondaryBackgroundDisabled,
+                elevation = 0.dp
+            ),
+            highlighted = HighlightedStyle(
+                textColor = colors.text.primary,
+                borderColor = Color.Transparent,
+                backgroundColor = colors.button.secondaryBackgroundPressed
+            ),
+            progressIndicatorColor = colors.text.primary
+        )
 
     val ghost: Style
-        @Composable get() = with(ProcessOutTheme) {
-            Style(
-                normal = StateStyle(
-                    text = POText.Style(
-                        color = colors.text.primary,
-                        textStyle = typography.s15(FontWeight.Medium)
-                    ),
-                    shape = shapes.roundedCorners6,
-                    border = POBorderStroke(width = 0.dp, color = Color.Transparent),
-                    backgroundColor = Color.Transparent,
-                    elevation = 0.dp
+        @Composable get() = Style(
+            normal = StateStyle(
+                text = POText.Style(
+                    color = colors.text.primary,
+                    textStyle = typography.s15(FontWeight.Medium)
                 ),
-                disabled = StateStyle(
-                    text = POText.Style(
-                        color = colors.text.onButtonDisabled,
-                        textStyle = typography.s15(FontWeight.Medium)
-                    ),
-                    shape = shapes.roundedCorners6,
-                    border = POBorderStroke(width = 0.dp, color = Color.Transparent),
-                    backgroundColor = colors.button.ghostBackgroundDisabled,
-                    elevation = 0.dp
+                shape = shapes.roundedCorners6,
+                border = POBorderStroke(width = 0.dp, color = Color.Transparent),
+                backgroundColor = Color.Transparent,
+                elevation = 0.dp
+            ),
+            disabled = StateStyle(
+                text = POText.Style(
+                    color = colors.text.onButtonDisabled,
+                    textStyle = typography.s15(FontWeight.Medium)
                 ),
-                highlighted = HighlightedStyle(
-                    textColor = colors.text.primary,
-                    borderColor = Color.Transparent,
-                    backgroundColor = colors.button.ghostBackgroundPressed
-                ),
-                progressIndicatorColor = colors.text.primary
-            )
-        }
+                shape = shapes.roundedCorners6,
+                border = POBorderStroke(width = 0.dp, color = Color.Transparent),
+                backgroundColor = colors.button.ghostBackgroundDisabled,
+                elevation = 0.dp
+            ),
+            highlighted = HighlightedStyle(
+                textColor = colors.text.primary,
+                borderColor = Color.Transparent,
+                backgroundColor = colors.button.ghostBackgroundPressed
+            ),
+            progressIndicatorColor = colors.text.primary
+        )
 
     val ghostEqualPadding: Style
         @Composable get() = ghost.let {

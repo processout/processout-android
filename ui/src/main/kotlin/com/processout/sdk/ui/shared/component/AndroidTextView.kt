@@ -30,7 +30,8 @@ import com.processout.sdk.ui.core.style.POTextStyle
 import com.processout.sdk.ui.core.style.POTextType
 import com.processout.sdk.ui.core.style.POTextType.Weight
 import com.processout.sdk.ui.core.style.POTextType.Weight.*
-import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 import com.processout.sdk.ui.shared.component.AndroidTextView.apply
 import com.processout.sdk.ui.shared.extension.spToPx
 import com.processout.sdk.ui.shared.view.extension.POTextViewExtensions.setMarkdown
@@ -80,20 +81,18 @@ internal object AndroidTextView {
     )
 
     val default: Style
-        @Composable get() = with(ProcessOutTheme) {
-            Style(
-                type = with(typography.paragraph.s16(FontWeight.Medium)) {
-                    POTextType(
-                        textSizeSp = fontSize.value.toInt(),
-                        lineHeightSp = lineHeight.value.toInt(),
-                        fontResId = R.font.work_sans_medium,
-                        weight = MEDIUM
-                    )
-                },
-                color = colors.text.primary,
-                controlsTintColor = colors.text.primary
-            )
-        }
+        @Composable get() = Style(
+            type = with(typography.paragraph.s16(FontWeight.Medium)) {
+                POTextType(
+                    textSizeSp = fontSize.value.toInt(),
+                    lineHeightSp = lineHeight.value.toInt(),
+                    fontResId = R.font.work_sans_medium,
+                    weight = MEDIUM
+                )
+            },
+            color = colors.text.primary,
+            controlsTintColor = colors.text.primary
+        )
 
     @Composable
     fun custom(
