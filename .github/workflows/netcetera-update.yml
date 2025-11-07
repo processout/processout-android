@@ -1,0 +1,39 @@
+name: Netcetera Update - Create Pull Request
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'AAR URL'
+        required: true
+        type: string
+      version:
+        description: 'Version'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  netcetera-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update Version
+        run: |
+          source netcetera-3ds-core/scripts/update-version.sh ${{ inputs.version }}
+          echo "UPDATED_VERSION=$(cat netcetera-3ds-core/version.resolved)" >> $GITHUB_ENV
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5.0.0
+        with:
+          token: ${{ secrets.PO_GITHUB_TOKEN }}
+          add-paths: |
+            version.resolved
+          commit-message: Update Netcetera
+          branch: chore/netcetera-update-${{ env.UPDATED_VERSION }}
+          delete-branch: true
+          title: 'chore: Update Netcetera to ${{ env.UPDATED_VERSION }}'
+          assignees: ${{ github.actor }}
