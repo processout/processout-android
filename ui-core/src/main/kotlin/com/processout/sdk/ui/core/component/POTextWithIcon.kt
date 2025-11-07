@@ -89,7 +89,7 @@ object POTextWithIcon {
         @Composable get() {
             val text = Style(
                 color = colors.text.primary,
-                textStyle = typography.body2
+                textStyle = typography.s14()
             )
             return Style(
                 text = text,

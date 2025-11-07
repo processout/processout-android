@@ -17,7 +17,7 @@ import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POActionsContainerStyle
 import com.processout.sdk.ui.core.style.POAxis
-import com.processout.sdk.ui.core.theme.ProcessOutTheme
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 
@@ -127,26 +127,13 @@ object POActionsContainer {
     )
 
     val default: Style
-        @Composable get() = with(ProcessOutTheme) {
-            Style(
-                primary = POButton.primary,
-                secondary = POButton.secondary,
-                dividerColor = colors.border.border4,
-                backgroundColor = colors.surface.default,
-                axis = POAxis.Vertical
-            )
-        }
-
-    val default2: Style
-        @Composable get() = with(ProcessOutTheme) {
-            Style(
-                primary = POButton.primary2,
-                secondary = POButton.secondary2,
-                dividerColor = colors.border.border4,
-                backgroundColor = colors.surface.default,
-                axis = POAxis.Vertical
-            )
-        }
+        @Composable get() = Style(
+            primary = POButton.primary,
+            secondary = POButton.secondary,
+            dividerColor = colors.border.border4,
+            backgroundColor = colors.surface.default,
+            axis = POAxis.Vertical
+        )
 
     @Composable
     fun custom(style: POActionsContainerStyle) = with(style) {

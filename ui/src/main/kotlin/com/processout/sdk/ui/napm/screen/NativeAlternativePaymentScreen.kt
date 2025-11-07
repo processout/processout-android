@@ -42,7 +42,6 @@ import com.processout.sdk.ui.core.component.stepper.POStepper
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
-import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.shapes
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
@@ -79,7 +78,7 @@ internal fun NativeAlternativePaymentScreen(
     Scaffold(
         modifier = Modifier
             .nestedScroll(rememberNestedScrollInteropConnection())
-            .clip(shape = shapes.topRoundedCornersLarge),
+            .clip(shape = shapes.topRoundedCorners16),
         containerColor = style.backgroundColor,
         topBar = {
             Header(
@@ -310,75 +309,73 @@ internal object NativeAlternativePaymentScreen {
 
     @Composable
     fun style(custom: PONativeAlternativePaymentConfiguration.Style? = null) =
-        with(ProcessOutTheme) {
-            Style(
-                title = custom?.title?.let {
-                    POText.custom(style = it)
-                } ?: POText.Style(
-                    color = colors.text.primary,
-                    textStyle = typography.s20(FontWeight.Medium)
-                ),
-                bodyText = custom?.bodyText?.let { style ->
-                    val controlsTintColor = custom.controlsTintColorResId?.let { colorResource(id = it) }
-                    AndroidTextView.custom(
-                        style = style,
-                        controlsTintColor = controlsTintColor ?: colors.text.primary
-                    )
-                } ?: AndroidTextView.default,
-                message = custom?.message?.let {
-                    POText.custom(style = it)
-                } ?: POText.Style(
-                    color = colors.text.secondary,
-                    textStyle = typography.s14()
-                ),
-                labeledContent = custom?.labeledContent?.let {
-                    POLabeledContent.custom(style = it)
-                } ?: POLabeledContent.default,
-                groupedContent = custom?.groupedContent?.let {
-                    POGroupedContent.custom(style = it)
-                } ?: POGroupedContent.default,
-                field = custom?.field?.let {
-                    POField.custom(style = it)
-                } ?: POField.default2,
-                codeField = custom?.codeField?.let {
-                    POField.custom(style = it)
-                } ?: POCodeField.default2,
-                radioField = custom?.radioField?.let {
-                    PORadioField.custom(style = it)
-                } ?: PORadioField.default,
-                dropdownMenu = custom?.dropdownMenu?.let {
-                    PODropdownField.custom(style = it)
-                } ?: PODropdownField.defaultMenu2,
-                checkbox = custom?.checkbox?.let {
-                    POCheckbox.custom(style = it)
-                } ?: POCheckbox.default2,
-                dialog = custom?.dialog?.let {
-                    PODialog.custom(style = it)
-                } ?: PODialog.default,
-                stepper = custom?.stepper?.let {
-                    POStepper.custom(style = it)
-                } ?: POStepper.default,
-                success = custom?.success?.custom() ?: defaultSuccess,
-                errorMessageBox = custom?.errorMessageBox?.let {
-                    POMessageBox.custom(style = it)
-                } ?: POMessageBox.error2,
-                actionsContainer = custom?.actionsContainer?.let {
-                    POActionsContainer.custom(style = it)
-                } ?: POActionsContainer.default2,
-                backgroundColor = custom?.backgroundColorResId?.let {
-                    colorResource(id = it)
-                } ?: colors.surface.default,
-                progressIndicatorColor = custom?.progressIndicatorColorResId?.let {
-                    colorResource(id = it)
-                } ?: colors.button.primaryBackgroundDefault,
-                dividerColor = custom?.dividerColorResId?.let {
-                    colorResource(id = it)
-                } ?: colors.border.border4,
-                dragHandleColor = custom?.dragHandleColorResId?.let {
-                    colorResource(id = it)
-                } ?: colors.icon.disabled
-            )
-        }
+        Style(
+            title = custom?.title?.let {
+                POText.custom(style = it)
+            } ?: POText.Style(
+                color = colors.text.primary,
+                textStyle = typography.s20(FontWeight.Medium)
+            ),
+            bodyText = custom?.bodyText?.let { style ->
+                val controlsTintColor = custom.controlsTintColorResId?.let { colorResource(id = it) }
+                AndroidTextView.custom(
+                    style = style,
+                    controlsTintColor = controlsTintColor ?: colors.text.primary
+                )
+            } ?: AndroidTextView.default,
+            message = custom?.message?.let {
+                POText.custom(style = it)
+            } ?: POText.Style(
+                color = colors.text.secondary,
+                textStyle = typography.s14()
+            ),
+            labeledContent = custom?.labeledContent?.let {
+                POLabeledContent.custom(style = it)
+            } ?: POLabeledContent.default,
+            groupedContent = custom?.groupedContent?.let {
+                POGroupedContent.custom(style = it)
+            } ?: POGroupedContent.default,
+            field = custom?.field?.let {
+                POField.custom(style = it)
+            } ?: POField.default,
+            codeField = custom?.codeField?.let {
+                POField.custom(style = it)
+            } ?: POCodeField.default,
+            radioField = custom?.radioField?.let {
+                PORadioField.custom(style = it)
+            } ?: PORadioField.default,
+            dropdownMenu = custom?.dropdownMenu?.let {
+                PODropdownField.custom(style = it)
+            } ?: PODropdownField.defaultMenu,
+            checkbox = custom?.checkbox?.let {
+                POCheckbox.custom(style = it)
+            } ?: POCheckbox.default,
+            dialog = custom?.dialog?.let {
+                PODialog.custom(style = it)
+            } ?: PODialog.default,
+            stepper = custom?.stepper?.let {
+                POStepper.custom(style = it)
+            } ?: POStepper.default,
+            success = custom?.success?.custom() ?: defaultSuccess,
+            errorMessageBox = custom?.errorMessageBox?.let {
+                POMessageBox.custom(style = it)
+            } ?: POMessageBox.error,
+            actionsContainer = custom?.actionsContainer?.let {
+                POActionsContainer.custom(style = it)
+            } ?: POActionsContainer.default,
+            backgroundColor = custom?.backgroundColorResId?.let {
+                colorResource(id = it)
+            } ?: colors.surface.default,
+            progressIndicatorColor = custom?.progressIndicatorColorResId?.let {
+                colorResource(id = it)
+            } ?: colors.button.primaryBackgroundDefault,
+            dividerColor = custom?.dividerColorResId?.let {
+                colorResource(id = it)
+            } ?: colors.border.border4,
+            dragHandleColor = custom?.dragHandleColorResId?.let {
+                colorResource(id = it)
+            } ?: colors.icon.disabled
+        )
 
     val defaultSuccess: SuccessStyle
         @Composable get() = SuccessStyle(

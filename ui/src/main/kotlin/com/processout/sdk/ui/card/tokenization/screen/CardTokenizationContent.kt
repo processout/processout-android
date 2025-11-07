@@ -27,9 +27,8 @@ import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckbox
 import com.processout.sdk.ui.core.component.field.checkbox.POCheckboxField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
-import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField2
 import com.processout.sdk.ui.core.component.field.radio.PORadioField
-import com.processout.sdk.ui.core.component.field.text.POTextField2
+import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
@@ -58,7 +57,7 @@ internal fun CardTokenizationContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .requiredHeightIn(min = dimensions.buttonIconSizeSmall)
-                    .padding(bottom = spacing.small),
+                    .padding(bottom = spacing.space8),
                 style = style.scanButton,
                 iconSize = dimensions.iconSizeSmall
             )
@@ -97,9 +96,9 @@ private fun Section(
 ) {
     val paddingTop = when (section.id) {
         CARD_INFORMATION -> 0.dp
-        PREFERRED_SCHEME -> if (section.title == null) spacing.small else spacing.extraLarge
-        FUTURE_PAYMENTS -> spacing.small
-        else -> spacing.extraLarge
+        PREFERRED_SCHEME -> if (section.title == null) spacing.space8 else spacing.space20
+        FUTURE_PAYMENTS -> spacing.space8
+        else -> spacing.space20
     }
     Column(
         modifier = Modifier
@@ -108,7 +107,7 @@ private fun Section(
                 condition = section.id == BILLING_ADDRESS,
                 modifier = { animateContentSize() }
             ),
-        verticalArrangement = Arrangement.spacedBy(spacing.small)
+        verticalArrangement = Arrangement.spacedBy(spacing.space8)
     ) {
         section.title?.let {
             with(style.sectionTitle) {
@@ -136,7 +135,7 @@ private fun Section(
         style = style.errorMessage,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = spacing.small)
+            .padding(top = spacing.space8)
     )
     var currentSubsection by remember { mutableStateOf(Section(id = String())) }
     currentSubsection = section.subsection ?: currentSubsection
@@ -196,7 +195,7 @@ private fun Item(
             modifier = modifier
         )
         is Item.Group -> Row(
-            horizontalArrangement = Arrangement.spacedBy(spacing.small)
+            horizontalArrangement = Arrangement.spacedBy(spacing.space8)
         ) {
             item.items.elements.forEach { groupItem ->
                 Item(
@@ -224,7 +223,7 @@ private fun TextField(
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
-    POTextField2(
+    POTextField(
         value = state.value,
         onValueChange = {
             onEvent(
@@ -299,7 +298,7 @@ private fun DropdownField(
     menuStyle: PODropdownField.MenuStyle,
     modifier: Modifier = Modifier
 ) {
-    PODropdownField2(
+    PODropdownField(
         value = state.value,
         onValueChange = {
             onEvent(
@@ -360,7 +359,12 @@ private fun AnimatedFieldIcon(@DrawableRes id: Int) {
         id = id,
         modifier = Modifier
             .requiredHeight(dimensions.formComponentMinHeight)
-            .padding(POField.contentPadding),
+            .padding(
+                PaddingValues(
+                    horizontal = spacing.space16,
+                    vertical = spacing.space12
+                )
+            ),
         contentScale = ContentScale.FillHeight
     )
 }

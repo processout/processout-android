@@ -97,7 +97,7 @@ internal fun DynamicCheckoutScreen(
         Scaffold(
             modifier = Modifier
                 .consumeWindowInsets(WindowInsets.safeDrawing)
-                .clip(shape = shapes.topRoundedCornersLarge),
+                .clip(shape = shapes.topRoundedCorners16),
             containerColor = animatedBackgroundColor(
                 state = state,
                 normalColor = style.backgroundColor,
@@ -166,12 +166,12 @@ private fun Content(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(spacing.extraLarge)
+            .padding(spacing.space20)
     ) {
         POMessageBox(
             text = state.errorMessage,
             style = style.errorMessageBox,
-            modifier = Modifier.padding(bottom = spacing.large),
+            modifier = Modifier.padding(bottom = spacing.space16),
             horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing),
             enterAnimationDelayMillis = ShortAnimationDurationMillis
         )
@@ -222,7 +222,7 @@ private fun ExpressCheckoutHeader(
 ) {
     Row(
         modifier = Modifier
-            .padding(bottom = spacing.large)
+            .padding(bottom = spacing.space16)
             .fillMaxWidth()
             .requiredHeightIn(min = dimensions.buttonIconSizeSmall),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -246,7 +246,7 @@ private fun ExpressCheckoutHeader(
                     )
                 },
                 modifier = Modifier
-                    .padding(start = spacing.small)
+                    .padding(start = spacing.space8)
                     .requiredSizeIn(
                         minWidth = dimensions.buttonIconSizeSmall,
                         minHeight = dimensions.buttonIconSizeSmall
@@ -267,8 +267,8 @@ private fun ExpressPayments(
     isLightTheme: Boolean
 ) {
     Column(
-        modifier = Modifier.padding(bottom = spacing.extraLarge),
-        verticalArrangement = Arrangement.spacedBy(spacing.small)
+        modifier = Modifier.padding(bottom = spacing.space20),
+        verticalArrangement = Arrangement.spacedBy(spacing.space8)
     ) {
         payments.elements.forEach { payment ->
             when (payment) {
@@ -348,7 +348,7 @@ private fun ExpressPayment(
                 PaymentLogo(
                     logoResource = payment.logoResource,
                     fallbackBoxColor = Color.Transparent,
-                    modifier = Modifier.padding(end = spacing.small),
+                    modifier = Modifier.padding(end = spacing.space8),
                     isLightTheme = isLightTheme
                 )
             }
@@ -416,8 +416,8 @@ private fun RegularPayment(
             )
             .fillMaxWidth()
             .padding(
-                horizontal = spacing.extraLarge,
-                vertical = spacing.small
+                horizontal = spacing.space20,
+                vertical = spacing.space8
             ),
         horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing),
         verticalAlignment = Alignment.CenterVertically
@@ -467,9 +467,9 @@ private fun RegularPaymentContent(
                 .animateContentSize()
                 .fillMaxWidth()
                 .padding(
-                    start = spacing.extraLarge,
-                    end = spacing.extraLarge,
-                    bottom = spacing.extraLarge
+                    start = spacing.space20,
+                    end = spacing.space20,
+                    bottom = spacing.space20
                 )
         ) {
             payment.state.description?.let {
@@ -532,7 +532,7 @@ private fun RegularPaymentContent(
                             )
                         },
                         modifier = Modifier
-                            .padding(top = spacing.extraLarge)
+                            .padding(top = spacing.space20)
                             .fillMaxWidth()
                             .requiredHeightIn(min = dimensions.interactiveComponentMinSize),
                         style = style.actionsContainer.primary,
@@ -554,7 +554,7 @@ private fun AlternativePayment(
     style: DynamicCheckoutScreen.Style
 ) {
     Column(
-        modifier = Modifier.padding(top = spacing.small)
+        modifier = Modifier.padding(top = spacing.space8)
     ) {
         when (state.savePaymentMethodField) {
             is CheckboxField -> CheckboxField(
@@ -622,7 +622,7 @@ private fun PaymentLogo(
                 .requiredSize(PaymentLogoSize)
                 .background(
                     color = fallbackBoxColor,
-                    shape = shapes.roundedCornersSmall
+                    shape = shapes.roundedCorners4
                 )
         )
     }
@@ -667,8 +667,8 @@ private fun Success(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = spacing.extraLarge * 2),
-        verticalArrangement = Arrangement.spacedBy(spacing.extraLarge),
+            .padding(top = spacing.space20 * 2),
+        verticalArrangement = Arrangement.spacedBy(spacing.space20),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         POText(
@@ -814,19 +814,19 @@ internal object DynamicCheckoutScreen {
         } ?: POGroupedContent.default,
         field = custom?.field?.let {
             POField.custom(style = it)
-        } ?: POField.default2,
+        } ?: POField.default,
         codeField = custom?.codeField?.let {
             POField.custom(style = it)
-        } ?: POCodeField.default2,
+        } ?: POCodeField.default,
         radioField = custom?.radioField?.let {
             PORadioField.custom(style = it)
         } ?: PORadioField.default,
         checkbox = custom?.checkbox?.let {
             POCheckbox.custom(style = it)
-        } ?: POCheckbox.default2,
+        } ?: POCheckbox.default,
         dropdownMenu = custom?.dropdownMenu?.let {
             PODropdownField.custom(style = it)
-        } ?: PODropdownField.defaultMenu2,
+        } ?: PODropdownField.defaultMenu,
         bodyText = custom?.bodyText?.let { style ->
             val controlsTintColor = custom.controlsTintColorResId?.let { colorResource(id = it) }
             AndroidTextView.custom(
@@ -842,7 +842,7 @@ internal object DynamicCheckoutScreen {
         ),
         errorMessageBox = custom?.errorMessageBox?.let {
             POMessageBox.custom(style = it)
-        } ?: POMessageBox.error2,
+        } ?: POMessageBox.error,
         dialog = custom?.dialog?.let {
             PODialog.custom(style = it)
         } ?: PODialog.default,
@@ -854,7 +854,7 @@ internal object DynamicCheckoutScreen {
         } ?: CardTokenizationScreen.defaultScanButton,
         actionsContainer = custom?.actionsContainer?.let {
             POActionsContainer.custom(style = it)
-        } ?: POActionsContainer.default2,
+        } ?: POActionsContainer.default,
         backgroundColor = custom?.backgroundColorResId?.let {
             colorResource(id = it)
         } ?: colors.surface.default,
@@ -866,7 +866,10 @@ internal object DynamicCheckoutScreen {
 
     private val defaultSectionHeader: SectionHeaderStyle
         @Composable get() = SectionHeaderStyle(
-            title = POText.subheading,
+            title = POText.Style(
+                color = colors.text.primary,
+                textStyle = typography.s18(FontWeight.Medium)
+            ),
             trailingButton = POButton.ghostEqualPadding
         )
 
@@ -884,13 +887,16 @@ internal object DynamicCheckoutScreen {
                 textStyle = typography.s14()
             )
             return RegularPaymentStyle(
-                title = POText.body1,
+                title = POText.Style(
+                    color = colors.text.primary,
+                    textStyle = typography.s16(FontWeight.Medium)
+                ),
                 description = POTextWithIcon.Style(
                     text = description,
                     iconResId = R.drawable.po_icon_warning_diamond,
                     iconColorFilter = ColorFilter.tint(color = description.color)
                 ),
-                shape = shapes.roundedCornersSmall,
+                shape = shapes.roundedCorners4,
                 border = POBorderStroke(width = 1.dp, color = colors.border.border4),
                 backgroundColor = colors.surface.default
             )
@@ -926,7 +932,7 @@ internal object DynamicCheckoutScreen {
         @Composable get() = PaymentSuccessStyle(
             message = POText.Style(
                 color = colors.text.success,
-                textStyle = typography.body1
+                textStyle = typography.s16(FontWeight.Medium)
             ),
             successImageResId = com.processout.sdk.ui.R.drawable.po_success_image,
             backgroundColor = colors.surface.success

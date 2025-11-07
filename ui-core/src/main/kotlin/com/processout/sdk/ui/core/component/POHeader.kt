@@ -10,11 +10,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.extension.conditional
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
+import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -22,7 +24,10 @@ import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 fun POHeader(
     title: String?,
     modifier: Modifier = Modifier,
-    style: POText.Style = POText.title,
+    style: POText.Style = POText.Style(
+        color = colors.text.primary,
+        textStyle = typography.s20(FontWeight.Medium)
+    ),
     dividerColor: Color = colors.border.border4,
     dragHandleColor: Color = colors.icon.disabled,
     withDragHandle: Boolean = true,
@@ -33,7 +38,7 @@ fun POHeader(
         if (withDragHandle) {
             PODragHandle(
                 modifier = Modifier
-                    .padding(top = spacing.medium)
+                    .padding(top = spacing.space12)
                     .align(alignment = Alignment.TopCenter),
                 color = dragHandleColor
             )
@@ -45,7 +50,7 @@ fun POHeader(
         ) {
             Column(
                 modifier = Modifier.conditional(withDragHandle) {
-                    padding(top = spacing.small)
+                    padding(top = spacing.space8)
                 }
             ) {
                 Row(
@@ -61,7 +66,7 @@ fun POHeader(
                         text = currentTitle,
                         modifier = Modifier
                             .weight(1f, fill = false)
-                            .padding(spacing.extraLarge),
+                            .padding(spacing.space20),
                         color = style.color,
                         style = style.textStyle
                     )

@@ -23,61 +23,7 @@ private val WorkSans = FontFamily(
 @ProcessOutInternalApi
 @Immutable
 data class POTypography(
-    val paragraph: Paragraph = Paragraph,
-    val title: TextStyle = TextStyle(
-        fontFamily = WorkSans,
-        fontWeight = FontWeight.Medium,
-        fontSize = 20.sp,
-        lineHeight = 24.sp
-    ),
-    val largeTitle: TextStyle = TextStyle(
-        fontFamily = WorkSans,
-        fontWeight = FontWeight.Normal,
-        fontSize = 28.sp,
-        lineHeight = 32.sp
-    ),
-    val subheading: TextStyle = TextStyle(
-        fontFamily = WorkSans,
-        fontWeight = FontWeight.Medium,
-        fontSize = 18.sp,
-        lineHeight = 24.sp
-    ),
-    val body1: TextStyle = TextStyle(
-        fontFamily = WorkSans,
-        fontWeight = FontWeight.Medium,
-        fontSize = 16.sp,
-        lineHeight = 24.sp
-    ),
-    val body2: TextStyle = TextStyle(
-        fontFamily = WorkSans,
-        fontWeight = FontWeight.Normal,
-        fontSize = 14.sp,
-        lineHeight = 18.sp
-    ),
-    val body3: TextStyle = TextStyle(
-        fontFamily = WorkSans,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp
-    ),
-    val button: TextStyle = TextStyle(
-        fontFamily = WorkSans,
-        fontWeight = FontWeight.Medium,
-        fontSize = 14.sp,
-        lineHeight = 18.sp
-    ),
-    val label1: TextStyle = TextStyle(
-        fontFamily = WorkSans,
-        fontWeight = FontWeight.Medium,
-        fontSize = 14.sp,
-        lineHeight = 18.sp
-    ),
-    val label2: TextStyle = TextStyle(
-        fontFamily = WorkSans,
-        fontWeight = FontWeight.Normal,
-        fontSize = 14.sp,
-        lineHeight = 18.sp
-    )
+    val paragraph: Paragraph = Paragraph
 ) {
 
     fun s12(fontWeight: FontWeight = FontWeight.Normal) =
@@ -154,6 +100,14 @@ data class POTypography(
             fontWeight = fontWeight,
             fontSize = 24.sp,
             lineHeight = 28.sp
+        )
+
+    fun s28(fontWeight: FontWeight = FontWeight.Normal) =
+        TextStyle(
+            fontFamily = WorkSans,
+            fontWeight = fontWeight,
+            fontSize = 28.sp,
+            lineHeight = 32.sp
         )
 
     object Paragraph {

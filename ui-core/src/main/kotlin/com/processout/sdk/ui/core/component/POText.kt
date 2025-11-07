@@ -11,10 +11,10 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
@@ -30,7 +30,7 @@ fun POText(
     text: String,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
-    style: TextStyle = ProcessOutTheme.typography.body1,
+    style: TextStyle = ProcessOutTheme.typography.s16(FontWeight.Medium),
     fontStyle: FontStyle? = null,
     textAlign: TextAlign? = null,
     onTextLayout: (TextLayoutResult) -> Unit = {},
@@ -62,42 +62,6 @@ object POText {
         val textStyle: TextStyle
     )
 
-    val title: Style
-        @Composable get() = Style(
-            color = ProcessOutTheme.colors.text.primary,
-            textStyle = ProcessOutTheme.typography.title
-        )
-
-    val subheading: Style
-        @Composable get() = Style(
-            color = ProcessOutTheme.colors.text.primary,
-            textStyle = ProcessOutTheme.typography.subheading
-        )
-
-    val body1: Style
-        @Composable get() = Style(
-            color = ProcessOutTheme.colors.text.primary,
-            textStyle = ProcessOutTheme.typography.body1
-        )
-
-    val body2: Style
-        @Composable get() = Style(
-            color = ProcessOutTheme.colors.text.primary,
-            textStyle = ProcessOutTheme.typography.body2
-        )
-
-    val label1: Style
-        @Composable get() = Style(
-            color = ProcessOutTheme.colors.text.primary,
-            textStyle = ProcessOutTheme.typography.label1
-        )
-
-    val errorLabel: Style
-        @Composable get() = Style(
-            color = ProcessOutTheme.colors.text.error,
-            textStyle = ProcessOutTheme.typography.label2
-        )
-
     @Composable
     fun custom(style: POTextStyle) = Style(
         color = colorResource(id = style.colorResId),
@@ -126,10 +90,4 @@ object POText {
             }
         }
     }
-}
-
-@Composable
-@Preview(showBackground = true)
-private fun POTextPreview() {
-    POText(text = "ProcessOut Payment")
 }

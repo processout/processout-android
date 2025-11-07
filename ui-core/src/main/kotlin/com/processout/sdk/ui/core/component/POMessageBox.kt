@@ -85,19 +85,6 @@ object POMessageBox {
     )
 
     val error: Style
-        @Composable get() = Style(
-            textWithIcon = POTextWithIcon.default.copy(
-                iconResId = R.drawable.po_icon_warning_diamond
-            ),
-            shape = shapes.roundedCornersSmall,
-            border = POBorderStroke(
-                width = 1.dp,
-                color = colors.input.borderError
-            ),
-            backgroundColor = colors.surface.error
-        )
-
-    val error2: Style
         @Composable get() {
             val text = Style(
                 color = colors.text.onTipError,
@@ -112,7 +99,7 @@ object POMessageBox {
                 shape = shapes.roundedCorners8,
                 border = POBorderStroke(
                     width = 1.dp,
-                    color = colors.input.borderDefault2
+                    color = colors.input.borderDefault
                 ),
                 backgroundColor = colors.surface.toastError
             )

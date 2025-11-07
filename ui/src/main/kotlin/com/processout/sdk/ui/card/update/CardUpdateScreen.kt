@@ -23,7 +23,7 @@ import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.card.update.CardUpdateEvent.*
 import com.processout.sdk.ui.core.component.*
 import com.processout.sdk.ui.core.component.field.POField
-import com.processout.sdk.ui.core.component.field.text.POTextField2
+import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POImmutableList
 import com.processout.sdk.ui.core.style.POAxis
@@ -48,7 +48,7 @@ internal fun CardUpdateScreen(
     Scaffold(
         modifier = Modifier
             .nestedScroll(rememberNestedScrollInteropConnection())
-            .clip(shape = shapes.topRoundedCornersLarge),
+            .clip(shape = shapes.topRoundedCorners16),
         containerColor = style.backgroundColor,
         topBar = {
             POHeader(
@@ -82,9 +82,9 @@ internal fun CardUpdateScreen(
                 .fillMaxSize()
                 .padding(scaffoldPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(spacing.extraLarge)
+                .padding(spacing.space20)
         ) {
-            val verticalSpacingPx = (spacing.extraLarge * 4 + 15.dp).dpToPx()
+            val verticalSpacingPx = (spacing.space20 * 4 + 15.dp).dpToPx()
             Column(
                 modifier = Modifier.onGloballyPositioned {
                     val contentHeight = it.size.height + topBarHeight + bottomBarHeight + verticalSpacingPx
@@ -103,7 +103,7 @@ internal fun CardUpdateScreen(
                     style = style.errorMessage,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = spacing.small)
+                        .padding(top = spacing.space8)
                 )
             }
         }
@@ -119,12 +119,12 @@ private fun Fields(
     style: POField.Style
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(spacing.small)
+        verticalArrangement = Arrangement.spacedBy(spacing.space8)
     ) {
         val lifecycleEvent = rememberLifecycleEvent()
         fields.elements.forEach { state ->
             val focusRequester = remember { FocusRequester() }
-            POTextField2(
+            POTextField(
                 value = state.value,
                 onValueChange = {
                     if (state.enabled) {
@@ -175,7 +175,12 @@ private fun AnimatedFieldIcon(@DrawableRes id: Int) {
         id = id,
         modifier = Modifier
             .requiredHeight(dimensions.formComponentMinHeight)
-            .padding(POField.contentPadding),
+            .padding(
+                PaddingValues(
+                    horizontal = spacing.space16,
+                    vertical = spacing.space12
+                )
+            ),
         contentScale = ContentScale.FillHeight
     )
 }
@@ -226,7 +231,7 @@ internal object CardUpdateScreen {
         ),
         field = custom?.field?.let {
             POField.custom(style = it)
-        } ?: POField.default2,
+        } ?: POField.default,
         errorMessage = custom?.errorMessage?.let {
             POText.custom(style = it)
         } ?: POText.Style(
@@ -238,7 +243,7 @@ internal object CardUpdateScreen {
         } ?: PODialog.default,
         actionsContainer = custom?.actionsContainer?.let {
             POActionsContainer.custom(style = it)
-        } ?: POActionsContainer.default2,
+        } ?: POActionsContainer.default,
         backgroundColor = custom?.backgroundColorResId?.let {
             colorResource(id = it)
         } ?: colors.surface.default,

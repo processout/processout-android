@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
@@ -29,6 +30,7 @@ import com.processout.sdk.ui.core.R
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.component.POBorderStroke
 import com.processout.sdk.ui.core.component.POIme.isImeVisibleAsState
+import com.processout.sdk.ui.core.component.POMessageBox
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.POField.stateStyle
@@ -50,14 +52,19 @@ fun PODropdownField(
     onValueChange: (TextFieldValue) -> Unit,
     availableValues: POImmutableList<POAvailableValue>,
     modifier: Modifier = Modifier,
+    textFieldModifier: Modifier = Modifier,
     contentPadding: PaddingValues = POField.contentPadding,
     fieldStyle: POField.Style = POField.default,
     menuStyle: PODropdownField.MenuStyle = PODropdownField.defaultMenu,
+    descriptionStyle: POMessageBox.Style = POMessageBox.error,
     menuMatchesTextFieldWidth: Boolean = true,
     preferFormattedTextSelection: Boolean = false,
     enabled: Boolean = true,
     isError: Boolean = false,
-    placeholder: String? = null
+    label: String? = null,
+    placeholder: String? = null,
+    description: String? = null,
+    contentDescription: String? = null
 ) {
     MaterialTheme(
         colorScheme = MaterialTheme.colorScheme.copy(surface = Color.Transparent),
@@ -76,6 +83,7 @@ fun PODropdownField(
             }
         }
         ExposedDropdownMenuBox(
+            modifier = modifier,
             expanded = expanded,
             onExpandedChange = {
                 if (enabled) {
@@ -97,29 +105,36 @@ fun PODropdownField(
                         )
                     } ?: TextFieldValue(),
                 onValueChange = {},
-                modifier = modifier
+                modifier = Modifier.fillMaxWidth(),
+                textFieldModifier = textFieldModifier
                     .menuAnchor(MenuAnchorType.PrimaryNotEditable)
                     .onFocusChanged {
                         isFocused = it.isFocused
                     },
                 contentPadding = contentPadding,
-                style = fieldStyle,
+                fieldStyle = fieldStyle,
+                descriptionStyle = descriptionStyle,
                 enabled = enabled,
                 readOnly = true,
                 isDropdown = true,
                 isError = isError,
+                label = label,
                 placeholder = placeholder,
+                description = description,
+                contentDescription = contentDescription,
                 trailingIcon = {
                     Icon(
-                        painter = painterResource(id = R.drawable.po_dropdown_arrow),
+                        painter = painterResource(id = R.drawable.po_chevron_down),
                         contentDescription = null,
-                        modifier = Modifier.rotate(if (expanded) 180f else 0f),
-                        tint = fieldStateStyle.text.color
+                        modifier = Modifier
+                            .scale(1.1f)
+                            .rotate(if (expanded) 180f else 0f),
+                        tint = fieldStateStyle.label.color
                     )
                 }
             )
             val menuItemHeight = dimensions.formComponentMinHeight
-            val menuVerticalPaddings = spacing.large
+            val menuVerticalPaddings = spacing.space16
             val maxMenuHeight = remember { menuItemHeight * PODropdownField.MaxVisibleMenuItems + menuVerticalPaddings }
             DropdownMenu(
                 expanded = expanded,
@@ -171,7 +186,7 @@ private fun MenuItem(
                 indication = ripple(color = style.rippleColor)
             )
             .fillMaxWidth()
-            .padding(horizontal = spacing.large),
+            .padding(horizontal = spacing.space16),
         contentAlignment = Alignment.CenterStart
     ) {
         POText(
@@ -198,15 +213,6 @@ object PODropdownField {
     )
 
     val defaultMenu: MenuStyle
-        @Composable get() = MenuStyle(
-            text = POText.body2,
-            backgroundColor = colors.surface.neutral,
-            rippleColor = colors.text.muted,
-            shape = shapes.roundedCornersSmall,
-            border = POBorderStroke(width = 0.dp, color = Color.Transparent)
-        )
-
-    val defaultMenu2: MenuStyle
         @Composable get() = MenuStyle(
             text = POText.Style(
                 color = colors.text.secondary,

@@ -75,10 +75,10 @@ internal fun CardScannerScreen(
     style: CardScannerScreen.Style = CardScannerScreen.style()
 ) {
     Scaffold(
-        modifier = Modifier.clip(shape = shapes.topRoundedCornersLarge),
+        modifier = Modifier.clip(shape = shapes.topRoundedCorners16),
         containerColor = style.backgroundColor
     ) { scaffoldPadding ->
-        val verticalSpacingPx = (spacing.large * 2).dpToPx()
+        val verticalSpacingPx = (spacing.space16 * 2).dpToPx()
         Column(
             modifier = Modifier
                 .verticalScroll(
@@ -96,8 +96,8 @@ internal fun CardScannerScreen(
                 onCheckedChange = { onEvent(TorchToggle(isEnabled = it)) },
                 modifier = Modifier
                     .padding(
-                        top = spacing.medium,
-                        start = spacing.medium
+                        top = spacing.space12,
+                        start = spacing.space12
                     )
                     .requiredSizeIn(
                         minWidth = dimensions.buttonIconSizeSmall,
@@ -109,13 +109,13 @@ internal fun CardScannerScreen(
             )
             val density = LocalDensity.current
             var cameraPreviewHeight by remember { mutableStateOf(0.dp) }
-            val cameraPreviewOffsetCorrelation = spacing.large
+            val cameraPreviewOffsetCorrelation = spacing.space16
             Column(
                 modifier = Modifier
                     .padding(
-                        start = spacing.large,
-                        end = spacing.large,
-                        bottom = spacing.large
+                        start = spacing.space16,
+                        end = spacing.space16,
+                        bottom = spacing.space16
                     )
                     .onGloballyPositioned {
                         with(density) {
@@ -123,7 +123,7 @@ internal fun CardScannerScreen(
                             cameraPreviewHeight = height + cameraPreviewOffsetCorrelation
                         }
                     },
-                verticalArrangement = Arrangement.spacedBy(spacing.large),
+                verticalArrangement = Arrangement.spacedBy(spacing.space16),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 POText(
@@ -169,7 +169,7 @@ private fun CameraPreview(
     style: CameraPreviewStyle,
     cardStyle: CardStyle,
     modifier: Modifier = Modifier,
-    offsetSize: Dp = spacing.extraLarge
+    offsetSize: Dp = spacing.space20
 ) {
     Box(
         modifier = modifier
@@ -286,7 +286,7 @@ private fun ScannedCard(
                         modifier = Modifier.conditional(
                             condition = expiration.isBlank(),
                             whenTrue = { requiredWidthIn(min = 88.dp) },
-                            whenFalse = { padding(horizontal = spacing.large) }
+                            whenFalse = { padding(horizontal = spacing.space16) }
                         ),
                         color = style.expiration.color,
                         style = style.expiration.textStyle
@@ -392,7 +392,7 @@ internal object CardScannerScreen {
 
     private val defaultCameraPreview: CameraPreviewStyle
         @Composable get() = CameraPreviewStyle(
-            shape = shapes.roundedCornersMedium,
+            shape = shapes.roundedCorners8,
             border = POBorderStroke(width = 0.dp, color = Color.Transparent),
             overlayColor = Color.Black.copy(alpha = 0.4f)
         )
@@ -413,15 +413,15 @@ internal object CardScannerScreen {
         @Composable get() = CardStyle(
             number = POText.Style(
                 color = Color.White,
-                textStyle = typography.largeTitle.copy(lineHeight = 28.sp)
+                textStyle = typography.s28().copy(lineHeight = 28.sp)
             ),
             expiration = POText.Style(
                 color = Color.White,
-                textStyle = typography.body3.copy(lineHeight = 20.sp)
+                textStyle = typography.s16().copy(lineHeight = 20.sp)
             ),
             cardholderName = POText.Style(
                 color = Color.White,
-                textStyle = typography.body3.copy(lineHeight = 20.sp)
+                textStyle = typography.s16().copy(lineHeight = 20.sp)
             ),
             border = POBorderStroke(width = 1.dp, color = Color.White),
             borderRadius = 8.dp
@@ -441,7 +441,7 @@ internal object CardScannerScreen {
         )
 
     private val defaultCancelButton: POButton.Style
-        @Composable get() = POButton.secondary2.let {
+        @Composable get() = POButton.secondary.let {
             it.copy(
                 normal = it.normal.copy(
                     text = it.normal.text.copy(

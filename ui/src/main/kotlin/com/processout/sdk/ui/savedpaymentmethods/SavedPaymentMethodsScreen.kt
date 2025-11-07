@@ -24,6 +24,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -58,7 +59,7 @@ internal fun SavedPaymentMethodsScreen(
     Scaffold(
         modifier = Modifier
             .nestedScroll(rememberNestedScrollInteropConnection())
-            .clip(shape = shapes.topRoundedCornersLarge),
+            .clip(shape = shapes.topRoundedCorners16),
         containerColor = style.backgroundColor,
         topBar = {
             Header(
@@ -93,11 +94,11 @@ internal fun SavedPaymentMethodsScreen(
                     .fillMaxSize()
                     .padding(scaffoldPadding)
                     .verticalScroll(rememberScrollState())
-                    .padding(spacing.extraLarge),
+                    .padding(spacing.space20),
                 verticalArrangement = if (content is Loaded) Arrangement.Top else Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                val verticalSpacingPx = (spacing.extraLarge * 4 + spacing.small).dpToPx()
+                val verticalSpacingPx = (spacing.space20 * 4 + spacing.space8).dpToPx()
                 Column(
                     modifier = Modifier.onGloballyPositioned {
                         val contentHeight = it.size.height + topBarHeight + verticalSpacingPx
@@ -175,7 +176,7 @@ private fun Content(
     POMessageBox(
         text = state.errorMessage,
         style = style.messageBox,
-        modifier = Modifier.padding(bottom = spacing.extraLarge),
+        modifier = Modifier.padding(bottom = spacing.space20),
         horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing)
     )
     val borderWidth = style.paymentMethod.border.width
@@ -220,10 +221,10 @@ private fun PaymentMethod(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                start = spacing.extraLarge,
-                end = spacing.medium,
-                top = spacing.large,
-                bottom = spacing.large
+                start = spacing.space20,
+                end = spacing.space12,
+                top = spacing.space16,
+                bottom = spacing.space16
             ),
         horizontalArrangement = Arrangement.spacedBy(RowComponentSpacing),
         verticalAlignment = Alignment.CenterVertically
@@ -293,7 +294,7 @@ private fun PaymentLogo(
                 .requiredSize(PaymentLogoSize)
                 .background(
                     color = fallbackBoxColor,
-                    shape = shapes.roundedCornersSmall
+                    shape = shapes.roundedCorners4
                 )
         )
     }
@@ -306,7 +307,7 @@ private fun Empty(
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(
-            space = spacing.medium,
+            space = spacing.space12,
             alignment = Alignment.CenterVertically
         ),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -315,7 +316,7 @@ private fun Empty(
             painter = painterResource(id = R.drawable.po_card_credit),
             contentDescription = null,
             modifier = Modifier
-                .padding(bottom = spacing.small)
+                .padding(bottom = spacing.space8)
                 .requiredSize(EmptyContentImageSize)
         )
         POText(
@@ -387,10 +388,13 @@ internal object SavedPaymentMethodsScreen {
             colorResource(id = it)
         } ?: colors.button.primaryBackgroundDefault,
         emptyContentStyle = EmptyContentStyle(
-            message = POText.body1,
+            message = POText.Style(
+                color = colors.text.primary,
+                textStyle = typography.s16(FontWeight.Medium)
+            ),
             description = POText.Style(
                 color = colors.text.muted,
-                textStyle = typography.body2
+                textStyle = typography.s14()
             )
         ),
         backgroundColor = custom?.backgroundColorResId?.let {
@@ -400,7 +404,10 @@ internal object SavedPaymentMethodsScreen {
 
     private val defaultHeader: HeaderStyle
         @Composable get() = HeaderStyle(
-            title = POText.title,
+            title = POText.Style(
+                color = colors.text.primary,
+                textStyle = typography.s20(FontWeight.Medium)
+            ),
             dragHandleColor = colors.icon.disabled,
             dividerColor = colors.border.border4,
             backgroundColor = colors.surface.default
@@ -423,9 +430,12 @@ internal object SavedPaymentMethodsScreen {
 
     private val defaultPaymentMethod: PaymentMethodStyle
         @Composable get() = PaymentMethodStyle(
-            description = POText.body1,
+            description = POText.Style(
+                color = colors.text.primary,
+                textStyle = typography.s16(FontWeight.Medium)
+            ),
             deleteButton = POButton.ghostEqualPadding,
-            shape = shapes.roundedCornersSmall,
+            shape = shapes.roundedCorners4,
             border = POBorderStroke(width = 1.dp, color = colors.border.border4),
             backgroundColor = colors.surface.default
         )

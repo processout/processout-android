@@ -16,8 +16,7 @@ import com.processout.sdk.ui.core.component.POMessageBox
 import com.processout.sdk.ui.core.component.PORequestFocus
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField
-import com.processout.sdk.ui.core.component.field.dropdown.PODropdownField2
-import com.processout.sdk.ui.core.component.field.text.POTextField2
+import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.state.POPhoneNumberFieldState
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 
@@ -29,15 +28,15 @@ fun POPhoneNumberField(
     onValueChange: (TextFieldValue, TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
     textFieldModifier: Modifier = Modifier,
-    fieldStyle: POField.Style = POField.default2,
-    dropdownMenuStyle: PODropdownField.MenuStyle = PODropdownField.defaultMenu2,
-    descriptionStyle: POMessageBox.Style = POMessageBox.error2,
+    fieldStyle: POField.Style = POField.default,
+    dropdownMenuStyle: PODropdownField.MenuStyle = PODropdownField.defaultMenu,
+    descriptionStyle: POMessageBox.Style = POMessageBox.error,
     keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
     Column(modifier = modifier) {
         Row(modifier = Modifier.fillMaxWidth()) {
             var requestFocus by remember { mutableStateOf(false) }
-            PODropdownField2(
+            PODropdownField(
                 value = state.regionCode,
                 onValueChange = { regionCode ->
                     requestFocus = true
@@ -60,7 +59,7 @@ fun POPhoneNumberField(
             )
             val focusRequester = remember { FocusRequester() }
             val phoneNumberUtil = remember { PhoneNumberUtil.getInstance() }
-            POTextField2(
+            POTextField(
                 value = state.number,
                 onValueChange = { number ->
                     if (number.text.startsWith('+')) {

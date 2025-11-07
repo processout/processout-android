@@ -46,7 +46,7 @@ internal fun CardTokenizationScreen(
     Scaffold(
         modifier = Modifier
             .nestedScroll(rememberNestedScrollInteropConnection())
-            .clip(shape = shapes.topRoundedCornersLarge),
+            .clip(shape = shapes.topRoundedCorners16),
         containerColor = style.backgroundColor,
         topBar = {
             POHeader(
@@ -80,9 +80,9 @@ internal fun CardTokenizationScreen(
                 .fillMaxSize()
                 .padding(scaffoldPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(spacing.extraLarge)
+                .padding(spacing.space20)
         ) {
-            val verticalSpacingPx = (spacing.extraLarge * 4 + 15.dp).dpToPx()
+            val verticalSpacingPx = (spacing.space20 * 4 + 15.dp).dpToPx()
             CardTokenizationContent(
                 state = state,
                 onEvent = onEvent,
@@ -153,16 +153,16 @@ internal object CardTokenizationScreen {
         ),
         field = custom?.field?.let {
             POField.custom(style = it)
-        } ?: POField.default2,
+        } ?: POField.default,
         radioField = custom?.radioField?.let {
             PORadioField.custom(style = it)
         } ?: PORadioField.default,
         dropdownMenu = custom?.dropdownMenu?.let {
             PODropdownField.custom(style = it)
-        } ?: PODropdownField.defaultMenu2,
+        } ?: PODropdownField.defaultMenu,
         checkbox = custom?.checkbox?.let {
             POCheckbox.custom(style = it)
-        } ?: POCheckbox.default2,
+        } ?: POCheckbox.default,
         dialog = custom?.dialog?.let {
             PODialog.custom(style = it)
         } ?: PODialog.default,
@@ -177,7 +177,7 @@ internal object CardTokenizationScreen {
         } ?: defaultScanButton,
         actionsContainer = custom?.actionsContainer?.let {
             POActionsContainer.custom(style = it)
-        } ?: POActionsContainer.default2,
+        } ?: POActionsContainer.default,
         backgroundColor = custom?.backgroundColorResId?.let {
             colorResource(id = it)
         } ?: colors.surface.default,
@@ -190,7 +190,7 @@ internal object CardTokenizationScreen {
     )
 
     val defaultScanButton: POButton.Style
-        @Composable get() = POButton.secondary2.let {
+        @Composable get() = POButton.secondary.let {
             it.copy(
                 normal = it.normal.copy(
                     text = it.normal.text.copy(

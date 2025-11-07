@@ -25,9 +25,11 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
+import com.processout.sdk.ui.core.component.POMessageBox
 import com.processout.sdk.ui.core.component.PORequestFocus
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
+import com.processout.sdk.ui.core.component.field.POField.stateStyle
 import com.processout.sdk.ui.core.component.field.code.POCodeField.align
 import com.processout.sdk.ui.core.component.field.code.POCodeField.rememberTextFieldWidth
 import com.processout.sdk.ui.core.component.field.code.POCodeField.validLength
@@ -35,7 +37,6 @@ import com.processout.sdk.ui.core.component.field.text.POTextField
 import com.processout.sdk.ui.core.component.texttoolbar.ProcessOutTextToolbar
 import com.processout.sdk.ui.core.state.POInputFilter
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
-import com.processout.sdk.ui.core.theme.ProcessOutTheme.dimensions
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
 
@@ -46,9 +47,12 @@ fun POCodeField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
-    style: POField.Style = POCodeField.default,
+    textFieldModifier: Modifier = Modifier,
+    fieldStyle: POField.Style = POCodeField.default,
+    descriptionStyle: POMessageBox.Style = POMessageBox.error,
     length: Int = POCodeField.LengthMax,
-    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+    label: String? = null,
+    description: String? = null,
     enabled: Boolean = true,
     isError: Boolean = false,
     isFocused: Boolean = false,
@@ -57,142 +61,188 @@ fun POCodeField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
-    var rowWidthPx by remember { mutableIntStateOf(0) }
-    val horizontalSpace = spacing.small
-    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+    Column(modifier = modifier) {
+        if (!label.isNullOrBlank()) {
+            val fieldStateStyle = fieldStyle.stateStyle(
+                isError = isError,
+                isFocused = isFocused
+            )
+            POText(
+                text = label,
+                modifier = Modifier.padding(bottom = spacing.space12),
+                color = fieldStateStyle.label.color,
+                style = fieldStateStyle.label.textStyle
+            )
+        }
+        Code(
+            value = value,
+            onValueChange = onValueChange,
+            style = fieldStyle,
+            length = length,
+            enabled = enabled,
+            isError = isError,
+            isFocused = isFocused,
+            lifecycleEvent = lifecycleEvent,
+            inputFilter = inputFilter,
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
+            modifier = textFieldModifier
+        )
+        POMessageBox(
+            text = description,
+            modifier = Modifier.padding(top = spacing.space12),
+            style = descriptionStyle
+        )
+    }
+}
+
+@Composable
+private fun Code(
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    style: POField.Style,
+    length: Int,
+    enabled: Boolean,
+    isError: Boolean,
+    isFocused: Boolean,
+    lifecycleEvent: Lifecycle.Event?,
+    inputFilter: POInputFilter?,
+    keyboardOptions: KeyboardOptions,
+    keyboardActions: KeyboardActions,
+    modifier: Modifier = Modifier
+) {
+    val validLength = remember(length) { validLength(length) }
+    var values by remember(validLength) { mutableStateOf(values(value.text, validLength, inputFilter)) }
+    var focusedIndex by remember(validLength) { mutableIntStateOf(values.focusedIndex()) }
+    val clipboardManager = LocalClipboardManager.current
+    CompositionLocalProvider(
+        LocalLayoutDirection provides LayoutDirection.Ltr,
+        LocalTextToolbar provides ProcessOutTextToolbar(
+            view = LocalView.current,
+            onPasteRequested = {
+                if (clipboardManager.hasText()) {
+                    val pastedValues = values(
+                        text = clipboardManager.getText()?.text ?: String(),
+                        length = validLength,
+                        inputFilter = inputFilter
+                    )
+                    if (!pastedValues.all { it.text.isEmpty() }) {
+                        values = pastedValues
+                        focusedIndex = values.focusedIndex()
+                        onValueChange(values.codeValue())
+                    }
+                }
+            },
+            hideUnspecifiedActions = true
+        )
+    ) {
+        var rowWidthPx by remember { mutableIntStateOf(0) }
+        val horizontalSpace = spacing.space8
         Row(
             modifier = Modifier
                 .focusGroup()
                 .fillMaxWidth()
                 .onGloballyPositioned { rowWidthPx = it.size.width },
-            horizontalArrangement = Arrangement.spacedBy(
-                space = horizontalSpace,
-                alignment = horizontalAlignment
-            ),
+            horizontalArrangement = Arrangement.spacedBy(horizontalSpace),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val validLength = remember(length) { validLength(length) }
-            var values by remember(validLength) { mutableStateOf(values(value.text, validLength, inputFilter)) }
-            var focusedIndex by remember(validLength) { mutableIntStateOf(values.focusedIndex()) }
-            val clipboardManager = LocalClipboardManager.current
-            CompositionLocalProvider(
-                LocalTextToolbar provides ProcessOutTextToolbar(
-                    view = LocalView.current,
-                    onPasteRequested = {
-                        if (clipboardManager.hasText()) {
-                            val pastedValues = values(
-                                text = clipboardManager.getText()?.text ?: String(),
-                                length = validLength,
-                                inputFilter = inputFilter
-                            )
-                            if (!pastedValues.all { it.text.isEmpty() }) {
-                                values = pastedValues
-                                focusedIndex = values.focusedIndex()
-                                onValueChange(values.codeValue())
+            val focusManager = LocalFocusManager.current
+            for (textFieldIndex in values.indices) {
+                val focusRequester = remember { FocusRequester() }
+                POTextField(
+                    value = values[textFieldIndex],
+                    onValueChange = { updatedValue ->
+                        if (updatedValue.selection.length == 0) {
+                            val currentValue = values[textFieldIndex]
+                            val updatedFilteredValue = inputFilter?.filter(updatedValue) ?: updatedValue
+                            values = values.mapIndexed { index, textFieldValue ->
+                                if (index == textFieldIndex) {
+                                    val updatedText = updatedFilteredValue.text.firstOrNull()?.toString() ?: String()
+                                    val isTextChanged = textFieldValue.text != updatedText
+                                    TextFieldValue(
+                                        text = updatedText,
+                                        selection = if (isTextChanged) {
+                                            TextRange(updatedText.length)
+                                        } else {
+                                            updatedFilteredValue.selection
+                                        }
+                                    )
+                                } else {
+                                    textFieldValue.copy(selection = TextRange.Zero)
+                                }
                             }
-                        }
-                    },
-                    hideUnspecifiedActions = true
-                )
-            ) {
-                val focusManager = LocalFocusManager.current
-                for (textFieldIndex in values.indices) {
-                    val focusRequester = remember { FocusRequester() }
-                    POTextField(
-                        value = values[textFieldIndex],
-                        onValueChange = { updatedValue ->
-                            if (updatedValue.selection.length == 0) {
-                                val currentValue = values[textFieldIndex]
-                                val updatedFilteredValue = inputFilter?.filter(updatedValue) ?: updatedValue
+                            if (textFieldIndex != values.lastIndex &&
+                                updatedFilteredValue.text.length == 2 &&
+                                updatedFilteredValue.selection.start == 2
+                            ) {
+                                val nextText = updatedFilteredValue.text.last().toString()
                                 values = values.mapIndexed { index, textFieldValue ->
-                                    if (index == textFieldIndex) {
-                                        val updatedText = updatedFilteredValue.text.firstOrNull()?.toString() ?: String()
-                                        val isTextChanged = textFieldValue.text != updatedText
+                                    if (index == textFieldIndex + 1) {
                                         TextFieldValue(
-                                            text = updatedText,
-                                            selection = if (isTextChanged) {
-                                                TextRange(updatedText.length)
-                                            } else {
-                                                updatedFilteredValue.selection
-                                            }
+                                            text = nextText,
+                                            selection = TextRange(nextText.length)
                                         )
                                     } else {
                                         textFieldValue.copy(selection = TextRange.Zero)
                                     }
                                 }
-                                if (textFieldIndex != values.lastIndex &&
-                                    updatedFilteredValue.text.length == 2 &&
-                                    updatedFilteredValue.selection.start == 2
-                                ) {
-                                    val nextText = updatedFilteredValue.text.last().toString()
-                                    values = values.mapIndexed { index, textFieldValue ->
-                                        if (index == textFieldIndex + 1) {
-                                            TextFieldValue(
-                                                text = nextText,
-                                                selection = TextRange(nextText.length)
-                                            )
-                                        } else {
-                                            textFieldValue.copy(selection = TextRange.Zero)
-                                        }
+                            }
+                            val isSelectionChangedOnly = currentValue.text == updatedFilteredValue.text &&
+                                    currentValue.selection != updatedFilteredValue.selection
+                            if (updatedFilteredValue.text.isNotEmpty() &&
+                                !isSelectionChangedOnly &&
+                                textFieldIndex != values.lastIndex
+                            ) {
+                                focusedIndex = textFieldIndex + 1
+                            }
+                            onValueChange(values.codeValue())
+                        }
+                    },
+                    modifier = Modifier.requiredWidth(
+                        rememberTextFieldWidth(
+                            defaultWidth = 40.dp,
+                            rowWidth = with(LocalDensity.current) { rowWidthPx.toDp() },
+                            space = horizontalSpace,
+                            length = validLength
+                        )
+                    ),
+                    textFieldModifier = modifier
+                        .onPreviewKeyEvent {
+                            if (it.key == Key.Backspace &&
+                                it.type == KeyEventType.KeyDown &&
+                                textFieldIndex != 0 &&
+                                values[textFieldIndex].selection.start == 0
+                            ) {
+                                values = values.mapIndexed { index, textFieldValue ->
+                                    if (index == textFieldIndex - 1) {
+                                        TextFieldValue()
+                                    } else {
+                                        textFieldValue.copy(selection = TextRange.Zero)
                                     }
                                 }
-                                val isSelectionChangedOnly = currentValue.text == updatedFilteredValue.text &&
-                                        currentValue.selection != updatedFilteredValue.selection
-                                if (updatedFilteredValue.text.isNotEmpty() &&
-                                    !isSelectionChangedOnly &&
-                                    textFieldIndex != values.lastIndex
-                                ) {
-                                    focusedIndex = textFieldIndex + 1
-                                }
+                                focusManager.moveFocus(FocusDirection.Previous)
                                 onValueChange(values.codeValue())
                             }
-                        },
-                        modifier = modifier
-                            .requiredWidth(
-                                rememberTextFieldWidth(
-                                    defaultWidth = dimensions.interactiveComponentMinSize,
-                                    rowWidth = with(LocalDensity.current) { rowWidthPx.toDp() },
-                                    space = horizontalSpace,
-                                    length = validLength
-                                )
-                            )
-                            .onPreviewKeyEvent {
-                                if (it.key == Key.Backspace &&
-                                    it.type == KeyEventType.KeyDown &&
-                                    textFieldIndex != 0 &&
-                                    values[textFieldIndex].selection.start == 0
-                                ) {
-                                    values = values.mapIndexed { index, textFieldValue ->
-                                        if (index == textFieldIndex - 1) {
-                                            TextFieldValue()
-                                        } else {
-                                            textFieldValue.copy(selection = TextRange.Zero)
-                                        }
-                                    }
-                                    focusManager.moveFocus(FocusDirection.Previous)
-                                    onValueChange(values.codeValue())
-                                }
-                                false
-                            }
-                            .focusRequester(focusRequester)
-                            .onFocusChanged {
-                                if (it.isFocused) {
-                                    focusedIndex = textFieldIndex
-                                }
-                            },
-                        contentPadding = PaddingValues(0.dp),
-                        style = align(style),
-                        enabled = enabled,
-                        isError = isError,
-                        keyboardOptions = keyboardOptions,
-                        keyboardActions = keyboardActions
-                    )
-                    if (isFocused && textFieldIndex == focusedIndex) {
-                        if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
-                            PORequestFocus(focusRequester, lifecycleEvent)
-                        } else {
-                            PORequestFocus(focusRequester)
+                            false
                         }
+                        .focusRequester(focusRequester)
+                        .onFocusChanged {
+                            if (it.isFocused) {
+                                focusedIndex = textFieldIndex
+                            }
+                        },
+                    contentPadding = PaddingValues(spacing.space0),
+                    fieldStyle = align(style),
+                    enabled = enabled,
+                    isError = isError,
+                    keyboardOptions = keyboardOptions,
+                    keyboardActions = keyboardActions
+                )
+                if (isFocused && textFieldIndex == focusedIndex) {
+                    if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
+                        PORequestFocus(focusRequester, lifecycleEvent)
+                    } else {
+                        PORequestFocus(focusRequester)
                     }
                 }
             }
@@ -241,19 +291,6 @@ object POCodeField {
 
     val default: POField.Style
         @Composable get() = POField.default.let {
-            val text = POText.Style(
-                color = colors.text.primary,
-                textStyle = typography.title
-            )
-            it.copy(
-                normal = it.normal.copy(text = text),
-                error = it.error.copy(text = text),
-                focused = it.focused.copy(text = text)
-            )
-        }
-
-    val default2: POField.Style
-        @Composable get() = POField.default2.let {
             val text = POText.Style(
                 color = colors.text.primary,
                 textStyle = typography.s20(FontWeight.Medium)

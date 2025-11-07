@@ -26,7 +26,7 @@ fun PODragHandle(
             )
             .background(
                 color = color,
-                shape = shapes.roundedCornersSmall
+                shape = shapes.roundedCorners4
             )
     )
 }

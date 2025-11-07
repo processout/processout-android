@@ -129,49 +129,6 @@ object POCheckbox {
         @Composable get() = Style(
             normal = StateStyle(
                 checkmark = CheckmarkStyle(
-                    color = colors.surface.default,
-                    borderColor = colors.input.borderDefault,
-                    backgroundColor = colors.surface.default
-                ),
-                text = POText.label1,
-                rippleColor = colors.surface.darkoutRipple
-            ),
-            selected = StateStyle(
-                checkmark = CheckmarkStyle(
-                    color = colors.surface.default,
-                    borderColor = colors.button.primaryBackgroundDefault,
-                    backgroundColor = colors.button.primaryBackgroundDefault
-                ),
-                text = POText.label1,
-                rippleColor = colors.surface.darkoutRipple
-            ),
-            error = StateStyle(
-                checkmark = CheckmarkStyle(
-                    color = colors.input.borderError,
-                    borderColor = colors.input.borderError,
-                    backgroundColor = colors.surface.default
-                ),
-                text = POText.label1,
-                rippleColor = colors.surface.darkoutRipple
-            ),
-            disabled = StateStyle(
-                checkmark = CheckmarkStyle(
-                    color = colors.input.borderDisabled,
-                    borderColor = colors.input.borderDisabled,
-                    backgroundColor = colors.input.backgroundDisabled
-                ),
-                text = POText.Style(
-                    color = colors.text.disabled,
-                    textStyle = typography.label1
-                ),
-                rippleColor = null
-            )
-        )
-
-    val default2: Style
-        @Composable get() = Style(
-            normal = StateStyle(
-                checkmark = CheckmarkStyle(
                     color = colors.checkRadio.iconDefault,
                     borderColor = colors.checkRadio.borderDefault,
                     backgroundColor = colors.checkRadio.surfaceDefault

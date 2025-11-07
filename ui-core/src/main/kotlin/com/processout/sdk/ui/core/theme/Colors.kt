@@ -37,11 +37,7 @@ data class POColors(
     @Immutable
     data class Input(
         val backgroundDefault: Color,
-        val backgroundDisabled: Color,
         val borderDefault: Color,
-        val borderDefault2: Color,
-        val borderDisabled: Color,
-        val borderFocused: Color,
         val borderError: Color
     )
 
@@ -88,7 +84,6 @@ data class POColors(
         val darkoutRipple: Color,
         val backgroundSuccess: Color,
         val success: Color,
-        val error: Color,
         val toastError: Color
     )
 
@@ -119,11 +114,7 @@ val POLightColorPalette = POColors(
     ),
     input = Input(
         backgroundDefault = Color(0xFFFFFFFF),
-        backgroundDisabled = Color(0x0F121314),
-        borderDefault = Color(0xFF7C8593),
-        borderDefault2 = Color(0x1F121314),
-        borderDisabled = Color(0xFFADB5BD),
-        borderFocused = Color(0xFF4791FF),
+        borderDefault = Color(0x1F121314),
         borderError = Color(0xFFBE011B)
     ),
     checkRadio = CheckRadio(
@@ -162,7 +153,6 @@ val POLightColorPalette = POColors(
         darkoutRipple = Color(0x0F59595A),
         backgroundSuccess = Color(0xFF1ABE5A),
         success = Color(0xFFBEFAE9),
-        error = Color(0xFFFFC2C8),
         toastError = Color(0xFFFDE3DE)
     ),
     border = Border(
@@ -191,11 +181,7 @@ val PODarkColorPalette = POColors(
     ),
     input = Input(
         backgroundDefault = Color(0xFF26292F),
-        backgroundDisabled = Color(0x14F6F8FB),
-        borderDefault = Color(0xFFCCD1D6),
-        borderDefault2 = Color(0x29F6F8FB),
-        borderDisabled = Color(0xFF7C8593),
-        borderFocused = Color(0xFFFFE500),
+        borderDefault = Color(0x29F6F8FB),
         borderError = Color(0xFFFF7D6C)
     ),
     checkRadio = CheckRadio(
@@ -234,7 +220,6 @@ val PODarkColorPalette = POColors(
         darkoutRipple = Color(0x0FACADAF),
         backgroundSuccess = Color(0xFF28DE6B),
         success = Color(0xFF1DA37D),
-        error = Color(0xFFD11D2F),
         toastError = Color(0xFF511511)
     ),
     border = Border(
