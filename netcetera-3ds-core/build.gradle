@@ -9,7 +9,7 @@ plugins {
 
 ext {
     publishArtifactId = 'processout-android-netcetera-3ds-core'
-    publishVersion = rootProject.ext.netcetera3dsSdkVersion
+    publishVersion = file('version.resolved').getText().trim()
     publishDescription = 'ProcessOut Android SDK - Netcetera 3DS Core'
 }
 
