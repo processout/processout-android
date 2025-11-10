@@ -1,6 +1,7 @@
 package com.processout.sdk.api.service
 
 import android.net.Uri
+import androidx.core.net.toUri
 import com.processout.sdk.api.model.request.POAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse.APMReturnType
@@ -40,7 +41,7 @@ internal class DefaultAlternativePaymentMethodsService(
             }
             arrayList
         }
-        val uriBuilder = Uri.parse(baseUrl).buildUpon()
+        val uriBuilder = baseUrl.toUri().buildUpon()
         pathComponents.forEach { uriBuilder.appendPath(it) }
         request.additionalData?.forEach {
             uriBuilder.appendQueryParameter("additional_data[${it.key}]", it.value)
