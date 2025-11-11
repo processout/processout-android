@@ -36,7 +36,7 @@ jobs:
         with:
           token: ${{ secrets.PO_GITHUB_TOKEN }}
           add-paths: |
-            version.resolved
+            netcetera-3ds-core/version.resolved
           commit-message: Update Netcetera
           branch: chore/netcetera-update-${{ env.UPDATED_VERSION }}
           delete-branch: true
