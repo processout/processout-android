@@ -15,3 +15,10 @@ else
   echo "Failed to download: $URL"
   exit 1
 fi
+
+unzip "$FILENAME" -d "$FOLDER"
+
+echo "------ root"
+ls -1
+echo "------ sdk"
+ls -1 "$FOLDER"
