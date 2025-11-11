@@ -18,13 +18,13 @@ fi
 
 unzip -o "$FILENAME" -d "$SDK_DIR"
 
-# jniLibs
-rm -rf netcetera-3ds-core/src/main/jniLibs/*
-cp -r "$SDK_DIR"/jni/* netcetera-3ds-core/src/main/jniLibs/
-
 # assets
 rm -rf netcetera-3ds-core/src/main/assets/*
 cp -r "$SDK_DIR"/assets/* netcetera-3ds-core/src/main/assets/
+
+# jniLibs
+rm -rf netcetera-3ds-core/src/main/jniLibs/*
+cp -r "$SDK_DIR"/jni/* netcetera-3ds-core/src/main/jniLibs/
 
 # res
 rm -rf netcetera-3ds-core/src/main/res/*

@@ -36,6 +36,12 @@ jobs:
         with:
           token: ${{ secrets.PO_GITHUB_TOKEN }}
           add-paths: |
+            netcetera-3ds-core/src/main/assets/**
+            netcetera-3ds-core/src/main/jniLibs/**
+            netcetera-3ds-core/src/main/res/**
+            netcetera-3ds-core/libs/classes.jar
+            netcetera-3ds-core/netcetera-consumer-rules.pro
+            netcetera-3ds-core/dexguard.txt
             netcetera-3ds-core/version.resolved
           commit-message: Update Netcetera
           branch: chore/netcetera-update-${{ env.UPDATED_VERSION }}
