@@ -7,6 +7,7 @@ fi
 
 URL="$1"
 FILENAME=$(basename "$URL")
+FOLDER="${FILENAME%.*}"
 
 if curl -L "$URL" -o "$FILENAME"; then
   echo "Downloaded $FILENAME successfully."
