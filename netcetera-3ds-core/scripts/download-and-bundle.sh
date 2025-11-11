@@ -36,3 +36,5 @@ cp -f "$SDK_DIR"/classes.jar netcetera-3ds-core/libs/
 # proguard & dexguard
 cp -f "$SDK_DIR"/proguard.txt netcetera-3ds-core/netcetera-consumer-rules.pro
 cp -f "$SDK_DIR"/dexguard.txt netcetera-3ds-core/
+
+echo "Netcetera $FILENAME has been bundled successfully."
