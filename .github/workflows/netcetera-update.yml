@@ -43,7 +43,7 @@ jobs:
             netcetera-3ds-core/netcetera-consumer-rules.pro
             netcetera-3ds-core/dexguard.txt
             netcetera-3ds-core/version.resolved
-          commit-message: Update Netcetera
+          commit-message: 'chore: Update Netcetera to ${{ env.UPDATED_VERSION }}'
           branch: chore/netcetera-update-${{ env.UPDATED_VERSION }}
           delete-branch: true
           title: 'chore: Update Netcetera to ${{ env.UPDATED_VERSION }}'
