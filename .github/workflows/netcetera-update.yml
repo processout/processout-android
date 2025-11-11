@@ -21,23 +21,39 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download & Unpack
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Download & Bundle
         run: |
-          chmod +x ./netcetera-3ds-core/scripts/download-and-unpack.sh
-          ./netcetera-3ds-core/scripts/download-and-unpack.sh "${{ inputs.url }}"
+          chmod +x ./netcetera-3ds-core/scripts/download-and-bundle.sh
+          ./netcetera-3ds-core/scripts/download-and-bundle.sh "${{ inputs.url }}"
 
       - name: Update Version
         run: |
           source netcetera-3ds-core/scripts/update-version.sh "${{ inputs.version }}"
           echo "UPDATED_VERSION=$(cat netcetera-3ds-core/version.resolved)" >> $GITHUB_ENV
 
+      - name: Build Verification
+        run: ./gradlew :netcetera-3ds-core:assembleProductionRelease
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5.0.0
         with:
           token: ${{ secrets.PO_GITHUB_TOKEN }}
           add-paths: |
+            netcetera-3ds-core/src/main/assets/**
+            netcetera-3ds-core/src/main/jniLibs/**
+            netcetera-3ds-core/src/main/res/**
+            netcetera-3ds-core/libs/classes.jar
+            netcetera-3ds-core/netcetera-consumer-rules.pro
+            netcetera-3ds-core/dexguard.txt
             netcetera-3ds-core/version.resolved
-          commit-message: Update Netcetera
+          commit-message: 'chore: Update Netcetera to ${{ env.UPDATED_VERSION }}'
           branch: chore/netcetera-update-${{ env.UPDATED_VERSION }}
           delete-branch: true
           title: 'chore: Update Netcetera to ${{ env.UPDATED_VERSION }}'
