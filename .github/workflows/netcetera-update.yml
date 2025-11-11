@@ -21,10 +21,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download & Unpack
+      - name: Download & Bundle
         run: |
-          chmod +x ./netcetera-3ds-core/scripts/download-and-unpack.sh
-          ./netcetera-3ds-core/scripts/download-and-unpack.sh "${{ inputs.url }}"
+          chmod +x ./netcetera-3ds-core/scripts/download-and-bundle.sh
+          ./netcetera-3ds-core/scripts/download-and-bundle.sh "${{ inputs.url }}"
 
       - name: Update Version
         run: |
