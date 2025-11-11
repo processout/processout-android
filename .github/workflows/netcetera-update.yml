@@ -21,9 +21,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Download & Unpack
+        run: |
+          chmod +x ./netcetera-3ds-core/scripts/download-and-unpack.sh
+          ./netcetera-3ds-core/scripts/download-and-unpack.sh "${{ inputs.url }}"
+
       - name: Update Version
         run: |
-          source netcetera-3ds-core/scripts/update-version.sh ${{ inputs.version }}
+          source netcetera-3ds-core/scripts/update-version.sh "${{ inputs.version }}"
           echo "UPDATED_VERSION=$(cat netcetera-3ds-core/version.resolved)" >> $GITHUB_ENV
 
       - name: Create Pull Request
