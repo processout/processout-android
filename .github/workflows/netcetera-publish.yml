@@ -19,6 +19,11 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: '4.0.3'
+
       - name: Build
         run: ./gradlew :netcetera-3ds-core:assembleProductionRelease
         env:
