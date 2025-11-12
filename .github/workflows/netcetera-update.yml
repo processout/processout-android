@@ -40,6 +40,8 @@ jobs:
 
       - name: Build Verification
         run: ./gradlew :netcetera-3ds-core:assembleProductionRelease
+        env:
+          NETCETERA_API_KEY: ${{ secrets.NETCETERA_API_KEY }}
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5.0.0

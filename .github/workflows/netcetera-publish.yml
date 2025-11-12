@@ -21,6 +21,8 @@ jobs:
 
       - name: Build
         run: ./gradlew :netcetera-3ds-core:assembleProductionRelease
+        env:
+          NETCETERA_API_KEY: ${{ secrets.NETCETERA_API_KEY }}
 
       - name: Publish To Maven Central
         run: ./gradlew :netcetera-3ds-core:publishProductionReleasePublicationToSonatypeRepository closeAndReleaseSonatypeStagingRepository --max-workers=1

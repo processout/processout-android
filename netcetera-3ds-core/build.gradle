@@ -103,8 +103,13 @@ def getApiKey() {
             throw new GradleException("Missing or blank 'netcetera.apiKey' in 'local.properties' file.")
         }
         return apiKey
+    } else {
+        String apiKey = System.getenv('NETCETERA_API_KEY')
+        if (!apiKey) {
+            throw new GradleException("Environment variable 'NETCETERA_API_KEY' is missing or blank.")
+        }
+        return apiKey
     }
-    throw new GradleException("File not found: 'local.properties'.")
 }
 
 tasks.register('afterKeepSecrets') {
