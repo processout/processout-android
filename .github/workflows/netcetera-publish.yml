@@ -20,7 +20,9 @@ jobs:
           cache: gradle
 
       - name: Install CMake
-        run: sudo apt-get update && sudo apt-get install -y cmake
+        run: |
+          sudo apt-get update && sudo apt-get install -y cmake
+          cmake --version
 
       - name: Build
         run: ./gradlew :netcetera-3ds-core:assembleProductionRelease
