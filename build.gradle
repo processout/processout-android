@@ -50,7 +50,7 @@ ext {
     compileSdkVersion = 36
 
     ndkVersion = '28.2.13676358'
-    cmakeVersion = '4.0.3'
+    cmakeVersion = '3.31.6'
 
     publishGroupId = 'com.processout'
     publishVersion = file('version.resolved').getText().trim()
