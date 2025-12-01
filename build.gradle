@@ -82,7 +82,7 @@ ext {
     okioVersion = '3.10.2'
     coilVersion = '2.7.0'
     commonMarkVersion = '0.27.0'
-    libphonenumberVersion = '9.0.12'
+    libphonenumberVersion = '9.0.19'
     zxingVersion = '3.5.3'
     jjwtVersion = '0.13.0'
     bouncyCastleVersion = '1.79'
