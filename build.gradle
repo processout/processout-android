@@ -83,7 +83,7 @@ ext {
     coilVersion = '2.7.0'
     commonMarkVersion = '0.27.0'
     libphonenumberVersion = '9.0.19'
-    zxingVersion = '3.5.3'
+    zxingVersion = '3.5.4'
     jjwtVersion = '0.13.0'
     bouncyCastleVersion = '1.79'
     slf4jVersion = '1.7.36'
