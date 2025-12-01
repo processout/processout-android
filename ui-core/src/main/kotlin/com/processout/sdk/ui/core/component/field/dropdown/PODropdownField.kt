@@ -140,7 +140,7 @@ fun PODropdownField(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
                 modifier = Modifier
-                    .exposedDropdownSize(matchTextFieldWidth = menuMatchesTextFieldWidth)
+                    .exposedDropdownSize(matchAnchorWidth = menuMatchesTextFieldWidth)
                     .heightIn(max = maxMenuHeight)
                     .border(
                         width = menuStyle.border.width,
