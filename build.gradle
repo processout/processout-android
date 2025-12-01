@@ -81,7 +81,7 @@ ext {
     okhttpVersion = '4.12.0'
     okioVersion = '3.10.2'
     coilVersion = '2.7.0'
-    commonMarkVersion = '0.25.1'
+    commonMarkVersion = '0.27.0'
     libphonenumberVersion = '9.0.12'
     zxingVersion = '3.5.3'
     jjwtVersion = '0.13.0'
