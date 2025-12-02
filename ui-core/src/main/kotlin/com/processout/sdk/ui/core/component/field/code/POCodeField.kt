@@ -42,6 +42,7 @@ import com.processout.sdk.ui.core.state.POInputFilter
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.typography
+import kotlinx.coroutines.launch
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -126,8 +127,9 @@ private fun Code(
             verticalAlignment = Alignment.CenterVertically
         ) {
             val context = LocalContext.current
-            val clipboardManager = LocalClipboardManager.current
+            val clipboard = LocalClipboard.current
             val focusManager = LocalFocusManager.current
+            val coroutineScope = rememberCoroutineScope()
 
             val validLength = remember(length) { validLength(length) }
             var values by remember(validLength) { mutableStateOf(values(value.text, validLength, inputFilter)) }
@@ -216,9 +218,11 @@ private fun Code(
                                 key = ContextMenuPasteKey,
                                 label = context.getString(android.R.string.paste)
                             ) {
-                                if (clipboardManager.hasText()) {
+                                coroutineScope.launch {
+                                    val pastedText = clipboard.getClipEntry()?.clipData
+                                        ?.getItemAt(0)?.text?.toString() ?: String()
                                     val pastedValues = values(
-                                        text = clipboardManager.getText()?.text ?: String(),
+                                        text = pastedText,
                                         length = validLength,
                                         inputFilter = inputFilter
                                     )
@@ -227,8 +231,8 @@ private fun Code(
                                         focusedIndex = values.focusedIndex()
                                         onValueChange(values.codeValue())
                                     }
+                                    close()
                                 }
-                                close()
                             }
                         }
                         .filterTextContextMenuComponents {
