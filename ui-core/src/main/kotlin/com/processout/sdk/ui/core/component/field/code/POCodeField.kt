@@ -6,6 +6,9 @@ import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.contextmenu.builder.item
+import androidx.compose.foundation.text.contextmenu.modifier.appendTextContextMenuComponents
+import androidx.compose.foundation.text.contextmenu.modifier.filterTextContextMenuComponents
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,11 +33,11 @@ import com.processout.sdk.ui.core.component.PORequestFocus
 import com.processout.sdk.ui.core.component.POText
 import com.processout.sdk.ui.core.component.field.POField
 import com.processout.sdk.ui.core.component.field.POField.stateStyle
+import com.processout.sdk.ui.core.component.field.code.POCodeField.ContextMenuPasteKey
 import com.processout.sdk.ui.core.component.field.code.POCodeField.align
 import com.processout.sdk.ui.core.component.field.code.POCodeField.rememberTextFieldWidth
 import com.processout.sdk.ui.core.component.field.code.POCodeField.validLength
 import com.processout.sdk.ui.core.component.field.text.POTextField
-import com.processout.sdk.ui.core.component.texttoolbar.ProcessOutTextToolbar
 import com.processout.sdk.ui.core.state.POInputFilter
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.colors
 import com.processout.sdk.ui.core.theme.ProcessOutTheme.spacing
@@ -111,31 +114,7 @@ private fun Code(
     keyboardActions: KeyboardActions,
     modifier: Modifier = Modifier
 ) {
-    val validLength = remember(length) { validLength(length) }
-    var values by remember(validLength) { mutableStateOf(values(value.text, validLength, inputFilter)) }
-    var focusedIndex by remember(validLength) { mutableIntStateOf(values.focusedIndex()) }
-    val clipboardManager = LocalClipboardManager.current
-    CompositionLocalProvider(
-        LocalLayoutDirection provides LayoutDirection.Ltr,
-        LocalTextToolbar provides ProcessOutTextToolbar(
-            view = LocalView.current,
-            onPasteRequested = {
-                if (clipboardManager.hasText()) {
-                    val pastedValues = values(
-                        text = clipboardManager.getText()?.text ?: String(),
-                        length = validLength,
-                        inputFilter = inputFilter
-                    )
-                    if (!pastedValues.all { it.text.isEmpty() }) {
-                        values = pastedValues
-                        focusedIndex = values.focusedIndex()
-                        onValueChange(values.codeValue())
-                    }
-                }
-            },
-            hideUnspecifiedActions = true
-        )
-    ) {
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         var rowWidthPx by remember { mutableIntStateOf(0) }
         val horizontalSpace = spacing.space8
         Row(
@@ -146,7 +125,14 @@ private fun Code(
             horizontalArrangement = Arrangement.spacedBy(horizontalSpace),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val context = LocalContext.current
+            val clipboardManager = LocalClipboardManager.current
             val focusManager = LocalFocusManager.current
+
+            val validLength = remember(length) { validLength(length) }
+            var values by remember(validLength) { mutableStateOf(values(value.text, validLength, inputFilter)) }
+            var focusedIndex by remember(validLength) { mutableIntStateOf(values.focusedIndex()) }
+
             for (textFieldIndex in values.indices) {
                 val focusRequester = remember { FocusRequester() }
                 POTextField(
@@ -225,6 +211,29 @@ private fun Code(
                             }
                             false
                         }
+                        .appendTextContextMenuComponents {
+                            item(
+                                key = ContextMenuPasteKey,
+                                label = context.getString(android.R.string.paste)
+                            ) {
+                                if (clipboardManager.hasText()) {
+                                    val pastedValues = values(
+                                        text = clipboardManager.getText()?.text ?: String(),
+                                        length = validLength,
+                                        inputFilter = inputFilter
+                                    )
+                                    if (!pastedValues.all { it.text.isEmpty() }) {
+                                        values = pastedValues
+                                        focusedIndex = values.focusedIndex()
+                                        onValueChange(values.codeValue())
+                                    }
+                                }
+                                close()
+                            }
+                        }
+                        .filterTextContextMenuComponents {
+                            it.key == ContextMenuPasteKey
+                        }
                         .focusRequester(focusRequester)
                         .onFocusChanged {
                             if (it.isFocused) {
@@ -288,6 +297,8 @@ private fun List<TextFieldValue>.codeValue() = TextFieldValue(
 /** @suppress */
 @ProcessOutInternalApi
 object POCodeField {
+
+    data object ContextMenuPasteKey
 
     val default: POField.Style
         @Composable get() = POField.default.let {
