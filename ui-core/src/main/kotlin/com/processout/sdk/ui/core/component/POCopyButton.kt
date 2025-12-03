@@ -2,12 +2,13 @@
 
 package com.processout.sdk.ui.core.component
 
+import android.content.ClipData
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import com.processout.sdk.ui.core.R
@@ -36,7 +37,7 @@ fun POCopyButton(
     copiedIcon: PODrawableImage? = POCopyButton.CopiedIcon,
     iconSize: Dp = dimensions.iconSizeSmall
 ) {
-    val clipboardManager = LocalClipboardManager.current
+    val clipboard = LocalClipboard.current
     var isCopied by remember { mutableStateOf(false) }
     var timerJob by remember { mutableStateOf<Job?>(null) }
     val coroutineScope = rememberCoroutineScope()
@@ -55,12 +56,14 @@ fun POCopyButton(
         POButton(
             text = if (isCopiedAnimated) copiedText else copyText,
             onClick = {
-                clipboardManager.setText(AnnotatedString(textToCopy))
-                isCopied = true
-                timerJob?.cancel()
-                timerJob = coroutineScope.launch {
-                    delay(timeMillis = 2500)
-                    isCopied = false
+                coroutineScope.launch {
+                    clipboard.setClipEntry(ClipEntry(ClipData.newPlainText(textToCopy, textToCopy)))
+                    isCopied = true
+                    timerJob?.cancel()
+                    timerJob = launch {
+                        delay(timeMillis = 2500)
+                        isCopied = false
+                    }
                 }
             },
             modifier = modifier,

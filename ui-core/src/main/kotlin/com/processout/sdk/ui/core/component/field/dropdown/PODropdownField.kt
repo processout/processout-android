@@ -107,7 +107,7 @@ fun PODropdownField(
                 onValueChange = {},
                 modifier = Modifier.fillMaxWidth(),
                 textFieldModifier = textFieldModifier
-                    .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
                     .onFocusChanged {
                         isFocused = it.isFocused
                     },
@@ -140,7 +140,7 @@ fun PODropdownField(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
                 modifier = Modifier
-                    .exposedDropdownSize(matchTextFieldWidth = menuMatchesTextFieldWidth)
+                    .exposedDropdownSize(matchAnchorWidth = menuMatchesTextFieldWidth)
                     .heightIn(max = maxMenuHeight)
                     .border(
                         width = menuStyle.border.width,
