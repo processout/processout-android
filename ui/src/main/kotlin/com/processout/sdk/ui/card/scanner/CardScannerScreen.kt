@@ -89,7 +89,7 @@ internal fun CardScannerScreen(
                     val contentHeight = it.size.height + verticalSpacingPx
                     onContentHeightChanged(contentHeight)
                 }
-                .padding(scaffoldPadding)
+                .padding(bottom = scaffoldPadding.calculateBottomPadding())
         ) {
             POButtonToggle(
                 checked = state.torchAction.checked,
