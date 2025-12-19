@@ -14,7 +14,7 @@ internal object WebAuthorizationActivityResultDispatcher :
 
     override fun dispatch(result: ProcessOutActivityResult<Uri>) {
         if (!isCached()) {
-            POLogger.error("Cannot provide result. Delegate is not cached. Possibly process was killed.")
+            POLogger.warn("App process was killed during web authorization.")
             return
         }
         result
