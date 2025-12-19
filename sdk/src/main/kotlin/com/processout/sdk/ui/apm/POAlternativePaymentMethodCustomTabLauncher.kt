@@ -214,7 +214,7 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
     @Deprecated("Used in other deprecated functions.")
     private val activityResultCallback = ActivityResultCallback<ProcessOutActivityResult<Uri>> { result ->
         if (!delegateCache.isCached()) {
-            POLogger.error("Cannot provide result. Delegate is not cached. Possibly process was killed.")
+            POLogger.warn("App process was killed during deprecated APM authorization.")
             return@ActivityResultCallback
         }
         result
