@@ -28,7 +28,7 @@ android {
     }
 
     defaultConfig {
-        minSdk rootProject.ext.minSdkVersion
+        minSdk rootProject.ext.netceteraMinSdkVersion
         targetSdk rootProject.ext.targetSdkVersion
         setBuildConfig(it)
         consumerProguardFiles 'consumer-rules.pro', 'netcetera-consumer-rules.pro'

@@ -46,6 +46,7 @@ subprojects {
 
 ext {
     minSdkVersion = 21
+    netceteraMinSdkVersion = 24
     targetSdkVersion = 36
     compileSdkVersion = 36
 

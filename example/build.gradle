@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId "com.processout.example"
-        minSdk rootProject.ext.minSdkVersion
+        minSdk rootProject.ext.netceteraMinSdkVersion
         targetSdk rootProject.ext.targetSdkVersion
         versionCode generateVersionCode()
         versionName rootProject.ext.publishVersion
