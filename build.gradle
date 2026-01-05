@@ -46,6 +46,7 @@ subprojects {
 
 ext {
     minSdkVersion = 21
+    netceteraMinSdkVersion = 24
     targetSdkVersion = 36
     compileSdkVersion = 36
 
@@ -85,7 +86,6 @@ ext {
     libphonenumberVersion = '9.0.19'
     zxingVersion = '3.5.4'
     jjwtVersion = '0.13.0'
-    bouncyCastleVersion = '1.79'
     slf4jVersion = '1.7.36'
 
     netcetera3dsSdkVersion = '2.5.3.1'

@@ -28,7 +28,7 @@ android {
     }
 
     defaultConfig {
-        minSdk rootProject.ext.minSdkVersion
+        minSdk rootProject.ext.netceteraMinSdkVersion
         targetSdk rootProject.ext.targetSdkVersion
         setBuildConfig(it)
         consumerProguardFiles 'consumer-rules.pro', 'netcetera-consumer-rules.pro'
@@ -138,6 +138,5 @@ preBuild.dependsOn afterKeepSecrets
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.bouncycastle:bcprov-jdk15to18:$bouncyCastleVersion"
     implementation "org.slf4j:slf4j-api:$slf4jVersion"
 }
