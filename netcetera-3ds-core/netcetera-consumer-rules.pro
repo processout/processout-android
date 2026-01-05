@@ -2,7 +2,7 @@
 
 
 -keeppackagenames com.netcetera.threeds.sdk.api.info,com.netcetera.threeds.sdk.api,com.netcetera.threeds.sdk.api.configparameters,com.netcetera.threeds.sdk.api.ui.logic,com.netcetera.threeds.sdk.infrastructure,com.netcetera.threeds.sdk.api.security,com.netcetera.threeds.sdk.api.transaction.challenge,com.netcetera.threeds.sdk.api.exceptions,org.bouncycastle.jce.provider,com.netcetera.threeds.sdk.api.transaction,com.netcetera.threeds.sdk.api.ui,com.netcetera.threeds.sdk.api.transaction.challenge.events
--adaptresourcefilecontents !jni/arm64-v8a/libae63.so,!jni/armeabi-v7a/libae63.so,!jni/x86/libae63.so,!jni/x86_64/libae63.so,!lib/arm64-v8a/libae63.so,!lib/armeabi-v7a/libae63.so,!lib/x86/libae63.so,!lib/x86_64/libae63.so,dummyfile
+-adaptresourcefilecontents !jni/arm64-v8a/libbdaf.so,!jni/armeabi-v7a/libbdaf.so,!jni/x86/libbdaf.so,!jni/x86_64/libbdaf.so,!lib/arm64-v8a/libbdaf.so,!lib/armeabi-v7a/libbdaf.so,!lib/x86/libbdaf.so,!lib/x86_64/libbdaf.so,dummyfile
 -dontwarn proguard.annotation.**
 
 
@@ -42,87 +42,93 @@
 }
 
 -keep class com.netcetera.threeds.sdk.infrastructure.getWarnings {
-    int getWarnings;    int initialize;    int ThreeDS2ServiceInstance;    int get;    com.netcetera.threeds.sdk.infrastructure.ThreeDS2Service ThreeDS2Service;    byte[] getSDKVersion;    byte[] createTransaction;    byte[] cleanup;    int[] ThreeDS2ServiceInitializationCallback;    int getSDKInfo;    int addParam;    int onError;    int ConfigParameters;    <init>(java.io.InputStream,int[],byte[],int,boolean,int);
-    <init>(java.io.InputStream,int[],byte[],int,boolean,int,int,int);
-    int read();
-    int read(byte[],int,int);
-    long skip(long);
-    int available();
-    boolean markSupported();
-    void ThreeDS2ServiceInstance();
-    void ThreeDS2Service();
-    int getWarnings();
-    void initialize();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.get {
-    int ThreeDS2ServiceInstance;    int ThreeDS2Service;    int getWarnings;    int initialize;    long[] get;    long[] getSDKInfo;    short createTransaction;    byte[] ThreeDS2ServiceInitializationCallback;    int cleanup;    int getSDKVersion;    int getParamValue;    <init>(java.io.InputStream,int,int,short,int,int);
+    int ThreeDS2Service;    int initialize;    int ThreeDS2ServiceInstance;    int get;    long[] getWarnings;    long[] getSDKInfo;    short getSDKVersion;    byte[] cleanup;    int createTransaction;    int ThreeDS2ServiceInitializationCallback;    int ConfigParameters;    <init>(java.io.InputStream,int,int,short,int,int);
     <init>(java.io.InputStream,int,int,short,int,int,int,int);
     int read();
     int read(byte[],int,int);
     long skip(long);
     int available();
     boolean markSupported();
+    void ThreeDS2Service();
+    int get();
     void ThreeDS2ServiceInstance();
-    int ThreeDS2Service();
-    void initialize();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.ThreeDS2ServiceInitializationCallback {
-    int initialize;    <init>();
+-keep class com.netcetera.threeds.sdk.infrastructure.initialize {
+    byte[] ThreeDS2ServiceInstance;    int[] get;    int[] initialize;    int[] getWarnings;    int[] ThreeDS2Service;    int ThreeDS2ServiceInitializationCallback;    int[] getSDKVersion;    byte[][] createTransaction;    int[] getSDKInfo;    byte[] cleanup;    byte[] onError;    int getParamValue;    int onCompleted;    int ConfigParameters;    int addParam;    int configureScheme;    int removeParam;    <init>(java.io.InputStream,int,byte[],byte[][]);
+    <init>(java.io.InputStream,int,byte[],byte[][],int,int);
+    int read();
+    int read(byte[]);
+    int read(byte[],int,int);
+    long skip(long);
+    int available();
+    void close();
+    boolean markSupported();
+    void mark(int);
+    void reset();
+    byte[][] get(byte[][]);
+    int ThreeDS2Service();
+    void getWarnings(byte[],int,byte[],int);
+    void get();
+    void <clinit>();
 }
 
 -keep class com.netcetera.threeds.sdk.infrastructure.createTransaction {
-    int initialize;    int getWarnings;    int get;    <init>();
-    void ThreeDS2ServiceInstance(int[]);
-    int ThreeDS2Service(int);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.getSDKInfo {
-    int getWarnings;    int ThreeDS2ServiceInstance;    int get;    <init>();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.cleanup {
-    int get;}
-
--keep class com.netcetera.threeds.sdk.infrastructure.getSDKVersion {
-    int initialize;    int ThreeDS2ServiceInstance;    char ThreeDS2Service;    char getWarnings;    <init>();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.ConfigParameters {
-    int initialize;    char get;    <init>();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.onCompleted {
-    int initialize;    int ThreeDS2Service;    <init>();
-    char[] initialize(long,char[],int);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.addParam {
-    int ThreeDS2Service;    int initialize;    <init>();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.onError {
-    int getWarnings;    int ThreeDS2ServiceInstance;    <init>();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.getParamValue {
-    int getWarnings;    char get;    char initialize;    int ThreeDS2Service;    int ThreeDS2ServiceInstance;    int ThreeDS2ServiceInitializationCallback;    int cleanup;    <init>();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.ConfigurationBuilder {
     int ThreeDS2ServiceInstance;    <init>();
 }
 
+-keep class com.netcetera.threeds.sdk.infrastructure.getSDKVersion {
+    int get;    int initialize;    int ThreeDS2Service;    <init>();
+    void initialize(int[]);
+    int ThreeDS2ServiceInstance(int);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.cleanup {
+    int ThreeDS2ServiceInstance;    int ThreeDS2Service;    int get;    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.addParam {
+    int ThreeDS2Service;    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.onCompleted {
+    int get;    int getWarnings;    char ThreeDS2ServiceInstance;    char ThreeDS2Service;    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.getParamValue {
+    int get;    char getWarnings;    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.ConfigParameters {
+    int ThreeDS2ServiceInstance;    int getWarnings;    <init>();
+    char[] getWarnings(long,char[],int);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.onError {
+    int get;    int getWarnings;    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.configureScheme {
+    int getWarnings;    int get;    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.restrictedParameters {
+    int ThreeDS2Service;    char getWarnings;    char ThreeDS2ServiceInstance;    int initialize;    int get;    int createTransaction;    int ThreeDS2ServiceInitializationCallback;    <init>();
+}
+
 -keep class com.netcetera.threeds.sdk.infrastructure.removeParam {
-    int ThreeDS2Service(java.lang.Object);
+    int ThreeDS2Service;    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.apiKey {
+    int get(java.lang.Object);
     int get(int);
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.valueOf {
-    java.lang.Integer ThreeDS2Service;}
+-keep class com.netcetera.threeds.sdk.infrastructure.SDKInfo {
+    java.lang.Integer get;}
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.valueOf {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.SDKInfo {
     <init>();
 }
 
@@ -131,7 +137,6 @@
 }
 
 -keep class com.netcetera.threeds.sdk.api.ThreeDS2Service {
-    void initialize(android.content.Context,com.netcetera.threeds.sdk.api.configparameters.ConfigParameters,java.lang.String,com.netcetera.threeds.sdk.api.ui.logic.UiCustomization);
     void initialize(android.content.Context,com.netcetera.threeds.sdk.api.configparameters.ConfigParameters,java.lang.String,java.util.Map);
     void initialize(android.content.Context,com.netcetera.threeds.sdk.api.configparameters.ConfigParameters,java.lang.String,java.util.Map,com.netcetera.threeds.sdk.api.ThreeDS2Service$InitializationCallback);
     java.util.List getWarnings();
@@ -153,6 +158,10 @@
 
 -keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.api.configparameters.builder.ConfigurationBuilder {
     void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.api.configparameters.builder.SchemeConfiguration {
+    void get();
 }
 
 -keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.api.configparameters.builder.SchemeConfiguration$Builder {
@@ -183,10 +192,6 @@
 
 -keep class com.netcetera.threeds.sdk.api.transaction.AuthenticationRequestParameters {
     <init>(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String);
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.api.transaction.AuthenticationRequestParameters {
-    void init$0();
 }
 
 -keep class com.netcetera.threeds.sdk.api.transaction.Transaction {
@@ -244,905 +249,912 @@
     <init>();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.CertificateInfoCertificateType {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getSchemeConfigurations {
     <init>();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.SchemeInfo {
-    <init>(com.netcetera.threeds.sdk.infrastructure.SchemeInfo$get);
+-keep class com.netcetera.threeds.sdk.infrastructure.getSupportedProtocolVersions {
+    <init>(com.netcetera.threeds.sdk.infrastructure.getSupportedProtocolVersions$get);
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.SchemeInfo$get {
-    com.netcetera.threeds.sdk.infrastructure.SchemeInfo$get get(android.content.Context);
+-keep class com.netcetera.threeds.sdk.infrastructure.getSupportedProtocolVersions$get {
+    com.netcetera.threeds.sdk.infrastructure.getSupportedProtocolVersions$get ThreeDS2ServiceInstance(android.content.Context);
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setThreeDSRequestorAppURL {
-    void initialize(com.netcetera.threeds.sdk.infrastructure.setAcsSignedContent);
-    void getWarnings(java.lang.Class);
-    java.lang.Object initialize(java.lang.Class);
+-keep class com.netcetera.threeds.sdk.infrastructure.set3DSServerTransactionID {
+    void getWarnings(com.netcetera.threeds.sdk.infrastructure.getAcsRefNumber);
+    void ThreeDS2ServiceInstance(java.lang.Class);
+    java.lang.Object ThreeDS2Service(java.lang.Class);
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setAcsSignedContent
+-keep class com.netcetera.threeds.sdk.infrastructure.getAcsRefNumber
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getAcsRefNumber {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getAcsTransactionID {
     <init>();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.completed {
-    java.security.PublicKey ThreeDS2ServiceInstance(java.lang.String);
-    com.netcetera.threeds.sdk.api.info.CertificateInfo$CertificateType get(java.lang.String);
+-keep class com.netcetera.threeds.sdk.infrastructure.getTransactionID {
+    java.security.PublicKey getWarnings(java.lang.String);
+    com.netcetera.threeds.sdk.api.info.CertificateInfo$CertificateType ThreeDS2Service(java.lang.String);
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.CompletionEvent {
-    <init>(com.netcetera.threeds.sdk.infrastructure.getErrorMessage,java.util.List,com.netcetera.threeds.sdk.infrastructure.setCacheColorHint$get);
+-keep class com.netcetera.threeds.sdk.infrastructure.showProgress {
+    <init>(com.netcetera.threeds.sdk.infrastructure.isProgressShown,java.util.List,com.netcetera.threeds.sdk.infrastructure.setChecked$initialize);
 }
 
 -keep class com.netcetera.threeds.sdk.infrastructure.ProtocolErrorEvent {
     java.lang.String ThreeDS2Service(java.lang.String);
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.showProgress {
-    com.netcetera.threeds.sdk.infrastructure.ProtocolErrorEvent get(java.lang.String,java.lang.String,java.lang.String,com.netcetera.threeds.sdk.infrastructure.setCacheColorHint$getWarnings);
+-keep class com.netcetera.threeds.sdk.infrastructure.setCornerRadius {
+    com.netcetera.threeds.sdk.infrastructure.ProtocolErrorEvent ThreeDS2ServiceInstance(java.lang.String,java.lang.String,java.lang.String,com.netcetera.threeds.sdk.infrastructure.setChecked$getWarnings);
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.RuntimeErrorEvent {
-    java.lang.String ThreeDS2Service(com.netcetera.threeds.sdk.infrastructure.CompletionEvent);
+-keep class com.netcetera.threeds.sdk.infrastructure.ButtonCustomization {
+    java.lang.String initialize(com.netcetera.threeds.sdk.infrastructure.showProgress);
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.getErrorMessage
+-keep class com.netcetera.threeds.sdk.infrastructure.isProgressShown
 
--keep class com.netcetera.threeds.sdk.infrastructure.ProgressView {
-    void ThreeDS2ServiceInstance(com.netcetera.threeds.sdk.api.configparameters.ConfigParameters,java.util.Locale);
-    void ThreeDS2ServiceInstance(com.netcetera.threeds.sdk.infrastructure.setCacheColorHint$getWarnings,com.netcetera.threeds.sdk.infrastructure.setCacheColorHint$get,java.lang.String,java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.getErrorMessage ThreeDS2ServiceInstance();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ButtonCustomization {
-    void getSDKInfo();
-    void init$0();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ButtonCustomization$ThreeDS2Service {
-    void getWarnings();
-    void init$0();
+-keep class com.netcetera.threeds.sdk.infrastructure.getCornerRadius {
+    void get(com.netcetera.threeds.sdk.api.configparameters.ConfigParameters,java.util.Locale);
+    void ThreeDS2Service(com.netcetera.threeds.sdk.infrastructure.setChecked$getWarnings,com.netcetera.threeds.sdk.infrastructure.setChecked$initialize,java.lang.String,java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.isProgressShown initialize();
 }
 
 -keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.hideProgress {
+    void ThreeDS2ServiceInitializationCallback();
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.hideProgress$ThreeDS2ServiceInstance {
+    void initialize();
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getTextFontSize {
     void get();
     void init$0();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getCornerRadius {
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.Customization {
     void init$0();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setNextFocusForwardId {
+-keep class com.netcetera.threeds.sdk.infrastructure.getTextColor {
     void get(long,long);
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setEnabled {
-    java.lang.Object[] getWarnings(android.content.Context,int,int,int);
+-keep class com.netcetera.threeds.sdk.infrastructure.getKeyInfoConverter {
+    java.lang.Object[] initialize$29a33360(int,int,java.lang.Object,int);
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setEnabled {
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getKeyInfoConverter {
     void init$0();
     void init$1();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setElevation {
-    void initialize(long,long);
+-keep class com.netcetera.threeds.sdk.infrastructure.setHandwritingDelegateFlags {
+    void get(long,long);
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setOutlineAmbientShadowColor {
+-keep class com.netcetera.threeds.sdk.infrastructure.setHorizontalScrollbarTrackDrawable {
+    java.lang.Object[] get(android.content.Context,int,int);
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setHorizontalScrollbarTrackDrawable {
+    void init$0();
+    void init$1();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setScrollCaptureCallback {
+    void init$0();
+    void init$1();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setScrollY {
     <init>();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setOutlineAmbientShadowColor {
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setScrollY {
+    void initialize();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setSoundEffectsEnabled {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setSoundEffectsEnabled {
     void getWarnings();
     void init$0();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setScrollbarFadingEnabled {
-    <init>();
+-keep class com.netcetera.threeds.sdk.infrastructure.setTextDirection {
+    com.netcetera.threeds.sdk.infrastructure.setTooltipText ThreeDS2ServiceInitializationCallback();
+    java.lang.Object ThreeDS2Service(java.lang.Object[],int,int,int);
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setScrollbarFadingEnabled {
-    void get();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setLayerType {
-    com.netcetera.threeds.sdk.infrastructure.setLayerPaint getSDKVersion();
-    java.lang.Object getWarnings(java.lang.Object[],int,int,int);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setLayerPaint {
-    com.netcetera.threeds.sdk.infrastructure.setLayerPaint$ThreeDS2ServiceInstance getWarnings();
+-keep class com.netcetera.threeds.sdk.infrastructure.setTooltipText {
+    com.netcetera.threeds.sdk.infrastructure.setTooltipText$get ThreeDS2ServiceInstance();
     java.lang.Object initialize(java.lang.Object[],int,int,int);
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setLayerPaint$ThreeDS2ServiceInstance {
+-keep class com.netcetera.threeds.sdk.infrastructure.setTooltipText$get {
     java.lang.String ThreeDS2Service();
-    java.lang.String get();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setDrawingCacheEnabled {
-    java.lang.Object get(java.lang.Object[],int,int,int);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setRenderEffect {
-    java.lang.Object initialize(java.lang.Object[],int,int,int);
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setRenderEffect$ThreeDS2Service {
-    void get();
-    void init$0();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setBackground {
-    java.lang.Object initialize(java.lang.Object[],int,int,int);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setBackgroundResource {
-    java.lang.Object ThreeDS2ServiceInstance(java.lang.Object[],int,int,int);
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setPadding {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setForegroundTintMode {
-    void getWarnings();
-    void init$0();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setForegroundTintList {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setId {
-    <init>();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setActivated {
-    com.netcetera.threeds.sdk.infrastructure.setLayerType ThreeDS2ServiceInstance(java.lang.String);
-    java.util.List ThreeDS2ServiceInstance();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setTag {
-    com.netcetera.threeds.sdk.infrastructure.setActivated get(com.netcetera.threeds.sdk.api.configparameters.ConfigParameters);
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setTextDirection {
-    void init$0();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setPointerIcon {
-    com.netcetera.threeds.sdk.infrastructure.completed ThreeDS2ServiceInstance();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setTextAlignment {
-    com.netcetera.threeds.sdk.infrastructure.setTextAlignment ThreeDS2ServiceInitializationCallback;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment createTransaction;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment onError;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment onCompleted;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment addParam;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment ConfigParameters;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment SchemeConfiguration;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment visaSchemeConfiguration;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment build;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment amexConfiguration;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment unionSchemeConfiguration;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment cbConfiguration;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment eftposConfiguration;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment getSchemeName;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment getSchemeId;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment getSchemeLogo;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment newSchemeConfiguration;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment SchemeConfigurationBuilder;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment getSchemeEncryptionPublicKey;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment getSchemePublicRootKeys;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment logo;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment rootPublicKey;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment encryptionPublicKeyFromAssetCertificate;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment logoDark;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment encryptionPublicKey;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment SDKRuntimeException;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment rootPublicKeyFromAssetCertificate;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment SDKAlreadyInitializedException;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment SDKNotInitializedException;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment CertificateInfo;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment getName;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment getCertPrefix;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment valueOf;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment getSchemeConfigurations;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment getEncryptionCertificateKid;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment Severity;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment Warning;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment getSeverity;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment getSDKReferenceNumber;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment getAuthenticationRequestParameters;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment close;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment ChallengeParameters;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment getProgressView;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment setAcsSignedContent;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment setThreeDSRequestorAppURL;    com.netcetera.threeds.sdk.infrastructure.setTextAlignment setAcsTransactionID;    com.netcetera.threeds.sdk.infrastructure.setScrollCaptureCallback initialize(java.lang.Object[]);
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setTextAlignment {
-    void ThreeDS2ServiceInstance();
-    void init$0();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setTransitionName {
-    void ThreeDS2ServiceInstance();
-    void init$0();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setScrollCaptureHint {
-    void get(com.netcetera.threeds.sdk.infrastructure.setScrollCaptureHint$ThreeDS2Service);
-    void ThreeDS2Service(com.netcetera.threeds.sdk.infrastructure.setScrollCaptureHint$ThreeDS2Service,java.lang.Runnable);
-    java.lang.Object ThreeDS2ServiceInstance(com.netcetera.threeds.sdk.infrastructure.setScrollCaptureHint$ThreeDS2ServiceInstance);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setScrollCaptureHint$ThreeDS2ServiceInstance
-
--keep class com.netcetera.threeds.sdk.infrastructure.setScrollCaptureHint$ThreeDS2Service
-
--keep class com.netcetera.threeds.sdk.infrastructure.setScrollCaptureCallback {
-    com.netcetera.threeds.sdk.infrastructure.setTextAlignment getWarnings();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setFrameContentVelocity {
-    void getWarnings(long,long);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setViewTranslationCallback {
-    <init>(com.netcetera.threeds.sdk.api.transaction.challenge.ChallengeStatusReceiver);
-    void ThreeDS2Service(com.netcetera.threeds.sdk.api.transaction.challenge.events.CompletionEvent);
-    void initialize();
-    void ThreeDS2ServiceInstance();
-    void ThreeDS2ServiceInstance(com.netcetera.threeds.sdk.api.transaction.challenge.events.ProtocolErrorEvent);
-    void initialize(com.netcetera.threeds.sdk.api.transaction.challenge.events.RuntimeErrorEvent);
-    void <clinit>();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setTouchscreenBlocksFocus {
-    com.netcetera.threeds.sdk.infrastructure.setScrollCaptureHint ThreeDS2ServiceInstance(com.netcetera.threeds.sdk.infrastructure.setJustificationMode);
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setTouchscreenBlocksFocus {
-    void getWarnings();
-    void init$0();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setLayoutAnimation {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setLayoutAnimation {
-    void init$0();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setAnimationCacheEnabled {
-    <init>();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setOnHierarchyChangeListener {
-    void getWarnings(java.util.Date);
-    com.netcetera.threeds.sdk.api.info.SDKInfo initialize(java.util.List);
-    void initialize();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setAlwaysDrawnWithCacheEnabled {
-    java.lang.Object[] ThreeDS2ServiceInstance(android.content.Context,int,int);
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setAlwaysDrawnWithCacheEnabled {
-    void init$0();
-    void init$1();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setAddStatesFromChildren {
-    void init$0();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setLayoutAnimationListener {
-    java.util.Locale ThreeDS2Service(java.lang.String);
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setHttpAuthUsernamePassword {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setHttpAuthUsernamePassword {
-    void getWarnings();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setHorizontalScrollbarOverlay {
-    void ThreeDS2Service(com.netcetera.threeds.sdk.infrastructure.setMinEms,com.netcetera.threeds.sdk.infrastructure.setNetworkAvailable);
-    void ThreeDS2ServiceInstance(com.netcetera.threeds.sdk.infrastructure.setCursorVisible,com.netcetera.threeds.sdk.infrastructure.setCertificate);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setNetworkAvailable {
-    void ThreeDS2Service(com.netcetera.threeds.sdk.infrastructure.setScroller);
-    void ThreeDS2ServiceInstance(com.netcetera.threeds.sdk.infrastructure.setAllCaps);
-    void ThreeDS2Service(com.netcetera.threeds.sdk.infrastructure.setCursorVisible);
-    void ThreeDS2Service(com.netcetera.threeds.sdk.infrastructure.setScrollCaptureCallback);
-    void initialize(com.netcetera.threeds.sdk.infrastructure.setScrollCaptureCallback);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setCertificate {
-    void ThreeDS2ServiceInstance();
-    void initialize(com.netcetera.threeds.sdk.infrastructure.setScrollCaptureCallback);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setVerticalScrollbarOverlay {
     java.lang.String getWarnings();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setInitialScale {
-    com.netcetera.threeds.sdk.infrastructure.setSafeBrowsingWhitelist ThreeDS2ServiceInstance();
-    com.netcetera.threeds.sdk.infrastructure.setInitialScale get();
-    com.netcetera.threeds.sdk.infrastructure.setWebViewClient ThreeDS2Service();
+-keep class com.netcetera.threeds.sdk.infrastructure.setTag {
+    java.lang.Object initialize(java.lang.Object[],int,int,int);
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setWebViewClient
+-keep class com.netcetera.threeds.sdk.infrastructure.setTop {
+    java.lang.Object get(java.lang.Object[],int,int,int);
+}
 
--keep class com.netcetera.threeds.sdk.infrastructure.setSafeBrowsingWhitelist {
-    com.netcetera.threeds.sdk.infrastructure.setVerticalScrollbarOverlay get();
-    boolean getWarnings();
-    int ThreeDS2ServiceInstance();
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setTop$getWarnings {
+    void ThreeDS2ServiceInstance();
+    void init$0();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setTransitionAlpha {
+    java.lang.Object getWarnings(java.lang.Object[],int,int,int);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setTransitionVisibility {
+    java.lang.Object initialize(java.lang.Object[],int,int,int);
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setVerticalScrollbarTrackDrawable {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setVerticalScrollbarPosition {
+    void get();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setY {
+    <init>();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setWindowInsetsAnimationCallback {
+    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setWillNotDraw {
+    com.netcetera.threeds.sdk.infrastructure.setTextDirection initialize(java.lang.String);
+    java.util.List get();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setX {
+    com.netcetera.threeds.sdk.infrastructure.setWillNotDraw get(com.netcetera.threeds.sdk.api.configparameters.ConfigParameters);
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setDescendantFocusability {
+    void init$0();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setLayoutAnimation {
+    com.netcetera.threeds.sdk.infrastructure.getTransactionID get();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache {
+    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache cleanup;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache createTransaction;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache onError;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache addParam;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache getParamValue;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache ConfigParameters;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache amexConfiguration;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache SchemeConfiguration;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache mastercardSchemeConfiguration;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache build;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache eftposConfiguration;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache jcbConfiguration;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache unionSchemeConfiguration;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache getSchemeLogoDark;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache getSchemeName;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache newSchemeConfiguration;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache getSchemeEncryptionPublicKey;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache SchemeConfigurationBuilder;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache getSchemePublicRootKeys;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache getSchemeEncryptionPublicKeyId;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache encryptionPublicKey;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache encryptionPublicKeyFromAssetCertificate;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache logoDark;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache rootPublicKey;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache logo;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache SDKRuntimeException;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache rootPublicKeyFromAssetCertificate;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache SDKAlreadyInitializedException;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache getErrorCode;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache toString;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache CertificateInfoCertificateType;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache getExpiryDate;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache getSchemeConfigurations;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache Severity;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache getRootCertificates;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache getMessage;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache getId;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache getSDKReferenceNumber;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache useBridgingExtension;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache getValue;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache close;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache getProgressView;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache setThreeDSRequestorAppURL;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache setAcsSignedContent;    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache setAcsTransactionID;    com.netcetera.threeds.sdk.infrastructure.setTouchscreenBlocksFocus initialize(java.lang.Object[]);
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache {
+    void initialize();
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setLayoutTransition {
+    void initialize();
+    void init$0();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setMotionEventSplittingEnabled {
+    void get(com.netcetera.threeds.sdk.infrastructure.setMotionEventSplittingEnabled$ThreeDS2Service);
+    void get(com.netcetera.threeds.sdk.infrastructure.setMotionEventSplittingEnabled$ThreeDS2Service,java.lang.Runnable);
+    java.lang.Object ThreeDS2Service(com.netcetera.threeds.sdk.infrastructure.setMotionEventSplittingEnabled$getWarnings);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setMotionEventSplittingEnabled$getWarnings
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setMotionEventSplittingEnabled$ThreeDS2Service
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setTouchscreenBlocksFocus {
+    com.netcetera.threeds.sdk.infrastructure.setPersistentDrawingCache initialize();
 }
 
 -keep class com.netcetera.threeds.sdk.infrastructure.setFindListener {
-    com.netcetera.threeds.sdk.infrastructure.setInitialScale getWarnings(java.lang.String,java.lang.String,java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setInitialScale ThreeDS2ServiceInstance(java.lang.String,java.lang.String,java.lang.String,java.lang.String);
+    <init>(com.netcetera.threeds.sdk.api.transaction.challenge.ChallengeStatusReceiver);
+    void ThreeDS2Service(com.netcetera.threeds.sdk.api.transaction.challenge.events.CompletionEvent);
+    void ThreeDS2ServiceInstance();
+    void initialize();
+    void ThreeDS2Service(com.netcetera.threeds.sdk.api.transaction.challenge.events.ProtocolErrorEvent);
+    void ThreeDS2ServiceInstance(com.netcetera.threeds.sdk.api.transaction.challenge.events.RuntimeErrorEvent);
+    void <clinit>();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setWebContentsDebuggingEnabled {
-    com.netcetera.threeds.sdk.infrastructure.setFindListener initialize();
-    com.netcetera.threeds.sdk.infrastructure.setFindListener get(java.lang.String);
+-keep class com.netcetera.threeds.sdk.infrastructure.setInitialScale {
+    java.lang.Object ThreeDS2Service(java.lang.Object[],int,int,int);
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setWebChromeClient {
-    java.lang.Object[] ThreeDS2ServiceInstance(int,int);
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setInitialScale {
+    void get();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setVerticalScrollbarOverlay {
+    <init>();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setPictureListener {
+    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setAdapter {
+    void getWarnings(java.util.Date);
+    com.netcetera.threeds.sdk.api.info.SDKInfo getWarnings(java.util.List);
+    void ThreeDS2ServiceInstance();
 }
 
 -keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setWebChromeClient {
     void init$0();
-    void init$1();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setDownloadListener {
-    <init>(javax.net.ssl.SSLSocketFactory,java.lang.String);
+-keep class com.netcetera.threeds.sdk.infrastructure.setWebViewRenderProcessClient {
+    void initialize(long,long);
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setDownloadListener {
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setWebViewRenderProcessClient {
     void init$0();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setPictureListener {
-    java.lang.Object getWarnings(java.lang.Object[],int,int,int);
+-keep class com.netcetera.threeds.sdk.infrastructure.setEdgeEffectColor {
+    java.util.Locale ThreeDS2Service(java.lang.String);
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setItemChecked {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setDrawSelectorOnTop {
     <init>();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setRendererPriorityPolicy {
-    java.lang.Integer getWarnings;    java.lang.Integer ThreeDS2Service;    java.lang.Integer ThreeDS2ServiceInstance;    android.util.Range get;}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setFastScrollAlwaysVisible {
-    <init>();
-    boolean get(com.netcetera.threeds.sdk.infrastructure.setScrollCaptureCallback);
-    java.lang.String get(com.netcetera.threeds.sdk.infrastructure.setSafeBrowsingWhitelist);
-    boolean initialize(com.netcetera.threeds.sdk.infrastructure.setScrollCaptureCallback);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setMultiChoiceModeListener {
-    com.netcetera.threeds.sdk.infrastructure.setHorizontalScrollbarOverlay ThreeDS2ServiceInstance(com.netcetera.threeds.sdk.infrastructure.setHorizontalScrollbarOverlay);
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setMultiChoiceModeListener {
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setDrawSelectorOnTop {
+    void get();
     void init$0();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setTranscriptMode {
-    void ThreeDS2ServiceInstance();
-    void init$0();
+-keep class com.netcetera.threeds.sdk.infrastructure.setChoiceMode {
+    void ThreeDS2ServiceInstance(com.netcetera.threeds.sdk.infrastructure.setCollapseContentDescription,com.netcetera.threeds.sdk.infrastructure.setCacheColorHint);
+    void ThreeDS2ServiceInstance(com.netcetera.threeds.sdk.infrastructure.finalize,com.netcetera.threeds.sdk.infrastructure.setBottomEdgeEffectColor);
 }
 
 -keep class com.netcetera.threeds.sdk.infrastructure.setCacheColorHint {
-    com.netcetera.threeds.sdk.infrastructure.setCacheColorHint$getWarnings getWarnings();
-    com.netcetera.threeds.sdk.infrastructure.setCacheColorHint$getWarnings ThreeDS2Service(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setCacheColorHint$get ThreeDS2ServiceInstance();
+    void get(com.netcetera.threeds.sdk.infrastructure.getView);
+    void initialize(com.netcetera.threeds.sdk.infrastructure.setCollapsible);
+    void initialize(com.netcetera.threeds.sdk.infrastructure.finalize);
+    void get(com.netcetera.threeds.sdk.infrastructure.setTouchscreenBlocksFocus);
+    void ThreeDS2ServiceInstance(com.netcetera.threeds.sdk.infrastructure.setTouchscreenBlocksFocus);
+    void getWarnings(com.netcetera.threeds.sdk.infrastructure.setTouchscreenBlocksFocus);
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setCacheColorHint$get
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setCacheColorHint$get {
-    void ThreeDS2Service();
+-keep class com.netcetera.threeds.sdk.infrastructure.setBottomEdgeEffectColor {
+    void ThreeDS2ServiceInstance();
+    void initialize(com.netcetera.threeds.sdk.infrastructure.setTouchscreenBlocksFocus);
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setCacheColorHint$getWarnings {
-    com.netcetera.threeds.sdk.infrastructure.setCacheColorHint$getWarnings getWarnings;    com.netcetera.threeds.sdk.infrastructure.setCacheColorHint$getWarnings ThreeDS2ServiceInstance;    java.lang.String getWarnings();
+-keep class com.netcetera.threeds.sdk.infrastructure.setFastScrollAlwaysVisible {
+    java.lang.String ThreeDS2Service();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setCacheColorHint$getWarnings {
-    void initialize();
-    void init$0();
+-keep class com.netcetera.threeds.sdk.infrastructure.setFastScrollStyle {
+    com.netcetera.threeds.sdk.infrastructure.setFastScrollEnabled getWarnings();
+    com.netcetera.threeds.sdk.infrastructure.setFastScrollStyle ThreeDS2ServiceInstance();
+    com.netcetera.threeds.sdk.infrastructure.setFilterText ThreeDS2Service();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setVelocityScale {
-    void init$0();
+-keep class com.netcetera.threeds.sdk.infrastructure.setFilterText
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setFastScrollEnabled {
+    com.netcetera.threeds.sdk.infrastructure.setFastScrollAlwaysVisible get();
+    boolean getWarnings();
+    int ThreeDS2Service();
 }
 
 -keep class com.netcetera.threeds.sdk.infrastructure.setRemoteViewsAdapter {
-    java.lang.String get();
+    com.netcetera.threeds.sdk.infrastructure.setFastScrollStyle ThreeDS2ServiceInstance(java.lang.String,java.lang.String,java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setFastScrollStyle ThreeDS2Service(java.lang.String,java.lang.String,java.lang.String,java.lang.String);
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setOnItemClickListener {
-    java.lang.String initialize();
-    java.lang.String ThreeDS2Service(com.netcetera.threeds.sdk.infrastructure.setCacheColorHint$getWarnings);
-    java.lang.String ThreeDS2Service();
-    java.lang.String get();
+-keep class com.netcetera.threeds.sdk.infrastructure.setRecyclerListener {
+    com.netcetera.threeds.sdk.infrastructure.setRemoteViewsAdapter get();
+    com.netcetera.threeds.sdk.infrastructure.setRemoteViewsAdapter initialize(java.lang.String);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setOnScrollListener {
+    <init>(javax.net.ssl.SSLSocketFactory,java.lang.String);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setSelector {
+    java.lang.Object get(java.lang.Object[],int,int,int);
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setSmoothScrollbarEnabled {
+    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setVelocityScale {
+    java.lang.Integer getWarnings;    java.lang.Integer ThreeDS2ServiceInstance;    java.lang.Integer get;    android.util.Range initialize;}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setTextFilterEnabled {
+    <init>();
+    boolean get(com.netcetera.threeds.sdk.infrastructure.setTouchscreenBlocksFocus);
+    java.lang.String get(com.netcetera.threeds.sdk.infrastructure.setFastScrollEnabled);
+    boolean initialize(com.netcetera.threeds.sdk.infrastructure.setTouchscreenBlocksFocus);
 }
 
 -keep class com.netcetera.threeds.sdk.infrastructure.setTopEdgeEffectColor {
-    <init>();
-    java.lang.String initialize();
+    com.netcetera.threeds.sdk.infrastructure.setChoiceMode get(com.netcetera.threeds.sdk.infrastructure.setChoiceMode);
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setOnItemSelectedListener {
-    com.netcetera.threeds.sdk.infrastructure.setOnItemSelectedListener getWarnings;}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setIndicatorBounds {
-    <init>(boolean);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setScaleType {
-    <init>(java.lang.Object);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setImageMatrixC2551$5 {
-    int[] initialize;}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setImageAlpha {
-    com.netcetera.threeds.sdk.infrastructure.setImageAlpha ThreeDS2Service(java.lang.String);
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setImageAlpha {
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setEllipsize {
     void initialize();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setColorFilter {
-    java.lang.String ThreeDS2Service();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setDividerPadding {
     void init$0();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setOrientation {
-    com.netcetera.threeds.sdk.infrastructure.setOrientation ThreeDS2ServiceInstance(android.content.Context);
-    java.lang.String ThreeDS2Service();
+-keep class com.netcetera.threeds.sdk.infrastructure.setChecked {
+    com.netcetera.threeds.sdk.infrastructure.setChecked$getWarnings ThreeDS2ServiceInstance();
+    com.netcetera.threeds.sdk.infrastructure.setChecked$getWarnings ThreeDS2Service(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setChecked$initialize ThreeDS2Service();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setOrientation {
+-keep class com.netcetera.threeds.sdk.infrastructure.setChecked$initialize
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setChecked$initialize {
+    void get();
     void init$0();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setWeightSum {
-    void ThreeDS2ServiceInstance(com.netcetera.threeds.sdk.infrastructure.setDividerHeight);
-    com.netcetera.threeds.sdk.infrastructure.setDividerHeight ThreeDS2ServiceInstance();
-    void getWarnings();
-    java.lang.Long ThreeDS2Service();
+-keep class com.netcetera.threeds.sdk.infrastructure.setChecked$getWarnings {
+    com.netcetera.threeds.sdk.infrastructure.setChecked$getWarnings getWarnings;    com.netcetera.threeds.sdk.infrastructure.setChecked$getWarnings get;    java.lang.String getWarnings();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setBaselineAligned {
-    java.lang.String initialize(com.netcetera.threeds.sdk.infrastructure.setDivider);
-    java.lang.String getWarnings(com.netcetera.threeds.sdk.infrastructure.setDividerHeight);
-    com.netcetera.threeds.sdk.infrastructure.setDividerHeight initialize(java.lang.String);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setBaselineAlignedChildIndex {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setBaselineAlignedChildIndex {
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setChecked$getWarnings {
+    void get();
     void init$0();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setItemsCanFocus {
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setText {
+    void init$0();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setGroupIndicator {
     java.lang.String initialize();
-    void ThreeDS2ServiceInstance(com.netcetera.threeds.sdk.infrastructure.setIndeterminateDrawable);
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setHorizontalGravity {
-    void ThreeDS2ServiceInstance(java.lang.String);
-    boolean get();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setSelectionAfterHeaderView {
-    void ThreeDS2ServiceInstance();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setHeaderDividersEnabled
-
--keep class com.netcetera.threeds.sdk.infrastructure.setHeaderDividersEnabled$ThreeDS2ServiceInstance {
-    <init>();
-    com.netcetera.threeds.sdk.infrastructure.setHeaderDividersEnabled$ThreeDS2ServiceInstance get(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setHeaderDividersEnabled$ThreeDS2ServiceInstance initialize(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setHeaderDividersEnabled getWarnings();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setDivider
-
--keep class com.netcetera.threeds.sdk.infrastructure.setDivider$getWarnings {
-    <init>();
-    com.netcetera.threeds.sdk.infrastructure.setDivider$getWarnings initialize(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setDivider$getWarnings ThreeDS2Service(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setDivider$getWarnings get(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setDivider$getWarnings ThreeDS2ServiceInstance(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setDivider$getWarnings ThreeDS2ServiceInstance(com.netcetera.threeds.sdk.infrastructure.setHeaderDividersEnabled);
-    com.netcetera.threeds.sdk.infrastructure.setDivider$getWarnings getWarnings(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setDivider$getWarnings createTransaction(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setDivider ThreeDS2Service();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setFooterDividersEnabled {
+-keep class com.netcetera.threeds.sdk.infrastructure.setChildIndicatorBounds {
+    java.lang.String ThreeDS2ServiceInstance();
+    java.lang.String getWarnings(com.netcetera.threeds.sdk.infrastructure.setChecked$getWarnings);
+    java.lang.String ThreeDS2Service();
     java.lang.String get();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setDividerHeight {
-    com.netcetera.threeds.sdk.infrastructure.setIndeterminateDrawable initialize();
-    com.netcetera.threeds.sdk.infrastructure.setFooterDividersEnabled get();
-    java.lang.String getWarnings();
-    java.lang.Boolean ThreeDS2Service();
-    java.lang.Object ThreeDS2Service(java.lang.Object[],int,int,int);
+-keep class com.netcetera.threeds.sdk.infrastructure.setChildIndicatorBoundsRelative {
+    <init>();
+    java.lang.String get();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setIndeterminateDrawable
+-keep class com.netcetera.threeds.sdk.infrastructure.setIndicatorBounds {
+    com.netcetera.threeds.sdk.infrastructure.setIndicatorBounds getWarnings;}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setImageTintMode {
+    <init>(boolean);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setDividerHeight {
+    <init>(java.lang.Object);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setIndeterminateDrawableTiledH2708$1 {
+    int[] ThreeDS2ServiceInstance;}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setIndeterminate {
+    com.netcetera.threeds.sdk.infrastructure.setIndeterminate ThreeDS2ServiceInstance(java.lang.String);
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setIndeterminate {
+    void ThreeDS2Service();
+    void init$0();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setOverscrollHeader {
+    java.lang.String get();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setIndeterminateDrawable {
+    void init$0();
+    void init$1();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setInterpolator {
+    com.netcetera.threeds.sdk.infrastructure.setInterpolator getWarnings(android.content.Context);
+    java.lang.String initialize();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setInterpolator {
+    void init$0();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setMax {
+    void get(com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintList);
+    com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintList initialize();
+    void ThreeDS2ServiceInstance();
+    java.lang.Long ThreeDS2Service();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setIndeterminateTintMode {
+    java.lang.String initialize(com.netcetera.threeds.sdk.infrastructure.setProgressDrawableTiled);
+    java.lang.String getWarnings(com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintList);
+    com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintList getWarnings(java.lang.String);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setProgress {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setProgress {
+    void init$0();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintBlendMode {
+    java.lang.String ThreeDS2ServiceInstance();
+    void get(com.netcetera.threeds.sdk.infrastructure.setSecondaryProgressTintList);
+}
 
 -keep class com.netcetera.threeds.sdk.infrastructure.setMinHeight {
-    void initialize(com.netcetera.threeds.sdk.infrastructure.setOnItemClickListener,java.lang.String);
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setMinWidth {
-    <init>();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setIndeterminateTintBlendMode {
-    java.text.DateFormat get;}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setIndeterminateTintBlendMode {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setIndeterminateTintBlendMode {
-    void initialize();
-    void init$0();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setIndeterminateTintBlendMode$get {
-    com.netcetera.threeds.sdk.infrastructure.setIndeterminateTintBlendMode$get ThreeDS2ServiceInstance;    com.netcetera.threeds.sdk.infrastructure.setIndeterminateTintBlendMode$get getWarnings;    com.netcetera.threeds.sdk.infrastructure.setIndeterminateTintBlendMode$get ThreeDS2Service;    com.netcetera.threeds.sdk.infrastructure.setIndeterminateTintBlendMode$get get;    java.lang.String get();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setIndeterminateTintBlendMode$get {
-    void ThreeDS2ServiceInstance();
-    void init$0();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setIndeterminateTintList {
-    void ThreeDS2Service();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintMode {
-    <init>();
+    void getWarnings(java.lang.String);
+    boolean getWarnings();
 }
 
 -keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintMode {
+    void ThreeDS2Service();
     void init$0();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintList
+-keep class com.netcetera.threeds.sdk.infrastructure.setProgressDrawable
 
--keep class com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintList$getWarnings {
-    <init>(java.lang.String,java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintList$getWarnings get(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintList$getWarnings getWarnings(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintList$getWarnings ThreeDS2Service(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintList$getWarnings ThreeDS2ServiceInstance(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintList$getWarnings cleanup(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintList$getWarnings getSDKVersion(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintList$getWarnings createTransaction(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintList$getWarnings ThreeDS2ServiceInitializationCallback(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintList$getWarnings getSDKInfo(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintList$getWarnings ConfigParameters(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintList$getWarnings addParam(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintList$getWarnings getParamValue(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintList$getWarnings onError(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintList ThreeDS2ServiceInstance();
+-keep class com.netcetera.threeds.sdk.infrastructure.setProgressDrawable$ThreeDS2Service {
+    <init>();
+    com.netcetera.threeds.sdk.infrastructure.setProgressDrawable$ThreeDS2Service ThreeDS2ServiceInstance(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setProgressDrawable$ThreeDS2Service ThreeDS2Service(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setProgressDrawable get();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintList$getWarnings {
-    void init$0();
+-keep class com.netcetera.threeds.sdk.infrastructure.setProgressDrawableTiled
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setProgressDrawableTiled$getWarnings {
+    <init>();
+    com.netcetera.threeds.sdk.infrastructure.setProgressDrawableTiled$getWarnings getWarnings(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setProgressDrawableTiled$getWarnings ThreeDS2ServiceInstance(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setProgressDrawableTiled$getWarnings initialize(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setProgressDrawableTiled$getWarnings get(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setProgressDrawableTiled$getWarnings ThreeDS2Service(com.netcetera.threeds.sdk.infrastructure.setProgressDrawable);
+    com.netcetera.threeds.sdk.infrastructure.setProgressDrawableTiled$getWarnings ThreeDS2Service(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setProgressDrawableTiled$getWarnings ThreeDS2ServiceInitializationCallback(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setProgressDrawableTiled ThreeDS2Service();
 }
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setProgressTintBlendMode {
+    java.lang.String ThreeDS2Service();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintList {
+    com.netcetera.threeds.sdk.infrastructure.setSecondaryProgressTintList getWarnings();
+    com.netcetera.threeds.sdk.infrastructure.setProgressTintBlendMode ThreeDS2Service();
+    java.lang.String initialize();
+    java.lang.Boolean ThreeDS2ServiceInstance();
+    java.lang.Object ThreeDS2Service(java.lang.Object[],int,int,int);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setSecondaryProgressTintList
 
 -keep class com.netcetera.threeds.sdk.infrastructure.setProgressTintMode {
-    void ThreeDS2ServiceInstance();
-    void ThreeDS2Service(com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintList);
-    void getWarnings();
+    void ThreeDS2Service(com.netcetera.threeds.sdk.infrastructure.setChildIndicatorBounds,java.lang.String);
 }
 
 -keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setProgressTintList {
     <init>();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setSecondaryProgressTintList {
-    void init$0();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintBlendMode {
-    void initialize();
-    void init$0();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setMax {
-    void ThreeDS2ServiceInstance(java.util.List);
-    java.util.List getWarnings();
-    void ThreeDS2Service(java.util.List);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setMin {
-    java.lang.String get(java.util.List);
-    java.lang.String ThreeDS2Service(com.netcetera.threeds.sdk.infrastructure.setSmoothScrollingEnabled);
-    java.util.List ThreeDS2ServiceInstance(java.lang.String);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setSecondaryProgress {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setSecondaryProgress {
-    void init$0();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setProgress
-
--keep class com.netcetera.threeds.sdk.infrastructure.setProgress$get {
-    <init>();
-    com.netcetera.threeds.sdk.infrastructure.setProgress$get getWarnings(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setProgress$get get(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setProgress$get ThreeDS2Service(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setProgress$get ThreeDS2ServiceInstance(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setProgress$get initialize(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setProgress$get ThreeDS2ServiceInitializationCallback(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setProgress get();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setSmoothScrollingEnabled {
-    java.util.List ThreeDS2Service();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setSmoothScrollingEnabled$ThreeDS2Service {
-    <init>(java.lang.String,java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setSmoothScrollingEnabled$ThreeDS2Service ThreeDS2Service(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.setSmoothScrollingEnabled$ThreeDS2Service getWarnings(com.netcetera.threeds.sdk.infrastructure.setProgress);
-    com.netcetera.threeds.sdk.infrastructure.setSmoothScrollingEnabled$ThreeDS2Service initialize(java.util.List);
-    com.netcetera.threeds.sdk.infrastructure.setSmoothScrollingEnabled getWarnings();
-    void get(long,long);
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setSmoothScrollingEnabled$ThreeDS2Service {
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setSecondaryProgressTintBlendMode {
     void init$0();
 }
 
 -keep class com.netcetera.threeds.sdk.infrastructure.setFillViewport {
-    void initialize(com.netcetera.threeds.sdk.infrastructure.setOnItemClickListener,java.lang.String);
-    void ThreeDS2ServiceInstance(com.netcetera.threeds.sdk.infrastructure.setOnItemClickListener,java.lang.String,java.lang.String,java.lang.String,java.lang.String);
-    void get();
+    java.text.DateFormat getWarnings;}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setFillViewport {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setFillViewport {
+    void getWarnings();
+    void init$0();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setFillViewport$ThreeDS2Service {
+    com.netcetera.threeds.sdk.infrastructure.setFillViewport$ThreeDS2Service get;    com.netcetera.threeds.sdk.infrastructure.setFillViewport$ThreeDS2Service initialize;    com.netcetera.threeds.sdk.infrastructure.setFillViewport$ThreeDS2Service getWarnings;    com.netcetera.threeds.sdk.infrastructure.setFillViewport$ThreeDS2Service ThreeDS2Service;    java.lang.String ThreeDS2Service();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setFillViewport$ThreeDS2Service {
+    void ThreeDS2ServiceInstance();
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setCompoundDrawablePadding {
+    void ThreeDS2Service();
+    void init$0();
 }
 
 -keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setAutoSizeTextTypeUniformWithConfiguration {
     <init>();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setAutoSizeTextTypeUniformWithConfiguration {
-    void init$0();
+-keep class com.netcetera.threeds.sdk.infrastructure.setAutoSizeTextTypeWithDefaults
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setAutoSizeTextTypeWithDefaults$ThreeDS2Service {
+    <init>(java.lang.String,java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setAutoSizeTextTypeWithDefaults$ThreeDS2Service getWarnings(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setAutoSizeTextTypeWithDefaults$ThreeDS2Service initialize(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setAutoSizeTextTypeWithDefaults$ThreeDS2Service ThreeDS2Service(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setAutoSizeTextTypeWithDefaults$ThreeDS2Service ThreeDS2ServiceInstance(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setAutoSizeTextTypeWithDefaults$ThreeDS2Service ThreeDS2ServiceInitializationCallback(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setAutoSizeTextTypeWithDefaults$ThreeDS2Service cleanup(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setAutoSizeTextTypeWithDefaults$ThreeDS2Service createTransaction(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setAutoSizeTextTypeWithDefaults$ThreeDS2Service getSDKInfo(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setAutoSizeTextTypeWithDefaults$ThreeDS2Service getSDKVersion(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setAutoSizeTextTypeWithDefaults$ThreeDS2Service onCompleted(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setAutoSizeTextTypeWithDefaults$ThreeDS2Service getParamValue(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setAutoSizeTextTypeWithDefaults$ThreeDS2Service onError(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setAutoSizeTextTypeWithDefaults$ThreeDS2Service ConfigParameters(java.lang.String);
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setAutoSizeTextTypeUniformWithPresetSizes {
-    void init$0();
+-keep class com.netcetera.threeds.sdk.infrastructure.setAutoSizeTextTypeUniformWithPresetSizes {
+    void get();
+    void get(com.netcetera.threeds.sdk.infrastructure.setAutoSizeTextTypeWithDefaults$ThreeDS2Service);
+    void ThreeDS2Service();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setKeyListener
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setKeyListener {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setCompoundDrawableTintList {
     <init>();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setCompoundDrawableTintList {
-    <init>(com.netcetera.threeds.sdk.api.ThreeDS2Service,android.content.Context,com.netcetera.threeds.sdk.api.configparameters.ConfigParameters,java.lang.String,com.netcetera.threeds.sdk.api.ui.logic.UiCustomization);
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setCompoundDrawables {
+    void init$0();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setCompoundDrawablesRelative {
-    <init>(com.netcetera.threeds.sdk.api.ThreeDS2Service,android.content.Context,com.netcetera.threeds.sdk.api.configparameters.ConfigParameters,java.lang.String,java.util.Map);
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setCustomSelectionActionModeCallback {
+    void initialize();
+    void init$0();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setCompoundDrawablesWithIntrinsicBounds {
-    <init>(com.netcetera.threeds.sdk.api.ThreeDS2Service,android.content.Context,com.netcetera.threeds.sdk.api.configparameters.ConfigParameters,java.lang.String,java.util.Map,com.netcetera.threeds.sdk.api.ThreeDS2Service$InitializationCallback);
+-keep class com.netcetera.threeds.sdk.infrastructure.setCursorVisible {
+    void get(java.util.List);
+    java.util.List ThreeDS2Service();
+    void ThreeDS2ServiceInstance(java.util.List);
 }
 
 -keep class com.netcetera.threeds.sdk.infrastructure.setCompoundDrawablesRelativeWithIntrinsicBounds {
+    java.lang.String getWarnings(java.util.List);
+    java.lang.String ThreeDS2ServiceInstance(com.netcetera.threeds.sdk.infrastructure.setEditableFactory);
+    java.util.List ThreeDS2Service(java.lang.String);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setCompoundDrawablesWithIntrinsicBounds {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setCompoundDrawablesWithIntrinsicBounds {
+    void init$0();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setEms {
+    java.lang.String get();
+    java.lang.String getWarnings();
+    java.lang.String ThreeDS2ServiceInstance();
+    java.lang.String ThreeDS2Service();
+    java.lang.String initialize();
+    java.lang.String ThreeDS2ServiceInitializationCallback();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setEms$initialize {
+    <init>();
+    com.netcetera.threeds.sdk.infrastructure.setEms$initialize ThreeDS2ServiceInstance(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setEms$initialize initialize(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setEms$initialize getWarnings(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setEms$initialize get(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setEms$initialize ThreeDS2Service(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setEms$initialize getSDKInfo(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setEms get();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setElegantTextHeight
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setElegantTextHeight$get {
+    <init>();
+    com.netcetera.threeds.sdk.infrastructure.setElegantTextHeight$get ThreeDS2Service(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setElegantTextHeight$get get(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setElegantTextHeight$get getWarnings(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setElegantTextHeight$get ThreeDS2ServiceInstance(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setElegantTextHeight$get initialize(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setElegantTextHeight$get cleanup(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setElegantTextHeight$get initialize(java.util.Map);
+    com.netcetera.threeds.sdk.infrastructure.setElegantTextHeight get();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setEditableFactory {
+    java.util.List getWarnings();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setEditableFactory$ThreeDS2Service {
+    <init>(java.lang.String,java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setEditableFactory$ThreeDS2Service getWarnings(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.setEditableFactory$ThreeDS2Service ThreeDS2ServiceInstance(com.netcetera.threeds.sdk.infrastructure.setElegantTextHeight);
+    com.netcetera.threeds.sdk.infrastructure.setEditableFactory$ThreeDS2Service getWarnings(java.util.List);
+    com.netcetera.threeds.sdk.infrastructure.setEditableFactory initialize();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setEditableFactory$ThreeDS2Service {
+    void init$0();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setError {
+    void ThreeDS2Service(com.netcetera.threeds.sdk.infrastructure.setChildIndicatorBounds,java.lang.String);
+    void getWarnings(com.netcetera.threeds.sdk.infrastructure.setEms);
+    void getWarnings();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setExtractedText {
+    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setHighlightColor
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setHighlightColor {
+    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setHeight {
+    <init>(com.netcetera.threeds.sdk.api.ThreeDS2Service,android.content.Context,com.netcetera.threeds.sdk.api.configparameters.ConfigParameters,java.lang.String,java.util.Map);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setHighlights {
+    <init>(com.netcetera.threeds.sdk.api.ThreeDS2Service,android.content.Context,com.netcetera.threeds.sdk.api.configparameters.ConfigParameters,java.lang.String,java.util.Map,com.netcetera.threeds.sdk.api.ThreeDS2Service$InitializationCallback);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setFontFeatureSettings {
     <init>(com.netcetera.threeds.sdk.api.ThreeDS2Service);
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setCompoundDrawablePadding {
+-keep class com.netcetera.threeds.sdk.infrastructure.setImeActionLabel {
     <init>(com.netcetera.threeds.sdk.api.ThreeDS2Service);
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setLastBaselineToBottomHeight {
+-keep class com.netcetera.threeds.sdk.infrastructure.setHintTextColor {
     <init>(com.netcetera.threeds.sdk.api.ThreeDS2Service);
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setCompoundDrawableTintBlendMode {
+-keep class com.netcetera.threeds.sdk.infrastructure.setHorizontallyScrolling {
     <init>(com.netcetera.threeds.sdk.api.ThreeDS2Service,android.content.Context);
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setTextSelectHandle {
+-keep class com.netcetera.threeds.sdk.infrastructure.setHyphenationFrequency {
     <init>(com.netcetera.threeds.sdk.api.ThreeDS2Service,java.lang.String,java.lang.String);
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setCompoundDrawableTintMode {
+-keep class com.netcetera.threeds.sdk.infrastructure.setHint {
     <init>(com.netcetera.threeds.sdk.api.ThreeDS2Service,java.lang.String,java.lang.String,java.util.Map);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setImeOptions {
+    <init>(java.lang.Object);
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setImeOptions {
+    void init$0();
+    void init$1();
+    void init$2();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setInputType {
+    <init>(com.netcetera.threeds.sdk.api.ThreeDS2Service,java.lang.String);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setInputExtras {
+    <init>(com.netcetera.threeds.sdk.api.ThreeDS2Service,com.netcetera.threeds.sdk.api.configparameters.ConfigParameters);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setImeHintLocales {
+    <init>(com.netcetera.threeds.sdk.api.ThreeDS2Service,com.netcetera.threeds.sdk.api.configparameters.ConfigParameters,java.util.Locale);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setLetterSpacing {
+    <init>(com.netcetera.threeds.sdk.api.ThreeDS2Service,com.netcetera.threeds.sdk.infrastructure.setTextDirection,java.lang.String,com.netcetera.threeds.sdk.infrastructure.setChecked$getWarnings);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setJustificationMode {
+    <init>(com.netcetera.threeds.sdk.api.ThreeDS2Service,com.netcetera.threeds.sdk.infrastructure.setChecked$getWarnings,com.netcetera.threeds.sdk.infrastructure.setChecked$initialize,java.lang.String,com.netcetera.threeds.sdk.infrastructure.jv);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setLineBreakStyle {
+    <init>(com.netcetera.threeds.sdk.api.ThreeDS2Service,com.netcetera.threeds.sdk.infrastructure.setChecked$initialize);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setKeyListener {
+    <init>(com.netcetera.threeds.sdk.api.ThreeDS2Service,com.netcetera.threeds.sdk.infrastructure.showProgress,com.netcetera.threeds.sdk.infrastructure.ProtocolErrorEvent,com.netcetera.threeds.sdk.infrastructure.setTextDirection,com.netcetera.threeds.sdk.infrastructure.setChecked$getWarnings,java.lang.String,com.netcetera.threeds.sdk.infrastructure.setAutoSizeTextTypeWithDefaults$ThreeDS2Service,com.netcetera.threeds.sdk.infrastructure.setEms);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setLastBaselineToBottomHeight {
+    <init>(java.lang.Object);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setLinkTextColor {
+    <init>(com.netcetera.threeds.sdk.api.ThreeDS2Service,com.netcetera.threeds.sdk.api.configparameters.ConfigParameters);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setLines {
+    <init>(com.netcetera.threeds.sdk.api.ThreeDS2Service);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setLineBreakWordStyle {
+    <init>(com.netcetera.threeds.sdk.api.ThreeDS2Service,java.util.Map);
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setMovementMethod {
+    void init$0();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setMinimumFontMetrics {
+    com.netcetera.threeds.sdk.api.ThreeDS2Service initialize();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setMinimumFontMetrics {
+    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setSearchResultHighlightColor {
+    com.netcetera.threeds.sdk.api.transaction.AuthenticationRequestParameters ThreeDS2ServiceInstance(com.netcetera.threeds.sdk.infrastructure.showProgress,java.lang.String,java.security.KeyPair,com.netcetera.threeds.sdk.infrastructure.setChecked$getWarnings);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setScroller {
+    void getWarnings();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setShiftDrawingOffsetForStartOverhang {
+    java.lang.String ThreeDS2Service(java.security.KeyPair);
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setSelectAllOnFocus {
+    void initialize();
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setSearchResultHighlights {
+    void getWarnings();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setShowSoftInputOnFocus {
+    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setTextIsSelectable {
+    void get();
+    void ThreeDS2Service();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setTextAppearance {
+    void initialize();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setSpannableFactory {
+    java.lang.String get();
+    java.lang.String getWarnings();
+    java.security.PublicKey ThreeDS2Service();
+    java.security.KeyPair initialize();
+    java.lang.String createTransaction();
+    void getSDKInfo();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.setTextCursorDrawable {
+    void getWarnings(com.netcetera.threeds.sdk.infrastructure.setCollapsible);
+    void getWarnings();
+    void ThreeDS2Service();
+    void ThreeDS2ServiceInstance(com.netcetera.threeds.sdk.infrastructure.finalize);
+    void getWarnings(com.netcetera.threeds.sdk.infrastructure.setTouchscreenBlocksFocus);
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setTextMetricsParams {
+    void init$0();
 }
 
 -keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setTextLocale {
     void init$0();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setTextScaleX {
-    com.netcetera.threeds.sdk.api.ThreeDS2Service getWarnings();
-}
-
 -keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setTextScaleX {
     <init>();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setLetterSpacing
-
--keep class com.netcetera.threeds.sdk.infrastructure.setShiftDrawingOffsetForStartOverhang {
-    java.lang.String initialize(java.security.KeyPair);
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setTextMetricsParams {
-    void getWarnings();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setBreakStrategy {
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setTextLocales {
     void get();
     void init$0();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setLineBreakStyle {
+-keep class com.netcetera.threeds.sdk.infrastructure.setTextSelectHandle {
+    com.netcetera.threeds.sdk.infrastructure.setTextIsSelectable getWarnings(com.netcetera.threeds.sdk.infrastructure.setTextAppearance);
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setTextSelectHandleLeft {
     <init>();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setHyphenationFrequency {
-    void getWarnings();
-    void ThreeDS2Service();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setLineBreakWordStyle
-
--keep class com.netcetera.threeds.sdk.infrastructure.setFontFeatureSettings {
-    java.lang.String initialize();
-    java.lang.String getWarnings();
-    java.security.PublicKey ThreeDS2ServiceInstance();
-    java.security.KeyPair ThreeDS2Service();
-    java.lang.String createTransaction();
-    void getSDKVersion();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setJustificationMode {
-    void ThreeDS2Service(com.netcetera.threeds.sdk.infrastructure.setAllCaps);
-    void initialize();
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setTransformationMethod {
     void ThreeDS2ServiceInstance();
-    void get(com.netcetera.threeds.sdk.infrastructure.setCursorVisible);
-    void ThreeDS2Service(com.netcetera.threeds.sdk.infrastructure.setScrollCaptureCallback);
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setHighlightColor {
-    void init$0();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setLinksClickable {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setAutoLinkMask {
-    void ThreeDS2ServiceInstance();
-    void init$0();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setLinkTextColor {
-    com.netcetera.threeds.sdk.infrastructure.setHyphenationFrequency ThreeDS2Service(com.netcetera.threeds.sdk.infrastructure.setLineBreakWordStyle);
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setMinLines {
-    void init$0();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setHorizontallyScrolling {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setMaxLines {
-    void get();
-    void init$0();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setHeight {
-    java.lang.String ThreeDS2ServiceInstance(java.lang.String);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setLines {
-    java.lang.String ThreeDS2Service(com.netcetera.threeds.sdk.infrastructure.setMinEms);
-    java.lang.String get(com.netcetera.threeds.sdk.infrastructure.setCursorVisible);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setMinEms {
-    com.netcetera.threeds.sdk.infrastructure.getCause ThreeDS2Service();
-    java.lang.String getWarnings();
-    java.lang.String ThreeDS2ServiceInstance();
-    java.lang.String cleanup();
-    com.netcetera.threeds.sdk.infrastructure.put getSDKVersion();
-    com.netcetera.threeds.sdk.infrastructure.getInfo ThreeDS2ServiceInitializationCallback();
-    java.lang.String getParamValue();
-    com.netcetera.threeds.sdk.infrastructure.entrySet removeParam();
-    java.lang.Boolean ConfigurationBuilder();
-    com.netcetera.threeds.sdk.infrastructure.initCause build();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setMinEms {
-    void init$0();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setMaxEms
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setMaxEms {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setMaxEms {
-    void init$0();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setEms {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setLineSpacing {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setLineSpacing {
     void init$0();
 }
 
 -keep class com.netcetera.threeds.sdk.infrastructure.setWidth {
-    java.lang.Object[] get(android.content.Context,int,int);
+    java.lang.String ThreeDS2ServiceInstance(java.lang.String);
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setWidth {
-    <init>();
+-keep class com.netcetera.threeds.sdk.infrastructure.setCollapseIcon {
+    java.lang.String getWarnings(com.netcetera.threeds.sdk.infrastructure.setCollapseContentDescription);
+    java.lang.String initialize(com.netcetera.threeds.sdk.infrastructure.finalize);
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setWidth {
-    void init$0();
-    void init$1();
+-keep class com.netcetera.threeds.sdk.infrastructure.setCollapseContentDescription {
+    com.netcetera.threeds.sdk.infrastructure.size ThreeDS2Service();
+    java.lang.String initialize();
+    java.lang.String ThreeDS2ServiceInstance();
+    java.lang.String getSDKInfo();
+    com.netcetera.threeds.sdk.infrastructure.ac getSDKVersion();
+    com.netcetera.threeds.sdk.infrastructure.store createTransaction();
+    java.lang.String getParamValue();
+    com.netcetera.threeds.sdk.infrastructure.ae ConfigurationBuilder();
+    java.lang.Boolean restrictedParameters();
+    com.netcetera.threeds.sdk.infrastructure.containsKey mastercardSchemeConfiguration();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setLineHeight {
-    java.lang.String get(java.lang.String);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setHighlights {
-    void getWarnings(com.netcetera.threeds.sdk.infrastructure.setScroller);
-    void ThreeDS2Service(com.netcetera.threeds.sdk.infrastructure.setAllCaps);
-    void initialize(com.netcetera.threeds.sdk.infrastructure.setCursorVisible);
-    void ThreeDS2Service(com.netcetera.threeds.sdk.infrastructure.setScrollCaptureCallback);
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setSpannableFactory {
-    <init>();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setScroller
-
--keep class com.netcetera.threeds.sdk.infrastructure.setAllCaps
-
--keep class com.netcetera.threeds.sdk.infrastructure.setCursorVisible
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setTitleMarginStart {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setTitleMarginStart {
-    void cleanup();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setTitleMarginStart$getWarnings {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setTitleMarginStart$getWarnings {
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setCollapseContentDescription {
     void init$0();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setTitleMarginStart$get {
-    void initialize();
+-keep class com.netcetera.threeds.sdk.infrastructure.setUseBoundsForWidth
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setUseBoundsForWidth {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setUseBoundsForWidth {
     void init$0();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setCustomSelectionActionModeCallback {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setTypeface {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setTypeface {
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setContentInsetsRelative {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setContentInsetsRelative {
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setLogo {
     <init>();
 }
 
@@ -1150,267 +1162,42 @@
     void init$0();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setTitleTextAppearance {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setTitle$ThreeDS2ServiceInstance {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setSubtitleTextColor {
-    void init$0();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setNavigationOnClickListener {
-    void init$0();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setNavigationIcon {
-    void init$0();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setCollapseContentDescription {
-    java.lang.Object[] initialize(android.content.Context,int,int,int);
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setCollapseContentDescription {
-    void init$0();
-    void init$1();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setNavigationContentDescription {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setCollapseIcon {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setOnMenuItemClickListener {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setOnMenuItemClickListener {
-    void init$0();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setOverflowIcon {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setOverflowIcon {
-    void init$0();
-}
-
 -keep class com.netcetera.threeds.sdk.infrastructure.setContentInsetsAbsolute {
-    <init>(java.lang.Runnable);
+    java.lang.String get(java.lang.String);
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setContentInsetEndWithActions {
-    void initialize();
-    void init$0();
+-keep class com.netcetera.threeds.sdk.infrastructure.setNavigationIcon {
+    void get(com.netcetera.threeds.sdk.infrastructure.getView);
+    void ThreeDS2Service(com.netcetera.threeds.sdk.infrastructure.setCollapsible);
+    void ThreeDS2ServiceInstance(com.netcetera.threeds.sdk.infrastructure.finalize);
+    void ThreeDS2Service(com.netcetera.threeds.sdk.infrastructure.setTouchscreenBlocksFocus);
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.setBackInvokedCallbackEnabled {
-    com.netcetera.threeds.sdk.infrastructure.setBackInvokedCallbackEnabled ThreeDS2Service(com.netcetera.threeds.sdk.infrastructure.setFontFeatureSettings,com.netcetera.threeds.sdk.infrastructure.fx,com.netcetera.threeds.sdk.infrastructure.setLineHeight,com.netcetera.threeds.sdk.infrastructure.nh,com.netcetera.threeds.sdk.infrastructure.jh,com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintList$getWarnings);
-    void initialize(java.lang.String,com.netcetera.threeds.sdk.infrastructure.setHighlights);
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.computeValue {
-    void init$0();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.findFragmentById {
-    void ThreeDS2Service(long,long);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.setMenuCallbacks {
-    java.lang.Object[] ThreeDS2ServiceInstance(android.content.Context,int,int);
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setMenuCallbacks {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setLogoDescription {
     <init>();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setMenuCallbacks {
-    void init$0();
-    void init$1();
-}
+-keep class com.netcetera.threeds.sdk.infrastructure.getView
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.findFragmentByTag {
-    void init$0();
-}
+-keep class com.netcetera.threeds.sdk.infrastructure.setCollapsible
 
--keep class com.netcetera.threeds.sdk.infrastructure.hashCode {
-    void getWarnings(long,long);
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.hashCode {
-    void init$0();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ordinal {
-    void init$0();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.equals {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.clone {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.name {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.name$4 {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.name$4 {
-    void init$0();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.name$3 {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.name$3 {
-    void init$0();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.name$2 {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.name$2 {
-    void init$0();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.name$1 {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.name$5 {
-    void init$0();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.name$9 {
-    <init>();
-}
+-keep class com.netcetera.threeds.sdk.infrastructure.finalize
 
 -keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.compareTo {
     <init>();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getDeclaringClass {
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.compareTo {
+    void getSDKInfo();
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.compareTo$getWarnings {
     <init>();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getDeclaringClass$5 {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getDeclaringClass$5 {
-    void init$0();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getDeclaringClass$2 {
-    void init$0();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getDeclaringClass$4 {
-    void init$0();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getDeclaringClass$3 {
-    void init$0();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getDeclaringClass$1 {
-    void init$0();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getDeclaringClass$10 {
-    void init$0();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getDeclaringClass$6 {
-    void init$0();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getDeclaringClass$9 {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getDeclaringClass$8 {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getDeclaringClass$8 {
-    void init$0();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getDeclaringClass$7 {
-    void init$0();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getDeclaringClass$13 {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getDeclaringClass$13 {
-    void init$0();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getDeclaringClass$12 {
-    void init$0();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getDeclaringClass$11 {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getDeclaringClass$11 {
-    void init$0();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getDeclaringClass$18 {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getDeclaringClass$18 {
-    void init$0();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getDeclaringClass$16 {
-    void init$0();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getDeclaringClass$19 {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getDeclaringClass$19 {
-    void init$0();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getDeclaringClass$20 {
-    void init$0();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getDeclaringClass$24 {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getDeclaringClass$24 {
-    void init$0();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getDeclaringClass$23 {
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.compareTo$initialize {
+    void ThreeDS2ServiceInstance();
     void init$0();
 }
 
@@ -1418,173 +1205,374 @@
     <init>();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getClass {
-    void get();
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.name {
     void init$0();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getClass$ThreeDS2ServiceInstance {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getLocalizedMessage {
     <init>();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getClass$ThreeDS2ServiceInstance {
-    void ThreeDS2Service();
-    void init$0();
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getStackTrace$getWarnings {
+    <init>();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getLocalizedMessage {
-    void initialize();
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getSuppressed {
     void init$0();
 }
-
--keep class com.netcetera.threeds.sdk.infrastructure.initCause
 
 -keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.initCause {
-    void get();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.getCause {
-    com.netcetera.threeds.sdk.infrastructure.getCause ThreeDS2ServiceInstance;}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getCause {
-    void get();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.wait {
-    void initialize();
     void init$0();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.notifyAll {
-    void initialize();
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getCause {
     void init$0();
 }
 
 -keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setStackTrace {
-    void get();
     void init$0();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.fillInStackTrace {
-    void get();
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.computeIfAbsent {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.computeIfAbsent {
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.clear {
+    <init>();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.printStackTrace {
+    <init>();
 }
 
 -keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.printStackTrace {
-    void ThreeDS2Service();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getStackTrace {
-    void initialize();
     void init$0();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.addSuppressed {
-    void ThreeDS2ServiceInstance();
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.compute {
+    <init>();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.getInfo
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.compute {
+    void init$0();
+}
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getInfo {
+-keep class com.netcetera.threeds.sdk.infrastructure.elements {
+    <init>(java.lang.Runnable);
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.entrySet {
     void ThreeDS2Service();
+    void init$0();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.getVersion {
+    com.netcetera.threeds.sdk.infrastructure.getVersion initialize(com.netcetera.threeds.sdk.infrastructure.setSpannableFactory,com.netcetera.threeds.sdk.infrastructure.hs,com.netcetera.threeds.sdk.infrastructure.setContentInsetsAbsolute,com.netcetera.threeds.sdk.infrastructure.ot,com.netcetera.threeds.sdk.infrastructure.kv,com.netcetera.threeds.sdk.infrastructure.setAutoSizeTextTypeWithDefaults$ThreeDS2Service);
+    void ThreeDS2ServiceInstance(java.lang.String,com.netcetera.threeds.sdk.infrastructure.setNavigationIcon);
 }
 
 -keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getVersion {
-    void ThreeDS2Service();
     void init$0();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.clear {
-    void initialize();
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getServices {
     void init$0();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getSuppressed {
-    void ThreeDS2ServiceInstance();
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getOrDefault {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.getOrDefault {
     void init$0();
 }
 
 -keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.load {
-    void ThreeDS2ServiceInstance();
     void init$0();
 }
-
--keep class com.netcetera.threeds.sdk.infrastructure.put {
-    com.netcetera.threeds.sdk.infrastructure.put initialize;}
 
 -keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.put {
-    void initialize();
     void init$0();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.putAll {
-    void ThreeDS2Service();
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.keys {
     void init$0();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.entrySet
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.entrySet {
-    void initialize();
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.merge {
+    <init>();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.keySet {
-    void ThreeDS2Service();
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.putIfAbsent {
+    <init>();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.replace {
+    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.replace$3 {
+    void ThreeDS2Service(long,long);
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.replace$3 {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.replace$3 {
     void init$0();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.putIfAbsent {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.replace$1 {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.replace$1 {
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.replace$2 {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.replace$2 {
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.replace$4 {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.replace$5 {
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.replace$9 {
+    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.replace$8 {
+    void get(long,long);
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.writeReplace {
+    <init>();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.remove {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.remove {
+    void getSDKVersion();
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.remove$1 {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.remove$1 {
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.remove$4 {
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.remove$3 {
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.remove$5 {
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.remove$7 {
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.remove$6 {
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.remove$8 {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.remove$8 {
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.remove$9 {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.remove$10 {
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.remove$15 {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.remove$15 {
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.remove$11 {
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.remove$12 {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.remove$12 {
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.remove$16 {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.remove$16 {
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.remove$17 {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.remove$20 {
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.remove$22 {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.remove$22 {
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.remove$25 {
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.isEmpty {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.isEmpty {
+    void getWarnings();
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.isEmpty$ThreeDS2ServiceInstance {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.isEmpty$ThreeDS2ServiceInstance {
     void get();
     void init$0();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.replaceAll {
-    void ThreeDS2Service();
-    void init$0();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.replace
-
--keep class com.netcetera.threeds.sdk.infrastructure.forEach {
-    void ThreeDS2Service();
-    void ThreeDS2ServiceInstance(com.netcetera.threeds.sdk.infrastructure.setScroller);
-    void getWarnings();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.merge
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.keys$getWarnings {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setProperty$initialize {
-    void initialize();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.contains {
-    void init$0();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.contains$ThreeDS2ServiceInstance {
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.containsValue {
     void ThreeDS2ServiceInstance();
     void init$0();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.storeToXML {
-    void getWarnings();
-}
+-keep class com.netcetera.threeds.sdk.infrastructure.containsKey
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.loadFromXML {
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.containsKey {
+    void ThreeDS2Service();
     void init$0();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.x {
-    void getWarnings();
+-keep class com.netcetera.threeds.sdk.infrastructure.size {
+    com.netcetera.threeds.sdk.infrastructure.size initialize;}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.size {
+    void ThreeDS2Service();
+    void init$0();
 }
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.loadFromXML {
+    void ThreeDS2Service();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.list {
+    void ThreeDS2ServiceInstance();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.save {
+    void get();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.propertyNames {
+    void initialize();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.setProperty {
+    void ThreeDS2ServiceInstance();
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.stringPropertyNames {
+    void ThreeDS2Service();
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.storeToXML {
+    void get();
+    void init$0();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.store
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.store {
+    void get();
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.v {
+    void ThreeDS2ServiceInstance();
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.aa {
+    void ThreeDS2ServiceInstance();
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.z {
+    void get();
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ab {
+    void get();
+    void init$0();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.ac {
+    com.netcetera.threeds.sdk.infrastructure.ac initialize;}
 
 -keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ac {
     void ThreeDS2ServiceInstance();
     void init$0();
 }
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ad {
+    void get();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.ae
 
 -keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ae {
     void get();
@@ -1596,111 +1584,90 @@
     void init$0();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ai {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ai {
-    void ThreeDS2ServiceInstance();
-    void init$0();
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.aj {
+    void ThreeDS2Service();
 }
 
 -keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ak {
+    void ThreeDS2Service();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.am
+
+-keep class com.netcetera.threeds.sdk.infrastructure.an {
     void get();
-    void init$0();
+    void ThreeDS2Service(com.netcetera.threeds.sdk.infrastructure.getView);
+    void ThreeDS2Service();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.al {
-    void init$0();
+-keep class com.netcetera.threeds.sdk.infrastructure.ap {
+    void getWarnings(com.netcetera.threeds.sdk.infrastructure.am);
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.aj {
-    void ThreeDS2ServiceInstance();
-    void init$0();
+-keep class com.netcetera.threeds.sdk.infrastructure.aq$2 {
+    java.lang.Object[] get(android.content.Context,int,int,int);
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.aj$ThreeDS2ServiceInstance {
-    void initialize();
-    void init$0();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.aq {
-    void getWarnings();
-    void init$0();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.aq$getWarnings {
-    void getWarnings();
-    void init$0();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.au {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.at {
-    void ThreeDS2ServiceInstance();
-    void init$0();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.ay {
-    java.lang.Object[] ThreeDS2ServiceInstance$62a34fac(int,int,java.lang.Object,int);
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ay {
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.aq$2 {
     void init$0();
     void init$1();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.aw {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.aq$initialize {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.az$ThreeDS2Service {
+    void getWarnings();
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.bd {
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.bd$ThreeDS2ServiceInstance {
+    void get();
     void init$0();
 }
 
 -keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ba {
-    void ThreeDS2ServiceInitializationCallback();
+    void ThreeDS2Service();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.bg {
     void init$0();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.bb {
-    void get();
-    void init$0();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.bb$5 {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.bb$5 {
-    void init$0();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.bi {
-    void init$0();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.bi$getWarnings {
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.bk {
     void initialize();
     void init$0();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.bh {
-    void get();
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.bm {
+    void getWarnings();
+    void init$0();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.bh$4 {
-    java.lang.Object[] ThreeDS2Service(int,int);
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.bn {
+    void getWarnings();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.bh$4 {
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.bt {
+    void ThreeDS2Service();
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.bs {
     <init>();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.bh$4 {
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.bs {
+    void get();
     void init$0();
-    void init$1();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.bo {
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.br {
     void get();
     void init$0();
 }
@@ -1709,500 +1676,476 @@
     void init$0();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.bl {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.bn {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.bn {
-    void init$0();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.br {
-    void init$0();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.bt {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.bs {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.by {
-    void ThreeDS2ServiceInstance();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.cd {
-    void ThreeDS2ServiceInitializationCallback();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.cj {
-    com.netcetera.threeds.sdk.infrastructure.forEach get(com.netcetera.threeds.sdk.infrastructure.merge);
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.cg {
-    void init$0();
-    void init$1();
-    void init$2();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ct {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.cp {
-    <init>();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.dv {
-    void ThreeDS2ServiceInstance(long,long);
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.dv {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ew {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ev {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ev$ThreeDS2Service {
-    void getWarnings();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ev$initialize {
-    void getWarnings();
-    void init$0();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ev$ThreeDS2ServiceInstance {
-    void ThreeDS2ServiceInstance();
-    void init$0();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.et {
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.bv {
     void get();
+    void init$0();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.ex {
-    <init>(com.netcetera.threeds.sdk.api.transaction.Transaction);
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.bv$ThreeDS2ServiceInstance {
+    void ThreeDS2ServiceInstance();
+    void init$0();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.fd {
-    <init>(com.netcetera.threeds.sdk.api.transaction.Transaction,android.app.Activity,com.netcetera.threeds.sdk.api.transaction.challenge.ChallengeParameters,com.netcetera.threeds.sdk.api.transaction.challenge.ChallengeStatusReceiver,int);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.fe {
-    <init>(com.netcetera.threeds.sdk.api.transaction.Transaction,com.netcetera.threeds.sdk.api.transaction.Transaction$BridgingMessageExtensionVersion);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.fc {
-    <init>(com.netcetera.threeds.sdk.api.transaction.Transaction,android.app.Activity);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.fg {
-    <init>(com.netcetera.threeds.sdk.api.transaction.Transaction);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.fl {
-    com.netcetera.threeds.sdk.infrastructure.setMaxEms ThreeDS2ServiceInstance();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.fx
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.gc {
-    <init>();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.ig {
-    <init>(java.util.Map);
-    java.lang.String getWarnings();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ig {
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.bx {
     void ThreeDS2Service();
     void init$0();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.ii {
-    boolean ThreeDS2Service();
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.bx$ThreeDS2Service {
+    void getWarnings();
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.cc {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.cc {
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.cb {
+    void get();
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ci {
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.cl {
+    void ThreeDS2ServiceInitializationCallback();
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ck {
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.co {
+    void ThreeDS2Service();
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.co$5 {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.co$5 {
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.cr {
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.cr$ThreeDS2ServiceInstance {
+    void getWarnings();
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.cq {
+    void ThreeDS2Service();
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.cq$1 {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.cx {
+    void ThreeDS2Service();
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.da {
+    <init>();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.dc {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.dc {
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.cz {
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.db {
+    <init>();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.dh {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.de {
+    void initialize();
+    void init$0();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.dj {
+    java.lang.Object[] get(android.content.Context,int,int);
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.dj {
+    void init$0();
+    void init$1();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.do {
+    void createTransaction();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.dn {
+    com.netcetera.threeds.sdk.infrastructure.an getWarnings(com.netcetera.threeds.sdk.infrastructure.ap);
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.dp {
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.eg {
+    <init>();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ed {
+    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.eq {
+    void ThreeDS2Service(long,long);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.en {
+    void ThreeDS2ServiceInstance(long,long);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.ew {
+    void ThreeDS2ServiceInstance(long,long);
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.fh {
+    <init>();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ga {
+    <init>();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.gd {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.gd$getWarnings {
+    void initialize();
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.gd$initialize {
+    void ThreeDS2Service();
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.gd$ThreeDS2ServiceInstance {
+    void initialize();
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.gj {
     void getWarnings();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ii {
+-keep class com.netcetera.threeds.sdk.infrastructure.go {
+    <init>(com.netcetera.threeds.sdk.api.transaction.Transaction);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.gl {
+    <init>(com.netcetera.threeds.sdk.api.transaction.Transaction,android.app.Activity,com.netcetera.threeds.sdk.api.transaction.challenge.ChallengeParameters,com.netcetera.threeds.sdk.api.transaction.challenge.ChallengeStatusReceiver,int);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.gn {
+    <init>(com.netcetera.threeds.sdk.api.transaction.Transaction,com.netcetera.threeds.sdk.api.transaction.Transaction$BridgingMessageExtensionVersion);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.gk {
+    <init>(com.netcetera.threeds.sdk.api.transaction.Transaction,android.app.Activity);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.gq {
+    <init>(com.netcetera.threeds.sdk.api.transaction.Transaction);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.gt {
+    <init>(com.netcetera.threeds.sdk.api.transaction.Transaction);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.gr {
+    <init>(com.netcetera.threeds.sdk.api.transaction.Transaction,android.app.Activity,com.netcetera.threeds.sdk.api.transaction.challenge.ChallengeParameters,com.netcetera.threeds.sdk.api.transaction.challenge.ChallengeStatusReceiver,int);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.gw {
+    <init>(com.netcetera.threeds.sdk.api.transaction.Transaction,com.netcetera.threeds.sdk.api.transaction.Transaction$BridgingMessageExtensionVersion);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.gy {
+    <init>(com.netcetera.threeds.sdk.api.transaction.Transaction,android.app.Activity);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.gx {
+    com.netcetera.threeds.sdk.infrastructure.setUseBoundsForWidth ThreeDS2ServiceInstance();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.hs
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.hp {
     <init>();
 }
-
--keep class com.netcetera.threeds.sdk.infrastructure.il {
-    <init>(com.netcetera.threeds.sdk.infrastructure.setLetterSpacing);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.im {
-    <init>(com.netcetera.threeds.sdk.infrastructure.setLetterSpacing);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.ik {
-    <init>(com.netcetera.threeds.sdk.infrastructure.setLetterSpacing);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.in {
-    <init>(com.netcetera.threeds.sdk.infrastructure.setLetterSpacing,com.netcetera.threeds.sdk.infrastructure.replace);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.ip {
-    <init>(com.netcetera.threeds.sdk.infrastructure.setLetterSpacing,com.netcetera.threeds.sdk.infrastructure.setScroller);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.io {
-    <init>(com.netcetera.threeds.sdk.infrastructure.setLetterSpacing,com.netcetera.threeds.sdk.infrastructure.setAllCaps);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.ir {
-    <init>(com.netcetera.threeds.sdk.infrastructure.setLetterSpacing,com.netcetera.threeds.sdk.infrastructure.setCursorVisible);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.is {
-    <init>(com.netcetera.threeds.sdk.infrastructure.setLetterSpacing,com.netcetera.threeds.sdk.infrastructure.setScrollCaptureCallback);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.iq {
-    <init>(com.netcetera.threeds.sdk.infrastructure.setLetterSpacing,com.netcetera.threeds.sdk.infrastructure.setScrollCaptureCallback);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.it {
-    <init>(com.netcetera.threeds.sdk.infrastructure.setLetterSpacing,com.netcetera.threeds.sdk.infrastructure.setScrollCaptureCallback);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.iu {
-    <init>(com.netcetera.threeds.sdk.infrastructure.setLetterSpacing);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.iw {
-    com.netcetera.threeds.sdk.infrastructure.setMinEms ThreeDS2Service();
-    com.netcetera.threeds.sdk.infrastructure.setMinEms get(com.netcetera.threeds.sdk.infrastructure.replace);
-    com.netcetera.threeds.sdk.infrastructure.setCursorVisible get(com.netcetera.threeds.sdk.infrastructure.setScrollCaptureCallback);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.iy {
-    com.netcetera.threeds.sdk.infrastructure.setCertificate getWarnings();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.iy {
-    void init$0();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.ja {
-    com.netcetera.threeds.sdk.api.transaction.Transaction get(com.netcetera.threeds.sdk.infrastructure.CompletionEvent,com.netcetera.threeds.sdk.infrastructure.ProtocolErrorEvent,com.netcetera.threeds.sdk.infrastructure.setLayerType,com.netcetera.threeds.sdk.infrastructure.me,com.netcetera.threeds.sdk.infrastructure.ju,com.netcetera.threeds.sdk.infrastructure.setCacheColorHint$getWarnings,java.lang.String,java.lang.String,com.netcetera.threeds.sdk.infrastructure.nh,com.netcetera.threeds.sdk.infrastructure.setProgressTintMode,com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintList$getWarnings);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.jh
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.jg {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.jf {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.jm {
-    void init$0();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.jl {
-    <init>();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.ju
 
 -keep class com.netcetera.threeds.sdk.infrastructure.jv {
-    com.netcetera.threeds.sdk.infrastructure.ju ThreeDS2ServiceInstance(com.netcetera.threeds.sdk.api.ui.logic.UiCustomization,com.netcetera.threeds.sdk.infrastructure.me);
-    com.netcetera.threeds.sdk.infrastructure.ju initialize(java.util.Map,com.netcetera.threeds.sdk.infrastructure.me);
+    <init>(java.util.Map);
+    java.lang.String get();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.kb {
-    com.netcetera.threeds.sdk.api.ui.logic.UiCustomization initialize(com.netcetera.threeds.sdk.api.ui.logic.UiCustomization);
-    java.util.Map ThreeDS2ServiceInstance(java.util.Map);
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.jv {
+    void initialize();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.kb {
-    <init>();
+-keep class com.netcetera.threeds.sdk.infrastructure.ka {
+    <init>(com.netcetera.threeds.sdk.infrastructure.setSearchResultHighlightColor,com.netcetera.threeds.sdk.infrastructure.showProgress);
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.kb {
-    void init$0();
+-keep class com.netcetera.threeds.sdk.infrastructure.jy {
+    <init>(com.netcetera.threeds.sdk.infrastructure.setSearchResultHighlightColor,java.lang.String);
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.jy {
-    void init$0();
+-keep class com.netcetera.threeds.sdk.infrastructure.jw {
+    <init>(com.netcetera.threeds.sdk.infrastructure.setSearchResultHighlightColor,java.security.KeyPair);
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ka {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.jz {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.jz {
-    void init$0();
+-keep class com.netcetera.threeds.sdk.infrastructure.jx {
+    boolean initialize();
+    void ThreeDS2ServiceInstance();
 }
 
 -keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.jx {
     <init>();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.jx {
+-keep class com.netcetera.threeds.sdk.infrastructure.jz {
+    java.lang.Object[] initialize(int,int);
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.jz {
+    void init$0();
+    void init$1();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.kc {
+    <init>(com.netcetera.threeds.sdk.infrastructure.setScroller);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.ke {
+    <init>(com.netcetera.threeds.sdk.infrastructure.setScroller);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.kb {
+    <init>(com.netcetera.threeds.sdk.infrastructure.setScroller);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.kd {
+    <init>(com.netcetera.threeds.sdk.infrastructure.setScroller,com.netcetera.threeds.sdk.infrastructure.am);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.ki {
+    <init>(com.netcetera.threeds.sdk.infrastructure.setScroller,com.netcetera.threeds.sdk.infrastructure.getView);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.kj {
+    <init>(com.netcetera.threeds.sdk.infrastructure.setScroller,com.netcetera.threeds.sdk.infrastructure.setCollapsible);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.kk {
+    <init>(com.netcetera.threeds.sdk.infrastructure.setScroller,com.netcetera.threeds.sdk.infrastructure.finalize);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.kg {
+    <init>(com.netcetera.threeds.sdk.infrastructure.setScroller,com.netcetera.threeds.sdk.infrastructure.setTouchscreenBlocksFocus);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.kh {
+    <init>(com.netcetera.threeds.sdk.infrastructure.setScroller,com.netcetera.threeds.sdk.infrastructure.setTouchscreenBlocksFocus);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.kn {
+    <init>(com.netcetera.threeds.sdk.infrastructure.setScroller,com.netcetera.threeds.sdk.infrastructure.setTouchscreenBlocksFocus);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.ko {
+    <init>(com.netcetera.threeds.sdk.infrastructure.setScroller);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.km {
+    com.netcetera.threeds.sdk.infrastructure.setCollapseContentDescription getWarnings();
+    com.netcetera.threeds.sdk.infrastructure.setCollapseContentDescription ThreeDS2ServiceInstance(com.netcetera.threeds.sdk.infrastructure.am);
+    com.netcetera.threeds.sdk.infrastructure.finalize initialize(com.netcetera.threeds.sdk.infrastructure.setTouchscreenBlocksFocus);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.kq {
+    com.netcetera.threeds.sdk.infrastructure.setBottomEdgeEffectColor get();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.kq {
     void init$0();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ke {
+-keep class com.netcetera.threeds.sdk.infrastructure.kr {
+    com.netcetera.threeds.sdk.api.transaction.Transaction initialize(com.netcetera.threeds.sdk.infrastructure.showProgress,com.netcetera.threeds.sdk.infrastructure.ProtocolErrorEvent,com.netcetera.threeds.sdk.infrastructure.setTextDirection,com.netcetera.threeds.sdk.infrastructure.nk,com.netcetera.threeds.sdk.infrastructure.lo,com.netcetera.threeds.sdk.infrastructure.setChecked$getWarnings,java.lang.String,com.netcetera.threeds.sdk.infrastructure.ot,com.netcetera.threeds.sdk.infrastructure.setAutoSizeTextTypeUniformWithPresetSizes,com.netcetera.threeds.sdk.infrastructure.setAutoSizeTextTypeWithDefaults$ThreeDS2Service,com.netcetera.threeds.sdk.infrastructure.pm,com.netcetera.threeds.sdk.infrastructure.setError,com.netcetera.threeds.sdk.infrastructure.setEms);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.kv
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ky {
     <init>();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ke {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.kx {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.kz {
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.lb {
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.la {
+    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.lo
+
+-keep class com.netcetera.threeds.sdk.infrastructure.ll {
+    com.netcetera.threeds.sdk.infrastructure.lo ThreeDS2Service(java.util.Map,com.netcetera.threeds.sdk.infrastructure.nk);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.lq {
+    java.util.Map ThreeDS2ServiceInstance(java.util.Map);
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.lq {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.lq {
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.lt {
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ls {
+    <init>();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.lr {
+    <init>();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.lp {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.lp {
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.lv {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.lv {
     void ThreeDS2ServiceInstance();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.kd {
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ly {
     void init$0();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.kf {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.lx {
     <init>();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.kc {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.kc {
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.lx {
     void init$0();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ki {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.lw {
     <init>();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ki {
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.lw {
     void init$0();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.kk {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.mc {
     <init>();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.kk {
-    void ThreeDS2Service();
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.mc {
     void init$0();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.kh {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ma {
     <init>();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.kj {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.kn {
-    <init>();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.me
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.mi {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.mf {
-    void init$0();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.mh {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ml {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.mn {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.mt {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.mq$getWarnings {
-    void ThreeDS2ServiceInstance();
-    void init$0();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ms {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.mr {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.mr {
-    void init$0();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.mp {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.mp {
-    void init$0();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.mw {
-    <init>();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.mx {
-    java.lang.Object ThreeDS2Service(java.lang.Object[],int,int,int);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.mv {
-    java.lang.Object getWarnings(java.lang.Object[],int,int,int);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.mv$initialize
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.my {
-    void ThreeDS2Service();
-    void init$0();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.nd {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.nc {
-    <init>();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.nb {
-    <init>(java.lang.Object);
-    java.lang.String ThreeDS2ServiceInstance(java.lang.String);
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.nb {
-    void init$0();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ne {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ne {
-    void init$0();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.nh {
-    com.netcetera.threeds.sdk.infrastructure.nh get(com.netcetera.threeds.sdk.api.configparameters.ConfigParameters);
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.nh {
-    void initialize();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.ng {
-    void ThreeDS2Service(java.lang.Object,java.lang.String);
-    java.lang.String get(java.lang.String,java.lang.String);
-    void ThreeDS2ServiceInstance(int,int,java.lang.String);
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ng {
-    void init$0();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.nk {
-    <init>();
-    void getWarnings(java.lang.String);
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.nn {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.nn {
-    void init$0();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.nm {
-    <init>();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.nm {
-    void init$0();
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ns {
-    void initialize();
-    void init$0();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.nq {
-    java.lang.String initialize(java.lang.String);
-    java.lang.Object ThreeDS2Service(java.lang.Object[],int,int,int);
-}
-
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.nq {
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ma {
     void getWarnings();
     void init$0();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.no {
-    void initialize(java.lang.String);
-    void ThreeDS2ServiceInstance(java.lang.String,java.lang.Object[]);
-    void ThreeDS2ServiceInstance(java.lang.String);
-    void ThreeDS2Service(java.lang.String,java.lang.Object[]);
-    void getWarnings(java.lang.String,com.netcetera.threeds.sdk.infrastructure.nh);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.nu {
-    java.lang.Object initialize(java.lang.Object[],int,int,int);
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.nu {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.mb {
     <init>();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.nt {
-    void init$0();
-    void init$1();
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.lz {
+    <init>();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.nx {
-    java.lang.Object[] ThreeDS2Service(android.content.Context,int,int);
+-keep class com.netcetera.threeds.sdk.infrastructure.nk
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.no {
+    <init>();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.nx {
-    void init$0();
-    void init$1();
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.nt {
+    <init>();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.oh {
-    java.lang.String[] initialize(java.lang.Object[]);
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.oa {
+    <init>();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.oh {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.nx {
+    <init>();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.nz {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.oc$initialize {
+    void initialize();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.od {
     <init>();
 }
 
@@ -2210,37 +2153,197 @@
     <init>();
 }
 
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.og {
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.of {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.of {
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ok {
+    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.oh {
+    java.lang.Object ThreeDS2ServiceInstance(java.lang.Object[],int,int,int);
+}
+
 -keep class com.netcetera.threeds.sdk.infrastructure.oj {
-    java.lang.CharSequence getWarnings(java.lang.CharSequence,java.lang.CharSequence);
+    java.lang.Object ThreeDS2Service(java.lang.Object[],int,int,int);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.oj$ThreeDS2Service
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.oi {
+    void ThreeDS2ServiceInstance();
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.op {
+    <init>();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.oo {
+    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.oq {
+    <init>(java.lang.Object);
+    java.lang.String get(java.lang.String);
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.on {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.on {
+    void init$0();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.ot {
+    com.netcetera.threeds.sdk.infrastructure.ot ThreeDS2ServiceInstance(com.netcetera.threeds.sdk.api.configparameters.ConfigParameters);
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ot {
+    void ThreeDS2ServiceInstance();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.ov {
+    void initialize(java.lang.Object,java.lang.String);
+    java.lang.String initialize(java.lang.String,java.lang.String);
+    void ThreeDS2Service(int,int,java.lang.String);
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ov {
+    void init$0();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ou {
+    void init$0();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.os {
+    <init>();
+    void ThreeDS2Service(java.lang.String);
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.oy {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.oy {
+    void init$0();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.oz {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.oz {
+    void init$0();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.ox
+
+-keep class com.netcetera.threeds.sdk.infrastructure.pb
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.pd {
+    void initialize();
+    void init$0();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.pe {
+    java.lang.String ThreeDS2ServiceInstance(java.lang.String);
+    java.lang.Object ThreeDS2ServiceInstance(java.lang.Object[],int,int,int);
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.pe {
+    void get();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.pc {
+    void getWarnings(java.lang.String);
+    void ThreeDS2ServiceInstance(java.lang.String,java.lang.Object[]);
+    void get(java.lang.String);
+    void initialize(java.lang.String,java.lang.Object[]);
+    void get(java.lang.String,com.netcetera.threeds.sdk.infrastructure.ot);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.pi {
+    java.lang.Object ThreeDS2Service(java.lang.Object[],int,int,int);
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.pi {
+    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.pm {
+    void getWarnings(com.netcetera.threeds.sdk.infrastructure.pb,java.lang.String);
+    java.lang.Object getWarnings(com.netcetera.threeds.sdk.infrastructure.ox,java.lang.String);
+    void initialize(com.netcetera.threeds.sdk.infrastructure.pb,java.lang.String);
+    java.lang.Object get(com.netcetera.threeds.sdk.infrastructure.ox,java.lang.String);
+    java.util.Map ThreeDS2Service(com.netcetera.threeds.sdk.infrastructure.setProgressBackgroundTintList);
+    void initialize();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.pq {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.pq {
+    void init$0();
+    void init$1();
+    void init$2();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.pr {
+    java.lang.String[] initialize(java.lang.Object[]);
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.pr {
+    <init>();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.py {
+    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.pz {
+    java.lang.CharSequence initialize(java.lang.CharSequence,java.lang.CharSequence);
     boolean get(java.lang.CharSequence);
-    boolean getWarnings(java.lang.CharSequence);
-    boolean initialize(java.lang.CharSequence,java.lang.CharSequence);
-    boolean ThreeDS2ServiceInstance(java.lang.CharSequence,java.lang.CharSequence);
+    boolean ThreeDS2ServiceInstance(java.lang.CharSequence);
+    boolean get(java.lang.CharSequence,java.lang.CharSequence);
+    boolean ThreeDS2Service(java.lang.CharSequence,java.lang.CharSequence);
     boolean initialize(java.lang.CharSequence);
-    java.lang.String[] initialize(java.lang.String,java.lang.String);
-    boolean initialize(java.lang.CharSequence[]);
+    java.lang.String[] getWarnings(java.lang.String,java.lang.String);
+    boolean getWarnings(java.lang.CharSequence[]);
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.oj {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.pz {
     <init>();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.oi {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.px {
     <init>();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.om {
+-keep class com.netcetera.threeds.sdk.infrastructure.pw {
     java.lang.Long ThreeDS2Service;}
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.om {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.pw {
     <init>();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.ol {
-    java.util.Date ThreeDS2Service(java.util.Date,int);
+-keep class com.netcetera.threeds.sdk.infrastructure.qc {
+    java.util.Date get(java.util.Date,int);
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ol {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.qc {
     <init>();
 }
 
@@ -2249,422 +2352,423 @@
 }
 
 -keepclassmembers,allowshrinking,allowobfuscation class org.bouncycastle.jce.provider.NcaBouncyCastleProvider {
-    void ThreeDS2Service();
+    void getWarnings();
+    void init$0();
 }
 
--keep class org.bouncycastle.jce.provider.NcaBouncyCastleProvider$3 {
-    void get(long,long);
+-keep class com.netcetera.threeds.sdk.infrastructure.qb {
+    java.lang.String getWarnings(byte[]);
+    byte[] ThreeDS2Service(java.lang.String);
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.op {
-    java.lang.String initialize(byte[]);
-    byte[] getWarnings(java.lang.String);
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.op {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.qb {
     <init>();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.oq {
+-keep class com.netcetera.threeds.sdk.infrastructure.qe {
     <init>();
     byte[] getWarnings(java.lang.String);
-    java.lang.String get(java.lang.String);
+    java.lang.String ThreeDS2ServiceInstance(java.lang.String);
     java.lang.String ThreeDS2ServiceInstance(byte[]);
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.on {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.qd {
     <init>();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.oo$get {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.qa$get {
     <init>();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.or {
+-keep class com.netcetera.threeds.sdk.infrastructure.qg {
     <init>();
-    com.netcetera.threeds.sdk.infrastructure.or$getWarnings initialize();
-    com.netcetera.threeds.sdk.infrastructure.or$getWarnings ThreeDS2Service();
-    java.security.SecureRandom getWarnings();
+    com.netcetera.threeds.sdk.infrastructure.qg$ThreeDS2ServiceInstance ThreeDS2Service();
+    com.netcetera.threeds.sdk.infrastructure.qg$ThreeDS2ServiceInstance getWarnings();
+    java.security.SecureRandom get();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.or$getWarnings {
-    void ThreeDS2ServiceInstance(java.lang.String);
+-keep class com.netcetera.threeds.sdk.infrastructure.qg$ThreeDS2ServiceInstance {
+    void initialize(java.lang.String);
     java.lang.String ThreeDS2ServiceInstance();
     java.lang.String ThreeDS2Service();
-    void initialize(java.lang.String);
-    java.lang.String getWarnings();
+    void getWarnings(java.lang.String);
+    java.lang.String get();
     void ThreeDS2Service(java.lang.String);
     void get(java.lang.String);
-    java.lang.String get();
-    void getWarnings(java.lang.String);
+    java.lang.String initialize();
+    void ThreeDS2ServiceInstance(java.lang.String);
+    java.lang.String createTransaction();
+    void cleanup(java.lang.String);
     java.lang.String getSDKVersion();
     void ThreeDS2ServiceInitializationCallback(java.lang.String);
-    java.lang.String ThreeDS2ServiceInitializationCallback();
-    void getSDKVersion(java.lang.String);
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ou {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ou$4 {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ou$get {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ov {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ow {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.pb {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ox {
-    <init>();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.pc {
-    java.lang.String ThreeDS2ServiceInstance();
-    boolean initialize();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.pg {
-    boolean ThreeDS2Service(java.lang.String,java.lang.String);
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.pg {
-    <init>();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.pe {
-    com.netcetera.threeds.sdk.infrastructure.pe ThreeDS2ServiceInstance;    <init>(com.netcetera.threeds.sdk.infrastructure.pe$ThreeDS2ServiceInstance,java.lang.String[]);
-    void getWarnings(java.lang.String);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.pe$ThreeDS2ServiceInstance {
-    com.netcetera.threeds.sdk.infrastructure.pe$ThreeDS2ServiceInstance ThreeDS2ServiceInstance;}
-
--keep class com.netcetera.threeds.sdk.infrastructure.pd {
-    com.netcetera.threeds.sdk.infrastructure.pc get(java.lang.String);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.pi {
-    com.netcetera.threeds.sdk.infrastructure.pi ThreeDS2ServiceInstance();
-    com.netcetera.threeds.sdk.infrastructure.pd get();
-    com.netcetera.threeds.sdk.infrastructure.pd getWarnings();
-    com.netcetera.threeds.sdk.infrastructure.pd ThreeDS2Service();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.pl {
-    org.slf4j.Logger getWarnings;    java.lang.String initialize;    <init>();
-    void getWarnings(java.lang.String);
-    void initialize(java.lang.String);
-    java.lang.String get();
-    java.lang.String ThreeDS2ServiceInstance();
-    void get(com.netcetera.threeds.sdk.infrastructure.rd);
-    void ThreeDS2Service(java.lang.String);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.qj {
-    com.netcetera.threeds.sdk.infrastructure.qg getWarnings(java.security.spec.ECParameterSpec);
-    com.netcetera.threeds.sdk.infrastructure.qg initialize(java.security.spec.ECParameterSpec,java.lang.String,java.security.SecureRandom);
 }
 
 -keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.qj {
     <init>();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.qg {
-    java.security.interfaces.ECPublicKey ThreeDS2ServiceInstance();
-    java.security.interfaces.ECPrivateKey get();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.qh {
-    java.security.Key ThreeDS2ServiceInitializationCallback();
-    void initialize(java.lang.String);
-    java.lang.String createTransaction();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.qh$ThreeDS2ServiceInstance {
-    com.netcetera.threeds.sdk.infrastructure.qh initialize(java.lang.String);
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.qh$ThreeDS2ServiceInstance {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.qj$4 {
     <init>();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.qo {
-    java.security.PrivateKey onCompleted();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.qo$getWarnings {
-    com.netcetera.threeds.sdk.infrastructure.qo ThreeDS2ServiceInstance(java.security.Key);
-    com.netcetera.threeds.sdk.infrastructure.qo getWarnings(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.qo ThreeDS2ServiceInstance(java.lang.String,java.lang.String);
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.qo$getWarnings {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.qj$initialize {
     <init>();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ql$getWarnings {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.qi {
     <init>();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ql$get {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.qh {
     <init>();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ql$ThreeDS2Service {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.qm {
     <init>();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.qp$ThreeDS2Service {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.qn {
     <init>();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.qp$get {
-    <init>();
+-keep class com.netcetera.threeds.sdk.infrastructure.qq {
+    java.lang.String ThreeDS2ServiceInstance();
+    boolean ThreeDS2Service();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.qp$initialize {
-    <init>();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.qs {
-    <init>();
-    boolean getWarnings();
-    java.lang.String createTransaction();
+-keep class com.netcetera.threeds.sdk.infrastructure.qr {
+    boolean getWarnings(java.lang.String,java.lang.String);
 }
 
 -keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.qr {
     <init>();
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.qq$ThreeDS2Service {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.qq$get {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.qq$initialize {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.qq$getWarnings {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.qq$ThreeDS2ServiceInstance {
-    <init>();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.qq$createTransaction {
-    void ThreeDS2ServiceInstance(long,long);
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.qq$createTransaction {
-    <init>();
-}
-
 -keep class com.netcetera.threeds.sdk.infrastructure.qt {
-    java.lang.String ThreeDS2ServiceInstance(java.lang.String[]);
+    com.netcetera.threeds.sdk.infrastructure.qt getWarnings;    <init>(com.netcetera.threeds.sdk.infrastructure.qt$ThreeDS2Service,java.lang.String[]);
+    void initialize(java.lang.String);
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.qt {
-    <init>();
+-keep class com.netcetera.threeds.sdk.infrastructure.qt$ThreeDS2Service {
+    com.netcetera.threeds.sdk.infrastructure.qt$ThreeDS2Service get;}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.qw {
+    com.netcetera.threeds.sdk.infrastructure.qq get(java.lang.String);
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.qz {
-    void ThreeDS2Service(java.lang.String,java.lang.String);
-    void ThreeDS2Service(java.lang.String,java.lang.Object);
-    void ThreeDS2ServiceInstance(java.lang.String,com.netcetera.threeds.sdk.infrastructure.qh);
-    java.lang.String ThreeDS2ServiceInstance(java.lang.String);
-    java.lang.Long get(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.qo ThreeDS2ServiceInstance(java.lang.String,java.lang.String);
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.qz {
-    <init>();
+-keep class com.netcetera.threeds.sdk.infrastructure.qy {
+    com.netcetera.threeds.sdk.infrastructure.qy ThreeDS2ServiceInstance();
+    com.netcetera.threeds.sdk.infrastructure.qw getWarnings();
+    com.netcetera.threeds.sdk.infrastructure.qw get();
+    com.netcetera.threeds.sdk.infrastructure.qw ThreeDS2Service();
 }
 
 -keep class com.netcetera.threeds.sdk.infrastructure.qx {
-    byte[] get;    <init>();
-    void ThreeDS2ServiceInstance(java.lang.String[]);
+    org.slf4j.Logger ThreeDS2ServiceInstance;    java.lang.String initialize;    java.lang.String get;    <init>();
     void get(java.lang.String);
-    java.lang.String onError();
-    void initialize(java.lang.String,java.lang.String);
-    void cleanup(java.lang.String);
-    com.netcetera.threeds.sdk.infrastructure.qz ConfigParameters();
-    void ThreeDS2Service(java.lang.String,java.lang.String);
-    java.lang.String ThreeDS2ServiceInitializationCallback(java.lang.String);
-    void createTransaction(java.lang.String);
-    java.lang.String getParamValue();
-    void getSDKInfo(java.lang.String);
-    java.security.Key addParam();
-    void ThreeDS2ServiceInstance(java.security.Key);
-    byte[] restrictedParameters();
-    void getWarnings(byte[]);
-    boolean removeParam();
-    com.netcetera.threeds.sdk.infrastructure.pe ConfigurationBuilder();
-    void get(com.netcetera.threeds.sdk.infrastructure.pe);
-    void configureScheme();
-    com.netcetera.threeds.sdk.infrastructure.or apiKey();
-    void get(com.netcetera.threeds.sdk.infrastructure.or);
+    void ThreeDS2Service(java.lang.String);
+    java.lang.String initialize();
+    java.lang.String ThreeDS2ServiceInstance();
+    void initialize(com.netcetera.threeds.sdk.infrastructure.st);
+    void ThreeDS2ServiceInstance(java.lang.String);
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.qv {
-    void get(java.security.Key);
-    void initialize(java.security.Key);
-    void ThreeDS2Service(byte[],java.lang.String);
-    void ThreeDS2ServiceInstance(java.security.Key,java.lang.String,int);
-    java.lang.Object ThreeDS2Service(java.lang.Object[],int,int,int);
+-keep class com.netcetera.threeds.sdk.infrastructure.ru {
+    com.netcetera.threeds.sdk.infrastructure.rw ThreeDS2Service(java.security.spec.ECParameterSpec);
+    com.netcetera.threeds.sdk.infrastructure.rw ThreeDS2ServiceInstance(java.security.spec.ECParameterSpec,java.lang.String,java.security.SecureRandom);
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.qv {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ru {
     <init>();
 }
 
--keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.qv {
+-keep class com.netcetera.threeds.sdk.infrastructure.rw {
+    java.security.interfaces.ECPublicKey ThreeDS2ServiceInstance();
+    java.security.interfaces.ECPrivateKey get();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.rx {
+    java.security.Key createTransaction();
+    void getWarnings(java.lang.String);
+    java.lang.String getSDKVersion();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.rx$get {
+    com.netcetera.threeds.sdk.infrastructure.rx initialize(java.lang.String);
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.rx$get {
+    <init>();
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.rz {
     void init$0();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.qw {
+-keep class com.netcetera.threeds.sdk.infrastructure.sc {
+    java.security.PrivateKey onCompleted();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.sc$initialize {
+    com.netcetera.threeds.sdk.infrastructure.sc initialize(java.security.Key);
+    com.netcetera.threeds.sdk.infrastructure.sc ThreeDS2ServiceInstance(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.sc getWarnings(java.lang.String,java.lang.String);
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.sc$initialize {
+    <init>();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.sb$ThreeDS2ServiceInstance {
+    <init>();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.sb$get {
+    <init>();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.sb$getWarnings {
+    <init>();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.sd$initialize {
+    <init>();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.sd$getWarnings {
+    <init>();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.sd$get {
+    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.sh {
+    <init>();
+    boolean get();
+    java.lang.String getSDKVersion();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.sf {
+    <init>();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.se$initialize {
+    <init>();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.se$get {
+    <init>();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.se$ThreeDS2Service {
+    <init>();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.se$getWarnings {
+    <init>();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.se$ThreeDS2ServiceInstance {
+    <init>();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.se$getSDKVersion {
+    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.sk {
+    java.lang.String ThreeDS2Service(java.lang.String[]);
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.sk {
+    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.si {
+    void ThreeDS2ServiceInstance(java.lang.String,java.lang.String);
+    void getWarnings(java.lang.String,java.lang.Object);
+    void ThreeDS2ServiceInstance(java.lang.String,com.netcetera.threeds.sdk.infrastructure.rx);
+    java.lang.String get(java.lang.String);
+    java.lang.Long initialize(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.sc get(java.lang.String,java.lang.String);
+    void ThreeDS2ServiceInstance(long,long);
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.si {
+    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.sj {
+    byte[] getWarnings;    <init>();
+    void get(java.lang.String[]);
+    void ThreeDS2ServiceInstance(java.lang.String);
+    java.lang.String addParam();
+    void ThreeDS2ServiceInstance(java.lang.String,java.lang.String);
+    void getSDKVersion(java.lang.String);
+    com.netcetera.threeds.sdk.infrastructure.si ConfigParameters();
+    void get(java.lang.String,java.lang.String);
+    java.lang.String getSDKInfo(java.lang.String);
+    void cleanup(java.lang.String);
+    java.lang.String onError();
+    void createTransaction(java.lang.String);
+    java.security.Key getParamValue();
+    void ThreeDS2Service(java.security.Key);
+    byte[] configureScheme();
+    void ThreeDS2ServiceInstance(byte[]);
+    boolean restrictedParameters();
+    com.netcetera.threeds.sdk.infrastructure.qt removeParam();
+    void get(com.netcetera.threeds.sdk.infrastructure.qt);
+    void ConfigurationBuilder();
+    com.netcetera.threeds.sdk.infrastructure.qg apiKey();
+    void getWarnings(com.netcetera.threeds.sdk.infrastructure.qg);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.sl {
+    void getWarnings(java.security.Key);
+    java.security.Key initialize(java.security.Key,java.lang.Class);
+    void get(byte[],java.lang.String);
+    void initialize(java.security.Key,java.lang.String,int);
+    java.lang.Object ThreeDS2ServiceInstance(java.lang.Object[],int,int,int);
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.sl {
+    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.sm {
+    <init>(byte[]);
+    java.lang.Object[] getWarnings(android.content.Context,int,int);
+}
+
+-keepclassmembers,allowshrinking,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.sm {
+    void ThreeDS2Service();
+    void init$0();
+    void init$1();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.sr {
+    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.sq {
+    <init>();
+    boolean initialize();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.sp {
+    java.security.spec.ECParameterSpec ThreeDS2ServiceInstance;    java.lang.String get(java.security.spec.EllipticCurve);
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.sp {
+    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.sn {
     <init>(byte[]);
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.qy {
+-keep class com.netcetera.threeds.sdk.infrastructure.st {
+    com.netcetera.threeds.sdk.infrastructure.st initialize;    com.netcetera.threeds.sdk.infrastructure.st getWarnings;}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ss {
     <init>();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.re {
-    <init>();
-    boolean getWarnings();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.rc {
-    java.security.spec.ECParameterSpec get;    java.lang.String getWarnings(java.security.spec.EllipticCurve);
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.rc {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.sw {
     <init>();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.rb {
-    <init>(byte[]);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.rd {
-    com.netcetera.threeds.sdk.infrastructure.rd initialize;    com.netcetera.threeds.sdk.infrastructure.rd get;}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.rh {
-    <init>();
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.rj {
-    <init>();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.rf {
-    byte[] initialize;    byte[] ThreeDS2ServiceInstance(int);
-    byte[] get(long);
-    boolean getWarnings(byte[],byte[]);
+-keep class com.netcetera.threeds.sdk.infrastructure.su {
+    byte[] get;    byte[] get(int);
+    byte[] initialize(long);
+    boolean get(byte[],byte[]);
     byte[] ThreeDS2ServiceInstance(byte[][]);
     byte[] ThreeDS2ServiceInstance(byte[],int,int);
-    byte[] ThreeDS2Service(byte[]);
     byte[] getWarnings(byte[]);
-    int ThreeDS2ServiceInstance(byte[]);
-    int get(int);
+    byte[] ThreeDS2ServiceInstance(byte[]);
+    int ThreeDS2Service(byte[]);
+    int initialize(int);
     int getWarnings(int);
     byte[] initialize(int,java.security.SecureRandom);
-    byte[] ThreeDS2Service(int);
-    java.lang.String initialize(byte[]);
+    byte[] ThreeDS2ServiceInstance(int);
+    java.lang.String get(byte[]);
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.rf {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.su {
     <init>();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.ri {
-    java.lang.String ThreeDS2Service(java.lang.Throwable);
-    java.lang.String ThreeDS2Service(java.lang.Throwable,java.lang.Class);
+-keep class com.netcetera.threeds.sdk.infrastructure.sv {
+    java.lang.String ThreeDS2ServiceInstance(java.lang.Throwable);
+    java.lang.String initialize(java.lang.Throwable,java.lang.Class);
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.ri {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.sv {
     <init>();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.rg {
-    java.security.MessageDigest ThreeDS2ServiceInstance(java.lang.String);
-    java.security.MessageDigest initialize(java.lang.String,java.lang.String);
+-keep class com.netcetera.threeds.sdk.infrastructure.sz {
+    java.security.MessageDigest get(java.lang.String);
+    java.security.MessageDigest ThreeDS2Service(java.lang.String,java.lang.String);
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.rg {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.sz {
     <init>();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.rk {
+-keep class com.netcetera.threeds.sdk.infrastructure.sx {
     <init>(java.lang.String);
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.rm {
+-keep class com.netcetera.threeds.sdk.infrastructure.sy {
     <init>(java.lang.String);
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.rn {
-    <init>(java.lang.String);
-    <init>(java.lang.String,java.lang.Throwable);
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.ro {
+-keep class com.netcetera.threeds.sdk.infrastructure.ta {
     <init>(java.lang.String);
     <init>(java.lang.String,java.lang.Throwable);
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.rl {
-    <init>();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.rr {
-    java.lang.String ThreeDS2Service(byte[],java.lang.String);
-    byte[] ThreeDS2Service(java.lang.String);
-    byte[] get(java.lang.String);
-    byte[] getWarnings(java.lang.String,java.lang.String);
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.rr {
-    <init>();
-}
-
--keep class com.netcetera.threeds.sdk.infrastructure.rt {
+-keep class com.netcetera.threeds.sdk.infrastructure.tb {
     <init>(java.lang.String);
     <init>(java.lang.String,java.lang.Throwable);
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.rq {
-    javax.crypto.Mac ThreeDS2Service(java.lang.String,java.security.Key,java.lang.String);
-}
-
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.rq {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.tf {
     <init>();
 }
 
--keep class com.netcetera.threeds.sdk.infrastructure.rp {
+-keep class com.netcetera.threeds.sdk.infrastructure.te {
+    java.lang.String getWarnings(byte[],java.lang.String);
+    byte[] initialize(java.lang.String);
+    byte[] ThreeDS2ServiceInstance(java.lang.String);
+    byte[] ThreeDS2Service(java.lang.String,java.lang.String);
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.te {
+    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.tg {
+    <init>(java.lang.String);
+    <init>(java.lang.String,java.lang.Throwable);
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.tc {
+    javax.crypto.Mac getWarnings(java.lang.String,java.security.Key,java.lang.String);
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.tc {
+    <init>();
+}
+
+-keep class com.netcetera.threeds.sdk.infrastructure.td {
+    byte[] initialize(byte[]);
     byte[] ThreeDS2ServiceInstance(byte[]);
-    byte[] get(byte[]);
 }
 
--keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.rs {
+-keepclassmembers,allowoptimization,allowobfuscation class com.netcetera.threeds.sdk.infrastructure.tj {
     <init>();
 }
 
