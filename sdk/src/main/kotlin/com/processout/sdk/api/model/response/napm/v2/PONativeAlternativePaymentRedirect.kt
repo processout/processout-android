@@ -34,13 +34,13 @@ data class PONativeAlternativePaymentRedirect(
 ) : Parcelable {
 
     /** Redirect type. */
-    val type: Type
-        get() = Type::rawType.findBy(rawType) ?: Type.UNKNOWN
+    val type: RedirectType
+        get() = RedirectType::rawType.findBy(rawType) ?: RedirectType.UNKNOWN
 
     /**
      * Redirect type.
      */
-    enum class Type(val rawType: String) {
+    enum class RedirectType(val rawType: String) {
         /** Web redirect. */
         WEB("web"),
 
