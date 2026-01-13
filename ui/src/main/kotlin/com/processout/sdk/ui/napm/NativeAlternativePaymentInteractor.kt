@@ -30,6 +30,7 @@ import com.processout.sdk.api.model.response.napm.v2.*
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.Invoice
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter.Otp.Subtype
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentRedirect.RedirectType
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentState.*
 import com.processout.sdk.api.service.POCustomerTokensService
 import com.processout.sdk.api.service.POInvoicesService
@@ -285,6 +286,9 @@ internal class NativeAlternativePaymentInteractor(
         if (failWithUnknownParameter(parameters)) {
             return
         }
+        if (failWithUnknownRedirect(redirect)) {
+            return
+        }
         val fields = parameters.toFields()
         val updatedStateValue = stateValue.copy(
             uuid = UUID.randomUUID().toString(),
@@ -367,6 +371,24 @@ internal class NativeAlternativePaymentInteractor(
             val failure = ProcessOutResult.Failure(
                 code = Internal(),
                 message = "Unknown parameter type."
+            )
+            POLogger.error(
+                message = "Unexpected response: %s", failure,
+                attributes = configuration.logAttributes
+            )
+            _completion.update { Failure(failure) }
+            return true
+        }
+        return false
+    }
+
+    private fun failWithUnknownRedirect(
+        redirect: PONativeAlternativePaymentRedirect?
+    ): Boolean {
+        if (redirect?.type == RedirectType.UNKNOWN) {
+            val failure = ProcessOutResult.Failure(
+                code = Internal(),
+                message = "Unknown redirect type: ${redirect.rawType}"
             )
             POLogger.error(
                 message = "Unexpected response: %s", failure,
