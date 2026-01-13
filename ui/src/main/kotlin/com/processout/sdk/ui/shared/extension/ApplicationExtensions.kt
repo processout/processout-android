@@ -14,14 +14,14 @@ internal fun Application.currentAppLocale(): Locale =
         ?: LocaleListCompat.getAdjustedDefault()[0]
         ?: Locale.getDefault()
 
-internal fun Application.openDeepLink(uri: String): Boolean {
+internal fun Application.openDeepLink(url: String): Boolean {
     try {
-        val intent = Intent(Intent.ACTION_VIEW, uri.toUri())
+        val intent = Intent(Intent.ACTION_VIEW, url.toUri())
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
         return true
     } catch (e: ActivityNotFoundException) {
-        POLogger.warn("Failed to open deep link [%s] with exception: %s", uri, e)
+        POLogger.warn("Failed to open deep link [%s] with exception: %s", url, e)
         return false
     }
 }
