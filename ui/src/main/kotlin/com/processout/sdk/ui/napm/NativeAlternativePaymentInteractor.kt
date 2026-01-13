@@ -876,7 +876,7 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun List<Field>.toSubmitData(): PONativeAlternativePaymentSubmitData? =
         associate { field ->
-            field.id to when (val value = field.value) {
+            val parameter = when (val value = field.value) {
                 is FieldValue.Text -> string(value = value.value.text)
                 is FieldValue.PhoneNumber -> {
                     val dialingCode = when (field.parameter) {
@@ -891,6 +891,7 @@ internal class NativeAlternativePaymentInteractor(
                     )
                 }
             }
+            field.id to parameter
         }.let { parameters ->
             if (parameters.isNotEmpty())
                 PONativeAlternativePaymentSubmitData(parameters)
