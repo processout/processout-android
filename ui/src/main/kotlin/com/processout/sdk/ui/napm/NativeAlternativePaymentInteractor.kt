@@ -611,11 +611,7 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun submit() {
         _state.whenNextStep { stateValue ->
-            if (stateValue.redirect != null) {
-                redirect(
-                    stateValue = stateValue,
-                    redirectUrl = stateValue.redirect.url
-                )
+            if (redirect(stateValue)) {
                 return@whenNextStep
             }
             POLogger.info("Will submit payment parameters.")
@@ -645,10 +641,8 @@ internal class NativeAlternativePaymentInteractor(
         }
     }
 
-    private fun redirect(
-        stateValue: NextStepStateValue,
-        redirectUrl: String
-    ) {
+    private fun redirect(stateValue: NextStepStateValue): Boolean {
+        val redirect = stateValue.redirect ?: return false
         val returnUrl = configuration.redirect?.returnUrl
         if (returnUrl.isNullOrBlank()) {
             val failure = ProcessOutResult.Failure(
@@ -660,7 +654,7 @@ internal class NativeAlternativePaymentInteractor(
                 attributes = configuration.logAttributes
             )
             _completion.update { Failure(failure) }
-            return
+            return false
         }
         _state.update {
             NextStep(
@@ -673,11 +667,12 @@ internal class NativeAlternativePaymentInteractor(
         interactorScope.launch {
             _sideEffects.send(
                 Redirect(
-                    redirectUrl = redirectUrl,
+                    redirectUrl = redirect.url,
                     returnUrl = returnUrl
                 )
             )
         }
+        return true
     }
 
     private fun handleRedirect(result: ProcessOutResult<POAlternativePaymentMethodResponse>) {
