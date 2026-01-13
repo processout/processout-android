@@ -828,9 +828,7 @@ internal class NativeAlternativePaymentInteractor(
                 val request = PONativeAlternativePaymentAuthorizationRequest(
                     invoiceId = flow.invoiceId,
                     gatewayConfigurationId = flow.gatewayConfigurationId,
-                    submitData = PONativeAlternativePaymentSubmitData(
-                        parameters = stateValue.fields.values()
-                    ),
+                    submitData = stateValue.fields.toSubmitData(),
                     redirectConfirmation = redirectConfirmation
                 )
                 invoicesService.authorize(request)
@@ -858,9 +856,7 @@ internal class NativeAlternativePaymentInteractor(
                     customerId = flow.customerId,
                     customerTokenId = flow.customerTokenId,
                     gatewayConfigurationId = flow.gatewayConfigurationId,
-                    submitData = PONativeAlternativePaymentSubmitData(
-                        parameters = stateValue.fields.values()
-                    ),
+                    submitData = stateValue.fields.toSubmitData(),
                     redirectConfirmation = redirectConfirmation
                 )
                 customerTokensService.tokenize(request)
@@ -878,7 +874,7 @@ internal class NativeAlternativePaymentInteractor(
         }
     }
 
-    private fun List<Field>.values() =
+    private fun List<Field>.toSubmitData(): PONativeAlternativePaymentSubmitData? =
         associate { field ->
             field.id to when (val value = field.value) {
                 is FieldValue.Text -> string(value = value.value.text)
@@ -895,6 +891,10 @@ internal class NativeAlternativePaymentInteractor(
                     )
                 }
             }
+        }.let { parameters ->
+            if (parameters.isNotEmpty())
+                PONativeAlternativePaymentSubmitData(parameters)
+            else null
         }
 
     //endregion
