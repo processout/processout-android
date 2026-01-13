@@ -20,6 +20,7 @@ import coil.request.ImageResult
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentRedirectConfirmation
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter.Companion.phoneNumber
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter.Companion.string
@@ -62,6 +63,7 @@ import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentParameterValue
 import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentParameterValue.Value
 import com.processout.sdk.ui.shared.extension.dpToPx
+import com.processout.sdk.ui.shared.extension.openDeepLink
 import com.processout.sdk.ui.shared.provider.BarcodeBitmapProvider
 import com.processout.sdk.ui.shared.provider.MediaStorageProvider
 import com.processout.sdk.ui.shared.state.FieldValue
@@ -547,7 +549,7 @@ internal class NativeAlternativePaymentInteractor(
                 }
             }
             is PermissionRequestResult -> handlePermission(event)
-            is RedirectResult -> handleRedirect(event.result)
+            is RedirectResult -> handleWebRedirect(event.result)
             is Dismiss -> {
                 POLogger.info("Dismissed: %s", event.failure)
                 dispatch(DidFail(event.failure, paymentState))
@@ -611,7 +613,11 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun submit() {
         _state.whenNextStep { stateValue ->
-            if (redirect(stateValue)) {
+            if (stateValue.redirect != null) {
+                redirect(
+                    stateValue = stateValue,
+                    redirect = stateValue.redirect
+                )
                 return@whenNextStep
             }
             POLogger.info("Will submit payment parameters.")
@@ -634,27 +640,52 @@ internal class NativeAlternativePaymentInteractor(
                     )
                 )
             }
-            when (val flow = configuration.flow) {
-                is Authorization -> authorize(flow)
-                is Tokenization -> tokenize(flow)
-            }
+            continuePayment()
         }
     }
 
-    private fun redirect(stateValue: NextStepStateValue): Boolean {
-        val redirect = stateValue.redirect ?: return false
+    private fun continuePayment(
+        redirectConfirmation: PONativeAlternativePaymentRedirectConfirmation? = null
+    ) {
+        when (val flow = configuration.flow) {
+            is Authorization -> authorize(flow, redirectConfirmation)
+            is Tokenization -> tokenize(flow, redirectConfirmation)
+        }
+    }
+
+    private fun redirect(
+        stateValue: NextStepStateValue,
+        redirect: PONativeAlternativePaymentRedirect
+    ) {
+        when (redirect.type) {
+            RedirectType.WEB -> webRedirect(
+                stateValue = stateValue,
+                redirectUrl = redirect.url
+            )
+            RedirectType.DEEP_LINK -> deepLinkRedirect(
+                stateValue = stateValue,
+                redirectUrl = redirect.url
+            )
+            RedirectType.UNKNOWN -> failWithUnknownRedirect(redirect)
+        }
+    }
+
+    private fun webRedirect(
+        stateValue: NextStepStateValue,
+        redirectUrl: String
+    ) {
         val returnUrl = configuration.redirect?.returnUrl
         if (returnUrl.isNullOrBlank()) {
             val failure = ProcessOutResult.Failure(
                 code = Generic(),
-                message = "Return URL is missing in configuration during redirect flow."
+                message = "Return URL is missing in configuration during web redirect flow."
             )
             POLogger.warn(
                 message = "Failed redirect: %s", failure,
                 attributes = configuration.logAttributes
             )
             _completion.update { Failure(failure) }
-            return false
+            return
         }
         _state.update {
             NextStep(
@@ -667,23 +698,41 @@ internal class NativeAlternativePaymentInteractor(
         interactorScope.launch {
             _sideEffects.send(
                 Redirect(
-                    redirectUrl = redirect.url,
+                    redirectUrl = redirectUrl,
                     returnUrl = returnUrl
                 )
             )
         }
-        return true
     }
 
-    private fun handleRedirect(result: ProcessOutResult<POAlternativePaymentMethodResponse>) {
+    private fun handleWebRedirect(result: ProcessOutResult<POAlternativePaymentMethodResponse>) {
         result.onSuccess {
-            when (val flow = configuration.flow) {
-                is Authorization -> authorize(flow)
-                is Tokenization -> tokenize(flow)
+            _state.whenNextStep { stateValue ->
+                val redirectConfirmation = if (stateValue.redirect?.confirmationRequired == true)
+                    PONativeAlternativePaymentRedirectConfirmation(success = true) else null
+                continuePayment(redirectConfirmation)
             }
         }.onFailure { failure ->
             _completion.update { Failure(failure) }
         }
+    }
+
+    private fun deepLinkRedirect(
+        stateValue: NextStepStateValue,
+        redirectUrl: String
+    ) {
+        _state.update {
+            NextStep(
+                stateValue.copy(
+                    submitAllowed = true,
+                    submitting = true
+                )
+            )
+        }
+        val didOpenUrl = app.openDeepLink(url = redirectUrl)
+        val redirectConfirmation = if (stateValue.redirect?.confirmationRequired == true)
+            PONativeAlternativePaymentRedirectConfirmation(success = didOpenUrl) else null
+        continuePayment(redirectConfirmation)
     }
 
     private fun Field.validate(): InvalidField? {
@@ -770,7 +819,10 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun NextStepStateValue.areAllFieldsValid() = fields.all { it.isValid }
 
-    private fun authorize(flow: Authorization) {
+    private fun authorize(
+        flow: Authorization,
+        redirectConfirmation: PONativeAlternativePaymentRedirectConfirmation? = null
+    ) {
         _state.whenNextStep { stateValue ->
             interactorScope.launch {
                 val request = PONativeAlternativePaymentAuthorizationRequest(
@@ -778,7 +830,8 @@ internal class NativeAlternativePaymentInteractor(
                     gatewayConfigurationId = flow.gatewayConfigurationId,
                     submitData = PONativeAlternativePaymentSubmitData(
                         parameters = stateValue.fields.values()
-                    )
+                    ),
+                    redirectConfirmation = redirectConfirmation
                 )
                 invoicesService.authorize(request)
                     .onSuccess { response ->
@@ -795,7 +848,10 @@ internal class NativeAlternativePaymentInteractor(
         }
     }
 
-    private fun tokenize(flow: Tokenization) {
+    private fun tokenize(
+        flow: Tokenization,
+        redirectConfirmation: PONativeAlternativePaymentRedirectConfirmation? = null
+    ) {
         _state.whenNextStep { stateValue ->
             interactorScope.launch {
                 val request = PONativeAlternativePaymentTokenizationRequest(
@@ -804,7 +860,8 @@ internal class NativeAlternativePaymentInteractor(
                     gatewayConfigurationId = flow.gatewayConfigurationId,
                     submitData = PONativeAlternativePaymentSubmitData(
                         parameters = stateValue.fields.values()
-                    )
+                    ),
+                    redirectConfirmation = redirectConfirmation
                 )
                 customerTokensService.tokenize(request)
                     .onSuccess { response ->
