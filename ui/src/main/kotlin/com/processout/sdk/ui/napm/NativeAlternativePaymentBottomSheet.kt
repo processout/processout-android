@@ -83,7 +83,7 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
         alternativePaymentLauncher = POAlternativePaymentMethodCustomTabLauncher.create(
             from = this,
             callback = { result ->
-                viewModel.onEvent(RedirectResult(result))
+                viewModel.onEvent(WebRedirectResult(result))
             }
         )
         viewModel.start()

@@ -549,7 +549,7 @@ internal class NativeAlternativePaymentInteractor(
                 }
             }
             is PermissionRequestResult -> handlePermission(event)
-            is RedirectResult -> handleWebRedirect(event.result)
+            is WebRedirectResult -> handleWebRedirect(event.result)
             is Dismiss -> {
                 POLogger.info("Dismissed: %s", event.failure)
                 dispatch(DidFail(event.failure, paymentState))

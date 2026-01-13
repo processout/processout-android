@@ -852,7 +852,7 @@ internal class DynamicCheckoutInteractor(
             }
             when (paymentMethod) {
                 is NativeAlternativePayment -> nativeAlternativePayment.onEvent(
-                    NativeAlternativePaymentEvent.RedirectResult(result)
+                    NativeAlternativePaymentEvent.WebRedirectResult(result)
                 )
                 else -> result.onSuccess { response ->
                     authorizeInvoice(

@@ -12,7 +12,7 @@ internal sealed interface NativeAlternativePaymentEvent {
     data class ActionConfirmationRequested(val id: String) : NativeAlternativePaymentEvent
     data class Dismiss(val failure: ProcessOutResult.Failure) : NativeAlternativePaymentEvent
     data class PermissionRequestResult(val permission: String, val isGranted: Boolean) : NativeAlternativePaymentEvent
-    data class RedirectResult(
+    data class WebRedirectResult(
         val result: ProcessOutResult<POAlternativePaymentMethodResponse>
     ) : NativeAlternativePaymentEvent
 }
