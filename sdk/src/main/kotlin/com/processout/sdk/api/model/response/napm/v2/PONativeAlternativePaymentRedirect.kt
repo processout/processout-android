@@ -30,7 +30,7 @@ data class PONativeAlternativePaymentRedirect(
     @Json(name = "type")
     val rawType: String,
     @Json(name = "confirmation_required")
-    val confirmationRequired: Boolean? // TODO: make non-nullable
+    val confirmationRequired: Boolean
 ) : Parcelable {
 
     /** Redirect type. */
