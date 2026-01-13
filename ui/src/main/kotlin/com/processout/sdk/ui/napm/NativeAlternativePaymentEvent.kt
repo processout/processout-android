@@ -19,7 +19,7 @@ internal sealed interface NativeAlternativePaymentEvent {
 
 internal sealed interface NativeAlternativePaymentSideEffect {
     data class PermissionRequest(val permission: String) : NativeAlternativePaymentSideEffect
-    data class Redirect(
+    data class WebRedirect(
         val redirectUrl: String,
         val returnUrl: String
     ) : NativeAlternativePaymentSideEffect

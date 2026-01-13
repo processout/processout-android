@@ -52,7 +52,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.Action
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.PermissionRequest
-import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.Redirect
+import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.WebRedirect
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Authorization
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Tokenization
@@ -697,7 +697,7 @@ internal class NativeAlternativePaymentInteractor(
         }
         interactorScope.launch {
             _sideEffects.send(
-                Redirect(
+                WebRedirect(
                     redirectUrl = redirectUrl,
                     returnUrl = returnUrl
                 )
