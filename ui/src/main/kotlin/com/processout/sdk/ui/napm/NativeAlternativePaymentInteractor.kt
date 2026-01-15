@@ -681,7 +681,7 @@ internal class NativeAlternativePaymentInteractor(
                 message = "Return URL is missing in configuration during web redirect flow."
             )
             POLogger.warn(
-                message = "Failed redirect: %s", failure,
+                message = "Failed web redirect: %s", failure,
                 attributes = configuration.logAttributes
             )
             _completion.update { Failure(failure) }
