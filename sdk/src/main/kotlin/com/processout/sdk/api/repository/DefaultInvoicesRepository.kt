@@ -153,7 +153,8 @@ internal class DefaultInvoicesRepository(
         NativeAlternativePaymentRequestBody(
             gatewayConfigurationId = gatewayConfigurationId,
             source = source,
-            submitData = submitData?.let { SubmitData(parameters = it.parameters.map()) }
+            submitData = submitData?.let { SubmitData(parameters = it.parameters.map()) },
+            redirectConfirmation = redirectConfirmation
         )
 
     private fun Map<String, Parameter>.map() =

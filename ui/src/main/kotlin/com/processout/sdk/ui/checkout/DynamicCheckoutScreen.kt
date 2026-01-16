@@ -736,7 +736,7 @@ private fun NativeAlternativePaymentEvent.map(
     is NativeAlternativePaymentEvent.ActionConfirmationRequested -> ActionConfirmationRequested(id = id)
     is NativeAlternativePaymentEvent.Dismiss -> Dismiss(failure = failure)
     is NativeAlternativePaymentEvent.PermissionRequestResult,
-    is NativeAlternativePaymentEvent.RedirectResult -> null // Ignore, handled by dynamic checkout events.
+    is NativeAlternativePaymentEvent.WebRedirectResult -> null // Ignore, handled by dynamic checkout events.
 }
 
 internal object DynamicCheckoutScreen {

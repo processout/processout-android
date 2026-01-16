@@ -81,7 +81,8 @@ internal class DefaultCustomerTokensRepository(
         NativeAlternativePaymentRequestBody(
             gatewayConfigurationId = gatewayConfigurationId,
             source = null,
-            submitData = submitData?.let { SubmitData(parameters = it.parameters.map()) }
+            submitData = submitData?.let { SubmitData(parameters = it.parameters.map()) },
+            redirectConfirmation = redirectConfirmation
         )
 
     private fun Map<String, Parameter>.map() =

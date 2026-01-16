@@ -7,10 +7,12 @@ package com.processout.sdk.api.model.request.napm.v2
  * @param[gatewayConfigurationId] Gateway configuration identifier.
  * @param[source] Payment source.
  * @param[submitData] Payment payload.
+ * @param[redirectConfirmation] Redirect confirmation.
  */
 data class PONativeAlternativePaymentAuthorizationRequest(
     val invoiceId: String,
     val gatewayConfigurationId: String,
     val source: String? = null,
-    val submitData: PONativeAlternativePaymentSubmitData? = null
+    val submitData: PONativeAlternativePaymentSubmitData? = null,
+    val redirectConfirmation: PONativeAlternativePaymentRedirectConfirmation? = null
 )

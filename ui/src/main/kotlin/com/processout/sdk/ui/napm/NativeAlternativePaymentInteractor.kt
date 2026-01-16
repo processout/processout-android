@@ -20,6 +20,7 @@ import coil.request.ImageResult
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentRedirectConfirmation
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter.Companion.phoneNumber
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter.Companion.string
@@ -30,6 +31,7 @@ import com.processout.sdk.api.model.response.napm.v2.*
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.Invoice
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter.Otp.Subtype
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentRedirect.RedirectType
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentState.*
 import com.processout.sdk.api.service.POCustomerTokensService
 import com.processout.sdk.api.service.POInvoicesService
@@ -50,7 +52,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.Action
 import com.processout.sdk.ui.napm.NativeAlternativePaymentInteractorState.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.PermissionRequest
-import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.Redirect
+import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.WebRedirect
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Authorization
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Tokenization
@@ -61,6 +63,7 @@ import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentParameterValue
 import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentParameterValue.Value
 import com.processout.sdk.ui.shared.extension.dpToPx
+import com.processout.sdk.ui.shared.extension.openDeepLink
 import com.processout.sdk.ui.shared.provider.BarcodeBitmapProvider
 import com.processout.sdk.ui.shared.provider.MediaStorageProvider
 import com.processout.sdk.ui.shared.state.FieldValue
@@ -285,6 +288,9 @@ internal class NativeAlternativePaymentInteractor(
         if (failWithUnknownParameter(parameters)) {
             return
         }
+        if (failWithUnknownRedirect(redirect)) {
+            return
+        }
         val fields = parameters.toFields()
         val updatedStateValue = stateValue.copy(
             uuid = UUID.randomUUID().toString(),
@@ -367,6 +373,24 @@ internal class NativeAlternativePaymentInteractor(
             val failure = ProcessOutResult.Failure(
                 code = Internal(),
                 message = "Unknown parameter type."
+            )
+            POLogger.error(
+                message = "Unexpected response: %s", failure,
+                attributes = configuration.logAttributes
+            )
+            _completion.update { Failure(failure) }
+            return true
+        }
+        return false
+    }
+
+    private fun failWithUnknownRedirect(
+        redirect: PONativeAlternativePaymentRedirect?
+    ): Boolean {
+        if (redirect?.type == RedirectType.UNKNOWN) {
+            val failure = ProcessOutResult.Failure(
+                code = Internal(),
+                message = "Unknown redirect type: ${redirect.rawType}"
             )
             POLogger.error(
                 message = "Unexpected response: %s", failure,
@@ -525,7 +549,7 @@ internal class NativeAlternativePaymentInteractor(
                 }
             }
             is PermissionRequestResult -> handlePermission(event)
-            is RedirectResult -> handleRedirect(event.result)
+            is WebRedirectResult -> handleWebRedirect(event.result)
             is Dismiss -> {
                 POLogger.info("Dismissed: %s", event.failure)
                 dispatch(DidFail(event.failure, paymentState))
@@ -592,7 +616,7 @@ internal class NativeAlternativePaymentInteractor(
             if (stateValue.redirect != null) {
                 redirect(
                     stateValue = stateValue,
-                    redirectUrl = stateValue.redirect.url
+                    redirect = stateValue.redirect
                 )
                 return@whenNextStep
             }
@@ -616,14 +640,37 @@ internal class NativeAlternativePaymentInteractor(
                     )
                 )
             }
-            when (val flow = configuration.flow) {
-                is Authorization -> authorize(flow)
-                is Tokenization -> tokenize(flow)
-            }
+            continuePayment()
+        }
+    }
+
+    private fun continuePayment(
+        redirectConfirmation: PONativeAlternativePaymentRedirectConfirmation? = null
+    ) {
+        when (val flow = configuration.flow) {
+            is Authorization -> authorize(flow, redirectConfirmation)
+            is Tokenization -> tokenize(flow, redirectConfirmation)
         }
     }
 
     private fun redirect(
+        stateValue: NextStepStateValue,
+        redirect: PONativeAlternativePaymentRedirect
+    ) {
+        when (redirect.type) {
+            RedirectType.WEB -> webRedirect(
+                stateValue = stateValue,
+                redirectUrl = redirect.url
+            )
+            RedirectType.DEEP_LINK -> deepLinkRedirect(
+                stateValue = stateValue,
+                redirectUrl = redirect.url
+            )
+            RedirectType.UNKNOWN -> failWithUnknownRedirect(redirect)
+        }
+    }
+
+    private fun webRedirect(
         stateValue: NextStepStateValue,
         redirectUrl: String
     ) {
@@ -631,10 +678,10 @@ internal class NativeAlternativePaymentInteractor(
         if (returnUrl.isNullOrBlank()) {
             val failure = ProcessOutResult.Failure(
                 code = Generic(),
-                message = "Return URL is missing in configuration during redirect flow."
+                message = "Return URL is missing in configuration during web redirect flow."
             )
             POLogger.warn(
-                message = "Failed redirect: %s", failure,
+                message = "Failed web redirect: %s", failure,
                 attributes = configuration.logAttributes
             )
             _completion.update { Failure(failure) }
@@ -650,7 +697,7 @@ internal class NativeAlternativePaymentInteractor(
         }
         interactorScope.launch {
             _sideEffects.send(
-                Redirect(
+                WebRedirect(
                     redirectUrl = redirectUrl,
                     returnUrl = returnUrl
                 )
@@ -658,15 +705,34 @@ internal class NativeAlternativePaymentInteractor(
         }
     }
 
-    private fun handleRedirect(result: ProcessOutResult<POAlternativePaymentMethodResponse>) {
+    private fun handleWebRedirect(result: ProcessOutResult<POAlternativePaymentMethodResponse>) {
         result.onSuccess {
-            when (val flow = configuration.flow) {
-                is Authorization -> authorize(flow)
-                is Tokenization -> tokenize(flow)
+            _state.whenNextStep { stateValue ->
+                val redirectConfirmation = if (stateValue.redirect?.confirmationRequired == true)
+                    PONativeAlternativePaymentRedirectConfirmation(success = true) else null
+                continuePayment(redirectConfirmation)
             }
         }.onFailure { failure ->
             _completion.update { Failure(failure) }
         }
+    }
+
+    private fun deepLinkRedirect(
+        stateValue: NextStepStateValue,
+        redirectUrl: String
+    ) {
+        _state.update {
+            NextStep(
+                stateValue.copy(
+                    submitAllowed = true,
+                    submitting = true
+                )
+            )
+        }
+        val didOpenUrl = app.openDeepLink(url = redirectUrl)
+        val redirectConfirmation = if (stateValue.redirect?.confirmationRequired == true)
+            PONativeAlternativePaymentRedirectConfirmation(success = didOpenUrl) else null
+        continuePayment(redirectConfirmation)
     }
 
     private fun Field.validate(): InvalidField? {
@@ -753,15 +819,17 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun NextStepStateValue.areAllFieldsValid() = fields.all { it.isValid }
 
-    private fun authorize(flow: Authorization) {
+    private fun authorize(
+        flow: Authorization,
+        redirectConfirmation: PONativeAlternativePaymentRedirectConfirmation? = null
+    ) {
         _state.whenNextStep { stateValue ->
             interactorScope.launch {
                 val request = PONativeAlternativePaymentAuthorizationRequest(
                     invoiceId = flow.invoiceId,
                     gatewayConfigurationId = flow.gatewayConfigurationId,
-                    submitData = PONativeAlternativePaymentSubmitData(
-                        parameters = stateValue.fields.values()
-                    )
+                    submitData = stateValue.fields.toSubmitData(),
+                    redirectConfirmation = redirectConfirmation
                 )
                 invoicesService.authorize(request)
                     .onSuccess { response ->
@@ -778,16 +846,18 @@ internal class NativeAlternativePaymentInteractor(
         }
     }
 
-    private fun tokenize(flow: Tokenization) {
+    private fun tokenize(
+        flow: Tokenization,
+        redirectConfirmation: PONativeAlternativePaymentRedirectConfirmation? = null
+    ) {
         _state.whenNextStep { stateValue ->
             interactorScope.launch {
                 val request = PONativeAlternativePaymentTokenizationRequest(
                     customerId = flow.customerId,
                     customerTokenId = flow.customerTokenId,
                     gatewayConfigurationId = flow.gatewayConfigurationId,
-                    submitData = PONativeAlternativePaymentSubmitData(
-                        parameters = stateValue.fields.values()
-                    )
+                    submitData = stateValue.fields.toSubmitData(),
+                    redirectConfirmation = redirectConfirmation
                 )
                 customerTokensService.tokenize(request)
                     .onSuccess { response ->
@@ -804,9 +874,9 @@ internal class NativeAlternativePaymentInteractor(
         }
     }
 
-    private fun List<Field>.values() =
+    private fun List<Field>.toSubmitData(): PONativeAlternativePaymentSubmitData? =
         associate { field ->
-            field.id to when (val value = field.value) {
+            val parameter = when (val value = field.value) {
                 is FieldValue.Text -> string(value = value.value.text)
                 is FieldValue.PhoneNumber -> {
                     val dialingCode = when (field.parameter) {
@@ -821,6 +891,11 @@ internal class NativeAlternativePaymentInteractor(
                     )
                 }
             }
+            field.id to parameter
+        }.let { parameters ->
+            if (parameters.isNotEmpty())
+                PONativeAlternativePaymentSubmitData(parameters)
+            else null
         }
 
     //endregion

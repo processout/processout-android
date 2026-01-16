@@ -9,7 +9,9 @@ internal data class NativeAlternativePaymentRequestBody(
     val gatewayConfigurationId: String,
     val source: String?,
     @Json(name = "submit_data")
-    val submitData: SubmitData?
+    val submitData: SubmitData?,
+    @Json(name = "redirect")
+    val redirectConfirmation: PONativeAlternativePaymentRedirectConfirmation?
 ) {
 
     @JsonClass(generateAdapter = true)
