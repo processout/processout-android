@@ -30,7 +30,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Failure
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Success
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.*
 import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.PermissionRequest
-import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.Redirect
+import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.WebRedirect
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Loaded
 import com.processout.sdk.ui.napm.NativeAlternativePaymentViewModelState.Stage
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow
@@ -83,7 +83,7 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
         alternativePaymentLauncher = POAlternativePaymentMethodCustomTabLauncher.create(
             from = this,
             callback = { result ->
-                viewModel.onEvent(RedirectResult(result))
+                viewModel.onEvent(WebRedirectResult(result))
             }
         )
         viewModel.start()
@@ -137,7 +137,7 @@ internal class NativeAlternativePaymentBottomSheet : BaseBottomSheetDialogFragme
     private fun handle(sideEffect: NativeAlternativePaymentSideEffect) {
         when (sideEffect) {
             is PermissionRequest -> requestPermission(sideEffect.permission)
-            is Redirect -> alternativePaymentLauncher.launch(
+            is WebRedirect -> alternativePaymentLauncher.launch(
                 uri = sideEffect.redirectUrl.toUri(),
                 returnUrl = sideEffect.returnUrl
             )

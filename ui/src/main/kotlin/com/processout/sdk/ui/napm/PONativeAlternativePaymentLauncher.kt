@@ -1,5 +1,6 @@
 package com.processout.sdk.ui.napm
 
+import android.app.Application
 import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
@@ -11,9 +12,11 @@ import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentRedirectConfirmation
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentTokenizationRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentRedirect
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentRedirect.RedirectType
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentState
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentState.*
 import com.processout.sdk.api.service.POCustomerTokensService
@@ -30,6 +33,7 @@ import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentDelegate
 import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent
 import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent.DidFail
 import com.processout.sdk.ui.napm.delegate.v2.toResponse
+import com.processout.sdk.ui.shared.extension.openDeepLink
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -37,6 +41,7 @@ import kotlinx.coroutines.launch
  * Launcher that starts [NativeAlternativePaymentActivity] and provides the result.
  */
 class PONativeAlternativePaymentLauncher private constructor(
+    private val app: Application,
     private val scope: CoroutineScope,
     private val launcher: ActivityResultLauncher<PONativeAlternativePaymentConfiguration>,
     private val activityOptions: ActivityOptionsCompat,
@@ -49,8 +54,8 @@ class PONativeAlternativePaymentLauncher private constructor(
 
     private lateinit var customTabLauncher: POAlternativePaymentMethodCustomTabLauncher
 
-    private object ConfigurationCache {
-        var value: PONativeAlternativePaymentConfiguration? = null
+    private object LocalCache {
+        var configuration: PONativeAlternativePaymentConfiguration? = null
     }
 
     companion object {
@@ -63,6 +68,7 @@ class PONativeAlternativePaymentLauncher private constructor(
             delegate: PONativeAlternativePaymentDelegate,
             callback: (ProcessOutActivityResult<POUnit>) -> Unit
         ) = PONativeAlternativePaymentLauncher(
+            app = from.requireActivity().application,
             scope = from.lifecycleScope,
             launcher = from.registerForActivityResult(
                 NativeAlternativePaymentActivityContract(),
@@ -74,7 +80,7 @@ class PONativeAlternativePaymentLauncher private constructor(
         ).apply {
             customTabLauncher = POAlternativePaymentMethodCustomTabLauncher.create(
                 from = from,
-                callback = ::handleRedirect
+                callback = ::handleWebRedirect
             )
         }
 
@@ -90,6 +96,7 @@ class PONativeAlternativePaymentLauncher private constructor(
             delegate: com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentDelegate,
             callback: (ProcessOutActivityResult<POUnit>) -> Unit
         ) = PONativeAlternativePaymentLauncher(
+            app = from.requireActivity().application,
             scope = from.lifecycleScope,
             launcher = from.registerForActivityResult(
                 NativeAlternativePaymentActivityContract(),
@@ -101,7 +108,7 @@ class PONativeAlternativePaymentLauncher private constructor(
         ).apply {
             customTabLauncher = POAlternativePaymentMethodCustomTabLauncher.create(
                 from = from,
-                callback = ::handleRedirect
+                callback = ::handleWebRedirect
             )
         }
 
@@ -114,6 +121,7 @@ class PONativeAlternativePaymentLauncher private constructor(
             from: Fragment,
             callback: (ProcessOutActivityResult<POUnit>) -> Unit
         ) = PONativeAlternativePaymentLauncher(
+            app = from.requireActivity().application,
             scope = from.lifecycleScope,
             launcher = from.registerForActivityResult(
                 NativeAlternativePaymentActivityContract(),
@@ -125,7 +133,7 @@ class PONativeAlternativePaymentLauncher private constructor(
         ).apply {
             customTabLauncher = POAlternativePaymentMethodCustomTabLauncher.create(
                 from = from,
-                callback = ::handleRedirect
+                callback = ::handleWebRedirect
             )
         }
 
@@ -138,6 +146,7 @@ class PONativeAlternativePaymentLauncher private constructor(
             delegate: PONativeAlternativePaymentDelegate,
             callback: (ProcessOutActivityResult<POUnit>) -> Unit
         ) = PONativeAlternativePaymentLauncher(
+            app = from.application,
             scope = from.lifecycleScope,
             launcher = from.registerForActivityResult(
                 NativeAlternativePaymentActivityContract(),
@@ -150,7 +159,7 @@ class PONativeAlternativePaymentLauncher private constructor(
         ).apply {
             customTabLauncher = POAlternativePaymentMethodCustomTabLauncher.create(
                 from = from,
-                callback = ::handleRedirect
+                callback = ::handleWebRedirect
             )
         }
 
@@ -166,6 +175,7 @@ class PONativeAlternativePaymentLauncher private constructor(
             delegate: com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentDelegate,
             callback: (ProcessOutActivityResult<POUnit>) -> Unit
         ) = PONativeAlternativePaymentLauncher(
+            app = from.application,
             scope = from.lifecycleScope,
             launcher = from.registerForActivityResult(
                 NativeAlternativePaymentActivityContract(),
@@ -178,7 +188,7 @@ class PONativeAlternativePaymentLauncher private constructor(
         ).apply {
             customTabLauncher = POAlternativePaymentMethodCustomTabLauncher.create(
                 from = from,
-                callback = ::handleRedirect
+                callback = ::handleWebRedirect
             )
         }
 
@@ -191,6 +201,7 @@ class PONativeAlternativePaymentLauncher private constructor(
             from: ComponentActivity,
             callback: (ProcessOutActivityResult<POUnit>) -> Unit
         ) = PONativeAlternativePaymentLauncher(
+            app = from.application,
             scope = from.lifecycleScope,
             launcher = from.registerForActivityResult(
                 NativeAlternativePaymentActivityContract(),
@@ -203,7 +214,7 @@ class PONativeAlternativePaymentLauncher private constructor(
         ).apply {
             customTabLauncher = POAlternativePaymentMethodCustomTabLauncher.create(
                 from = from,
-                callback = ::handleRedirect
+                callback = ::handleWebRedirect
             )
         }
 
@@ -258,30 +269,39 @@ class PONativeAlternativePaymentLauncher private constructor(
 
     private fun launchHeadlessMode(configuration: PONativeAlternativePaymentConfiguration) {
         POLogger.info("Starting native alternative payment in headless mode.")
-        ConfigurationCache.value = configuration
+        LocalCache.configuration = configuration
+        continuePayment(configuration)
+    }
+
+    private fun continuePayment(
+        configuration: PONativeAlternativePaymentConfiguration,
+        redirectConfirmation: PONativeAlternativePaymentRedirectConfirmation? = null
+    ) {
         scope.launch {
             when (val flow = configuration.flow) {
-                is Authorization -> authorize(flow, configuration)
-                is Tokenization -> tokenize(flow, configuration)
+                is Authorization -> authorize(flow, configuration, redirectConfirmation)
+                is Tokenization -> tokenize(flow, configuration, redirectConfirmation)
             }
         }
     }
 
     private suspend fun authorize(
         flow: Authorization,
-        configuration: PONativeAlternativePaymentConfiguration
+        configuration: PONativeAlternativePaymentConfiguration,
+        redirectConfirmation: PONativeAlternativePaymentRedirectConfirmation? = null
     ) {
         val request = PONativeAlternativePaymentAuthorizationRequest(
             invoiceId = flow.invoiceId,
             gatewayConfigurationId = flow.gatewayConfigurationId,
-            source = flow.customerTokenId
+            source = flow.customerTokenId,
+            redirectConfirmation = redirectConfirmation
         )
         invoicesService.authorize(request)
             .onSuccess { response ->
                 val updatedConfiguration = configuration.copy(
                     flow = flow.copy(initialResponse = response)
                 )
-                ConfigurationCache.value = updatedConfiguration
+                LocalCache.configuration = updatedConfiguration
                 handlePaymentState(
                     state = response.state,
                     redirect = response.redirect,
@@ -295,19 +315,21 @@ class PONativeAlternativePaymentLauncher private constructor(
 
     private suspend fun tokenize(
         flow: Tokenization,
-        configuration: PONativeAlternativePaymentConfiguration
+        configuration: PONativeAlternativePaymentConfiguration,
+        redirectConfirmation: PONativeAlternativePaymentRedirectConfirmation? = null
     ) {
         val request = PONativeAlternativePaymentTokenizationRequest(
             customerId = flow.customerId,
             customerTokenId = flow.customerTokenId,
-            gatewayConfigurationId = flow.gatewayConfigurationId
+            gatewayConfigurationId = flow.gatewayConfigurationId,
+            redirectConfirmation = redirectConfirmation
         )
         customerTokensService.tokenize(request)
             .onSuccess { response ->
                 val updatedConfiguration = configuration.copy(
                     flow = flow.copy(initialResponse = response)
                 )
-                ConfigurationCache.value = updatedConfiguration
+                LocalCache.configuration = updatedConfiguration
                 handlePaymentState(
                     state = response.state,
                     redirect = response.redirect,
@@ -356,50 +378,92 @@ class PONativeAlternativePaymentLauncher private constructor(
             launchActivity(configuration)
             return
         }
+        when (redirect.type) {
+            RedirectType.WEB -> webRedirect(
+                redirectUrl = redirect.url,
+                configuration = configuration
+            )
+            RedirectType.DEEP_LINK -> deepLinkRedirect(
+                redirectUrl = redirect.url,
+                configuration = configuration
+            )
+            RedirectType.UNKNOWN -> {
+                val failure = ProcessOutResult.Failure(
+                    code = Internal(),
+                    message = "Unknown redirect type: ${redirect.rawType}"
+                )
+                POLogger.error(
+                    message = "Unexpected response: %s", failure,
+                    attributes = configuration.logAttributes
+                )
+                completeHeadlessMode(result = failure)
+            }
+        }
+    }
+
+    private fun webRedirect(
+        redirectUrl: String,
+        configuration: PONativeAlternativePaymentConfiguration
+    ) {
         val returnUrl = configuration.redirect?.returnUrl
         if (returnUrl.isNullOrBlank()) {
             val failure = ProcessOutResult.Failure(
                 code = Generic(),
-                message = "Return URL is missing in configuration during redirect flow."
+                message = "Return URL is missing in configuration during web redirect flow."
             )
             POLogger.warn(
-                message = "Failed headless redirect: %s", failure,
+                message = "Failed headless web redirect: %s", failure,
                 attributes = configuration.logAttributes
             )
             completeHeadlessMode(result = failure)
             return
         }
         customTabLauncher.launch(
-            uri = redirect.url.toUri(),
+            uri = redirectUrl.toUri(),
             returnUrl = returnUrl
         )
     }
 
-    private fun handleRedirect(result: ProcessOutResult<POAlternativePaymentMethodResponse>) {
-        val configuration = ConfigurationCache.value
+    private fun handleWebRedirect(result: ProcessOutResult<POAlternativePaymentMethodResponse>) {
+        val configuration = LocalCache.configuration
         result.onSuccess {
             if (configuration == null) {
                 val failure = ProcessOutResult.Failure(
                     code = Internal(),
-                    message = "Configuration is not cached when handling a redirect result."
+                    message = "Configuration is not cached when handling web redirect result."
                 )
-                POLogger.error(message = "Failed headless redirect: %s", failure)
+                POLogger.error(message = "Failed headless web redirect: %s", failure)
                 completeHeadlessMode(result = failure)
                 return
             }
-            scope.launch {
-                when (val flow = configuration.flow) {
-                    is Authorization -> authorize(flow, configuration)
-                    is Tokenization -> tokenize(flow, configuration)
-                }
+            val confirmationRequired = when (val flow = configuration.flow) {
+                is Authorization -> flow.initialResponse?.redirect?.confirmationRequired
+                is Tokenization -> flow.initialResponse?.redirect?.confirmationRequired
             }
+            val redirectConfirmation = if (confirmationRequired == true)
+                PONativeAlternativePaymentRedirectConfirmation(success = true) else null
+            continuePayment(configuration, redirectConfirmation)
         }.onFailure { failure ->
             POLogger.warn(
-                message = "Failed headless redirect: %s", failure,
+                message = "Failed headless web redirect: %s", failure,
                 attributes = configuration?.logAttributes
             )
             completeHeadlessMode(result = failure)
         }
+    }
+
+    private fun deepLinkRedirect(
+        redirectUrl: String,
+        configuration: PONativeAlternativePaymentConfiguration
+    ) {
+        val didOpenUrl = app.openDeepLink(url = redirectUrl)
+        val confirmationRequired = when (val flow = configuration.flow) {
+            is Authorization -> flow.initialResponse?.redirect?.confirmationRequired
+            is Tokenization -> flow.initialResponse?.redirect?.confirmationRequired
+        }
+        val redirectConfirmation = if (confirmationRequired == true)
+            PONativeAlternativePaymentRedirectConfirmation(success = didOpenUrl) else null
+        continuePayment(configuration, redirectConfirmation)
     }
 
     private fun completeHeadlessMode(result: ProcessOutResult<POUnit>) {
@@ -408,7 +472,7 @@ class PONativeAlternativePaymentLauncher private constructor(
                 eventDispatcher.send(
                     event = DidFail(
                         failure = failure,
-                        paymentState = when (val flow = ConfigurationCache.value?.flow) {
+                        paymentState = when (val flow = LocalCache.configuration?.flow) {
                             is Authorization -> flow.initialResponse?.state ?: UNKNOWN
                             is Tokenization -> flow.initialResponse?.state ?: UNKNOWN
                             null -> UNKNOWN
@@ -417,7 +481,7 @@ class PONativeAlternativePaymentLauncher private constructor(
                 )
             }
         }
-        ConfigurationCache.value = null
+        LocalCache.configuration = null
         callback(result.toActivityResult())
     }
 }

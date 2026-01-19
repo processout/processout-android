@@ -12,14 +12,14 @@ internal sealed interface NativeAlternativePaymentEvent {
     data class ActionConfirmationRequested(val id: String) : NativeAlternativePaymentEvent
     data class Dismiss(val failure: ProcessOutResult.Failure) : NativeAlternativePaymentEvent
     data class PermissionRequestResult(val permission: String, val isGranted: Boolean) : NativeAlternativePaymentEvent
-    data class RedirectResult(
+    data class WebRedirectResult(
         val result: ProcessOutResult<POAlternativePaymentMethodResponse>
     ) : NativeAlternativePaymentEvent
 }
 
 internal sealed interface NativeAlternativePaymentSideEffect {
     data class PermissionRequest(val permission: String) : NativeAlternativePaymentSideEffect
-    data class Redirect(
+    data class WebRedirect(
         val redirectUrl: String,
         val returnUrl: String
     ) : NativeAlternativePaymentSideEffect
