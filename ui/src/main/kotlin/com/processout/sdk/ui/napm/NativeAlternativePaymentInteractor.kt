@@ -99,6 +99,7 @@ internal class NativeAlternativePaymentInteractor(
 
     private var paymentState: PONativeAlternativePaymentState = UNKNOWN
     private var latestDefaultValuesRequest: NativeAlternativePaymentDefaultValuesRequest? = null
+    private var latestWillSubmitParametersEvent: WillSubmitParameters? = null
 
     private var captureStartTimestamp = 0L
     private var capturePassedTimestamp = 0L
@@ -447,7 +448,12 @@ internal class NativeAlternativePaymentInteractor(
             )
         }
         POLogger.info("Submitted: waiting for additional payment parameters.")
-        dispatch(DidSubmitParameters(additionalParametersExpected = true))
+        dispatch(
+            event = DidSubmitParameters(
+                parameters = latestWillSubmitParametersEvent?.parameters ?: emptyList(),
+                additionalParametersExpected = true
+            )
+        )
     }
 
     //endregion
@@ -621,7 +627,9 @@ internal class NativeAlternativePaymentInteractor(
                 return@whenNextStep
             }
             POLogger.info("Will submit payment parameters.")
-            dispatch(WillSubmitParameters(parameters = stateValue.fields.map { it.parameter }))
+            val willSubmitParametersEvent = WillSubmitParameters(parameters = stateValue.fields.map { it.parameter })
+            latestWillSubmitParametersEvent = willSubmitParametersEvent
+            dispatch(willSubmitParametersEvent)
             val invalidFields = stateValue.fields.mapNotNull { it.validate() }
             if (invalidFields.isNotEmpty()) {
                 val failure = ProcessOutResult.Failure(
@@ -943,7 +951,12 @@ internal class NativeAlternativePaymentInteractor(
         elements: List<Element>
     ) {
         POLogger.info("All payment parameters has been submitted.")
-        dispatch(DidSubmitParameters(additionalParametersExpected = false))
+        dispatch(
+            event = DidSubmitParameters(
+                parameters = latestWillSubmitParametersEvent?.parameters ?: emptyList(),
+                additionalParametersExpected = false
+            )
+        )
         POLogger.info("Waiting for payment confirmation.")
         dispatch(WillWaitForPaymentConfirmation)
         val pendingStateValue = stateValue.toPendingStateValue(

@@ -42,9 +42,12 @@ sealed class PONativeAlternativePaymentEvent {
 
     /**
      * Event is sent when parameters were submitted successfully.
-     * Inspect the associated value [additionalParametersExpected] to check whether additional user input is required.
+     *
+     * @param[parameters] Parameter definitions.
+     * @param[additionalParametersExpected] Indicates whether additional user input is required.
      */
     data class DidSubmitParameters(
+        val parameters: List<PONativeAlternativePaymentElement.Form.Parameter>,
         val additionalParametersExpected: Boolean
     ) : PONativeAlternativePaymentEvent()
 
