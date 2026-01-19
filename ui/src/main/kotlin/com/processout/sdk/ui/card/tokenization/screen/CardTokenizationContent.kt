@@ -10,6 +10,9 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -136,6 +139,9 @@ private fun Section(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = spacing.space8)
+            .semantics {
+                liveRegion = LiveRegionMode.Polite
+            }
     )
     var currentSubsection by remember { mutableStateOf(Section(id = String())) }
     currentSubsection = section.subsection ?: currentSubsection

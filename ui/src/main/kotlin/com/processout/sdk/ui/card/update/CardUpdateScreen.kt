@@ -17,6 +17,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -104,6 +107,9 @@ internal fun CardUpdateScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = spacing.space8)
+                        .semantics {
+                            liveRegion = LiveRegionMode.Polite
+                        }
                 )
             }
         }
