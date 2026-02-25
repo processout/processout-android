@@ -965,7 +965,8 @@ internal class NativeAlternativePaymentInteractor(
         )
         _state.update { Pending(pendingStateValue) }
         enablePendingSecondaryAction()
-        if (pendingStateValue.elements.isNullOrEmpty() ||
+        if (configuration.redirect?.enableHeadlessMode == true ||
+            pendingStateValue.elements.isNullOrEmpty() ||
             configuration.paymentConfirmation.confirmButton == null
         ) {
             capture()
