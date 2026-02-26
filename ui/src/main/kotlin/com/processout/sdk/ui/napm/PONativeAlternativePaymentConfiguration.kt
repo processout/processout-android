@@ -392,8 +392,9 @@ data class PONativeAlternativePaymentConfiguration(
      *
      * @param[returnUrl] Deep link return URL. Required for the flows that include web redirect.
      * @param[enableHeadlessMode] Enables headless mode.
-     * The web redirect will be handled directly when it's the first step in the flow,
-     * and if it's the only required step it will complete the flow without starting the bottom sheet.
+     * The redirect (web or deep link) will be handled directly when it's the first step in the flow, without starting the bottom sheet.
+     * It will also capture the payment in the background when it's required by the flow.
+     * __Note:__ use only with flows that do not require user input or instructions in the native UI.
      */
     @Parcelize
     data class RedirectConfiguration(

@@ -1,13 +1,15 @@
 package com.processout.sdk.ui.napm
 
 import android.app.Application
-import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.viewModels
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.processout.sdk.R
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.dispatcher.POEventDispatcher
@@ -41,16 +43,34 @@ import kotlinx.coroutines.launch
  * Launcher that starts [NativeAlternativePaymentActivity] and provides the result.
  */
 class PONativeAlternativePaymentLauncher private constructor(
-    private val app: Application,
-    private val scope: CoroutineScope,
+    private val hostActivity: ComponentActivity,
     private val launcher: ActivityResultLauncher<PONativeAlternativePaymentConfiguration>,
-    private val activityOptions: ActivityOptionsCompat,
     private val delegate: PONativeAlternativePaymentDelegate,
     private val callback: (ProcessOutActivityResult<POUnit>) -> Unit,
     private val eventDispatcher: POEventDispatcher = POEventDispatcher.instance,
     private val invoicesService: POInvoicesService = ProcessOut.instance.invoices,
     private val customerTokensService: POCustomerTokensService = ProcessOut.instance.customerTokens
 ) {
+
+    private val app: Application = hostActivity.application
+    private val scope: CoroutineScope = hostActivity.lifecycleScope
+
+    private val activityOptions = ActivityOptionsCompat.makeCustomAnimation(
+        hostActivity, R.anim.po_slide_in_vertical, 0
+    )
+
+    private val viewModel: NativeAlternativePaymentViewModel by hostActivity.viewModels {
+        NativeAlternativePaymentViewModel.Factory(
+            app = app,
+            configuration = PONativeAlternativePaymentConfiguration(
+                flow = Authorization(
+                    invoiceId = String(),
+                    gatewayConfigurationId = String()
+                ),
+                header = null
+            )
+        )
+    }
 
     private lateinit var customTabLauncher: POAlternativePaymentMethodCustomTabLauncher
 
@@ -68,13 +88,11 @@ class PONativeAlternativePaymentLauncher private constructor(
             delegate: PONativeAlternativePaymentDelegate,
             callback: (ProcessOutActivityResult<POUnit>) -> Unit
         ) = PONativeAlternativePaymentLauncher(
-            app = from.requireActivity().application,
-            scope = from.lifecycleScope,
+            hostActivity = from.requireActivity(),
             launcher = from.registerForActivityResult(
                 NativeAlternativePaymentActivityContract(),
                 callback
             ),
-            activityOptions = createActivityOptions(from.requireContext()),
             delegate = delegate,
             callback = callback
         ).apply {
@@ -96,13 +114,11 @@ class PONativeAlternativePaymentLauncher private constructor(
             delegate: com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentDelegate,
             callback: (ProcessOutActivityResult<POUnit>) -> Unit
         ) = PONativeAlternativePaymentLauncher(
-            app = from.requireActivity().application,
-            scope = from.lifecycleScope,
+            hostActivity = from.requireActivity(),
             launcher = from.registerForActivityResult(
                 NativeAlternativePaymentActivityContract(),
                 callback
             ),
-            activityOptions = createActivityOptions(from.requireContext()),
             delegate = object : PONativeAlternativePaymentDelegate {},
             callback = callback
         ).apply {
@@ -121,13 +137,11 @@ class PONativeAlternativePaymentLauncher private constructor(
             from: Fragment,
             callback: (ProcessOutActivityResult<POUnit>) -> Unit
         ) = PONativeAlternativePaymentLauncher(
-            app = from.requireActivity().application,
-            scope = from.lifecycleScope,
+            hostActivity = from.requireActivity(),
             launcher = from.registerForActivityResult(
                 NativeAlternativePaymentActivityContract(),
                 callback
             ),
-            activityOptions = createActivityOptions(from.requireContext()),
             delegate = object : PONativeAlternativePaymentDelegate {},
             callback = callback
         ).apply {
@@ -146,14 +160,12 @@ class PONativeAlternativePaymentLauncher private constructor(
             delegate: PONativeAlternativePaymentDelegate,
             callback: (ProcessOutActivityResult<POUnit>) -> Unit
         ) = PONativeAlternativePaymentLauncher(
-            app = from.application,
-            scope = from.lifecycleScope,
+            hostActivity = from,
             launcher = from.registerForActivityResult(
                 NativeAlternativePaymentActivityContract(),
                 from.activityResultRegistry,
                 callback
             ),
-            activityOptions = createActivityOptions(from),
             delegate = delegate,
             callback = callback
         ).apply {
@@ -175,14 +187,12 @@ class PONativeAlternativePaymentLauncher private constructor(
             delegate: com.processout.sdk.ui.napm.delegate.PONativeAlternativePaymentDelegate,
             callback: (ProcessOutActivityResult<POUnit>) -> Unit
         ) = PONativeAlternativePaymentLauncher(
-            app = from.application,
-            scope = from.lifecycleScope,
+            hostActivity = from,
             launcher = from.registerForActivityResult(
                 NativeAlternativePaymentActivityContract(),
                 from.activityResultRegistry,
                 callback
             ),
-            activityOptions = createActivityOptions(from),
             delegate = object : PONativeAlternativePaymentDelegate {},
             callback = callback
         ).apply {
@@ -201,14 +211,12 @@ class PONativeAlternativePaymentLauncher private constructor(
             from: ComponentActivity,
             callback: (ProcessOutActivityResult<POUnit>) -> Unit
         ) = PONativeAlternativePaymentLauncher(
-            app = from.application,
-            scope = from.lifecycleScope,
+            hostActivity = from,
             launcher = from.registerForActivityResult(
                 NativeAlternativePaymentActivityContract(),
                 from.activityResultRegistry,
                 callback
             ),
-            activityOptions = createActivityOptions(from),
             delegate = object : PONativeAlternativePaymentDelegate {},
             callback = callback
         ).apply {
@@ -217,16 +225,28 @@ class PONativeAlternativePaymentLauncher private constructor(
                 callback = ::handleWebRedirect
             )
         }
-
-        private fun createActivityOptions(context: Context) =
-            ActivityOptionsCompat.makeCustomAnimation(
-                context, R.anim.po_slide_in_vertical, 0
-            )
     }
 
     init {
+        collectViewModelCompletion()
         dispatchEvents()
         dispatchDefaultValues()
+    }
+
+    private fun collectViewModelCompletion() {
+        hostActivity.lifecycleScope.launch {
+            hostActivity.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.completion.collect { completion ->
+                    when (completion) {
+                        NativeAlternativePaymentCompletion.Success ->
+                            completeHeadlessMode(result = ProcessOutResult.Success(value = POUnit))
+                        is NativeAlternativePaymentCompletion.Failure ->
+                            completeHeadlessMode(result = completion.failure)
+                        else -> {}
+                    }
+                }
+            }
+        }
     }
 
     private fun dispatchEvents() {
@@ -348,14 +368,11 @@ class PONativeAlternativePaymentLauncher private constructor(
     ) {
         when (state) {
             NEXT_STEP_REQUIRED -> handleNextStep(redirect, configuration)
-            PENDING -> launchActivity(configuration)
-            SUCCESS ->
-                if (configuration.success != null) {
-                    launchActivity(configuration)
-                } else {
-                    POLogger.info("Success: payment completed.")
-                    completeHeadlessMode(result = ProcessOutResult.Success(value = POUnit))
-                }
+            PENDING -> viewModel.start(configuration)
+            SUCCESS -> {
+                POLogger.info("Success: payment completed.")
+                completeHeadlessMode(result = ProcessOutResult.Success(value = POUnit))
+            }
             UNKNOWN -> {
                 val failure = ProcessOutResult.Failure(
                     code = Internal(),
@@ -482,6 +499,7 @@ class PONativeAlternativePaymentLauncher private constructor(
             }
         }
         LocalCache.configuration = null
+        viewModel.reset()
         callback(result.toActivityResult())
     }
 }
