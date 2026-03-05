@@ -59,7 +59,7 @@ class DynamicCheckoutViewModel(
                 amount = details.amount,
                 currency = details.currency,
                 customerId = customerId,
-                returnUrl = Constants.RETURN_URL
+                returnUrl = Constants.DEFAULT_RETURN_URL
             )
         ).onSuccess { invoice ->
             _uiState.value = Submitted(

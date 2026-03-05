@@ -66,7 +66,7 @@ class CardPaymentViewModel(
                 amount = state.amount,
                 currency = state.currency,
                 customerId = state.customerId,
-                returnUrl = Constants.RETURN_URL
+                returnUrl = Constants.DEFAULT_RETURN_URL
             )
         ).getOrNull()
         _state.update { it.copy(invoiceId = invoice?.id) }
