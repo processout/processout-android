@@ -120,7 +120,8 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
                     ),
                     cancelButton = CancelButton(),
                     redirect = RedirectConfiguration(
-                        returnUrl = Constants.RETURN_URL
+                        returnUrl = Constants.MERCHANT_RETURN_URL,
+                        enableHeadlessMode = true
                     ),
                     paymentConfirmation = PaymentConfirmationConfiguration(
                         confirmButton = Button(),
@@ -137,7 +138,7 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
                     ),
                     cancelButton = CancelButton(),
                     redirect = RedirectConfiguration(
-                        returnUrl = Constants.RETURN_URL,
+                        returnUrl = Constants.MERCHANT_RETURN_URL,
                         enableHeadlessMode = true
                     ),
                     paymentConfirmation = PaymentConfirmationConfiguration(
@@ -162,7 +163,7 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
                     ),
                     cancelButton = CancelButton(),
                     redirect = RedirectConfiguration(
-                        returnUrl = Constants.RETURN_URL
+                        returnUrl = Constants.MERCHANT_RETURN_URL
                     ),
                     paymentConfirmation = PaymentConfirmationConfiguration(
                         confirmButton = Button(),

@@ -98,7 +98,7 @@ class DynamicCheckoutFragment : BaseFragment<FragmentDynamicCheckoutBinding>(
                     clientSecret = uiModel.clientSecret
                 ),
                 alternativePayment = AlternativePaymentConfiguration(
-                    returnUrl = Constants.RETURN_URL
+                    returnUrl = Constants.DEFAULT_RETURN_URL
                 )
             )
         )
@@ -111,7 +111,7 @@ class DynamicCheckoutFragment : BaseFragment<FragmentDynamicCheckoutBinding>(
         delegate = Netcetera3DS2ServiceDelegate(
             provideActivity = { PODynamicCheckoutActivity.instance },
             customTabLauncher = customTabLauncher,
-            returnUrl = Constants.RETURN_URL
+            returnUrl = Constants.DEFAULT_RETURN_URL
         ),
         configuration = PONetcetera3DS2ServiceConfiguration(
             bridgingExtensionVersion = BridgingMessageExtensionVersion.V20

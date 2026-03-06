@@ -69,8 +69,8 @@ class POCustomTabAuthorizationActivity : AppCompatActivity() {
 
         if (!::configuration.isInitialized) {
             POLogger.info(
-                "Configuration is not provided. Activity is finished immediately before it's created. " +
-                        "Possibly started from the redirect activity by a deep link when the flow is already finished."
+                message = "Configuration is not provided. Activity is finished immediately before it's created. " +
+                        "Possibly started from the redirect activity by a deep link."
             )
             finish()
             return
