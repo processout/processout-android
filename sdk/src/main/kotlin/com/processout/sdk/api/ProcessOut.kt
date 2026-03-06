@@ -2,6 +2,9 @@
 
 package com.processout.sdk.api
 
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
 import com.processout.processout_sdk.ProcessOutLegacyAccessor
 import com.processout.sdk.BuildConfig
 import com.processout.sdk.api.dispatcher.PODefaultEventDispatchers
@@ -17,6 +20,7 @@ import com.processout.sdk.api.service.POCustomerTokensService
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.di.*
+import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivity
 
 /**
  * Entry point to ProcessOut Android SDK.
@@ -68,6 +72,19 @@ class ProcessOut private constructor(
     )
     val nativeAlternativePaymentMethodEventDispatcher: PONativeAlternativePaymentMethodEventDispatcher by lazy {
         dispatchers.nativeAlternativePaymentMethod
+    }
+
+    /**
+     * Processes an incoming deep/app link received by your app.
+     * Call this method even when [uri] is _null_ to complete the flow correctly.
+     */
+    fun processDeepLink(activity: Activity, uri: Uri?) {
+        POLogger.info("Processing deep link: %s", uri)
+        val intent = Intent(activity, POCustomTabAuthorizationActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        intent.data = uri
+        activity.startActivity(intent)
     }
 
     /**
