@@ -64,7 +64,6 @@ import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow
 import com.processout.sdk.ui.napm.delegate.v2.NativeAlternativePaymentDefaultValuesRequest
 import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent
-import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent.WillSubmitParameters
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsConfiguration
 import com.processout.sdk.ui.shared.extension.orElse
 import com.processout.sdk.ui.shared.state.FieldValue
@@ -1116,7 +1115,7 @@ internal class DynamicCheckoutInteractor(
         eventDispatcher.subscribe<PONativeAlternativePaymentEvent>(
             coroutineScope = interactorScope
         ) { event ->
-            if (event is WillSubmitParameters) {
+            if (event is PONativeAlternativePaymentEvent.WillStart) {
                 _state.update { it.copy(processingPaymentMethod = _state.value.selectedPaymentMethod) }
             }
         }
