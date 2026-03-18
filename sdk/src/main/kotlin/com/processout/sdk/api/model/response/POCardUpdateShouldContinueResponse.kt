@@ -13,6 +13,7 @@ import java.util.UUID
  * @param[failure] Failure that occurred. Must be provided from [POCardUpdateShouldContinueRequest].
  * @param[shouldContinue] Boolean that indicates whether the flow should continue or complete after the [failure].
  */
+@Deprecated(message = "Not used.")
 data class POCardUpdateShouldContinueResponse internal constructor(
     override val uuid: UUID,
     val failure: ProcessOutResult.Failure,
@@ -24,6 +25,7 @@ data class POCardUpdateShouldContinueResponse internal constructor(
  *
  * @param[shouldContinue] Boolean that indicates whether the flow should continue or complete after the failure.
  */
+@Deprecated(message = "Not used.")
 fun POCardUpdateShouldContinueRequest.toResponse(
     shouldContinue: Boolean
 ) = POCardUpdateShouldContinueResponse(uuid, failure, shouldContinue)

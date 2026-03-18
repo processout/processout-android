@@ -18,11 +18,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
-import com.processout.sdk.api.model.request.POCardTokenizationPreferredSchemeRequest
-import com.processout.sdk.api.model.request.POCardTokenizationProcessingRequest
-import com.processout.sdk.api.model.request.POCardTokenizationShouldContinueRequest
 import com.processout.sdk.api.model.response.POCard
-import com.processout.sdk.api.model.response.toResponse
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.getOrNull
 import com.processout.sdk.ui.card.scanner.POCardScannerLauncher
@@ -35,10 +31,7 @@ import com.processout.sdk.ui.card.tokenization.CardTokenizationSideEffect.CardSc
 import com.processout.sdk.ui.card.tokenization.CardTokenizationViewModel
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.Button
-import com.processout.sdk.ui.card.tokenization.delegate.CardTokenizationEligibilityRequest
-import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationDelegate
-import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationState
-import com.processout.sdk.ui.card.tokenization.delegate.toResponse
+import com.processout.sdk.ui.card.tokenization.delegate.*
 import com.processout.sdk.ui.card.tokenization.screen.CardTokenizationContent
 import com.processout.sdk.ui.card.tokenization.screen.CardTokenizationScreen
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
@@ -210,7 +203,7 @@ class POCardTokenizationViewComponent private constructor(
     }
 
     private fun dispatchTokenizedCard() {
-        eventDispatcher.subscribeForRequest<POCardTokenizationProcessingRequest>(
+        eventDispatcher.subscribeForRequest<CardTokenizationProcessingRequest>(
             coroutineScope = scope
         ) { request ->
             scope.launch {
@@ -238,7 +231,7 @@ class POCardTokenizationViewComponent private constructor(
     }
 
     private fun dispatchPreferredScheme() {
-        eventDispatcher.subscribeForRequest<POCardTokenizationPreferredSchemeRequest>(
+        eventDispatcher.subscribeForRequest<CardTokenizationPreferredSchemeRequest>(
             coroutineScope = scope
         ) { request ->
             scope.launch {
@@ -249,7 +242,7 @@ class POCardTokenizationViewComponent private constructor(
     }
 
     private fun dispatchShouldContinue() {
-        eventDispatcher.subscribeForRequest<POCardTokenizationShouldContinueRequest>(
+        eventDispatcher.subscribeForRequest<CardTokenizationShouldContinueRequest>(
             coroutineScope = scope
         ) { request ->
             scope.launch {

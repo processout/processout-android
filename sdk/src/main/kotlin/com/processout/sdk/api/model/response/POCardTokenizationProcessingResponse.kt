@@ -12,6 +12,7 @@ import java.util.UUID
  * @param[uuid] Unique identifier of response that must be equal to UUID of request.
  * @param[result] Result of tokenized card processing.
  */
+@Deprecated(message = "Not used.")
 data class POCardTokenizationProcessingResponse internal constructor(
     override val uuid: UUID,
     val result: ProcessOutResult<POCard>
@@ -22,6 +23,7 @@ data class POCardTokenizationProcessingResponse internal constructor(
  *
  * @param[result] Result of tokenized card processing.
  */
+@Deprecated(message = "Not used.")
 fun POCardTokenizationProcessingRequest.toResponse(
     result: ProcessOutResult<Any>
 ) = POCardTokenizationProcessingResponse(

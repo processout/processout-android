@@ -9,8 +9,6 @@ import androidx.lifecycle.lifecycleScope
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
-import com.processout.sdk.api.model.request.POCardTokenizationPreferredSchemeRequest
-import com.processout.sdk.api.model.response.toResponse
 import com.processout.sdk.api.service.PO3DSService
 import com.processout.sdk.api.service.proxy3ds.POProxy3DSServiceRequest
 import com.processout.sdk.api.service.proxy3ds.POProxy3DSServiceRequest.*
@@ -18,6 +16,7 @@ import com.processout.sdk.api.service.proxy3ds.POProxy3DSServiceResponse
 import com.processout.sdk.core.POUnit
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.ui.card.tokenization.delegate.CardTokenizationEligibilityRequest
+import com.processout.sdk.ui.card.tokenization.delegate.CardTokenizationPreferredSchemeRequest
 import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationEligibility.Eligible
 import com.processout.sdk.ui.card.tokenization.delegate.toResponse
 import com.processout.sdk.ui.checkout.delegate.*
@@ -155,7 +154,7 @@ class PODynamicCheckoutLauncher private constructor(
     }
 
     private fun dispatchPreferredScheme() {
-        eventDispatcher.subscribeForRequest<POCardTokenizationPreferredSchemeRequest>(
+        eventDispatcher.subscribeForRequest<CardTokenizationPreferredSchemeRequest>(
             coroutineScope = scope
         ) { request ->
             scope.launch {

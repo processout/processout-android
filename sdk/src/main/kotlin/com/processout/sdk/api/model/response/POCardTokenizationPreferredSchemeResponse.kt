@@ -12,6 +12,7 @@ import java.util.UUID
  * @param[issuerInformation] Holds information about card issuing institution that issued the card to the card holder.
  * @param[preferredScheme] Preferred scheme that will be used by default for card tokenization.
  */
+@Deprecated(message = "Not used.")
 data class POCardTokenizationPreferredSchemeResponse internal constructor(
     override val uuid: UUID,
     val issuerInformation: POCardIssuerInformation,
@@ -23,6 +24,7 @@ data class POCardTokenizationPreferredSchemeResponse internal constructor(
  *
  * @param[preferredScheme] Preferred scheme that will be used by default for card tokenization. Will use a primary scheme if _null_.
  */
+@Deprecated(message = "Not used.")
 fun POCardTokenizationPreferredSchemeRequest.toResponse(
     preferredScheme: String?
 ) = POCardTokenizationPreferredSchemeResponse(uuid, issuerInformation, preferredScheme)
