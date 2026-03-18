@@ -7,8 +7,11 @@ import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.event.POCardTokenizationEvent
 import com.processout.sdk.api.model.event.POCardTokenizationEvent.*
-import com.processout.sdk.api.model.request.*
-import com.processout.sdk.api.model.response.*
+import com.processout.sdk.api.model.request.POCardTokenizationRequest
+import com.processout.sdk.api.model.request.POContact
+import com.processout.sdk.api.model.response.POCard
+import com.processout.sdk.api.model.response.POCardIssuerInformation
+import com.processout.sdk.api.model.response.POCardScheme
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.POFailure.Code.Generic
@@ -26,12 +29,9 @@ import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationInteractorState.*
 import com.processout.sdk.ui.card.tokenization.CardTokenizationSideEffect.CardScanner
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode.*
-import com.processout.sdk.ui.card.tokenization.delegate.CardTokenizationEligibilityRequest
-import com.processout.sdk.ui.card.tokenization.delegate.CardTokenizationEligibilityResponse
-import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationEligibility
+import com.processout.sdk.ui.card.tokenization.delegate.*
 import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationEligibility.Eligible
 import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationEligibility.NotEligible
-import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationState
 import com.processout.sdk.ui.core.state.POAvailableValue
 import com.processout.sdk.ui.shared.extension.currentAppLocale
 import com.processout.sdk.ui.shared.extension.distinctUntilChangedByMultiple
@@ -88,10 +88,10 @@ internal class CardTokenizationInteractor(
 
     private var issuerInformationJob: Job? = null
 
-    private var latestProcessingRequest: POCardTokenizationProcessingRequest? = null
+    private var latestProcessingRequest: CardTokenizationProcessingRequest? = null
     private var latestEligibilityRequest: CardTokenizationEligibilityRequest? = null
-    private var latestPreferredSchemeRequest: POCardTokenizationPreferredSchemeRequest? = null
-    private var latestShouldContinueRequest: POCardTokenizationShouldContinueRequest? = null
+    private var latestPreferredSchemeRequest: CardTokenizationPreferredSchemeRequest? = null
+    private var latestShouldContinueRequest: CardTokenizationShouldContinueRequest? = null
 
     //region Initialization
 
@@ -507,7 +507,7 @@ internal class CardTokenizationInteractor(
 
     private fun requestPreferredScheme(issuerInformation: POCardIssuerInformation) {
         interactorScope.launch {
-            val request = POCardTokenizationPreferredSchemeRequest(issuerInformation)
+            val request = CardTokenizationPreferredSchemeRequest(issuerInformation = issuerInformation)
             latestPreferredSchemeRequest = request
             eventDispatcher.send(request)
             POLogger.info("Requested to choose preferred scheme by issuer information: %s", issuerInformation)
@@ -515,7 +515,7 @@ internal class CardTokenizationInteractor(
     }
 
     private fun collectPreferredScheme() {
-        eventDispatcher.subscribeForResponse<POCardTokenizationPreferredSchemeResponse>(
+        eventDispatcher.subscribeForResponse<CardTokenizationPreferredSchemeResponse>(
             coroutineScope = interactorScope
         ) { response ->
             if (response.uuid == latestPreferredSchemeRequest?.uuid) {
@@ -827,7 +827,7 @@ internal class CardTokenizationInteractor(
     }
 
     private suspend fun requestToProcessTokenizedCard(card: POCard) {
-        val request = POCardTokenizationProcessingRequest(
+        val request = CardTokenizationProcessingRequest(
             card = card,
             saveCard = _state.value.saveCardField.value.text.toBooleanStrictOrNull() ?: false
         )
@@ -840,7 +840,7 @@ internal class CardTokenizationInteractor(
     }
 
     private fun handleCompletion() {
-        eventDispatcher.subscribeForResponse<POCardTokenizationProcessingResponse>(
+        eventDispatcher.subscribeForResponse<CardTokenizationProcessingResponse>(
             coroutineScope = interactorScope
         ) { response ->
             if (response.uuid == latestProcessingRequest?.uuid) {
@@ -865,7 +865,7 @@ internal class CardTokenizationInteractor(
 
     private fun requestIfShouldContinue(failure: ProcessOutResult.Failure) {
         interactorScope.launch {
-            val request = POCardTokenizationShouldContinueRequest(failure)
+            val request = CardTokenizationShouldContinueRequest(failure = failure)
             latestShouldContinueRequest = request
             eventDispatcher.send(request)
             POLogger.info("Requested to decide whether the flow should continue or complete after the failure: %s", failure)
@@ -873,7 +873,7 @@ internal class CardTokenizationInteractor(
     }
 
     private fun shouldContinueOnFailure() {
-        eventDispatcher.subscribeForResponse<POCardTokenizationShouldContinueResponse>(
+        eventDispatcher.subscribeForResponse<CardTokenizationShouldContinueResponse>(
             coroutineScope = interactorScope
         ) { response ->
             if (response.uuid == latestShouldContinueRequest?.uuid) {

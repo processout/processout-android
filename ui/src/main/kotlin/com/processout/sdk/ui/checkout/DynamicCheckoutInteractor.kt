@@ -11,8 +11,6 @@ import coil.request.ImageRequest
 import coil.request.ImageResult
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
-import com.processout.sdk.api.model.request.POCardTokenizationProcessingRequest
-import com.processout.sdk.api.model.request.POCardTokenizationShouldContinueRequest
 import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.request.POInvoiceRequest.ExpandedProperty.Companion.paymentMethods
@@ -41,6 +39,9 @@ import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.base.BaseInteractor
 import com.processout.sdk.ui.card.tokenization.*
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode
+import com.processout.sdk.ui.card.tokenization.delegate.CardTokenizationProcessingRequest
+import com.processout.sdk.ui.card.tokenization.delegate.CardTokenizationShouldContinueRequest
+import com.processout.sdk.ui.card.tokenization.delegate.toResponse
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.*
@@ -109,7 +110,7 @@ internal class DynamicCheckoutInteractor(
 
     private var authorizeInvoiceJob: AuthorizeInvoiceJob? = null
     private var latestInvoiceRequest: DynamicCheckoutInvoiceRequest? = null
-    private var latestCardProcessingRequest: POCardTokenizationProcessingRequest? = null
+    private var latestCardProcessingRequest: CardTokenizationProcessingRequest? = null
 
     init {
         interactorScope.launch {
@@ -943,7 +944,7 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun collectTokenizedCard() {
-        eventDispatcher.subscribeForRequest<POCardTokenizationProcessingRequest>(
+        eventDispatcher.subscribeForRequest<CardTokenizationProcessingRequest>(
             coroutineScope = interactorScope
         ) { request ->
             _state.value.selectedPaymentMethod?.let { paymentMethod ->
@@ -1088,7 +1089,7 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun dispatchEvents() {
-        eventDispatcher.subscribeForRequest<POCardTokenizationShouldContinueRequest>(
+        eventDispatcher.subscribeForRequest<CardTokenizationShouldContinueRequest>(
             coroutineScope = interactorScope
         ) { request ->
             interactorScope.launch {

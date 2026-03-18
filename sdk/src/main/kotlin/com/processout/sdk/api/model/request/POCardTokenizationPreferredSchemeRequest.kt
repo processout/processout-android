@@ -11,6 +11,7 @@ import java.util.UUID
  * @param[issuerInformation] Holds information about card issuing institution that issued the card to the card holder.
  * @param[uuid] Unique identifier of request.
  */
+@Deprecated(message = "Not used.")
 data class POCardTokenizationPreferredSchemeRequest @ProcessOutInternalApi constructor(
     val issuerInformation: POCardIssuerInformation,
     override val uuid: UUID = UUID.randomUUID()

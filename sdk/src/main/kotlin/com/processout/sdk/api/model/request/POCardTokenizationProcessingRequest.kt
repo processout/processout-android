@@ -11,6 +11,7 @@ import java.util.UUID
  * @param[saveCard] Indicates whether the user has chosen to save the card for future payments.
  * @param[uuid] Unique identifier of request.
  */
+@Deprecated(message = "Not used.")
 data class POCardTokenizationProcessingRequest(
     val card: POCard,
     val saveCard: Boolean,
