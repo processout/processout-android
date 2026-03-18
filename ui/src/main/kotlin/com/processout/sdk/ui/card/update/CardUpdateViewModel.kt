@@ -15,8 +15,6 @@ import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.event.POCardUpdateEvent
 import com.processout.sdk.api.model.event.POCardUpdateEvent.*
 import com.processout.sdk.api.model.request.POCardUpdateRequest
-import com.processout.sdk.api.model.request.POCardUpdateShouldContinueRequest
-import com.processout.sdk.api.model.response.POCardUpdateShouldContinueResponse
 import com.processout.sdk.api.repository.POCardsRepository
 import com.processout.sdk.core.POFailure.Code.Cancelled
 import com.processout.sdk.core.POFailure.Code.Generic
@@ -28,6 +26,8 @@ import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.card.update.CardUpdateCompletion.*
 import com.processout.sdk.ui.card.update.CardUpdateEvent.*
+import com.processout.sdk.ui.card.update.delegate.CardUpdateShouldContinueRequest
+import com.processout.sdk.ui.card.update.delegate.CardUpdateShouldContinueResponse
 import com.processout.sdk.ui.core.state.POActionState
 import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.core.state.POImmutableList
@@ -79,7 +79,7 @@ internal class CardUpdateViewModel private constructor(
     private val _state = MutableStateFlow(initState())
     val state = _state.asStateFlow()
 
-    private var latestShouldContinueRequest: POCardUpdateShouldContinueRequest? = null
+    private var latestShouldContinueRequest: CardUpdateShouldContinueRequest? = null
 
     init {
         collectFailure()
@@ -354,7 +354,7 @@ internal class CardUpdateViewModel private constructor(
 
     private fun requestIfShouldContinue(failure: ProcessOutResult.Failure) {
         viewModelScope.launch {
-            val request = POCardUpdateShouldContinueRequest(
+            val request = CardUpdateShouldContinueRequest(
                 cardId = configuration.cardId,
                 failure = failure
             )
@@ -368,7 +368,7 @@ internal class CardUpdateViewModel private constructor(
     }
 
     private fun shouldContinueOnFailure() {
-        eventDispatcher.subscribeForResponse<POCardUpdateShouldContinueResponse>(
+        eventDispatcher.subscribeForResponse<CardUpdateShouldContinueResponse>(
             coroutineScope = viewModelScope
         ) { response ->
             if (response.uuid == latestShouldContinueRequest?.uuid) {

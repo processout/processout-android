@@ -12,6 +12,7 @@ import java.util.UUID
  * @param[failure] Failure that can be inspected to decide whether the flow should continue or complete.
  * @param[uuid] Unique identifier of request.
  */
+@Deprecated(message = "Not used.")
 data class POCardUpdateShouldContinueRequest @ProcessOutInternalApi constructor(
     val cardId: String,
     val failure: ProcessOutResult.Failure,

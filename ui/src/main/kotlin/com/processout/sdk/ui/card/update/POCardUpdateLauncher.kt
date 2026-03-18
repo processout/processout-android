@@ -9,11 +9,11 @@ import androidx.lifecycle.lifecycleScope
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.event.POCardUpdateEvent
-import com.processout.sdk.api.model.request.POCardUpdateShouldContinueRequest
 import com.processout.sdk.api.model.response.POCard
-import com.processout.sdk.api.model.response.toResponse
 import com.processout.sdk.core.ProcessOutActivityResult
+import com.processout.sdk.ui.card.update.delegate.CardUpdateShouldContinueRequest
 import com.processout.sdk.ui.card.update.delegate.POCardUpdateDelegate
+import com.processout.sdk.ui.card.update.delegate.toResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -121,7 +121,7 @@ class POCardUpdateLauncher private constructor(
     }
 
     private fun dispatchShouldContinue() {
-        eventDispatcher.subscribeForRequest<POCardUpdateShouldContinueRequest>(
+        eventDispatcher.subscribeForRequest<CardUpdateShouldContinueRequest>(
             coroutineScope = scope
         ) { request ->
             scope.launch {
