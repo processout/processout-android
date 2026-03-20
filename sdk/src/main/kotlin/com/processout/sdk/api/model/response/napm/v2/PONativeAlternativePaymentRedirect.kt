@@ -21,6 +21,7 @@ import kotlinx.parcelize.Parcelize
  * in the [PONativeAlternativePaymentAuthorizationRequest.redirectConfirmation]
  * or the [PONativeAlternativePaymentTokenizationRequest.redirectConfirmation],
  * depending on the flow.
+ * @param[deepLinkConfiguration] Additional deep link configuration.
  */
 @Parcelize
 @JsonClass(generateAdapter = true)
@@ -30,7 +31,9 @@ data class PONativeAlternativePaymentRedirect(
     @Json(name = "type")
     val rawType: String,
     @Json(name = "confirmation_required")
-    val confirmationRequired: Boolean
+    val confirmationRequired: Boolean,
+    @Json(name = "deep_link")
+    val deepLinkConfiguration: DeepLinkConfiguration?
 ) : Parcelable {
 
     /** Redirect type. */
@@ -54,4 +57,14 @@ data class PONativeAlternativePaymentRedirect(
         @ProcessOutInternalApi
         UNKNOWN(String())
     }
+
+    /**
+     * Specifies additional deep link configuration.
+     *
+     * @param[packageNames] A set of app package names the deep link is intended to open.
+     */
+    @Parcelize
+    data class DeepLinkConfiguration(
+        val packageNames: Set<String>
+    ) : Parcelable
 }

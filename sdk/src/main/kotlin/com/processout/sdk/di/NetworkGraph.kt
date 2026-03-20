@@ -1,5 +1,6 @@
 package com.processout.sdk.di
 
+import com.processout.sdk.api.model.adapter.napm.NativeAlternativePaymentDeepLinkConfigurationJsonAdapter
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod.*
 import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentElement
@@ -85,7 +86,7 @@ internal class DefaultNetworkGraph(
                 .withSubtype(PONativeAlternativePaymentCustomerInstruction.Image::class.java, "image_url")
                 .withSubtype(PONativeAlternativePaymentCustomerInstruction.Barcode::class.java, "barcode")
                 .withDefaultValue(PONativeAlternativePaymentCustomerInstruction.Unknown)
-        )
+        ).add(NativeAlternativePaymentDeepLinkConfigurationJsonAdapter())
 
     private fun Moshi.Builder.addDynamicCheckoutAdapter() =
         add(
