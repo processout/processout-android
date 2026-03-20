@@ -18,6 +18,7 @@ import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentRe
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentTokenizationRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentRedirect
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentRedirect.DeepLinkConfiguration
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentRedirect.RedirectType
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentState
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentState.*
@@ -402,6 +403,7 @@ class PONativeAlternativePaymentLauncher private constructor(
             )
             RedirectType.DEEP_LINK -> deepLinkRedirect(
                 redirectUrl = redirect.url,
+                deepLinkConfiguration = redirect.deepLinkConfiguration,
                 configuration = configuration
             )
             RedirectType.UNKNOWN -> {
@@ -471,9 +473,13 @@ class PONativeAlternativePaymentLauncher private constructor(
 
     private fun deepLinkRedirect(
         redirectUrl: String,
+        deepLinkConfiguration: DeepLinkConfiguration?,
         configuration: PONativeAlternativePaymentConfiguration
     ) {
-        val didOpenUrl = app.openDeepLink(url = redirectUrl)
+        val didOpenUrl = app.openDeepLink(
+            url = redirectUrl,
+            packageNames = deepLinkConfiguration?.packageNames
+        )
         val confirmationRequired = when (val flow = configuration.flow) {
             is Authorization -> flow.initialResponse?.redirect?.confirmationRequired
             is Tokenization -> flow.initialResponse?.redirect?.confirmationRequired
