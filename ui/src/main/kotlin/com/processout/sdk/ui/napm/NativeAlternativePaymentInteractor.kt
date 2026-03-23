@@ -31,6 +31,7 @@ import com.processout.sdk.api.model.response.napm.v2.*
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.Invoice
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter.Otp.Subtype
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentRedirect.DeepLinkConfiguration
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentRedirect.RedirectType
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentState.*
 import com.processout.sdk.api.service.POCustomerTokensService
@@ -672,7 +673,8 @@ internal class NativeAlternativePaymentInteractor(
             )
             RedirectType.DEEP_LINK -> deepLinkRedirect(
                 stateValue = stateValue,
-                redirectUrl = redirect.url
+                redirectUrl = redirect.url,
+                deepLinkConfiguration = redirect.deepLinkConfiguration
             )
             RedirectType.UNKNOWN -> failWithUnknownRedirect(redirect)
         }
@@ -727,7 +729,8 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun deepLinkRedirect(
         stateValue: NextStepStateValue,
-        redirectUrl: String
+        redirectUrl: String,
+        deepLinkConfiguration: DeepLinkConfiguration?
     ) {
         _state.update {
             NextStep(
@@ -737,7 +740,10 @@ internal class NativeAlternativePaymentInteractor(
                 )
             )
         }
-        val didOpenUrl = app.openDeepLink(url = redirectUrl)
+        val didOpenUrl = app.openDeepLink(
+            url = redirectUrl,
+            packageNames = deepLinkConfiguration?.packageNames
+        )
         val redirectConfirmation = if (stateValue.redirect?.confirmationRequired == true)
             PONativeAlternativePaymentRedirectConfirmation(success = didOpenUrl) else null
         continuePayment(redirectConfirmation)
