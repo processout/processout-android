@@ -208,6 +208,7 @@ class POFailure private constructor() {
     enum class GenericCode(val rawValue: String) : Parcelable {
         mobile("processout-mobile.generic.error"),
         mobileAppProcessKilled("processout-mobile.generic.app-process-killed"),
+        customerCancelled("customer.cancelled"),
         cardExceededLimits("card.exceeded-limits"),
         cardFailedCvc("card.failed-cvc"),
         cardInvalidCvc("card.invalid-cvc"),
