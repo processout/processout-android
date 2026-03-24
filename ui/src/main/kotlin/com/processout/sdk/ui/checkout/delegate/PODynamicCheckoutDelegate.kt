@@ -67,7 +67,7 @@ interface PODynamicCheckoutDelegate {
      */
     fun preferredScheme(
         issuerInformation: POCardIssuerInformation
-    ): String? = issuerInformation.scheme
+    ): String? = null
 
     /**
      * Allows to prefill default values for the given [parameters] during native alternative payment.

@@ -159,7 +159,7 @@ class PODynamicCheckoutLauncher private constructor(
         ) { request ->
             scope.launch {
                 val preferredScheme = delegate.preferredScheme(request.issuerInformation)
-                eventDispatcher.send(request.toResponse(preferredScheme))
+                eventDispatcher.send(request.toDynamicCheckoutResponse(preferredScheme))
             }
         }
     }

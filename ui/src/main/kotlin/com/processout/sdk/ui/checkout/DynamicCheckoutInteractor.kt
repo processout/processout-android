@@ -39,6 +39,7 @@ import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.base.BaseInteractor
 import com.processout.sdk.ui.card.tokenization.*
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode
+import com.processout.sdk.ui.card.tokenization.delegate.CardTokenizationPreferredSchemeResponse
 import com.processout.sdk.ui.card.tokenization.delegate.CardTokenizationProcessingRequest
 import com.processout.sdk.ui.card.tokenization.delegate.CardTokenizationShouldContinueRequest
 import com.processout.sdk.ui.card.tokenization.delegate.toResponse
@@ -1088,6 +1089,27 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun dispatchEvents() {
+        eventDispatcher.subscribeForResponse<DynamicCheckoutCardPreferredSchemeResponse>(
+            coroutineScope = interactorScope
+        ) { response ->
+            activePaymentMethod()?.let { paymentMethod ->
+                if (paymentMethod is Card) {
+                    interactorScope.launch {
+                        val schemeSelectionDefaultOrder = paymentMethod.configuration.schemeSelectionDefaultOrder
+                        val issuerInformation = response.issuerInformation
+                        val preferredScheme = response.preferredScheme
+                            ?: schemeSelectionDefaultOrder?.firstOrNull { scheme ->
+                                scheme == issuerInformation.scheme || scheme == issuerInformation.coScheme
+                            } ?: issuerInformation.scheme
+                        val cardResponse = CardTokenizationPreferredSchemeResponse(
+                            uuid = response.uuid,
+                            preferredScheme = preferredScheme
+                        )
+                        eventDispatcher.send(cardResponse)
+                    }
+                }
+            }
+        }
         eventDispatcher.subscribeForRequest<CardTokenizationShouldContinueRequest>(
             coroutineScope = interactorScope
         ) { request ->
