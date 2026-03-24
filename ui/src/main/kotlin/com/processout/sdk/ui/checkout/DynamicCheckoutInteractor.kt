@@ -1089,6 +1089,11 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun dispatchEvents() {
+        dispatchCardTokenizationEvents()
+        dispatchNativeAlternativePaymentEvents()
+    }
+
+    private fun dispatchCardTokenizationEvents() {
         eventDispatcher.subscribeForResponse<DynamicCheckoutCardPreferredSchemeResponse>(
             coroutineScope = interactorScope
         ) { response ->
@@ -1101,15 +1106,16 @@ internal class DynamicCheckoutInteractor(
                             ?: schemeSelectionDefaultOrder?.firstOrNull { scheme ->
                                 scheme == issuerInformation.scheme || scheme == issuerInformation.coScheme
                             } ?: issuerInformation.scheme
-                        val cardResponse = CardTokenizationPreferredSchemeResponse(
+                        val preferredSchemeResponse = CardTokenizationPreferredSchemeResponse(
                             uuid = response.uuid,
                             preferredScheme = preferredScheme
                         )
-                        eventDispatcher.send(cardResponse)
+                        eventDispatcher.send(preferredSchemeResponse)
                     }
                 }
             }
         }
+
         eventDispatcher.subscribeForRequest<CardTokenizationShouldContinueRequest>(
             coroutineScope = interactorScope
         ) { request ->
@@ -1118,6 +1124,17 @@ internal class DynamicCheckoutInteractor(
                 eventDispatcher.send(request.toResponse(shouldContinue))
             }
         }
+    }
+
+    private fun dispatchNativeAlternativePaymentEvents() {
+        eventDispatcher.subscribe<PONativeAlternativePaymentEvent>(
+            coroutineScope = interactorScope
+        ) { event ->
+            if (event is PONativeAlternativePaymentEvent.WillStart) {
+                _state.update { it.copy(processingPaymentMethod = _state.value.selectedPaymentMethod) }
+            }
+        }
+
         eventDispatcher.subscribeForRequest<NativeAlternativePaymentDefaultValuesRequest>(
             coroutineScope = interactorScope
         ) { request ->
@@ -1132,13 +1149,6 @@ internal class DynamicCheckoutInteractor(
                         eventDispatcher.send(defaultValuesRequest)
                     }
                 }
-            }
-        }
-        eventDispatcher.subscribe<PONativeAlternativePaymentEvent>(
-            coroutineScope = interactorScope
-        ) { event ->
-            if (event is PONativeAlternativePaymentEvent.WillStart) {
-                _state.update { it.copy(processingPaymentMethod = _state.value.selectedPaymentMethod) }
             }
         }
     }
