@@ -62,7 +62,7 @@ class NativeApmViewModel(
                 amount = amount,
                 currency = currency,
                 customerId = customerId,
-                returnUrl = Constants.MERCHANT_RETURN_URL,
+                returnUrl = Constants.RETURN_URL_DEEP_LINK,
                 shipping = POContact(
                     address1 = "6th Street",
                     city = "Paris",

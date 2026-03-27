@@ -43,7 +43,7 @@ class DefaultDynamicCheckoutDelegate(
                 amount = details.amount,
                 currency = details.currency,
                 customerId = customerId,
-                returnUrl = Constants.DEFAULT_RETURN_URL
+                returnUrl = Constants.RETURN_URL_DEFAULT
             )
         )
 }
