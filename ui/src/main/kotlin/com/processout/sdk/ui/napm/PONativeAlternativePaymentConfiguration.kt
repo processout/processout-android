@@ -4,8 +4,6 @@ import android.os.Parcelable
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.IntRange
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentTokenizationResponse
 import com.processout.sdk.ui.core.shared.image.PODrawableImage
 import com.processout.sdk.ui.core.style.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
@@ -69,8 +67,7 @@ data class PONativeAlternativePaymentConfiguration(
         data class Authorization(
             val invoiceId: String,
             val gatewayConfigurationId: String,
-            val customerTokenId: String? = null,
-            internal val initialResponse: PONativeAlternativePaymentAuthorizationResponse? = null
+            val customerTokenId: String? = null
         ) : Flow()
 
         /**
@@ -84,8 +81,7 @@ data class PONativeAlternativePaymentConfiguration(
         data class Tokenization(
             val customerId: String,
             val customerTokenId: String,
-            val gatewayConfigurationId: String,
-            internal val initialResponse: PONativeAlternativePaymentTokenizationResponse? = null
+            val gatewayConfigurationId: String
         ) : Flow()
     }
 

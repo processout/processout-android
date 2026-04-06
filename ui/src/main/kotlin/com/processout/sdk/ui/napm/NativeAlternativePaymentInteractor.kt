@@ -37,6 +37,7 @@ import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentS
 import com.processout.sdk.api.service.POCustomerTokensService
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.POFailure.Code.*
+import com.processout.sdk.core.POFailure.GenericCode.mobileOperationNotSupported
 import com.processout.sdk.core.POFailure.InvalidField
 import com.processout.sdk.core.POFailure.ValidationCode
 import com.processout.sdk.core.ProcessOutResult
@@ -145,19 +146,6 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private suspend fun fetchAuthorizationDetails(flow: Authorization) {
-        val initialResponse = flow.initialResponse
-        if (initialResponse != null) {
-            handlePaymentState(
-                stateValue = initNextStepStateValue(
-                    paymentMethod = initialResponse.paymentMethod,
-                    invoice = initialResponse.invoice
-                ),
-                paymentState = initialResponse.state,
-                elements = initialResponse.elements,
-                redirect = initialResponse.redirect
-            )
-            return
-        }
         val request = PONativeAlternativePaymentAuthorizationRequest(
             invoiceId = flow.invoiceId,
             gatewayConfigurationId = flow.gatewayConfigurationId,
@@ -181,19 +169,6 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private suspend fun fetchTokenizationDetails(flow: Tokenization) {
-        val initialResponse = flow.initialResponse
-        if (initialResponse != null) {
-            handlePaymentState(
-                stateValue = initNextStepStateValue(
-                    paymentMethod = initialResponse.paymentMethod,
-                    invoice = null
-                ),
-                paymentState = initialResponse.state,
-                elements = initialResponse.elements,
-                redirect = initialResponse.redirect
-            )
-            return
-        }
         val request = PONativeAlternativePaymentTokenizationRequest(
             customerId = flow.customerId,
             customerTokenId = flow.customerTokenId,
@@ -437,6 +412,7 @@ internal class NativeAlternativePaymentInteractor(
         enableNextStepSecondaryAction()
         POLogger.info("Started: waiting for payment parameters.")
         dispatch(DidStart)
+        handleHeadlessRedirect()
     }
 
     private fun continueNextStep(stateValue: NextStepStateValue) {
@@ -455,6 +431,31 @@ internal class NativeAlternativePaymentInteractor(
                 additionalParametersExpected = true
             )
         )
+        handleHeadlessRedirect()
+    }
+
+    private fun handleHeadlessRedirect() {
+        if (configuration.redirect?.enableHeadlessMode != true) {
+            return
+        }
+        _state.whenNextStep { stateValue ->
+            if (stateValue.redirect == null) {
+                val failure = ProcessOutResult.Failure(
+                    code = Generic(genericCode = mobileOperationNotSupported),
+                    message = "Headless mode is not supported: missing redirect parameters."
+                )
+                POLogger.error(
+                    message = "Unsupported operation: %s", failure,
+                    attributes = configuration.logAttributes
+                )
+                _completion.update { Failure(failure) }
+                return@whenNextStep
+            }
+            redirect(
+                stateValue = stateValue,
+                redirect = stateValue.redirect
+            )
+        }
     }
 
     //endregion

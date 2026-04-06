@@ -121,7 +121,7 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
                     cancelButton = CancelButton(),
                     redirect = RedirectConfiguration(
                         returnUrl = Constants.RETURN_URL_DEEP_LINK,
-                        enableHeadlessMode = true
+                        enableHeadlessMode = binding.enableHeadlessModeCheckbox.isChecked
                     ),
                     paymentConfirmation = PaymentConfirmationConfiguration(
                         confirmButton = Button(),
@@ -139,7 +139,7 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
                     cancelButton = CancelButton(),
                     redirect = RedirectConfiguration(
                         returnUrl = Constants.RETURN_URL_DEEP_LINK,
-                        enableHeadlessMode = true
+                        enableHeadlessMode = binding.enableHeadlessModeCheckbox.isChecked
                     ),
                     paymentConfirmation = PaymentConfirmationConfiguration(
                         confirmButton = Button(),
@@ -163,7 +163,8 @@ class NativeApmFragment : BaseFragment<FragmentNativeApmBinding>(
                     ),
                     cancelButton = CancelButton(),
                     redirect = RedirectConfiguration(
-                        returnUrl = Constants.RETURN_URL_DEEP_LINK
+                        returnUrl = Constants.RETURN_URL_DEEP_LINK,
+                        enableHeadlessMode = binding.enableHeadlessModeCheckbox.isChecked
                     ),
                     paymentConfirmation = PaymentConfirmationConfiguration(
                         confirmButton = Button(),
