@@ -27,12 +27,14 @@ data class PONativeAlternativePaymentAuthorizationResponse(
     /**
      * Invoice details.
      *
+     * @param[id] Invoice identifier.
      * @param[amount] Invoice amount.
      * @param[currency] Invoice currency.
      */
     @Parcelize
     @JsonClass(generateAdapter = true)
     data class Invoice(
+        val id: String,
         val amount: String,
         val currency: String
     ) : Parcelable
