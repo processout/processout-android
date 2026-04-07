@@ -2,6 +2,7 @@ package com.processout.sdk.api.repository
 
 import com.processout.sdk.api.model.request.*
 import com.processout.sdk.api.model.request.napm.v2.NativeAlternativePaymentRequestBody
+import com.processout.sdk.api.model.request.napm.v2.NativeAlternativePaymentRequestBody.Configuration
 import com.processout.sdk.api.model.request.napm.v2.NativeAlternativePaymentRequestBody.SubmitData
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter.Value
@@ -80,6 +81,7 @@ internal class DefaultCustomerTokensRepository(
     private fun PONativeAlternativePaymentTokenizationRequest.toBody() =
         NativeAlternativePaymentRequestBody(
             gatewayConfigurationId = gatewayConfigurationId,
+            configuration = Configuration(returnRedirectType = configuration.returnRedirectType.rawValue),
             source = null,
             submitData = submitData?.let { SubmitData(parameters = it.parameters.map()) },
             redirectConfirmation = redirectConfirmation

@@ -19,12 +19,10 @@ import coil.request.ImageRequest
 import coil.request.ImageResult
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
-import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
-import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentRedirectConfirmation
-import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData
+import com.processout.sdk.api.model.request.napm.v2.*
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentRequestConfiguration.ReturnRedirectType
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter.Companion.phoneNumber
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter.Companion.string
-import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentTokenizationRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.model.response.POImageResource
 import com.processout.sdk.api.model.response.napm.v2.*
@@ -149,6 +147,9 @@ internal class NativeAlternativePaymentInteractor(
         val request = PONativeAlternativePaymentAuthorizationRequest(
             invoiceId = flow.invoiceId,
             gatewayConfigurationId = flow.gatewayConfigurationId,
+            configuration = PONativeAlternativePaymentRequestConfiguration(
+                returnRedirectType = ReturnRedirectType.MANUAL
+            ),
             source = flow.customerTokenId
         )
         invoicesService.authorize(request)
@@ -172,7 +173,10 @@ internal class NativeAlternativePaymentInteractor(
         val request = PONativeAlternativePaymentTokenizationRequest(
             customerId = flow.customerId,
             customerTokenId = flow.customerTokenId,
-            gatewayConfigurationId = flow.gatewayConfigurationId
+            gatewayConfigurationId = flow.gatewayConfigurationId,
+            configuration = PONativeAlternativePaymentRequestConfiguration(
+                returnRedirectType = ReturnRedirectType.MANUAL
+            )
         )
         customerTokensService.tokenize(request)
             .onSuccess { response ->
@@ -442,7 +446,7 @@ internal class NativeAlternativePaymentInteractor(
             if (stateValue.redirect == null) {
                 val failure = ProcessOutResult.Failure(
                     code = Generic(genericCode = mobileOperationNotSupported),
-                    message = "Headless mode is not supported: missing redirect parameters."
+                    message = "Headless mode is not supported: redirect parameters are missing in the response."
                 )
                 POLogger.error(
                     message = "Unsupported operation: %s", failure,
@@ -843,6 +847,9 @@ internal class NativeAlternativePaymentInteractor(
                 val request = PONativeAlternativePaymentAuthorizationRequest(
                     invoiceId = flow.invoiceId,
                     gatewayConfigurationId = flow.gatewayConfigurationId,
+                    configuration = PONativeAlternativePaymentRequestConfiguration(
+                        returnRedirectType = ReturnRedirectType.MANUAL
+                    ),
                     submitData = stateValue.fields.toSubmitData(),
                     redirectConfirmation = redirectConfirmation
                 )
@@ -871,6 +878,9 @@ internal class NativeAlternativePaymentInteractor(
                     customerId = flow.customerId,
                     customerTokenId = flow.customerTokenId,
                     gatewayConfigurationId = flow.gatewayConfigurationId,
+                    configuration = PONativeAlternativePaymentRequestConfiguration(
+                        returnRedirectType = ReturnRedirectType.MANUAL
+                    ),
                     submitData = stateValue.fields.toSubmitData(),
                     redirectConfirmation = redirectConfirmation
                 )
@@ -1015,14 +1025,20 @@ internal class NativeAlternativePaymentInteractor(
                     is Authorization -> invoicesService.authorize(
                         request = PONativeAlternativePaymentAuthorizationRequest(
                             invoiceId = flow.invoiceId,
-                            gatewayConfigurationId = flow.gatewayConfigurationId
+                            gatewayConfigurationId = flow.gatewayConfigurationId,
+                            configuration = PONativeAlternativePaymentRequestConfiguration(
+                                returnRedirectType = ReturnRedirectType.MANUAL
+                            )
                         )
                     ).map()
                     is Tokenization -> customerTokensService.tokenize(
                         request = PONativeAlternativePaymentTokenizationRequest(
                             customerId = flow.customerId,
                             customerTokenId = flow.customerTokenId,
-                            gatewayConfigurationId = flow.gatewayConfigurationId
+                            gatewayConfigurationId = flow.gatewayConfigurationId,
+                            configuration = PONativeAlternativePaymentRequestConfiguration(
+                                returnRedirectType = ReturnRedirectType.MANUAL
+                            )
                         )
                     ).map()
                 }
