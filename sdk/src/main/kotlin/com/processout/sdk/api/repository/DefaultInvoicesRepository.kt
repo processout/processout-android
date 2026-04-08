@@ -7,11 +7,9 @@ import com.processout.sdk.api.model.request.napm.v2.NativeAlternativePaymentRequ
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter.Value
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentUrlResolutionRequest
 import com.processout.sdk.api.model.response.*
-import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentAuthorizationResponseBody
-import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentElement
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement
+import com.processout.sdk.api.model.response.napm.v2.*
 import com.processout.sdk.api.network.HeaderConstants.CLIENT_SECRET
 import com.processout.sdk.api.network.InvoicesApi
 import com.processout.sdk.core.*
@@ -128,6 +126,11 @@ internal class DefaultInvoicesRepository(
     override suspend fun createInvoice(request: POCreateInvoiceRequest) =
         plainApiCall { api.createInvoice(request) }.map()
 
+    override suspend fun resolveUrl(
+        request: PONativeAlternativePaymentUrlResolutionRequest
+    ) = apiCall { api.resolveUrl(request) }
+        .map { it.toModel() }
+
     private fun POInvoiceAuthorizationRequest.withDeviceData() =
         InvoiceAuthorizationRequestWithDeviceData(
             source = source,
@@ -172,27 +175,38 @@ internal class DefaultInvoicesRepository(
             state = state,
             invoice = invoice,
             paymentMethod = paymentMethod,
-            elements = elements?.map {
-                when (it) {
-                    is NativeAlternativePaymentElement.Form ->
-                        PONativeAlternativePaymentElement.Form(
-                            parameterDefinitions = it.parameters.parameterDefinitions
-                        )
-                    is NativeAlternativePaymentElement.CustomerInstruction ->
-                        PONativeAlternativePaymentElement.CustomerInstruction(
-                            instruction = it.instruction
-                        )
-                    is NativeAlternativePaymentElement.CustomerInstructionGroup ->
-                        PONativeAlternativePaymentElement.CustomerInstructionGroup(
-                            label = it.label,
-                            instructions = it.instructions
-                        )
-                    NativeAlternativePaymentElement.Unknown ->
-                        PONativeAlternativePaymentElement.Unknown
-                }
-            },
+            elements = elements?.map { it.toModel() },
             redirect = redirect
         )
+
+    private fun NativeAlternativePaymentUrlResolutionResponseBody.toModel() =
+        PONativeAlternativePaymentUrlResolutionResponse(
+            state = state,
+            paymentMethod = paymentMethod,
+            invoice = invoice,
+            customerToken = customerToken,
+            elements = elements?.map { it.toModel() },
+            redirect = redirect
+        )
+
+    private fun NativeAlternativePaymentElement.toModel() =
+        when (this) {
+            is NativeAlternativePaymentElement.Form ->
+                PONativeAlternativePaymentElement.Form(
+                    parameterDefinitions = parameters.parameterDefinitions
+                )
+            is NativeAlternativePaymentElement.CustomerInstruction ->
+                PONativeAlternativePaymentElement.CustomerInstruction(
+                    instruction = instruction
+                )
+            is NativeAlternativePaymentElement.CustomerInstructionGroup ->
+                PONativeAlternativePaymentElement.CustomerInstructionGroup(
+                    label = label,
+                    instructions = instructions
+                )
+            NativeAlternativePaymentElement.Unknown ->
+                PONativeAlternativePaymentElement.Unknown
+        }
 
     private fun ProcessOutResult<Response<InvoiceResponse>>.map() = fold(
         onSuccess = { response ->

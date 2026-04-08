@@ -5,8 +5,10 @@ import com.processout.sdk.api.model.request.POInvoiceAuthorizationRequest
 import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentUrlResolutionRequest
 import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentUrlResolutionResponse
 import com.processout.sdk.core.ProcessOutCallback
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
@@ -62,4 +64,10 @@ internal interface InvoicesRepository {
     /** @suppress */
     @ProcessOutInternalApi
     suspend fun createInvoice(request: POCreateInvoiceRequest): ProcessOutResult<POInvoice>
+
+    /** @suppress */
+    @ProcessOutInternalApi
+    suspend fun resolveUrl(
+        request: PONativeAlternativePaymentUrlResolutionRequest
+    ): ProcessOutResult<PONativeAlternativePaymentUrlResolutionResponse>
 }
