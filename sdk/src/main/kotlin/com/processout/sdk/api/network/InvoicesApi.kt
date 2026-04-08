@@ -5,8 +5,10 @@ import com.processout.sdk.api.model.request.NativeAPMRequestBody
 import com.processout.sdk.api.model.request.NativeAlternativePaymentCaptureRequest
 import com.processout.sdk.api.model.request.POCreateInvoiceRequest
 import com.processout.sdk.api.model.request.napm.v2.NativeAlternativePaymentRequestBody
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentUrlResolutionRequest
 import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentAuthorizationResponseBody
+import com.processout.sdk.api.model.response.napm.v2.NativeAlternativePaymentUrlResolutionResponseBody
 import com.processout.sdk.api.network.HeaderConstants.CLIENT_SECRET
 import retrofit2.Response
 import retrofit2.http.*
@@ -55,4 +57,9 @@ internal interface InvoicesApi {
     suspend fun createInvoice(
         @Body request: POCreateInvoiceRequest
     ): Response<InvoiceResponse>
+
+    @POST("/apm-payments")
+    suspend fun resolveUrl(
+        @Body request: PONativeAlternativePaymentUrlResolutionRequest
+    ): Response<NativeAlternativePaymentUrlResolutionResponseBody>
 }
