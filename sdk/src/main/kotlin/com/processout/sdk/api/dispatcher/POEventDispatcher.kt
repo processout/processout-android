@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
 import java.util.UUID
+import kotlin.reflect.KClass
 
 /** @suppress */
 @ProcessOutInternalApi
@@ -30,6 +31,9 @@ class POEventDispatcher {
 
     private val _events = MutableSharedFlow<Any>()
     val events = _events.asSharedFlow()
+
+    @PublishedApi
+    internal val subscriptions = mutableSetOf<KClass<*>>()
 
     private val _requests = MutableSharedFlow<Request>()
     val requests = _requests.asSharedFlow()
@@ -53,14 +57,28 @@ class POEventDispatcher {
         coroutineScope: CoroutineScope,
         crossinline onEvent: (T) -> Unit
     ) {
+        synchronized(subscriptions) {
+            subscriptions.add(T::class)
+        }
         coroutineScope.launch {
-            events.filterIsInstance<T>()
-                .collect { event ->
-                    coroutineContext.ensureActive()
-                    onEvent(event)
+            try {
+                events.filterIsInstance<T>()
+                    .collect { event ->
+                        coroutineContext.ensureActive()
+                        onEvent(event)
+                    }
+            } finally {
+                synchronized(subscriptions) {
+                    subscriptions.remove(T::class)
                 }
+            }
         }
     }
+
+    inline fun <reified T : Any> hasSubscribers(): Boolean =
+        synchronized(subscriptions) {
+            subscriptions.contains(T::class)
+        }
 
     inline fun <reified T : Request> subscribeForRequest(
         coroutineScope: CoroutineScope,
