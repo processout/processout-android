@@ -1172,6 +1172,9 @@ internal class NativeAlternativePaymentInteractor(
     //region Images
 
     private suspend fun preloadImages(resources: List<POImageResource>) {
+        if (configuration.redirect?.enableHeadlessMode == true) {
+            return
+        }
         coroutineScope {
             val urls = resources.flatMap { it.urls() }
             val deferredResults = urls.map { url ->
