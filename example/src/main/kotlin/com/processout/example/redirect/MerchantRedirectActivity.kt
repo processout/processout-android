@@ -8,10 +8,9 @@ class MerchantRedirectActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ProcessOut.instance.processDeepLink(
-            activity = this,
-            uri = intent.data
-        )
+        intent.data?.let { uri ->
+            ProcessOut.instance.processDeepLink(hostActivity = this, uri)
+        }
         finish()
     }
 }

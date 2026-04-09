@@ -5,11 +5,15 @@ package com.processout.sdk.api
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import androidx.activity.ComponentActivity
+import androidx.lifecycle.lifecycleScope
 import com.processout.processout_sdk.ProcessOutLegacyAccessor
 import com.processout.sdk.BuildConfig
 import com.processout.sdk.api.dispatcher.PODefaultEventDispatchers
+import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.dispatcher.POEventDispatchers
 import com.processout.sdk.api.dispatcher.PONativeAlternativePaymentMethodEventDispatcher
+import com.processout.sdk.api.model.event.PODeepLinkReceivedEvent
 import com.processout.sdk.api.network.ApiConstants
 import com.processout.sdk.api.preferences.Preferences
 import com.processout.sdk.api.repository.POCardsRepository
@@ -18,9 +22,11 @@ import com.processout.sdk.api.service.POAlternativePaymentMethodsService
 import com.processout.sdk.api.service.POBrowserCapabilitiesService
 import com.processout.sdk.api.service.POCustomerTokensService
 import com.processout.sdk.api.service.POInvoicesService
+import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.di.*
 import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivity
+import kotlinx.coroutines.launch
 
 /**
  * Entry point to ProcessOut Android SDK.
@@ -76,15 +82,40 @@ class ProcessOut private constructor(
 
     /**
      * Processes an incoming deep/app link received by your app.
-     * Call this method even when [uri] is _null_ to complete the flow correctly.
      */
+    @Deprecated(message = "Use alternative function.")
     fun processDeepLink(activity: Activity, uri: Uri?) {
         POLogger.info("Processing deep link: %s", uri)
-        val intent = Intent(activity, POCustomTabAuthorizationActivity::class.java)
+        val componentActivity = activity as? ComponentActivity
+        if (componentActivity != null && uri != null) {
+            processDeepLink(hostActivity = componentActivity, uri)
+        } else {
+            redirectToCustomTabAuthorizationActivity(hostActivity = activity, uri)
+        }
+    }
+
+    /**
+     * Processes an incoming deep/app link received by your app.
+     */
+    fun processDeepLink(hostActivity: ComponentActivity, uri: Uri) {
+        POLogger.info("Processing deep link: %s", uri)
+        val eventDispatcher = POEventDispatcher.instance
+        if (eventDispatcher.hasSubscribers<PODeepLinkReceivedEvent>()) {
+            hostActivity.lifecycleScope.launch {
+                eventDispatcher.send(PODeepLinkReceivedEvent(uri))
+            }
+        } else {
+            redirectToCustomTabAuthorizationActivity(hostActivity, uri)
+        }
+    }
+
+    @ProcessOutInternalApi
+    fun redirectToCustomTabAuthorizationActivity(hostActivity: Activity, uri: Uri?) {
+        val intent = Intent(hostActivity, POCustomTabAuthorizationActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
         intent.data = uri
-        activity.startActivity(intent)
+        hostActivity.startActivity(intent)
     }
 
     /**
