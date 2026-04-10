@@ -3,7 +3,6 @@
 package com.processout.sdk.api
 
 import android.app.Activity
-import android.content.Intent
 import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
@@ -22,7 +21,6 @@ import com.processout.sdk.api.service.POAlternativePaymentMethodsService
 import com.processout.sdk.api.service.POBrowserCapabilitiesService
 import com.processout.sdk.api.service.POCustomerTokensService
 import com.processout.sdk.api.service.POInvoicesService
-import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.di.*
 import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivity
@@ -90,7 +88,7 @@ class ProcessOut private constructor(
         if (componentActivity != null && uri != null) {
             processDeepLink(hostActivity = componentActivity, uri)
         } else {
-            redirectToCustomTabAuthorizationActivity(hostActivity = activity, uri)
+            POCustomTabAuthorizationActivity.redirect(hostActivity = activity, uri)
         }
     }
 
@@ -99,23 +97,9 @@ class ProcessOut private constructor(
      */
     fun processDeepLink(hostActivity: ComponentActivity, uri: Uri) {
         POLogger.info("Processing deep link: %s", uri)
-        val eventDispatcher = POEventDispatcher.instance
-        if (eventDispatcher.hasSubscribers<PODeepLinkReceivedEvent>()) {
-            hostActivity.lifecycleScope.launch {
-                eventDispatcher.send(PODeepLinkReceivedEvent(uri))
-            }
-        } else {
-            redirectToCustomTabAuthorizationActivity(hostActivity, uri)
+        hostActivity.lifecycleScope.launch {
+            POEventDispatcher.instance.send(event = PODeepLinkReceivedEvent(uri))
         }
-    }
-
-    @ProcessOutInternalApi
-    fun redirectToCustomTabAuthorizationActivity(hostActivity: Activity, uri: Uri?) {
-        val intent = Intent(hostActivity, POCustomTabAuthorizationActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        intent.data = uri
-        hostActivity.startActivity(intent)
     }
 
     /**

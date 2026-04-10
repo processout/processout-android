@@ -14,9 +14,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.processout.sdk.R
+import com.processout.sdk.api.dispatcher.POEventDispatcher
+import com.processout.sdk.api.model.event.PODeepLinkReceivedEvent
 import com.processout.sdk.api.service.POBrowserCapabilitiesService.Companion.CHROME_PACKAGE
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutActivityResult
+import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.ui.web.ActivityResultDispatcher
@@ -36,6 +39,17 @@ import kotlinx.coroutines.launch
  * or [POAlternativePaymentMethodCustomTabLauncher][com.processout.sdk.ui.apm.POAlternativePaymentMethodCustomTabLauncher].
  */
 class POCustomTabAuthorizationActivity : AppCompatActivity() {
+
+    @ProcessOutInternalApi
+    companion object {
+        fun redirect(hostActivity: Activity, uri: Uri?) {
+            val intent = Intent(hostActivity, POCustomTabAuthorizationActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            intent.data = uri
+            hostActivity.startActivity(intent)
+        }
+    }
 
     private val resultDispatcher: ActivityResultDispatcher<Uri> = WebAuthorizationActivityResultDispatcher
     private lateinit var configuration: POCustomTabConfiguration
@@ -76,10 +90,20 @@ class POCustomTabAuthorizationActivity : AppCompatActivity() {
             return
         }
 
+        collectDeepLink()
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
                 viewModel.uiState.collect { handleUiState(it) }
             }
+        }
+    }
+
+    private fun collectDeepLink() {
+        POEventDispatcher.instance.subscribe<PODeepLinkReceivedEvent>(
+            coroutineScope = lifecycleScope
+        ) { event ->
+            // Activity restarts itself with proper intent flags to close the Custom Tab.
+            redirect(hostActivity = this, event.uri)
         }
     }
 
