@@ -147,6 +147,7 @@ class POFailure private constructor() {
         invalidType("request.validation.invalid-type"),
         invalidUrl("request.validation.invalid-url"),
         invalidUser("request.validation.invalid-user"),
+        invalidRedirectResult("request.validation.redirect-result-invalid"),
         missingCurrency("request.validation.missing-currency"),
         missingCustomerInput("gateway.missing-customer-input"),
         missingDescription("request.validation.missing-description"),
@@ -208,6 +209,7 @@ class POFailure private constructor() {
     enum class GenericCode(val rawValue: String) : Parcelable {
         mobile("processout-mobile.generic.error"),
         mobileAppProcessKilled("processout-mobile.generic.app-process-killed"),
+        mobileOperationNotSupported("processout-mobile.generic.operation-not-supported"),
         customerCancelled("customer.cancelled"),
         cardExceededLimits("card.exceeded-limits"),
         cardFailedCvc("card.failed-cvc"),

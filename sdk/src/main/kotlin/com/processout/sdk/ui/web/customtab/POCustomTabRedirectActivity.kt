@@ -1,8 +1,8 @@
 package com.processout.sdk.ui.web.customtab
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.processout.sdk.api.ProcessOut
 
 /**
  * Redirect activity that receives deep link and starts [POCustomTabAuthorizationActivity] providing return URL.
@@ -12,10 +12,8 @@ class POCustomTabRedirectActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Intent(this, POCustomTabAuthorizationActivity::class.java).let {
-            it.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-            intent.data?.let { uri -> it.data = uri }
-            startActivity(it)
+        intent.data?.let { uri ->
+            ProcessOut.instance.processDeepLink(hostActivity = this, uri)
         }
         finish()
     }

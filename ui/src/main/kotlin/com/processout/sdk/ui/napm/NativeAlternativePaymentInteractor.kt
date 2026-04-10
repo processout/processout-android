@@ -4,6 +4,7 @@ package com.processout.sdk.ui.napm
 
 import android.Manifest
 import android.app.Application
+import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -19,12 +20,11 @@ import coil.request.ImageRequest
 import coil.request.ImageResult
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
-import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
-import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentRedirectConfirmation
-import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData
+import com.processout.sdk.api.model.event.PODeepLinkReceivedEvent
+import com.processout.sdk.api.model.request.napm.v2.*
+import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentRequestConfiguration.ReturnRedirectType
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter.Companion.phoneNumber
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter.Companion.string
-import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentTokenizationRequest
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.model.response.POImageResource
 import com.processout.sdk.api.model.response.napm.v2.*
@@ -37,6 +37,7 @@ import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentS
 import com.processout.sdk.api.service.POCustomerTokensService
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.POFailure.Code.*
+import com.processout.sdk.core.POFailure.GenericCode.mobileOperationNotSupported
 import com.processout.sdk.core.POFailure.InvalidField
 import com.processout.sdk.core.POFailure.ValidationCode
 import com.processout.sdk.core.ProcessOutResult
@@ -114,6 +115,7 @@ internal class NativeAlternativePaymentInteractor(
         dispatch(WillStart)
         dispatchFailure()
         collectDefaultValues()
+        collectDeepLink()
         fetchPaymentDetails()
     }
 
@@ -145,22 +147,12 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private suspend fun fetchAuthorizationDetails(flow: Authorization) {
-        val initialResponse = flow.initialResponse
-        if (initialResponse != null) {
-            handlePaymentState(
-                stateValue = initNextStepStateValue(
-                    paymentMethod = initialResponse.paymentMethod,
-                    invoice = initialResponse.invoice
-                ),
-                paymentState = initialResponse.state,
-                elements = initialResponse.elements,
-                redirect = initialResponse.redirect
-            )
-            return
-        }
         val request = PONativeAlternativePaymentAuthorizationRequest(
             invoiceId = flow.invoiceId,
             gatewayConfigurationId = flow.gatewayConfigurationId,
+            configuration = PONativeAlternativePaymentRequestConfiguration(
+                returnRedirectType = ReturnRedirectType.MANUAL
+            ),
             source = flow.customerTokenId
         )
         invoicesService.authorize(request)
@@ -181,23 +173,13 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private suspend fun fetchTokenizationDetails(flow: Tokenization) {
-        val initialResponse = flow.initialResponse
-        if (initialResponse != null) {
-            handlePaymentState(
-                stateValue = initNextStepStateValue(
-                    paymentMethod = initialResponse.paymentMethod,
-                    invoice = null
-                ),
-                paymentState = initialResponse.state,
-                elements = initialResponse.elements,
-                redirect = initialResponse.redirect
-            )
-            return
-        }
         val request = PONativeAlternativePaymentTokenizationRequest(
             customerId = flow.customerId,
             customerTokenId = flow.customerTokenId,
-            gatewayConfigurationId = flow.gatewayConfigurationId
+            gatewayConfigurationId = flow.gatewayConfigurationId,
+            configuration = PONativeAlternativePaymentRequestConfiguration(
+                returnRedirectType = ReturnRedirectType.MANUAL
+            )
         )
         customerTokensService.tokenize(request)
             .onSuccess { response ->
@@ -437,6 +419,7 @@ internal class NativeAlternativePaymentInteractor(
         enableNextStepSecondaryAction()
         POLogger.info("Started: waiting for payment parameters.")
         dispatch(DidStart)
+        handleHeadlessRedirect()
     }
 
     private fun continueNextStep(stateValue: NextStepStateValue) {
@@ -455,6 +438,31 @@ internal class NativeAlternativePaymentInteractor(
                 additionalParametersExpected = true
             )
         )
+        handleHeadlessRedirect()
+    }
+
+    private fun handleHeadlessRedirect() {
+        if (configuration.redirect?.enableHeadlessMode != true) {
+            return
+        }
+        _state.whenNextStep { stateValue ->
+            if (stateValue.redirect == null) {
+                val failure = ProcessOutResult.Failure(
+                    code = Generic(genericCode = mobileOperationNotSupported),
+                    message = "Headless mode is not supported: redirect parameters are missing in the response."
+                )
+                POLogger.error(
+                    message = "Unsupported operation: %s", failure,
+                    attributes = configuration.logAttributes
+                )
+                _completion.update { Failure(failure) }
+                return@whenNextStep
+            }
+            redirect(
+                stateValue = stateValue,
+                redirect = stateValue.redirect
+            )
+        }
     }
 
     //endregion
@@ -532,6 +540,65 @@ internal class NativeAlternativePaymentInteractor(
         }
         return copy(fields = updatedFields)
     }
+
+    //endregion
+
+    //region Deep Link
+
+    private fun collectDeepLink() {
+        eventDispatcher.subscribe<PODeepLinkReceivedEvent>(
+            coroutineScope = interactorScope
+        ) { event ->
+            if (_completion.value !is Awaiting) {
+                return@subscribe
+            }
+            _state.whenNextStep { stateValue ->
+                if (stateValue.redirect?.type == RedirectType.DEEP_LINK) {
+                    handleDeepLink(event.uri)
+                }
+            }
+            _state.whenPending { stateValue ->
+                if (stateValue.redirect?.type == RedirectType.DEEP_LINK) {
+                    handleDeepLink(event.uri)
+                }
+            }
+        }
+    }
+
+    private fun handleDeepLink(uri: Uri) {
+        interactorScope.launch {
+            val request = PONativeAlternativePaymentUrlResolutionRequest(
+                redirect = PONativeAlternativePaymentUrlResolutionRequest.Redirect(
+                    result = PONativeAlternativePaymentUrlResolutionRequest.Redirect.Result(
+                        url = uri.toString()
+                    )
+                )
+            )
+            invoicesService.resolveUrl(request)
+                .onSuccess { response ->
+                    if (response.state == PENDING && _state.value is Pending) {
+                        return@onSuccess
+                    }
+                    handlePaymentState(
+                        stateValue = initNextStepStateValue(
+                            paymentMethod = response.paymentMethod,
+                            invoice = response.invoice?.map()
+                        ),
+                        paymentState = response.state,
+                        elements = response.elements,
+                        redirect = response.redirect
+                    )
+                }.onFailure { failure ->
+                    _completion.update { Failure(failure) }
+                }
+        }
+    }
+
+    private fun PONativeAlternativePaymentInvoice.map() = Invoice(
+        id = id,
+        amount = amount,
+        currency = currency
+    )
 
     //endregion
 
@@ -842,6 +909,9 @@ internal class NativeAlternativePaymentInteractor(
                 val request = PONativeAlternativePaymentAuthorizationRequest(
                     invoiceId = flow.invoiceId,
                     gatewayConfigurationId = flow.gatewayConfigurationId,
+                    configuration = PONativeAlternativePaymentRequestConfiguration(
+                        returnRedirectType = ReturnRedirectType.MANUAL
+                    ),
                     submitData = stateValue.fields.toSubmitData(),
                     redirectConfirmation = redirectConfirmation
                 )
@@ -870,6 +940,9 @@ internal class NativeAlternativePaymentInteractor(
                     customerId = flow.customerId,
                     customerTokenId = flow.customerTokenId,
                     gatewayConfigurationId = flow.gatewayConfigurationId,
+                    configuration = PONativeAlternativePaymentRequestConfiguration(
+                        returnRedirectType = ReturnRedirectType.MANUAL
+                    ),
                     submitData = stateValue.fields.toSubmitData(),
                     redirectConfirmation = redirectConfirmation
                 )
@@ -986,6 +1059,7 @@ internal class NativeAlternativePaymentInteractor(
         uuid = uuid,
         paymentMethod = paymentMethod,
         invoice = invoice,
+        redirect = redirect,
         stepper = null,
         elements = elements,
         primaryActionId = ActionId.CONFIRM_PAYMENT,
@@ -1014,14 +1088,20 @@ internal class NativeAlternativePaymentInteractor(
                     is Authorization -> invoicesService.authorize(
                         request = PONativeAlternativePaymentAuthorizationRequest(
                             invoiceId = flow.invoiceId,
-                            gatewayConfigurationId = flow.gatewayConfigurationId
+                            gatewayConfigurationId = flow.gatewayConfigurationId,
+                            configuration = PONativeAlternativePaymentRequestConfiguration(
+                                returnRedirectType = ReturnRedirectType.MANUAL
+                            )
                         )
                     ).map()
                     is Tokenization -> customerTokensService.tokenize(
                         request = PONativeAlternativePaymentTokenizationRequest(
                             customerId = flow.customerId,
                             customerTokenId = flow.customerTokenId,
-                            gatewayConfigurationId = flow.gatewayConfigurationId
+                            gatewayConfigurationId = flow.gatewayConfigurationId,
+                            configuration = PONativeAlternativePaymentRequestConfiguration(
+                                returnRedirectType = ReturnRedirectType.MANUAL
+                            )
                         )
                     ).map()
                 }
@@ -1135,7 +1215,9 @@ internal class NativeAlternativePaymentInteractor(
         POLogger.info("Success: payment completed.")
         dispatch(DidCompletePayment)
         val successConfiguration = configuration.success
-        if (successConfiguration == null) {
+        if (successConfiguration == null ||
+            configuration.redirect?.enableHeadlessMode == true
+        ) {
             _completion.update { Success }
         } else {
             _state.update {
@@ -1155,6 +1237,9 @@ internal class NativeAlternativePaymentInteractor(
     //region Images
 
     private suspend fun preloadImages(resources: List<POImageResource>) {
+        if (configuration.redirect?.enableHeadlessMode == true) {
+            return
+        }
         coroutineScope {
             val urls = resources.flatMap { it.urls() }
             val deferredResults = urls.map { url ->

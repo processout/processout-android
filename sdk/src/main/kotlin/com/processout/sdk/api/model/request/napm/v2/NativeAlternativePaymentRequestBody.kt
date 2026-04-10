@@ -7,12 +7,19 @@ import com.squareup.moshi.JsonClass
 internal data class NativeAlternativePaymentRequestBody(
     @Json(name = "gateway_configuration_id")
     val gatewayConfigurationId: String,
+    val configuration: Configuration,
     val source: String?,
     @Json(name = "submit_data")
     val submitData: SubmitData?,
     @Json(name = "redirect")
     val redirectConfirmation: PONativeAlternativePaymentRedirectConfirmation?
 ) {
+
+    @JsonClass(generateAdapter = true)
+    data class Configuration(
+        @Json(name = "return_redirect_type")
+        val returnRedirectType: String
+    )
 
     @JsonClass(generateAdapter = true)
     data class SubmitData(

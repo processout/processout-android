@@ -1,51 +1,37 @@
 package com.processout.sdk.api.model.response.napm.v2
 
-import android.os.Parcelable
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.Invoice
+import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import kotlinx.parcelize.Parcelize
 
 /**
- * Specifies details of native alternative payment.
+ * Specifies details of native alternative payment after redirect URL resolution.
  *
  * @param[state] State of native alternative payment.
- * @param[invoice] Invoice details.
  * @param[paymentMethod] Payment method details.
+ * @param[invoice] Invoice details if any.
+ * @param[customerToken] Customer token details if any.
  * @param[elements] An ordered list of elements that needs to be rendered on the UI during native alternative payment flow.
  * @param[redirect] Indicates required redirect.
  */
-@Parcelize
-data class PONativeAlternativePaymentAuthorizationResponse(
+@ProcessOutInternalApi
+data class PONativeAlternativePaymentUrlResolutionResponse(
     val state: PONativeAlternativePaymentState,
-    val invoice: Invoice,
     val paymentMethod: PONativeAlternativePaymentMethodDetails,
+    val invoice: PONativeAlternativePaymentInvoice?,
+    val customerToken: PONativeAlternativePaymentCustomerToken?,
     val elements: List<PONativeAlternativePaymentElement>?,
     val redirect: PONativeAlternativePaymentRedirect?
-) : Parcelable {
-
-    /**
-     * Invoice details.
-     *
-     * @param[id] Invoice identifier.
-     * @param[amount] Invoice amount.
-     * @param[currency] Invoice currency.
-     */
-    @Parcelize
-    @JsonClass(generateAdapter = true)
-    data class Invoice(
-        val id: String,
-        val amount: String,
-        val currency: String
-    ) : Parcelable
-}
+)
 
 @JsonClass(generateAdapter = true)
-internal data class NativeAlternativePaymentAuthorizationResponseBody(
+internal data class NativeAlternativePaymentUrlResolutionResponseBody(
     val state: PONativeAlternativePaymentState,
-    val invoice: Invoice,
     @Json(name = "payment_method")
     val paymentMethod: PONativeAlternativePaymentMethodDetails,
+    val invoice: PONativeAlternativePaymentInvoice?,
+    @Json(name = "customer_token")
+    val customerToken: PONativeAlternativePaymentCustomerToken?,
     val elements: List<NativeAlternativePaymentElement>?,
     val redirect: PONativeAlternativePaymentRedirect?
 )
