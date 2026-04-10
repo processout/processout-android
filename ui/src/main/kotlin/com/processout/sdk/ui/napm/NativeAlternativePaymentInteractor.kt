@@ -4,6 +4,7 @@ package com.processout.sdk.ui.napm
 
 import android.Manifest
 import android.app.Application
+import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -19,6 +20,7 @@ import coil.request.ImageRequest
 import coil.request.ImageResult
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
+import com.processout.sdk.api.model.event.PODeepLinkReceivedEvent
 import com.processout.sdk.api.model.request.napm.v2.*
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentRequestConfiguration.ReturnRedirectType
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter.Companion.phoneNumber
@@ -113,6 +115,7 @@ internal class NativeAlternativePaymentInteractor(
         dispatch(WillStart)
         dispatchFailure()
         collectDefaultValues()
+        collectDeepLink()
         fetchPaymentDetails()
     }
 
@@ -537,6 +540,65 @@ internal class NativeAlternativePaymentInteractor(
         }
         return copy(fields = updatedFields)
     }
+
+    //endregion
+
+    //region Deep Link
+
+    private fun collectDeepLink() {
+        eventDispatcher.subscribe<PODeepLinkReceivedEvent>(
+            coroutineScope = interactorScope
+        ) { event ->
+            if (_completion.value !is Awaiting) {
+                return@subscribe
+            }
+            _state.whenNextStep { stateValue ->
+                if (stateValue.redirect?.type == RedirectType.DEEP_LINK) {
+                    handleDeepLink(event.uri)
+                }
+            }
+            _state.whenPending { stateValue ->
+                if (stateValue.redirect?.type == RedirectType.DEEP_LINK) {
+                    handleDeepLink(event.uri)
+                }
+            }
+        }
+    }
+
+    private fun handleDeepLink(uri: Uri) {
+        interactorScope.launch {
+            val request = PONativeAlternativePaymentUrlResolutionRequest(
+                redirect = PONativeAlternativePaymentUrlResolutionRequest.Redirect(
+                    result = PONativeAlternativePaymentUrlResolutionRequest.Redirect.Result(
+                        url = uri.toString()
+                    )
+                )
+            )
+            invoicesService.resolveUrl(request)
+                .onSuccess { response ->
+                    if (response.state == PENDING && _state.value is Pending) {
+                        return@onSuccess
+                    }
+                    handlePaymentState(
+                        stateValue = initNextStepStateValue(
+                            paymentMethod = response.paymentMethod,
+                            invoice = response.invoice?.map()
+                        ),
+                        paymentState = response.state,
+                        elements = response.elements,
+                        redirect = response.redirect
+                    )
+                }.onFailure { failure ->
+                    _completion.update { Failure(failure) }
+                }
+        }
+    }
+
+    private fun PONativeAlternativePaymentInvoice.map() = Invoice(
+        id = id,
+        amount = amount,
+        currency = currency
+    )
 
     //endregion
 
@@ -997,6 +1059,7 @@ internal class NativeAlternativePaymentInteractor(
         uuid = uuid,
         paymentMethod = paymentMethod,
         invoice = invoice,
+        redirect = redirect,
         stepper = null,
         elements = elements,
         primaryActionId = ActionId.CONFIRM_PAYMENT,
@@ -1152,7 +1215,9 @@ internal class NativeAlternativePaymentInteractor(
         POLogger.info("Success: payment completed.")
         dispatch(DidCompletePayment)
         val successConfiguration = configuration.success
-        if (successConfiguration == null) {
+        if (successConfiguration == null ||
+            configuration.redirect?.enableHeadlessMode == true
+        ) {
             _completion.update { Success }
         } else {
             _state.update {
