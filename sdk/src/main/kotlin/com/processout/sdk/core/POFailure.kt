@@ -147,6 +147,7 @@ class POFailure private constructor() {
         invalidType("request.validation.invalid-type"),
         invalidUrl("request.validation.invalid-url"),
         invalidUser("request.validation.invalid-user"),
+        invalidRedirectResult("request.validation.redirect-result-invalid"),
         missingCurrency("request.validation.missing-currency"),
         missingCustomerInput("gateway.missing-customer-input"),
         missingDescription("request.validation.missing-description"),
