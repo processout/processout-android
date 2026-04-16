@@ -140,6 +140,7 @@ class POCustomTabAuthorizationActivity : AppCompatActivity() {
             .setStartAnimations(this, R.anim.po_slide_in_right, R.anim.po_slide_out_left)
             .setExitAnimations(this, R.anim.po_slide_in_left, R.anim.po_slide_out_right)
             .setShareState(CustomTabsIntent.SHARE_STATE_OFF)
+            .setSendToExternalDefaultHandlerEnabled(true)
             .build()
             .also {
                 it.intent.setPackage(CHROME_PACKAGE)
