@@ -22,7 +22,6 @@ import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.event.PODeepLinkReceivedEvent
 import com.processout.sdk.api.model.request.napm.v2.*
-import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentRequestConfiguration.ReturnRedirectType
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter.Companion.phoneNumber
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter.Companion.string
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
@@ -150,9 +149,7 @@ internal class NativeAlternativePaymentInteractor(
         val request = PONativeAlternativePaymentAuthorizationRequest(
             invoiceId = flow.invoiceId,
             gatewayConfigurationId = flow.gatewayConfigurationId,
-            configuration = PONativeAlternativePaymentRequestConfiguration(
-                returnRedirectType = ReturnRedirectType.MANUAL
-            ),
+            configuration = flow.configuration,
             source = flow.customerTokenId
         )
         invoicesService.authorize(request)
@@ -177,9 +174,7 @@ internal class NativeAlternativePaymentInteractor(
             customerId = flow.customerId,
             customerTokenId = flow.customerTokenId,
             gatewayConfigurationId = flow.gatewayConfigurationId,
-            configuration = PONativeAlternativePaymentRequestConfiguration(
-                returnRedirectType = ReturnRedirectType.MANUAL
-            )
+            configuration = flow.configuration
         )
         customerTokensService.tokenize(request)
             .onSuccess { response ->
@@ -909,9 +904,7 @@ internal class NativeAlternativePaymentInteractor(
                 val request = PONativeAlternativePaymentAuthorizationRequest(
                     invoiceId = flow.invoiceId,
                     gatewayConfigurationId = flow.gatewayConfigurationId,
-                    configuration = PONativeAlternativePaymentRequestConfiguration(
-                        returnRedirectType = ReturnRedirectType.MANUAL
-                    ),
+                    configuration = flow.configuration,
                     submitData = stateValue.fields.toSubmitData(),
                     redirectConfirmation = redirectConfirmation
                 )
@@ -940,9 +933,7 @@ internal class NativeAlternativePaymentInteractor(
                     customerId = flow.customerId,
                     customerTokenId = flow.customerTokenId,
                     gatewayConfigurationId = flow.gatewayConfigurationId,
-                    configuration = PONativeAlternativePaymentRequestConfiguration(
-                        returnRedirectType = ReturnRedirectType.MANUAL
-                    ),
+                    configuration = flow.configuration,
                     submitData = stateValue.fields.toSubmitData(),
                     redirectConfirmation = redirectConfirmation
                 )
@@ -1089,9 +1080,7 @@ internal class NativeAlternativePaymentInteractor(
                         request = PONativeAlternativePaymentAuthorizationRequest(
                             invoiceId = flow.invoiceId,
                             gatewayConfigurationId = flow.gatewayConfigurationId,
-                            configuration = PONativeAlternativePaymentRequestConfiguration(
-                                returnRedirectType = ReturnRedirectType.MANUAL
-                            )
+                            configuration = flow.configuration
                         )
                     ).map()
                     is Tokenization -> customerTokensService.tokenize(
@@ -1099,9 +1088,7 @@ internal class NativeAlternativePaymentInteractor(
                             customerId = flow.customerId,
                             customerTokenId = flow.customerTokenId,
                             gatewayConfigurationId = flow.gatewayConfigurationId,
-                            configuration = PONativeAlternativePaymentRequestConfiguration(
-                                returnRedirectType = ReturnRedirectType.MANUAL
-                            )
+                            configuration = flow.configuration
                         )
                     ).map()
                 }
