@@ -584,6 +584,13 @@ internal class NativeAlternativePaymentInteractor(
                         redirect = response.redirect
                     )
                 }.onFailure { failure ->
+                    val isInvalidRedirectResult = when (val code = failure.code) {
+                        is Validation -> code.validationCode == ValidationCode.invalidRedirectResult
+                        else -> false
+                    }
+                    if (isInvalidRedirectResult) {
+                        return@onFailure
+                    }
                     _completion.update { Failure(failure) }
                 }
         }
