@@ -11,7 +11,6 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class POCustomTabConfiguration(
     val uri: Uri,
-    val returnUri: Uri,
     val timeoutSeconds: Int?,
     val resultApi: POActivityResultApi = POActivityResultApi.Android
 ) : Parcelable

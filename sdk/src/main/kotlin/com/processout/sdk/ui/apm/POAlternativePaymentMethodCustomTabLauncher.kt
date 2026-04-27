@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.request.POAlternativePaymentMethodRequest
@@ -147,7 +148,6 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
             customTabLauncher.launch(
                 POCustomTabConfiguration(
                     uri = uri,
-                    returnUri = Uri.parse(returnUrl),
                     timeoutSeconds = null
                 )
             )
@@ -157,8 +157,8 @@ class POAlternativePaymentMethodCustomTabLauncher private constructor(
                 POWebViewConfiguration(
                     uri = uri,
                     returnUris = listOf(
-                        Uri.parse(ApiConstants.CHECKOUT_RETURN_URL),
-                        Uri.parse(returnUrl)
+                        ApiConstants.CHECKOUT_RETURN_URL.toUri(),
+                        returnUrl.toUri()
                     ),
                     sdkVersion = ProcessOut.VERSION,
                     timeoutSeconds = null

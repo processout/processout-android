@@ -7,8 +7,6 @@ import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.savedstate.SavedStateRegistryOwner
-import com.processout.sdk.core.POFailure
-import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.ui.web.customtab.CustomTabAuthorizationUiState.*
 import com.processout.sdk.ui.web.customtab.POCustomTabAuthorizationActivityContract.Companion.EXTRA_FORCE_FINISH
@@ -65,23 +63,9 @@ internal class CustomTabAuthorizationViewModel private constructor(
         }
         val returnUri = intent.data
         if (returnUri != null) {
+            POLogger.info("Custom Chrome Tabs has been redirected to return URI: %s", returnUri)
             timeoutHandler.removeCallbacks(cancellationRunnable)
-            if (returnUri.scheme == configuration.returnUri.scheme &&
-                returnUri.host == configuration.returnUri.host &&
-                returnUri.path == configuration.returnUri.path
-            ) {
-                POLogger.info("Custom Chrome Tabs has been redirected to return URI: %s", returnUri)
-                savedState[KEY_SAVED_STATE] = Success(returnUri)
-            } else {
-                val errorMessage = "Unexpected Custom Chrome Tabs redirect to URI: $returnUri"
-                POLogger.error(errorMessage)
-                savedState[KEY_SAVED_STATE] = Failure(
-                    ProcessOutActivityResult.Failure(
-                        code = POFailure.Code.Internal(),
-                        message = errorMessage
-                    )
-                )
-            }
+            savedState[KEY_SAVED_STATE] = Success(returnUri)
             return
         }
         when (uiState) {
