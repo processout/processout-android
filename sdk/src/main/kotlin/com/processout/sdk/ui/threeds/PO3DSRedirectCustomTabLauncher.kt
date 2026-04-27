@@ -1,7 +1,7 @@
 package com.processout.sdk.ui.threeds
 
-import android.net.Uri
 import androidx.activity.ComponentActivity
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import com.processout.sdk.api.ProcessOut
 import com.processout.sdk.api.model.threeds.PO3DSRedirect
@@ -75,8 +75,8 @@ class PO3DSRedirectCustomTabLauncher private constructor(
         }
 
         val delegate: WebAuthorizationDelegate = ThreeDSRedirectWebAuthorizationDelegate(
-            Uri.parse(redirect.url.toString()),
-            callback
+            uri = redirect.url.toString().toUri(),
+            callback = callback
         )
         delegateCache.delegate = delegate
 
@@ -84,7 +84,6 @@ class PO3DSRedirectCustomTabLauncher private constructor(
             contract.startActivity(
                 POCustomTabConfiguration(
                     uri = delegate.uri,
-                    returnUri = Uri.parse(returnUrl),
                     timeoutSeconds = redirect.timeoutSeconds,
                     resultApi = POActivityResultApi.Dispatcher
                 )
@@ -95,8 +94,8 @@ class PO3DSRedirectCustomTabLauncher private constructor(
                 POWebViewConfiguration(
                     uri = delegate.uri,
                     returnUris = listOf(
-                        Uri.parse(ApiConstants.CHECKOUT_RETURN_URL),
-                        Uri.parse(returnUrl)
+                        ApiConstants.CHECKOUT_RETURN_URL.toUri(),
+                        returnUrl.toUri()
                     ),
                     sdkVersion = ProcessOut.VERSION,
                     timeoutSeconds = redirect.timeoutSeconds,
