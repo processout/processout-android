@@ -63,6 +63,7 @@ data class PONativeAlternativePaymentConfiguration(
          * @param[invoiceId] Invoice identifier.
          * @param[gatewayConfigurationId] Gateway configuration identifier.
          * @param[customerTokenId] Optional customer token identifier that will be used for authorization.
+         * @param[configuration] Authorization configuration.
          */
         @Parcelize
         data class Authorization(
@@ -78,6 +79,7 @@ data class PONativeAlternativePaymentConfiguration(
          * @param[customerId] Customer identifier.
          * @param[customerTokenId] Customer token identifier.
          * @param[gatewayConfigurationId] Gateway configuration identifier.
+         * @param[configuration] Tokenization configuration.
          */
         @Parcelize
         data class Tokenization(
