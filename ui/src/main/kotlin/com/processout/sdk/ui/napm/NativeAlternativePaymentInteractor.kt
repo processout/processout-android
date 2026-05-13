@@ -1317,7 +1317,7 @@ internal class NativeAlternativePaymentInteractor(
     private fun saveBarcode() {
         _state.whenNextStep { stateValue ->
             val instructions = stateValue.elements.mapNotNull {
-                if (it is Element.Instruction) it else null
+                it as? Element.Instruction
             }
             instructions.forEach {
                 if (it.instruction is Instruction.Barcode) {
@@ -1328,7 +1328,7 @@ internal class NativeAlternativePaymentInteractor(
         }
         _state.whenPending { stateValue ->
             val instructions = stateValue.elements?.mapNotNull {
-                if (it is Element.Instruction) it else null
+                it as? Element.Instruction
             }
             instructions?.forEach {
                 if (it.instruction is Instruction.Barcode) {
@@ -1360,7 +1360,7 @@ internal class NativeAlternativePaymentInteractor(
                 if (result.isGranted) {
                     _state.whenNextStep { stateValue ->
                         val instructions = stateValue.elements.mapNotNull {
-                            if (it is Element.Instruction) it else null
+                            it as? Element.Instruction
                         }
                         instructions.forEach {
                             if (it.instruction is Instruction.Barcode) {
@@ -1375,7 +1375,7 @@ internal class NativeAlternativePaymentInteractor(
                     }
                     _state.whenPending { stateValue ->
                         val instructions = stateValue.elements?.mapNotNull {
-                            if (it is Element.Instruction) it else null
+                            it as? Element.Instruction
                         }
                         instructions?.forEach {
                             if (it.instruction is Instruction.Barcode) {
