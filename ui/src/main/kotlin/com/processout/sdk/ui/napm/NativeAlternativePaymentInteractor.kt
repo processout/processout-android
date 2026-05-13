@@ -248,46 +248,6 @@ internal class NativeAlternativePaymentInteractor(
         }
     }
 
-    //region Next Step
-
-    private fun handleNextStep(
-        stateValue: NextStepStateValue,
-        elements: List<Element>,
-        redirect: PONativeAlternativePaymentRedirect?
-    ) {
-        val parameters = elements.flatMap {
-            if (it is Element.Form) it.form.parameterDefinitions else emptyList()
-        }
-        if (parameters.isEmpty()) {
-            POLogger.warn(
-                message = "Parameters is empty in response.",
-                attributes = configuration.logAttributes
-            )
-        }
-        if (failWithUnknownParameter(parameters)) {
-            return
-        }
-        if (failWithUnknownRedirect(redirect)) {
-            return
-        }
-        val fields = parameters.toFields()
-        val updatedStateValue = stateValue.copy(
-            uuid = UUID.randomUUID().toString(),
-            redirect = redirect,
-            elements = elements,
-            fields = fields,
-            focusedFieldId = fields.firstFocusableFieldId()
-        )
-        _state.update {
-            if (_state.value is Loading) {
-                Loaded(updatedStateValue)
-            } else {
-                Submitted(updatedStateValue)
-            }
-        }
-        requestDefaultValues(parameters)
-    }
-
     private suspend fun List<PONativeAlternativePaymentElement>.map(): List<Element> =
         mapNotNull { element ->
             when (element) {
@@ -345,16 +305,53 @@ internal class NativeAlternativePaymentInteractor(
             }
         }
 
-    private fun failWithUnknownParameter(
-        parameters: List<Parameter>
+    //region Next Step
+
+    private fun handleNextStep(
+        stateValue: NextStepStateValue,
+        elements: List<Element>,
+        redirect: PONativeAlternativePaymentRedirect?
+    ) {
+        if (failWithUnsupportedHeadlessMode(redirect)) {
+            return
+        }
+        if (failWithUnknownRedirect(redirect)) {
+            return
+        }
+        val parameters = elements.flatMap {
+            if (it is Element.Form) it.form.parameterDefinitions else emptyList()
+        }
+        if (failWithUnknownParameter(parameters)) {
+            return
+        }
+        val fields = parameters.toFields()
+        val updatedStateValue = stateValue.copy(
+            uuid = UUID.randomUUID().toString(),
+            redirect = redirect,
+            elements = elements,
+            fields = fields,
+            focusedFieldId = fields.firstFocusableFieldId()
+        )
+        _state.update {
+            if (_state.value is Loading) {
+                Loaded(updatedStateValue)
+            } else {
+                Submitted(updatedStateValue)
+            }
+        }
+        requestDefaultValues(parameters)
+    }
+
+    private fun failWithUnsupportedHeadlessMode(
+        redirect: PONativeAlternativePaymentRedirect?
     ): Boolean {
-        parameters.find { it == Parameter.Unknown }?.let {
+        if (configuration.redirect?.enableHeadlessMode == true && redirect == null) {
             val failure = ProcessOutResult.Failure(
-                code = Internal(),
-                message = "Unknown parameter type."
+                code = Generic(genericCode = mobileOperationNotSupported),
+                message = "Headless mode is not supported: redirect parameters are missing in the response."
             )
             POLogger.error(
-                message = "Unexpected response: %s", failure,
+                message = "Unsupported operation: %s", failure,
                 attributes = configuration.logAttributes
             )
             _completion.update { Failure(failure) }
@@ -370,6 +367,24 @@ internal class NativeAlternativePaymentInteractor(
             val failure = ProcessOutResult.Failure(
                 code = Internal(),
                 message = "Unknown redirect type: ${redirect.rawType}"
+            )
+            POLogger.error(
+                message = "Unexpected response: %s", failure,
+                attributes = configuration.logAttributes
+            )
+            _completion.update { Failure(failure) }
+            return true
+        }
+        return false
+    }
+
+    private fun failWithUnknownParameter(
+        parameters: List<Parameter>
+    ): Boolean {
+        parameters.find { it == Parameter.Unknown }?.let {
+            val failure = ProcessOutResult.Failure(
+                code = Internal(),
+                message = "Unknown parameter type."
             )
             POLogger.error(
                 message = "Unexpected response: %s", failure,
@@ -414,18 +429,15 @@ internal class NativeAlternativePaymentInteractor(
         enableNextStepSecondaryAction()
         POLogger.info("Started: waiting for payment parameters.")
         dispatch(DidStart)
-        handleHeadlessRedirect()
+        handleAutoRedirect()
     }
 
     private fun continueNextStep(stateValue: NextStepStateValue) {
-        _state.update {
-            NextStep(
-                stateValue.copy(
-                    submitAllowed = true,
-                    submitting = false
-                )
-            )
-        }
+        val updatedStateValue = stateValue.copy(
+            submitAllowed = true,
+            submitting = false
+        )
+        _state.update { NextStep(updatedStateValue) }
         POLogger.info("Submitted: waiting for additional payment parameters.")
         dispatch(
             event = DidSubmitParameters(
@@ -433,32 +445,23 @@ internal class NativeAlternativePaymentInteractor(
                 additionalParametersExpected = true
             )
         )
-        handleHeadlessRedirect()
+        handleAutoRedirect()
     }
 
-    private fun handleHeadlessRedirect() {
-        if (configuration.redirect?.enableHeadlessMode != true) {
-            return
-        }
+    private fun handleAutoRedirect() {
         _state.whenNextStep { stateValue ->
-            if (stateValue.redirect == null) {
-                val failure = ProcessOutResult.Failure(
-                    code = Generic(genericCode = mobileOperationNotSupported),
-                    message = "Headless mode is not supported: redirect parameters are missing in the response."
+            if (stateValue.redirect != null && shouldAutoRedirect()) {
+                redirect(
+                    stateValue = stateValue,
+                    redirect = stateValue.redirect
                 )
-                POLogger.error(
-                    message = "Unsupported operation: %s", failure,
-                    attributes = configuration.logAttributes
-                )
-                _completion.update { Failure(failure) }
-                return@whenNextStep
             }
-            redirect(
-                stateValue = stateValue,
-                redirect = stateValue.redirect
-            )
         }
     }
+
+    private fun shouldAutoRedirect(): Boolean =
+        configuration.redirect?.enableHeadlessMode == true ||
+                configuration.redirect?.continueButton == null
 
     //endregion
 
