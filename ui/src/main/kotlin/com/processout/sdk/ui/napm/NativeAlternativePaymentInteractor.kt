@@ -433,11 +433,14 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private fun continueNextStep(stateValue: NextStepStateValue) {
-        val updatedStateValue = stateValue.copy(
-            submitAllowed = true,
-            submitting = false
-        )
-        _state.update { NextStep(updatedStateValue) }
+        _state.update {
+            NextStep(
+                stateValue.copy(
+                    submitAllowed = true,
+                    submitting = false
+                )
+            )
+        }
         POLogger.info("Submitted: waiting for additional payment parameters.")
         dispatch(
             event = DidSubmitParameters(
