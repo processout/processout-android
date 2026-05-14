@@ -396,13 +396,14 @@ data class PONativeAlternativePaymentConfiguration(
      * The redirect (web or deep link) will be handled directly when it's the first step in the flow, without starting the bottom sheet.
      * It will also capture the payment in the background when it's required by the flow.
      * __Note:__ use only with flows that do not require user input or instructions in the native UI.
-     * @param[continueButton] Continue button configuration. Pass _null_ to hide and redirect automatically.
+     * @param[redirectButton] Redirect button configuration.
+     * Pass _null_ to hide and redirect automatically, this is a default behaviour.
      */
     @Parcelize
     data class RedirectConfiguration(
         val returnUrl: String,
         val enableHeadlessMode: Boolean = false,
-        val continueButton: Button? = Button()
+        val redirectButton: Button? = null
     ) : Parcelable
 
     /**

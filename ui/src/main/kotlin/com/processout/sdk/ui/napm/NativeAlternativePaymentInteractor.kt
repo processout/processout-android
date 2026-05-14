@@ -464,7 +464,7 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun shouldAutoRedirect(): Boolean =
         configuration.redirect?.enableHeadlessMode == true ||
-                configuration.redirect?.continueButton == null
+                configuration.redirect?.redirectButton == null
 
     //endregion
 
