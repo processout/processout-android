@@ -133,16 +133,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                 ),
                 elements = elements.map(fields)
             ),
-            primaryAction = POActionState(
-                id = primaryActionId,
-                text = redirect?.hint
-                    ?: configuration.submitButton.text
-                    ?: app.getString(R.string.po_native_apm_continue_button_text),
-                primary = true,
-                enabled = submitAllowed,
-                loading = submitting,
-                icon = configuration.submitButton.icon
-            ),
+            primaryAction = toSubmitAction(),
             secondaryAction = configuration.cancelButton?.toActionState(
                 id = secondaryAction.id,
                 enabled = secondaryAction.enabled && !submitting
@@ -566,6 +557,28 @@ internal class NativeAlternativePaymentViewModel private constructor(
 
     private fun Invoice.priceSuccessMessage(): String? =
         price()?.let { app.getString(R.string.po_native_apm_success_message_format, it) }
+
+    private fun NextStepStateValue.toSubmitAction(): POActionState? {
+        val submitAction = POActionState(
+            id = primaryActionId,
+            text = configuration.submitButton.text
+                ?: app.getString(R.string.po_native_apm_continue_button_text),
+            primary = true,
+            enabled = submitAllowed,
+            loading = submitting,
+            icon = configuration.submitButton.icon
+        )
+        return if (redirect != null) {
+            configuration.redirect?.redirectButton?.let {
+                submitAction.copy(
+                    text = it.text ?: redirect.hint,
+                    icon = it.icon
+                )
+            }
+        } else {
+            submitAction
+        }
+    }
 
     private fun CancelButton.toActionState(
         id: String,
