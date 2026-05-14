@@ -63,6 +63,7 @@ data class PONativeAlternativePaymentConfiguration(
          * @param[invoiceId] Invoice identifier.
          * @param[gatewayConfigurationId] Gateway configuration identifier.
          * @param[customerTokenId] Optional customer token identifier that will be used for authorization.
+         * @param[configuration] Authorization configuration.
          */
         @Parcelize
         data class Authorization(
@@ -78,6 +79,7 @@ data class PONativeAlternativePaymentConfiguration(
          * @param[customerId] Customer identifier.
          * @param[customerTokenId] Customer token identifier.
          * @param[gatewayConfigurationId] Gateway configuration identifier.
+         * @param[configuration] Tokenization configuration.
          */
         @Parcelize
         data class Tokenization(
@@ -394,11 +396,14 @@ data class PONativeAlternativePaymentConfiguration(
      * The redirect (web or deep link) will be handled directly when it's the first step in the flow, without starting the bottom sheet.
      * It will also capture the payment in the background when it's required by the flow.
      * __Note:__ use only with flows that do not require user input or instructions in the native UI.
+     * @param[redirectButton] Redirect button configuration.
+     * Pass _null_ to hide and redirect automatically, this is a default behaviour.
      */
     @Parcelize
     data class RedirectConfiguration(
         val returnUrl: String,
-        val enableHeadlessMode: Boolean = false
+        val enableHeadlessMode: Boolean = false,
+        val redirectButton: Button? = null
     ) : Parcelable
 
     /**
