@@ -49,7 +49,7 @@ internal sealed interface NativeAlternativePaymentInteractorState {
         val uuid: String,
         val paymentMethod: PONativeAlternativePaymentMethodDetails,
         val invoice: Invoice?,
-        val redirect: PONativeAlternativePaymentRedirect?,
+        val redirect: Redirect?,
         val elements: List<Element>,
         val fields: List<Field>,
         val focusedFieldId: String?,
@@ -63,7 +63,7 @@ internal sealed interface NativeAlternativePaymentInteractorState {
         val uuid: String,
         val paymentMethod: PONativeAlternativePaymentMethodDetails,
         val invoice: Invoice?,
-        val redirect: PONativeAlternativePaymentRedirect?,
+        val redirect: Redirect?,
         val stepper: Stepper?,
         val elements: List<Element>?,
         val primaryActionId: String?,
@@ -73,6 +73,11 @@ internal sealed interface NativeAlternativePaymentInteractorState {
     data class Stepper(
         val steps: POImmutableList<POStepper.Step>,
         val activeStepIndex: Int
+    )
+
+    data class Redirect(
+        val data: PONativeAlternativePaymentRedirect,
+        val isFallback: Boolean
     )
 
     sealed interface Element {

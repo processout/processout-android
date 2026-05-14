@@ -571,7 +571,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
         return if (redirect != null) {
             configuration.redirect?.redirectButton?.let {
                 submitAction.copy(
-                    text = it.text ?: redirect.hint,
+                    text = it.text ?: redirect.data.hint,
                     icon = it.icon
                 )
             }
