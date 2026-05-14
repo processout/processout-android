@@ -33,7 +33,10 @@ data class PONativeAlternativePaymentRedirect(
     @Json(name = "confirmation_required")
     val confirmationRequired: Boolean,
     @Json(name = "deep_link")
-    val deepLinkConfiguration: DeepLinkConfiguration?
+    val deepLinkConfiguration: DeepLinkConfiguration?,
+    @Json(ignore = true)
+    @ProcessOutInternalApi
+    val isFallback: Boolean = false
 ) : Parcelable {
 
     /** Redirect type. */

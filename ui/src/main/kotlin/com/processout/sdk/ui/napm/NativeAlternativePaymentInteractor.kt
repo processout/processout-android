@@ -327,7 +327,7 @@ internal class NativeAlternativePaymentInteractor(
         val fields = parameters.toFields()
         val updatedStateValue = stateValue.copy(
             uuid = UUID.randomUUID().toString(),
-            redirect = redirect,
+            redirect = redirect?.copy(isFallback = stateValue.redirect != null),
             elements = elements,
             fields = fields,
             focusedFieldId = fields.firstFocusableFieldId()
@@ -453,17 +453,19 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun handleAutoRedirect() {
         _state.whenNextStep { stateValue ->
-            if (stateValue.redirect != null && shouldAutoRedirect()) {
+            val redirect = stateValue.redirect
+            if (redirect != null && redirect.shouldAutoRedirect()) {
                 redirect(
                     stateValue = stateValue,
-                    redirect = stateValue.redirect
+                    redirect = redirect
                 )
             }
         }
     }
 
-    private fun shouldAutoRedirect(): Boolean =
-        configuration.redirect?.enableHeadlessMode == true ||
+    private fun PONativeAlternativePaymentRedirect.shouldAutoRedirect(): Boolean =
+        isFallback ||
+                configuration.redirect?.enableHeadlessMode == true ||
                 configuration.redirect?.redirectButton == null
 
     //endregion
