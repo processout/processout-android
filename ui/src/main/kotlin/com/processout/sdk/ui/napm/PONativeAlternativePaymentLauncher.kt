@@ -16,11 +16,9 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.processout.sdk.R
 import com.processout.sdk.api.dispatcher.POEventDispatcher
 import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
-import com.processout.sdk.core.POUnit
-import com.processout.sdk.core.ProcessOutActivityResult
-import com.processout.sdk.core.ProcessOutResult
+import com.processout.sdk.core.*
+import com.processout.sdk.core.POFailure.GenericCode.mobileHeadlessModeNotSupported
 import com.processout.sdk.core.logger.POLogger
-import com.processout.sdk.core.toActivityResult
 import com.processout.sdk.ui.apm.POAlternativePaymentMethodCustomTabLauncher
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Failure
 import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Success
@@ -281,7 +279,26 @@ class PONativeAlternativePaymentLauncher private constructor(
                 viewModel.completion.collect { completion ->
                     when (completion) {
                         Success -> complete(result = ProcessOutResult.Success(POUnit))
-                        is Failure -> complete(result = completion.failure)
+                        is Failure -> {
+                            val isHeadlessModeNotSupported = when (val code = completion.failure.code) {
+                                is POFailure.Code.Generic -> code.genericCode == mobileHeadlessModeNotSupported
+                                else -> false
+                            }
+                            if (isHeadlessModeNotSupported) {
+                                val configuration = viewModel.configuration
+                                viewModel.reset()
+                                launcher.launch(
+                                    input = configuration.copy(
+                                        redirect = configuration.redirect?.copy(
+                                            enableHeadlessMode = false
+                                        )
+                                    ),
+                                    options = activityOptions
+                                )
+                            } else {
+                                complete(result = completion.failure)
+                            }
+                        }
                         else -> {}
                     }
                 }

@@ -395,7 +395,7 @@ data class PONativeAlternativePaymentConfiguration(
      * @param[enableHeadlessMode] Enables headless mode.
      * The redirect (web or deep link) will be handled directly when it's the first step in the flow, without starting the bottom sheet.
      * It will also capture the payment in the background when it's required by the flow.
-     * __Note:__ use only with flows that do not require user input or instructions in the native UI.
+     * __Note:__ The bottom sheet will still start automatically when the payment method requires user input in the native UI.
      * @param[redirectButton] Redirect button configuration.
      * Pass _null_ to hide and redirect automatically, this is a default behaviour.
      */
