@@ -3,6 +3,7 @@
 package com.processout.sdk.core
 
 import android.os.Parcelable
+import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import kotlinx.parcelize.Parcelize
@@ -289,7 +290,10 @@ class POFailure private constructor() {
         resourceNotLinked("resource.not-linked"),
         routingRulesTransactionBlocked("routing-rules.transaction-blocked"),
         sandboxNotSupported("sandbox.not-supported"),
-        serviceNotSupported("service.not-supported")
+        serviceNotSupported("service.not-supported"),
+
+        @ProcessOutInternalApi
+        mobileHeadlessModeNotSupported("processout-mobile.generic.headless-mode-not-supported")
     }
 
     /**

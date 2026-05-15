@@ -36,7 +36,7 @@ import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentS
 import com.processout.sdk.api.service.POCustomerTokensService
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.POFailure.Code.*
-import com.processout.sdk.core.POFailure.GenericCode.mobileOperationNotSupported
+import com.processout.sdk.core.POFailure.GenericCode.mobileHeadlessModeNotSupported
 import com.processout.sdk.core.POFailure.InvalidField
 import com.processout.sdk.core.POFailure.ValidationCode
 import com.processout.sdk.core.ProcessOutResult
@@ -352,10 +352,10 @@ internal class NativeAlternativePaymentInteractor(
     ): Boolean {
         if (configuration.redirect?.enableHeadlessMode == true && redirect == null) {
             val failure = ProcessOutResult.Failure(
-                code = Generic(genericCode = mobileOperationNotSupported),
+                code = Generic(genericCode = mobileHeadlessModeNotSupported),
                 message = "Headless mode is not supported: redirect parameters are missing in the response."
             )
-            POLogger.error(
+            POLogger.info(
                 message = "Unsupported operation: %s", failure,
                 attributes = configuration.logAttributes
             )
