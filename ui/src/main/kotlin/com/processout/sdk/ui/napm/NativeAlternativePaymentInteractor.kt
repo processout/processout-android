@@ -327,7 +327,12 @@ internal class NativeAlternativePaymentInteractor(
         val fields = parameters.toFields()
         val updatedStateValue = stateValue.copy(
             uuid = UUID.randomUUID().toString(),
-            redirect = redirect,
+            redirect = redirect?.let {
+                Redirect(
+                    data = it,
+                    isFallback = stateValue.redirect != null
+                )
+            },
             elements = elements,
             fields = fields,
             focusedFieldId = fields.firstFocusableFieldId()
@@ -453,17 +458,19 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun handleAutoRedirect() {
         _state.whenNextStep { stateValue ->
-            if (stateValue.redirect != null && shouldAutoRedirect()) {
+            val redirect = stateValue.redirect
+            if (redirect != null && redirect.shouldAutoRedirect()) {
                 redirect(
                     stateValue = stateValue,
-                    redirect = stateValue.redirect
+                    redirect = redirect.data
                 )
             }
         }
     }
 
-    private fun shouldAutoRedirect(): Boolean =
-        configuration.redirect?.enableHeadlessMode == true ||
+    private fun Redirect.shouldAutoRedirect(): Boolean =
+        isFallback ||
+                configuration.redirect?.enableHeadlessMode == true ||
                 configuration.redirect?.redirectButton == null
 
     //endregion
@@ -554,12 +561,12 @@ internal class NativeAlternativePaymentInteractor(
                 return@subscribe
             }
             _state.whenNextStep { stateValue ->
-                if (stateValue.redirect?.type == RedirectType.DEEP_LINK) {
+                if (stateValue.redirect?.data?.type == RedirectType.DEEP_LINK) {
                     handleDeepLink(event.uri)
                 }
             }
             _state.whenPending { stateValue ->
-                if (stateValue.redirect?.type == RedirectType.DEEP_LINK) {
+                if (stateValue.redirect?.data?.type == RedirectType.DEEP_LINK) {
                     handleDeepLink(event.uri)
                 }
             }
@@ -698,7 +705,7 @@ internal class NativeAlternativePaymentInteractor(
             if (stateValue.redirect != null) {
                 redirect(
                     stateValue = stateValue,
-                    redirect = stateValue.redirect
+                    redirect = stateValue.redirect.data
                 )
                 return@whenNextStep
             }
@@ -793,7 +800,7 @@ internal class NativeAlternativePaymentInteractor(
     private fun handleWebRedirect(result: ProcessOutResult<POAlternativePaymentMethodResponse>) {
         result.onSuccess {
             _state.whenNextStep { stateValue ->
-                val redirectConfirmation = if (stateValue.redirect?.confirmationRequired == true)
+                val redirectConfirmation = if (stateValue.redirect?.data?.confirmationRequired == true)
                     PONativeAlternativePaymentRedirectConfirmation(success = true) else null
                 continuePayment(redirectConfirmation)
             }
@@ -819,7 +826,7 @@ internal class NativeAlternativePaymentInteractor(
             url = redirectUrl,
             packageNames = deepLinkConfiguration?.packageNames
         )
-        val redirectConfirmation = if (stateValue.redirect?.confirmationRequired == true)
+        val redirectConfirmation = if (stateValue.redirect?.data?.confirmationRequired == true)
             PONativeAlternativePaymentRedirectConfirmation(success = didOpenUrl) else null
         continuePayment(redirectConfirmation)
     }
