@@ -158,6 +158,8 @@ sealed class PODynamicCheckoutPaymentMethod {
      * @param[schemeSelectionAllowed] Defines whether the user will be asked to select the scheme if co-scheme is available.
      * @param[schemeSelectionDefaultOrder] Schemes selection preferred order.
      * When cards with multiple supported schemes are detected, the first matching scheme is preselected.
+     * @param[restrictToIins] Restrict card schemes to the ones with IINs in the set.
+     * @param[restrictToSchemes] Restrict card schemes to the ones in the set.
      * @param[billingAddress] Card billing address configuration.
      * @param[savingAllowed] Defines whether saving of the payment method is allowed for future payments.
      */
@@ -171,6 +173,10 @@ sealed class PODynamicCheckoutPaymentMethod {
         val schemeSelectionAllowed: Boolean,
         @Json(name = "scheme_selection_default_order")
         val schemeSelectionDefaultOrder: List<String>?,
+        @Json(name = "restrict_to_iins")
+        val restrictToIins: Set<String>?,
+        @Json(name = "restrict_to_schemes")
+        val restrictToSchemes: Set<String>?,
         @Json(name = "billing_address")
         val billingAddress: BillingAddressConfiguration,
         @Json(name = "saving_allowed")
