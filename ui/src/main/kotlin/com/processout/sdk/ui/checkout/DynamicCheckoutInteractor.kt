@@ -39,10 +39,9 @@ import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.base.BaseInteractor
 import com.processout.sdk.ui.card.tokenization.*
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode
-import com.processout.sdk.ui.card.tokenization.delegate.CardTokenizationPreferredSchemeResponse
-import com.processout.sdk.ui.card.tokenization.delegate.CardTokenizationProcessingRequest
-import com.processout.sdk.ui.card.tokenization.delegate.CardTokenizationShouldContinueRequest
-import com.processout.sdk.ui.card.tokenization.delegate.toResponse
+import com.processout.sdk.ui.card.tokenization.delegate.*
+import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationEligibility.Eligible
+import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationEligibility.NotEligible
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.*
@@ -1094,6 +1093,47 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun dispatchCardTokenizationEvents() {
+        eventDispatcher.subscribeForResponse<DynamicCheckoutCardEligibilityResponse>(
+            coroutineScope = interactorScope
+        ) { response ->
+            activePaymentMethod()?.let { paymentMethod ->
+                if (paymentMethod is Card) {
+                    interactorScope.launch {
+                        val eligibilityByIins: POCardTokenizationEligibility? =
+                            paymentMethod.configuration.restrictToIins?.let { eligibleIins ->
+                                val isEligible = eligibleIins.any { eligibleIin ->
+                                    response.iin.startsWith(eligibleIin)
+                                }
+                                if (isEligible) Eligible() else NotEligible()
+                            }
+                        val eligibilityBySchemes: POCardTokenizationEligibility? =
+                            paymentMethod.configuration.restrictToSchemes?.let { eligibleSchemes ->
+                                val scheme = response.issuerInformation.scheme
+                                val coScheme = response.issuerInformation.coScheme
+                                val isSchemeEligible = scheme in eligibleSchemes
+                                val isCoSchemeEligible = coScheme in eligibleSchemes
+                                when {
+                                    coScheme == null -> if (isSchemeEligible) Eligible(scheme) else NotEligible()
+                                    !isSchemeEligible && !isCoSchemeEligible -> NotEligible()
+                                    isSchemeEligible && !isCoSchemeEligible -> Eligible(scheme)
+                                    !isSchemeEligible -> Eligible(coScheme)
+                                    else -> Eligible()
+                                }
+                            }
+                        val eligibility = response.eligibility
+                            ?: eligibilityByIins
+                            ?: eligibilityBySchemes
+                            ?: Eligible()
+                        val eligibilityResponse = CardTokenizationEligibilityResponse(
+                            uuid = response.uuid,
+                            eligibility = eligibility
+                        )
+                        eventDispatcher.send(eligibilityResponse)
+                    }
+                }
+            }
+        }
+
         eventDispatcher.subscribeForResponse<DynamicCheckoutCardPreferredSchemeResponse>(
             coroutineScope = interactorScope
         ) { response ->

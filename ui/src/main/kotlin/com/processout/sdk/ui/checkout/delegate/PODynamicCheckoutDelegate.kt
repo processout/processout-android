@@ -7,6 +7,7 @@ import com.processout.sdk.api.model.response.POCardIssuerInformation
 import com.processout.sdk.api.model.response.PODynamicCheckoutPaymentMethod
 import com.processout.sdk.api.model.response.POInvoice
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement
+import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationEligibility
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent
@@ -60,6 +61,17 @@ interface PODynamicCheckoutDelegate {
         paymentMethod: PODynamicCheckoutPaymentMethod,
         request: POInvoiceAuthorizationRequest
     ): POInvoiceAuthorizationRequest = request
+
+    /**
+     * Allows to evaluate card eligibility for tokenization based on issuer information.
+     *
+     * @param[iin] Issuer identification number.
+     * @param[issuerInformation] Resolved issuer information.
+     */
+    suspend fun evaluateEligibility(
+        iin: String,
+        issuerInformation: POCardIssuerInformation
+    ): POCardTokenizationEligibility? = null
 
     /**
      * Allows to choose default preferred card scheme based on issuer information.
