@@ -24,7 +24,6 @@ import com.processout.sdk.api.model.event.PODeepLinkReceivedEvent
 import com.processout.sdk.api.model.request.napm.v2.*
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter.Companion.phoneNumber
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSubmitData.Parameter.Companion.string
-import com.processout.sdk.api.model.response.POAlternativePaymentMethodResponse
 import com.processout.sdk.api.model.response.POImageResource
 import com.processout.sdk.api.model.response.napm.v2.*
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.Invoice
@@ -560,15 +559,10 @@ internal class NativeAlternativePaymentInteractor(
             if (_completion.value !is Awaiting) {
                 return@subscribe
             }
-            _state.whenNextStep { stateValue ->
-                if (stateValue.redirect?.data?.type == RedirectType.DEEP_LINK) {
-                    handleDeepLink(event.uri)
-                }
-            }
-            _state.whenPending { stateValue ->
-                if (stateValue.redirect?.data?.type == RedirectType.DEEP_LINK) {
-                    handleDeepLink(event.uri)
-                }
+            when (_state.value) {
+                is NextStep,
+                is Pending -> handleDeepLink(event.uri)
+                else -> {}
             }
         }
     }
@@ -638,7 +632,7 @@ internal class NativeAlternativePaymentInteractor(
                 }
             }
             is PermissionRequestResult -> handlePermission(event)
-            is WebRedirectResult -> handleWebRedirect(event.result)
+            is WebRedirectResult -> event.result.onFailure { handleWebRedirect(failure = it) }
             is Dismiss -> {
                 POLogger.info("Dismissed: %s", event.failure)
                 dispatch(DidFail(event.failure, paymentState))
@@ -797,15 +791,11 @@ internal class NativeAlternativePaymentInteractor(
         }
     }
 
-    private fun handleWebRedirect(result: ProcessOutResult<POAlternativePaymentMethodResponse>) {
-        result.onSuccess {
-            _state.whenNextStep { stateValue ->
-                val redirectConfirmation = if (stateValue.redirect?.data?.confirmationRequired == true)
-                    PONativeAlternativePaymentRedirectConfirmation(success = true) else null
-                continuePayment(redirectConfirmation)
-            }
-        }.onFailure { failure ->
-            _completion.update { Failure(failure) }
+    private fun handleWebRedirect(failure: ProcessOutResult.Failure) {
+        when (failure.code) {
+            Cancelled,
+            is Timeout -> _completion.update { Failure(failure) }
+            else -> {}
         }
     }
 
