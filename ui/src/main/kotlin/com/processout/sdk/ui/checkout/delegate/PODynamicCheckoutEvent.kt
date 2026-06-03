@@ -44,6 +44,14 @@ sealed class PODynamicCheckoutEvent {
     ) : PODynamicCheckoutEvent()
 
     /**
+     * Event is sent after the payment method is tokenized.
+     */
+    data class DidTokenizePaymentMethod(
+        val paymentMethod: PODynamicCheckoutPaymentMethod,
+        val customerTokenId: String
+    ) : PODynamicCheckoutEvent()
+
+    /**
      * Event is sent after payment was confirmed to be captured. This is a final event.
      */
     data object DidCompletePayment : PODynamicCheckoutEvent()

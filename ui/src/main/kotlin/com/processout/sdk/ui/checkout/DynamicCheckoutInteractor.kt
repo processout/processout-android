@@ -1013,6 +1013,17 @@ internal class DynamicCheckoutInteractor(
         if (invoiceId != state.invoice?.id) {
             return
         }
+        result.onSuccess { response ->
+            val customerTokenId = response.customerTokenId
+            val paymentMethod = state.processingPaymentMethod
+            if (customerTokenId != null && paymentMethod != null) {
+                val didTokenizeEvent = DidTokenizePaymentMethod(
+                    paymentMethod = paymentMethod.original,
+                    customerTokenId = customerTokenId
+                )
+                dispatch(didTokenizeEvent)
+            }
+        }
         when (state.processingPaymentMethod) {
             is Card -> latestCardProcessingRequest?.let { request ->
                 interactorScope.launch {
