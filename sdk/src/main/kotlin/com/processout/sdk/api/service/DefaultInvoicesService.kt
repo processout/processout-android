@@ -8,10 +8,7 @@ import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentUrlResolutionRequest
-import com.processout.sdk.api.model.response.POInvoice
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethod
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodCapture
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails
+import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentUrlResolutionResponse
 import com.processout.sdk.api.repository.InvoicesRepository
@@ -125,6 +122,67 @@ internal class DefaultInvoicesService(
                             .fold(
                                 onSuccess = { newSource ->
                                     authorize(
+                                        request.copy(source = newSource),
+                                        threeDSService
+                                    )
+                                },
+                                onFailure = { failure ->
+                                    POLogger.warn(
+                                        message = "Failed to authorize invoice: %s", failure,
+                                        attributes = logAttributes
+                                    )
+                                    threeDSService.cleanup()
+                                    failure
+                                }
+                            )
+                    },
+                    onFailure = { failure ->
+                        POLogger.warn(
+                            message = "Failed to authorize invoice: %s", failure,
+                            attributes = logAttributes
+                        )
+                        threeDSService.cleanup()
+                        failure
+                    }
+                )
+        } catch (e: CancellationException) {
+            coroutineScope {
+                val failure = ProcessOutResult.Failure(
+                    code = Cancelled,
+                    message = e.message,
+                    cause = e
+                )
+                POLogger.info(
+                    message = "Invoice authorization has been cancelled: %s", failure,
+                    attributes = logAttributes
+                )
+                threeDSService.cleanup()
+                ensureActive()
+                failure
+            }
+        }
+    }
+
+    override suspend fun authorizeV2(
+        request: POInvoiceAuthorizationRequest,
+        threeDSService: PO3DSService
+    ): ProcessOutResult<POInvoiceAuthorizationResponse> {
+        val logAttributes = mapOf(POLogAttribute.INVOICE_ID to request.invoiceId)
+        return try {
+            repository.authorizeInvoice(request)
+                .fold(
+                    onSuccess = { response ->
+                        if (response.customerAction == null) {
+                            threeDSService.cleanup()
+                            val authorizationResponse = POInvoiceAuthorizationResponse(
+                                customerTokenId = response.customerTokenId
+                            )
+                            return@fold ProcessOutResult.Success(authorizationResponse)
+                        }
+                        customerActionsService.handle(response.customerAction, threeDSService)
+                            .fold(
+                                onSuccess = { newSource ->
+                                    authorizeV2(
                                         request.copy(source = newSource),
                                         threeDSService
                                     )

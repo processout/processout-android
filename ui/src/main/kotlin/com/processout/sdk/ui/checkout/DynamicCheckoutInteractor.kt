@@ -988,7 +988,7 @@ internal class DynamicCheckoutInteractor(
             POLogger.info("Authorizing the invoice.", attributes = logAttributes)
             val threeDSService = PODefaultProxy3DSService()
             val job = interactorScope.launch {
-                val result = invoicesService.authorize(
+                val result = invoicesService.authorizeV2(
                     request = response.request,
                     threeDSService = threeDSService
                 )
@@ -1008,7 +1008,7 @@ internal class DynamicCheckoutInteractor(
     private fun handleInvoiceAuthorization(
         state: DynamicCheckoutInteractorState,
         invoiceId: String,
-        result: ProcessOutResult<Unit>
+        result: ProcessOutResult<POInvoiceAuthorizationResponse>
     ) {
         if (invoiceId != state.invoice?.id) {
             return
