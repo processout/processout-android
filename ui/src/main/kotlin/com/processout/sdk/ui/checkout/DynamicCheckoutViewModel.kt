@@ -189,34 +189,38 @@ internal class DynamicCheckoutViewModel private constructor(
     private fun expressCheckout(
         interactorState: DynamicCheckoutInteractorState
     ): ExpressCheckout? {
+        val configuration = configuration.expressCheckout ?: return null
         val expressPayments = expressPayments(interactorState)
         if (expressPayments.isEmpty()) {
             return null
         }
         return ExpressCheckout(
             header = SectionHeader(
-                title = configuration.expressCheckout.title
+                title = configuration.title
                     ?: app.getString(R.string.po_dynamic_checkout_express_checkout),
-                action = savedPaymentMethodsAction(interactorState)
+                action = savedPaymentMethodsAction(interactorState, configuration)
             ),
             expressPayments = POImmutableList(expressPayments)
         )
     }
 
     private fun savedPaymentMethodsAction(
-        interactorState: DynamicCheckoutInteractorState
-    ): POActionState? = with(configuration.expressCheckout) {
-        if (interactorState.paymentMethods.deletingAllowed)
-            POActionState(
-                id = interactorState.actions.savedPaymentMethodsId,
-                text = settingsButton?.text ?: String(),
-                primary = false,
-                icon = settingsButton?.icon
-                    ?: PODrawableImage(
-                        resId = com.processout.sdk.ui.R.drawable.po_icon_settings,
-                        renderingMode = POImageRenderingMode.ORIGINAL
-                    )
-            ) else null
+        interactorState: DynamicCheckoutInteractorState,
+        configuration: PODynamicCheckoutConfiguration.ExpressCheckout
+    ): POActionState? {
+        if (!interactorState.paymentMethods.deletingAllowed) {
+            return null
+        }
+        return POActionState(
+            id = interactorState.actions.savedPaymentMethodsId,
+            text = configuration.settingsButton?.text ?: String(),
+            primary = false,
+            icon = configuration.settingsButton?.icon
+                ?: PODrawableImage(
+                    resId = com.processout.sdk.ui.R.drawable.po_icon_settings,
+                    renderingMode = POImageRenderingMode.ORIGINAL
+                )
+        )
     }
 
     private val List<PaymentMethod>.deletingAllowed: Boolean

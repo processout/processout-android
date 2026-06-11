@@ -23,6 +23,9 @@ import kotlinx.parcelize.Parcelize
  *
  * @param[invoiceRequest] Request to fetch invoice for payment.
  * @param[expressCheckout] Express checkout section configuration.
+ * Controls the visibility and appearance of the saved payment methods.
+ * Set this value to `null` to hide the entire "Express Checkout" section and omit saved payments from the flow.
+ * This setting does not affect the availability of other payment options, nor does it affect whether the user can save a payment method.
  * @param[card] Card payment configuration.
  * @param[googlePay] Google Pay configuration.
  * @param[alternativePayment] Alternative payment configuration.
@@ -40,7 +43,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class PODynamicCheckoutConfiguration(
     val invoiceRequest: POInvoiceRequest,
-    val expressCheckout: ExpressCheckout = ExpressCheckout(),
+    val expressCheckout: ExpressCheckout? = ExpressCheckout(),
     val card: CardConfiguration = CardConfiguration(),
     val googlePay: GooglePayConfiguration = GooglePayConfiguration(),
     val alternativePayment: AlternativePaymentConfiguration = AlternativePaymentConfiguration(),
