@@ -355,6 +355,7 @@ private fun CheckboxField(
         },
         modifier = modifier,
         checkboxStyle = style,
+        enabled = state.enabled,
         isError = state.isError
     )
 }

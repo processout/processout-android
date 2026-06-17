@@ -149,6 +149,7 @@ internal class CardTokenizationInteractor(
         saveCardField = Field(
             id = FieldId.SAVE_CARD,
             value = TextFieldValue(text = "false"),
+            enabled = configuration.saving?.required != true,
             shouldCollect = configuration.saving != null
         ),
         focusedFieldId = CardFieldId.NUMBER,
