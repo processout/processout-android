@@ -114,6 +114,7 @@ class PODynamicCheckoutActivity : POBaseTransparentPortraitActivity() {
                 defaultAddress = billingAddress.defaultAddress,
                 attachDefaultsToPaymentMethod = billingAddress.attachDefaultsToPaymentMethod
             ),
+            saving = null,
             submitButton = configuration.submitButton.let {
                 POCardTokenizationConfiguration.Button(
                     text = it.text,

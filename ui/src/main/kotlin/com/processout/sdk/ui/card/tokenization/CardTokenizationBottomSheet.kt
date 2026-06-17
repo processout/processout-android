@@ -25,7 +25,6 @@ import com.processout.sdk.ui.card.tokenization.CardTokenizationCompletion.Succes
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.CardScannerResult
 import com.processout.sdk.ui.card.tokenization.CardTokenizationEvent.Dismiss
 import com.processout.sdk.ui.card.tokenization.CardTokenizationSideEffect.CardScanner
-import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.Button
 import com.processout.sdk.ui.card.tokenization.screen.CardTokenizationScreen
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.component.displayCutoutHeight
@@ -60,7 +59,7 @@ internal class CardTokenizationBottomSheet : BaseBottomSheetDialogFragment<POCar
         super.onAttach(context)
         @Suppress("DEPRECATION")
         configuration = arguments?.getParcelable(EXTRA_CONFIGURATION)
-            ?: POCardTokenizationConfiguration(submitButton = Button())
+            ?: POCardTokenizationConfiguration(saving = null)
         cardScannerLauncher = POCardScannerLauncher.create(
             from = this,
             callback = { result ->

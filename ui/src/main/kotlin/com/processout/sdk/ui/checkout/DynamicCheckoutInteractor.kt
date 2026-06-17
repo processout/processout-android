@@ -39,6 +39,7 @@ import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.base.BaseInteractor
 import com.processout.sdk.ui.card.tokenization.*
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.SavingConfiguration
 import com.processout.sdk.ui.card.tokenization.delegate.*
 import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationEligibility.Eligible
 import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationEligibility.NotEligible
@@ -502,7 +503,11 @@ internal class DynamicCheckoutInteractor(
                 mode = configuration.billingAddress.collectionMode.map(),
                 countryCodes = configuration.billingAddress.restrictToCountryCodes
             ),
-            savingAllowed = configuration.savingAllowed
+            saving = if (configuration.savingAllowed)
+                SavingConfiguration(
+                    enabledByDefault = saving?.enabledByDefault ?: false,
+                    required = saving?.required ?: false
+                ) else null
         )
 
     private fun POBillingAddressCollectionMode.map(): CollectionMode =
