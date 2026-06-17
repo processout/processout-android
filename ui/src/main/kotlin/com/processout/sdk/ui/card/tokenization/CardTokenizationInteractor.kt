@@ -139,25 +139,30 @@ internal class CardTokenizationInteractor(
         latestShouldContinueRequest = null
     }
 
-    private fun initState() = CardTokenizationInteractorState(
-        cardFields = cardFields(),
-        addressFields = emptyList(),
-        preferredSchemeField = Field(
-            id = FieldId.PREFERRED_SCHEME,
-            shouldCollect = false
-        ),
-        saveCardField = Field(
-            id = FieldId.SAVE_CARD,
-            value = TextFieldValue(text = "false"),
-            enabled = configuration.saving?.required != true,
-            shouldCollect = configuration.saving != null
-        ),
-        focusedFieldId = CardFieldId.NUMBER,
-        pendingFocusedFieldId = null,
-        primaryActionId = ActionId.SUBMIT,
-        secondaryActionId = ActionId.CANCEL,
-        cardScannerActionId = ActionId.CARD_SCANNER
-    )
+    private fun initState(): CardTokenizationInteractorState {
+        val saveCardFieldValue: Boolean = configuration.saving?.let {
+            it.required || it.enabledByDefault
+        } ?: false
+        return CardTokenizationInteractorState(
+            cardFields = cardFields(),
+            addressFields = emptyList(),
+            preferredSchemeField = Field(
+                id = FieldId.PREFERRED_SCHEME,
+                shouldCollect = false
+            ),
+            saveCardField = Field(
+                id = FieldId.SAVE_CARD,
+                value = TextFieldValue(text = saveCardFieldValue.toString()),
+                enabled = configuration.saving?.required != true,
+                shouldCollect = configuration.saving != null
+            ),
+            focusedFieldId = CardFieldId.NUMBER,
+            pendingFocusedFieldId = null,
+            primaryActionId = ActionId.SUBMIT,
+            secondaryActionId = ActionId.CANCEL,
+            cardScannerActionId = ActionId.CARD_SCANNER
+        )
+    }
 
     private fun cardFields(): List<Field> = mutableListOf(
         Field(id = CardFieldId.NUMBER),
@@ -304,7 +309,7 @@ internal class CardTokenizationInteractor(
                     field.copy(enabled = enabled)
                 },
                 preferredSchemeField = it.preferredSchemeField.copy(enabled = enabled),
-                saveCardField = it.saveCardField.copy(enabled = enabled)
+                saveCardField = it.saveCardField.copy(enabled = configuration.saving?.required != true)
             )
         }
     }
