@@ -291,9 +291,13 @@ internal class DynamicCheckoutInteractor(
                         gatewayConfigurationId = paymentMethod.configuration.gatewayConfigurationId,
                         redirectUrl = redirectUrl,
                         savePaymentMethodField = if (paymentMethod.configuration.savingAllowed) {
+                            val value: Boolean = configuration.saving?.let {
+                                it.required || it.enabledByDefault
+                            } ?: false
                             Field(
                                 id = FieldId.SAVE_PAYMENT_METHOD,
-                                value = TextFieldValue(text = "false")
+                                value = TextFieldValue(text = value.toString()),
+                                enabled = configuration.saving?.required != true
                             )
                         } else null,
                         display = paymentMethod.display,

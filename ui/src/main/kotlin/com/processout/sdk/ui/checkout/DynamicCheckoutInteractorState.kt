@@ -65,7 +65,8 @@ internal data class DynamicCheckoutInteractorState(
 
     data class Field(
         val id: String,
-        val value: TextFieldValue = TextFieldValue()
+        val value: TextFieldValue = TextFieldValue(),
+        val enabled: Boolean = true
     )
 
     data class Actions(
