@@ -29,6 +29,7 @@ import kotlinx.parcelize.Parcelize
  * @param[card] Card payment configuration.
  * @param[googlePay] Google Pay configuration.
  * @param[alternativePayment] Alternative payment configuration.
+ * @param[saving] Saving configuration for supported payment methods.
  * @param[submitButton] Submit button configuration.
  * @param[cancelButton] Cancel button configuration.
  * @param[cancelOnBackPressed] Specifies whether the screen should be cancelled on back button press or back gesture.
@@ -47,6 +48,7 @@ data class PODynamicCheckoutConfiguration(
     val card: CardConfiguration = CardConfiguration(),
     val googlePay: GooglePayConfiguration = GooglePayConfiguration(),
     val alternativePayment: AlternativePaymentConfiguration = AlternativePaymentConfiguration(),
+    val saving: SavingConfiguration? = SavingConfiguration(),
     val submitButton: Button = Button(),
     val cancelButton: CancelButton? = CancelButton(),
     val cancelOnBackPressed: Boolean = true,
@@ -284,6 +286,18 @@ data class PODynamicCheckoutConfiguration(
             val confirmation: POActionConfirmationConfiguration? = null
         ) : Parcelable
     }
+
+    /**
+     * Payment method saving configuration.
+     *
+     * @param[enabledByDefault] Initial selection state.
+     * @param[required] If `true`, saving is enforced and cannot be disabled by the user.
+     */
+    @Parcelize
+    data class SavingConfiguration(
+        val enabledByDefault: Boolean = false,
+        val required: Boolean = false
+    ) : Parcelable
 
     /**
      * Button configuration.
