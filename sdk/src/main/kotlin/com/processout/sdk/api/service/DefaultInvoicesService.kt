@@ -175,6 +175,7 @@ internal class DefaultInvoicesService(
                         if (response.customerAction == null) {
                             threeDSService.cleanup()
                             val authorizationResponse = POInvoiceAuthorizationResponse(
+                                outcome = response.outcome,
                                 customerTokenId = response.customerTokenId
                             )
                             return@fold ProcessOutResult.Success(authorizationResponse)
