@@ -26,6 +26,10 @@ import kotlinx.parcelize.Parcelize
  * Controls the visibility and appearance of the saved payment methods.
  * Set this value to `null` to hide the entire "Express Checkout" section and omit saved payments from the flow.
  * This setting does not affect the availability of other payment options, nor does it affect whether the user can save a payment method.
+ * @param[regularCheckout] Regular checkout section configuration.
+ * Controls the visibility and appearance of the regular payment methods section.
+ * Set this value to `null` to hide the entire "Regular Checkout" section.
+ * This setting does not affect the availability of saved payment options.
  * @param[card] Card payment configuration.
  * @param[googlePay] Google Pay configuration.
  * @param[alternativePayment] Alternative payment configuration.
@@ -45,6 +49,7 @@ import kotlinx.parcelize.Parcelize
 data class PODynamicCheckoutConfiguration(
     val invoiceRequest: POInvoiceRequest,
     val expressCheckout: ExpressCheckout? = ExpressCheckout(),
+    val regularCheckout: RegularCheckout? = RegularCheckout(),
     val card: CardConfiguration = CardConfiguration(),
     val googlePay: GooglePayConfiguration = GooglePayConfiguration(),
     val alternativePayment: AlternativePaymentConfiguration = AlternativePaymentConfiguration(),
@@ -67,6 +72,16 @@ data class PODynamicCheckoutConfiguration(
     data class ExpressCheckout(
         val title: String? = null,
         val settingsButton: Button? = null
+    ) : Parcelable
+
+    /**
+     * Specifies regular checkout section configuration.
+     *
+     * @param[title] Custom section title. Set `null` to use the default value, or an empty string to remove the title.
+     */
+    @Parcelize
+    data class RegularCheckout(
+        val title: String? = String()
     ) : Parcelable
 
     /**
