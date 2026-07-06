@@ -65,7 +65,7 @@ data class PODynamicCheckoutConfiguration(
     /**
      * Specifies express checkout section configuration.
      *
-     * @param[title] Custom section title.
+     * @param[title] Custom section title. Set `null` to use the default value, or an empty string to remove the title.
      * @param[settingsButton] Settings button configuration.
      */
     @Parcelize

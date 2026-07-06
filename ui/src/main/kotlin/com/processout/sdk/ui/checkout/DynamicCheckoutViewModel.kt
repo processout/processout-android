@@ -195,12 +195,23 @@ internal class DynamicCheckoutViewModel private constructor(
             return null
         }
         return ExpressCheckout(
-            header = SectionHeader(
-                title = configuration.title
-                    ?: app.getString(R.string.po_dynamic_checkout_express_checkout),
-                action = savedPaymentMethodsAction(interactorState, configuration)
-            ),
+            header = expressCheckoutSectionHeader(interactorState, configuration),
             expressPayments = POImmutableList(expressPayments)
+        )
+    }
+
+    private fun expressCheckoutSectionHeader(
+        interactorState: DynamicCheckoutInteractorState,
+        configuration: PODynamicCheckoutConfiguration.ExpressCheckout
+    ): SectionHeader? {
+        val savedPaymentMethodsAction = savedPaymentMethodsAction(interactorState, configuration)
+        if (configuration.title?.isBlank() == true && savedPaymentMethodsAction == null) {
+            return null
+        }
+        return SectionHeader(
+            title = configuration.title
+                ?: app.getString(R.string.po_dynamic_checkout_express_checkout),
+            action = savedPaymentMethodsAction
         )
     }
 

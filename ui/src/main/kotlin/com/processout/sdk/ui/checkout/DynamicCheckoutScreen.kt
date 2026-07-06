@@ -201,11 +201,13 @@ private fun ExpressCheckout(
     style: DynamicCheckoutScreen.Style,
     isLightTheme: Boolean
 ) {
-    ExpressCheckoutHeader(
-        state = state.header,
-        onEvent = onEvent,
-        style = style.sectionHeader
-    )
+    if (state.header != null) {
+        ExpressCheckoutHeader(
+            state = state.header,
+            onEvent = onEvent,
+            style = style.sectionHeader
+        )
+    }
     ExpressPayments(
         payments = state.expressPayments,
         onEvent = onEvent,

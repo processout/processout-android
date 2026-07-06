@@ -42,7 +42,7 @@ internal sealed interface DynamicCheckoutViewModelState {
 
     @Immutable
     data class ExpressCheckout(
-        val header: SectionHeader,
+        val header: SectionHeader?,
         val expressPayments: POImmutableList<ExpressPayment>
     )
 
