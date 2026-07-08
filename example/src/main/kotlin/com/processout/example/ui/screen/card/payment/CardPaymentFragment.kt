@@ -30,6 +30,7 @@ import com.processout.sdk.netcetera.threeds.PONetcetera3DS2ServiceConfiguration
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationActivity
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.CardScannerConfiguration
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.SavingConfiguration
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationLauncher
 import com.processout.sdk.ui.shared.view.dialog.POAlertDialog
 import com.processout.sdk.ui.threeds.PO3DSRedirectCustomTabLauncher
@@ -95,9 +96,9 @@ class CardPaymentFragment : BaseFragment<FragmentCardPaymentBinding>(
 
     private fun launchTokenization() {
         launcher.launch(
-            POCardTokenizationConfiguration(
+            configuration = POCardTokenizationConfiguration(
                 cardScanner = CardScannerConfiguration(),
-                savingAllowed = true
+                saving = SavingConfiguration()
             )
         )
     }

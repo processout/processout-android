@@ -156,6 +156,10 @@ sealed class PODynamicCheckoutPaymentMethod {
      * @param[cvcRequired] Defines whether the card CVC should be collected.
      * @param[cardholderNameRequired] Defines whether the cardholder name should be collected.
      * @param[schemeSelectionAllowed] Defines whether the user will be asked to select the scheme if co-scheme is available.
+     * @param[schemeSelectionDefaultOrder] Schemes selection preferred order.
+     * When cards with multiple supported schemes are detected, the first matching scheme is preselected.
+     * @param[restrictToIins] Restrict card schemes to the ones with IINs in the set.
+     * @param[restrictToSchemes] Restrict card schemes to the ones in the set.
      * @param[billingAddress] Card billing address configuration.
      * @param[savingAllowed] Defines whether saving of the payment method is allowed for future payments.
      */
@@ -167,6 +171,12 @@ sealed class PODynamicCheckoutPaymentMethod {
         val cardholderNameRequired: Boolean,
         @Json(name = "scheme_selection_allowed")
         val schemeSelectionAllowed: Boolean,
+        @Json(name = "scheme_selection_default_order")
+        val schemeSelectionDefaultOrder: List<String>?,
+        @Json(name = "restrict_to_iins")
+        val restrictToIins: Set<String>?,
+        @Json(name = "restrict_to_schemes")
+        val restrictToSchemes: Set<String>?,
         @Json(name = "billing_address")
         val billingAddress: BillingAddressConfiguration,
         @Json(name = "saving_allowed")

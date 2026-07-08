@@ -742,6 +742,7 @@ internal class NativeAlternativePaymentInteractor(
         stateValue: NextStepStateValue,
         redirect: PONativeAlternativePaymentRedirect
     ) {
+        dispatch(WillStartRedirect(redirect))
         when (redirect.type) {
             RedirectType.WEB -> webRedirect(
                 stateValue = stateValue,

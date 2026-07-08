@@ -104,7 +104,7 @@ internal class DynamicCheckoutViewModel private constructor(
         } else {
             Loaded(
                 expressCheckout = expressCheckout(interactorState),
-                regularPayments = regularPayments(interactorState, cardTokenizationState, nativeAlternativePaymentState),
+                regularCheckout = regularCheckout(interactorState, cardTokenizationState, nativeAlternativePaymentState),
                 cancelAction = cancelAction,
                 errorMessage = interactorState.errorMessage
             )
@@ -189,34 +189,49 @@ internal class DynamicCheckoutViewModel private constructor(
     private fun expressCheckout(
         interactorState: DynamicCheckoutInteractorState
     ): ExpressCheckout? {
+        val configuration = configuration.expressCheckout ?: return null
         val expressPayments = expressPayments(interactorState)
         if (expressPayments.isEmpty()) {
             return null
         }
         return ExpressCheckout(
-            header = SectionHeader(
-                title = configuration.expressCheckout.title
-                    ?: app.getString(R.string.po_dynamic_checkout_express_checkout),
-                action = savedPaymentMethodsAction(interactorState)
-            ),
+            header = expressCheckoutSectionHeader(interactorState, configuration),
             expressPayments = POImmutableList(expressPayments)
         )
     }
 
+    private fun expressCheckoutSectionHeader(
+        interactorState: DynamicCheckoutInteractorState,
+        configuration: PODynamicCheckoutConfiguration.ExpressCheckout
+    ): SectionHeader? {
+        val savedPaymentMethodsAction = savedPaymentMethodsAction(interactorState, configuration)
+        if (configuration.title?.isBlank() == true && savedPaymentMethodsAction == null) {
+            return null
+        }
+        return SectionHeader(
+            title = configuration.title
+                ?: app.getString(R.string.po_dynamic_checkout_express_checkout),
+            action = savedPaymentMethodsAction
+        )
+    }
+
     private fun savedPaymentMethodsAction(
-        interactorState: DynamicCheckoutInteractorState
-    ): POActionState? = with(configuration.expressCheckout) {
-        if (interactorState.paymentMethods.deletingAllowed)
-            POActionState(
-                id = interactorState.actions.savedPaymentMethodsId,
-                text = settingsButton?.text ?: String(),
-                primary = false,
-                icon = settingsButton?.icon
-                    ?: PODrawableImage(
-                        resId = com.processout.sdk.ui.R.drawable.po_icon_settings,
-                        renderingMode = POImageRenderingMode.ORIGINAL
-                    )
-            ) else null
+        interactorState: DynamicCheckoutInteractorState,
+        configuration: PODynamicCheckoutConfiguration.ExpressCheckout
+    ): POActionState? {
+        if (!interactorState.paymentMethods.deletingAllowed) {
+            return null
+        }
+        return POActionState(
+            id = interactorState.actions.savedPaymentMethodsId,
+            text = configuration.settingsButton?.text ?: String(),
+            primary = false,
+            icon = configuration.settingsButton?.icon
+                ?: PODrawableImage(
+                    resId = com.processout.sdk.ui.R.drawable.po_icon_settings,
+                    renderingMode = POImageRenderingMode.ORIGINAL
+                )
+        )
     }
 
     private val List<PaymentMethod>.deletingAllowed: Boolean
@@ -284,11 +299,40 @@ internal class DynamicCheckoutViewModel private constructor(
         )
     }
 
+    private fun regularCheckout(
+        interactorState: DynamicCheckoutInteractorState,
+        cardTokenizationState: CardTokenizationViewModelState,
+        nativeAlternativePaymentState: NativeAlternativePaymentViewModelState
+    ): RegularCheckout? {
+        val configuration = configuration.regularCheckout ?: return null
+        val regularPayments = regularPayments(interactorState, cardTokenizationState, nativeAlternativePaymentState)
+        if (regularPayments.isEmpty()) {
+            return null
+        }
+        return RegularCheckout(
+            header = regularCheckoutSectionHeader(configuration),
+            regularPayments = POImmutableList(regularPayments)
+        )
+    }
+
+    private fun regularCheckoutSectionHeader(
+        configuration: PODynamicCheckoutConfiguration.RegularCheckout
+    ): SectionHeader? {
+        if (configuration.title?.isBlank() == true) {
+            return null
+        }
+        return SectionHeader(
+            title = configuration.title
+                ?: app.getString(R.string.po_dynamic_checkout_regular_checkout),
+            action = null
+        )
+    }
+
     private fun regularPayments(
         interactorState: DynamicCheckoutInteractorState,
         cardTokenizationState: CardTokenizationViewModelState,
         nativeAlternativePaymentState: NativeAlternativePaymentViewModelState
-    ): POImmutableList<RegularPayment> =
+    ): List<RegularPayment> =
         interactorState.paymentMethods.mapNotNull { paymentMethod ->
             val id = paymentMethod.id
             val selected = id == interactorState.selectedPaymentMethod?.id
@@ -342,7 +386,7 @@ internal class DynamicCheckoutViewModel private constructor(
                 )
                 else -> null
             }
-        }.let { POImmutableList(it) }
+        }
 
     private fun regularPaymentState(
         display: Display,
@@ -375,7 +419,8 @@ internal class DynamicCheckoutViewModel private constructor(
             FieldState(
                 id = id,
                 value = value,
-                label = title
+                label = title,
+                enabled = enabled
             )
         )
 

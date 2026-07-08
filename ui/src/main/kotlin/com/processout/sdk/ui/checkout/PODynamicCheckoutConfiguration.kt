@@ -23,9 +23,17 @@ import kotlinx.parcelize.Parcelize
  *
  * @param[invoiceRequest] Request to fetch invoice for payment.
  * @param[expressCheckout] Express checkout section configuration.
+ * Controls the visibility and appearance of the saved payment methods.
+ * Set this value to `null` to hide the entire "Express Checkout" section and omit saved payments from the flow.
+ * This setting does not affect the availability of other payment options, nor does it affect whether the user can save a payment method.
+ * @param[regularCheckout] Regular checkout section configuration.
+ * Controls the visibility and appearance of the regular payment methods section.
+ * Set this value to `null` to hide the entire "Regular Checkout" section.
+ * This setting does not affect the availability of saved payment options.
  * @param[card] Card payment configuration.
  * @param[googlePay] Google Pay configuration.
  * @param[alternativePayment] Alternative payment configuration.
+ * @param[saving] Saving configuration for supported payment methods.
  * @param[submitButton] Submit button configuration.
  * @param[cancelButton] Cancel button configuration.
  * @param[cancelOnBackPressed] Specifies whether the screen should be cancelled on back button press or back gesture.
@@ -40,10 +48,12 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class PODynamicCheckoutConfiguration(
     val invoiceRequest: POInvoiceRequest,
-    val expressCheckout: ExpressCheckout = ExpressCheckout(),
+    val expressCheckout: ExpressCheckout? = ExpressCheckout(),
+    val regularCheckout: RegularCheckout? = RegularCheckout(),
     val card: CardConfiguration = CardConfiguration(),
     val googlePay: GooglePayConfiguration = GooglePayConfiguration(),
     val alternativePayment: AlternativePaymentConfiguration = AlternativePaymentConfiguration(),
+    val saving: SavingConfiguration? = SavingConfiguration(),
     val submitButton: Button = Button(),
     val cancelButton: CancelButton? = CancelButton(),
     val cancelOnBackPressed: Boolean = true,
@@ -55,13 +65,23 @@ data class PODynamicCheckoutConfiguration(
     /**
      * Specifies express checkout section configuration.
      *
-     * @param[title] Custom section title.
+     * @param[title] Custom section title. Set `null` to use the default value, or an empty string to remove the title.
      * @param[settingsButton] Settings button configuration.
      */
     @Parcelize
     data class ExpressCheckout(
         val title: String? = null,
         val settingsButton: Button? = null
+    ) : Parcelable
+
+    /**
+     * Specifies regular checkout section configuration.
+     *
+     * @param[title] Custom section title. Set `null` to use the default value, or an empty string to remove the title.
+     */
+    @Parcelize
+    data class RegularCheckout(
+        val title: String? = String()
     ) : Parcelable
 
     /**
@@ -281,6 +301,18 @@ data class PODynamicCheckoutConfiguration(
             val confirmation: POActionConfirmationConfiguration? = null
         ) : Parcelable
     }
+
+    /**
+     * Payment method saving configuration.
+     *
+     * @param[enabledByDefault] Initial selection state.
+     * @param[required] If `true`, saving is enforced and cannot be disabled by the user.
+     */
+    @Parcelize
+    data class SavingConfiguration(
+        val enabledByDefault: Boolean = false,
+        val required: Boolean = false
+    ) : Parcelable
 
     /**
      * Button configuration.

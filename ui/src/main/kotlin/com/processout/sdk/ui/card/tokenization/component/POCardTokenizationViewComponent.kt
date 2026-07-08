@@ -147,7 +147,7 @@ class POCardTokenizationViewComponent private constructor(
                 cardScanner = cardScanner,
                 preferredScheme = preferredScheme,
                 billingAddress = billingAddress,
-                savingAllowed = savingAllowed,
+                saving = saving,
                 submitButton = Button(),
                 cancelButton = cancelButton,
                 bottomSheet = POBottomSheetConfiguration(

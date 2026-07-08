@@ -39,9 +39,10 @@ import com.processout.sdk.core.onSuccess
 import com.processout.sdk.ui.base.BaseInteractor
 import com.processout.sdk.ui.card.tokenization.*
 import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.BillingAddressConfiguration.CollectionMode
-import com.processout.sdk.ui.card.tokenization.delegate.CardTokenizationProcessingRequest
-import com.processout.sdk.ui.card.tokenization.delegate.CardTokenizationShouldContinueRequest
-import com.processout.sdk.ui.card.tokenization.delegate.toResponse
+import com.processout.sdk.ui.card.tokenization.POCardTokenizationConfiguration.SavingConfiguration
+import com.processout.sdk.ui.card.tokenization.delegate.*
+import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationEligibility.Eligible
+import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationEligibility.NotEligible
 import com.processout.sdk.ui.checkout.DynamicCheckoutCompletion.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutEvent.*
 import com.processout.sdk.ui.checkout.DynamicCheckoutInteractorState.*
@@ -64,7 +65,6 @@ import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.*
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow
 import com.processout.sdk.ui.napm.delegate.v2.NativeAlternativePaymentDefaultValuesRequest
 import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent
-import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent.WillSubmitParameters
 import com.processout.sdk.ui.savedpaymentmethods.POSavedPaymentMethodsConfiguration
 import com.processout.sdk.ui.shared.extension.orElse
 import com.processout.sdk.ui.shared.state.FieldValue
@@ -291,9 +291,13 @@ internal class DynamicCheckoutInteractor(
                         gatewayConfigurationId = paymentMethod.configuration.gatewayConfigurationId,
                         redirectUrl = redirectUrl,
                         savePaymentMethodField = if (paymentMethod.configuration.savingAllowed) {
+                            val value: Boolean = configuration.saving?.let {
+                                it.required || it.enabledByDefault
+                            } ?: false
                             Field(
                                 id = FieldId.SAVE_PAYMENT_METHOD,
-                                value = TextFieldValue(text = "false")
+                                value = TextFieldValue(text = value.toString()),
+                                enabled = configuration.saving?.required != true
                             )
                         } else null,
                         display = paymentMethod.display,
@@ -503,7 +507,11 @@ internal class DynamicCheckoutInteractor(
                 mode = configuration.billingAddress.collectionMode.map(),
                 countryCodes = configuration.billingAddress.restrictToCountryCodes
             ),
-            savingAllowed = configuration.savingAllowed
+            saving = if (configuration.savingAllowed)
+                SavingConfiguration(
+                    enabledByDefault = saving?.enabledByDefault ?: false,
+                    required = saving?.required ?: false
+                ) else null
         )
 
     private fun POBillingAddressCollectionMode.map(): CollectionMode =
@@ -989,7 +997,7 @@ internal class DynamicCheckoutInteractor(
             POLogger.info("Authorizing the invoice.", attributes = logAttributes)
             val threeDSService = PODefaultProxy3DSService()
             val job = interactorScope.launch {
-                val result = invoicesService.authorize(
+                val result = invoicesService.authorizeV2(
                     request = response.request,
                     threeDSService = threeDSService
                 )
@@ -1009,10 +1017,21 @@ internal class DynamicCheckoutInteractor(
     private fun handleInvoiceAuthorization(
         state: DynamicCheckoutInteractorState,
         invoiceId: String,
-        result: ProcessOutResult<Unit>
+        result: ProcessOutResult<POInvoiceAuthorizationResponse>
     ) {
         if (invoiceId != state.invoice?.id) {
             return
+        }
+        result.onSuccess { response ->
+            val customerTokenId = response.customerTokenId
+            val paymentMethod = state.processingPaymentMethod
+            if (customerTokenId != null && paymentMethod != null) {
+                val didTokenizeEvent = DidTokenizePaymentMethod(
+                    paymentMethod = paymentMethod.original,
+                    customerTokenId = customerTokenId
+                )
+                dispatch(didTokenizeEvent)
+            }
         }
         when (state.processingPaymentMethod) {
             is Card -> latestCardProcessingRequest?.let { request ->
@@ -1089,6 +1108,74 @@ internal class DynamicCheckoutInteractor(
     }
 
     private fun dispatchEvents() {
+        dispatchCardTokenizationEvents()
+        dispatchNativeAlternativePaymentEvents()
+    }
+
+    private fun dispatchCardTokenizationEvents() {
+        eventDispatcher.subscribeForResponse<DynamicCheckoutCardEligibilityResponse>(
+            coroutineScope = interactorScope
+        ) { response ->
+            activePaymentMethod()?.let { paymentMethod ->
+                if (paymentMethod is Card) {
+                    interactorScope.launch {
+                        val eligibilityByIins: POCardTokenizationEligibility? =
+                            paymentMethod.configuration.restrictToIins?.let { eligibleIins ->
+                                val isEligible = eligibleIins.any { eligibleIin ->
+                                    response.iin.startsWith(eligibleIin)
+                                }
+                                if (isEligible) Eligible() else NotEligible()
+                            }
+                        val eligibilityBySchemes: POCardTokenizationEligibility? =
+                            paymentMethod.configuration.restrictToSchemes?.let { eligibleSchemes ->
+                                val scheme = response.issuerInformation.scheme
+                                val coScheme = response.issuerInformation.coScheme
+                                val isSchemeEligible = scheme in eligibleSchemes
+                                val isCoSchemeEligible = coScheme in eligibleSchemes
+                                when {
+                                    coScheme == null -> if (isSchemeEligible) Eligible(scheme) else NotEligible()
+                                    !isSchemeEligible && !isCoSchemeEligible -> NotEligible()
+                                    isSchemeEligible && !isCoSchemeEligible -> Eligible(scheme)
+                                    !isSchemeEligible -> Eligible(coScheme)
+                                    else -> Eligible()
+                                }
+                            }
+                        val eligibility = response.eligibility
+                            ?: eligibilityByIins
+                            ?: eligibilityBySchemes
+                            ?: Eligible()
+                        val eligibilityResponse = CardTokenizationEligibilityResponse(
+                            uuid = response.uuid,
+                            eligibility = eligibility
+                        )
+                        eventDispatcher.send(eligibilityResponse)
+                    }
+                }
+            }
+        }
+
+        eventDispatcher.subscribeForResponse<DynamicCheckoutCardPreferredSchemeResponse>(
+            coroutineScope = interactorScope
+        ) { response ->
+            activePaymentMethod()?.let { paymentMethod ->
+                if (paymentMethod is Card) {
+                    interactorScope.launch {
+                        val schemeSelectionDefaultOrder = paymentMethod.configuration.schemeSelectionDefaultOrder
+                        val issuerInformation = response.issuerInformation
+                        val preferredScheme = response.preferredScheme
+                            ?: schemeSelectionDefaultOrder?.firstOrNull { scheme ->
+                                scheme == issuerInformation.scheme || scheme == issuerInformation.coScheme
+                            } ?: issuerInformation.scheme
+                        val preferredSchemeResponse = CardTokenizationPreferredSchemeResponse(
+                            uuid = response.uuid,
+                            preferredScheme = preferredScheme
+                        )
+                        eventDispatcher.send(preferredSchemeResponse)
+                    }
+                }
+            }
+        }
+
         eventDispatcher.subscribeForRequest<CardTokenizationShouldContinueRequest>(
             coroutineScope = interactorScope
         ) { request ->
@@ -1097,6 +1184,17 @@ internal class DynamicCheckoutInteractor(
                 eventDispatcher.send(request.toResponse(shouldContinue))
             }
         }
+    }
+
+    private fun dispatchNativeAlternativePaymentEvents() {
+        eventDispatcher.subscribe<PONativeAlternativePaymentEvent>(
+            coroutineScope = interactorScope
+        ) { event ->
+            if (event is PONativeAlternativePaymentEvent.WillStart) {
+                _state.update { it.copy(processingPaymentMethod = _state.value.selectedPaymentMethod) }
+            }
+        }
+
         eventDispatcher.subscribeForRequest<NativeAlternativePaymentDefaultValuesRequest>(
             coroutineScope = interactorScope
         ) { request ->
@@ -1111,13 +1209,6 @@ internal class DynamicCheckoutInteractor(
                         eventDispatcher.send(defaultValuesRequest)
                     }
                 }
-            }
-        }
-        eventDispatcher.subscribe<PONativeAlternativePaymentEvent>(
-            coroutineScope = interactorScope
-        ) { event ->
-            if (event is WillSubmitParameters) {
-                _state.update { it.copy(processingPaymentMethod = _state.value.selectedPaymentMethod) }
             }
         }
     }

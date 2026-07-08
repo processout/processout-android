@@ -1,6 +1,7 @@
 package com.processout.sdk.ui.napm.delegate.v2
 
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentRedirect
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentState
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.annotation.ProcessOutInternalApi
@@ -53,9 +54,20 @@ sealed class PONativeAlternativePaymentEvent {
 
     /**
      * Event is sent when parameters submission failed and the error is retriable, otherwise expect [DidFail] event.
+     *
+     * @param[failure] Failure details.
      */
     data class DidFailToSubmitParameters(
         val failure: ProcessOutResult.Failure
+    ) : PONativeAlternativePaymentEvent()
+
+    /**
+     * Event is sent just before redirecting to a web or a deep/app link.
+     *
+     * @param[redirect] Redirect details.
+     */
+    data class WillStartRedirect(
+        val redirect: PONativeAlternativePaymentRedirect
     ) : PONativeAlternativePaymentEvent()
 
     /**
@@ -82,6 +94,7 @@ sealed class PONativeAlternativePaymentEvent {
     /**
      * Event is sent when unretryable error occurs. This is a final event.
      *
+     * @param[failure] Failure details.
      * @param[paymentState] The payment state provides additional context about where in the payment process the failure occurred.
      * For example, in the event of a user-initiated cancellation,
      * this state can be used to determine which step the user was on when they canceled.

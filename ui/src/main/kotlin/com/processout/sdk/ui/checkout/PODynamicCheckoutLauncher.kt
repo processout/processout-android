@@ -17,8 +17,6 @@ import com.processout.sdk.core.POUnit
 import com.processout.sdk.core.ProcessOutActivityResult
 import com.processout.sdk.ui.card.tokenization.delegate.CardTokenizationEligibilityRequest
 import com.processout.sdk.ui.card.tokenization.delegate.CardTokenizationPreferredSchemeRequest
-import com.processout.sdk.ui.card.tokenization.delegate.POCardTokenizationEligibility.Eligible
-import com.processout.sdk.ui.card.tokenization.delegate.toResponse
 import com.processout.sdk.ui.checkout.delegate.*
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent
@@ -148,7 +146,11 @@ class PODynamicCheckoutLauncher private constructor(
             coroutineScope = scope
         ) { request ->
             scope.launch {
-                eventDispatcher.send(request.toResponse(eligibility = Eligible()))
+                val eligibility = delegate.evaluateEligibility(
+                    iin = request.iin,
+                    issuerInformation = request.issuerInformation
+                )
+                eventDispatcher.send(request.toDynamicCheckoutResponse(eligibility))
             }
         }
     }
@@ -159,7 +161,7 @@ class PODynamicCheckoutLauncher private constructor(
         ) { request ->
             scope.launch {
                 val preferredScheme = delegate.preferredScheme(request.issuerInformation)
-                eventDispatcher.send(request.toResponse(preferredScheme))
+                eventDispatcher.send(request.toDynamicCheckoutResponse(preferredScheme))
             }
         }
     }

@@ -6,10 +6,7 @@ import com.processout.sdk.api.model.request.POInvoiceRequest
 import com.processout.sdk.api.model.request.PONativeAlternativePaymentMethodRequest
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentUrlResolutionRequest
-import com.processout.sdk.api.model.response.POInvoice
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethod
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodCapture
-import com.processout.sdk.api.model.response.PONativeAlternativePaymentMethodTransactionDetails
+import com.processout.sdk.api.model.response.*
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentUrlResolutionResponse
 import com.processout.sdk.core.ProcessOutCallback
@@ -66,6 +63,15 @@ interface POInvoicesService {
         request: POInvoiceAuthorizationRequest,
         threeDSService: PO3DSService
     ): ProcessOutResult<Unit>
+
+    /**
+     * Authorize invoice with the given request and 3DS service implementation.
+     * Provides the result with [POInvoiceAuthorizationResponse].
+     */
+    suspend fun authorizeV2(
+        request: POInvoiceAuthorizationRequest,
+        threeDSService: PO3DSService
+    ): ProcessOutResult<POInvoiceAuthorizationResponse>
 
     /**
      * Authorize invoice with the given request.
