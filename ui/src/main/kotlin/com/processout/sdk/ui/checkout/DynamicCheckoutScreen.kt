@@ -183,9 +183,9 @@ private fun Content(
                 isLightTheme = isLightTheme
             )
         }
-        if (state.regularPayments.elements.isNotEmpty()) {
-            RegularPayments(
-                payments = state.regularPayments,
+        state.regularCheckout?.let {
+            RegularCheckout(
+                state = it,
                 onEvent = onEvent,
                 style = style,
                 isLightTheme = isLightTheme
@@ -195,29 +195,7 @@ private fun Content(
 }
 
 @Composable
-private fun ExpressCheckout(
-    state: ExpressCheckout,
-    onEvent: (DynamicCheckoutEvent) -> Unit,
-    style: DynamicCheckoutScreen.Style,
-    isLightTheme: Boolean
-) {
-    if (state.header != null) {
-        ExpressCheckoutHeader(
-            state = state.header,
-            onEvent = onEvent,
-            style = style.sectionHeader
-        )
-    }
-    ExpressPayments(
-        payments = state.expressPayments,
-        onEvent = onEvent,
-        style = style,
-        isLightTheme = isLightTheme
-    )
-}
-
-@Composable
-private fun ExpressCheckoutHeader(
+private fun SectionHeader(
     state: SectionHeader,
     onEvent: (DynamicCheckoutEvent) -> Unit,
     style: SectionHeaderStyle,
@@ -259,6 +237,28 @@ private fun ExpressCheckoutHeader(
             )
         }
     }
+}
+
+@Composable
+private fun ExpressCheckout(
+    state: ExpressCheckout,
+    onEvent: (DynamicCheckoutEvent) -> Unit,
+    style: DynamicCheckoutScreen.Style,
+    isLightTheme: Boolean
+) {
+    state.header?.let {
+        SectionHeader(
+            state = it,
+            onEvent = onEvent,
+            style = style.sectionHeader
+        )
+    }
+    ExpressPayments(
+        payments = state.expressPayments,
+        onEvent = onEvent,
+        style = style,
+        isLightTheme = isLightTheme
+    )
 }
 
 @Composable
@@ -356,6 +356,28 @@ private fun ExpressPayment(
             }
         )
     }
+}
+
+@Composable
+private fun RegularCheckout(
+    state: RegularCheckout,
+    onEvent: (DynamicCheckoutEvent) -> Unit,
+    style: DynamicCheckoutScreen.Style,
+    isLightTheme: Boolean
+) {
+    state.header?.let {
+        SectionHeader(
+            state = it,
+            onEvent = onEvent,
+            style = style.sectionHeader
+        )
+    }
+    RegularPayments(
+        payments = state.regularPayments,
+        onEvent = onEvent,
+        style = style,
+        isLightTheme = isLightTheme
+    )
 }
 
 @Composable
