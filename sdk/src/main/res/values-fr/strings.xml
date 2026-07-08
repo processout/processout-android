@@ -5,6 +5,7 @@
 
     <!-- Dynamic Checkout -->
     <string name="po_dynamic_checkout_express_checkout">Paiement express</string>
+    <string name="po_dynamic_checkout_regular_checkout">Autres modes de paiement</string>
     <string name="po_dynamic_checkout_button_pay">Payer</string>
     <string name="po_dynamic_checkout_button_cancel">Annuler</string>
     <string name="po_dynamic_checkout_save_payment_method">Enregistrer cette méthode pour les paiements futurs</string>

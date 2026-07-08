@@ -5,6 +5,7 @@
 
     <!-- Dynamic Checkout -->
     <string name="po_dynamic_checkout_express_checkout">الدفع السريع</string>
+    <string name="po_dynamic_checkout_regular_checkout">طرق دفع أخرى</string>
     <string name="po_dynamic_checkout_button_pay">ادفع</string>
     <string name="po_dynamic_checkout_button_cancel">إلغاء</string>
     <string name="po_dynamic_checkout_save_payment_method">حِفْظُ هذِهِ الطَّريقَةِ لِلدَّفْعِ في المُستَقبَلِ</string>
