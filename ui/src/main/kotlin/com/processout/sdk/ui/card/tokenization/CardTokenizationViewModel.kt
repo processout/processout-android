@@ -366,7 +366,7 @@ internal class CardTokenizationViewModel private constructor(
         val items = listOf(
             checkboxField(
                 field = saveCardField,
-                title = app.getString(R.string.po_card_tokenization_save_card)
+                text = app.getString(R.string.po_card_tokenization_save_card)
             )
         )
         return Section(
@@ -473,12 +473,12 @@ internal class CardTokenizationViewModel private constructor(
 
     private fun checkboxField(
         field: Field,
-        title: String? = null
+        text: String? = null
     ): Item = Item.CheckboxField(
         FieldState(
             id = field.id,
             value = field.value,
-            label = title,
+            label = text,
             enabled = field.enabled,
             isError = !field.isValid
         )
