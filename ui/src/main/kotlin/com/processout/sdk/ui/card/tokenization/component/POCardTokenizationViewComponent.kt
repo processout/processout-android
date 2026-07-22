@@ -142,8 +142,10 @@ class POCardTokenizationViewComponent private constructor(
 
         private fun POCardTokenizationViewComponentConfiguration.map() =
             POCardTokenizationConfiguration(
-                cvcRequired = cvcRequired,
-                cardholderNameRequired = cardholderNameRequired,
+                cardNumber = cardNumber,
+                expirationDate = expirationDate,
+                cvc = cvc,
+                cardholderName = cardholderName,
                 cardScanner = cardScanner,
                 preferredScheme = preferredScheme,
                 billingAddress = billingAddress,
