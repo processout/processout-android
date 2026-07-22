@@ -145,6 +145,18 @@ data class POCardTokenizationConfiguration(
     )
 
     /**
+     * Text field configuration.
+     *
+     * @param[label] Text field label. Pass _null_ to use the default label.
+     * @param[contentDescription] Content description for accessibility. Pass _null_ to use the default text.
+     */
+    @Parcelize
+    data class TextField(
+        val label: String? = null,
+        val contentDescription: String? = null
+    ) : Parcelable
+
+    /**
      * Defines card scanner configuration.
      *
      * @param[scanButton] Scan button configuration.
@@ -216,7 +228,7 @@ data class POCardTokenizationConfiguration(
     /**
      * Button configuration.
      *
-     * @param[text] Button text. Pass _null_ to use default text.
+     * @param[text] Button text. Pass _null_ to use the default text.
      * @param[icon] Button icon drawable resource. Pass _null_ to hide.
      */
     @Parcelize
@@ -228,7 +240,7 @@ data class POCardTokenizationConfiguration(
     /**
      * Cancel button configuration.
      *
-     * @param[text] Button text. Pass _null_ to use default text.
+     * @param[text] Button text. Pass _null_ to use the default text.
      * @param[icon] Button icon drawable resource. Pass _null_ to hide.
      * @param[confirmation] Specifies action confirmation configuration (e.g. dialog).
      * Use _null_ to disable, this is a default behaviour.
