@@ -13,7 +13,9 @@ class POCustomTabRedirectActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         intent.data?.let { uri ->
-            ProcessOut.instance.processDeepLink(hostActivity = this, uri)
+            if (ProcessOut.isConfigured) {
+                ProcessOut.instance.processDeepLink(hostActivity = this, uri)
+            }
         }
         finish()
     }
