@@ -43,6 +43,7 @@ import com.processout.sdk.ui.checkout.DynamicCheckoutSideEffect.*
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.*
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.Button
 import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.CancelButton
+import com.processout.sdk.ui.checkout.PODynamicCheckoutConfiguration.CardConfiguration.TextField
 import com.processout.sdk.ui.core.annotation.ProcessOutInternalApi
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.googlepay.POGooglePayCardTokenizationLauncher
@@ -97,6 +98,10 @@ class PODynamicCheckoutActivity : POBaseTransparentPortraitActivity() {
         val preferredScheme = configuration.card.preferredScheme
         val billingAddress = configuration.card.billingAddress
         return POCardTokenizationConfiguration(
+            cardNumber = configuration.card.cardNumber.map(),
+            expirationDate = configuration.card.expirationDate.map(),
+            cvc = configuration.card.cvc.map(),
+            cardholderName = configuration.card.cardholderName.map(),
             cardScanner = configuration.card.cardScanner?.let {
                 CardScannerConfiguration(
                     scanButton = POCardTokenizationConfiguration.Button(
@@ -136,6 +141,12 @@ class PODynamicCheckoutActivity : POBaseTransparentPortraitActivity() {
             metadata = configuration.card.metadata
         )
     }
+
+    private fun TextField.map() =
+        POCardTokenizationConfiguration.TextField(
+            label = label,
+            contentDescription = contentDescription
+        )
 
     private fun nativeAlternativePaymentConfiguration(): PONativeAlternativePaymentConfiguration {
         val returnUrl = configuration.alternativePayment.returnUrl
