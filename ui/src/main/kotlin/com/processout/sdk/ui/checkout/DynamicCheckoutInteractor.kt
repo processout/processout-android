@@ -500,8 +500,8 @@ internal class DynamicCheckoutInteractor(
 
     private fun POCardTokenizationConfiguration.apply(configuration: CardConfiguration) =
         copy(
-            cvcRequired = configuration.cvcRequired,
-            cardholderNameRequired = configuration.cardholderNameRequired,
+            cvc = if (configuration.cvcRequired) cvc else null,
+            cardholderName = if (configuration.cardholderNameRequired) cardholderName else null,
             preferredScheme = if (configuration.schemeSelectionAllowed) preferredScheme else null,
             billingAddress = billingAddress.copy(
                 mode = configuration.billingAddress.collectionMode.map(),

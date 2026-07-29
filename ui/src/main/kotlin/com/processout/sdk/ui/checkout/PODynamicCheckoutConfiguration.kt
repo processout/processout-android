@@ -87,6 +87,10 @@ data class PODynamicCheckoutConfiguration(
     /**
      * Specifies card payment configuration.
      *
+     * @param[cardNumber] Card number field configuration.
+     * @param[expirationDate] Expiration date field configuration.
+     * @param[cvc] CVC field configuration.
+     * @param[cardholderName] Cardholder name field configuration.
      * @param[cardScanner] Card scanner configuration. Use _null_ to hide.
      * @param[preferredScheme] Preferred scheme selection configuration.
      * @param[billingAddress] Specifies billing address configuration.
@@ -94,11 +98,27 @@ data class PODynamicCheckoutConfiguration(
      */
     @Parcelize
     data class CardConfiguration(
+        val cardNumber: TextField = TextField(),
+        val expirationDate: TextField = TextField(),
+        val cvc: TextField = TextField(),
+        val cardholderName: TextField = TextField(),
         val cardScanner: CardScannerConfiguration? = CardScannerConfiguration(),
         val preferredScheme: PreferredSchemeConfiguration = PreferredSchemeConfiguration(),
         val billingAddress: BillingAddressConfiguration = BillingAddressConfiguration(),
         val metadata: Map<String, String>? = null
     ) : Parcelable {
+
+        /**
+         * Text field configuration.
+         *
+         * @param[label] Text field label. Set _null_ to use the default label.
+         * @param[contentDescription] Content description for accessibility. Set _null_ to use the default text.
+         */
+        @Parcelize
+        data class TextField(
+            val label: String? = null,
+            val contentDescription: String? = null
+        ) : Parcelable
 
         /**
          * Specifies card scanner configuration.

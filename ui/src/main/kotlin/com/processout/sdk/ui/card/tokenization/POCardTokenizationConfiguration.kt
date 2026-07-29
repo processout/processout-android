@@ -16,28 +16,32 @@ import com.processout.sdk.ui.shared.configuration.POCancellationConfiguration
 import kotlinx.parcelize.Parcelize
 
 /**
- * Defines card tokenization configuration.
+ * Card tokenization configuration.
  *
  * @param[title] Custom title.
- * @param[cvcRequired] Specifies whether the CVC field should be displayed. Default value is _true_.
- * @param[cardholderNameRequired] Specifies whether the cardholder name field should be displayed. Default value is _true_.
- * @param[cardScanner] Card scanner configuration. Use _null_ to hide, this is a default behaviour.
+ * @param[cardNumber] Card number field configuration.
+ * @param[expirationDate] Expiration date field configuration.
+ * @param[cvc] CVC field configuration. Set _null_ to hide.
+ * @param[cardholderName] Cardholder name field configuration. Set _null_ to hide.
+ * @param[cardScanner] Card scanner configuration. Set _null_ to hide, this is a default behaviour.
  * @param[preferredScheme] Preferred scheme selection configuration.
- * Shows scheme selection if co-scheme is available. Use _null_ to hide.
+ * Shows scheme selection if co-scheme is available. Set _null_ to hide.
  * @param[billingAddress] Allows to customize the collection of billing address.
  * @param[saving] Card saving configuration. Displays checkbox that allows to save the card details for future payments.
- * Use _null_ to hide, this is a default behaviour.
+ * Set _null_ to hide, this is a default behaviour.
  * @param[submitButton] Submit button configuration.
- * @param[cancelButton] Cancel button configuration. Use _null_ to hide.
- * @param[bottomSheet] Specifies bottom sheet configuration. By default is [WrapContent] and non-expandable.
+ * @param[cancelButton] Cancel button configuration. Set _null_ to hide.
+ * @param[bottomSheet] Bottom sheet configuration.
  * @param[metadata] Metadata related to the card.
  * @param[style] Custom style.
  */
 @Parcelize
 data class POCardTokenizationConfiguration(
     val title: String? = null,
-    val cvcRequired: Boolean = true,
-    val cardholderNameRequired: Boolean = true,
+    val cardNumber: TextField = TextField(),
+    val expirationDate: TextField = TextField(),
+    val cvc: TextField? = TextField(),
+    val cardholderName: TextField? = TextField(),
     val cardScanner: CardScannerConfiguration? = null,
     val preferredScheme: PreferredSchemeConfiguration? = PreferredSchemeConfiguration(),
     val billingAddress: BillingAddressConfiguration = BillingAddressConfiguration(),
@@ -54,18 +58,18 @@ data class POCardTokenizationConfiguration(
 ) : Parcelable {
 
     /**
-     * Defines card tokenization configuration.
+     * Card tokenization configuration.
      *
      * @param[title] Custom title.
      * @param[cvcRequired] Specifies whether the CVC field should be displayed. Default value is _true_.
      * @param[cardholderNameRequired] Specifies whether the cardholder name field should be displayed. Default value is _true_.
-     * @param[cardScanner] Card scanner configuration. Use _null_ to hide, this is a default behaviour.
+     * @param[cardScanner] Card scanner configuration. Set _null_ to hide, this is a default behaviour.
      * @param[preferredScheme] Preferred scheme selection configuration.
-     * Shows scheme selection if co-scheme is available. Use _null_ to hide.
+     * Shows scheme selection if co-scheme is available. Set _null_ to hide.
      * @param[billingAddress] Allows to customize the collection of billing address.
      * @param[savingAllowed] Displays checkbox that allows to save the card details for future payments.
      * @param[submitButton] Submit button configuration.
-     * @param[cancelButton] Cancel button configuration. Use _null_ to hide.
+     * @param[cancelButton] Cancel button configuration. Set _null_ to hide.
      * @param[bottomSheet] Specifies bottom sheet configuration. By default is [WrapContent] and non-expandable.
      * @param[metadata] Metadata related to the card.
      * @param[style] Custom style.
@@ -89,8 +93,10 @@ data class POCardTokenizationConfiguration(
         style: Style? = null
     ) : this(
         title = title,
-        cvcRequired = cvcRequired,
-        cardholderNameRequired = cardholderNameRequired,
+        cvc = if (cvcRequired) TextField() else null,
+        cardholderName = if (cardholderNameRequired) TextField() else null,
+        cardScanner = cardScanner,
+        preferredScheme = preferredScheme,
         billingAddress = billingAddress,
         saving = if (savingAllowed) SavingConfiguration() else null,
         submitButton = submitButton,
@@ -101,7 +107,7 @@ data class POCardTokenizationConfiguration(
     )
 
     /**
-     * Defines card tokenization configuration.
+     * Card tokenization configuration.
      *
      * @param[title] Custom title.
      * @param[cvcRequired] Specifies whether the CVC field should be displayed. Default value is _true_.
@@ -145,7 +151,19 @@ data class POCardTokenizationConfiguration(
     )
 
     /**
-     * Defines card scanner configuration.
+     * Text field configuration.
+     *
+     * @param[label] Text field label. Set _null_ to use the default label.
+     * @param[contentDescription] Content description for accessibility. Set _null_ to use the default text.
+     */
+    @Parcelize
+    data class TextField(
+        val label: String? = null,
+        val contentDescription: String? = null
+    ) : Parcelable
+
+    /**
+     * Card scanner configuration.
      *
      * @param[scanButton] Scan button configuration.
      * @param[configuration] Card scanner configuration.
@@ -159,7 +177,7 @@ data class POCardTokenizationConfiguration(
     /**
      * Preferred scheme selection configuration.
      *
-     * @param[title] Preferred scheme section title. Set _null_ to use a default value or empty string to remove the title.
+     * @param[title] Preferred scheme section title. Set _null_ to use the default value or set an empty string to remove the title.
      * @param[displayInline] Indicates whether selection field should be displayed inline. Default value is _true_.
      */
     @Parcelize
@@ -169,7 +187,7 @@ data class POCardTokenizationConfiguration(
     ) : Parcelable
 
     /**
-     * Defines billing address configuration.
+     * Billing address configuration.
      *
      * @param[mode] Defines how to collect the billing address. Default value is [CollectionMode.Automatic].
      * @param[countryCodes] Set of ISO country codes that is supported for the billing address. When _null_, all countries are provided.
@@ -216,8 +234,8 @@ data class POCardTokenizationConfiguration(
     /**
      * Button configuration.
      *
-     * @param[text] Button text. Pass _null_ to use default text.
-     * @param[icon] Button icon drawable resource. Pass _null_ to hide.
+     * @param[text] Button text. Set _null_ to use the default text.
+     * @param[icon] Button icon drawable resource. Set _null_ to hide.
      */
     @Parcelize
     data class Button(
@@ -228,10 +246,10 @@ data class POCardTokenizationConfiguration(
     /**
      * Cancel button configuration.
      *
-     * @param[text] Button text. Pass _null_ to use default text.
-     * @param[icon] Button icon drawable resource. Pass _null_ to hide.
+     * @param[text] Button text. Set _null_ to use the default text.
+     * @param[icon] Button icon drawable resource. Set _null_ to hide.
      * @param[confirmation] Specifies action confirmation configuration (e.g. dialog).
-     * Use _null_ to disable, this is a default behaviour.
+     * Set _null_ to disable, this is a default behaviour.
      */
     @Parcelize
     data class CancelButton(

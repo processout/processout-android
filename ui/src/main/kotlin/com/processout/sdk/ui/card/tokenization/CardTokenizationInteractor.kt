@@ -169,11 +169,11 @@ internal class CardTokenizationInteractor(
         Field(id = CardFieldId.EXPIRATION),
         Field(
             id = CardFieldId.CVC,
-            shouldCollect = configuration.cvcRequired
+            shouldCollect = configuration.cvc != null
         ),
         Field(
             id = CardFieldId.CARDHOLDER,
-            shouldCollect = configuration.cardholderNameRequired
+            shouldCollect = configuration.cardholderName != null
         )
     )
 

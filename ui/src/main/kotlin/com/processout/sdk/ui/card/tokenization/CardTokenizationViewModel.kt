@@ -175,8 +175,10 @@ internal class CardTokenizationViewModel private constructor(
             when (field.id) {
                 CardFieldId.NUMBER -> cardNumberField = field(
                     field = field,
-                    placeholder = app.getString(R.string.po_card_tokenization_card_details_number_placeholder),
-                    contentDescription = app.getString(R.string.po_card_tokenization_content_description_card_number),
+                    label = configuration.cardNumber.label
+                        ?: app.getString(R.string.po_card_tokenization_card_details_number_placeholder),
+                    contentDescription = configuration.cardNumber.contentDescription
+                        ?: app.getString(R.string.po_card_tokenization_content_description_card_number),
                     iconResId = cardSchemeDrawableResId(scheme = state.preferredSchemeField.value.text),
                     forceTextDirectionLtr = true,
                     inputFilter = CardNumberInputFilter(),
@@ -190,8 +192,10 @@ internal class CardTokenizationViewModel private constructor(
                 CardFieldId.EXPIRATION -> trackFields.add(
                     field(
                         field = field,
-                        placeholder = app.getString(R.string.po_card_tokenization_card_details_expiration_placeholder),
-                        contentDescription = app.getString(R.string.po_card_tokenization_content_description_card_expiration),
+                        label = configuration.expirationDate.label
+                            ?: app.getString(R.string.po_card_tokenization_card_details_expiration_placeholder),
+                        contentDescription = configuration.expirationDate.contentDescription
+                            ?: app.getString(R.string.po_card_tokenization_content_description_card_expiration),
                         forceTextDirectionLtr = true,
                         inputFilter = CardExpirationInputFilter(),
                         visualTransformation = CardExpirationVisualTransformation(),
@@ -207,7 +211,9 @@ internal class CardTokenizationViewModel private constructor(
                     trackFields.add(
                         field(
                             field = field.copy(value = inputFilter.filter(field.value)),
-                            placeholder = app.getString(R.string.po_card_tokenization_card_details_cvc_placeholder),
+                            label = configuration.cvc?.label
+                                ?: app.getString(R.string.po_card_tokenization_card_details_cvc_placeholder),
+                            contentDescription = configuration.cvc?.contentDescription,
                             forceTextDirectionLtr = true,
                             iconResId = com.processout.sdk.ui.R.drawable.po_card_back,
                             inputFilter = inputFilter,
@@ -221,7 +227,9 @@ internal class CardTokenizationViewModel private constructor(
                 }
                 CardFieldId.CARDHOLDER -> cardholderField = field(
                     field = field,
-                    placeholder = app.getString(R.string.po_card_tokenization_card_details_cardholder_placeholder),
+                    label = configuration.cardholderName?.label
+                        ?: app.getString(R.string.po_card_tokenization_card_details_cardholder_placeholder),
+                    contentDescription = configuration.cardholderName?.contentDescription,
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.Words,
                         autoCorrectEnabled = false,
@@ -262,7 +270,7 @@ internal class CardTokenizationViewModel private constructor(
                 )?.also { items.add(it) }
                 AddressFieldId.ADDRESS_1 -> field(
                     field = field,
-                    placeholder = app.getString(R.string.po_card_tokenization_billing_address_street, 1),
+                    label = app.getString(R.string.po_card_tokenization_billing_address_street, 1),
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.Sentences,
                         keyboardType = KeyboardType.Text,
@@ -272,7 +280,7 @@ internal class CardTokenizationViewModel private constructor(
                 )?.also { items.add(it) }
                 AddressFieldId.ADDRESS_2 -> field(
                     field = field,
-                    placeholder = app.getString(R.string.po_card_tokenization_billing_address_street, 2),
+                    label = app.getString(R.string.po_card_tokenization_billing_address_street, 2),
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.Sentences,
                         keyboardType = KeyboardType.Text,
@@ -282,7 +290,7 @@ internal class CardTokenizationViewModel private constructor(
                 )?.also { items.add(it) }
                 AddressFieldId.CITY -> field(
                     field = field,
-                    placeholder = specification?.cityUnit?.let { app.getString(it.stringResId()) },
+                    label = specification?.cityUnit?.let { app.getString(it.stringResId()) },
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.Sentences,
                         keyboardType = KeyboardType.Text,
@@ -292,7 +300,7 @@ internal class CardTokenizationViewModel private constructor(
                 )?.also { items.add(it) }
                 AddressFieldId.STATE -> field(
                     field = field,
-                    placeholder = specification?.stateUnit?.let { app.getString(it.stringResId()) },
+                    label = specification?.stateUnit?.let { app.getString(it.stringResId()) },
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.Sentences,
                         keyboardType = KeyboardType.Text,
@@ -302,7 +310,7 @@ internal class CardTokenizationViewModel private constructor(
                 )?.also { items.add(it) }
                 AddressFieldId.POSTAL_CODE -> field(
                     field = field,
-                    placeholder = specification?.postcodeUnit?.let { app.getString(it.stringResId()) },
+                    label = specification?.postcodeUnit?.let { app.getString(it.stringResId()) },
                     forceTextDirectionLtr = true,
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.Characters,
@@ -366,7 +374,7 @@ internal class CardTokenizationViewModel private constructor(
         val items = listOf(
             checkboxField(
                 field = saveCardField,
-                title = app.getString(R.string.po_card_tokenization_save_card)
+                text = app.getString(R.string.po_card_tokenization_save_card)
             )
         )
         return Section(
@@ -390,7 +398,7 @@ internal class CardTokenizationViewModel private constructor(
 
     private fun field(
         field: Field,
-        placeholder: String? = null,
+        label: String? = null,
         contentDescription: String? = null,
         @DrawableRes iconResId: Int? = null,
         forceTextDirectionLtr: Boolean = false,
@@ -410,7 +418,7 @@ internal class CardTokenizationViewModel private constructor(
         }
         return textField(
             field = field,
-            placeholder = placeholder,
+            label = label,
             contentDescription = contentDescription,
             iconResId = iconResId,
             forceTextDirectionLtr = forceTextDirectionLtr,
@@ -423,7 +431,7 @@ internal class CardTokenizationViewModel private constructor(
 
     private fun textField(
         field: Field,
-        placeholder: String? = null,
+        label: String? = null,
         contentDescription: String? = null,
         @DrawableRes iconResId: Int? = null,
         forceTextDirectionLtr: Boolean = false,
@@ -435,7 +443,7 @@ internal class CardTokenizationViewModel private constructor(
         FieldState(
             id = field.id,
             value = field.value,
-            label = placeholder,
+            label = label,
             contentDescription = contentDescription,
             iconResId = iconResId,
             enabled = field.enabled,
@@ -473,12 +481,12 @@ internal class CardTokenizationViewModel private constructor(
 
     private fun checkboxField(
         field: Field,
-        title: String? = null
+        text: String? = null
     ): Item = Item.CheckboxField(
         FieldState(
             id = field.id,
             value = field.value,
-            label = title,
+            label = text,
             enabled = field.enabled,
             isError = !field.isValid
         )
