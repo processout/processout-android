@@ -175,8 +175,10 @@ internal class CardTokenizationViewModel private constructor(
             when (field.id) {
                 CardFieldId.NUMBER -> cardNumberField = field(
                     field = field,
-                    label = app.getString(R.string.po_card_tokenization_card_details_number_placeholder),
-                    contentDescription = app.getString(R.string.po_card_tokenization_content_description_card_number),
+                    label = configuration.cardNumber.label
+                        ?: app.getString(R.string.po_card_tokenization_card_details_number_placeholder),
+                    contentDescription = configuration.cardNumber.contentDescription
+                        ?: app.getString(R.string.po_card_tokenization_content_description_card_number),
                     iconResId = cardSchemeDrawableResId(scheme = state.preferredSchemeField.value.text),
                     forceTextDirectionLtr = true,
                     inputFilter = CardNumberInputFilter(),
@@ -190,8 +192,10 @@ internal class CardTokenizationViewModel private constructor(
                 CardFieldId.EXPIRATION -> trackFields.add(
                     field(
                         field = field,
-                        label = app.getString(R.string.po_card_tokenization_card_details_expiration_placeholder),
-                        contentDescription = app.getString(R.string.po_card_tokenization_content_description_card_expiration),
+                        label = configuration.expirationDate.label
+                            ?: app.getString(R.string.po_card_tokenization_card_details_expiration_placeholder),
+                        contentDescription = configuration.expirationDate.contentDescription
+                            ?: app.getString(R.string.po_card_tokenization_content_description_card_expiration),
                         forceTextDirectionLtr = true,
                         inputFilter = CardExpirationInputFilter(),
                         visualTransformation = CardExpirationVisualTransformation(),
@@ -207,7 +211,9 @@ internal class CardTokenizationViewModel private constructor(
                     trackFields.add(
                         field(
                             field = field.copy(value = inputFilter.filter(field.value)),
-                            label = app.getString(R.string.po_card_tokenization_card_details_cvc_placeholder),
+                            label = configuration.cvc?.label
+                                ?: app.getString(R.string.po_card_tokenization_card_details_cvc_placeholder),
+                            contentDescription = configuration.cvc?.contentDescription,
                             forceTextDirectionLtr = true,
                             iconResId = com.processout.sdk.ui.R.drawable.po_card_back,
                             inputFilter = inputFilter,
@@ -221,7 +227,9 @@ internal class CardTokenizationViewModel private constructor(
                 }
                 CardFieldId.CARDHOLDER -> cardholderField = field(
                     field = field,
-                    label = app.getString(R.string.po_card_tokenization_card_details_cardholder_placeholder),
+                    label = configuration.cardholderName?.label
+                        ?: app.getString(R.string.po_card_tokenization_card_details_cardholder_placeholder),
+                    contentDescription = configuration.cardholderName?.contentDescription,
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.Words,
                         autoCorrectEnabled = false,
