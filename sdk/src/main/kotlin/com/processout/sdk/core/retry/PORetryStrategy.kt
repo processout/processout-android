@@ -53,12 +53,11 @@ sealed class PORetryStrategy(
         }
     }
 
-    val iterator: Iterator
-        get() = Iterator(
-            iterator = generateSequence(initialDelay.toDouble()) { previous ->
-                previous * factor
-            }.iterator(),
-            minDelay = minDelay,
-            maxDelay = maxDelay
-        )
+    fun newIterator() = Iterator(
+        iterator = generateSequence(initialDelay.toDouble()) { previous ->
+            previous * factor
+        }.iterator(),
+        minDelay = minDelay,
+        maxDelay = maxDelay
+    )
 }

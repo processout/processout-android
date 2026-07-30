@@ -54,7 +54,7 @@ internal class NativeAlternativePaymentCapturePoller(
 
     private suspend fun poll(): ProcessOutResult<CaptureResponse> {
         startTimeMillis = System.currentTimeMillis()
-        val iterator = retryStrategy.iterator
+        val iterator = retryStrategy.newIterator()
         while (elapsedTimeMillis <= configuration.paymentConfirmation.timeoutSeconds * 1000) {
             val result = call()
             POLogger.debug("Attempted to confirm the payment.")

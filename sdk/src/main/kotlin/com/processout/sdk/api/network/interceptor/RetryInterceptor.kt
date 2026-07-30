@@ -19,7 +19,7 @@ internal class RetryInterceptor(
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request().addIdempotencyKey()
-        val iterator = retryStrategy.iterator
+        val iterator = retryStrategy.newIterator()
         repeat(retryStrategy.maxRetries - 1) {
             var response: Response? = null
             try {
