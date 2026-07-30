@@ -134,7 +134,9 @@ internal class NativeAlternativePaymentInteractor(
     fun reset() {
         interactorScope.coroutineContext.cancelChildren()
         handler.removeCallbacksAndMessages(null)
+        paymentState = UNKNOWN
         latestDefaultValuesRequest = null
+        latestWillSubmitParametersEvent = null
         _completion.update { Awaiting }
         _state.update { Idle }
     }
