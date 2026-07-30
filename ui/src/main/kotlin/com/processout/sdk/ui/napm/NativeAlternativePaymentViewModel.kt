@@ -16,7 +16,6 @@ import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentA
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter.*
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter.Otp.Subtype
-import com.processout.sdk.core.retry.PORetryStrategy.Exponential
 import com.processout.sdk.ui.core.state.*
 import com.processout.sdk.ui.core.state.POActionState.Confirmation
 import com.processout.sdk.ui.core.transformation.POPhoneNumberVisualTransformation
@@ -61,14 +60,7 @@ internal class NativeAlternativePaymentViewModel private constructor(
                     invoicesService = ProcessOut.instance.invoices,
                     customerTokensService = ProcessOut.instance.customerTokens,
                     barcodeBitmapProvider = BarcodeBitmapProvider(),
-                    mediaStorageProvider = MediaStorageProvider(app),
-                    captureRetryStrategy = Exponential(
-                        maxRetries = Int.MAX_VALUE,
-                        initialDelay = 150,
-                        minDelay = 3 * 1000,
-                        maxDelay = 90 * 1000,
-                        factor = 1.45
-                    )
+                    mediaStorageProvider = MediaStorageProvider(app)
                 )
             ) as T
     }
