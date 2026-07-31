@@ -1,5 +1,6 @@
 package com.processout.sdk.ui.napm
 
+import android.os.SystemClock
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentTokenizationRequest
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse
@@ -18,6 +19,7 @@ import com.processout.sdk.core.retry.PORetryStrategy.Exponential
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Authorization
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Tokenization
 import kotlinx.coroutines.delay
+import kotlin.math.min
 
 internal class NativeAlternativePaymentCapturePoller(
     private val configuration: PONativeAlternativePaymentConfiguration,
@@ -37,32 +39,23 @@ internal class NativeAlternativePaymentCapturePoller(
         val elements: List<PONativeAlternativePaymentElement>?
     )
 
-    private var startTimeMillis = 0L
-    private var elapsedTimeMillis = 0L
-
-    val isStarted: Boolean
-        get() = startTimeMillis != 0L
-
-    suspend fun start(): ProcessOutResult<CaptureResponse> {
-        try {
-            return poll()
-        } finally {
-            startTimeMillis = 0L
-            elapsedTimeMillis = 0L
-        }
-    }
-
-    private suspend fun poll(): ProcessOutResult<CaptureResponse> {
-        startTimeMillis = System.currentTimeMillis()
+    suspend fun poll(): ProcessOutResult<CaptureResponse> {
+        val timeout = configuration.paymentConfirmation.timeoutSeconds * 1000L
+        val startTime = SystemClock.elapsedRealtime()
         val iterator = retryStrategy.newIterator()
-        while (elapsedTimeMillis <= configuration.paymentConfirmation.timeoutSeconds * 1000) {
+        while (true) {
             val result = call()
             POLogger.debug("Attempted to confirm the payment.")
             if (!isRetryable(result)) {
                 return result
             }
-            delay(timeMillis = iterator.next())
-            elapsedTimeMillis = System.currentTimeMillis() - startTimeMillis
+            val elapsedTime = SystemClock.elapsedRealtime() - startTime
+            val remainingTime = timeout - elapsedTime
+            if (remainingTime <= 0) {
+                break
+            }
+            val nextDelay = iterator.next()
+            delay(timeMillis = min(nextDelay, remainingTime))
         }
         return ProcessOutResult.Failure(
             code = Timeout(),
@@ -93,13 +86,13 @@ internal class NativeAlternativePaymentCapturePoller(
         result: ProcessOutResult<CaptureResponse>
     ): Boolean = result.fold(
         onSuccess = { it.state != SUCCESS },
-        onFailure = {
+        onFailure = { failure ->
             val retryableCodes = listOf(
                 NetworkUnreachable,
                 Timeout(),
                 Internal()
             )
-            retryableCodes.contains(it.code)
+            retryableCodes.contains(failure.code)
         }
     )
 
