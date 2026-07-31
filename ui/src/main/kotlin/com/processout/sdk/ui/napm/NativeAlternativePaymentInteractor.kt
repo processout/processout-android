@@ -104,6 +104,7 @@ internal class NativeAlternativePaymentInteractor(
     private var paymentState: PONativeAlternativePaymentState = UNKNOWN
     private var latestDefaultValuesRequest: NativeAlternativePaymentDefaultValuesRequest? = null
     private var latestWillSubmitParametersEvent: WillSubmitParameters? = null
+    private var isPollingForCapture = false
 
     fun start() {
         if (_state.value !is Idle) {
@@ -1084,25 +1085,28 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private fun capture() {
-        if (capturePoller.isStarted) {
-            return
-        }
+        if (isPollingForCapture) return
+        isPollingForCapture = true
         updateStepper(activeStepIndex = 1)
         interactorScope.launch {
-            capturePoller.start()
-                .onSuccess {
-                    val elements = it.elements?.map()
-                    _state.whenPending { stateValue ->
-                        handleSuccess(
-                            stateValue.copy(
-                                uuid = UUID.randomUUID().toString(),
-                                elements = elements
+            try {
+                capturePoller.poll()
+                    .onSuccess { response ->
+                        val elements = response.elements?.map()
+                        _state.whenPending { stateValue ->
+                            handleSuccess(
+                                stateValue.copy(
+                                    uuid = UUID.randomUUID().toString(),
+                                    elements = elements
+                                )
                             )
-                        )
+                        }
+                    }.onFailure { failure ->
+                        _completion.update { Failure(failure) }
                     }
-                }.onFailure { failure ->
-                    _completion.update { Failure(failure) }
-                }
+            } finally {
+                isPollingForCapture = false
+            }
         }
     }
 
