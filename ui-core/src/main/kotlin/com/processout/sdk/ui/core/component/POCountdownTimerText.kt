@@ -2,6 +2,7 @@
 
 package com.processout.sdk.ui.core.component
 
+import android.os.SystemClock
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -22,17 +23,19 @@ fun POCountdownTimerText(
         textStyle = typography.s15(FontWeight.Medium)
     )
 ) {
-    var secondsLeft by remember { mutableIntStateOf(timeoutSeconds) }
-    val formattedText = remember(secondsLeft) {
-        val minutes = secondsLeft / 60
-        val seconds = secondsLeft % 60
+    val startTimeMillis = remember { SystemClock.elapsedRealtime() }
+    var remainingSeconds by remember { mutableIntStateOf(timeoutSeconds) }
+    val formattedText = remember(remainingSeconds) {
+        val minutes = remainingSeconds / 60
+        val seconds = remainingSeconds % 60
         val formattedTime = String.format("%02d:%02d", minutes, seconds)
         String.format(textFormat, formattedTime)
     }
-    LaunchedEffect(secondsLeft) {
-        if (secondsLeft > 0) {
+    LaunchedEffect(Unit) {
+        while (remainingSeconds > 0) {
             delay(timeMillis = 1000)
-            secondsLeft -= 1
+            val elapsedSeconds = ((SystemClock.elapsedRealtime() - startTimeMillis) / 1000L).toInt()
+            remainingSeconds = (timeoutSeconds - elapsedSeconds).coerceAtLeast(minimumValue = 0)
         }
     }
     POText(
