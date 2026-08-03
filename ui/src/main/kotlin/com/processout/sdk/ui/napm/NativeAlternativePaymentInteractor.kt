@@ -1068,7 +1068,6 @@ internal class NativeAlternativePaymentInteractor(
         uuid = uuid,
         paymentMethod = paymentMethod,
         invoice = invoice,
-        redirect = redirect,
         stepper = null,
         elements = elements,
         primaryActionId = ActionId.CONFIRM_PAYMENT,
