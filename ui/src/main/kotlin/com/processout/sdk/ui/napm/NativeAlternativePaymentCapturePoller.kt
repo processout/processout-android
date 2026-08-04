@@ -48,8 +48,8 @@ internal class NativeAlternativePaymentCapturePoller(
     private val backoffResetSignal = Channel<Unit>(capacity = Channel.CONFLATED)
 
     suspend fun poll(): ProcessOutResult<CaptureResponse> {
-        val timeout = configuration.paymentConfirmation.timeoutSeconds * 1000L
         val startTime = SystemClock.elapsedRealtime()
+        val timeout = configuration.paymentConfirmation.timeoutSeconds * 1000L
         backoffIterator = retryStrategy.newIterator()
         while (backoffResetSignal.tryReceive().isSuccess) {
             // Discard stale signals.
