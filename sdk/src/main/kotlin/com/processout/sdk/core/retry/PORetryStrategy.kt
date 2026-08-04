@@ -38,11 +38,11 @@ sealed class PORetryStrategy(
         factor = factor
     )
 
-    class Iterator(
-        private val iterator: kotlin.collections.Iterator<Double>,
+    class BackoffIterator(
+        private val iterator: Iterator<Double>,
         private val minDelay: Long,
         private val maxDelay: Long
-    ) : kotlin.collections.Iterator<Long> {
+    ) : Iterator<Long> {
 
         override fun hasNext(): Boolean = iterator.hasNext()
 
@@ -53,8 +53,8 @@ sealed class PORetryStrategy(
         }
     }
 
-    fun newIterator() = Iterator(
-        iterator = generateSequence(initialDelay.toDouble()) { previous ->
+    fun newBackoffIterator() = BackoffIterator(
+        iterator = generateSequence(seed = initialDelay.toDouble()) { previous ->
             previous * factor
         }.iterator(),
         minDelay = minDelay,

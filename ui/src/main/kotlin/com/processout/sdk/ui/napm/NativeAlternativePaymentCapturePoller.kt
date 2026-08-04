@@ -44,13 +44,13 @@ internal class NativeAlternativePaymentCapturePoller(
         val elements: List<PONativeAlternativePaymentElement>?
     )
 
-    private var backoffIterator = retryStrategy.newIterator()
+    private var backoffIterator = retryStrategy.newBackoffIterator()
     private val backoffResetSignal = Channel<Unit>(capacity = Channel.CONFLATED)
 
     suspend fun poll(): ProcessOutResult<CaptureResponse> {
         val startTime = SystemClock.elapsedRealtime()
         val timeout = configuration.paymentConfirmation.timeoutSeconds * 1000L
-        backoffIterator = retryStrategy.newIterator()
+        backoffIterator = retryStrategy.newBackoffIterator()
         while (backoffResetSignal.tryReceive().isSuccess) {
             // Discard stale signals.
         }
@@ -69,7 +69,7 @@ internal class NativeAlternativePaymentCapturePoller(
             select {
                 onTimeout(timeMillis = waitTime) {}
                 backoffResetSignal.onReceive {
-                    backoffIterator = retryStrategy.newIterator()
+                    backoffIterator = retryStrategy.newBackoffIterator()
                     POLogger.debug("Capture polling backoff has been reset.")
                 }
             }

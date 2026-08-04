@@ -532,12 +532,12 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
             )
         }
         viewModelScope.launch {
-            val iterator = captureRetryStrategy.newIterator()
+            val backoffIterator = captureRetryStrategy.newBackoffIterator()
             while (captureElapsedTime <= options.paymentConfirmationTimeoutSeconds * 1000L) {
                 val result = invoicesService.captureNativeAlternativePayment(invoiceId, gatewayConfigurationId)
                 POLogger.debug("Attempted to capture invoice.")
                 if (isCaptureRetryable(result)) {
-                    delay(iterator.next())
+                    delay(timeMillis = backoffIterator.next())
                     captureElapsedTime = SystemClock.elapsedRealtime() - captureStartTime
                 } else {
                     captureStartTime = 0L
