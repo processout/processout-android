@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package com.processout.sdk.ui.napm
 
 import android.os.SystemClock
@@ -18,7 +20,10 @@ import com.processout.sdk.core.retry.PORetryStrategy
 import com.processout.sdk.core.retry.PORetryStrategy.Exponential
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Authorization
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Tokenization
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.selects.onTimeout
+import kotlinx.coroutines.selects.select
 import kotlin.math.min
 
 internal class NativeAlternativePaymentCapturePoller(
@@ -39,13 +44,19 @@ internal class NativeAlternativePaymentCapturePoller(
         val elements: List<PONativeAlternativePaymentElement>?
     )
 
+    private var backoffIterator = retryStrategy.newIterator()
+    private val backoffResetSignal = Channel<Unit>(capacity = Channel.CONFLATED)
+
     suspend fun poll(): ProcessOutResult<CaptureResponse> {
         val timeout = configuration.paymentConfirmation.timeoutSeconds * 1000L
         val startTime = SystemClock.elapsedRealtime()
-        val iterator = retryStrategy.newIterator()
+        backoffIterator = retryStrategy.newIterator()
+        while (backoffResetSignal.tryReceive().isSuccess) {
+            // Discard stale signals.
+        }
         while (true) {
             val result = call()
-            POLogger.debug("Attempted to confirm the payment.")
+            POLogger.debug("Attempted to capture the payment.")
             if (!isRetryable(result)) {
                 return result
             }
@@ -54,13 +65,23 @@ internal class NativeAlternativePaymentCapturePoller(
             if (remainingTime <= 0) {
                 break
             }
-            val nextDelay = iterator.next()
-            delay(timeMillis = min(nextDelay, remainingTime))
+            val waitTime = min(backoffIterator.next(), remainingTime)
+            select {
+                onTimeout(timeMillis = waitTime) {}
+                backoffResetSignal.onReceive {
+                    backoffIterator = retryStrategy.newIterator()
+                    POLogger.debug("Capture polling backoff has been reset.")
+                }
+            }
         }
         return ProcessOutResult.Failure(
             code = Timeout(),
             message = "Payment confirmation has timed out."
         )
+    }
+
+    fun resetBackoff() {
+        backoffResetSignal.trySend(Unit)
     }
 
     private suspend fun call(): ProcessOutResult<CaptureResponse> =
