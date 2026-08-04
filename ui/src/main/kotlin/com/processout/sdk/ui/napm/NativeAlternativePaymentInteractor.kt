@@ -14,6 +14,9 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.core.os.postDelayed
 import androidx.core.text.isDigitsOnly
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 import coil.imageLoader
 import coil.request.CachePolicy
 import coil.request.ImageRequest
@@ -88,7 +91,7 @@ internal class NativeAlternativePaymentInteractor(
             invoicesService = invoicesService,
             customerTokensService = customerTokensService
         )
-) : BaseInteractor() {
+) : BaseInteractor(), DefaultLifecycleObserver {
 
     private val _completion = MutableStateFlow<NativeAlternativePaymentCompletion>(Awaiting)
     val completion = _completion.asStateFlow()
@@ -104,7 +107,11 @@ internal class NativeAlternativePaymentInteractor(
     private var paymentState: PONativeAlternativePaymentState = UNKNOWN
     private var latestDefaultValuesRequest: NativeAlternativePaymentDefaultValuesRequest? = null
     private var latestWillSubmitParametersEvent: WillSubmitParameters? = null
-    private var isPollingForCapture = false
+    private var isCapturePolling = false
+
+    init {
+        ProcessLifecycleOwner.get().lifecycle.addObserver(this)
+    }
 
     fun start() {
         if (_state.value !is Idle) {
@@ -1084,8 +1091,10 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private fun capture() {
-        if (isPollingForCapture) return
-        isPollingForCapture = true
+        if (isCapturePolling) {
+            return
+        }
+        isCapturePolling = true
         updateStepper(activeStepIndex = 1)
         interactorScope.launch {
             try {
@@ -1104,8 +1113,15 @@ internal class NativeAlternativePaymentInteractor(
                         _completion.update { Failure(failure) }
                     }
             } finally {
-                isPollingForCapture = false
+                isCapturePolling = false
             }
+        }
+    }
+
+    override fun onStart(owner: LifecycleOwner) {
+        if (isCapturePolling) {
+            POLogger.debug("App returned to foreground: resetting capture polling backoff.")
+            capturePoller.resetBackoff()
         }
     }
 
@@ -1396,6 +1412,7 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     override fun clear() {
+        ProcessLifecycleOwner.get().lifecycle.removeObserver(this)
         handler.removeCallbacksAndMessages(null)
     }
 }
