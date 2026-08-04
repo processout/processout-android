@@ -11,7 +11,7 @@ import java.util.UUID
 internal class RetryInterceptor(
     private val retryStrategy: PORetryStrategy = Exponential(
         maxRetries = 4,
-        initialDelay = 100,
+        seedDelay = 100,
         maxDelay = 1000,
         factor = 3.0
     )

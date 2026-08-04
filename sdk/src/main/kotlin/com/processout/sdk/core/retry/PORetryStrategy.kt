@@ -7,7 +7,7 @@ import kotlin.math.roundToLong
 @ProcessOutInternalApi
 sealed class PORetryStrategy(
     val maxRetries: Int,
-    private val initialDelay: Long,
+    private val seedDelay: Long,
     private val minDelay: Long,
     private val maxDelay: Long,
     private val factor: Double
@@ -18,7 +18,7 @@ sealed class PORetryStrategy(
         delay: Long
     ) : PORetryStrategy(
         maxRetries = maxRetries,
-        initialDelay = delay,
+        seedDelay = delay,
         minDelay = delay,
         maxDelay = delay,
         factor = 1.0
@@ -26,13 +26,13 @@ sealed class PORetryStrategy(
 
     class Exponential(
         maxRetries: Int,
-        initialDelay: Long,
-        minDelay: Long = initialDelay,
+        seedDelay: Long,
+        minDelay: Long = seedDelay,
         maxDelay: Long,
         factor: Double
     ) : PORetryStrategy(
         maxRetries = maxRetries,
-        initialDelay = initialDelay,
+        seedDelay = seedDelay,
         minDelay = minDelay,
         maxDelay = maxDelay,
         factor = factor
@@ -54,7 +54,7 @@ sealed class PORetryStrategy(
     }
 
     fun newBackoffIterator() = BackoffIterator(
-        iterator = generateSequence(seed = initialDelay.toDouble()) { previous ->
+        iterator = generateSequence(seed = seedDelay.toDouble()) { previous ->
             previous * factor
         }.iterator(),
         minDelay = minDelay,

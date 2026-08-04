@@ -32,7 +32,7 @@ internal class NativeAlternativePaymentCapturePoller(
     private val customerTokensService: POCustomerTokensService,
     private val retryStrategy: PORetryStrategy = Exponential(
         maxRetries = Int.MAX_VALUE,
-        initialDelay = 150,
+        seedDelay = 150,
         minDelay = 3 * 1000,
         maxDelay = 90 * 1000,
         factor = 1.45
