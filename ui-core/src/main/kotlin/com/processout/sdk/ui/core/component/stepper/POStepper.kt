@@ -1,5 +1,6 @@
 package com.processout.sdk.ui.core.component.stepper
 
+import android.os.SystemClock
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -22,7 +23,8 @@ object POStepper {
 
         data class CountdownTimerText(
             val textFormat: String,
-            val timeoutSeconds: Int
+            val timeoutSeconds: Int,
+            val initialElapsedRealtime: Long = SystemClock.elapsedRealtime()
         )
     }
 

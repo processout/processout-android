@@ -104,6 +104,7 @@ fun POVerticalStepper(
                         POCountdownTimerText(
                             textFormat = description.textFormat,
                             timeoutSeconds = description.timeoutSeconds,
+                            initialElapsedRealtime = description.initialElapsedRealtime,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = spacing.space4),

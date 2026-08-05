@@ -17,13 +17,13 @@ import kotlinx.coroutines.delay
 fun POCountdownTimerText(
     textFormat: String,
     timeoutSeconds: Int,
+    initialElapsedRealtime: Long,
     modifier: Modifier = Modifier,
     style: POText.Style = POText.Style(
         color = colors.text.primary,
         textStyle = typography.s15(FontWeight.Medium)
     )
 ) {
-    val startTimeMillis = remember { SystemClock.elapsedRealtime() }
     var remainingSeconds by remember { mutableIntStateOf(timeoutSeconds) }
     val formattedText = remember(remainingSeconds) {
         val minutes = remainingSeconds / 60
@@ -33,9 +33,9 @@ fun POCountdownTimerText(
     }
     LaunchedEffect(Unit) {
         while (remainingSeconds > 0) {
-            delay(timeMillis = 1000)
-            val elapsedSeconds = ((SystemClock.elapsedRealtime() - startTimeMillis) / 1000L).toInt()
+            val elapsedSeconds = ((SystemClock.elapsedRealtime() - initialElapsedRealtime) / 1000L).toInt()
             remainingSeconds = (timeoutSeconds - elapsedSeconds).coerceAtLeast(minimumValue = 0)
+            delay(timeMillis = 1000)
         }
     }
     POText(
