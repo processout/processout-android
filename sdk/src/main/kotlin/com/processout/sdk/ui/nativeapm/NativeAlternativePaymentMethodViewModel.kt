@@ -3,6 +3,7 @@ package com.processout.sdk.ui.nativeapm
 import android.app.Application
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.util.Patterns
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -79,7 +80,7 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
                     eventDispatcher = PODefaultEventDispatchers.defaultNativeAlternativePaymentMethod,
                     captureRetryStrategy = Exponential(
                         maxRetries = Int.MAX_VALUE,
-                        initialDelay = 150,
+                        seedDelay = 150,
                         minDelay = 3 * 1000,
                         maxDelay = 90 * 1000,
                         factor = 1.45
@@ -104,8 +105,8 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
 
     var animateViewTransition = true
 
-    private var captureStartTimestamp = 0L
-    private var capturePassedTimestamp = 0L
+    private var captureStartTime = 0L
+    private var captureElapsedTime = 0L
 
     private val handler by lazy { Handler(Looper.getMainLooper()) }
 
@@ -521,26 +522,26 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
     }
 
     private fun capture() {
-        if (captureStartTimestamp != 0L) {
+        if (captureStartTime != 0L) {
             return
         }
-        captureStartTimestamp = System.currentTimeMillis()
+        captureStartTime = SystemClock.elapsedRealtime()
         options.showPaymentConfirmationProgressIndicatorAfterSeconds?.let { afterSeconds ->
             showPaymentConfirmationProgressIndicator(
                 afterMillis = TimeUnit.SECONDS.toMillis(afterSeconds.toLong())
             )
         }
         viewModelScope.launch {
-            val iterator = captureRetryStrategy.iterator
-            while (capturePassedTimestamp <= options.paymentConfirmationTimeoutSeconds * 1000) {
+            val backoffIterator = captureRetryStrategy.newBackoffIterator()
+            while (captureElapsedTime <= options.paymentConfirmationTimeoutSeconds * 1000L) {
                 val result = invoicesService.captureNativeAlternativePayment(invoiceId, gatewayConfigurationId)
                 POLogger.debug("Attempted to capture invoice.")
                 if (isCaptureRetryable(result)) {
-                    delay(iterator.next())
-                    capturePassedTimestamp = System.currentTimeMillis() - captureStartTimestamp
+                    delay(timeMillis = backoffIterator.next())
+                    captureElapsedTime = SystemClock.elapsedRealtime() - captureStartTime
                 } else {
-                    captureStartTimestamp = 0L
-                    capturePassedTimestamp = 0L
+                    captureStartTime = 0L
+                    captureElapsedTime = 0L
                     when (result) {
                         is ProcessOutResult.Success ->
                             _uiState.value.doWhenCapture { uiModel ->
@@ -552,8 +553,8 @@ internal class NativeAlternativePaymentMethodViewModel private constructor(
                     return@launch
                 }
             }
-            captureStartTimestamp = 0L
-            capturePassedTimestamp = 0L
+            captureStartTime = 0L
+            captureElapsedTime = 0L
             _uiState.value = Failure(
                 ProcessOutResult.Failure(
                     Timeout(), "Payment confirmation timed out."

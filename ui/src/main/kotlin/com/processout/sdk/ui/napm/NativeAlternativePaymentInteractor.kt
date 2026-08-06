@@ -14,6 +14,9 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.core.os.postDelayed
 import androidx.core.text.isDigitsOnly
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 import coil.imageLoader
 import coil.request.CachePolicy
 import coil.request.ImageRequest
@@ -43,7 +46,6 @@ import com.processout.sdk.core.fold
 import com.processout.sdk.core.logger.POLogger
 import com.processout.sdk.core.onFailure
 import com.processout.sdk.core.onSuccess
-import com.processout.sdk.core.retry.PORetryStrategy
 import com.processout.sdk.ui.base.BaseInteractor
 import com.processout.sdk.ui.core.component.stepper.POStepper
 import com.processout.sdk.ui.core.state.POImmutableList
@@ -82,9 +84,14 @@ internal class NativeAlternativePaymentInteractor(
     private val customerTokensService: POCustomerTokensService,
     private val barcodeBitmapProvider: BarcodeBitmapProvider,
     private val mediaStorageProvider: MediaStorageProvider,
-    private val captureRetryStrategy: PORetryStrategy,
-    private val eventDispatcher: POEventDispatcher = POEventDispatcher.instance
-) : BaseInteractor() {
+    private val eventDispatcher: POEventDispatcher = POEventDispatcher.instance,
+    private var capturePoller: NativeAlternativePaymentCapturePoller =
+        NativeAlternativePaymentCapturePoller(
+            configuration = configuration,
+            invoicesService = invoicesService,
+            customerTokensService = customerTokensService
+        )
+) : BaseInteractor(), DefaultLifecycleObserver {
 
     private val _completion = MutableStateFlow<NativeAlternativePaymentCompletion>(Awaiting)
     val completion = _completion.asStateFlow()
@@ -100,9 +107,11 @@ internal class NativeAlternativePaymentInteractor(
     private var paymentState: PONativeAlternativePaymentState = UNKNOWN
     private var latestDefaultValuesRequest: NativeAlternativePaymentDefaultValuesRequest? = null
     private var latestWillSubmitParametersEvent: WillSubmitParameters? = null
+    private var isCapturePolling = false
 
-    private var captureStartTimestamp = 0L
-    private var capturePassedTimestamp = 0L
+    init {
+        ProcessLifecycleOwner.get().lifecycle.addObserver(this)
+    }
 
     fun start() {
         if (_state.value !is Idle) {
@@ -122,15 +131,20 @@ internal class NativeAlternativePaymentInteractor(
             return
         }
         this.configuration = configuration
+        capturePoller = NativeAlternativePaymentCapturePoller(
+            configuration = configuration,
+            invoicesService = invoicesService,
+            customerTokensService = customerTokensService
+        )
         start()
     }
 
     fun reset() {
         interactorScope.coroutineContext.cancelChildren()
         handler.removeCallbacksAndMessages(null)
+        paymentState = UNKNOWN
         latestDefaultValuesRequest = null
-        captureStartTimestamp = 0L
-        capturePassedTimestamp = 0L
+        latestWillSubmitParametersEvent = null
         _completion.update { Awaiting }
         _state.update { Idle }
     }
@@ -1061,7 +1075,6 @@ internal class NativeAlternativePaymentInteractor(
         uuid = uuid,
         paymentMethod = paymentMethod,
         invoice = invoice,
-        redirect = redirect,
         stepper = null,
         elements = elements,
         primaryActionId = ActionId.CONFIRM_PAYMENT,
@@ -1078,63 +1091,37 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private fun capture() {
-        if (captureStartTimestamp != 0L) {
+        if (isCapturePolling) {
             return
         }
+        isCapturePolling = true
         updateStepper(activeStepIndex = 1)
-        captureStartTimestamp = System.currentTimeMillis()
         interactorScope.launch {
-            val iterator = captureRetryStrategy.iterator
-            while (capturePassedTimestamp <= configuration.paymentConfirmation.timeoutSeconds * 1000) {
-                val result = when (val flow = configuration.flow) {
-                    is Authorization -> invoicesService.authorize(
-                        request = PONativeAlternativePaymentAuthorizationRequest(
-                            invoiceId = flow.invoiceId,
-                            gatewayConfigurationId = flow.gatewayConfigurationId,
-                            configuration = flow.configuration
-                        )
-                    ).map()
-                    is Tokenization -> customerTokensService.tokenize(
-                        request = PONativeAlternativePaymentTokenizationRequest(
-                            customerId = flow.customerId,
-                            customerTokenId = flow.customerTokenId,
-                            gatewayConfigurationId = flow.gatewayConfigurationId,
-                            configuration = flow.configuration
-                        )
-                    ).map()
-                }
-                POLogger.debug("Attempted to confirm the payment.")
-                if (isCaptureRetryable(result)) {
-                    delay(iterator.next())
-                    capturePassedTimestamp = System.currentTimeMillis() - captureStartTimestamp
-                } else {
-                    captureStartTimestamp = 0L
-                    capturePassedTimestamp = 0L
-                    result.onSuccess {
+            try {
+                capturePoller.poll()
+                    .onSuccess { response ->
+                        val elements = response.elements?.map()
                         _state.whenPending { stateValue ->
                             handleSuccess(
                                 stateValue.copy(
                                     uuid = UUID.randomUUID().toString(),
-                                    elements = it.elements
+                                    elements = elements
                                 )
                             )
                         }
                     }.onFailure { failure ->
                         _completion.update { Failure(failure) }
                     }
-                    return@launch
-                }
+            } finally {
+                isCapturePolling = false
             }
-            captureStartTimestamp = 0L
-            capturePassedTimestamp = 0L
-            _completion.update {
-                Failure(
-                    ProcessOutResult.Failure(
-                        code = Timeout(),
-                        message = "Payment confirmation timed out."
-                    )
-                )
-            }
+        }
+    }
+
+    override fun onStart(owner: LifecycleOwner) {
+        if (isCapturePolling) {
+            POLogger.debug("App returned to foreground: resetting capture polling backoff.")
+            capturePoller.resetBackoff()
         }
     }
 
@@ -1166,48 +1153,6 @@ internal class NativeAlternativePaymentInteractor(
             }
         }
     }
-
-    @JvmName(name = "mapFromAuthorizationResult")
-    private suspend fun ProcessOutResult<PONativeAlternativePaymentAuthorizationResponse>.map() =
-        fold(
-            onSuccess = {
-                ProcessOutResult.Success(
-                    ProcessingResponse(
-                        state = it.state,
-                        elements = it.elements?.map()
-                    )
-                )
-            },
-            onFailure = { it }
-        )
-
-    @JvmName(name = "mapFromTokenizationResult")
-    private suspend fun ProcessOutResult<PONativeAlternativePaymentTokenizationResponse>.map() =
-        fold(
-            onSuccess = {
-                ProcessOutResult.Success(
-                    ProcessingResponse(
-                        state = it.state,
-                        elements = it.elements?.map()
-                    )
-                )
-            },
-            onFailure = { it }
-        )
-
-    private fun isCaptureRetryable(
-        result: ProcessOutResult<ProcessingResponse>
-    ): Boolean = result.fold(
-        onSuccess = { it.state != SUCCESS },
-        onFailure = {
-            val retryableCodes = listOf(
-                NetworkUnreachable,
-                Timeout(),
-                Internal()
-            )
-            retryableCodes.contains(it.code)
-        }
-    )
 
     private fun handleSuccess(stateValue: PendingStateValue) {
         POLogger.info("Success: payment completed.")
@@ -1467,11 +1412,7 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     override fun clear() {
+        ProcessLifecycleOwner.get().lifecycle.removeObserver(this)
         handler.removeCallbacksAndMessages(null)
     }
-
-    private data class ProcessingResponse(
-        val state: PONativeAlternativePaymentState,
-        val elements: List<Element>?
-    )
 }

@@ -63,7 +63,6 @@ internal sealed interface NativeAlternativePaymentInteractorState {
         val uuid: String,
         val paymentMethod: PONativeAlternativePaymentMethodDetails,
         val invoice: Invoice?,
-        val redirect: Redirect?,
         val stepper: Stepper?,
         val elements: List<Element>?,
         val primaryActionId: String?,

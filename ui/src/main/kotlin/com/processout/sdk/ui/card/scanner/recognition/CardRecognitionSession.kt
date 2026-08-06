@@ -2,6 +2,7 @@ package com.processout.sdk.ui.card.scanner.recognition
 
 import android.app.Application
 import android.graphics.Bitmap
+import android.os.SystemClock
 import androidx.camera.core.ImageProxy
 import com.google.android.gms.common.moduleinstall.InstallStatusListener
 import com.google.android.gms.common.moduleinstall.ModuleInstall
@@ -50,7 +51,7 @@ internal class CardRecognitionSession(
     private val moduleInstallClient = ModuleInstall.getClient(app)
     private val textRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 
-    private var startTimestamp = 0L
+    private var startTime = 0L
     private val recognizedCards = mutableListOf<POScannedCard>()
 
     init {
@@ -163,8 +164,8 @@ internal class CardRecognitionSession(
             val candidates = text.candidates(MIN_CONFIDENCE)
             val number = numberDetector.firstMatch(candidates)
             if (number != null) {
-                if (startTimestamp == 0L) {
-                    startTimestamp = System.currentTimeMillis()
+                if (startTime == 0L) {
+                    startTime = SystemClock.elapsedRealtime()
                 }
                 val card = POScannedCard(
                     number = number,
@@ -178,12 +179,12 @@ internal class CardRecognitionSession(
                     _currentCard.send(card)
                 }
             }
-            if (System.currentTimeMillis() - startTimestamp > RECOGNITION_DURATION_MS) {
+            if (SystemClock.elapsedRealtime() - startTime > RECOGNITION_DURATION_MS) {
                 if (recognizedCards.isNotEmpty()) {
                     sendMostFrequentCard()
                     recognizedCards.clear()
                 }
-                startTimestamp = 0L
+                startTime = 0L
             }
             imageProxy.close()
         }

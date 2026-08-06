@@ -11,7 +11,7 @@ import java.util.UUID
 internal class RetryInterceptor(
     private val retryStrategy: PORetryStrategy = Exponential(
         maxRetries = 4,
-        initialDelay = 100,
+        seedDelay = 100,
         maxDelay = 1000,
         factor = 3.0
     )
@@ -19,7 +19,7 @@ internal class RetryInterceptor(
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request().addIdempotencyKey()
-        val iterator = retryStrategy.iterator
+        val backoffIterator = retryStrategy.newBackoffIterator()
         repeat(retryStrategy.maxRetries - 1) {
             var response: Response? = null
             try {
@@ -34,7 +34,7 @@ internal class RetryInterceptor(
                 // network issue, retry
             }
             response?.body?.close()
-            Thread.sleep(iterator.next())
+            Thread.sleep(backoffIterator.next())
         }
         return chain.proceed(request)
     }
