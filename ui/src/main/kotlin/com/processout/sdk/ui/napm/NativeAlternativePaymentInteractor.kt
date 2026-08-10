@@ -12,6 +12,7 @@ import android.util.Patterns
 import androidx.annotation.StringRes
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.core.os.LocaleListCompat
 import androidx.core.os.postDelayed
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -75,6 +76,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
+import java.util.Locale
 import java.util.UUID
 
 internal class NativeAlternativePaymentInteractor(
@@ -421,7 +423,15 @@ internal class NativeAlternativePaymentInteractor(
                     TextFieldValue(text = parameter.preselectedValue?.value ?: String())
                 )
                 is Parameter.Bool -> FieldValue.Text(TextFieldValue(text = "false"))
-                is Parameter.PhoneNumber -> FieldValue.PhoneNumber()
+                is Parameter.PhoneNumber -> {
+                    val defaultLocale = LocaleListCompat.getAdjustedDefault()[0] ?: Locale.getDefault()
+                    FieldValue.PhoneNumber(
+                        regionCode = TextFieldValue(
+                            text = if (parameter.dialingCodes.any { it.regionCode == defaultLocale.country })
+                                defaultLocale.country else String()
+                        )
+                    )
+                }
                 else -> FieldValue.Text()
             }
             Field(
