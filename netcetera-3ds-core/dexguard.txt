@@ -1,8 +1,9 @@
 
 
 
--stripnativelibrarysections !jni/arm64-v8a/libbdaf.so,!jni/armeabi-v7a/libbdaf.so,!jni/x86/libbdaf.so,!jni/x86_64/libbdaf.so,!lib/arm64-v8a/libbdaf.so,!lib/armeabi-v7a/libbdaf.so,!lib/x86/libbdaf.so,!lib/x86_64/libbdaf.so,dummyfile
+-stripnativelibrarysections !jni/arm64-v8a/libac2f.so,!jni/armeabi-v7a/libac2f.so,!jni/x86/libac2f.so,!jni/x86_64/libac2f.so,!lib/arm64-v8a/libac2f.so,!lib/armeabi-v7a/libac2f.so,!lib/x86/libac2f.so,!lib/x86_64/libac2f.so,dummyfile
+-encryptassetfiles !assets/com/netcetera/threeds/sdk/infrastructure/2ddae7d4de993a76c-,!assets/com/netcetera/threeds/sdk/infrastructure/5fd187a4b6714962b-,!assets/com/netcetera/threeds/sdk/infrastructure/8d9083a0ad62a735d-,!assets/com/netcetera/threeds/sdk/infrastructure/123eeab1af713599a-,dummyfile
 
 
--keepresourcefiles assets/com/netcetera/threeds/sdk/infrastructure/7f5829fb5d57ecafa-,assets/com/netcetera/threeds/sdk/infrastructure/e003eb14c8f577feb-,jni/arm64-v8a/libbdaf.so,jni/armeabi-v7a/libbdaf.so,jni/x86/libbdaf.so,jni/x86_64/libbdaf.so,lib/arm64-v8a/libbdaf.so,lib/armeabi-v7a/libbdaf.so,lib/x86/libbdaf.so,lib/x86_64/libbdaf.so
+-keepresourcefiles assets/com/netcetera/threeds/sdk/infrastructure/123eeab1af713599a-,assets/com/netcetera/threeds/sdk/infrastructure/2ddae7d4de993a76c-,assets/com/netcetera/threeds/sdk/infrastructure/5fd187a4b6714962b-,assets/com/netcetera/threeds/sdk/infrastructure/8d9083a0ad62a735d-,jni/arm64-v8a/libac2f.so,jni/armeabi-v7a/libac2f.so,jni/x86/libac2f.so,jni/x86_64/libac2f.so,lib/arm64-v8a/libac2f.so,lib/armeabi-v7a/libac2f.so,lib/x86/libac2f.so,lib/x86_64/libac2f.so
 
