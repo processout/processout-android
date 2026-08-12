@@ -88,8 +88,8 @@ ext {
     jjwtVersion = '0.13.0'
     slf4jVersion = '1.7.36'
 
-    netcetera3dsSdkVersion = '2.6.0.0'
-    checkout3dsSdkVersion = '3.2.7'
+    netcetera3dsSdkVersion = '2.6.1.0'
+    checkout3dsSdkVersion = '3.5.3'
 
     junitVersion = '4.13.2'
     mockitoVersion = '5.20.0'
