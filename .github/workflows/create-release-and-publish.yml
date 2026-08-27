@@ -12,12 +12,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Mint App token
+        id: app-token
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 #v2
+        with:
+          app-id: ${{ vars.CKO_PUBLIC_WRITE_APP_ID }}
+          private-key: ${{ secrets.CKO_PUBLIC_WRITE_APP_KEY }}
+          owner: processout
+          repositories: processout-android
+
       - name: Create Release
         run: |
           RELEASE_VERSION=$(cat version.resolved)
           gh release create $RELEASE_VERSION --generate-notes
         env:
-          GH_TOKEN: ${{ secrets.PO_GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
 
       - name: Setup JDK 17
         uses: actions/setup-java@v4

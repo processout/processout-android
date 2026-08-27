@@ -48,10 +48,19 @@ jobs:
         env:
           NETCETERA_API_KEY: ${{ secrets.NETCETERA_API_KEY }}
 
+      - name: Mint App token
+        id: app-token
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 #v2
+        with:
+          app-id: ${{ vars.CKO_PUBLIC_WRITE_APP_ID }}
+          private-key: ${{ secrets.CKO_PUBLIC_WRITE_APP_KEY }}
+          owner: processout
+          repositories: processout-android
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5.0.0
         with:
-          token: ${{ secrets.PO_GITHUB_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
           add-paths: |
             netcetera-3ds-core/src/main/assets/**
             netcetera-3ds-core/src/main/jniLibs/**
