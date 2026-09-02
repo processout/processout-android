@@ -8,8 +8,18 @@ import com.squareup.moshi.JsonClass
  */
 @JsonClass(generateAdapter = false)
 enum class PONativeAlternativePaymentState {
+
     /** Next step is required to proceed. */
     NEXT_STEP_REQUIRED,
+
+    /** Customer interaction completed. Explicit authorization and/or capture is expected to advance the payment. */
+    CUSTOMER_ACTIONS_COMPLETED,
+
+    /** Authorization was requested and it’s still pending. No further actions are expected, payment will advance to next state automatically. */
+    AUTHORIZATION_PENDING,
+
+    /** Authorization was requested and completed. */
+    AUTHORIZED,
 
     /** Pending payment processing. */
     PENDING,
