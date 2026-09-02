@@ -16,6 +16,26 @@ data class POCreateInvoiceRequest(
     @Json(name = "return_url")
     val returnUrl: String? = null,
     val shipping: POContact? = null,
+    @Json(name = "payment_configuration")
+    val paymentConfiguration: PaymentConfiguration? = null,
     val device: Map<String, String> = mapOf("channel" to "android"),
     val metadata: Map<String, String>? = null
-)
+) {
+
+    @JsonClass(generateAdapter = true)
+    data class PaymentConfiguration(
+        val apm: AlternativePaymentConfiguration
+    )
+
+    @JsonClass(generateAdapter = true)
+    data class AlternativePaymentConfiguration(
+        @Json(name = "preferred_finalization_mode")
+        val preferredFinalizationMode: PreferredFinalizationMode
+    )
+
+    @Suppress("EnumEntryName")
+    @JsonClass(generateAdapter = false)
+    enum class PreferredFinalizationMode {
+        automatic, manual
+    }
+}
