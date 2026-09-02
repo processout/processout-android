@@ -21,7 +21,8 @@ data class PONativeAlternativePaymentUrlResolutionResponse(
     val invoice: PONativeAlternativePaymentInvoice?,
     val customerToken: PONativeAlternativePaymentCustomerToken?,
     val elements: List<PONativeAlternativePaymentElement>?,
-    val redirect: PONativeAlternativePaymentRedirect?
+    val redirect: PONativeAlternativePaymentRedirect?,
+    val availableActions: List<PONativeAlternativePaymentAvailableAction>?
 )
 
 @JsonClass(generateAdapter = true)
@@ -33,5 +34,7 @@ internal data class NativeAlternativePaymentUrlResolutionResponseBody(
     @Json(name = "customer_token")
     val customerToken: PONativeAlternativePaymentCustomerToken?,
     val elements: List<NativeAlternativePaymentElement>?,
-    val redirect: PONativeAlternativePaymentRedirect?
+    val redirect: PONativeAlternativePaymentRedirect?,
+    @Json(name = "available_actions")
+    val availableActions: List<PONativeAlternativePaymentAvailableAction>?
 )

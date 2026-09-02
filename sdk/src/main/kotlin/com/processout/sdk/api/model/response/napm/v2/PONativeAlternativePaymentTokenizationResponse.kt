@@ -18,7 +18,8 @@ data class PONativeAlternativePaymentTokenizationResponse(
     val state: PONativeAlternativePaymentState,
     val paymentMethod: PONativeAlternativePaymentMethodDetails,
     val elements: List<PONativeAlternativePaymentElement>?,
-    val redirect: PONativeAlternativePaymentRedirect?
+    val redirect: PONativeAlternativePaymentRedirect?,
+    val availableActions: List<PONativeAlternativePaymentAvailableAction>?
 ) : Parcelable
 
 @JsonClass(generateAdapter = true)
@@ -27,5 +28,7 @@ internal data class NativeAlternativePaymentTokenizationResponseBody(
     @Json(name = "payment_method")
     val paymentMethod: PONativeAlternativePaymentMethodDetails,
     val elements: List<NativeAlternativePaymentElement>?,
-    val redirect: PONativeAlternativePaymentRedirect?
+    val redirect: PONativeAlternativePaymentRedirect?,
+    @Json(name = "available_actions")
+    val availableActions: List<PONativeAlternativePaymentAvailableAction>?
 )
