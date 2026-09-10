@@ -155,10 +155,15 @@ class PONetcetera3DS2Service(
                         // with payment providers that impose size limit on authentication request payload
                         // (e.g., Stripe limits payload to 5000 characters).
                         //
-                        // A071: Default input method.
-                        // A074: Enabled input methods.
-                        // A125: An array of non-system application packages that are installed on the device.
-                        restrictedParameters(listOf("A071", "A074", "A125"))
+                        // Check parameters description in EMV® 3-D Secure SDK – Device Information v1.7:
+                        // https://www.emvco.com/emvco-website-search/?type=specifications&spec_specification_types=Specifications&version=1.7
+                        val parameters = listOf(
+                            "A006", "A007", "A040", "A042", "A043", "A044", "A045", "A047", "A049", "A050",
+                            "A051", "A052", "A054", "A055", "A056", "A057", "A058", "A061", "A064", "A068",
+                            "A071", "A073", "A074", "A085", "A109", "A111", "A114", "A125", "A134", "A135",
+                            "A136", "A137", "A139", "A142", "A149", "A154", "A155"
+                        )
+                        restrictedParameters(parameters)
                     }
                 }.build()
             ProcessOutResult.Success(value = configParameters)
