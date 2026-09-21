@@ -176,7 +176,8 @@ internal class NativeAlternativePaymentInteractor(
                     ),
                     paymentState = response.state,
                     elements = response.elements,
-                    redirect = response.redirect
+                    redirect = response.redirect,
+                    availableActions = response.availableActions
                 )
             }.onFailure { failure ->
                 POLogger.info("Failed to fetch authorization details: %s", failure)
@@ -200,7 +201,8 @@ internal class NativeAlternativePaymentInteractor(
                     ),
                     paymentState = response.state,
                     elements = response.elements,
-                    redirect = response.redirect
+                    redirect = response.redirect,
+                    availableActions = response.availableActions
                 )
             }.onFailure { failure ->
                 POLogger.info("Failed to fetch tokenization details: %s", failure)
@@ -235,7 +237,8 @@ internal class NativeAlternativePaymentInteractor(
         stateValue: NextStepStateValue,
         paymentState: PONativeAlternativePaymentState,
         elements: List<PONativeAlternativePaymentElement>?,
-        redirect: PONativeAlternativePaymentRedirect?
+        redirect: PONativeAlternativePaymentRedirect?,
+        availableActions: List<PONativeAlternativePaymentAvailableAction>?
     ) {
         this.paymentState = paymentState
         val mappedElements = elements?.map() ?: emptyList()
@@ -615,7 +618,8 @@ internal class NativeAlternativePaymentInteractor(
                         ),
                         paymentState = response.state,
                         elements = response.elements,
-                        redirect = response.redirect
+                        redirect = response.redirect,
+                        availableActions = response.availableActions
                     )
                 }.onFailure { failure ->
                     val isInvalidRedirectResult = when (val code = failure.code) {
@@ -952,7 +956,8 @@ internal class NativeAlternativePaymentInteractor(
                             stateValue = stateValue,
                             paymentState = response.state,
                             elements = response.elements,
-                            redirect = response.redirect
+                            redirect = response.redirect,
+                            availableActions = response.availableActions
                         )
                     }.onFailure { failure ->
                         handlePaymentFailure(failure)
@@ -981,7 +986,8 @@ internal class NativeAlternativePaymentInteractor(
                             stateValue = stateValue,
                             paymentState = response.state,
                             elements = response.elements,
-                            redirect = response.redirect
+                            redirect = response.redirect,
+                            availableActions = response.availableActions
                         )
                     }.onFailure { failure ->
                         handlePaymentFailure(failure)
