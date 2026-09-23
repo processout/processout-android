@@ -14,6 +14,7 @@ import kotlinx.parcelize.Parcelize
  * @param[paymentMethod] Payment method details.
  * @param[elements] An ordered list of elements that needs to be rendered on the UI during native alternative payment flow.
  * @param[redirect] Indicates required redirect.
+ * @param[availableActions] Available actions to advance the payment.
  */
 @Parcelize
 data class PONativeAlternativePaymentAuthorizationResponse(

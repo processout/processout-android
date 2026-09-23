@@ -13,6 +13,7 @@ import com.squareup.moshi.JsonClass
  * @param[customerToken] Customer token details if any.
  * @param[elements] An ordered list of elements that needs to be rendered on the UI during native alternative payment flow.
  * @param[redirect] Indicates required redirect.
+ * @param[availableActions] Available actions to advance the payment.
  */
 @ProcessOutInternalApi
 data class PONativeAlternativePaymentUrlResolutionResponse(
