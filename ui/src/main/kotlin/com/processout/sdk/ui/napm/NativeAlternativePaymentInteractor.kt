@@ -59,11 +59,8 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.WebRedirect
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Authorization
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Tokenization
-import com.processout.sdk.ui.napm.delegate.v2.NativeAlternativePaymentDefaultValuesRequest
-import com.processout.sdk.ui.napm.delegate.v2.NativeAlternativePaymentDefaultValuesResponse
-import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent
+import com.processout.sdk.ui.napm.delegate.v2.*
 import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent.*
-import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentParameterValue
 import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentParameterValue.Value
 import com.processout.sdk.ui.shared.extension.dpToPx
 import com.processout.sdk.ui.shared.extension.openDeepLink
@@ -108,6 +105,7 @@ internal class NativeAlternativePaymentInteractor(
 
     private var paymentState: PONativeAlternativePaymentState = UNKNOWN
     private var latestDefaultValuesRequest: NativeAlternativePaymentDefaultValuesRequest? = null
+    private var latestManualFinalizationRequest: NativeAlternativePaymentManualFinalizationRequest? = null
     private var latestWillSubmitParametersEvent: WillSubmitParameters? = null
     private var isCapturePolling = false
 
@@ -124,6 +122,7 @@ internal class NativeAlternativePaymentInteractor(
         dispatch(WillStart)
         dispatchFailure()
         collectDefaultValues()
+        collectManualFinalizationResult()
         collectDeepLink()
         fetchPaymentDetails()
     }
@@ -146,6 +145,7 @@ internal class NativeAlternativePaymentInteractor(
         handler.removeCallbacksAndMessages(null)
         paymentState = UNKNOWN
         latestDefaultValuesRequest = null
+        latestManualFinalizationRequest = null
         latestWillSubmitParametersEvent = null
         _completion.update { Awaiting }
         _state.update { Idle }
@@ -576,6 +576,36 @@ internal class NativeAlternativePaymentInteractor(
             } ?: field
         }
         return copy(fields = updatedFields)
+    }
+
+    //endregion
+
+    //region Manual Finalization
+
+    private fun requestManualFinalization(
+        availableActions: List<PONativeAlternativePaymentAvailableAction>
+    ) {
+        interactorScope.launch {
+            val request = NativeAlternativePaymentManualFinalizationRequest(
+                availableActions = availableActions
+            )
+            latestManualFinalizationRequest = request
+            eventDispatcher.send(request)
+            POLogger.info("Requested to finalize the payment manually with available actions: %s", availableActions)
+        }
+    }
+
+    private fun collectManualFinalizationResult() {
+        eventDispatcher.subscribeForResponse<NativeAlternativePaymentManualFinalizationResponse>(
+            coroutineScope = interactorScope
+        ) { response ->
+            if (response.uuid == latestManualFinalizationRequest?.uuid) {
+                latestManualFinalizationRequest = null
+                val result = response.result
+                POLogger.info("Collected manual finalization result: %s", result)
+                // TODO: handle result
+            }
+        }
     }
 
     //endregion
