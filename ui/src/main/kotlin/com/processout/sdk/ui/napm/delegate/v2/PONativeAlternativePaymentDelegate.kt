@@ -1,6 +1,9 @@
 package com.processout.sdk.ui.napm.delegate.v2
 
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAvailableAction
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement
+import com.processout.sdk.core.POFailure
+import com.processout.sdk.core.ProcessOutResult
 
 /**
  * Delegate that allows to handle events during native alternative payments.
@@ -21,4 +24,15 @@ interface PONativeAlternativePaymentDelegate {
         gatewayConfigurationId: String,
         parameters: List<PONativeAlternativePaymentElement.Form.Parameter>
     ): Map<String, PONativeAlternativePaymentParameterValue> = emptyMap()
+
+    /**
+     * Asks delegate to finalize the payment with the given [availableActions].
+     */
+    suspend fun finalize(
+        availableActions: List<PONativeAlternativePaymentAvailableAction>
+    ): ProcessOutResult<Unit> =
+        ProcessOutResult.Failure(
+            code = POFailure.Code.Generic(),
+            message = "Manual finalization is not implemented by the delegate."
+        )
 }
