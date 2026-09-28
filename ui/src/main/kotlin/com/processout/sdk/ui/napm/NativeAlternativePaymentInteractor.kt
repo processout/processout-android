@@ -101,13 +101,16 @@ internal class NativeAlternativePaymentInteractor(
     private val _sideEffects = Channel<NativeAlternativePaymentSideEffect>()
     val sideEffects = _sideEffects.receiveAsFlow()
 
-    private val handler = Handler(Looper.getMainLooper())
-
     private var paymentState: PONativeAlternativePaymentState = UNKNOWN
-    private var latestDefaultValuesRequest: NativeAlternativePaymentDefaultValuesRequest? = null
+
+    private var didRequestManualFinalization = false
     private var latestManualFinalizationRequest: NativeAlternativePaymentManualFinalizationRequest? = null
+    private var latestDefaultValuesRequest: NativeAlternativePaymentDefaultValuesRequest? = null
     private var latestWillSubmitParametersEvent: WillSubmitParameters? = null
+
     private var isCapturePolling = false
+
+    private val handler = Handler(Looper.getMainLooper())
 
     init {
         ProcessLifecycleOwner.get().lifecycle.addObserver(this)
@@ -144,8 +147,9 @@ internal class NativeAlternativePaymentInteractor(
         interactorScope.coroutineContext.cancelChildren()
         handler.removeCallbacksAndMessages(null)
         paymentState = UNKNOWN
-        latestDefaultValuesRequest = null
+        didRequestManualFinalization = false
         latestManualFinalizationRequest = null
+        latestDefaultValuesRequest = null
         latestWillSubmitParametersEvent = null
         _completion.update { Awaiting }
         _state.update { Idle }
@@ -591,6 +595,7 @@ internal class NativeAlternativePaymentInteractor(
                 paymentState = paymentState,
                 availableActions = availableActions
             )
+            didRequestManualFinalization = true
             latestManualFinalizationRequest = request
             eventDispatcher.send(request)
             POLogger.info("Requested to finalize the payment manually with available actions: %s", availableActions)
