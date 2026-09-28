@@ -2,6 +2,7 @@ package com.processout.sdk.ui.napm.delegate.v2
 
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAvailableAction
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentState
 import com.processout.sdk.core.POFailure
 import com.processout.sdk.core.ProcessOutResult
 
@@ -29,6 +30,7 @@ interface PONativeAlternativePaymentDelegate {
      * Asks delegate to finalize the payment with the given [availableActions].
      */
     suspend fun finalize(
+        paymentState: PONativeAlternativePaymentState,
         availableActions: List<PONativeAlternativePaymentAvailableAction>
     ): ProcessOutResult<Unit> =
         ProcessOutResult.Failure(

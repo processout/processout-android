@@ -346,7 +346,10 @@ class PONativeAlternativePaymentLauncher private constructor(
             coroutineScope
         ) { request ->
             coroutineScope.launch {
-                val result = delegate.finalize(request.availableActions)
+                val result = delegate.finalize(
+                    paymentState = request.paymentState,
+                    availableActions = request.availableActions
+                )
                 eventDispatcher.send(request.toResponse(result))
             }
         }

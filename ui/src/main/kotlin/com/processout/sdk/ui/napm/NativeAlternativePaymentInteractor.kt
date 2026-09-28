@@ -583,10 +583,12 @@ internal class NativeAlternativePaymentInteractor(
     //region Manual Finalization
 
     private fun requestManualFinalization(
+        paymentState: PONativeAlternativePaymentState,
         availableActions: List<PONativeAlternativePaymentAvailableAction>
     ) {
         interactorScope.launch {
             val request = NativeAlternativePaymentManualFinalizationRequest(
+                paymentState = paymentState,
                 availableActions = availableActions
             )
             latestManualFinalizationRequest = request
