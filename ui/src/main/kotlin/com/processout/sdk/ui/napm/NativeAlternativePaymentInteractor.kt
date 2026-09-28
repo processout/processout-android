@@ -249,11 +249,9 @@ internal class NativeAlternativePaymentInteractor(
         preloadImages(resources = mappedElements.images())
         when (paymentState) {
             NEXT_STEP_REQUIRED -> handleNextStep(stateValue, mappedElements, redirect)
+            PENDING, AUTHORIZATION_PENDING -> handlePending(stateValue, mappedElements)
             CUSTOMER_ACTIONS_COMPLETED -> TODO()
-            AUTHORIZATION_PENDING -> TODO()
-            AUTHORIZED -> TODO()
-            PENDING -> handlePending(stateValue, mappedElements)
-            SUCCESS -> handleSuccess(
+            AUTHORIZED, SUCCESS -> handleSuccess(
                 stateValue.toPendingStateValue(
                     uuid = UUID.randomUUID().toString(),
                     elements = mappedElements
