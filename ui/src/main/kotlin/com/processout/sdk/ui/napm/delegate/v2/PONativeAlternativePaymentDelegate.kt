@@ -27,7 +27,9 @@ interface PONativeAlternativePaymentDelegate {
     ): Map<String, PONativeAlternativePaymentParameterValue> = emptyMap()
 
     /**
-     * Asks delegate to finalize the payment with the given [availableActions].
+     * Asks the delegate to finalize the payment by explicitly advancing it to an authorized and/or captured state using one of the available actions.
+     * Method is invoked at most once, either when all customer actions are completed or when the payment is already authorized and can still be captured.
+     * In the latter case, the implementation may return without advancing the payment, leaving it in the authorized state.
      */
     suspend fun finalize(
         paymentState: PONativeAlternativePaymentState,
