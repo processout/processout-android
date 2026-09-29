@@ -623,7 +623,10 @@ internal class NativeAlternativePaymentInteractor(
             didRequestManualFinalization = true
             latestManualFinalizationRequest = request
             eventDispatcher.send(request)
-            POLogger.info("Requested to finalize the payment manually with available actions: %s", availableActions)
+            POLogger.info(
+                "Requested to finalize the payment manually. Payment state: %s. Available actions: %s.",
+                paymentState, availableActions
+            )
         }
     }
 
