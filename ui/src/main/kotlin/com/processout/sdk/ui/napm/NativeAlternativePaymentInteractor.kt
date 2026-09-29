@@ -638,7 +638,11 @@ internal class NativeAlternativePaymentInteractor(
                 latestManualFinalizationRequest = null
                 val result = response.result
                 POLogger.info("Collected manual finalization result: %s", result)
-                // TODO: handle result
+                result.onSuccess {
+                    // TODO: handle success
+                }.onFailure { failure ->
+                    _completion.update { Failure(failure) }
+                }
             }
         }
     }
