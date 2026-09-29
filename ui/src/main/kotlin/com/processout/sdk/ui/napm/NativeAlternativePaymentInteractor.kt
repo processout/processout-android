@@ -31,6 +31,7 @@ import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSu
 import com.processout.sdk.api.model.response.POImageResource
 import com.processout.sdk.api.model.response.napm.v2.*
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.Invoice
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAvailableAction.CAPTURE
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter.Otp.Subtype
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentRedirect.DeepLinkConfiguration
@@ -250,7 +251,9 @@ internal class NativeAlternativePaymentInteractor(
         when (paymentState) {
             NEXT_STEP_REQUIRED -> handleNextStep(stateValue, mappedElements, redirect)
             PENDING, AUTHORIZATION_PENDING -> handlePending(stateValue, mappedElements)
-            CUSTOMER_ACTIONS_COMPLETED -> TODO()
+            CUSTOMER_ACTIONS_COMPLETED -> requestManualFinalization(paymentState, availableActions)
+            AUTHORIZED if !didRequestManualFinalization && availableActions?.contains(CAPTURE) == true ->
+                requestManualFinalization(paymentState, availableActions)
             AUTHORIZED, SUCCESS -> handleSuccess(
                 stateValue.toPendingStateValue(
                     uuid = UUID.randomUUID().toString(),
@@ -586,8 +589,32 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun requestManualFinalization(
         paymentState: PONativeAlternativePaymentState,
-        availableActions: List<PONativeAlternativePaymentAvailableAction>
+        availableActions: List<PONativeAlternativePaymentAvailableAction>?
     ) {
+        if (didRequestManualFinalization) {
+            val failure = ProcessOutResult.Failure(
+                code = Generic(),
+                message = "Payment was not advanced."
+            )
+            POLogger.info(
+                message = "Unexpected state during manual finalization: %s", failure,
+                attributes = configuration.logAttributes
+            )
+            _completion.update { Failure(failure) }
+            return
+        }
+        if (availableActions.isNullOrEmpty()) {
+            val failure = ProcessOutResult.Failure(
+                code = Internal(),
+                message = "No available actions to finalize the payment."
+            )
+            POLogger.error(
+                message = "Unexpected response during manual finalization: %s", failure,
+                attributes = configuration.logAttributes
+            )
+            _completion.update { Failure(failure) }
+            return
+        }
         interactorScope.launch {
             val request = NativeAlternativePaymentManualFinalizationRequest(
                 paymentState = paymentState,
