@@ -639,7 +639,7 @@ internal class NativeAlternativePaymentInteractor(
                 val result = response.result
                 POLogger.info("Collected manual finalization result: %s", result)
                 result.onSuccess {
-                    // TODO: handle success
+                    fetchPaymentDetails()
                 }.onFailure { failure ->
                     _completion.update { Failure(failure) }
                 }
