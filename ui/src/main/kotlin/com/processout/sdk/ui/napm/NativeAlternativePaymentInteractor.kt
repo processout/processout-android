@@ -677,7 +677,7 @@ internal class NativeAlternativePaymentInteractor(
             )
             invoicesService.resolveUrl(request)
                 .onSuccess { response ->
-                    if (response.state == PENDING && _state.value is Pending) {
+                    if (setOf(PENDING, AUTHORIZATION_PENDING).contains(response.state) && _state.value is Pending) {
                         return@onSuccess
                     }
                     handlePaymentState(
