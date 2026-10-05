@@ -5,11 +5,10 @@ package com.processout.sdk.ui.napm
 import android.os.SystemClock
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentAuthorizationRequest
 import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentTokenizationRequest
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentState
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentState.SUCCESS
-import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentTokenizationResponse
+import com.processout.sdk.api.model.response.napm.v2.*
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.Invoice
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentState.AUTHORIZATION_PENDING
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentState.PENDING
 import com.processout.sdk.api.service.POCustomerTokensService
 import com.processout.sdk.api.service.POInvoicesService
 import com.processout.sdk.core.POFailure.Code.*
@@ -41,7 +40,11 @@ internal class NativeAlternativePaymentCapturePoller(
 
     data class CaptureResponse(
         val state: PONativeAlternativePaymentState,
-        val elements: List<PONativeAlternativePaymentElement>?
+        val invoice: Invoice?,
+        val paymentMethod: PONativeAlternativePaymentMethodDetails,
+        val elements: List<PONativeAlternativePaymentElement>?,
+        val redirect: PONativeAlternativePaymentRedirect?,
+        val availableActions: List<PONativeAlternativePaymentAvailableAction>?
     )
 
     private var backoffIterator = retryStrategy.newBackoffIterator()
@@ -106,7 +109,7 @@ internal class NativeAlternativePaymentCapturePoller(
     private fun isRetryable(
         result: ProcessOutResult<CaptureResponse>
     ): Boolean = result.fold(
-        onSuccess = { it.state != SUCCESS },
+        onSuccess = { it.state == PENDING || it.state == AUTHORIZATION_PENDING },
         onFailure = { failure ->
             val retryableCodes = listOf(
                 NetworkUnreachable,
@@ -124,7 +127,11 @@ internal class NativeAlternativePaymentCapturePoller(
                 ProcessOutResult.Success(
                     CaptureResponse(
                         state = it.state,
-                        elements = it.elements
+                        invoice = it.invoice,
+                        paymentMethod = it.paymentMethod,
+                        elements = it.elements,
+                        redirect = it.redirect,
+                        availableActions = it.availableActions
                     )
                 )
             },
@@ -138,7 +145,11 @@ internal class NativeAlternativePaymentCapturePoller(
                 ProcessOutResult.Success(
                     CaptureResponse(
                         state = it.state,
-                        elements = it.elements
+                        invoice = null,
+                        paymentMethod = it.paymentMethod,
+                        elements = it.elements,
+                        redirect = it.redirect,
+                        availableActions = it.availableActions
                     )
                 )
             },

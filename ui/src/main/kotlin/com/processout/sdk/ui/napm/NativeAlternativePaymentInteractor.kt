@@ -217,7 +217,7 @@ internal class NativeAlternativePaymentInteractor(
 
     private suspend fun initNextStepStateValue(
         paymentMethod: PONativeAlternativePaymentMethodDetails,
-        invoice: Invoice?,
+        invoice: Invoice?
     ): NextStepStateValue {
         preloadImages(resources = listOf(paymentMethod.logo))
         return NextStepStateValue(
@@ -1188,15 +1188,16 @@ internal class NativeAlternativePaymentInteractor(
             try {
                 capturePoller.poll()
                     .onSuccess { response ->
-                        val elements = response.elements?.map()
-                        _state.whenPending { stateValue ->
-                            handleSuccess(
-                                stateValue.copy(
-                                    uuid = UUID.randomUUID().toString(),
-                                    elements = elements
-                                )
-                            )
-                        }
+                        handlePaymentState(
+                            stateValue = initNextStepStateValue(
+                                paymentMethod = response.paymentMethod,
+                                invoice = response.invoice
+                            ),
+                            paymentState = response.state,
+                            elements = response.elements,
+                            redirect = response.redirect,
+                            availableActions = response.availableActions
+                        )
                     }.onFailure { failure ->
                         _completion.update { Failure(failure) }
                     }
