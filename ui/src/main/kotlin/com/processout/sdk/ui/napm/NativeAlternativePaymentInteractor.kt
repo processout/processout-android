@@ -43,6 +43,8 @@ import com.processout.sdk.core.POFailure.Code.*
 import com.processout.sdk.core.POFailure.GenericCode.mobileHeadlessModeNotSupported
 import com.processout.sdk.core.POFailure.InvalidField
 import com.processout.sdk.core.POFailure.ValidationCode
+import com.processout.sdk.core.POFailure.ValidationCode.invalidRedirectResult
+import com.processout.sdk.core.POFailure.ValidationCode.unexpectedRedirectResult
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.fold
 import com.processout.sdk.core.logger.POLogger
@@ -691,11 +693,12 @@ internal class NativeAlternativePaymentInteractor(
                         availableActions = response.availableActions
                     )
                 }.onFailure { failure ->
-                    val isInvalidRedirectResult = when (val code = failure.code) {
-                        is Validation -> code.validationCode == ValidationCode.invalidRedirectResult
+                    val ignoredFailureCodes = setOf(invalidRedirectResult, unexpectedRedirectResult)
+                    val shouldIgnoreRedirectResult = when (val code = failure.code) {
+                        is Validation -> ignoredFailureCodes.contains(code.validationCode)
                         else -> false
                     }
-                    if (isInvalidRedirectResult) {
+                    if (shouldIgnoreRedirectResult) {
                         return@onFailure
                     }
                     _completion.update { Failure(failure) }
