@@ -1356,9 +1356,7 @@ internal class NativeAlternativePaymentInteractor(
     // TODO(v2): use barcode ID, also inspect instructions group
     private fun saveBarcode() {
         _state.whenNextStep { stateValue ->
-            val instructions = stateValue.elements.mapNotNull {
-                it as? Element.Instruction
-            }
+            val instructions = stateValue.elements.filterIsInstance<Element.Instruction>()
             instructions.forEach {
                 if (it.instruction is Instruction.Barcode) {
                     saveBarcode(barcode = it.instruction)
@@ -1367,9 +1365,7 @@ internal class NativeAlternativePaymentInteractor(
             }
         }
         _state.whenPending { stateValue ->
-            val instructions = stateValue.elements?.mapNotNull {
-                it as? Element.Instruction
-            }
+            val instructions = stateValue.elements?.filterIsInstance<Element.Instruction>()
             instructions?.forEach {
                 if (it.instruction is Instruction.Barcode) {
                     saveBarcode(barcode = it.instruction)
@@ -1399,9 +1395,7 @@ internal class NativeAlternativePaymentInteractor(
             Manifest.permission.WRITE_EXTERNAL_STORAGE ->
                 if (result.isGranted) {
                     _state.whenNextStep { stateValue ->
-                        val instructions = stateValue.elements.mapNotNull {
-                            it as? Element.Instruction
-                        }
+                        val instructions = stateValue.elements.filterIsInstance<Element.Instruction>()
                         instructions.forEach {
                             if (it.instruction is Instruction.Barcode) {
                                 interactorScope.launch {
@@ -1414,9 +1408,7 @@ internal class NativeAlternativePaymentInteractor(
                         }
                     }
                     _state.whenPending { stateValue ->
-                        val instructions = stateValue.elements?.mapNotNull {
-                            it as? Element.Instruction
-                        }
+                        val instructions = stateValue.elements?.filterIsInstance<Element.Instruction>()
                         instructions?.forEach {
                             if (it.instruction is Instruction.Barcode) {
                                 interactorScope.launch {
