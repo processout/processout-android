@@ -679,7 +679,9 @@ internal class NativeAlternativePaymentInteractor(
             )
             invoicesService.resolveUrl(request)
                 .onSuccess { response ->
-                    if (setOf(PENDING, AUTHORIZATION_PENDING).contains(response.state) && _state.value is Pending) {
+                    val pendingStates = setOf(PENDING, AUTHORIZATION_PENDING)
+                    val isPending = _state.value is Pending && pendingStates.contains(response.state)
+                    if (didRequestManualFinalization || isPending) {
                         return@onSuccess
                     }
                     handlePaymentState(
@@ -698,7 +700,7 @@ internal class NativeAlternativePaymentInteractor(
                         is Validation -> ignoredFailureCodes.contains(code.validationCode)
                         else -> false
                     }
-                    if (shouldIgnoreRedirectResult) {
+                    if (didRequestManualFinalization || shouldIgnoreRedirectResult) {
                         return@onFailure
                     }
                     _completion.update { Failure(failure) }
