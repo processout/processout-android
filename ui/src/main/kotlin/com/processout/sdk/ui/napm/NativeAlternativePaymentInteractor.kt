@@ -130,7 +130,7 @@ internal class NativeAlternativePaymentInteractor(
         collectDefaultValues()
         collectManualFinalizationResult()
         collectDeepLink()
-        fetchPaymentDetails()
+        fetchPaymentState()
     }
 
     fun start(configuration: PONativeAlternativePaymentConfiguration) {
@@ -158,16 +158,16 @@ internal class NativeAlternativePaymentInteractor(
         _state.update { Idle }
     }
 
-    private fun fetchPaymentDetails() {
+    private fun fetchPaymentState() {
         interactorScope.launch {
             when (val flow = configuration.flow) {
-                is Authorization -> fetchAuthorizationDetails(flow)
-                is Tokenization -> fetchTokenizationDetails(flow)
+                is Authorization -> fetchAuthorizationState(flow)
+                is Tokenization -> fetchTokenizationState(flow)
             }
         }
     }
 
-    private suspend fun fetchAuthorizationDetails(flow: Authorization) {
+    private suspend fun fetchAuthorizationState(flow: Authorization) {
         val request = PONativeAlternativePaymentAuthorizationRequest(
             invoiceId = flow.invoiceId,
             gatewayConfigurationId = flow.gatewayConfigurationId,
@@ -187,12 +187,12 @@ internal class NativeAlternativePaymentInteractor(
                     availableActions = response.availableActions
                 )
             }.onFailure { failure ->
-                POLogger.info("Failed to fetch authorization details: %s", failure)
+                POLogger.info("Failed to fetch authorization state: %s", failure)
                 _completion.update { Failure(failure) }
             }
     }
 
-    private suspend fun fetchTokenizationDetails(flow: Tokenization) {
+    private suspend fun fetchTokenizationState(flow: Tokenization) {
         val request = PONativeAlternativePaymentTokenizationRequest(
             customerId = flow.customerId,
             customerTokenId = flow.customerTokenId,
@@ -212,7 +212,7 @@ internal class NativeAlternativePaymentInteractor(
                     availableActions = response.availableActions
                 )
             }.onFailure { failure ->
-                POLogger.info("Failed to fetch tokenization details: %s", failure)
+                POLogger.info("Failed to fetch tokenization state: %s", failure)
                 _completion.update { Failure(failure) }
             }
     }
@@ -641,7 +641,7 @@ internal class NativeAlternativePaymentInteractor(
                 val result = response.result
                 POLogger.info("Collected manual finalization result: %s", result)
                 result.onSuccess {
-                    fetchPaymentDetails()
+                    fetchPaymentState()
                 }.onFailure { failure ->
                     _completion.update { Failure(failure) }
                 }
