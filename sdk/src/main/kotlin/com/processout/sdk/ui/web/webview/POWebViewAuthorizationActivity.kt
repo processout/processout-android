@@ -1,6 +1,5 @@
 package com.processout.sdk.ui.web.webview
 
-import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -80,8 +79,8 @@ class POWebViewAuthorizationActivity : AppCompatActivity() {
         if (!isFinishing) {
             when (configuration.resultApi) {
                 Android -> when (result) {
-                    is ProcessOutActivityResult.Success -> setActivityResult(Activity.RESULT_OK, result)
-                    is ProcessOutActivityResult.Failure -> setActivityResult(Activity.RESULT_CANCELED, result)
+                    is ProcessOutActivityResult.Success -> setActivityResult(RESULT_OK, result)
+                    is ProcessOutActivityResult.Failure -> setActivityResult(RESULT_CANCELED, result)
                 }
                 Dispatcher -> resultDispatcher.dispatch(result)
             }
@@ -97,7 +96,7 @@ class POWebViewAuthorizationActivity : AppCompatActivity() {
         super.finish()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             overrideActivityTransition(
-                Activity.OVERRIDE_TRANSITION_CLOSE,
+                OVERRIDE_TRANSITION_CLOSE,
                 R.anim.po_slide_in_left,
                 R.anim.po_slide_out_right
             )
