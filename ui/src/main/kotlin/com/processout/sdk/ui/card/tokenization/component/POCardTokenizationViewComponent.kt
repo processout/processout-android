@@ -71,12 +71,11 @@ class POCardTokenizationViewComponent private constructor(
             callback: (ProcessOutResult<POCard>) -> Unit
         ): POCardTokenizationViewComponent {
             val configuration = configuration.map()
-            val eventDispatcher = POEventDispatcher()
             val viewModel: CardTokenizationViewModel by from.viewModels {
                 CardTokenizationViewModel.Factory(
                     app = from.requireActivity().application,
                     configuration = configuration,
-                    eventDispatcher = eventDispatcher
+                    eventDispatcher = POEventDispatcher()
                 )
             }
             return POCardTokenizationViewComponent(
@@ -96,7 +95,7 @@ class POCardTokenizationViewComponent private constructor(
                 ),
                 delegate = delegate,
                 callback = callback,
-                eventDispatcher = eventDispatcher
+                eventDispatcher = viewModel.eventDispatcher
             )
         }
 
@@ -111,12 +110,11 @@ class POCardTokenizationViewComponent private constructor(
             callback: (ProcessOutResult<POCard>) -> Unit
         ): POCardTokenizationViewComponent {
             val configuration = configuration.map()
-            val eventDispatcher = POEventDispatcher()
             val viewModel: CardTokenizationViewModel by from.viewModels {
                 CardTokenizationViewModel.Factory(
                     app = from.application,
                     configuration = configuration,
-                    eventDispatcher = eventDispatcher
+                    eventDispatcher = POEventDispatcher()
                 )
             }
             return POCardTokenizationViewComponent(
@@ -136,7 +134,7 @@ class POCardTokenizationViewComponent private constructor(
                 ),
                 delegate = delegate,
                 callback = callback,
-                eventDispatcher = eventDispatcher
+                eventDispatcher = viewModel.eventDispatcher
             )
         }
 
