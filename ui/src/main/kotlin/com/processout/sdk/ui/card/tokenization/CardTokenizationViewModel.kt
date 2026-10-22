@@ -74,6 +74,8 @@ internal class CardTokenizationViewModel private constructor(
 
     val sideEffects = interactor.sideEffects
 
+    val eventDispatcher = interactor.eventDispatcher
+
     init {
         addCloseable(interactor.interactorScope)
     }

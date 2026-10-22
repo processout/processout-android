@@ -1,8 +1,6 @@
 package com.processout.sdk.ui.web.webview
 
-import android.app.Activity
 import android.content.Intent
-import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -33,12 +31,6 @@ class POWebViewAuthorizationActivity : AppCompatActivity() {
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // This is a workaround for crash on Android 8.0 (API level 26).
-        // https://issuetracker.google.com/issues/68454482
-        // https://stackoverflow.com/questions/48072438/java-lang-illegalstateexception-only-fullscreen-opaque-activities-can-request-o
-        requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O)
-            ActivityInfo.SCREEN_ORIENTATION_BEHIND else ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-
         if (intent.getBooleanExtra(EXTRA_FORCE_FINISH, false)) {
             POLogger.info("Activity is started to clear the back stack and finished immediately before it's created.")
             finish()
@@ -87,8 +79,8 @@ class POWebViewAuthorizationActivity : AppCompatActivity() {
         if (!isFinishing) {
             when (configuration.resultApi) {
                 Android -> when (result) {
-                    is ProcessOutActivityResult.Success -> setActivityResult(Activity.RESULT_OK, result)
-                    is ProcessOutActivityResult.Failure -> setActivityResult(Activity.RESULT_CANCELED, result)
+                    is ProcessOutActivityResult.Success -> setActivityResult(RESULT_OK, result)
+                    is ProcessOutActivityResult.Failure -> setActivityResult(RESULT_CANCELED, result)
                 }
                 Dispatcher -> resultDispatcher.dispatch(result)
             }
@@ -104,7 +96,7 @@ class POWebViewAuthorizationActivity : AppCompatActivity() {
         super.finish()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             overrideActivityTransition(
-                Activity.OVERRIDE_TRANSITION_CLOSE,
+                OVERRIDE_TRANSITION_CLOSE,
                 R.anim.po_slide_in_left,
                 R.anim.po_slide_out_right
             )

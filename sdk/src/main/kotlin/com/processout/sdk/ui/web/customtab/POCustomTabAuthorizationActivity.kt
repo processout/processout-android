@@ -2,9 +2,7 @@ package com.processout.sdk.ui.web.customtab
 
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.ActivityInfo
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.addCallback
 import androidx.activity.viewModels
@@ -61,12 +59,6 @@ class POCustomTabAuthorizationActivity : AppCompatActivity() {
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // This is a workaround for crash on Android 8.0 (API level 26).
-        // https://issuetracker.google.com/issues/68454482
-        // https://stackoverflow.com/questions/48072438/java-lang-illegalstateexception-only-fullscreen-opaque-activities-can-request-o
-        requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O)
-            ActivityInfo.SCREEN_ORIENTATION_BEHIND else ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-
         onBackPressedDispatcher.addCallback(this) {
             // Ignore back press to avoid finishing activity without a result.
             // Cancelled result will be provided from onResume() when going back from the Custom Tab.
@@ -168,8 +160,8 @@ class POCustomTabAuthorizationActivity : AppCompatActivity() {
             result.onFailure { POLogger.info("Custom Chrome Tabs failure: %s", it) }
             when (configuration.resultApi) {
                 Android -> when (result) {
-                    is ProcessOutActivityResult.Success -> setActivityResult(Activity.RESULT_OK, result)
-                    is ProcessOutActivityResult.Failure -> setActivityResult(Activity.RESULT_CANCELED, result)
+                    is ProcessOutActivityResult.Success -> setActivityResult(RESULT_OK, result)
+                    is ProcessOutActivityResult.Failure -> setActivityResult(RESULT_CANCELED, result)
                 }
                 Dispatcher -> resultDispatcher.dispatch(result)
             }

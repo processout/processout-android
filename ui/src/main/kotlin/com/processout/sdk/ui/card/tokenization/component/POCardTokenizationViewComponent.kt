@@ -37,6 +37,7 @@ import com.processout.sdk.ui.card.tokenization.screen.CardTokenizationScreen
 import com.processout.sdk.ui.core.theme.ProcessOutTheme
 import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration
 import com.processout.sdk.ui.shared.configuration.POBottomSheetConfiguration.Height.WrapContent
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -50,14 +51,11 @@ class POCardTokenizationViewComponent private constructor(
     val view: View,
     private var configuration: POCardTokenizationConfiguration,
     private val viewModel: CardTokenizationViewModel,
-    private val lifecycleOwner: LifecycleOwner,
     private val cardScannerLauncher: POCardScannerLauncher,
     private val delegate: POCardTokenizationDelegate,
     private val callback: (ProcessOutResult<POCard>) -> Unit,
     private val eventDispatcher: POEventDispatcher
 ) {
-
-    private val scope = lifecycleOwner.lifecycleScope
 
     companion object {
         /**
@@ -71,12 +69,11 @@ class POCardTokenizationViewComponent private constructor(
             callback: (ProcessOutResult<POCard>) -> Unit
         ): POCardTokenizationViewComponent {
             val configuration = configuration.map()
-            val eventDispatcher = POEventDispatcher()
             val viewModel: CardTokenizationViewModel by from.viewModels {
                 CardTokenizationViewModel.Factory(
                     app = from.requireActivity().application,
                     configuration = configuration,
-                    eventDispatcher = eventDispatcher
+                    eventDispatcher = POEventDispatcher()
                 )
             }
             return POCardTokenizationViewComponent(
@@ -87,7 +84,6 @@ class POCardTokenizationViewComponent private constructor(
                 ),
                 configuration = configuration,
                 viewModel = viewModel,
-                lifecycleOwner = from,
                 cardScannerLauncher = POCardScannerLauncher.create(
                     from = from,
                     callback = { result ->
@@ -96,8 +92,12 @@ class POCardTokenizationViewComponent private constructor(
                 ),
                 delegate = delegate,
                 callback = callback,
-                eventDispatcher = eventDispatcher
-            )
+                eventDispatcher = viewModel.eventDispatcher
+            ).apply {
+                from.viewLifecycleOwnerLiveData.observe(from) { lifecycleOwner ->
+                    init(lifecycleOwner)
+                }
+            }
         }
 
         /**
@@ -111,12 +111,11 @@ class POCardTokenizationViewComponent private constructor(
             callback: (ProcessOutResult<POCard>) -> Unit
         ): POCardTokenizationViewComponent {
             val configuration = configuration.map()
-            val eventDispatcher = POEventDispatcher()
             val viewModel: CardTokenizationViewModel by from.viewModels {
                 CardTokenizationViewModel.Factory(
                     app = from.application,
                     configuration = configuration,
-                    eventDispatcher = eventDispatcher
+                    eventDispatcher = POEventDispatcher()
                 )
             }
             return POCardTokenizationViewComponent(
@@ -127,7 +126,6 @@ class POCardTokenizationViewComponent private constructor(
                 ),
                 configuration = configuration,
                 viewModel = viewModel,
-                lifecycleOwner = from,
                 cardScannerLauncher = POCardScannerLauncher.create(
                     from = from,
                     callback = { result ->
@@ -136,8 +134,10 @@ class POCardTokenizationViewComponent private constructor(
                 ),
                 delegate = delegate,
                 callback = callback,
-                eventDispatcher = eventDispatcher
-            )
+                eventDispatcher = viewModel.eventDispatcher
+            ).apply {
+                init(lifecycleOwner = from)
+            }
         }
 
         private fun POCardTokenizationViewComponentConfiguration.map() =
@@ -180,35 +180,36 @@ class POCardTokenizationViewComponent private constructor(
         }
     }
 
-    init {
-        dispatchEvents()
-        dispatchState()
-        dispatchTokenizedCard()
-        dispatchEligibility()
-        dispatchPreferredScheme()
-        dispatchShouldContinue()
-        collectSideEffects()
-        collectCompletion()
+    private fun init(lifecycleOwner: LifecycleOwner) {
+        val coroutineScope = lifecycleOwner.lifecycleScope
+        dispatchEvents(coroutineScope)
+        dispatchState(coroutineScope)
+        dispatchTokenizedCard(coroutineScope)
+        dispatchEligibility(coroutineScope)
+        dispatchPreferredScheme(coroutineScope)
+        dispatchShouldContinue(coroutineScope)
+        collectSideEffects(lifecycleOwner)
+        collectCompletion(lifecycleOwner)
         viewModel.start()
     }
 
-    private fun dispatchEvents() {
+    private fun dispatchEvents(coroutineScope: CoroutineScope) {
         eventDispatcher.subscribe<POCardTokenizationEvent>(
-            coroutineScope = scope
+            coroutineScope
         ) { delegate.onEvent(it) }
     }
 
-    private fun dispatchState() {
+    private fun dispatchState(coroutineScope: CoroutineScope) {
         eventDispatcher.subscribe<POCardTokenizationState>(
-            coroutineScope = scope
+            coroutineScope
         ) { delegate.onStateChanged(it) }
     }
 
-    private fun dispatchTokenizedCard() {
+    private fun dispatchTokenizedCard(coroutineScope: CoroutineScope) {
         eventDispatcher.subscribeForRequest<CardTokenizationProcessingRequest>(
-            coroutineScope = scope
+            coroutineScope
         ) { request ->
-            scope.launch {
+            coroutineScope.launch {
                 val result = delegate.processTokenizedCard(
                     card = request.card,
                     saveCard = request.saveCard
@@ -218,11 +219,11 @@ class POCardTokenizationViewComponent private constructor(
         }
     }
 
-    private fun dispatchEligibility() {
+    private fun dispatchEligibility(coroutineScope: CoroutineScope) {
         eventDispatcher.subscribeForRequest<CardTokenizationEligibilityRequest>(
-            coroutineScope = scope
+            coroutineScope
         ) { request ->
-            scope.launch {
+            coroutineScope.launch {
                 val eligibility = delegate.evaluateEligibility(
                     iin = request.iin,
                     issuerInformation = request.issuerInformation
@@ -232,30 +233,30 @@ class POCardTokenizationViewComponent private constructor(
         }
     }
 
-    private fun dispatchPreferredScheme() {
+    private fun dispatchPreferredScheme(coroutineScope: CoroutineScope) {
         eventDispatcher.subscribeForRequest<CardTokenizationPreferredSchemeRequest>(
-            coroutineScope = scope
+            coroutineScope
         ) { request ->
-            scope.launch {
+            coroutineScope.launch {
                 val preferredScheme = delegate.preferredScheme(request.issuerInformation)
                 eventDispatcher.send(request.toResponse(preferredScheme))
             }
         }
     }
 
-    private fun dispatchShouldContinue() {
+    private fun dispatchShouldContinue(coroutineScope: CoroutineScope) {
         eventDispatcher.subscribeForRequest<CardTokenizationShouldContinueRequest>(
-            coroutineScope = scope
+            coroutineScope
         ) { request ->
-            scope.launch {
+            coroutineScope.launch {
                 val shouldContinue = delegate.shouldContinue(request.failure)
                 eventDispatcher.send(request.toResponse(shouldContinue))
             }
         }
     }
 
-    private fun collectSideEffects() {
-        scope.launch {
+    private fun collectSideEffects(lifecycleOwner: LifecycleOwner) {
+        lifecycleOwner.lifecycleScope.launch {
             lifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
                 withContext(Dispatchers.Main.immediate) {
                     viewModel.sideEffects.collect { sideEffect ->
@@ -270,8 +271,8 @@ class POCardTokenizationViewComponent private constructor(
         }
     }
 
-    private fun collectCompletion() {
-        scope.launch {
+    private fun collectCompletion(lifecycleOwner: LifecycleOwner) {
+        lifecycleOwner.lifecycleScope.launch {
             lifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
                 viewModel.completion.collect { completion ->
                     when (completion) {
