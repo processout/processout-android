@@ -31,6 +31,7 @@ import com.processout.sdk.api.model.request.napm.v2.PONativeAlternativePaymentSu
 import com.processout.sdk.api.model.response.POImageResource
 import com.processout.sdk.api.model.response.napm.v2.*
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAuthorizationResponse.Invoice
+import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentAvailableAction.CAPTURE
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentElement.Form.Parameter.Otp.Subtype
 import com.processout.sdk.api.model.response.napm.v2.PONativeAlternativePaymentRedirect.DeepLinkConfiguration
@@ -42,6 +43,8 @@ import com.processout.sdk.core.POFailure.Code.*
 import com.processout.sdk.core.POFailure.GenericCode.mobileHeadlessModeNotSupported
 import com.processout.sdk.core.POFailure.InvalidField
 import com.processout.sdk.core.POFailure.ValidationCode
+import com.processout.sdk.core.POFailure.ValidationCode.invalidRedirectResult
+import com.processout.sdk.core.POFailure.ValidationCode.unexpectedRedirectResult
 import com.processout.sdk.core.ProcessOutResult
 import com.processout.sdk.core.fold
 import com.processout.sdk.core.logger.POLogger
@@ -59,11 +62,8 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.WebRedirect
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.CancelButton
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Authorization
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Tokenization
-import com.processout.sdk.ui.napm.delegate.v2.NativeAlternativePaymentDefaultValuesRequest
-import com.processout.sdk.ui.napm.delegate.v2.NativeAlternativePaymentDefaultValuesResponse
-import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent
+import com.processout.sdk.ui.napm.delegate.v2.*
 import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent.*
-import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentParameterValue
 import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentParameterValue.Value
 import com.processout.sdk.ui.shared.extension.dpToPx
 import com.processout.sdk.ui.shared.extension.openDeepLink
@@ -104,12 +104,16 @@ internal class NativeAlternativePaymentInteractor(
     private val _sideEffects = Channel<NativeAlternativePaymentSideEffect>()
     val sideEffects = _sideEffects.receiveAsFlow()
 
-    private val handler = Handler(Looper.getMainLooper())
-
     private var paymentState: PONativeAlternativePaymentState = UNKNOWN
+
+    private var didRequestManualFinalization = false
+    private var latestManualFinalizationRequest: NativeAlternativePaymentManualFinalizationRequest? = null
     private var latestDefaultValuesRequest: NativeAlternativePaymentDefaultValuesRequest? = null
     private var latestWillSubmitParametersEvent: WillSubmitParameters? = null
+
     private var isCapturePolling = false
+
+    private val handler = Handler(Looper.getMainLooper())
 
     init {
         ProcessLifecycleOwner.get().lifecycle.addObserver(this)
@@ -124,8 +128,9 @@ internal class NativeAlternativePaymentInteractor(
         dispatch(WillStart)
         dispatchFailure()
         collectDefaultValues()
+        collectManualFinalizationResult()
         collectDeepLink()
-        fetchPaymentDetails()
+        fetchPaymentState()
     }
 
     fun start(configuration: PONativeAlternativePaymentConfiguration) {
@@ -145,22 +150,24 @@ internal class NativeAlternativePaymentInteractor(
         interactorScope.coroutineContext.cancelChildren()
         handler.removeCallbacksAndMessages(null)
         paymentState = UNKNOWN
+        didRequestManualFinalization = false
+        latestManualFinalizationRequest = null
         latestDefaultValuesRequest = null
         latestWillSubmitParametersEvent = null
         _completion.update { Awaiting }
         _state.update { Idle }
     }
 
-    private fun fetchPaymentDetails() {
+    private fun fetchPaymentState() {
         interactorScope.launch {
             when (val flow = configuration.flow) {
-                is Authorization -> fetchAuthorizationDetails(flow)
-                is Tokenization -> fetchTokenizationDetails(flow)
+                is Authorization -> fetchAuthorizationState(flow)
+                is Tokenization -> fetchTokenizationState(flow)
             }
         }
     }
 
-    private suspend fun fetchAuthorizationDetails(flow: Authorization) {
+    private suspend fun fetchAuthorizationState(flow: Authorization) {
         val request = PONativeAlternativePaymentAuthorizationRequest(
             invoiceId = flow.invoiceId,
             gatewayConfigurationId = flow.gatewayConfigurationId,
@@ -176,15 +183,16 @@ internal class NativeAlternativePaymentInteractor(
                     ),
                     paymentState = response.state,
                     elements = response.elements,
-                    redirect = response.redirect
+                    redirect = response.redirect,
+                    availableActions = response.availableActions
                 )
             }.onFailure { failure ->
-                POLogger.info("Failed to fetch authorization details: %s", failure)
+                POLogger.info("Failed to fetch authorization state: %s", failure)
                 _completion.update { Failure(failure) }
             }
     }
 
-    private suspend fun fetchTokenizationDetails(flow: Tokenization) {
+    private suspend fun fetchTokenizationState(flow: Tokenization) {
         val request = PONativeAlternativePaymentTokenizationRequest(
             customerId = flow.customerId,
             customerTokenId = flow.customerTokenId,
@@ -200,17 +208,18 @@ internal class NativeAlternativePaymentInteractor(
                     ),
                     paymentState = response.state,
                     elements = response.elements,
-                    redirect = response.redirect
+                    redirect = response.redirect,
+                    availableActions = response.availableActions
                 )
             }.onFailure { failure ->
-                POLogger.info("Failed to fetch tokenization details: %s", failure)
+                POLogger.info("Failed to fetch tokenization state: %s", failure)
                 _completion.update { Failure(failure) }
             }
     }
 
     private suspend fun initNextStepStateValue(
         paymentMethod: PONativeAlternativePaymentMethodDetails,
-        invoice: Invoice?,
+        invoice: Invoice?
     ): NextStepStateValue {
         preloadImages(resources = listOf(paymentMethod.logo))
         return NextStepStateValue(
@@ -235,15 +244,19 @@ internal class NativeAlternativePaymentInteractor(
         stateValue: NextStepStateValue,
         paymentState: PONativeAlternativePaymentState,
         elements: List<PONativeAlternativePaymentElement>?,
-        redirect: PONativeAlternativePaymentRedirect?
+        redirect: PONativeAlternativePaymentRedirect?,
+        availableActions: List<PONativeAlternativePaymentAvailableAction>?
     ) {
         this.paymentState = paymentState
         val mappedElements = elements?.map() ?: emptyList()
         preloadImages(resources = mappedElements.images())
         when (paymentState) {
             NEXT_STEP_REQUIRED -> handleNextStep(stateValue, mappedElements, redirect)
-            PENDING -> handlePending(stateValue, mappedElements)
-            SUCCESS -> handleSuccess(
+            PENDING, AUTHORIZATION_PENDING -> handlePending(stateValue, mappedElements)
+            CUSTOMER_ACTIONS_COMPLETED -> requestManualFinalization(paymentState, availableActions)
+            AUTHORIZED if !didRequestManualFinalization && availableActions?.contains(CAPTURE) == true ->
+                requestManualFinalization(paymentState, availableActions)
+            AUTHORIZED, SUCCESS -> handleSuccess(
                 stateValue.toPendingStateValue(
                     uuid = UUID.randomUUID().toString(),
                     elements = mappedElements
@@ -574,6 +587,70 @@ internal class NativeAlternativePaymentInteractor(
 
     //endregion
 
+    //region Manual Finalization
+
+    private fun requestManualFinalization(
+        paymentState: PONativeAlternativePaymentState,
+        availableActions: List<PONativeAlternativePaymentAvailableAction>?
+    ) {
+        if (didRequestManualFinalization) {
+            val failure = ProcessOutResult.Failure(
+                code = Generic(),
+                message = "Payment was not advanced."
+            )
+            POLogger.info(
+                message = "Unexpected state during manual finalization: %s", failure,
+                attributes = configuration.logAttributes
+            )
+            _completion.update { Failure(failure) }
+            return
+        }
+        if (availableActions.isNullOrEmpty()) {
+            val failure = ProcessOutResult.Failure(
+                code = Internal(),
+                message = "No available actions to finalize the payment."
+            )
+            POLogger.error(
+                message = "Unexpected response during manual finalization: %s", failure,
+                attributes = configuration.logAttributes
+            )
+            _completion.update { Failure(failure) }
+            return
+        }
+        interactorScope.launch {
+            val request = NativeAlternativePaymentManualFinalizationRequest(
+                paymentState = paymentState,
+                availableActions = availableActions
+            )
+            didRequestManualFinalization = true
+            latestManualFinalizationRequest = request
+            eventDispatcher.send(request)
+            POLogger.info(
+                "Requested to finalize the payment manually. Payment state: %s. Available actions: %s.",
+                paymentState, availableActions
+            )
+        }
+    }
+
+    private fun collectManualFinalizationResult() {
+        eventDispatcher.subscribeForResponse<NativeAlternativePaymentManualFinalizationResponse>(
+            coroutineScope = interactorScope
+        ) { response ->
+            if (response.uuid == latestManualFinalizationRequest?.uuid) {
+                latestManualFinalizationRequest = null
+                val result = response.result
+                POLogger.info("Collected manual finalization result: %s", result)
+                result.onSuccess {
+                    fetchPaymentState()
+                }.onFailure { failure ->
+                    _completion.update { Failure(failure) }
+                }
+            }
+        }
+    }
+
+    //endregion
+
     //region Deep Link
 
     private fun collectDeepLink() {
@@ -602,7 +679,9 @@ internal class NativeAlternativePaymentInteractor(
             )
             invoicesService.resolveUrl(request)
                 .onSuccess { response ->
-                    if (response.state == PENDING && _state.value is Pending) {
+                    val pendingStates = setOf(PENDING, AUTHORIZATION_PENDING)
+                    val isPending = _state.value is Pending && pendingStates.contains(response.state)
+                    if (didRequestManualFinalization || isPending) {
                         return@onSuccess
                     }
                     handlePaymentState(
@@ -612,14 +691,16 @@ internal class NativeAlternativePaymentInteractor(
                         ),
                         paymentState = response.state,
                         elements = response.elements,
-                        redirect = response.redirect
+                        redirect = response.redirect,
+                        availableActions = response.availableActions
                     )
                 }.onFailure { failure ->
-                    val isInvalidRedirectResult = when (val code = failure.code) {
-                        is Validation -> code.validationCode == ValidationCode.invalidRedirectResult
+                    val ignoredFailureCodes = setOf(invalidRedirectResult, unexpectedRedirectResult)
+                    val shouldIgnoreRedirectResult = when (val code = failure.code) {
+                        is Validation -> ignoredFailureCodes.contains(code.validationCode)
                         else -> false
                     }
-                    if (isInvalidRedirectResult) {
+                    if (didRequestManualFinalization || shouldIgnoreRedirectResult) {
                         return@onFailure
                     }
                     _completion.update { Failure(failure) }
@@ -949,7 +1030,8 @@ internal class NativeAlternativePaymentInteractor(
                             stateValue = stateValue,
                             paymentState = response.state,
                             elements = response.elements,
-                            redirect = response.redirect
+                            redirect = response.redirect,
+                            availableActions = response.availableActions
                         )
                     }.onFailure { failure ->
                         handlePaymentFailure(failure)
@@ -978,7 +1060,8 @@ internal class NativeAlternativePaymentInteractor(
                             stateValue = stateValue,
                             paymentState = response.state,
                             elements = response.elements,
-                            redirect = response.redirect
+                            redirect = response.redirect,
+                            availableActions = response.availableActions
                         )
                     }.onFailure { failure ->
                         handlePaymentFailure(failure)
@@ -1110,15 +1193,16 @@ internal class NativeAlternativePaymentInteractor(
             try {
                 capturePoller.poll()
                     .onSuccess { response ->
-                        val elements = response.elements?.map()
-                        _state.whenPending { stateValue ->
-                            handleSuccess(
-                                stateValue.copy(
-                                    uuid = UUID.randomUUID().toString(),
-                                    elements = elements
-                                )
-                            )
-                        }
+                        handlePaymentState(
+                            stateValue = initNextStepStateValue(
+                                paymentMethod = response.paymentMethod,
+                                invoice = response.invoice
+                            ),
+                            paymentState = response.state,
+                            elements = response.elements,
+                            redirect = response.redirect,
+                            availableActions = response.availableActions
+                        )
                     }.onFailure { failure ->
                         _completion.update { Failure(failure) }
                     }
@@ -1272,9 +1356,7 @@ internal class NativeAlternativePaymentInteractor(
     // TODO(v2): use barcode ID, also inspect instructions group
     private fun saveBarcode() {
         _state.whenNextStep { stateValue ->
-            val instructions = stateValue.elements.mapNotNull {
-                it as? Element.Instruction
-            }
+            val instructions = stateValue.elements.filterIsInstance<Element.Instruction>()
             instructions.forEach {
                 if (it.instruction is Instruction.Barcode) {
                     saveBarcode(barcode = it.instruction)
@@ -1283,9 +1365,7 @@ internal class NativeAlternativePaymentInteractor(
             }
         }
         _state.whenPending { stateValue ->
-            val instructions = stateValue.elements?.mapNotNull {
-                it as? Element.Instruction
-            }
+            val instructions = stateValue.elements?.filterIsInstance<Element.Instruction>()
             instructions?.forEach {
                 if (it.instruction is Instruction.Barcode) {
                     saveBarcode(barcode = it.instruction)
@@ -1315,9 +1395,7 @@ internal class NativeAlternativePaymentInteractor(
             Manifest.permission.WRITE_EXTERNAL_STORAGE ->
                 if (result.isGranted) {
                     _state.whenNextStep { stateValue ->
-                        val instructions = stateValue.elements.mapNotNull {
-                            it as? Element.Instruction
-                        }
+                        val instructions = stateValue.elements.filterIsInstance<Element.Instruction>()
                         instructions.forEach {
                             if (it.instruction is Instruction.Barcode) {
                                 interactorScope.launch {
@@ -1330,9 +1408,7 @@ internal class NativeAlternativePaymentInteractor(
                         }
                     }
                     _state.whenPending { stateValue ->
-                        val instructions = stateValue.elements?.mapNotNull {
-                            it as? Element.Instruction
-                        }
+                        val instructions = stateValue.elements?.filterIsInstance<Element.Instruction>()
                         instructions?.forEach {
                             if (it.instruction is Instruction.Barcode) {
                                 interactorScope.launch {

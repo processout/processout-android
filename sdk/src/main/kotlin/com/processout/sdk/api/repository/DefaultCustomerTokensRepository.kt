@@ -118,6 +118,7 @@ internal class DefaultCustomerTokensRepository(
                         PONativeAlternativePaymentElement.Unknown
                 }
             },
-            redirect = redirect
+            redirect = redirect,
+            availableActions = availableActions
         )
 }

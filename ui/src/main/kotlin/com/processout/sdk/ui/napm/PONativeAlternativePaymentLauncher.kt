@@ -25,10 +25,7 @@ import com.processout.sdk.ui.napm.NativeAlternativePaymentCompletion.Success
 import com.processout.sdk.ui.napm.NativeAlternativePaymentEvent.WebRedirectResult
 import com.processout.sdk.ui.napm.NativeAlternativePaymentSideEffect.WebRedirect
 import com.processout.sdk.ui.napm.PONativeAlternativePaymentConfiguration.Flow.Authorization
-import com.processout.sdk.ui.napm.delegate.v2.NativeAlternativePaymentDefaultValuesRequest
-import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentDelegate
-import com.processout.sdk.ui.napm.delegate.v2.PONativeAlternativePaymentEvent
-import com.processout.sdk.ui.napm.delegate.v2.toResponse
+import com.processout.sdk.ui.napm.delegate.v2.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -321,6 +318,7 @@ class PONativeAlternativePaymentLauncher private constructor(
     private fun dispatchAllEvents(coroutineScope: CoroutineScope) {
         dispatchEvents(coroutineScope)
         dispatchDefaultValues(coroutineScope)
+        dispatchManualFinalization(coroutineScope)
     }
 
     private fun dispatchEvents(coroutineScope: CoroutineScope) {
@@ -339,6 +337,20 @@ class PONativeAlternativePaymentLauncher private constructor(
                     parameters = request.parameters
                 )
                 eventDispatcher.send(request.toResponse(defaultValues))
+            }
+        }
+    }
+
+    private fun dispatchManualFinalization(coroutineScope: CoroutineScope) {
+        eventDispatcher.subscribeForRequest<NativeAlternativePaymentManualFinalizationRequest>(
+            coroutineScope
+        ) { request ->
+            coroutineScope.launch {
+                val result = delegate.finalize(
+                    paymentState = request.paymentState,
+                    availableActions = request.availableActions
+                )
+                eventDispatcher.send(request.toResponse(result))
             }
         }
     }
