@@ -15,6 +15,9 @@ internal data class DeviceData(
     @Json(name = "app_timezone_offset")
     val timeZoneOffset: Int,
     val channel: String = "android",
+    val platform: String = "android",
+    @Json(name = "threeds_sdk")
+    val threedsSdk: String = "android",
     @Json(ignore = true)
     val model: String = "${Build.MANUFACTURER} ${Build.MODEL}",
     @Json(ignore = true)
