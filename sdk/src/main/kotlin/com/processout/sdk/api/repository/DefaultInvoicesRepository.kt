@@ -176,7 +176,8 @@ internal class DefaultInvoicesRepository(
             invoice = invoice,
             paymentMethod = paymentMethod,
             elements = elements?.map { it.toModel() },
-            redirect = redirect
+            redirect = redirect,
+            availableActions = availableActions
         )
 
     private fun NativeAlternativePaymentUrlResolutionResponseBody.toModel() =
@@ -186,7 +187,8 @@ internal class DefaultInvoicesRepository(
             invoice = invoice,
             customerToken = customerToken,
             elements = elements?.map { it.toModel() },
-            redirect = redirect
+            redirect = redirect,
+            availableActions = availableActions
         )
 
     private fun NativeAlternativePaymentElement.toModel() =

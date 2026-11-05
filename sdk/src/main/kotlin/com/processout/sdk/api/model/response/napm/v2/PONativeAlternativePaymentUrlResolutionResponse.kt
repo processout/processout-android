@@ -13,6 +13,7 @@ import com.squareup.moshi.JsonClass
  * @param[customerToken] Customer token details if any.
  * @param[elements] An ordered list of elements that needs to be rendered on the UI during native alternative payment flow.
  * @param[redirect] Indicates required redirect.
+ * @param[availableActions] Available actions to advance the payment.
  */
 @ProcessOutInternalApi
 data class PONativeAlternativePaymentUrlResolutionResponse(
@@ -21,7 +22,8 @@ data class PONativeAlternativePaymentUrlResolutionResponse(
     val invoice: PONativeAlternativePaymentInvoice?,
     val customerToken: PONativeAlternativePaymentCustomerToken?,
     val elements: List<PONativeAlternativePaymentElement>?,
-    val redirect: PONativeAlternativePaymentRedirect?
+    val redirect: PONativeAlternativePaymentRedirect?,
+    val availableActions: List<PONativeAlternativePaymentAvailableAction>?
 )
 
 @JsonClass(generateAdapter = true)
@@ -33,5 +35,7 @@ internal data class NativeAlternativePaymentUrlResolutionResponseBody(
     @Json(name = "customer_token")
     val customerToken: PONativeAlternativePaymentCustomerToken?,
     val elements: List<NativeAlternativePaymentElement>?,
-    val redirect: PONativeAlternativePaymentRedirect?
+    val redirect: PONativeAlternativePaymentRedirect?,
+    @Json(name = "available_actions")
+    val availableActions: List<PONativeAlternativePaymentAvailableAction>?
 )
