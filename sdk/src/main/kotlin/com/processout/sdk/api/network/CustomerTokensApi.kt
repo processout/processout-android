@@ -1,8 +1,8 @@
 package com.processout.sdk.api.network
 
 import com.processout.sdk.api.model.request.AssignCustomerTokenRequestWithDeviceData
+import com.processout.sdk.api.model.request.CreateCustomerTokenRequestWithDeviceData
 import com.processout.sdk.api.model.request.POCreateCustomerRequest
-import com.processout.sdk.api.model.request.POCreateCustomerTokenRequestBody
 import com.processout.sdk.api.model.request.napm.v2.NativeAlternativePaymentRequestBody
 import com.processout.sdk.api.model.response.CustomerResponse
 import com.processout.sdk.api.model.response.CustomerTokenResponse
@@ -37,7 +37,7 @@ internal interface CustomerTokensApi {
     @POST("/customers/{customer_id}/tokens")
     suspend fun createCustomerToken(
         @Path("customer_id") customerId: String,
-        @Body request: POCreateCustomerTokenRequestBody
+        @Body request: CreateCustomerTokenRequestWithDeviceData
     ): Response<CustomerTokenResponse>
 
     @POST("/customers")

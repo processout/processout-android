@@ -98,7 +98,10 @@ class NativeApmViewModel(
         customerTokens.createCustomerToken(
             POCreateCustomerTokenRequest(
                 customerId = customerId,
-                body = POCreateCustomerTokenRequestBody()
+                body = POCreateCustomerTokenRequestBody(
+                    verify = true,
+                    returnUrl = Constants.RETURN_URL_DEEP_LINK
+                )
             )
         ).getOrNull()
 

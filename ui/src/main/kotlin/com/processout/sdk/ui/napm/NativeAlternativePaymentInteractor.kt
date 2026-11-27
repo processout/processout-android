@@ -592,6 +592,13 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private fun handleDeepLink(uri: Uri) {
+        when (val flow = configuration.flow) {
+            is Authorization -> handleAuthorizationDeepLink(uri)
+            is Tokenization -> handleTokenizationDeepLink(flow, uri)
+        }
+    }
+
+    private fun handleAuthorizationDeepLink(uri: Uri) {
         interactorScope.launch {
             val request = PONativeAlternativePaymentUrlResolutionRequest(
                 redirect = PONativeAlternativePaymentUrlResolutionRequest.Redirect(
@@ -615,16 +622,68 @@ internal class NativeAlternativePaymentInteractor(
                         redirect = response.redirect
                     )
                 }.onFailure { failure ->
-                    val isInvalidRedirectResult = when (val code = failure.code) {
-                        is Validation -> code.validationCode == ValidationCode.invalidRedirectResult
-                        else -> false
-                    }
-                    if (isInvalidRedirectResult) {
-                        return@onFailure
-                    }
-                    _completion.update { Failure(failure) }
+                    handleDeepLinkFailure(failure)
                 }
         }
+    }
+
+    private fun handleTokenizationDeepLink(flow: Tokenization, uri: Uri) {
+        interactorScope.launch {
+            val request = PONativeAlternativePaymentTokenizationRequest(
+                customerId = flow.customerId,
+                customerTokenId = flow.customerTokenId,
+                gatewayConfigurationId = flow.gatewayConfigurationId,
+                configuration = flow.configuration,
+                redirectConfirmation = PONativeAlternativePaymentRedirectConfirmation(
+                    success = true,
+                    result = PONativeAlternativePaymentRedirectConfirmation.Result(
+                        url = uri.toString()
+                    )
+                )
+            )
+            customerTokensService.tokenize(request)
+                .onSuccess { response ->
+                    if (response.state == PENDING && _state.value is Pending) {
+                        return@onSuccess
+                    }
+                    handlePaymentState(
+                        stateValue = initNextStepStateValue(
+                            paymentMethod = response.paymentMethod,
+                            invoice = null
+                        ),
+                        paymentState = response.state,
+                        elements = response.elements,
+                        redirect = response.redirect
+                    )
+                }.onFailure { failure ->
+                    handleDeepLinkFailure(failure)
+                }
+        }
+    }
+
+    private fun handleDeepLinkFailure(failure: ProcessOutResult.Failure) {
+        // Redirect result is either unrelated to this payment or no longer needed, so payment continues as is.
+        // Note that capture polling only stops on success, so if payment has advanced to another step
+        // it is not shown until polling times out.
+        val isIgnoredRedirectResult = when (val code = failure.code) {
+            is Validation -> code.validationCode in listOf(
+                ValidationCode.invalidRedirectResult,
+                ValidationCode.unexpectedRedirectResult,
+                ValidationCode.unexpectedRedirectResultForStep
+            )
+            else -> false
+        }
+        if (isIgnoredRedirectResult) {
+            if (_state.value is NextStep) {
+                // Nothing else advances the next step after the redirect, so payment may not progress.
+                POLogger.warn(
+                    message = "Ignored redirect result while waiting for next step: %s", failure,
+                    attributes = configuration.logAttributes
+                )
+            }
+            return
+        }
+        _completion.update { Failure(failure) }
     }
 
     private fun PONativeAlternativePaymentInvoice.map() = Invoice(
