@@ -54,7 +54,12 @@ internal class DefaultCustomerTokensRepository(
     }
 
     override suspend fun createCustomerToken(request: POCreateCustomerTokenRequest) =
-        apiCall { api.createCustomerToken(request.customerId, request.body) }.let { result ->
+        apiCall {
+            api.createCustomerToken(
+                customerId = request.customerId,
+                request = request.body.withDeviceData()
+            )
+        }.let { result ->
             when (result) {
                 is ProcessOutResult.Success -> result.value.token?.let { token ->
                     ProcessOutResult.Success(token)
@@ -65,6 +70,16 @@ internal class DefaultCustomerTokensRepository(
 
     override suspend fun createCustomer(request: POCreateCustomerRequest) =
         apiCall { api.createCustomer(request) }.map { it.customer }
+
+    private fun POCreateCustomerTokenRequestBody.withDeviceData() =
+        CreateCustomerTokenRequestWithDeviceData(
+            verify = verify,
+            returnUrl = returnUrl,
+            invoiceReturnUrl = invoiceReturnUrl,
+            invoiceId = invoiceId,
+            manualInvoiceCancellation = manualInvoiceCancellation,
+            deviceData = contextGraph.deviceData
+        )
 
     private fun POAssignCustomerTokenRequest.withDeviceData() =
         AssignCustomerTokenRequestWithDeviceData(
