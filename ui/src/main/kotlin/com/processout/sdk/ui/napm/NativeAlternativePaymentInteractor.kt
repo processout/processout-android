@@ -592,6 +592,13 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private fun handleDeepLink(uri: Uri) {
+        when (val flow = configuration.flow) {
+            is Authorization -> handleAuthorizationDeepLink(uri)
+            is Tokenization -> handleTokenizationDeepLink(flow, uri)
+        }
+    }
+
+    private fun handleAuthorizationDeepLink(uri: Uri) {
         interactorScope.launch {
             val request = PONativeAlternativePaymentUrlResolutionRequest(
                 redirect = PONativeAlternativePaymentUrlResolutionRequest.Redirect(
@@ -615,16 +622,54 @@ internal class NativeAlternativePaymentInteractor(
                         redirect = response.redirect
                     )
                 }.onFailure { failure ->
-                    val isInvalidRedirectResult = when (val code = failure.code) {
-                        is Validation -> code.validationCode == ValidationCode.invalidRedirectResult
-                        else -> false
-                    }
-                    if (isInvalidRedirectResult) {
-                        return@onFailure
-                    }
-                    _completion.update { Failure(failure) }
+                    handleDeepLinkFailure(failure)
                 }
         }
+    }
+
+    private fun handleTokenizationDeepLink(flow: Tokenization, uri: Uri) {
+        interactorScope.launch {
+            val request = PONativeAlternativePaymentTokenizationRequest(
+                customerId = flow.customerId,
+                customerTokenId = flow.customerTokenId,
+                gatewayConfigurationId = flow.gatewayConfigurationId,
+                configuration = flow.configuration,
+                redirectConfirmation = PONativeAlternativePaymentRedirectConfirmation(
+                    success = true,
+                    result = PONativeAlternativePaymentRedirectConfirmation.Result(
+                        url = uri.toString()
+                    )
+                )
+            )
+            customerTokensService.tokenize(request)
+                .onSuccess { response ->
+                    if (response.state == PENDING && _state.value is Pending) {
+                        return@onSuccess
+                    }
+                    handlePaymentState(
+                        stateValue = initNextStepStateValue(
+                            paymentMethod = response.paymentMethod,
+                            invoice = null
+                        ),
+                        paymentState = response.state,
+                        elements = response.elements,
+                        redirect = response.redirect
+                    )
+                }.onFailure { failure ->
+                    handleDeepLinkFailure(failure)
+                }
+        }
+    }
+
+    private fun handleDeepLinkFailure(failure: ProcessOutResult.Failure) {
+        val isInvalidRedirectResult = when (val code = failure.code) {
+            is Validation -> code.validationCode == ValidationCode.invalidRedirectResult
+            else -> false
+        }
+        if (isInvalidRedirectResult) {
+            return
+        }
+        _completion.update { Failure(failure) }
     }
 
     private fun PONativeAlternativePaymentInvoice.map() = Invoice(
