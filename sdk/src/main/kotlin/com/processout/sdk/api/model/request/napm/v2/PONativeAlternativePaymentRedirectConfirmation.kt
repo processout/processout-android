@@ -1,5 +1,6 @@
 package com.processout.sdk.api.model.request.napm.v2
 
+import com.processout.sdk.core.annotation.ProcessOutInternalApi
 import com.squareup.moshi.JsonClass
 
 /**
@@ -9,5 +10,19 @@ import com.squareup.moshi.JsonClass
  */
 @JsonClass(generateAdapter = true)
 data class PONativeAlternativePaymentRedirectConfirmation(
-    val success: Boolean
-)
+    val success: Boolean,
+    @property:ProcessOutInternalApi
+    val result: Result? = null
+) {
+
+    /**
+     * Redirect result.
+     *
+     * @param[url] Return URL that customer was redirected to.
+     */
+    @ProcessOutInternalApi
+    @JsonClass(generateAdapter = true)
+    data class Result(
+        val url: String
+    )
+}
