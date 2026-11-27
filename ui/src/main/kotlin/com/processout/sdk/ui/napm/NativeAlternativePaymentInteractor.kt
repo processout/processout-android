@@ -663,8 +663,8 @@ internal class NativeAlternativePaymentInteractor(
 
     private fun handleDeepLinkFailure(failure: ProcessOutResult.Failure) {
         // Redirect result is either unrelated to this payment or no longer needed, so payment continues as is.
-        // When payment has advanced to another step, polling picks it up because it stops once payment
-        // is no longer pending.
+        // Note that capture polling only stops on success, so if payment has advanced to another step
+        // it is not shown until polling times out.
         val isIgnoredRedirectResult = when (val code = failure.code) {
             is Validation -> code.validationCode in listOf(
                 ValidationCode.invalidRedirectResult,
