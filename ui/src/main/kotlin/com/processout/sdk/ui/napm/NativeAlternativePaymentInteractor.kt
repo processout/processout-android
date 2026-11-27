@@ -674,6 +674,13 @@ internal class NativeAlternativePaymentInteractor(
             else -> false
         }
         if (isIgnoredRedirectResult) {
+            if (_state.value is NextStep) {
+                // Nothing else advances the next step after the redirect, so payment may not progress.
+                POLogger.warn(
+                    message = "Ignored redirect result while waiting for next step: %s", failure,
+                    attributes = configuration.logAttributes
+                )
+            }
             return
         }
         _completion.update { Failure(failure) }
