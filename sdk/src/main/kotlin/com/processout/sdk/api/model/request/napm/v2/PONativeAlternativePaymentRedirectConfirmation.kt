@@ -12,8 +12,10 @@ import com.squareup.moshi.JsonClass
 data class PONativeAlternativePaymentRedirectConfirmation(
     val success: Boolean,
     @property:ProcessOutInternalApi
-    val result: Result? = null
+    val result: Result?
 ) {
+
+    constructor(success: Boolean) : this(success = success, result = null)
 
     /**
      * Redirect result.

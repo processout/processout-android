@@ -15,8 +15,8 @@ data class POCreateCustomerTokenRequest(
  * @suppress
  *
  * @param verify Whether to verify the customer token. Required when [invoiceId] or [manualInvoiceCancellation] is set.
- * @param returnUrl For APMs, the URL to return to the app after the customer completes the redirect.
- * @param invoiceReturnUrl The URL set on the invoice created for verification.
+ * @param returnUrl URL to return to the app after the customer completes the redirect.
+ * Also used as the return URL of the invoice created for verification.
  * @param invoiceId Invoice to associate with the token (buy and tokenize).
  * @param manualInvoiceCancellation Whether you cancel the associated invoice yourself.
  */
@@ -24,7 +24,6 @@ data class POCreateCustomerTokenRequest(
 data class POCreateCustomerTokenRequestBody(
     val verify: Boolean = false,
     val returnUrl: String? = null,
-    val invoiceReturnUrl: String? = null,
     val invoiceId: String? = null,
     val manualInvoiceCancellation: Boolean? = null
 )

@@ -75,7 +75,7 @@ internal class DefaultCustomerTokensRepository(
         CreateCustomerTokenRequestWithDeviceData(
             verify = verify,
             returnUrl = returnUrl,
-            invoiceReturnUrl = invoiceReturnUrl,
+            invoiceReturnUrl = returnUrl,
             invoiceId = invoiceId,
             manualInvoiceCancellation = manualInvoiceCancellation,
             deviceData = contextGraph.deviceData

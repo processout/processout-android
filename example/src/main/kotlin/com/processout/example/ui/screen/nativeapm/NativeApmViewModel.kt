@@ -100,8 +100,7 @@ class NativeApmViewModel(
                 customerId = customerId,
                 body = POCreateCustomerTokenRequestBody(
                     verify = true,
-                    returnUrl = Constants.RETURN_URL_DEEP_LINK,
-                    invoiceReturnUrl = Constants.RETURN_URL_DEEP_LINK
+                    returnUrl = Constants.RETURN_URL_DEEP_LINK
                 )
             )
         ).getOrNull()
