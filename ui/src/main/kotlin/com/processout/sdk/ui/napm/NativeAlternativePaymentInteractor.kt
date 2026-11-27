@@ -662,11 +662,18 @@ internal class NativeAlternativePaymentInteractor(
     }
 
     private fun handleDeepLinkFailure(failure: ProcessOutResult.Failure) {
-        val isInvalidRedirectResult = when (val code = failure.code) {
-            is Validation -> code.validationCode == ValidationCode.invalidRedirectResult
+        // Redirect result is either unrelated to this payment or no longer needed, so payment continues as is.
+        // When payment has advanced to another step, polling picks it up because it stops once payment
+        // is no longer pending.
+        val isIgnoredRedirectResult = when (val code = failure.code) {
+            is Validation -> code.validationCode in listOf(
+                ValidationCode.invalidRedirectResult,
+                ValidationCode.unexpectedRedirectResult,
+                ValidationCode.unexpectedRedirectResultForStep
+            )
             else -> false
         }
-        if (isInvalidRedirectResult) {
+        if (isIgnoredRedirectResult) {
             return
         }
         _completion.update { Failure(failure) }

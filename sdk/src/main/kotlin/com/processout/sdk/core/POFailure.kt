@@ -149,6 +149,8 @@ class POFailure private constructor() {
         invalidUrl("request.validation.invalid-url"),
         invalidUser("request.validation.invalid-user"),
         invalidRedirectResult("request.validation.redirect-result-invalid"),
+        unexpectedRedirectResult("request.validation.redirect-result-unexpected"),
+        unexpectedRedirectResultForStep("request.validation.redirect-result-unexpected-for-step"),
         missingCurrency("request.validation.missing-currency"),
         missingCustomerInput("gateway.missing-customer-input"),
         missingDescription("request.validation.missing-description"),
